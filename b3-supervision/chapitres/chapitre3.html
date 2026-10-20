@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — Supervision des Systèmes &amp; Réseaux avec Zabbix &amp; Nagios Core | Supervision &amp;amp; Observabilité B3</title>
+<meta name="description" content="Module 3 du cours Supervision &amp; Observabilité B3 : Déploiement Nagios Core et plugins NRPE/Perfdata, architecture Zabbix Server/Agent/Proxy, templates d'objets, déclencheurs intelligents et matrices d'escalade. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-supervision/chapitres/chapitre3.html">
+<meta property="og:title" content="Module 3 — Supervision des Systèmes &amp; Réseaux avec Zabbix &amp; Nagios Core | Supervision &amp;amp; Observabilité B3">
+<meta property="og:description" content="Module 3 du cours Supervision &amp; Observabilité B3 : Déploiement Nagios Core et plugins NRPE/Perfdata, architecture Zabbix Server/Agent/Proxy, templates d'objets, déclencheurs intelligents et matrices d'escalade. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-supervisionnav"><div class="b3-supervisionnav__in">
+  <a class="b3-supervisionnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-supervisionnav__sep" aria-hidden="true">/</span>
+  <a class="b3-supervisionnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Supervision &amp;amp; Observabilité B3</a>
+  <div class="b3-supervisionnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-supervisionnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-supervisionwrap">
+<p class="crumb"><a href="../index.html">Supervision &amp; Observabilité B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Supervision des Systèmes & Réseaux avec Zabbix & Nagios Core</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Votre entreprise dispose d'un parc hétérogène comprenant à la fois des serveurs Linux Debian/CentOS, des serveurs Windows Active Directory et des commutateurs infogérés. Vous êtes chargé d'orchestrer la supervision opérationnelle avec les deux outils piliers du marché open source : auditer et déployer les plugins Nagios avec traitement des métriques de performance (Perfdata), configurer Zabbix en mode agent actif et passif avec des templates personnalisés, concevoir des déclencheurs booléens prédictifs et instaurer une politique d'escalade automatique suspendant les alertes dès l'acquittement par l'ingénieur d'astreinte.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Comprendre l'architecture de Nagios Core et développer/analyser des sondes de supervision respectant les 4 codes retour et le format Perfdata.</li>
+      <li>Déployer et configurer Zabbix (Server, Frontend Web, Agent passif port 10050, Agent actif port 10051 et Zabbix Proxy).</li>
+      <li>Concevoir des templates modulaires Zabbix articulant Items, Applications, Déclencheurs (Triggers) et Macros contextuelles.</li>
+      <li>Programmer des déclencheurs avancés (fonctions avg, last, min, max) et structurer un moteur d'escalade d'incidents avec gestion des acquittements.</li>
+    </ol>
+  </div>
+
+<h2>1. Nagios Core : Architecture, Plugins &amp; Données de Performance (Perfdata)</h2>
+
+<p>Pionnier historique de la supervision open source, <strong>Nagios Core</strong> repose sur une architecture modulaire ultra-légère basée sur l'exécution périodique de binaires ou de scripts autonomes appelés <em>plugins</em> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Exécution Distante via NRPE &amp; NSClient++</h4>
+    <ul>
+      <li><strong>Sondes locales vs distantes :</strong> Nagios vérifie les services réseau (HTTP, Ping) directement depuis le serveur maître. Pour les métriques internes (disque, RAM), il s'appuie sur un agent distant.</li>
+      <li><strong>NRPE (Nagios Remote Plugin Executor) :</strong> Démon écoutant sur le port <strong>5666/TCP</strong> des machines Linux. Le serveur ordonne l'exécution locale d'une commande (ex: <code>check_disk</code>) et récupère le code de retour.</li>
+      <li><strong>NSClient++ :</strong> Agent équivalent pour les environnements Microsoft Windows permettant la collecte WMI et compteurs de performance.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Spécification Standard des Plugins Nagios</h4>
+    <p>Chaque sonde communique avec le moteur Nagios selon deux règles strictes :</p>
+    <ol>
+      <li><strong>Code de sortie processus :</strong><br>
+      <code>0</code> = OK (nominal), <code>1</code> = WARNING (seuil d'alerte), <code>2</code> = CRITICAL (panne), <code>3</code> = UNKNOWN (erreur d'exécution).</li>
+      <li><strong>Format de sortie textuelle :</strong><br>
+      <code>TEXT MESSAGE | PERFDATA</code><br>
+      Où la section Perfdata (après <code>|</code>) respecte la syntaxe :<br>
+      <code>'label'=valeur[uom];[warn];[crit];[min];[max]</code></li>
+    </ol>
+  </div>
+</div>
+
+<h2>2. Zabbix Enterprise : Architecture, Agents Passifs/Actifs &amp; Templates</h2>
+
+<p>Plateforme de supervision tout-en-un moderne, <strong>Zabbix</strong> intègre nativement la collecte, le stockage relationnel/NoSQL, la détection complexe et la visualisation graphique :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Composants Zabbix</h4>
+    <ul>
+      <li><strong>Zabbix Server :</strong> Cœur du système qui planifie la collecte, évalue les triggers et déclenche les alertes.</li>
+      <li><strong>Base de Données :</strong> Stockage des configurations et de l'historique des métriques (PostgreSQL / MySQL / TimescaleDB).</li>
+      <li><strong>Zabbix Frontend :</strong> Interface web moderne d'administration et de tableaux de bord.</li>
+      <li><strong>Zabbix Proxy :</strong> Relais pour environnements distribués et DMZ.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Agent Passif vs Actif</h4>
+    <ul>
+      <li><strong>Mode Passif (port 10050/TCP) :</strong> Le serveur Zabbix contacte l'agent sur la machine cible et lui demande la valeur d'un item (modèle Polling traditionnel).</li>
+      <li><strong>Mode Actif (port 10051/TCP) :</strong> L'agent contacte le serveur, télécharge sa liste d'items à mesurer, puis pousse les données collectées périodiquement. Idéal pour les pare-feux stricts et les machines derrière NAT.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Hiérarchie des Objets</h4>
+    <ul>
+      <li><strong>Host :</strong> Équipement ou serveur physique/virtuel surveillé.</li>
+      <li><strong>Item :</strong> Métrique unitaire brute (ex: <code>system.cpu.util</code>).</li>
+      <li><strong>Trigger :</strong> Condition logique d'alerte.</li>
+      <li><strong>Template :</strong> Modèle réutilisable agrégeant items, triggers, graphiques et règles de découverte (LLD).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Déclencheurs Avancés (Triggers) &amp; Politiques d'Escalade d'Incidents</h2>
+
+<p>Pour éviter les faux positifs et garantir la résolution rapide des pannes, Zabbix propose un moteur d'expressions puissant et une gestion stricte des escalades :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Fonctions Temporelles de Déclenchement</h4>
+    <p>Un trigger évalue l'historique des valeurs sur une fenêtre glissante :</p>
+    <ul>
+      <li><code>last()</code> : Dernière valeur reçue.</li>
+      <li><code>avg(5m)</code> : Moyenne arithmétique sur 5 minutes (lisse les pics éphémères).</li>
+      <li><code>max(10m) / min(10m)</code> : Valeur extrême sur la période.</li>
+      <li><code>nodata(5m)</code> : Détecte l'absence de télémétrie (panne de l'agent ou de la sonde).</li>
+    </ul>
+    <p>Exemple de trigger robuste :<br><code>avg(/srv-db/system.cpu.load,5m) &gt; 80 and last(/srv-db/system.cpu.load) &gt; 90</code></p>
+  </div>
+  <div class="card">
+    <h4>Paliers d'Escalade &amp; Acquittement (ACK)</h4>
+    <p>Lorsqu'un problème est détecté, le système ordonnance les notifications par échelons temporels :</p>
+    <ol>
+      <li><strong>Échelon 1 (immédiat) :</strong> Notification email / chat à l'équipe d'exploitation N1.</li>
+      <li><strong>Échelon 2 (après 15 min sans ACK) :</strong> Alerte SMS / appel automatique à l'ingénieur d'astreinte N2.</li>
+      <li><strong>Échelon 3 (après 30 min sans ACK) :</strong> Escalade hiérarchique au responsable des opérations (Manager).</li>
+    </ol>
+    <p>Dès qu'un exploitant <strong>acquitte (Acknowledge)</strong> l'incident dans la console, l'escalade est immédiatement gelée.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sup3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="NAGIOS_PLUGIN CODE=1 OUTPUT=DISK WARNING - free space: / 15% (15GB/100GB)|/=85GB;80;90;0;100 /var=40GB;70;85;0;100">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c3-e1) — Analyseur de Sortie Plugin Nagios et Métriques Perfdata
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Ping nominal OK avec deux métriques]
+# Données : NAGIOS_PLUGIN CODE=0 OUTPUT=PING OK - Packet loss = 0%, RTA = 1.25 ms|rta=1.25ms;200.00;500.00;0; pl=0%;40;80;0;100
+A_COMPLETER
+
+[Cas 2 — Erreur critique sans perfdata]
+# Données : NAGIOS_PLUGIN CODE=2 OUTPUT=CRITICAL - Socket connection timeout after 10 seconds
+A_COMPLETER
+
+[Cas 3 — Service inconnu UNKNOWN avec code 3]
+# Données : NAGIOS_PLUGIN CODE=3 OUTPUT=UNKNOWN - Invalid command line arguments
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur de Sortie Plugin Nagios et Métriques Perfdata</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Interpréter le code de retour d'un plugin Nagios et extraire les données de performance (perfdata) normalisées.</p>
+    <div class="lab__brief"><p>L'architecture de supervision Nagios/Centreon standardise la communication des plugins :<br><br>
+1. <strong>Code de retour</strong> :<br>
+- <code>0</code> : <code>OK</code><br>
+- <code>1</code> : <code>WARNING</code><br>
+- <code>2</code> : <code>CRITICAL</code><br>
+- <code>3</code> : <code>UNKNOWN</code><br><br>
+2. <strong>Structure de la sortie</strong> :<br>
+<code>MESSAGE_TEXT | PERFDATA</code> (le caractère tube sépare le message humain des métriques machine).<br>
+Dans la section Perfdata, chaque métrique suit le format : <code>label=valeur[uom];[warn];[crit];[min];[max]</code>.<br><br>
+Entrée STDIN : <code>NAGIOS_PLUGIN CODE=&lt;0..3&gt; OUTPUT=&lt;texte|perfdata&gt;</code>.<br>
+Sortie : <code>NAGIOS: status=&lt;OK|WARNING|CRITICAL|UNKNOWN&gt; message=&lt;msg&gt; metrics=&lt;label1=valeur1,label2=valeur2...|NONE&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NAGIOS_PLUGIN CODE=1 OUTPUT=DISK WARNING - free space: / 15% (15GB/100GB)|/=85GB;80;90;0;100 /var=40GB;70;85;0;100</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NAGIOS: status=WARNING message=DISK WARNING - free space: / 15% (15GB/100GB) metrics=/=85GB,/var=40GB</pre></div>
+    </div>
+    <p class="lab__note">Statut WARNING et extraction de deux partitions disques.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isolez la section message et la section perfdata autour du caractère '|'.</li>
+        <li>Pour chaque élément perfdata, extrayez la partie label=valeur (avant le premier point-virgule).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ZABBIX_TRIGGER ITEM=system.cpu.load FN=avg OP=GT THRESHOLD=75.0 VALUES=65.0,72.5,80.0,85.5,92.0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c3-e2) — Moteur d’Évaluation des Déclencheurs Zabbix (Triggers)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Alerte DISASTER sur pic mémoire last >= 90]
+# Données : ZABBIX_TRIGGER ITEM=vm.memory.util FN=last OP=GTE THRESHOLD=90.0 VALUES=70.0,82.0,94.5
+A_COMPLETER
+
+[Cas 2 — Aucune alerte car min inférieur au seuil]
+# Données : ZABBIX_TRIGGER ITEM=net.if.in FN=min OP=GT THRESHOLD=50.0 VALUES=45.0,60.0,75.0
+A_COMPLETER
+
+[Cas 3 — Alerte WARNING modérée sous 75%]
+# Données : ZABBIX_TRIGGER ITEM=disk.space.used FN=max OP=GTE THRESHOLD=60.0 VALUES=55.0,65.0,70.0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur d’Évaluation des Déclencheurs Zabbix (Triggers)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer une fonction temporelle de trigger Zabbix (avg, last, min, max) et calculer l'état d'alarme et son niveau de sévérité.</p>
+    <div class="lab__brief"><p>Dans Zabbix, un déclencheur calcule dynamiquement l'état d'un équipement à partir d'une suite de valeurs collectées :<br><br>
+Fonctions supportées :<br>
+- <code>avg</code> : Moyenne arithmétique de la liste.<br>
+- <code>last</code> : Dernière valeur observée (dernier élément de la liste).<br>
+- <code>min</code> : Valeur minimale observée.<br>
+- <code>max</code> : Valeur maximale observée.<br><br>
+Opérateurs : <code>GT</code> (&gt;), <code>GTE</code> (&gt;=), <code>LT</code> (&lt;), <code>LTE</code> (&lt;=), <code>EQ</code> (==).<br><br>
+Sévérité :<br>
+- Si l'alarme se déclenche (<code>fired=YES</code>) :<br>
+  - Si <code>computed &gt;= 90.0</code> : <code>DISASTER</code><br>
+  - Sinon si <code>computed &gt;= 75.0</code> : <code>HIGH</code><br>
+  - Sinon : <code>WARNING</code><br>
+- Si l'alarme ne se déclenche pas : <code>fired=NO</code> et <code>severity=OK</code>.<br><br>
+Entrée STDIN : <code>ZABBIX_TRIGGER ITEM=&lt;clef&gt; FN=&lt;avg|last|min|max&gt; OP=&lt;GT|GTE|LT|LTE|EQ&gt; THRESHOLD=&lt;seuil&gt; VALUES=&lt;v1,v2,...&gt;</code>.<br>
+Sortie : <code>ZABBIX: item=&lt;ITEM&gt; computed=&lt;val:.2f&gt; fired=&lt;YES|NO&gt; severity=&lt;DISASTER|HIGH|WARNING|OK&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ZABBIX_TRIGGER ITEM=system.cpu.load FN=avg OP=GT THRESHOLD=75.0 VALUES=65.0,72.5,80.0,85.5,92.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ZABBIX: item=system.cpu.load computed=79.00 fired=YES severity=HIGH</pre></div>
+    </div>
+    <p class="lab__note">Moyenne égale à 79.00 &gt; 75.0 déclenche une alerte HIGH.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertissez les valeurs d'historique en liste de floats.</li>
+        <li>Calculez la métrique selon la fonction demandée puis appliquez l'opérateur de comparaison.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ALERT_ESCALATE INCIDENT=INC-8902 DURATION_MIN=20 ACK=NO">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c3-e3) — Moteur d’Escalade et Traitement des Acquittements d’Incidents
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Escalade maximale vers manager après 45 minutes sans réponse]
+# Données : ALERT_ESCALATE INCIDENT=INC-8903 DURATION_MIN=45 ACK=NO
+A_COMPLETER
+
+[Cas 2 — Notification initiale niveau 1 dans les premières minutes]
+# Données : ALERT_ESCALATE INCIDENT=INC-8901 DURATION_MIN=5 ACK=NO
+A_COMPLETER
+
+[Cas 3 — Incident acquitté par l exploitant suspension des alertes]
+# Données : ALERT_ESCALATE INCIDENT=INC-8904 DURATION_MIN=25 ACK=YES
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur d’Escalade et Traitement des Acquittements d’Incidents</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Ordonnancer les paliers d'escalade de notifications selon le temps d'indisponibilité non acquitté.</p>
+    <div class="lab__brief"><p>Pour garantir la prise en charge rapide des pannes, les systèmes de supervision automatisent l'escalade :<br><br>
+Règles temporelles d'escalade (si <code>ACK=NO</code>) :<br>
+- <code>DURATION_MIN &gt;= 30</code> : <code>STAGE=3 CHANNEL=SMS TARGET=manager-on-call</code>.<br>
+- <code>DURATION_MIN &gt;= 15</code> : <code>STAGE=2 CHANNEL=SLACK TARGET=#astreinte-infra</code>.<br>
+- Sinon (<code>DURATION_MIN &lt; 15</code>) : <code>STAGE=1 CHANNEL=EMAIL TARGET=noc-team@corp.local</code>.<br>
+- Dans ces cas, le statut vaut <code>ESCALATING</code>.<br><br>
+Si l'incident est acquitté (<code>ACK=YES</code>) :<br>
+- Les notifications automatiques sont immédiatement suspendues : <code>STAGE=0 CHANNEL=NONE TARGET=NONE status=PAUSED_ACKNOWLEDGED</code>.<br><br>
+Entrée STDIN : <code>ALERT_ESCALATE INCIDENT=&lt;id&gt; DURATION_MIN=&lt;min&gt; ACK=&lt;YES|NO&gt;</code>.<br>
+Sortie : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;STAGE&gt; channel=&lt;CHANNEL&gt; target=&lt;TARGET&gt; status=&lt;ESCALATING|PAUSED_ACKNOWLEDGED&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALERT_ESCALATE INCIDENT=INC-8902 DURATION_MIN=20 ACK=NO</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ESCALATION: incident=INC-8902 stage=2 channel=SLACK target=#astreinte-infra status=ESCALATING</pre></div>
+    </div>
+    <p class="lab__note">20 minutes non acquitté déclenche l'échelon 2 sur Slack.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez d'abord si l'incident est acquitté (ACK=YES).</li>
+        <li>Si non acquitté, testez les seuils de 30 minutes, puis 15 minutes, puis le palier initial.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel code de sortie un plugin Nagios doit-il renvoyer pour signaler un état CRITICAL au moteur de supervision ?</p>
+      <div class="opts">
+        <button class="opt">Code 0</button>
+        <button class="opt">Code 1</button>
+        <button class="opt" data-correct="1">Code 2</button>
+        <button class="opt">Code 3</button>
+      </div>
+      <div class="q__exp">Selon la spécification officielle Nagios : 0=OK, 1=WARNING, 2=CRITICAL, et 3=UNKNOWN.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel caractère sépare le message lisible par l'opérateur des métriques Perfdata dans la sortie d'un plugin Nagios ?</p>
+      <div class="opts">
+        <button class="opt">Le point-virgule (;)</button>
+        <button class="opt" data-correct="1">Le caractère tube (|)</button>
+        <button class="opt">Le double point (:)</button>
+        <button class="opt">Le dièse (#)</button>
+      </div>
+      <div class="q__exp">Le caractère tube "|" sépare la ligne de texte humain des données de performance Perfdata destinées au traçage de graphiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur quel port TCP un agent Zabbix configuré en mode passif écoute-t-il les requêtes du serveur Zabbix ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Port 10050</button>
+        <button class="opt">Port 10051</button>
+        <button class="opt">Port 5666</button>
+        <button class="opt">Port 161</button>
+      </div>
+      <div class="q__exp">En mode passif, le Zabbix Agent écoute sur le port 10050/TCP. En mode actif, c'est l'agent qui initie la connexion vers le serveur sur le port 10051/TCP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans Zabbix, quelle fonction de trigger permet de calculer la moyenne des mesures sur une fenêtre de 5 minutes ?</p>
+      <div class="opts">
+        <button class="opt">last(5m)</button>
+        <button class="opt" data-correct="1">avg(5m)</button>
+        <button class="opt">sum(5m)</button>
+        <button class="opt">count(5m)</button>
+      </div>
+      <div class="q__exp">La fonction avg(5m) calcule la moyenne arithmétique de la métrique sur les 5 dernières minutes, ce qui permet de lisser les pics temporaires.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l'effet immédiat de l'action « Acquitter » (Acknowledge) d'un incident par un exploitant dans la console de supervision ?</p>
+      <div class="opts">
+        <button class="opt">Le redémarrage immédiat du serveur en panne</button>
+        <button class="opt" data-correct="1">Le gel de l'escalade automatique et la suspension des notifications répétées aux astreintes</button>
+        <button class="opt">La suppression définitive de l'hôte du système de supervision</button>
+        <button class="opt">La réinitialisation de la base de données</button>
+      </div>
+      <div class="q__exp">L'acquittement signale au système qu'un opérateur humain a pris en charge le problème, ce qui stoppe les paliers d'escalade vers les échelons supérieurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel démon permet au serveur Nagios d'exécuter des plugins locaux sur des serveurs distants Linux ?</p>
+      <div class="opts">
+        <button class="opt">Zabbix Proxy</button>
+        <button class="opt" data-correct="1">NRPE (Nagios Remote Plugin Executor)</button>
+        <button class="opt">Filebeat</button>
+        <button class="opt">Node Exporter</button>
+      </div>
+      <div class="q__exp">NRPE écoute sur le port 5666/TCP des hôtes Linux et exécute les plugins de supervision locaux à la demande du serveur Nagios.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi le mode agent actif de Zabbix est-il particulièrement avantageux pour surveiller des postes nomades ou des serveurs en cloud privé ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu'il ne nécessite aucune installation logicielle</button>
+        <button class="opt" data-correct="1">Parce que l'agent initie la connexion sortante vers le serveur, évitant d'avoir à ouvrir des ports entrants derrière un NAT</button>
+        <button class="opt">Parce qu'il n'utilise pas de mémoire vive</button>
+        <button class="opt">Parce qu'il remplace le système d'exploitation</button>
+      </div>
+      <div class="q__exp">En mode actif, l'agent initie une connexion sortante standard vers le port 10051 du Zabbix Server, ce qui traverse sans difficulté les passerelles NAT et pare-feux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la syntaxe Perfdata « disk_free=15GB;20;10;0;100 », que représente la valeur 20 ?</p>
+      <div class="opts">
+        <button class="opt">La valeur maximale du disque</button>
+        <button class="opt" data-correct="1">Le seuil d'alerte WARNING</button>
+        <button class="opt">Le seuil d'alerte CRITICAL</button>
+        <button class="opt">Le temps de réponse en millisecondes</button>
+      </div>
+      <div class="q__exp">Dans la structure label=value;warn;crit;min;max, le premier paramètre après la valeur mesurée est le seuil de WARNING (ici 20).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Définir des triggers Zabbix basés uniquement sur la fonction last() pour la charge CPU : cela génère une avalanche de faux positifs à chaque micro-pic applicatif.</li>
+      <li>Oublier de configurer le pare-feu pour le port 5666/TCP (NRPE) ou 10050/TCP (Zabbix Agent passif).</li>
+      <li>Ne pas inclure de données Perfdata dans les scripts de sondes personnalisés : impossibilité totale de tracer des graphiques de métrologie dans Nagios/Centreon.</li>
+      <li>Ne pas activer la détection de flapping sur les services oscillants, saturant les canaux de notification de l'astreinte.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Exploitation : Nagios, Centreon & Zabbix</div>
+    <ol>
+      <li>Développer des sondes conformes aux standards Nagios : respecter scrupuleusement les codes de sortie 0=OK, 1=WARNING, 2=CRITICAL, 3=UNKNOWN et formater la chaîne perfdata standardisée.</li>
+      <li>Déployer et sécuriser les agents distants : installer NRPE ou Zabbix Agent avec filtrage d'adresses IP autorisées et certificats TLS.</li>
+      <li>Composer des déclencheurs (triggers) intelligents : combiner les fonctions temporelles avg() et last() pour filtrer les faux positifs et absorber le bruit transitoire.</li>
+      <li>Configurer les politiques d'escalade et d'acquittement : définir des règles d'acheminement N1/N2/N3 temporisées et conditionnées à l'absence d'ACK dans la console.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L'écosystème Nagios repose sur une architecture modulaire de plugins vérifiant ponctuellement l'état des services et machines.</li>
+      <li>Le format Perfdata (ex: metric=val;warn;crit;min;max) permet l'historisation et le rendu graphique au sein de solutions comme Centreon ou Graphite.</li>
+      <li>Zabbix offre une solution intégrée tout-en-un avec base de données dédiée, templates réutilisables et agent de collecte haut débit.</li>
+      <li>Les triggers Zabbix évaluent des expressions booléennes complexes sur des fenêtres temporelles glissantes (avg, min, max, nodata).</li>
+      <li>L'acquittement d'incident (ACK) est la pierre angulaire de la coordination des équipes d'astreinte, gelant immédiatement le processus d'escalade.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Connaissez-vous les 4 codes de sortie obligatoires d'un plugin Nagios (0, 1, 2, 3) ?</li>
+      <li>Savez-vous formater une ligne de sortie avec métriques Perfdata conformes à la spécification Nagios ?</li>
+      <li>Quelle est la différence fondamentale entre le mode actif et le mode passif de l'agent Zabbix ?</li>
+      <li>Savez-vous écrire un trigger Zabbix combinant une moyenne sur 5 minutes et un seuil critique instantané ?</li>
+      <li>Comment fonctionne le cycle d'escalade et quel est l'effet immédiat d'un acquittement (ACK) par l'opérateur ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Nagios Core :</strong> Moteur de supervision modulaire exécutant des plugins autonomes vérifiant l'état des services et des hôtes.</li><li><strong>NRPE :</strong> Nagios Remote Plugin Executor : démon d'écoute sur le port 5666/TCP permettant d'exécuter des sondes locales sur un hôte distant.</li><li><strong>Perfdata :</strong> Données de performance normalisées retournées par une sonde après le séparateur | pour tracer des graphiques.</li><li><strong>Zabbix Agent :</strong> Agent de collecte ultra-performant fonctionnant en mode passif (10050/TCP) ou actif (10051/TCP).</li><li><strong>Trigger Zabbix :</strong> Expression logique booléenne calculée à partir de fonctions temporelles pour qualifier l'état d'un service.</li><li><strong>Escalade d'Alerte :</strong> Mécanisme d'augmentation progressive des canaux et cibles de notification tant qu'une alerte n'est pas acquittée.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions Nagios/Zabbix incertaines. Révisez les codes retour et les ports d'écoute des agents.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Bases assimilées. Approfondissez la syntaxe Perfdata et la rédaction des triggers Zabbix.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à parser les sorties de plugins dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau opérationnel solide. Vous maîtrisez le déploiement des agents et les mécanismes d'escalade.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte. Prêt pour l'observabilité moderne avec Prometheus et Grafana du Module 4 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Métrologie & Observabilité Moderne avec Prometheus & Grafana <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Supervision Système et Réseaux (Enseignant : Essowaba AHOULOUMI, Ingénieur en Informatique et Réseaux, 2024/2025), Référentiels RFC 1157/1213/3414 (SNMP), RFC 5424 (Syslog), Documentations officielles Prometheus, Grafana, Zabbix et Elastic.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

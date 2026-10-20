@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Diagramme de Séquence, Lignes de Vie &amp;amp; Fragments Combinés | UML B2</title>
+<meta name="description" content="Chapitre 4 du cours UML B2 : Modélisation des interactions temporelles, lignes de vie (lifelines), barres d’activation, typologie des messages (synchrones, asynchrones, retours), création/destruction d’objets, fragments combinés (alt, opt, loop, par) et détection des interblocages. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/uml/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Diagramme de Séquence, Lignes de Vie &amp;amp; Fragments Combinés | UML B2">
+<meta property="og:description" content="Chapitre 4 du cours UML B2 : Modélisation des interactions temporelles, lignes de vie (lifelines), barres d’activation, typologie des messages (synchrones, asynchrones, retours), création/destruction d’objets, fragments combinés (alt, opt, loop, par) et détection des interblocages. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="umlnav"><div class="umlnav__in">
+  <a class="umlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="umlnav__sep" aria-hidden="true">/</span>
+  <a class="umlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> UML B2</a>
+  <div class="umlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="umlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="umlwrap">
+<p class="crumb"><a href="../index.html">UML B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Diagramme de Séquence, Lignes de Vie &amp; Fragments Combinés</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Au sein d’une architecture microservices de paiement instantané, des clients subissent des blocages inexpliqués : des transactions restent suspendues indéfiniment lors des pics de charge, provoquant des dépassements de délai et des pertes de paniers d’achat. L’investigation révèle que les services s’appellent mutuellement de manière synchrone en formant des dépendances circulaires masquées. Pour cartographier la dynamique temporelle, valider le parallélisme et prouver l’absence d’interblocage (deadlock), l’équipe recourt au diagramme de séquence UML 2.5. Ce module forme les étudiants à modéliser la chronologie exacte des échanges, à maîtriser la typologie des flèches de messages et à structurer la logique conditionnelle via les fragments combinés normalisés.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir une ligne de vie (lifeline) avec sa syntaxe normalisée (nomInstance : TypeClassificateur) ;</li>
+      <li>représenter les périodes d’activité d’un objet via les barres d’activation (execution specifications) ;</li>
+      <li>distinguer et tracer les 4 types de flèches de messages (synchrone plein, asynchrone ouvert, retour tireté, création) ;</li>
+      <li>modéliser la création dynamique d’un objet et sa destruction explicite avec la croix de terminaison (X) ;</li>
+      <li>structurer les flux conditionnels et répétitifs à l’aide des fragments combinés alt, opt, loop et par ;</li>
+      <li>analyser une séquence temporelle pour détecter les boucles de rétro-appel bloquantes et prévenir les deadlocks.</li>
+    </ol>
+  </div>
+
+<h2>1. Lignes de Vie, Barres d’Activation et Chronologie</h2>
+
+<p>Le <strong>diagramme de séquence</strong> capture les interactions temporelles entre objets au cours d’un scénario précis. Le temps s’écoule conventionnellement de <strong>haut en bas</strong> :</p>
+<ul>
+  <li><strong>Ligne de vie (Lifeline) :</strong> Rectangle supérieur représentant l’objet ou le rôle, prolongé vers le bas par une ligne pointillée verticale. La syntaxe officielle est <code>nomInstance : Classe</code> (ou <code>:Classe</code> si l’instance est anonyme).</li>
+  <li><strong>Barre d’activation (Execution Specification) :</strong> Rectangle étroit superposé à la ligne de vie indiquant la période pendant laquelle l’objet exécute une action ou attend la réponse d’un appel synchrone.</li>
+  <li><strong>Création d’objet :</strong> Un message horizontal pointant directement sur le rectangle d’en-tête de la ligne de vie de l’objet nouvellement créé (annoté <code>&laquo;create&raquo;</code>).</li>
+  <li><strong>Destruction d’objet :</strong> Une grande croix <strong>X</strong> à l’extrémité de la ligne pointillée signifiant que l’objet a été libéré de la mémoire.</li>
+</ul>
+
+<h2>2. Typologie des Messages et Conventions Graphiques OMG</h2>
+
+<p>Chaque type d’interaction possède une notation graphique rigoureuse dans la spécification UML 2.5 :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Type de message</th>
+      <th>Notation graphique</th>
+      <th>Sémantique temporelle</th>
+      <th>Exemple concret</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Synchrone</strong></td>
+      <td>Trait plein avec <strong>triangle noir plein</strong> fermé (&rarr;)</td>
+      <td>L’émetteur bloque son exécution et attend que le destinataire ait terminé le traitement.</td>
+      <td>Appel de méthode classique bloquant (ex: <code>calculerMontant()</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>Asynchrone</strong></td>
+      <td>Trait plein avec <strong>flèche simple ouverte</strong> (&rarr;)</td>
+      <td>L’émetteur envoie le message et poursuit immédiatement son travail sans bloquer.</td>
+      <td>Message MQ, événement Kafka, notification (ex: <code>notifierEmail()</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>Message de retour</strong></td>
+      <td>Trait tireté avec <strong>flèche simple ouverte</strong> (&dash;&dash;&gt;)</td>
+      <td>Retour de valeur de la méthode vers l’appelant, libérant la barre d’activation.</td>
+      <td>Renvoi du résultat calculé (ex: <code>solde = 250.00 &euro;</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>Message réflexif</strong></td>
+      <td>Flèche en boucle sur la même ligne de vie</td>
+      <td>Un objet invoque une méthode privée sur lui-même (auto-appel).</td>
+      <td>Traitement interne (ex: <code>validerFormatDate()</code>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Fragments Combinés d’Interaction (Combined Fragments)</h2>
+
+<p>Depuis UML 2.0, les organigrammes et conditions algorithmiques sont formalisés au sein de cadres rectangulaires appelés <strong>fragments combinés</strong>, identifiés par un opérateur d’interaction dans le coin supérieur gauche :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">alt (Alternatives exclusives)</h4>
+    <p>Équivalent du <code>if ... else if ... else</code>. Le cadre est divisé en sous-compartiments horizontaux par des traits pointillés. Chaque compartiment est précédé d’une garde entre crochets <code>[condition]</code>. Seul le compartiment dont la garde s’évalue à vrai est exécuté.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">opt (Comportement optionnel)</h4>
+    <p>Équivalent d’un <code>if</code> simple sans clause else. Comporte un seul compartiment avec une garde <code>[condition]</code>. Si la condition est fausse, le flux poursuit directement en aval sans rien exécuter dans le cadre.</p>
+  </div>
+</div>
+<div class="grid grid-2" style="margin-top: var(--space-4);">
+  <div class="card">
+    <h4 class="card-title">loop (Boucle d’itération)</h4>
+    <p>Répétition d’une séquence. La syntaxe permet de fixer des bornes <code>loop(min, max)</code> ou une condition booléenne d’arrêt <code>[tant que articlesRestants &gt; 0]</code>.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">par (Exécution parallèle)</h4>
+    <p>Exécution concurrente. Les sous-compartiments séparés par des pointillés s’exécutent en parallèle sans ordre séquentiel prédéfini entre leurs messages respectifs.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="um2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Client -&gt; Serveur : getCatalogue()&#10;Serveur -&gt; BDD : queryAll()&#10;BDD --&gt; Serveur : [art1, art2]&#10;Serveur --&gt; Client : listeArticles">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c4-e1) — Simulateur de trace de diagramme de séquence
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Appel non refermé en fin de scénario]
+# Données : IHM -> Controller : valider()
+# Données : Controller -> Service : check()
+A_COMPLETER
+
+[Cas 2 — Retour envoyé sans appel préalable]
+# Données : Client --> Serveur : ok
+A_COMPLETER
+
+[Cas 3 — Séquence à trois niveaux avec fermetures successives]
+# Données : A -> B : m1()
+# Données : B --> A : r1
+# Données : A -> C : m2()
+# Données : C --> A : r2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de trace de diagramme de séquence</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider l'ordonnancement temporel vertical des messages et l'équilibre des appels/retours entre lignes de vie (lifelines).</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Un message de retour <code>A --&gt; B</code> n'est valide que si un appel synchrone <code>B -&gt; A</code> est actuellement ouvert sur la pile d'activation.<br>
+2. À la fin de la séquence, toutes les activations doivent être fermées (pile vide).<br>
+Pour chaque ligne lue :<br>
+- Si appel synchrone : afficher <code>[APPEL] &lt;Source&gt; invoque &lt;Cible&gt;.&lt;methode&gt; (Profondeur: &lt;N&gt;)</code><br>
+- Si retour : afficher <code>[RETOUR] &lt;Source&gt; repond a &lt;Cible&gt; : &lt;reponse&gt;</code><br>
+- Si retour incohérent : afficher <code>[ERREUR RETOUR] Pas d appel en attente de &lt;Cible&gt; vers &lt;Source&gt;</code>.<br>
+Terminer par le statut global : <code>SEQUENCE VALIDE</code> ou <code>SEQUENCE INCOMPLETE (&lt;X&gt; appels non clos)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Client -&gt; Serveur : getCatalogue()
+Serveur -&gt; BDD : queryAll()
+BDD --&gt; Serveur : [art1, art2]
+Serveur --&gt; Client : listeArticles</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[APPEL] Client invoque Serveur.getCatalogue (Profondeur: 1)
+[APPEL] Serveur invoque BDD.queryAll (Profondeur: 2)
+[RETOUR] BDD repond a Serveur : [art1, art2]
+[RETOUR] Serveur repond a Client : listeArticles
+SEQUENCE VALIDE</pre></div>
+    </div>
+    <p class="lab__note">Trace synchrone imbriquée parfaitement équilibrée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer une pile (stack) d'appels contenant des tuples (demandeur, executeur).</li>
+        <li>Un message "--&gt;" doit dépiler le sommet de la pile et vérifier la concordance des acteurs.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="VAR solde=200&#10;ALT [solde &gt;= 100]&#10;  Client -&gt; Distributeur : delivrerBillets&#10;ELSE&#10;  Client -&gt; Distributeur : refuserRetrait&#10;END_ALT">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c4-e2) — Évaluateur de fragments combinés (alt, opt, loop)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Branche ELSE exécutée]
+# Données : VAR solde=50
+# Données : ALT [solde >= 100]
+# Données :   Client -> Distributeur : delivrerBillets
+# Données : ELSE
+# Données :   Client -> Distributeur : refuserRetrait
+# Données : END_ALT
+A_COMPLETER
+
+[Cas 2 — Fragment OPT vérifié]
+# Données : VAR assurance=1
+# Données : OPT [assurance == 1]
+# Données :   Client -> Assureur : souscrirePolice
+# Données : END_OPT
+A_COMPLETER
+
+[Cas 3 — Fragment OPT non vérifié]
+# Données : VAR assurance=0
+# Données : OPT [assurance == 1]
+# Données :   Client -> Assureur : souscrirePolice
+# Données : END_OPT
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Évaluateur de fragments combinés (alt, opt, loop)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Interpréter les fragments d'interaction UML (alt pour alternative exclusive, opt pour optionnel, loop pour itération).</p>
+    <div class="lab__brief"><p>Le script simule l'exécution d'un fragment combiné UML en fonction d'un contexte de variables initiales :<br>
+- Première ligne : variables d'état au format <code>VAR k=v ...</code> (ex: <code>VAR solde=150 age=20</code>).<br>
+- Lignes suivantes : blocs de séquence balisés :<br>
+  * <code>ALT [garde]</code> ... <code>ELSE</code> ... <code>END_ALT</code><br>
+  * <code>OPT [garde]</code> ... <code>END_OPT</code><br>
+  * <code>LOOP [N]</code> ... <code>END_LOOP</code> (répète N fois le bloc)<br>
+  * Messages simples : <code>A -&gt; B : msg</code><br>
+Le script évalue les gardes booléennes simples (ex: <code>solde &gt;= 100</code>). Si la condition est vraie, les messages internes sont exécutés et affichés au format :<br>
+<code>[EXEC] &lt;Source&gt; -&gt; &lt;Cible&gt; : &lt;msg&gt;</code>.<br>
+Si la garde est fausse, le bloc est ignoré (ou la branche ELSE est empruntée).<br>
+À la fin, afficher le nombre total de messages émis : <code>MESSAGES TRANSMIS: &lt;N&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VAR solde=200
+ALT [solde &gt;= 100]
+  Client -&gt; Distributeur : delivrerBillets
+ELSE
+  Client -&gt; Distributeur : refuserRetrait
+END_ALT</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[EXEC] Client -&gt; Distributeur : delivrerBillets
+MESSAGES TRANSMIS: 1</pre></div>
+    </div>
+    <p class="lab__note">La garde solde &gt;= 100 est vraie (200 &gt;= 100), la branche ALT est exécutée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les variables dans un dictionnaire pour évaluer les expressions de garde.</li>
+        <li>Pour le bloc LOOP [N], exécuter le corps N fois.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SYNC Client -&gt;&gt; Serveur : getData&#10;ASYNC Serveur -&gt; Logger : logEvent&#10;REPLY Serveur --&gt; Client&#10;SYNC Client -&gt;&gt; Autre : check">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c4-e3) — Analyseur de synchronisme et concurrence de messages
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Émission refusée pour acteur déjà bloqué]
+# Données : SYNC A ->> B : req1
+# Données : SYNC A ->> C : req2
+A_COMPLETER
+
+[Cas 2 — Deadlock mutuel direct]
+# Données : SYNC X ->> Y : call1
+# Données : SYNC Y ->> X : call2
+A_COMPLETER
+
+[Cas 3 — Messages asynchrones consécutifs sans blocage]
+# Données : ASYNC Producteur -> File : push1
+# Données : ASYNC Producteur -> File : push2
+# Données : ASYNC Producteur -> File : push3
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur de synchronisme et concurrence de messages</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer les messages synchrones (flèche pleine, appel bloquant) des messages asynchrones (flèche ouverte, non bloquant) et détecter les risques de blocage.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Si un émetteur A tente un appel (synchrone ou asynchrone) alors qu'il est lui-même <strong>déjà bloqué en attente d'une réponse synchrone</strong> : <code>[BLOCAGE] &lt;A&gt; ne peut pas emettre (bloque en attente de reponse)</code>.<br>
+2. Si un appel synchrone est circulaire direct (A attend B et B attend A) : <code>[DEADLOCK] Interblocage mutuel detecte entre &lt;A&gt; et &lt;B&gt;</code>.<br>
+3. Sinon, afficher : <code>[OK] &lt;TYPE&gt; de &lt;A&gt; vers &lt;B&gt; (Statut &lt;A&gt;: &lt;BLOQUE|LIBRE&gt;)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SYNC Client -&gt;&gt; Serveur : getData
+ASYNC Serveur -&gt; Logger : logEvent
+REPLY Serveur --&gt; Client
+SYNC Client -&gt;&gt; Autre : check</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[OK] SYNC de Client vers Serveur (Statut Client: BLOQUE)
+[OK] ASYNC de Serveur vers Logger (Statut Serveur: LIBRE)
+[OK] REPLY de Serveur vers Client (Statut Client: LIBRE)
+[OK] SYNC de Client vers Autre (Statut Client: BLOQUE)</pre></div>
+    </div>
+    <p class="lab__note">Le client se bloque sur l'appel synchrone, le serveur émet en asynchrone sans bloquer, puis le client est débloqué.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Maintenir l'état de chaque lifeline : bloquée (avec le nom de l'acteur attendu) ou libre.</li>
+        <li>Un message asynchrone n'altère pas la disponibilité de l'émetteur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Comment est représenté graphiquement un appel de méthode synchrone (bloquant pour l’émetteur) en UML 2.5 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un trait plein avec une tête de flèche triangulaire noire pleine fermée</button>
+        <button class="opt">Un trait tireté avec une flèche ouverte</button>
+        <button class="opt">Une double ligne avec un cercle blanc</button>
+        <button class="opt">Un trait ondulé rouge</button>
+      </div>
+      <div class="q__exp">En UML 2.5, le message synchrone est impérativement représenté par un trait plein terminé par une tête de flèche triangulaire noire pleine fermée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle flèche est utilisée pour représenter le retour d’une valeur de fonction (message de réponse) ?</p>
+      <div class="opts">
+        <button class="opt">Un trait plein avec un triangle blanc creux</button>
+        <button class="opt" data-correct="1">Un trait tireté avec une tête de flèche ouverte simple</button>
+        <button class="opt">Un trait plein avec un losange noir</button>
+        <button class="opt">Une flèche pointant vers le haut</button>
+      </div>
+      <div class="q__exp">Le message de retour (reply message) s’illustre formellement par un trait tireté muni d’une flèche ouverte simple pointant vers l’émetteur initial.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel opérateur de fragment combiné correspond à une structure conditionnelle exclusive à plusieurs branches (if / else if / else) ?</p>
+      <div class="opts">
+        <button class="opt">opt</button>
+        <button class="opt">loop</button>
+        <button class="opt" data-correct="1">alt</button>
+        <button class="opt">par</button>
+      </div>
+      <div class="q__exp">L’opérateur «alt» (alternatives) divise un cadre en compartiments exclusifs séparés par des pointillés, chacun surveillé par une condition de garde.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre les opérateurs de fragments «alt» et «opt» ?</p>
+      <div class="opts">
+        <button class="opt">opt comporte obligatoirement un bloc else, pas alt</button>
+        <button class="opt" data-correct="1">alt gère des alternatives mutuellement exclusives (avec éventuellement else), alors que opt est un bloc conditionnel unique (if sans else)</button>
+        <button class="opt">opt s’exécute toujours deux fois</button>
+        <button class="opt">alt ne fonctionne qu’en multithreading</button>
+      </div>
+      <div class="q__exp">L’opérateur «opt» (option) contient un unique sous-bloc exécuté seulement si sa garde est vraie ; «alt» définit plusieurs branches alternatives exclusives.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment note-t-on graphiquement la destruction définitive d’un objet à la fin de sa ligne de vie ?</p>
+      <div class="opts">
+        <button class="opt">Un point noir plein</button>
+        <button class="opt" data-correct="1">Une grande croix «X» marquant la fin de la ligne de vie</button>
+        <button class="opt">Un point d’interrogation</button>
+        <button class="opt">La mention «DELETE» en lettres grasses</button>
+      </div>
+      <div class="q__exp">La fin de vie d’un objet et sa libération mémoire sont formellement symbolisées par une croix «X» sur sa ligne de vie (destruction occurrence).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel opérateur de fragment combiné permet de spécifier que plusieurs groupes de messages s’exécutent de façon concurrente en parallèle ?</p>
+      <div class="opts">
+        <button class="opt">loop</button>
+        <button class="opt" data-correct="1">par</button>
+        <button class="opt">alt</button>
+        <button class="opt">seq</button>
+      </div>
+      <div class="q__exp">L’opérateur «par» (parallel) modélise la concurrence : les sous-compartiments s’exécutent en parallèle, les messages s’entremêlant de manière non déterministe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle direction s’écoule conventionnellement le temps dans un diagramme de séquence UML ?</p>
+      <div class="opts">
+        <button class="opt">De gauche à droite</button>
+        <button class="opt">De bas en haut</button>
+        <button class="opt" data-correct="1">De haut en bas</button>
+        <button class="opt">Dans le sens des aiguilles d’une montre</button>
+      </div>
+      <div class="q__exp">L’axe vertical d’un diagramme de séquence représente la flèche du temps : la chronologie progresse strictement de haut en bas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne le phénomène d’«interblocage» (deadlock) observable dans les mauvaises modélisations de séquences ?</p>
+      <div class="opts">
+        <button class="opt">Une ligne de vie qui n’a pas d’attributs</button>
+        <button class="opt" data-correct="1">Une situation où deux participants ou plus s’attendent mutuellement de manière synchrone, bloquant indéfiniment le système</button>
+        <button class="opt">Un fragment alt avec trop de branches</button>
+        <button class="opt">Un message asynchrone qui arrive trop vite</button>
+      </div>
+      <div class="q__exp">Un deadlock survient lorsque le service A attend la réponse synchrone de B, tandis que B attend la réponse synchrone de A (attente circulaire bloquante).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Dessiner une flèche pleine fermée pour un message asynchrone : cela induit en erreur sur le caractère bloquant de l’appel.</li>
+      <li>Oublier les conditions de garde entre crochets [condition] dans les compartiments d’un fragment alt.</li>
+      <li>Faire remonter le temps : dans un diagramme de séquence, le temps s’écoule strictement du haut vers le bas.</li>
+      <li>Créer des dépendances synchrones circulaires (A appelle synchrone B qui rappelle synchrone A) : risque majeur de deadlock.</li>
+      <li>Invoquer des messages qui n’existent pas dans les opérations de la classe réceptrice.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Conception d’un Diagramme de Séquence Robuste</div>
+    <ol>
+      <li>Étape 1 — Délimiter le scénario : Choisir un cas d’utilisation ou une branche précise (ex: scénario nominal de paiement par carte).</li>
+      <li>Étape 2 — Aligner les lignes de vie : Positionner les objets de gauche à droite dans l’ordre naturel d’interaction (Acteur &rarr; IHM &rarr; Contrôleur &rarr; Métier &rarr; BDD/Tiers).</li>
+      <li>Étape 3 — Choisir le bon type de message : Utiliser des flèches fermées pleines pour les appels de fonctions synchrones et des flèches ouvertes pour les événements asynchrones.</li>
+      <li>Étape 4 — Matérialiser les retours et activations : Faire figurer les barres d’activation pour visualiser la durée de blocage et tracer les retours tiretés lorsque des valeurs sont produites.</li>
+      <li>Étape 5 — Encadrer la logique avec les fragments normalisés : Utiliser alt pour les cas de succès/erreur, opt pour les options, et loop pour les traitements en lot.</li>
+      <li>Étape 6 — Auditer la cohérence avec le modèle de classes : S’assurer que chaque message correspond exactement au nom d’une méthode publique déclarée dans la classe destinataire.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le diagramme de séquence modélise l’ordre chronologique des échanges de messages entre lignes de vie.</li>
+      <li>Une ligne de vie représente un participant individuel (nom:Type) avec sa barre d’activation verticale.</li>
+      <li>Les messages synchrones (flèche pleine fermée) bloquent l’émetteur, contrairement aux messages asynchrones (flèche ouverte simple).</li>
+      <li>Les messages de retour utilisent un trait tireté avec flèche ouverte pour transmettre le résultat calculé.</li>
+      <li>Les fragments combinés (alt, opt, loop, par) structurent la logique conditionnelle et concurrente directement sur le diagramme.</li>
+      <li>La cohérence transversale exige que chaque message d’une séquence corresponde à une méthode définie dans le diagramme de classes.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais tracer une ligne de vie avec la syntaxe normalisée nom:Type.</li>
+      <li>Je distingue visuellement une flèche de message synchrone d’une flèche asynchrone.</li>
+      <li>Je trace les messages de retour avec un trait tireté.</li>
+      <li>Je sais découper un fragment alt en sous-compartiments avec leurs gardes entre crochets [condition].</li>
+      <li>Je comprends l’usage d’un fragment opt pour une action conditionnelle sans alternative else.</li>
+      <li>Je sais identifier un risque d’interblocage (deadlock) dans une suite d’appels synchrones croisés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Lignes de vie (Lifelines)</li><li>Barres d’activation (Execution Specifications)</li><li>Messages synchrones (flèche pleine fermée)</li><li>Messages asynchrones (flèche ouverte)</li><li>Messages de retour (trait tireté)</li><li>Fragment combiné alt (alternatives)</li><li>Fragment combiné opt (optionnel)</li><li>Fragment combiné loop &amp; par</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la typologie des flèches (synchrone vs asynchrone) et la syntaxe des fragments alt/opt.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes connaissances. Maîtrisez les barres d’activation et la détection des deadlocks synchrones.</div>
+      <div class="bandrow bandrow--good">7/8 : Excellente maîtrise de la modélisation temporelle et des diagrammes de séquence.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les dynamiques temporelles et la concurrence au niveau expert.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Diagramme d’Activités, Flux de Contrôle, Fork/Join &amp; Swimlanes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la spécification officielle OMG UML 2.5.1, le standard OCL 2.4, les ouvrages de référence des trois amigos (Booch, Rumbaugh, Jacobson) et les patrons de conception GoF.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

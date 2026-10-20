@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Le modèle TCP/IP | Architecture des réseaux B1</title>
+<meta name="description" content="Chapitre 4 du cours d'Architecture des réseaux B1 : Les quatre couches du modèle TCP/IP ; le three-way handshake de TCP ; choisir entre TCP fiable et UDP rapide. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-reseaux/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Le modèle TCP/IP | Architecture des réseaux B1">
+<meta property="og:description" content="Chapitre 4 du cours d'Architecture des réseaux B1 : Les quatre couches du modèle TCP/IP ; le three-way handshake de TCP ; choisir entre TCP fiable et UDP rapide. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="renav"><div class="renav__in">
+  <a class="renav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="renav__sep" aria-hidden="true">/</span>
+  <a class="renav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Architecture des réseaux B1</a>
+  <div class="renav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="renav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rewrap">
+<p class="crumb"><a href="../index.html">Architecture des réseaux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Le modèle TCP/IP</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le modèle TCP/IP est celui qui fait tourner Internet : quatre couches, une poignée de protocoles, et une règle d'or — TCP établit la connexion avant de parler, UDP envoie sans demander. Le chapitre explique les deux modèles et détaille le three-way handshake, séquence d'ouverture de toute connexion TCP.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>ranger les protocoles dans les quatre couches TCP/IP : accès réseau, internet, transport, application ;</li>
+      <li>relier les couches TCP/IP aux couches OSI ;</li>
+      <li>dérouler le three-way handshake : SYN, SYN-ACK, ACK ;</li>
+      <li>choisir TCP ou UDP selon l'exigence de fiabilité.</li>
+    </ol>
+  </div>
+
+<h2>1. Quatre couches, un modèle réel</h2>
+
+<p>Le modèle <strong>TCP/IP</strong> regroupe les sept couches OSI en quatre : <strong>accès réseau</strong> (physique + liaison : Ethernet, câbles), <strong>internet</strong> (réseau : IP, routage), <strong>transport</strong> (TCP, UDP, ports) et <strong>application</strong> (session + présentation + application : HTTP, messagerie, FTP). C'est le modèle des produits réels — OSI reste le référentiel de discussion.</p>
+<p>Le support rappelle les normes IEEE : <strong>802.3</strong> définit le contrôle d'accès au support (MAC) de l'Ethernet filaire — <strong>CSMA/CD</strong> — employé dans les réseaux locaux et certaines applications WAN ; <strong>802.11</strong> (avec <strong>CSMA/CA</strong>) définit les réseaux locaux sans fil, de la couche physique à la sous-couche MAC.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Accès, Internet, Transport, Application : AITA »</div>
+    <p>Les trois couches hautes d'OSI fusionnent en une seule « application » ; les deux basses fusionnent en « accès réseau ». Le transport reste seul : c'est lui qui choisit TCP ou UDP.</p>
+  </div>
+
+<h2>2. Le three-way handshake et TCP contre UDP</h2>
+
+<p><strong>TCP</strong> ouvre toute connexion en trois étapes : <strong>1. SYN</strong> — le client envoie un paquet SYN (synchronized) portant un numéro de séquence aléatoire A ; <strong>2. SYN-ACK</strong> — le serveur répond avec un ACK valant A + 1 et son propre numéro de séquence aléatoire B ; <strong>3. ACK</strong> — le client accuse réception avec B + 1. Les étapes 1-2 définissent la séquence client vers serveur, les étapes 2-3 la séquence inverse : la communication <strong>full-duplex</strong> est établie.</p>
+<p><strong>TCP</strong> convient aux transferts exigeant la fiabilité — courriels, pages web, transferts de fichiers : accusés de réception, réémission des pertes. <strong>UDP</strong> convient aux flux temps réel — voix, DNS, vidéo : plus rapide, sans accusé, tolérant aux pertes. Le professionnel choisit selon l'exigence : un mot manquant dans un contrat est grave, une micro-coupure dans un appel ne l'est pas.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Le SYN-ACK porte deux numéros : l'acquittement (A + 1) et une nouvelle séquence (B).</li>
+      <li>Sans les trois étapes, pas de connexion TCP : SYN, SYN-ACK, ACK dans l'ordre.</li>
+      <li>UDP n'est pas « pire » que TCP : il est adapté aux flux temps réel.</li>
+      <li>CSMA/CD (Ethernet filaire, 802.3) et CSMA/CA (Wi-Fi, 802.11) ne sont pas interchangeables.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="re-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;ethernet ac&#10;ip in&#10;tcp tr&#10;http ap&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c4-e1) — Les quatre couches TCP/IP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un seul transport]
+# Données : 1
+# Données : udp tr
+A_COMPLETER
+
+[Cas 2 — Couche internet]
+# Données : 2
+# Données : icmp in
+# Données : arp in
+A_COMPLETER
+
+[Cas 3 — Cinq objets]
+# Données : 5
+# Données : a ac
+# Données : b ap
+# Données : c in
+# Données : d tr
+# Données : e ap
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les quatre couches TCP/IP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Ranger chaque élément dans les quatre couches du modèle TCP/IP : accès réseau, internet, transport, application.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « objet couche » : couche vaut <code>ac</code> (accès réseau), <code>in</code> (internet), <code>tr</code> (transport) ou <code>ap</code> (application). Pour chaque ligne il Indiquez <code>objet : acces-reseau</code>, <code>objet : internet</code>, <code>objet : transport</code> ou <code>objet : application</code>. Il termine par <code>transport : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+ethernet ac
+ip in
+tcp tr
+http ap
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ethernet : acces-reseau
+ip : internet
+tcp : transport
+http : application
+transport : 1/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à quatre codes : ac, in, tr, ap.</li>
+        <li>Le compteur suit exactement les lignes « transport ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;p1 syn&#10;p2 synack&#10;p3 ack&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c4-e2) — Le three-way handshake
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Ack sans syn]
+# Données : 1
+# Données : p1 ack
+A_COMPLETER
+
+[Cas 2 — Syn repete]
+# Données : 2
+# Données : p1 syn
+# Données : p2 syn
+A_COMPLETER
+
+[Cas 3 — Cinq paquets]
+# Données : 5
+# Données : p1 syn
+# Données : p2 synack
+# Données : p3 ack
+# Données : p4 syn
+# Données : p5 ack
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Le three-way handshake</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la séquence TCP : SYN, puis SYN-ACK, puis ACK — sinon la connexion échoue.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « paquet etape » : etape vaut <code>syn</code>, <code>synack</code> ou <code>ack</code>. La connexion est correcte si les paquets arrivent dans l'ordre syn, puis synack, puis ack. Pour chaque ligne il Indiquez <code>paquet : etape N</code> (1, 2 ou 3) si le paquet est dans l'ordre, <code>paquet : hors sequence</code> sinon. Final : <code>connexion : etablie</code> si les trois étapes sont passées dans l'ordre, <code>connexion : echouee</code> sinon.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+p1 syn
+p2 synack
+p3 ack
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>p1 : etape 1
+p2 : etape 2
+p3 : etape 3
+connexion : etablie</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois étapes numérotées : syn avance à 1, synack avance à 2 (seulement si on est à 1), ack avance à 3.</li>
+        <li>Un drapeau rompu : toute sortie d'ordre casse la connexion pour la suite.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;courriel tcp&#10;dns udp&#10;transfert tcp&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c4-e3) — TCP contre UDP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un seul UDP]
+# Données : 1
+# Données : voix udp
+A_COMPLETER
+
+[Cas 2 — Que du TCP]
+# Données : 2
+# Données : site tcp
+# Données : banque tcp
+A_COMPLETER
+
+[Cas 3 — Cinq flux]
+# Données : 5
+# Données : a tcp
+# Données : b udp
+# Données : c udp
+# Données : d tcp
+# Données : e tcp
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — TCP contre UDP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir entre TCP (fiable, accusés de réception, full-duplex) et UDP (rapide, sans accusé).</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « flux protocole » : protocole vaut <code>tcp</code> (transferts exigeant la fiabilité) ou <code>udp</code> (flux temps réel tolérant aux pertes). Pour chaque ligne il Indiquez <code>flux : fiable</code> (tcp) ou <code>flux : rapide</code> (udp). Il termine par <code>fiables : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+courriel tcp
+dns udp
+transfert tcp
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>courriel : fiable
+dns : rapide
+transfert : fiable
+fiables : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un if sur le protocole suffit : tcp et udp sont les deux seules valeurs.</li>
+        <li>Le compteur suit exactement les flux « fiable ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Les couches du modèle TCP/IP sont…</p>
+      <div class="opts">
+        <button class="opt">7, comme OSI</button>
+        <button class="opt" data-correct="1">4 : accès, internet, transport, application</button>
+        <button class="opt">3 : réseau, transport, application</button>
+      </div>
+      <div class="q__exp">AITA : accès réseau, internet, transport, application.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La couche internet de TCP/IP correspond à OSI…</p>
+      <div class="opts">
+        <button class="opt">couche 2</button>
+        <button class="opt" data-correct="1">couche 3</button>
+        <button class="opt">couche 7</button>
+      </div>
+      <div class="q__exp">La couche réseau d'OSI : IP, routage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La première étape du handshake est…</p>
+      <div class="opts">
+        <button class="opt">ACK</button>
+        <button class="opt" data-correct="1">SYN</button>
+        <button class="opt">SYN-ACK</button>
+      </div>
+      <div class="q__exp">SYN avec numéro de séquence aléatoire A.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le SYN-ACK porte…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">A + 1 comme ACK et un séquence B</button>
+        <button class="opt">seulement B</button>
+        <button class="opt">seulement A + 1</button>
+      </div>
+      <div class="q__exp">Acquittement A + 1, nouveau numéro de séquence B.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après le handshake, la communication est…</p>
+      <div class="opts">
+        <button class="opt">half-duplex</button>
+        <button class="opt" data-correct="1">full-duplex</button>
+        <button class="opt">fermée</button>
+      </div>
+      <div class="q__exp">Séquences définies dans les deux sens.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La voix sur IP utilise plutôt…</p>
+      <div class="opts">
+        <button class="opt">TCP</button>
+        <button class="opt" data-correct="1">UDP</button>
+        <button class="opt">FTP</button>
+      </div>
+      <div class="q__exp">UDP : rapidité, tolérance aux pertes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un courriel voyage en…</p>
+      <div class="opts">
+        <button class="opt">UDP</button>
+        <button class="opt" data-correct="1">TCP</button>
+        <button class="opt">ICMP</button>
+      </div>
+      <div class="q__exp">Fiabilité exigée : TCP avec accusés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'Ethernet filaire (802.3) utilise…</p>
+      <div class="opts">
+        <button class="opt">CSMA/CA</button>
+        <button class="opt" data-correct="1">CSMA/CD</button>
+        <button class="opt">token</button>
+      </div>
+      <div class="q__exp">CSMA/CD ; le Wi-Fi 802.11 utilise CSMA/CA.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre les couches TCP/IP et OSI : 4 contre 7, les fusions se font en haut et en bas.</li>
+      <li>Démarrer un handshake par SYN-ACK : l'ordre est SYN, SYN-ACK, ACK.</li>
+      <li>Choisir TCP pour la voix : le retard de réémission dégrade l'appel.</li>
+      <li>Oublier que UDP sert aussi au DNS : rapide ne veut pas dire jouet.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — choisir le transport en trois gestes</div>
+    <ol>
+      <li>Évaluer le coût d'une perte : contrat manquant (TCP) ou micro-coupure (UDP).</li>
+      <li>Vérifier l'exigence de temps réel : flux vivant, UDP ; fichier exact, TCP.</li>
+      <li>Dérouler le handshake si TCP : SYN (A), SYN-ACK (A+1, B), ACK (B+1).</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Quatre couches : accès réseau, internet, transport, application.</li>
+      <li>IEEE 802.3 : Ethernet filaire CSMA/CD ; 802.11 : Wi-Fi CSMA/CA.</li>
+      <li>Handshake TCP : SYN (A), SYN-ACK (A+1, B), ACK (B+1) — full-duplex.</li>
+      <li>TCP = fiable (courriels, web) ; UDP = rapide (voix, DNS).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais ranger dix protocoles dans les quatre couches.</li>
+      <li>Je sais relier chaque couche TCP/IP à ses couches OSI.</li>
+      <li>Je sais dérouler le three-way handshake avec les numéros.</li>
+      <li>Je sais justifier TCP ou UDP pour cinq services donnés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Accès réseau</strong> : physique + liaison — Ethernet, 802.3.</li><li><strong>Internet</strong> : couche réseau — IP, routage.</li><li><strong>Transport</strong> : TCP et UDP, ports.</li><li><strong>Application</strong> : HTTP, messagerie, FTP — fusion des couches 5-7.</li><li><strong>SYN</strong> : premier paquet, séquence aléatoire A.</li><li><strong>SYN-ACK</strong> : ACK = A + 1, séquence B.</li><li><strong>CSMA/CD</strong> : contrôle d'accès Ethernet filaire (802.3).</li><li><strong>CSMA/CA</strong> : contrôle d'accès Wi-Fi (802.11).</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les quatre couches et les trois étapes du handshake.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais le classement des protocoles et les correspondances OSI.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, cible les numéros de séquence du handshake.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — L'adressage réseau <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

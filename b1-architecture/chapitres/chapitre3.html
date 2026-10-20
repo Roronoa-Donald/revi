@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Nombres signés et arithmétique binaire | Architecture B1</title>
+<meta name="description" content="Chapitre 3 du cours B1 : Signe + valeur absolue ; complément à 1 ; complément à 2 ; addition, soustraction, multiplication et division binaires ; débordement. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-architecture/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Nombres signés et arithmétique binaire | Architecture B1">
+<meta property="og:description" content="Chapitre 3 du cours B1 : Signe + valeur absolue ; complément à 1 ; complément à 2 ; addition, soustraction, multiplication et division binaires ; débordement. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="arnav"><div class="arnav__in">
+  <a class="arnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="arnav__sep" aria-hidden="true">/</span>
+  <a class="arnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Architecture B1</a>
+  <div class="arnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="arnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="arwrap">
+<p class="crumb"><a href="../index.html">Architecture B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Nombres signés et arithmétique binaire</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un bit ne porte pas de signe moins : il faut une convention pour représenter -5 sur des fils qui ne connaissent que 0 et 1. Le support en donne trois, et le complément à 2 s'impose partout — processeurs compris — parce qu'il transforme la soustraction en addition.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>représenter un négatif par signe + valeur absolue et repérer ses deux zéros ;</li>
+      <li>calculer le complément à 1 (inversion des bits) ;</li>
+      <li>calculer le complément à 2 et expliquer pourquoi il domine ;</li>
+      <li>poser addition, soustraction, multiplication et division binaires ;</li>
+      <li>reconnaître un débordement (carry sortant du mot).</li>
+    </ol>
+  </div>
+
+<h2>1. Signe + valeur absolue</h2>
+
+Première convention : le <strong>bit de poids fort</strong> devient le bit de signe (0 = positif, 1 = négatif), les autres bits gardent la valeur absolue. Sur 4 bits : +5 = 0101, -5 = 1101. Le défaut est immédiat : deux écritures de zéro (0000 et 1000) et une arithmétique non naturelle — l'addition directe de 0101 et 1101 ne donne pas 0.
+
+<h2>2. Compléments à 1 et à 2</h2>
+
+<p>Le <strong>complément à 1</strong> inverse tous les bits : le complément à 1 de 0101 est 1010. Il garde encore deux zéros (0000 et 1111) mais prépare la vraie solution.</p>
+<p>Le <strong>complément à 2</strong> ajoute 1 au complément à 1 : -5 sur 4 bits = C1(0101) + 1 = 1010 + 1 = <strong>1011</strong>. Méthode directe du support : partir de la droite, recopier les bits jusqu'au premier 1 compris, puis inverser tout ce qui suit. Avantages décisifs : un seul zéro, et la soustraction devient une addition de complément — le processeur n'a qu'un additionneur.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « on copie, on inverse »</div>
+    <p>De la droite : tout jusqu'au premier 1 se recopie, tout après s'inverse. 0110 → 1010 : le 0 final et son 1 se recopient, le reste bascule.</p>
+  </div>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Complément à 1 : inverser TOUS les bits. À 2 : inverser puis ajouter 1.</li>
+      <li>Le bit de poids fort à 1 en complément à 2 annonce un nombre négatif.</li>
+      <li>Sur 4 bits, le complément à 2 de 1000 est 1000 : -8 n'a pas d'opposé représentable.</li>
+      <li>Deux zéros en signe+valeur absolue et complément à 1, un seul en complément à 2.</li>
+    </ul>
+  </div>
+
+<h2>3. Opérations arithmétiques</h2>
+
+<p><strong>Addition</strong> : 0+0=0, 0+1=1, 1+1=0 retenue 1, 1+1+1=1 retenue 1 — les retenues se propagent de droite à gauche. <strong>Soustraction</strong> : additionner le complément à 2 du second opérande ; une retenue finale sortant du mot signe un résultat positif, son absence un résultat négatif déjà en complément à 2.</p>
+<p><strong>Multiplication</strong> : comme en décimal, décalages et additions — multiplier par 2^k revient à décaler de k bits vers la gauche. <strong>Division</strong> : soustractions successives et décalages vers la droite. Un <strong>débordement</strong> survient quand le résultat dépasse la capacité du mot : sur 4 bits non signés, 1111 + 0001 donne 10000 — le 1 qui sort est le carry.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <ul>
+      <li>L'additionneur de l'atelier pose 1+1 : observe la retenue se propager.</li>
+      <li>Le complément à 2 d'une valeur v sur 4 bits : ((16 - v) mod 16), reconstruit bit à bit.</li>
+      <li>Le carry sortant = total divisé par 16 sur un mot de 4 bits.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ar-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;0110&#10;0000&#10;1010&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c3-e1) — Complement a un
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Inversion double]
+# Données : 4
+# Données : 1111
+# Données : 1001
+# Données : 0011
+# Données : 0101
+A_COMPLETER
+
+[Cas 2 — Bords opposes]
+# Données : 3
+# Données : 0001
+# Données : 1110
+# Données : 0111
+A_COMPLETER
+
+[Cas 3 — Poids fort a un]
+# Données : 2
+# Données : 1000
+# Données : 1101
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Complement a un</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Inverser tous les bits d'un mot binaire pour obtenir son complément à 1.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée contenant chacune un <strong>binaire de 4 bits</strong>. Pour chaque ligne il calcule le complément à 1 — chaque bit 0 devient 1 et chaque bit 1 devient 0, première représentation des nombres signés vue en cours — et Indiquez <code>binaire : c1=XXXX</code>, puis le bilan <code>complements : n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+0110
+0000
+1010
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0110 : c1=1001
+0000 : c1=1111
+1010 : c1=0101
+complements : 3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La commande tr '01' '10' inverse tous les bits d'un mot.</li>
+        <li>Passe par une variable : c1=$(printf '%s' "$binaire" | tr ...).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;0001&#10;0110&#10;1111&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c3-e2) — Complement a deux
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Quatre opposés]
+# Données : 4
+# Données : 0010
+# Données : 0101
+# Données : 1000
+# Données : 0111
+A_COMPLETER
+
+[Cas 2 — Du zero au grand]
+# Données : 3
+# Données : 0000
+# Données : 0011
+# Données : 1100
+A_COMPLETER
+
+[Cas 3 — Verification croisee]
+# Données : 3
+# Données : 1010
+# Données : 1001
+# Données : 1110
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Complement a deux</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Obtenir la représentation d'un nombre négatif : complément à 1 puis ajout de 1.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée contenant chacune un <strong>binaire de 4 bits</strong> représentant un nombre positif. Pour chaque ligne il calcule la représentation en complément à 2 de son opposé : on inverse les bits (complément à 1) puis on ajoute 1 — méthode officielle du support. Il Indiquez <code>binaire : c2=XXXX</code>, puis le bilan <code>complements : n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+0001
+0110
+1111
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0001 : c2=1111
+0110 : c2=1010
+1111 : c2=0001
+complements : 3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L'opposé d'une valeur v sur 4 bits vaut $(((16 - v) % 16)).</li>
+        <li>Reconstruis le mot de 4 bits par divisions successives, du reste au quotient.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;1010 0101&#10;0110 0011&#10;1111 1111&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c3-e3) — Addition binaire
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Avec retenues en chaine]
+# Données : 4
+# Données : 0001 0001
+# Données : 1101 0110
+# Données : 1000 1000
+# Données : 0000 0000
+A_COMPLETER
+
+[Cas 2 — Puissances de deux]
+# Données : 3
+# Données : 0111 0001
+# Données : 1010 1010
+# Données : 0011 0100
+A_COMPLETER
+
+[Cas 3 — Debordements]
+# Données : 3
+# Données : 1110 0010
+# Données : 0101 0110
+# Données : 1001 0111
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Addition binaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Poser l'addition de deux binaires : retenues de proche en proche, débordement visible.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « a b » où a et b sont deux <strong>binaires de 4 bits</strong>. Pour chaque ligne il pose l'addition binaire — 0+0 donne 0, 1+0 donne 1, 1+1 donne 0 avec retenue 1, 1+1+1 donne 1 avec retenue 1 — et Indiquez le total sur 4 ou 5 bits : <code>a + b : somme=X</code>, puis le bilan <code>additions : n</code>. Le résultat dépasse parfois 4 bits : c'est le débordement à observer.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+1010 0101
+0110 0011
+1111 1111
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1010 + 0101 : somme=1111
+0110 + 0011 : somme=1001
+1111 + 1111 : somme=11110
+additions : 3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’addition binaire s’effectue de droite à gauche avec propagation de la retenue (1 + 1 = 0 avec retenue 1).</li>
+        <li>Convertissez les valeurs en décimal pour vérifier la cohérence du résultat final.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">En signe + valeur absolue, le zéro a…</p>
+      <div class="opts">
+        <button class="opt">une écriture</button>
+        <button class="opt" data-correct="1">deux écritures</button>
+        <button class="opt">trois écritures</button>
+      </div>
+      <div class="q__exp">0000 et 1000 représentent +0 et -0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le complément à 1 de 0110 vaut…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">1001</button>
+        <button class="opt">1010</button>
+        <button class="opt">0110</button>
+      </div>
+      <div class="q__exp">On inverse tous les bits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le complément à 2 de 0110 vaut…</p>
+      <div class="opts">
+        <button class="opt">1009 impossible</button>
+        <button class="opt" data-correct="1">1010</button>
+        <button class="opt">1001</button>
+      </div>
+      <div class="q__exp">C1 = 1001, puis +1 → 1010.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En complément à 2, -5 sur 4 bits vaut…</p>
+      <div class="opts">
+        <button class="opt">1101</button>
+        <button class="opt" data-correct="1">1011</button>
+        <button class="opt">1010</button>
+      </div>
+      <div class="q__exp">C1(0101)=1010, +1 → 1011.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">1 + 1 en binaire donne…</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">10</button>
+        <button class="opt">11</button>
+      </div>
+      <div class="q__exp">Somme 0, retenue 1 : on écrit 10.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">1111 + 0001 sur 4 bits non signés provoque…</p>
+      <div class="opts">
+        <button class="opt">rien</button>
+        <button class="opt" data-correct="1">un débordement</button>
+        <button class="opt">une division</button>
+      </div>
+      <div class="q__exp">10000 : le bit qui sort du mot est le carry.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Multiplier par 4 revient à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">décaler de 2 bits à gauche</button>
+        <button class="opt">décaler de 2 bits à droite</button>
+        <button class="opt">inverser les bits</button>
+      </div>
+      <div class="q__exp">Décalage gauche de k bits = multiplication par 2^k.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Soustraire revient à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ajouter le complément à 2</button>
+        <button class="opt">inverser le signe du mot</button>
+        <button class="opt">diviser</button>
+      </div>
+      <div class="q__exp">Le processeur additionne le complément à 2 : un seul additionneur.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier le +1 du complément à 2 : c'est C1 puis addition de 1.</li>
+      <li>Inverser avant le premier 1 dans la méthode directe : on recopie jusqu'à lui compris.</li>
+      <li>Ignorer une retenue sortante : c'est un débordement à signaler.</li>
+      <li>Croire que la soustraction utilise un soustracteur dédié : elle additionne le complément à 2.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — représenter un négatif en trois gestes</div>
+    <ol>
+      <li>Écrire la valeur absolue en binaire sur le mot donné.</li>
+      <li>Inverser tous les bits (complément à 1).</li>
+      <li>Ajouter 1 (complément à 2) — ou recopier jusqu'au premier 1 puis inverser.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Signe + valeur absolue : MSB = signe, deux zéros, arithmétique non naturelle.</li>
+      <li>Complément à 1 : inversion de tous les bits.</li>
+      <li>Complément à 2 : C1 + 1 ; un seul zéro ; soustraction = addition du complément.</li>
+      <li>Retenues de droite à gauche ; décalages pour ×2^k et ÷2^k ; attention au débordement.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je calcule C1 et C2 d'un mot binaire sans erreur.</li>
+      <li>J'explique pourquoi le complément à 2 a gagné.</li>
+      <li>Je pose une addition binaire avec retenues.</li>
+      <li>Je repère un débordement et je connais les décalages.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Bit de signe</strong> : MSB valant 0 (positif) ou 1 (négatif).</li><li><strong>Complément à 1</strong> : inversion de tous les bits.</li><li><strong>Complément à 2</strong> : complément à 1 + 1 — représentation standard.</li><li><strong>Retenue</strong> : carry propagé lors des additions.</li><li><strong>Débordement</strong> : résultat sortant de la capacité du mot.</li><li><strong>Décalage gauche</strong> : multiplication par 2^k.</li><li><strong>Décalage droite</strong> : division entière par 2^k.</li><li><strong>Un seul zéro</strong> : propriété du complément à 2.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — refais C1 et C2 sur des mots de 4 bits.</div>
+      <div class="bandrow bandrow--mid">50–69 % — entraîne-toi aux additions avec retenues.</div>
+      <div class="bandrow bandrow--good">70–89 % — cible la méthode directe et les débordements.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Circuits logiques combinatoires <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Circuit logique & architecture des ordinateurs » (Georges AYIVI-TOGBASSA, Novembre 2024, code B1COM0401).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

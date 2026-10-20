@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Métriques DORA, Fiabilité Opérationnelle &amp;amp; Gestion des Incidents | DevOps B3</title>
+<meta name="description" content="Chapitre 5 du cours DevOps B3 : Les 4 métriques DORA d’Accelerate, analyse mathématique MTBF/MTTF/MTTR, rayon d’impact (Blast Radius) et post-mortem sans blâme. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-devops/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Métriques DORA, Fiabilité Opérationnelle &amp;amp; Gestion des Incidents | DevOps B3">
+<meta property="og:description" content="Chapitre 5 du cours DevOps B3 : Les 4 métriques DORA d’Accelerate, analyse mathématique MTBF/MTTF/MTTR, rayon d’impact (Blast Radius) et post-mortem sans blâme. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-devopsnav"><div class="b3-devopsnav__in">
+  <a class="b3-devopsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-devopsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-devopsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> DevOps B3</a>
+  <div class="b3-devopsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-devopsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-devopswrap">
+<p class="crumb"><a href="../index.html">DevOps B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Métriques DORA, Fiabilité Opérationnelle &amp; Gestion des Incidents</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pendant des décennies, le management informatique a cru à un faux dilemme : pour augmenter la stabilité d’un système, il faudrait ralentir la cadence de livraison ; inversement, aller vite impliquerait nécessairement de casser la production. Les recherches scientifiques du programme DORA (DevOps Research and Assessment), synthétisées dans l’ouvrage de référence Accelerate par Nicole Forsgren, Jez Humble et Gene Kim, ont rigoureusement prouvé le contraire : les équipes d’élite qui déploient plusieurs fois par jour sont également celles dont le taux d’échec est le plus faible et le temps de réparation le plus court. Pour piloter rationnellement une organisation d’ingénierie moderne, l’ingénieur B3 doit instrumenter les 4 métriques DORA clés, modéliser la fiabilité du système (MTBF, MTTR, MTTF), mesurer le rayon d’impact (Blast Radius) de chaque composant et instaurer des protocoles d’incident irréprochables.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser les conclusions scientifiques du programme de recherche DORA et du livre Accelerate ;</li>
+      <li>calculer, interpréter et classifier les 4 métriques DORA : Deployment Frequency, Lead Time for Changes, Change Failure Rate et MTTR ;</li>
+      <li>établir les équations formelles de fiabilité matérielle et logicielle : MTBF, MTTF, MTTR et disponibilité intrinsèque ;</li>
+      <li>modéliser le rayon d’impact (Blast Radius) et les dépendances en cascade d’une architecture distribuée ;</li>
+      <li>structurer un protocole de gestion d’incident critique et rédiger un post-mortem sans blâme (Blameless Post-Mortem) ;</li>
+      <li>développer en Python 3 des calculateurs DORA, de disponibilité MTBF/MTTR et d’évaluation du risque de release.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Programme DORA &amp; La Démonstration Scientifique d’Accelerate</h2>
+
+<p>Fondé par les chercheurs Nicole Forsgren, Jez Humble et Gene Kim (puis racheté par Google Cloud), le programme <strong>DORA (DevOps Research and Assessment)</strong> a interrogé plus de 32 000 professionnels dans le monde pendant une décennie. Ses analyses statistiques rigoureuses réfutent définitivement le mythe de l’arbitrage entre vitesse et stabilité :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’Enseignement Majeur de DORA</div>
+<p><strong>La vitesse et la stabilité sont corrélées positivement.</strong> Les équipes qui livrent le plus fréquemment et le plus rapidement sont aussi celles qui connaissent le moins d’incidents majeurs et qui rétablissent le service le plus vite en cas de panne imprévue. La performance logicielle est un catalyseur direct de la performance économique globale de l’entreprise.</p>
+  </div>
+
+<h2>2. Les 4 Métriques Clés de Performance DORA</h2>
+
+<p>DORA a isolé 4 indicateurs universels permettant d’évaluer la santé et la maturité d’une chaîne de livraison logicielle :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width:20%">Métrique</th>
+      <th style="width:20%">Axe mesuré</th>
+      <th style="width:30%">Performance Élite (Elite)</th>
+      <th style="width:30%">Performance Faible (Low)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Deployment Frequency (DF)</strong></td>
+      <td>Débit / Vélocité</td>
+      <td>Multiples déploiements par jour à la demande.</td>
+      <td>Moins d’un déploiement tous les six mois.</td>
+    </tr>
+    <tr>
+      <td><strong>Lead Time for Changes (LTTC)</strong></td>
+      <td>Débit / Vélocité</td>
+      <td>Moins d’une heure entre le commit Git et la prod.</td>
+      <td>Entre 1 et 6 mois de latence calendaire.</td>
+    </tr>
+    <tr>
+      <td><strong>Change Failure Rate (CFR)</strong></td>
+      <td>Qualité / Stabilité</td>
+      <td>Entre 0% et 5% des déploiements causent une panne.</td>
+      <td>Supérieur à 15% (jusqu’à 45% d’échecs).</td>
+    </tr>
+    <tr>
+      <td><strong>Time to Restore Service (MTTR)</strong></td>
+      <td>Résilience / Stabilité</td>
+      <td>Moins d’une heure pour réparer un incident en prod.</td>
+      <td>Plusieurs jours ou semaines de résolution.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Modélisation Mathématique de la Fiabilité : MTBF, MTTF &amp; MTTR</h2>
+
+<p>Pour quantifier rigoureusement la disponibilité opérationnelle d’une infrastructure ou d’un microservice, l’ingénierie de fiabilité s’appuie sur trois variables temporelles fondamentales :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>MTTF (Mean Time To Failure)</h4>
+    <p>Temps moyen écoulé durant lequel le système fonctionne de manière continue et nominale avant qu’une panne ne survienne :</p>
+    $$\text{MTTF} = \frac{\text{Durée totale opérationnelle}}{\text{Nombre de défaillances}}$$
+  </div>
+  <div class="card">
+    <h4>MTTR (Mean Time To Repair)</h4>
+    <p>Temps moyen nécessaire à l’équipe pour détecter, diagnostiquer, corriger et rétablir le service après une défaillance :</p>
+    $$\text{MTTR} = \frac{\text{Durée totale d’indisponibilité}}{\text{Nombre de défaillances}}$$
+  </div>
+  <div class="card">
+    <h4>MTBF (Mean Time Between Failures)</h4>
+    <p>Temps moyen entre deux défaillances successives sur un système réparable (somme du temps de fonctionnement et de réparation) :</p>
+    $$\text{MTBF} = \text{MTTF} + \text{MTTR}$$
+  </div>
+</div>
+<h4 style="margin-top:20px">Calcul de la Disponibilité Opérationnelle ($A$)</h4>
+<p>Le ratio de disponibilité intrinsèque du système s’exprime par le rapport entre le temps opérationnel réel et le temps total :</p>
+$$A = \frac{\text{MTTF}}{\text{MTTF} + \text{MTTR}} = \frac{\text{MTBF} - \text{MTTR}}{\text{MTBF}}$$
+<p>Par exemple, si un service fonctionne en moyenne 720 heures entre deux pannes ($MTTF = 720\,\text{h}$) et requiert 30 minutes de réparation ($MTTR = 0.5\,\text{h}$), sa disponibilité théorique vaut :</p>
+$$A = \frac{720}{720 + 0.5} = \frac{720}{720.5} \approx 0.999306\,\text{ (soit } 99.93\,\%)$$
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le Focus SRE : Réduire le MTTR plutôt que chercher un MTBF infini</div>
+<p>Dans les systèmes distribués complexes, les pannes logicielles, matérielles ou réseau sont inévitables. Chercher un système invulnérable (MTTF infini) coûte des sommes astronomiques pour des gains marginaux. La philosophie DevOps/SRE préconise d’investir prioritairement dans l’<strong>observabilité et la réduction drastique du MTTR</strong> (détection instantanée, bascule automatique, rollbacks en 1 clic).</p>
+  </div>
+
+<h2>4. Rayon d’Impact (Blast Radius) &amp; Post-Mortem Sans Blâme</h2>
+
+<p>Le <strong>Rayon d’Impact (Blast Radius)</strong> désigne l’étendue maximale des dommages potentiels (services indisponibles, utilisateurs touchés, perte de données) causés par la défaillance d’un composant donné. Une architecture résiliente s’efforce de compartimenter le système pour limiter ce rayon :</p>
+<ul>
+  <li><strong>Cloisonnement par Bulkheads (Cloisons étanches) :</strong> pools de connexions et threads séparés pour qu’une défaillance d’un microservice non critique n’asphyxie pas le cœur transactionnel ;</li>
+  <li><strong>Disjoncteurs logiques (Circuit Breakers) :</strong> coupure automatique des appels vers un service dégradé pour éviter les pannes en cascade (Cascading Failures) ;</li>
+  <li><strong>Déploiements par cellules (Cell-based Architecture) :</strong> partitionnement des utilisateurs par silos indépendants étanches.</li>
+</ul>
+<h4 style="margin-top:20px">Le Post-Mortem Sans Blâme (Blameless Post-Mortem)</h4>
+<p>Après tout incident critique de production, l’équipe organise une rétrospective formalisée respectant des principes stricts :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Ce qu’un Post-Mortem N’EST PAS</h4>
+    <p>Une séance de recherche de coupable, une sanction disciplinaire ou un constat fataliste d’« erreur humaine ». L’erreur humaine est le symptôme de défaillances systémiques de conception ou d’outillage, jamais la cause racine.</p>
+  </div>
+  <div class="card">
+    <h4>Ce qu’un Post-Mortem DOIT PRODUIRE</h4>
+    <p>Une chronologie factuelle seconde par seconde, la compréhension des signaux d’alerte manqués, l’analyse des facteurs contributifs multiples, et une liste d’actions préventives concrètes (automatisation, alertes, garde-fous).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="do3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="OUTIL nom=terraform PARADIGME=DECLARATIF GESTION_ETAT=OUI IDEMPOTENT=OUI&#10;OUTIL nom=ansible PARADIGME=DECLARATIF GESTION_ETAT=NON IDEMPOTENT=OUI&#10;OUTIL nom=bash_script PARADIGME=IMPERATIF GESTION_ETAT=NON IDEMPOTENT=NON">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c5-e1) — Classificateur de paradigmes d’Infrastructure as Code (Déclaratif vs Impératif)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — OpenTofu provisionneur d’infrastructure moderne]
+# Données : OUTIL nom=opentofu PARADIGME=DECLARATIF GESTION_ETAT=OUI IDEMPOTENT=OUI
+A_COMPLETER
+
+[Cas 2 — Script PowerShell impératif pour maintenance]
+# Données : OUTIL nom=ps_deploy PARADIGME=IMPERATIF GESTION_ETAT=NON IDEMPOTENT=NON
+A_COMPLETER
+
+[Cas 3 — Gestionnaire de paquets idempotent sans fichier d’état]
+# Données : OUTIL nom=puppet_agent PARADIGME=DECLARATIF GESTION_ETAT=NON IDEMPOTENT=OUI
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Classificateur de paradigmes d’Infrastructure as Code (Déclaratif vs Impératif)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier les propriétés d’idempotence et de gestion d’état d’un outil IaC pour qualifier son adéquation opérationnelle.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
+Règles de qualification :<br>
+- <code>ETAT</code> : <code>AVEC_STATE</code> si <code>GESTION_ETAT == OUI</code>, sinon <code>SANS_STATE</code>.<br>
+- <code>USAGE</code> :<br>
+  - Si <code>PARADIGME == DECLARATIF</code>, <code>GESTION_ETAT == OUI</code> et <code>IDEMPOTENT == OUI</code> :<br>
+    <code>USAGE=PROVISIONING_INFRASTRUCTURE_OPTIMAL</code> (ex: Terraform, OpenTofu)<br>
+  - Sinon si <code>PARADIGME == DECLARATIF</code>, <code>GESTION_ETAT == NON</code> et <code>IDEMPOTENT == OUI</code> :<br>
+    <code>USAGE=GESTION_CONFIGURATION_ETATS</code> (ex: Ansible)<br>
+  - Sinon si <code>PARADIGME == IMPERATIF</code> :<br>
+    <code>USAGE=SCRIPT_PROCEDURAL_LEGACY</code> (scripts Shell sans garantie de convergence)<br>
+  - Sinon :<br>
+    <code>USAGE=HYBRIDE_SPECIALISE</code><br><br>
+Afficher :<br>
+<code>OUTIL_IAC: &lt;nom&gt; -&gt; PARADIGME=&lt;PARADIGME&gt; | ETAT=&lt;ETAT&gt; | USAGE=&lt;USAGE&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OUTIL nom=terraform PARADIGME=DECLARATIF GESTION_ETAT=OUI IDEMPOTENT=OUI
+OUTIL nom=ansible PARADIGME=DECLARATIF GESTION_ETAT=NON IDEMPOTENT=OUI
+OUTIL nom=bash_script PARADIGME=IMPERATIF GESTION_ETAT=NON IDEMPOTENT=NON</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OUTIL_IAC: terraform -&gt; PARADIGME=DECLARATIF | ETAT=AVEC_STATE | USAGE=PROVISIONING_INFRASTRUCTURE_OPTIMAL
+OUTIL_IAC: ansible -&gt; PARADIGME=DECLARATIF | ETAT=SANS_STATE | USAGE=GESTION_CONFIGURATION_ETATS
+OUTIL_IAC: bash_script -&gt; PARADIGME=IMPERATIF | ETAT=SANS_STATE | USAGE=SCRIPT_PROCEDURAL_LEGACY</pre></div>
+    </div>
+    <p class="lab__note">Terraform maintient un tfstate pour provisionner, Ansible configure les machines sans state distant.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le déclaratif décrit « l’état cible désiré », l’impératif dicte « la séquence d’instructions à exécuter ».</li>
+        <li>L’idempotence garantit qu’appliquer plusieurs fois le même code produit strictement le même résultat.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RESOURCE id=vm_instance code_val=t3.medium state_val=t3.medium real_val=t3.medium&#10;RESOURCE id=db_cluster code_val=db.r5.xlarge state_val=db.r5.large real_val=db.r5.large&#10;RESOURCE id=security_group code_val=port_443 state_val=port_443 real_val=port_22_ouvert">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c5-e2) — Détecteur de dérive d’infrastructure Terraform (Drift Detection)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Conflit complexe avec modification conjointe code et console]
+# Données : RESOURCE id=s3_bucket code_val=private_kms state_val=private_sse real_val=public_open
+A_COMPLETER
+
+[Cas 2 — Ressource parfaitement synchronisée]
+# Données : RESOURCE id=vpc_main code_val=10.0.0.0/16 state_val=10.0.0.0/16 real_val=10.0.0.0/16
+A_COMPLETER
+
+[Cas 3 — Dérive sur la taille d’un disque managé]
+# Données : RESOURCE id=ebs_data code_val=100G state_val=100G real_val=200G
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Détecteur de dérive d’infrastructure Terraform (Drift Detection)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer l’état déclaré dans le code (.tf), le fichier d’état (tfstate) et la réalité observée sur le Cloud pour détecter toute altération non autorisée.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
+Matrice de diagnostic déterministe :<br>
+1. Si <code>code_val == state_val == real_val</code> :<br>
+   <code>STATUT=SYNCHRONISE | ACTION=AUCUNE</code><br>
+2. Si <code>code_val != state_val</code> et <code>state_val == real_val</code> :<br>
+   <code>STATUT=PLAN_EN_ATTENTE | ACTION=TERRAFORM_APPLY</code> (le code a été modifié par un développeur et attend d’être appliqué)<br>
+3. Si <code>code_val == state_val</code> et <code>state_val != real_val</code> :<br>
+   <code>STATUT=DERIVE_EXTERNE | ACTION=TERRAFORM_REFRESH_OU_ALIGNEMENT</code> (une modification manuelle clandestine a été opérée sur la console Cloud)<br>
+4. Si <code>code_val != state_val</code> et <code>state_val != real_val</code> :<br>
+   <code>STATUT=CONFLIT_MAJEUR | ACTION=RESOLUTION_MANUELLE_REQUISE</code><br><br>
+Afficher :<br>
+<code>DRIFT_AUDIT: &lt;nom&gt; -&gt; STATUT=&lt;STATUT&gt; | ACTION=&lt;ACTION&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESOURCE id=vm_instance code_val=t3.medium state_val=t3.medium real_val=t3.medium
+RESOURCE id=db_cluster code_val=db.r5.xlarge state_val=db.r5.large real_val=db.r5.large
+RESOURCE id=security_group code_val=port_443 state_val=port_443 real_val=port_22_ouvert</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DRIFT_AUDIT: vm_instance -&gt; STATUT=SYNCHRONISE | ACTION=AUCUNE
+DRIFT_AUDIT: db_cluster -&gt; STATUT=PLAN_EN_ATTENTE | ACTION=TERRAFORM_APPLY
+DRIFT_AUDIT: security_group -&gt; STATUT=DERIVE_EXTERNE | ACTION=TERRAFORM_REFRESH_OU_ALIGNEMENT</pre></div>
+    </div>
+    <p class="lab__note">Le security_group a subi une modification manuelle (port 22 ouvert) non déclarée dans Git.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La dérive externe (Drift) se produit quand un administrateur contourne le dépôt Git et modifie manuellement l’infrastructure.</li>
+        <li>Comparer les trois valeurs deux à deux.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RESOURCE id=vpc depends_on=NONE&#10;RESOURCE id=subnet_pub depends_on=vpc&#10;RESOURCE id=subnet_priv depends_on=vpc&#10;RESOURCE id=vm_web depends_on=subnet_pub&#10;RESOURCE id=db_sql depends_on=subnet_priv">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c5-e3) — Planificateur d’exécution Terraform et graphe de dépendances (DAG)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cycle direct de dépendance croisée]
+# Données : RESOURCE id=res_a depends_on=res_b
+# Données : RESOURCE id=res_b depends_on=res_a
+A_COMPLETER
+
+[Cas 2 — Toutes les ressources indépendantes en Vague 1]
+# Données : RESOURCE id=bucket_a depends_on=NONE
+# Données : RESOURCE id=bucket_b depends_on=NONE
+# Données : RESOURCE id=bucket_c depends_on=NONE
+A_COMPLETER
+
+[Cas 3 — Chaîne linéaire stricte à 3 niveaux]
+# Données : RESOURCE id=r1 depends_on=NONE
+# Données : RESOURCE id=r2 depends_on=r1
+# Données : RESOURCE id=r3 depends_on=r2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Planificateur d’exécution Terraform et graphe de dépendances (DAG)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire les vagues d’exécution parallèles (Execution Waves) à partir du graphe orienté acyclique (DAG) de dépendances entre ressources.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code>.<br><br>
+Règles :<br>
+- <strong>Vague 1 :</strong> toutes les ressources qui n'ont aucune dépendance (ou dont <code>depends_on == NONE</code>). Elles peuvent être créées simultanément en parallèle.<br>
+- <strong>Vague $k$ :</strong> toutes les ressources non encore créées dont <strong>l’ensemble</strong> des dépendances a été satisfait lors des vagues $1$ à $k-1$.<br>
+- Au sein de chaque vague, trier les identifiants de ressources par <strong>ordre alphabétique</strong>.<br>
+- Si un cycle de dépendance mutuelle est détecté :<br>
+  <code>TERRAFORM_DAG: ERREUR=CYCLE_DE_DEPENDANCE_DETECTE</code><br>
+- Sinon, afficher les vagues successives et le parallélisme maximal ($P = \max(|Vague_i|)$) :<br>
+  <code>TERRAFORM_DAG: VAGUE 1=[&lt;...&gt;] | VAGUE 2=[&lt;...&gt;] ... | PARALLELISME_MAX=&lt;P&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESOURCE id=vpc depends_on=NONE
+RESOURCE id=subnet_pub depends_on=vpc
+RESOURCE id=subnet_priv depends_on=vpc
+RESOURCE id=vm_web depends_on=subnet_pub
+RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TERRAFORM_DAG: VAGUE 1=[vpc] | VAGUE 2=[subnet_priv, subnet_pub] | VAGUE 3=[db_sql, vm_web] | PARALLELISME_MAX=2</pre></div>
+    </div>
+    <p class="lab__note">Le VPC est créé seul (Vague 1), puis les deux sous-réseaux en parallèle (Vague 2), puis les machines et bases (Vague 3).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque vague regroupe les nœuds dont le degré entrant résiduel est nul.</li>
+        <li>Le parallélisme maximal correspond au plus grand nombre de ressources déployables dans une même vague.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle conclusion scientifique majeure ressort des recherches DORA (DevOps Research and Assessment) publiées dans Accelerate ?</p>
+      <div class="opts">
+        <button class="opt">Pour éviter les pannes, il est scientifiquement prouvé qu’il faut réduire les déploiements à un par trimestre</button>
+        <button class="opt" data-correct="1">La vélocité de livraison et la stabilité de production sont corrélées positivement : les équipes les plus rapides ont aussi les systèmes les plus fiables</button>
+        <button class="opt">L’automatisation des tests augmente les coûts de développement sans aucun gain mesurable</button>
+        <button class="opt">Le langage de programmation est le seul facteur expliquant la réussite d’un projet</button>
+      </div>
+      <div class="q__exp">DORA a démontré que les équipes d’élite concilient vitesse et fiabilité : déployer souvent par petits incréments réduit le risque unitaire de chaque mise en production.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelles sont les 4 métriques universelles définies par DORA pour évaluer la performance de livraison logicielle ?</p>
+      <div class="opts">
+        <button class="opt">Nombre de lignes de code, Nombre de bugs, Heures supplémentaires, Coût des serveurs</button>
+        <button class="opt" data-correct="1">Deployment Frequency, Lead Time for Changes, Change Failure Rate, Mean Time to Restore (MTTR)</button>
+        <button class="opt">Vitesse CPU, Bande passante réseau, Taux de mémoire vive, Taille du disque dur</button>
+        <button class="opt">Nombre de réunions, Points de vélocité Scrum, Nombre de commits, Salaire moyen</button>
+      </div>
+      <div class="q__exp">Les 4 métriques DORA mesurent deux axes : le débit (Deployment Frequency et Lead Time for Changes) et la stabilité (Change Failure Rate et MTTR).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une équipe réalise 200 déploiements en production sur une année. Parmi ceux-ci, 10 déploiements ont provoqué un incident nécessitant un retour arrière immédiat. Quel est le Change Failure Rate (CFR) ?</p>
+      <div class="opts">
+        <button class="opt">20%</button>
+        <button class="opt">10%</button>
+        <button class="opt" data-correct="1">5%</button>
+        <button class="opt">2%</button>
+      </div>
+      <div class="q__exp">CFR = (Nombre de déploiements en échec / Nombre total de déploiements) * 100 = (10 / 200) * 100 = 5% (ce qui correspond au seuil supérieur du profil Elite selon DORA).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la modélisation de fiabilité d’un système réparable, que vaut le MTBF (Mean Time Between Failures) ?</p>
+      <div class="opts">
+        <button class="opt">MTBF = MTTF - MTTR</button>
+        <button class="opt" data-correct="1">MTBF = MTTF + MTTR</button>
+        <button class="opt">MTBF = MTTF * MTTR</button>
+        <button class="opt">MTBF = MTTR / MTTF</button>
+      </div>
+      <div class="q__exp">Le MTBF est le temps moyen entre deux pannes consécutives, soit la somme du temps moyen de fonctionnement nominal (MTTF) et du temps moyen de réparation (MTTR).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un serveur fonctionne en moyenne 990 heures sans défaillance (MTTF) et nécessite 10 heures de maintenance pour redémarrer (MTTR), quelle est sa disponibilité opérationnelle intrinsèque ?</p>
+      <div class="opts">
+        <button class="opt">90%</button>
+        <button class="opt">95%</button>
+        <button class="opt" data-correct="1">99%</button>
+        <button class="opt">99.9%</button>
+      </div>
+      <div class="q__exp">Disponibilité A = MTTF / (MTTF + MTTR) = 990 / (990 + 10) = 990 / 1000 = 0.99, soit exactement 99.0% de disponibilité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’appelle-t-on le « Blast Radius » (rayon d’impact) d’une défaillance dans une architecture distribuée ?</p>
+      <div class="opts">
+        <button class="opt">La distance physique en mètres entre les serveurs dans la salle informatique</button>
+        <button class="opt" data-correct="1">L’étendue maximale des dommages et des services affectés par la panne d’un composant donné</button>
+        <button class="opt">La vitesse de propagation des ondes radio du Wi-Fi</button>
+        <button class="opt">La consommation électrique lors d’un pic de calcul</button>
+      </div>
+      <div class="q__exp">Le Blast Radius mesure l’impact collatéral d’une défaillance. Une architecture moderne compartimente ses composants (via cloisons étanches et circuit breakers) pour minimiser ce rayon.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le principe directeur fondamental d’un « Blameless Post-Mortem » (post-mortem sans recherche de coupable) ?</p>
+      <div class="opts">
+        <button class="opt">Cacher la panne à la direction générale</button>
+        <button class="opt" data-correct="1">Considérer que les ingénieurs agissent de bonne foi et auditer les défaillances systémiques de conception pour empêcher qu’une erreur humaine ne suffise à faire tomber le système</button>
+        <button class="opt">Payer une prime financière à la personne qui a provoqué la panne</button>
+        <button class="opt">Remplacer systématiquement tous les membres de l’équipe de développement</button>
+      </div>
+      <div class="q__exp">L’erreur humaine est une conséquence des failles d’architecture et de l’absence de garde-fous. Le post-mortem sans blâme s’attaque aux causes profondes organisationnelles et techniques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la philosophie SRE préconise-t-elle d’investir prioritairement dans la réduction du MTTR plutôt que dans la recherche d’un MTTF infini ?</p>
+      <div class="opts">
+        <button class="opt">Car réparer un incident est toujours gratuit</button>
+        <button class="opt" data-correct="1">Car dans les systèmes complexes distribués, les pannes sont inévitables ; la capacité à restaurer le service en quelques minutes confère une résilience supérieure à un coût maîtrisé</button>
+        <button class="opt">Car les exploitants préfèrent être appelés la nuit</button>
+        <button class="opt">Car les disques durs ne tombent jamais en panne</button>
+      </div>
+      <div class="q__exp">Tenter de concevoir un système qui ne tombe jamais en panne coûte des sommes exponentielles. Automatiser la détection et la restauration rapide (MTTR très faible) maximise la disponibilité réelle.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que ralentir la cadence de livraison logicielle permet d’augmenter la stabilité des systèmes de production.</li>
+      <li>Mesurer la performance des ingénieurs au nombre de lignes de code ou au nombre de commits plutôt qu’aux 4 métriques d’impact DORA.</li>
+      <li>Investir des budgets disproportionnés dans un MTTF infini au détriment de l’observabilité et de la réduction drastique du MTTR.</li>
+      <li>Considérer l’erreur humaine comme la cause racine d’un incident majeur plutôt que comme le symptôme d’un manque de garde-fous systémiques.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole d’Évaluation de la Performance DORA &amp; de Gestion de Crise</div>
+    <ol>
+      <li>Instrumenter les dépôts Git et les plateformes de production pour collecter les horodatages de livraison et d’incident.</li>
+      <li>Calculer la fréquence de déploiement (DF) et le Lead Time for Changes (LTTC) pour caractériser le débit.</li>
+      <li>Calculer le Change Failure Rate (CFR) et le Mean Time to Restore (MTTR) pour caractériser la stabilité.</li>
+      <li>Positionner l’organisation sur l’échelle de maturité officielle DORA (Low, Medium, High, Elite).</li>
+      <li>Modéliser les équations de fiabilité du système (MTBF, MTTF, MTTR et disponibilité opérationnelle A).</li>
+      <li>Conduire un post-mortem sans blâme (Blameless) et cartographier le rayon d’impact (Blast Radius).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’enquête DORA (Accelerate) prouve que la vélocité et la stabilité se renforcent mutuellement.</li>
+      <li>Les 4 métriques DORA fournissent un tableau de bord équilibré entre débit (DF, LTTC) et stabilité (CFR, MTTR).</li>
+      <li>Les équipes d’élite déploient plusieurs fois par jour, ont un délai < 1h, un CFR < 5% et un MTTR < 1h.</li>
+      <li>La disponibilité A vaut MTTF / (MTTF + MTTR) : réduire le MTTR est plus rentable que chercher un MTTF infini.</li>
+      <li>Le cloisonnement en cloisons étanches (Bulkheads) et disjoncteurs limite le rayon d’impact (Blast Radius).</li>
+      <li>Le post-mortem sans blâme traite l’erreur humaine comme un symptôme pour corriger les défaillances de conception.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais les auteurs et la méthodologie scientifique du programme de recherche DORA.</li>
+      <li>Je sais calculer et interpréter chacune des 4 métriques DORA.</li>
+      <li>Je connais les critères caractérisant une équipe de niveau Élite.</li>
+      <li>Je sais calculer le MTBF, le MTTF, le MTTR et le taux de disponibilité global d’un composant.</li>
+      <li>Je sais définir et compartimenter le Blast Radius d’un microservice.</li>
+      <li>Je sais animer un post-mortem sans blâme et formaliser des actions préventives robustes.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Programme de recherche DORA &amp; Accelerate</li><li>Deployment Frequency (DF)</li><li>Lead Time for Changes (LTTC)</li><li>Change Failure Rate (CFR)</li><li>Mean Time to Restore (MTTR)</li><li>Équations de fiabilité MTBF, MTTF, MTTR</li><li>Rayon d’impact (Blast Radius) &amp; Bulkheads</li><li>Post-mortem sans blâme (Blameless)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez les 4 métriques DORA et les définitions de base de MTBF, MTTF et MTTR.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, revoyez les formules de disponibilité et la notion de Blast Radius.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez parfaitement les métriques scientifiques DORA et l’ingénierie de résilience.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — SRE (Site Reliability Engineering), SLI/SLO, Error Budgets &amp; Observabilité <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours CC_Devops.docx, les principes de Continuous Delivery (Jez Humble, David Farley), The Phoenix Project (Gene Kim), les recherches DORA (Accelerate) et les référentiels Site Reliability Engineering de Google.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

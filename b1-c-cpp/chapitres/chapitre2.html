@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Variables, types et opérateurs | Langage C &amp; C++ B1</title>
+<meta name="description" content="Chapitre 2 du cours Langage C & C++ B1 : types de base, taille mémoire, opérateurs arithmétiques, division entière, transtypage. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="2">
+
+<nav class="cnav"><div class="cnav__in">
+  <a class="cnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cnav__sep" aria-hidden="true">/</span>
+  <a class="cnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C &amp; C++ B1</a>
+  <div class="cnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="cwrap">
+  <p class="crumb"><a href="../index.html">C &amp; C++ B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+  <h1>Chapitre 2 — Variables, types et opérateurs</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le service informatique doit calculer la moyenne d'un étudiant : deux notes entières et une note
+    décimale. Ton programme affiche <code>3</code> au lieu de <code>3.5</code>. Pourquoi ? Parce qu'en C, le
+    <em>type</em> des nombres décide du résultat des opérations. Ce chapitre te donne les règles exactes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Déclarer une variable avec le bon type (<code>int</code>, <code>float</code>, <code>double</code>, <code>char</code>) ;</li>
+      <li>prédire la taille d'un type avec <code>sizeof</code> ;</li>
+      <li>utiliser les opérateurs arithmétiques et expliquer la division entière ;</li>
+      <li>convertir une valeur explicitement par transtypage ;</li>
+      <li>choisir le bon format de lecture/affichage pour chaque type.</li>
+    </ol>
+  </div>
+
+  <h2>1. Une variable : un nom, un type, une case mémoire</h2>
+  <p><strong>Définition.</strong> Une variable est un emplacement mémoire nommé, dont le <em>type</em> fixe la
+  taille et l'interprétation des bits stockés. Contrairement à Python, le type est déclaré à l'avance et ne
+  change plus.</p>
+
+  <pre><code>int nombre_utilisateurs = 150;      <span class="c">/* entier */</span>
+double prix_ttc = 12.5;             <span class="c">/* décimal */</span>
+char service = 'A';                 <span class="c">/* un caractère */</span>
+char nom[50] = "GestionStock";      <span class="c">/* chaîne */</span></code></pre>
+
+  <table>
+    <tr><th>Type</th><th>Taille (typique)</th><th>Plage / usage</th><th>Format</th></tr>
+    <tr><td><code>char</code></td><td>1 octet</td><td>Un caractère ou un petit entier (−128 à 127)</td><td><code>%c</code></td></tr>
+    <tr><td><code>int</code></td><td>4 octets</td><td>Entiers courants</td><td><code>%d</code></td></tr>
+    <tr><td><code>long</code></td><td>8 octets</td><td>Grands entiers</td><td><code>%ld</code></td></tr>
+    <tr><td><code>float</code></td><td>4 octets</td><td>Décimaux (précision simple)</td><td><code>%f</code></td></tr>
+    <tr><td><code>double</code></td><td>8 octets</td><td>Décimaux (précision double)</td><td><code>%lf</code> / <code>%.2f</code></td></tr>
+  </table>
+
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>Choisir un type, c'est choisir la taille de la boîte. Un <code>char</code> est une petite boîte, un
+    <code>double</code> une grande. Mettre une grande valeur dans une boîte trop petite, c'est le
+    <em>débordement</em> : la valeur est tronquée sans avertissement.</p>
+  </div>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Niveau 2 — Technique</div>
+    <p><code>sizeof(type)</code> donne la taille en octets sur la plateforme courante. Un <code>int</code> n'a pas
+    une taille garantie par la norme : elle dépend du système. Pour un code portable, préférer les types à largeur
+    fixe (<code>int32_t</code>, <code>uint8_t</code>) de <code>stdint.h</code>.</p>
+  </div>
+
+  <h2>2. Déclarer et affecter</h2>
+  <pre><code>int a;             <span class="c">/* déclaration : valeur indéterminée */</span>
+a = 10;            <span class="c">/* affectation */</span>
+int b = 3;         <span class="c">/* déclaration + initialisation */</span>
+const int TVA = 20; <span class="c">/* constante : non modifiable */</span></code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la variable non initialisée</div>
+    <p>Une variable locale déclarée sans valeur contient ce qui restait dans la mémoire (« valeur
+    indéterminée »). L'utiliser produit un résultat imprévisible : initialise toujours avant de lire.</p>
+  </div>
+
+  <h2>3. Opérateurs arithmétiques</h2>
+  <table>
+    <tr><th>Opérateur</th><th>Signification</th><th>Exemple</th></tr>
+    <tr><td><code>+</code></td><td>Addition</td><td><code>3 + 4</code> → 7</td></tr>
+    <tr><td><code>-</code></td><td>Soustraction</td><td><code>9 - 4</code> → 5</td></tr>
+    <tr><td><code>*</code></td><td>Multiplication</td><td><code>3 * 4</code> → 12</td></tr>
+    <tr><td><code>/</code></td><td>Division</td><td><code>7 / 2</code> → 3 (entiers)</td></tr>
+    <tr><td><code>%</code></td><td>Reste (modulo)</td><td><code>7 % 2</code> → 1</td></tr>
+    <tr><td><code>++</code>, <code>--</code></td><td>Incrément, décrément</td><td><code>i++</code></td></tr>
+  </table>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> La règle d'or : / entre entiers tronque</div>
+    <p>Si les deux opérandes sont des entiers, <code>/</code> effectue une division entière : <code>7 / 2</code>
+    vaut <code>3</code>. Pour obtenir <code>3.5</code>, il faut qu'au moins un opérande soit décimal :
+    <code>7 / 2.0</code> ou <code>(double)7 / 2</code>. Le reste <code>%</code> n'a de sens que sur des entiers.</p>
+    <pre><code>int a = 7, b = 2;
+printf("%d\n", a / b);            <span class="c">/* 3 */</span>
+printf("%.1f\n", (double)a / b);  <span class="c">/* 3.5 */</span>
+printf("%d\n", a % b);            <span class="c">/* 1 */</span></code></pre>
+  </div>
+
+  <h2>4. Transtypage (conversion explicite)</h2>
+  <p><strong>Définition.</strong> Le transtypage force la conversion d'une valeur d'un type vers un autre. Il
+  s'écrit en plaçant le type cible entre parenthèses devant la valeur.</p>
+  <pre><code>double prix = 12.99;
+int arrondi_bas = (int)prix;    <span class="c">/* 12 : troncature, pas arrondi */</span>
+int total = (int)(prix + 0.5);  <span class="c">/* arrondi vers le haut */</span>
+
+int notes = 36, eleves = 5;
+double moyenne = (double)notes / eleves;   <span class="c">/* 7.2 */</span></code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — troncature et promotion</div>
+    <p>Le transtypage vers un entier <em>tronque</em> et n'arrondit pas : <code>(int)9.99</code> vaut 9. Si une
+    expression mélange entiers et décimaux, les entiers sont promus en décimaux avant l'opération, mais la
+    promotion ne s'applique pas rétroactivement : <code>1 / 2 * 2.0</code> vaut <code>0.0</code>, pas 1.</p>
+  </div>
+
+  <h2>5. Lire et afficher selon le type</h2>
+  <pre><code>int n;
+scanf("%d", &amp;n);              <span class="c">/* entier */</span>
+
+double d;
+scanf("%lf", &amp;d);             <span class="c">/* décimal (double) */</span>
+
+printf("Entier : %d\n", n);
+printf("Decimal : %.2f\n", d);
+printf("Taille d'un int : %zu octets\n", sizeof(int));</code></pre>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="c-c2-e1"
+     data-language="c"
+     data-height="300"
+     data-stdin="25">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+int main(void) {
+    double celsius;
+    scanf("%lf", &celsius);
+
+    /* À compléter : afficher la conversion avec deux décimales. */
+
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Conversion Celsius vers Fahrenheit</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser un type décimal et un arrondi d’affichage.</p>
+    <div class="lab__brief"><p>Le programme reçoit une température en degrés Celsius (nombre décimal). Affichez sa valeur en Fahrenheit sur la forme <code>F = &lt;valeur&gt;</code>, avec exactement deux décimales.</p><p>Formule : F = C × 9/5 + 32.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>25</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>F = 77.00</pre></div>
+    </div>
+    <p class="lab__note">25 °C correspondent à 77 °F.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une division entre deux entiers donne un résultat entier : pour conserver les décimales, les opérandes doivent être des nombres décimaux.</li>
+        <li>Le format décimal de lecture d’un double est « %lf » ; à l’affichage, on peut fixer le nombre de décimales entre le « % » et le « f ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c2-e2"
+     data-language="c"
+     data-height="300"
+     data-stdin="2 7">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+int main(void) {
+    int largeur, hauteur;
+    scanf("%d %d", &largeur, &hauteur);
+
+    /* À compléter : afficher l'aire puis le périmètre. */
+
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Aire et périmètre d’un rectangle</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Enchaîner plusieurs calculs et plusieurs affichages.</p>
+    <div class="lab__brief"><p>Le programme reçoit la largeur puis la hauteur d’un rectangle (entiers). Affichez l’aire sur une ligne puis le périmètre sur la suivante, comme dans l’exemple.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2 7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Aire : 14
+Perimetre : 18</pre></div>
+    </div>
+    <p class="lab__note">Aire 2×7 = 14 ; périmètre 2×(2+7) = 18.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’aire est le produit des deux dimensions ; le périmètre additionne deux fois chaque côté.</li>
+        <li>Chaque information demandée occupe sa propre ligne : deux appels d’affichage, chacun terminé par un passage à la ligne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c2-e3"
+     data-language="c"
+     data-height="300"
+     data-stdin="12 15 9">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+int main(void) {
+    int a, b, c;
+    scanf("%d %d %d", &a, &b, &c);
+
+    /* À compléter : afficher la moyenne avec deux décimales. */
+
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moyenne de trois notes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Éviter la division entière dans un calcul de moyenne.</p>
+    <div class="lab__brief"><p>Le programme reçoit trois notes entières. Affichez leur moyenne sous la forme <code>Moyenne : &lt;valeur&gt;</code>, avec deux décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>12 15 9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Moyenne : 12.00</pre></div>
+    </div>
+    <p class="lab__note">12 + 15 + 9 = 36 ; 36 / 3 = 12.00.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La somme de trois entiers est un entier : c’est la division qui doit se faire en décimal, sans quoi la partie fractionnaire disparaît.</li>
+        <li>Pour un résultat décimal, l’un des deux nombres divisés doit être un nombre à virgule.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que vaut <code>9 / 4</code> entre deux <code>int</code> ?</p>
+      <div class="opts">
+        <button class="opt">2.25</button>
+        <button class="opt" data-correct="1">2</button>
+        <button class="opt">3</button>
+      </div>
+      <div class="q__exp">Division entière : la partie décimale est tronquée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>17 % 5</code> ?</p>
+      <div class="opts">
+        <button class="opt">3</button>
+        <button class="opt" data-correct="1">2</button>
+        <button class="opt">3.4</button>
+      </div>
+      <div class="q__exp">17 = 3 × 5 + 2, le reste est 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel format lit un <code>double</code> avec <code>scanf</code> ?</p>
+      <div class="opts">
+        <button class="opt"><code>%d</code></button>
+        <button class="opt" data-correct="1"><code>%lf</code></button>
+        <button class="opt"><code>%f</code></button>
+      </div>
+      <div class="q__exp">En lecture, un <code>double</code> se lit avec <code>%lf</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>(int)9.99</code> ?</p>
+      <div class="opts">
+        <button class="opt">10</button>
+        <button class="opt" data-correct="1">9</button>
+        <button class="opt">9.99</button>
+      </div>
+      <div class="q__exp">Le transtypage tronque, il n'arrondit pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d'octets occupe typiquement un <code>double</code> ?</p>
+      <div class="opts">
+        <button class="opt">4</button>
+        <button class="opt" data-correct="1">8</button>
+        <button class="opt">16</button>
+      </div>
+      <div class="q__exp">Le <code>double</code> est la précision double : 8 octets.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>1 / 2 * 2.0</code> ?</p>
+      <div class="opts">
+        <button class="opt">1.0</button>
+        <button class="opt" data-correct="1">0.0</button>
+        <button class="opt">0.5</button>
+      </div>
+      <div class="q__exp">1 / 2 est calculé en entier (0) avant la multiplication par 2.0.</div>
+    </div>
+  </div>
+
+  <h2>8. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Moyenne entière</strong> : diviser deux <code>int</code> et attendre un décimal.</li>
+      <li><strong>Mauvais format</strong> : <code>%d</code> pour un <code>double</code>, ou oublier <code>%lf</code> à la lecture.</li>
+      <li><strong>Variable non initialisée</strong> : résultat imprévisible.</li>
+      <li><strong>Troncature involontaire</strong> : affecter un décimal à un <code>int</code>.</li>
+      <li><strong>Confondre <code>=</code> et <code>==</code></strong> dans une condition (chapitre 3).</li>
+    </ul>
+  </div>
+
+  <h2>9. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Choisir le type d'un résultat</div>
+    <ol>
+      <li><strong>Compter</strong> (effectif, index, identifiant) → <code>int</code>.</li>
+      <li><strong>Mesurer</strong> (moyenne, prix, pourcentage) → <code>double</code>.</li>
+      <li><strong>Un caractère unique</strong> → <code>char</code>.</li>
+      <li><strong>Un texte</strong> → tableau de <code>char</code>.</li>
+      <li><strong>Avant toute division d'entiers</strong> qui doit être décimale : transtyper un opérande en <code>double</code>.</li>
+    </ol>
+  </div>
+
+  <h2>10. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Types de base : <code>char</code> (1 o), <code>int</code> (4 o), <code>double</code> (8 o) — voir <code>sizeof</code>.</li>
+      <li><code>/</code> entre entiers tronque ; <code>%</code> donne le reste.</li>
+      <li>Transtypage : <code>(double)a / b</code> pour une division décimale.</li>
+      <li>Lecture <code>double</code> : <code>%lf</code> ; affichage : <code>%.2f</code>.</li>
+      <li>Une variable non initialisée n'a pas de valeur prévisible.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis le bon type pour chaque donnée.</li>
+      <li>Je prédis le résultat d'une division entière.</li>
+      <li>Je convertis explicitement avant une division décimale.</li>
+      <li>J'associe chaque type à son format.</li>
+      <li>J'initialise toute variable avant de la lire.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>déclaration + initialisation</li><li><code>int</code> vs <code>double</code></li><li><code>sizeof</code></li>
+      <li>division entière <code>/</code></li><li>modulo <code>%</code></li><li>transtypage <code>(type)</code></li>
+      <li>formats <code>%d</code>/<code>%lf</code>/<code>%.2f</code></li><li>débordement de type</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>11. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 3.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 1-2.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible le transtypage et les formats.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux passer au chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 1</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Conditions et boucles <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports de cours B1 (INF-1003) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

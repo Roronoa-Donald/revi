@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Architecture Système, Services d’Infrastructure Réseau &amp;amp; Modèle de Licence par Cœur | Windows Server B3</title>
+<meta name="description" content="Chapitre 1 du cours Windows Server B3 : Architecture interne Windows Server (Kernel NT, HAL, mode utilisateur vs mode noyau), Server Core vs Desktop Experience, rôles d’infrastructure réseau fondamentaux (DHCP avec étendues, exclusions et réservations statiques, DNS d’infrastructure avec zones directes, inverses et enregistrements de service SRV pour Active Directory), et modèle officiel Microsoft de licences par cœur physique. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-windows-server/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Architecture Système, Services d’Infrastructure Réseau &amp;amp; Modèle de Licence par Cœur | Windows Server B3">
+<meta property="og:description" content="Chapitre 1 du cours Windows Server B3 : Architecture interne Windows Server (Kernel NT, HAL, mode utilisateur vs mode noyau), Server Core vs Desktop Experience, rôles d’infrastructure réseau fondamentaux (DHCP avec étendues, exclusions et réservations statiques, DNS d’infrastructure avec zones directes, inverses et enregistrements de service SRV pour Active Directory), et modèle officiel Microsoft de licences par cœur physique. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-windows-servernav"><div class="b3-windows-servernav__in">
+  <a class="b3-windows-servernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-windows-servernav__sep" aria-hidden="true">/</span>
+  <a class="b3-windows-servernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B3</a>
+  <div class="b3-windows-servernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-windows-servernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-windows-serverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Architecture Système, Services d’Infrastructure Réseau &amp; Modèle de Licence par Cœur</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans une infrastructure informatique d’entreprise moderne, les serveurs Windows constituent le socle régalien sur lequel reposent l’authentification centralisée, l’adressage IP dynamique et la résolution de noms. Un déploiement anarchique ou mal calibré engendre des pannes en cascade : conflits d’adresses IP paralysant les postes clients, zones DNS désynchronisées empêchant la découverte des contrôleurs de domaine, ou non-conformité contractuelle majeure lors d’un audit de licences Microsoft. Pour un ingénieur système de niveau Bachelor 3, l’administration d’infrastructure commence par la compréhension rigoureuse du noyau Windows (Kernel NT, HAL, séparation stricte des espaces mémoires), le choix raisonné entre l’édition Server Core (sécurisée et allégée) et l’interface graphique, la conception étanche des services DHCP et DNS, et la maîtrise du modèle mathématique de licences par cœur physique.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser l’architecture interne du système d’exploitation Windows Server (Kernel NT, HAL, pilotes d’anneau 0 vs sous-systèmes Win32 d’anneau 3) ;</li>
+      <li>comparer les éditions Windows Server (Standard, Datacenter, Essentials) et justifier le déploiement en Server Core en environnement de production ;</li>
+      <li>concevoir, dimensionner et sécuriser une étendue DHCP (Scope) avec plages d’exclusion et réservations MAC statiques sans conflit d’adressage ;</li>
+      <li>administrer une zone DNS d’infrastructure avec synchronisation stricte des enregistrements directs (A/AAAA), inverses (PTR) et de service (SRV) ;</li>
+      <li>appliquer les règles officielles Microsoft de licences par cœur physique (min 8 par socket, min 16 par hôte, packs de 2 cœurs) et arbitrer le coût de virtualisation ;</li>
+      <li>implémenter en Python 3 des validateurs d’étendues DHCP, des auditeurs de zones DNS et des calculateurs de licences serveur.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture Interne du Système d’Exploitation Windows Server</h2>
+
+<p>L’architecture de Windows Server repose sur une séparation matérielle et logicielle stricte héritée de la lignée Windows NT, garantissant la stabilité et la protection mémoire de l’infrastructure :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Deux Anneaux d’Exécution Privilégiée</h4>
+    <ul>
+      <li><strong>Mode Noyau (Ring 0 / Kernel Mode) :</strong> accès direct au processeur et aux ressources physiques. Comprend la couche d’abstraction matérielle (HAL - Hardware Abstraction Layer), le micro-noyau NT (Executive Kernel), le gestionnaire de mémoire virtuelle (VMM), le gestionnaire d’I/O et les pilotes de périphériques noyau (.sys). Un crash en Ring 0 déclenche un arrêt d’urgence système (BugCheck / BSoD).</li>
+      <li><strong>Mode Utilisateur (Ring 3 / User Mode) :</strong> espace mémoire isolé et protégé. Héberge les sous-systèmes d’environnement (Win32 / Windows Subsystem), les applications d’entreprise et les processus système critiques (<code>lsass.exe</code> pour la sécurité, <code>services.exe</code> pour le gestionnaire de services, <code>smss.exe</code>). Une défaillance en Ring 3 n’entraîne pas le crash du serveur.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Server Core vs Expérience Utilisateur (GUI)</h4>
+    <table class="table">
+      <thead><tr><th>Critère</th><th>Server Core</th><th>Desktop Experience (GUI)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Interface</strong></td><td>Ligne de commande (PowerShell / cmd)</td><td>Bureau complet et consoles MMC</td></tr>
+        <tr><td><strong>Surface d’attaque</strong></td><td>Minimale (absence de shell graphique)</td><td>Étendue (navigateurs, DLLs UI)</td></tr>
+        <tr><td><strong>Empreinte RAM / Disque</strong></td><td>Faible (~1,5 Go RAM / 10 Go disque)</td><td>Élevée (~3 à 4 Go RAM / 25 Go disque)</td></tr>
+        <tr><td><strong>Fréquence de redémarrage</strong></td><td>Réduite de 40 à 60 % (moins de patches)</td><td>Mensuelle (patch tuesday complet)</td></tr>
+        <tr><td><strong>Usage recommandé</strong></td><td>Contrôleurs AD DS, DHCP, DNS, Hyper-V</td><td>Serveurs RDS (Remote Desktop Services)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2>2. Services Réseau Fondamentaux : DHCP & Résolution DNS d’Infrastructure</h2>
+
+<p>Tout contrôleur de domaine et toute station de travail dépendent d’une configuration IP sans faille et d’une résolution de noms déterministe fournie par les rôles DHCP et DNS :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Architecture et Rôle du Serveur DHCP</h4>
+    <p>Le protocole DHCP (Dynamic Host Configuration Protocol) automatise l’attribution des baux IP à travers la transaction DORA (Discover, Offer, Request, Acknowledge) :</p>
+    <ul>
+      <li><strong>Étendue (Scope) :</strong> plage consécutive d’adresses IPv4 distribuables sur un sous-réseau avec masque, passerelle par défaut (Option 003) et serveurs DNS (Option 006).</li>
+      <li><strong>Plages d’exclusion :</strong> sous-ensembles d’adresses réservés aux équipements statiques (serveurs, imprimantes, passerelles) qui ne doivent jamais être alloués dynamiquement.</li>
+      <li><strong>Réservations statiques :</strong> baux permanents assignés à une adresse MAC spécifique pour garantir l’attribution immuable de la même IP.</li>
+      <li><strong>DHCP Failover :</strong> haute disponibilité entre deux serveurs DHCP en mode Load Balancing (50/50 ou 80/20) ou Hot Standby.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Zones DNS & Enregistrements SRV Active Directory</h4>
+    <p>Le DNS Windows Server est intégré à Active Directory (Active Directory-Integrated Zones) et stocke ses données dans la partition d’annuaire :</p>
+    <ul>
+      <li><strong>Zone Directe (Forward Lookup) :</strong> résout un FQDN en adresse IP (enregistrements <code>A</code> en IPv4 et <code>AAAA</code> en IPv6).</li>
+      <li><strong>Zone Inverse (Reverse Lookup) :</strong> résout une IP en FQDN (enregistrements <code>PTR</code> dans le domaine <code>in-addr.arpa</code>). La réciprocité A/PTR est indispensable pour Kerberos et la conformité des audits.</li>
+      <li><strong>Enregistrements de service SRV :</strong> permettent aux clients du domaine de localiser les contrôleurs de domaine (DC). Exemple : <code>_ldap._tcp.dc._msdcs.domaine.lan</code> (port 389) et <code>_kerberos._tcp.dc._msdcs.domaine.lan</code> (port 88).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Modèle Officiel Microsoft de Licences par Cœur Physique</h2>
+
+<p>Depuis Windows Server 2016, Microsoft applique un modèle de licence basé sur le nombre de <strong>cœurs physiques</strong> des processeurs hôtes, avec des règles d’évaluation minimales strictes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Règles de Calcul par Cœur Physique</h4>
+    <ul>
+      <li><strong>Règle du Socket :</strong> Chaque processeur physique (socket) doit être licencié pour un minimum de <strong>8 cœurs</strong>. Si un socket n’a que 4 ou 6 cœurs, compter obligatoirement 8.</li>
+      <li><strong>Règle du Serveur :</strong> Chaque serveur physique complet doit être licencié pour un minimum de <strong>16 cœurs</strong> au total.</li>
+      <li><strong>Conditionnement commercial :</strong> Les licences sont commercialisées sous forme de <strong>packs de 2 cœurs</strong> : $\text{Packs de base} = \lceil \text{Total cœurs} / 2 \rceil$.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Droits de Virtualisation : Standard vs Datacenter</h4>
+    <ul>
+      <li><strong>Édition Standard :</strong> Une licence couvrant l’ensemble des cœurs physiques de l’hôte accorde le droit d’exécuter <strong>2 machines virtuelles</strong> (OSEs) Windows Server. Pour chaque palier de 2 VMs supplémentaires, l’intégralité des cœurs physiques de l’hôte doit être relicenciée.</li>
+      <li><strong>Édition Datacenter :</strong> Une licence couvrant tous les cœurs physiques accorde le droit d’exécuter un nombre <strong>illimité</strong> de machines virtuelles sur cet hôte physique.</li>
+      <li><strong>Seuil d’arbitrage :</strong> En pratique, lorsque la densité de virtualisation dépasse 10 à 12 VMs par hôte, l’édition Datacenter devient financièrement plus avantageuse que le cumul de licences Standard.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ws3-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SCOPE net=192.168.1. start=10 end=20&#10;EXCLUDE start=12 end=14&#10;RESERVATION mac=00:11:22:33:44:01 ip=192.168.1.15&#10;RESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e1) — Validateur d’étendue DHCP, exclusions et conflits de réservation MAC
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Conflit de réservation sur même adresse IP]
+# Données : SCOPE net=10.0.0. start=100 end=110
+# Données : RESERVATION mac=AA:BB:CC:01 ip=10.0.0.105
+# Données : RESERVATION mac=AA:BB:CC:02 ip=10.0.0.105
+A_COMPLETER
+
+[Cas 2 — Réservation hors de la plage du scope]
+# Données : SCOPE net=172.16.0. start=50 end=60
+# Données : EXCLUDE start=55 end=60
+# Données : RESERVATION mac=11:22:33:44 ip=172.16.0.99
+A_COMPLETER
+
+[Cas 3 — Toutes les adresses exclues ou réservées]
+# Données : SCOPE net=192.168.10. start=1 end=3
+# Données : EXCLUDE start=1 end=2
+# Données : RESERVATION mac=AA:11 ip=192.168.10.3
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur d’étendue DHCP, exclusions et conflits de réservation MAC</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la liste des adresses IP distribuables d’une étendue DHCP après déduction des exclusions et détecter les conflits de réservation.</p>
+    <div class="lab__brief">Dans l’administration d’un serveur DHCP Windows Server, une étendue (Scope) distribue dynamiquement des adresses IP IPv4 :
+- `SCOPE net=<PREFIX> start=<N_START> end=<N_END>` : définit la plage complète d’adresses `PREFIX.N` (ex: net=192.168.1. start=10 end=30).
+- `EXCLUDE start=<N1> end=<N2>` : plage d’hôtes exclus de la distribution dynamique (inclusifs).
+- `RESERVATION mac=<MAC> ip=<PREFIX.N>` : association statique MAC / IP.
+
+Règles de validation :
+- Une réservation est en conflit (`CONFLIT`) si l’IP est hors de la plage `[start, end]`, ou si deux réservations ont la même IP avec des MAC différentes, ou si la même MAC a plusieurs IP différentes. Sinon elle est `VALIDE`.
+- Une adresse IP est distribuable dynamiquement si son numéro d’hôte est dans `[start, end]`, n’est couvert par aucune plage d’exclusion `EXCLUDE`, et n’est assigné à aucune réservation valide.
+
+Entrée :
+`SCOPE net=<PREFIX> start=<N1> end=<N2>`
+`EXCLUDE start=<N1> end=<N2>` (0 ou plusieurs)
+`RESERVATION mac=<MAC> ip=<IP>` (0 ou plusieurs)
+
+Sortie :
+- Ligne de statut des réservations :
+  `RESERVATIONS valides=<V> conflits=<C>`
+- Ligne du pool d’adresses dynamiques :
+  `POOL_DYNAMIC total_disponibles=<D> first_ip=<IP_MIN> last_ip=<IP_MAX>` (si total > 0, sinon `POOL_DYNAMIC total_disponibles=0 first_ip=NONE last_ip=NONE`)
+- Bilan :
+  `SUMMARY statut=<OK|AVERTISSEMENT> pool_pct=<PCT>%` (où pool_pct = round((total_disponibles / total_scope) * 100, 1) ; statut=OK si conflits=0, sinon AVERTISSEMENT)</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCOPE net=192.168.1. start=10 end=20
+EXCLUDE start=12 end=14
+RESERVATION mac=00:11:22:33:44:01 ip=192.168.1.15
+RESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RESERVATIONS valides=2 conflits=0
+POOL_DYNAMIC total_disponibles=6 first_ip=192.168.1.10 last_ip=192.168.1.20
+SUMMARY statut=OK pool_pct=54.5%</pre></div>
+    </div>
+    <p class="lab__note">Étendue de 11 adresses (10 à 20). 3 exclues (12, 13, 14), 2 réservées (15, 18). Reste : 10, 11, 16, 17, 19, 20 (6 adresses, 6/11 = 54.5%).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les entiers d’hôtes exclus dans un ensemble (set).</li>
+        <li>Vérifier les doublons de MAC et d’IP pour les réservations avec des dictionnaires.</li>
+        <li>Calculer les adresses disponibles en soustrayant exclusions et réservations valides.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10&#10;RECORD_PTR ip=192.168.1.10 fqdn=dc01.corp.lan&#10;RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e2) — Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Enregistrement PTR manquant et cible SRV inconnue]
+# Données : RECORD_A fqdn=srv01.corp.lan ip=10.0.0.5
+# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc02.corp.lan
+A_COMPLETER
+
+[Cas 2 — Désynchronisation entre A et PTR sur l’IP]
+# Données : RECORD_A fqdn=mail.corp.lan ip=192.168.1.25
+# Données : RECORD_PTR ip=192.168.1.25 fqdn=ancien-mail.corp.lan
+# Données : RECORD_A fqdn=dc.corp.lan ip=192.168.1.1
+# Données : RECORD_PTR ip=192.168.1.1 fqdn=dc.corp.lan
+A_COMPLETER
+
+[Cas 3 — Multiples SRV sur le même DC valide]
+# Données : RECORD_A fqdn=dc.dom.local ip=172.16.1.1
+# Données : RECORD_PTR ip=172.16.1.1 fqdn=dc.dom.local
+# Données : RECORD_SRV service=_ldap proto=_tcp port=389 target=dc.dom.local
+# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc.dom.local
+# Données : RECORD_SRV service=_kpasswd proto=_tcp port=464 target=dc.dom.local
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la réciprocité des enregistrements A et PTR et la présence des enregistrements de service SRV indispensables à Active Directory.</p>
+    <div class="lab__brief">Dans une infrastructure Windows Server avec Active Directory, le DNS assure la résolution de noms et la découverte des contrôleurs de domaine (DC) :
+- `RECORD_A fqdn=<NOM> ip=<IP>` : résolution directe.
+- `RECORD_PTR ip=<IP> fqdn=<NOM>` : résolution inverse (Reverse Lookup).
+- `RECORD_SRV service=<SVC> proto=<PROTO> port=<PORT> target=<DC_FQDN>` : localisation de services AD (ex: _ldap, _kerberos).
+
+Règles d’audit de zone :
+1. Réciprocité A / PTR : chaque `RECORD_A` doit avoir son `RECORD_PTR` exact (même IP et même FQDN). Si le PTR manque ou pointe vers un autre nom, émettre `ANOMALIE_PTR fqdn=<NOM> ip=<IP>`.
+2. Résolution de cible SRV : la cible `target` d’un `RECORD_SRV` doit impérativement posséder un enregistrement direct `RECORD_A`. Si absent, émettre `ANOMALIE_SRV target=<DC_FQDN> service=<SVC>`.
+
+Sortie :
+- Anomalies triées par FQDN / target alphabétique croissant :
+  `ANOMALIE_PTR fqdn=<NOM> ip=<IP>` ou `ANOMALIE_SRV target=<DC_FQDN> service=<SVC>`
+- Bilan :
+  `SUMMARY total_records=<N> anomalies=<C> statut=<CONFORME|NON_CONFORME>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10
+RECORD_PTR ip=192.168.1.10 fqdn=dc01.corp.lan
+RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUMMARY total_records=3 anomalies=0 statut=CONFORME</pre></div>
+    </div>
+    <p class="lab__note">Enregistrement direct et inverse synchronisés, cible SRV résolue.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Indexer les enregistrements A sous forme {fqdn: ip} et l’inverse {ip: fqdn}.</li>
+        <li>Comparer les enregistrements PTR à l’index des A.</li>
+        <li>Vérifier que chaque target de SRV existe dans les clés de l’index A.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e3) — Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Forte densité de virtualisation justifiant l’édition Datacenter]
+# Données : SERVER nom=CLUSTER-NODE-A sockets=2 cores_per_socket=16 vms=18
+A_COMPLETER
+
+[Cas 2 — Mono-socket avec minimums 8 et 16 cœurs appliqués]
+# Données : SERVER nom=EDGE-SERVER sockets=1 cores_per_socket=4 vms=2
+A_COMPLETER
+
+[Cas 3 — Aucune machine virtuelle (serveur physique bare-metal)]
+# Données : SERVER nom=BARE-METAL sockets=2 cores_per_socket=10 vms=0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre de packs de licences cœurs requis et déterminer l’édition financièrement optimale (Standard vs Datacenter).</p>
+    <div class="lab__brief">Les règles officielles de licences par cœur Microsoft Windows Server imposent :
+- Règle 1 : minimum 8 cœurs physiques par socket CPU (si < 8, compter 8).
+- Règle 2 : minimum 16 cœurs physiques par serveur physique au total.
+- Licences vendues par packs de 2 cœurs : `packs_base = ceil(total_coeurs / 2)`.
+
+Règles de virtualisation Windows Server :
+- `Édition Standard` (120 € / pack 2 cœurs) : chaque licence complète de l’hôte accorde 2 VMs. Pour $V$ machines virtuelles, multiplier les packs de base par `max(1, ceil(V / 2))`.
+- `Édition Datacenter` (750 € / pack 2 cœurs) : une seule licence complète de l’hôte accorde un nombre illimité de VMs (`packs_base` invariants).
+
+Entrée :
+`SERVER nom=<NOM> sockets=<S> cores_per_socket=<C> vms=<V>`
+
+Sortie :
+- Profil hôte :
+  `SERVER_PROFILE nom=<NOM> base_cores=<COEURS> packs_base=<PACKS>`
+- Coûts par édition :
+  `EDITION_STANDARD packs=<PACKS_STD> cout=<COUT_STD>EUR`
+  `EDITION_DATACENTER packs=<PACKS_DC> cout=<COUT_DC>EUR`
+- Recommandation finale (Standard si cout_std <= cout_dc, sinon Datacenter) :
+  `RECOMMENDATION nom=<NOM> edition_recommandee=<STANDARD|DATACENTER> economie=<DIFF>EUR`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SERVER_PROFILE nom=HOTE-PROD-01 base_cores=16 packs_base=8
+EDITION_STANDARD packs=16 cout=1920EUR
+EDITION_DATACENTER packs=8 cout=6000EUR
+RECOMMENDATION nom=HOTE-PROD-01 edition_recommandee=STANDARD economie=4080EUR</pre></div>
+    </div>
+    <p class="lab__note">16 cœurs = 8 packs. 4 VMs = 2 passages de licence Standard (16 packs = 1920€). Datacenter = 8 packs (6000€). Standard est plus économique de 4080€.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Appliquer max(8, cores) par socket, puis max(16, total).</li>
+        <li>Calculer les packs Standard en multipliant packs_base par math.ceil(vms / 2) si vms &gt; 0.</li>
+        <li>Comparer les coûts totaux (120€ vs 750€ par pack).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans quelle couche d’exécution le micro-noyau NT et les pilotes matériels opèrent-ils ?</p>
+      <div class="opts">
+        <button class="opt">En mode utilisateur Ring 3</button>
+        <button class="opt" data-correct="1">En mode noyau Ring 0</button>
+        <button class="opt">Dans le sous-système Win32</button>
+        <button class="opt">Directement dans le navigateur Edge</button>
+      </div>
+      <div class="q__exp">Le noyau NT, la HAL et les pilotes .sys s’exécutent en mode noyau (Ring 0) avec accès matériel direct et mémoire protégée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’avantage premier du déploiement en Server Core pour un contrôleur de domaine ?</p>
+      <div class="opts">
+        <button class="opt">Permettre d’exécuter des jeux vidéo en 3D</button>
+        <button class="opt" data-correct="1">Réduire la surface d’attaque logicielle et minimiser les vulnérabilités de sécurité</button>
+        <button class="opt">Rendre impossible l’accès via PowerShell</button>
+        <button class="opt">Désactiver totalement la mise en réseau</button>
+      </div>
+      <div class="q__exp">L’absence de sous-système graphique réduit massivement le code exécuté, diminuant les failles exploitables et les besoins en redémarrages de patchs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon les règles officielles Microsoft, quel est le minimum de cœurs à licencier par serveur physique ?</p>
+      <div class="opts">
+        <button class="opt">4 cœurs</button>
+        <button class="opt">8 cœurs</button>
+        <button class="opt" data-correct="1">16 cœurs</button>
+        <button class="opt">32 cœurs</button>
+      </div>
+      <div class="q__exp">Chaque serveur physique doit être licencié pour un minimum absolu de 16 cœurs, même s’il n’en contient que 4 ou 8.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de machines virtuelles Windows Server une licence complète Standard permet-elle d’exécuter ?</p>
+      <div class="opts">
+        <button class="opt">1 seule machine virtuelle</button>
+        <button class="opt" data-correct="1">2 machines virtuelles</button>
+        <button class="opt">4 machines virtuelles</button>
+        <button class="opt">Un nombre illimité de machines virtuelles</button>
+      </div>
+      <div class="q__exp">L’édition Standard octroie le droit d’exécuter 2 VMs Windows Server par couverture complète des cœurs physiques de l’hôte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert une plage d’exclusion dans une étendue DHCP ?</p>
+      <div class="opts">
+        <button class="opt">À bloquer l’accès à Internet des téléphones portables</button>
+        <button class="opt" data-correct="1">À réserver des adresses de la plage pour des serveurs ou équipements statiques sans attribution dynamique</button>
+        <button class="opt">À forcer le chiffrement AES des paquets réseau</button>
+        <button class="opt">À désactiver le serveur DNS de l’entreprise</button>
+      </div>
+      <div class="q__exp">L’exclusion protège les adresses IP assignées en fixe aux serveurs et routeurs pour que le DHCP ne les distribue jamais à des postes clients.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type d’enregistrement DNS permet aux clients Active Directory de localiser les contrôleurs de domaine ?</p>
+      <div class="opts">
+        <button class="opt">Enregistrement MX</button>
+        <button class="opt">Enregistrement TXT</button>
+        <button class="opt" data-correct="1">Enregistrement SRV</button>
+        <button class="opt">Enregistrement CNAME</button>
+      </div>
+      <div class="q__exp">Les enregistrements SRV (Service Records) indiquent le protocole, le port et le FQDN des services vitaux comme LDAP (389) et Kerberos (88).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le résultat d’une requête DNS inverse (Reverse Lookup) ?</p>
+      <div class="opts">
+        <button class="opt">Résoudre un nom de domaine en adresse IPv4</button>
+        <button class="opt" data-correct="1">Résoudre une adresse IP en nom d’hôte complet (FQDN) via un enregistrement PTR</button>
+        <button class="opt">Changer le mot de passe de l’administrateur</button>
+        <button class="opt">Vider la corbeille de Windows</button>
+      </div>
+      <div class="q__exp">La résolution inverse interroge la zone in-addr.arpa pour convertir une adresse IP en nom FQDN grâce à l’enregistrement PTR.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il lorsqu’un serveur physique doté de 2 CPU à 4 cœurs chacun est licencié ?</p>
+      <div class="opts">
+        <button class="opt">On achète 8 cœurs de licence</button>
+        <button class="opt" data-correct="1">On applique la règle de 8 cœurs par socket, soit 16 cœurs au total (8 packs de 2 cœurs)</button>
+        <button class="opt">Microsoft offre gratuitement la licence</button>
+        <button class="opt">Le serveur refuse de démarrer</button>
+      </div>
+      <div class="q__exp">Chaque processeur physique requiert un plancher de 8 cœurs : 2 sockets x 8 cœurs = 16 cœurs de base (soit 8 packs de 2 cœurs).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Identifier précisément les besoins du serveur pour opter dès l’installation pour Server Core sauf impératif d’interface graphique avéré.</li>
+      <li>Configurer systématiquement une adresse IP statique et documentée avant toute installation de rôle d’infrastructure réseau (AD DS, DHCP, DNS).</li>
+      <li>Définir une plage d’exclusion DHCP pour tous les serveurs et équipements de routage avant d’activer une nouvelle étendue dynamique.</li>
+      <li>Vérifier la création automatique des enregistrements PTR correspondants lors de l’ajout d’enregistrements directs A dans la zone DNS.</li>
+      <li>Contrôler la présence et la résolubilité des enregistrements SRV (_ldap, _kerberos) sur tous les contrôleurs de domaine promus.</li>
+      <li>Appliquer les règles de licence Microsoft (min 8 cœurs/socket, min 16 cœurs/serveur) pour calculer le nombre exact de packs de 2 cœurs requis.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’architecture Windows Server isole strictement l’espace noyau Ring 0 (HAL, Executive, pilotes) de l’espace utilisateur Ring 3 pour prévenir les pannes matérielles globales.</li>
+      <li>Server Core offre une surface d’attaque réduite, une consommation mémoire minime et une diminution drastique des redémarrages de maintenance en production.</li>
+      <li>Le rôle DHCP alloue les baux dynamiques mais exige des plages d’exclusion étanches et des réservations MAC vérifiées pour bannir les conflits IP.</li>
+      <li>Le DNS Windows Server stocke les zones intégrées à Active Directory et gère la réciprocité A/PTR ainsi que les enregistrements de découverte de service SRV.</li>
+      <li>Le modèle de licences Microsoft par cœur impose 8 cœurs minimum par socket processeur et 16 cœurs minimum par serveur physique.</li>
+      <li>L’édition Standard couvre 2 VMs par licence complète d’hôte, tandis que l’édition Datacenter offre des droits de virtualisation illimités.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>L’hôte physique dispose-t-il d’une configuration réseau statique validée via ipconfig et test de ping local ?</li>
+      <li>L’étendue DHCP dispose-t-elle de plages d’exclusion excluant les adresses de passerelle et de serveurs critiques ?</li>
+      <li>Chaque enregistrement direct A possède-t-il un enregistrement inverse PTR synchronisé dans la zone Reverse Lookup ?</li>
+      <li>Les enregistrements SRV essentiels (_ldap, _kerberos) pointent-ils vers un contrôleur de domaine pleinement opérationnel ?</li>
+      <li>Le calcul de licence par cœur intègre-t-il bien les planchers de 8 cœurs par socket et 16 cœurs par serveur ?</li>
+      <li>Le choix entre Standard et Datacenter a-t-il été validé en comparant le coût total selon le nombre de VMs hébergées ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong> :</strong> Option d’installation minimale de Windows Server sans interface graphique ni explorateur, administrée exclusivement en ligne de commande ou à distance.</li><li><strong> :</strong> Composant logiciel noyau de bas niveau masquant les spécificités des cartes mères et processeurs pour fournir une interface standardisée au système.</li><li><strong> :</strong> Ensemble configuré d’adresses IP consécutives attribuables dynamiquement aux clients d’un même réseau local avec options de configuration.</li><li><strong> :</strong> Association statique et permanente entre une adresse physique MAC et une adresse IP au sein d’une étendue dynamique.</li><li><strong> :</strong> Enregistrement DNS spécifiant l’emplacement (hôte et port de communication) d’un service réseau, indispensable à Active Directory.</li><li><strong> :</strong> Zone DNS spécialisée dans la résolution d’adresses IP en noms d’hôtes FQDN via des enregistrements de type PTR.</li><li><strong> :</strong> Unité commerciale standard de vente des licences Microsoft Windows Server calculée à partir du nombre total de cœurs physiques du serveur.</li><li><strong> :</strong> Édition haut de gamme de Windows Server accordant des droits de virtualisation illimités sur l’hôte physique licencié.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à distinguer Server Core de Desktop Experience ou confusion sur les règles de calcul des licences par cœur.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension de l’architecture NT, configuration étanche des baux DHCP et des enregistrements DNS directs et inverses.</div>
+      <div class="bandrow bandrow--high">Excellence en ingénierie système : arbitrage financier Standard/Datacenter, sécurisation DNS/SRV et maîtrise de l’architecture noyau.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Annuaire d’Entreprise Active Directory (AD DS), Gouvernance AGDLP &amp; Rôles FSMO <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

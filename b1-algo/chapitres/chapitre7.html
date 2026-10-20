@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 7 — Fonctions et procédures | Algorithmique B1</title>
+<meta name="description" content="Chapitre 7 du cours d'algorithmique B1 : fonction vs procédure, paramètres, valeur de retour, portée des variables, décomposition d'un problème. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="7">
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algo B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre6.html">Ch. 6</a>
+    <a href="chapitre7.html" class="is-active">Ch. 7</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="alwrap">
+  <p class="crumb"><a href="../index.html">Algo B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 7</p>
+  <h1>Chapitre 7 — Fonctions et procédures</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 7</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un programme qui gère des notes, le calcul de moyenne revient dix fois. Le recopier dix fois, c'est
+    corriger dix endroits le jour où le barème change. La <em>fonction</em> isole un calcul sous un nom et le
+    réutilise partout : c'est la brique de la décomposition.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Distinguer fonction (renvoie une valeur) et procédure (n'en renvoie pas) ;</li>
+      <li>déclarer paramètres et valeur de retour en pseudo-code et Pascal ;</li>
+      <li>faire renvoyer plusieurs valeurs par une fonction ;</li>
+      <li>décomposer un problème en fonctions à responsabilité unique.</li>
+    </ol>
+  </div>
+
+  <h2>1. Fonction ou procédure ?</h2>
+  <p><strong>Définition.</strong> Une <em>fonction</em> calcule et <strong>renvoie</strong> une valeur à
+  l'appelant. Une <em>procédure</em> exécute des actions (afficher, remplir un tableau) sans rien renvoyer.</p>
+
+  <div class="pseudo"><b>Pseudo-code</b><br>Fonction carre(n : Entier) : Entier<br>&nbsp;&nbsp;Retourner n × n<br>FinFonction<br><br>Procédure AfficherLigne(n : Entier)<br>&nbsp;&nbsp;Pour i de 1 à n Faire<br>&nbsp;&nbsp;&nbsp;&nbsp;Écrire "-" (sans saut de ligne)<br>&nbsp;&nbsp;FinPour<br>&nbsp;&nbsp;Écrire "" &nbsp;<span class="c">// saut de ligne</span><br>FinProcédure</div>
+  <pre><code><span class="k">function</span> carre(n: integer): integer;
+<span class="k">begin</span>
+  carre := n * n;
+<span class="k">end</span>;
+
+<span class="k">procedure</span> AfficherLigne(n: integer);
+<span class="k">var</span> i: integer;
+<span class="k">begin</span>
+  <span class="k">for</span> i := 1 <span class="k">to</span> n <span class="k">do</span>
+    write('-');
+  writeln;
+<span class="k">end</span>;</code></pre>
+  <pre><code><span class="k">def</span> carre(n):
+    <span class="k">return</span> n * n
+
+<span class="k">def</span> afficher_ligne(n):
+    print("-" * n)</code></pre>
+  <p>En Pascal, la valeur de retour est rangée dans une variable portant le nom de la fonction ; en Python, elle
+  part avec <code>return</code>.</p>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — print n'est pas return</div>
+    <p>Une fonction qui <em>affiche</em> son résultat mais ne le <em>renvoie</em> pas renvoie en réalité
+    <code>None</code> : l'appelant ne peut rien en faire. Renvoyer et afficher sont deux actes différents :
+    la fonction renvoie, le programme principal affiche.</p>
+  </div>
+
+  <h2>2. Paramètres et portée</h2>
+  <p><strong>Définition.</strong> Les paramètres sont les entrées locales de la fonction. Une variable déclarée
+  dans une fonction n'existe que dans cette fonction : c'est sa <em>portée</em>.</p>
+  <table>
+    <tr><th>Type</th><th>Portée</th></tr>
+    <tr><td>Variable locale</td><td>Seulement dans la fonction (ou le bloc) où elle est déclarée.</td></tr>
+    <tr><td>Paramètre</td><td>Comme une locale de la fonction.</td></tr>
+    <tr><td>Variable globale</td><td>Déclarée hors fonction : visible partout, à éviter.</td></tr>
+  </table>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Pourquoi éviter les globales</div>
+    <p>Une fonction qui lit ou modifie une variable globale dépend d'un état extérieur invisible : elle devient
+    impossible à tester isolément et se réutilise mal. La règle du cours : <strong>toute information entre par
+    les paramètres, toute information sort par la valeur de retour</strong>.</p>
+  </div>
+
+  <h2>3. Renvoyer plusieurs valeurs</h2>
+  <p>Une fonction ne renvoie qu'une seule chose. Pour deux résultats (moyenne et maximum, par exemple), on les
+  regroupe dans un couple :</p>
+  <pre><code><span class="k">def</span> calcul_statistiques(notes):
+    <span class="c"># ... un seul parcours : total et maximum</span>
+    <span class="k">return</span> moyenne, maximum   <span class="c"># un couple</span>
+
+moy, maxi = calcul_statistiques(notes)</code></pre>
+  <p>En Pascal, on emploie un enregistrement ou des paramètres variables (<code>var</code>) ; la notion est
+  reprise au module 8 avec les structures.</p>
+
+  <h2>4. Décomposer un problème</h2>
+  <p>La bonne question : « quelles sont les responsabilités de mon programme ? » Chacune devient une fonction
+  d'une seule responsabilité, testable séparément.</p>
+  <pre><code><span class="k">def</span> somme(t):
+    total = 0
+    <span class="k">for</span> valeur <span class="k">in</span> t:
+        total += valeur
+    <span class="k">return</span> total
+
+<span class="k">def</span> moyenne(t):
+    <span class="k">if</span> <span class="k">not</span> t:
+        <span class="k">return</span> 0.0
+    <span class="k">return</span> somme(t) / len(t)   <span class="c"># réutilisation</span></code></pre>
+  <p><code>moyenne</code> appelle <code>somme</code> : une fonction bien découpée se réutilise dans les autres.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="algo-c7-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="7">
+  <script type="text/plain" data-lab-starter>def carre(n):
+    # À compléter : renvoyer le carré de n.
+    pass
+
+
+valeur = int(input())
+print("Carre :", carre(valeur))
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Une fonction qui renvoie une valeur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer return de print dans une fonction.</p>
+    <div class="lab__brief"><p>Complétez la fonction <code>carre</code> pour qu’elle <em>renvoie</em> le carré de son argument. Le programme lit un entier, appelle la fonction et affiche le résultat sous la forme <code>Carre : &lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Carre : 49</pre></div>
+    </div>
+    <p class="lab__note">7² = 49.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une fonction qui affiche mais ne renvoie rien produit None : c’est le signe qu’un print a remplacé le return.</li>
+        <li>Le mot-clé de retour est suivi de l’expression à renvoyer à l’appelant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c7-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;12&#10;15&#10;14&#10;9&#10;18">
+  <script type="text/plain" data-lab-starter>def calcul_statistiques(liste_notes):
+    # Version de départ volontairement fausse.
+    return 0, 0
+
+
+n = int(input())
+notes = []
+for i in range(n):
+    notes.append(int(input()))
+
+moyenne, maximum = calcul_statistiques(notes)
+print(f"{moyenne:.2f} {maximum}")
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — calcul_statistiques — sujet d’examen</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Faire renvoyer plusieurs valeurs par une fonction.</p>
+    <div class="lab__brief"><p>Écrivez <code>calcul_statistiques(liste_notes)</code> qui renvoie le couple (moyenne, maximum) en un seul parcours, sans <code>sum()</code> ni <code>max()</code>. Le programme lit un entier n, puis n notes, et affiche la moyenne avec deux décimales suivie du maximum, séparés par une espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+12
+15
+14
+9
+18</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>13.60 18</pre></div>
+    </div>
+    <p class="lab__note">Moyenne 13.60 et maximum 18.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une fonction ne renvoie qu’une seule chose : pour en faire passer deux, groupez-les dans un couple séparé par une virgule.</li>
+        <li>Le maximum se cherche en mémorisant un candidat, puis en le remplaçant dès qu’un élément le dépasse.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c7-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="10">
+  <script type="text/plain" data-lab-starter>def est_premier(n):
+    # À compléter : renvoyer True si n est premier, False sinon.
+    pass
+
+
+def compte_premiers(limite):
+    # À compléter : compter les premiers entre 2 et limite inclus.
+    pass
+
+
+limite = int(input())
+print(compte_premiers(limite))
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Fonction booléenne et réutilisation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction de test et l’appeler depuis une autre.</p>
+    <div class="lab__brief"><p>Écrivez <code>est_premier(n)</code> qui renvoie <code>True</code> ou <code>False</code>, puis <code>compte_premiers(limite)</code> qui renvoie combien de nombres premiers existent entre 2 et limite inclus. Le programme lit la limite et affiche le compte.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>4</pre></div>
+    </div>
+    <p class="lab__note">2, 3, 5 et 7 sont premiers : quatre au total.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un nombre premier n’a aucun diviseur autre que 1 et lui-même : dès qu’un diviseur est trouvé, le verdict est rendu.</li>
+        <li>La fonction de comptage n’a pas à refaire le travail : elle appelle la fonction de test pour chaque candidat.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fonction / procédure ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La fonction renvoie une valeur, la procédure non</button>
+        <button class="opt">La procédure est plus rapide</button>
+        <button class="opt">La fonction ne prend pas de paramètres</button>
+      </div>
+      <div class="q__exp">C'est la seule différence de contrat.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie une fonction sans return ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">None (rien d'exploitable)</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">Afficher n'est pas renvoyer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Portée d'une variable déclarée dans une fonction ?</p>
+      <div class="opts">
+        <button class="opt">Tout le programme</button>
+        <button class="opt" data-correct="1">Seulement la fonction</button>
+        <button class="opt">Toutes les fonctions du fichier</button>
+      </div>
+      <div class="q__exp">C'est une variable locale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment une fonction fournit-elle son résultat ?</p>
+      <div class="opts">
+        <button class="opt">En l'affichant</button>
+        <button class="opt" data-correct="1">En le renvoyant à l'appelant</button>
+        <button class="opt">En le stockant dans une globale</button>
+      </div>
+      <div class="q__exp">Le retour est le canal officiel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi éviter les variables globales ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elles créent des dépendances cachées, difficiles à tester</button>
+        <button class="opt">Elles occupent plus de mémoire</button>
+        <button class="opt">Elles sont interdites par Pascal</button>
+      </div>
+      <div class="q__exp">Paramètres et retour rendent la fonction autonome.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une fonction bien découpée a…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une seule responsabilité</button>
+        <button class="opt">Le plus de paramètres possibles</button>
+        <button class="opt">Toujours trois boucles</button>
+      </div>
+      <div class="q__exp">Une responsabilité = un test facile = une réutilisation possible.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>print au lieu de return</strong> : l'appelant reçoit None.</li>
+      <li><strong>Oublier le return</strong> dans une branche de la fonction.</li>
+      <li><strong>Modifier un paramètre en croyant modifier l'appelant</strong> (copie).</li>
+      <li><strong>Globale là où un paramètre suffit.</strong></li>
+      <li><strong>Une fonction qui fait tout</strong> : lecture, calcul, affichage mélangés.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Concevoir une fonction</div>
+    <ol>
+      <li><strong>Nommer</strong> par un verbe d'action : <code>calculer_moyenne</code>, <code>est_premier</code>.</li>
+      <li><strong>Lister les entrées</strong> : ce sont les paramètres.</li>
+      <li><strong>Déterminer la sortie</strong> : le type renvoyé (ou procédure).</li>
+      <li><strong>Écrire le corps</strong> : une seule responsabilité.</li>
+      <li><strong>Tester</strong> depuis le programme principal sur des cas limites.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Fonction = renvoie une valeur ; procédure = agit sans retour.</li>
+      <li><code>return</code> transmet le résultat ; <code>print</code> ne fait qu'afficher.</li>
+      <li>Portée locale : une variable n'existe que dans sa fonction.</li>
+      <li>Plusieurs résultats → un couple (ou un enregistrement).</li>
+      <li>Décomposition = fonctions à responsabilité unique, réutilisables.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je distingue fonction et procédure sans hésiter.</li>
+      <li>Je renvoie mes résultats par return, pas par print.</li>
+      <li>Je limite la portée de mes variables.</li>
+      <li>Je découpe un problème en fonctions testables.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>fonction</li><li>procédure</li><li>paramètre</li><li>return</li>
+      <li>portée locale</li><li>variable globale</li><li>couple de valeurs</li><li>décomposition</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3-4.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible return vs print.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux passer au chapitre 8.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre6.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 6</a>
+    <a class="btn btn--primary" href="chapitre8.html">Chapitre 8 — Tableaux 2D et chaînes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (INF-1002) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Comptes & Abonnements</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+  <style>
+    /* Masquer le dashboard tant que l'authentification admin n'est pas validée */
+    body { display: none; }
+    html.admin-authenticated body { display: block; }
+  </style>
+  <script>
+    (async function() {
+      try {
+        const res = await fetch('/api/admin/verify', { credentials: 'include' });
+        if (!res.ok) {
+          window.location.replace('/_auth/admin/login.html');
+          return;
+        }
+        document.documentElement.classList.add('admin-authenticated');
+      } catch (e) {
+        window.location.replace('/_auth/admin/login.html');
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #f5f3f1; --bg-surface: #ffffff; --bg-elevated: #f8f8f8;
+      --text: #141414; --text-secondary: #57534e; --text-muted: #78716c;
+      --border: #e4e4e4; --border-strong: #d6d3d1;
+      --accent: #3556d9; --success: #16a34a; --warning: #d97706; --error: #dc2626;
+      --radius-lg: 16px; --radius-md: 12px; --radius-sm: 8px;
+      --font: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --shadow-sm: 0 1px 3px rgba(28,25,23,0.08);
+      --shadow-md: 0 4px 14px rgba(28,25,23,0.06);
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+    button { font-family: var(--font); cursor: pointer; }
+    input, select { font-family: var(--font); }
+
+    .d-header {
+      background: #000; color: #fff; padding: 16px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .d-header h1 { font-size: 1.4rem; font-weight: 700; }
+    .d-header-actions { display: flex; gap: 10px; }
+
+    .d-main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-sm); }
+    .stat-card .label { color: var(--text-secondary); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 800; }
+    .v-accent { color: var(--accent); } .v-success { color: var(--success); } .v-warning { color: var(--warning); } .v-error { color: var(--error); }
+
+    .tab-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tab { padding: 9px 16px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 60px; font-weight: 600; font-size: 0.78rem; color: var(--text-secondary); transition: all var(--transition); }
+    .tab.active { background: #000; color: #fff; border-color: #000; }
+
+    .btn { border: none; padding: 9px 16px; border-radius: 60px; font-weight: 700; font-size: 0.78rem; transition: all var(--transition); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .btn-success { background: #29cc57; color: #14320f; box-shadow: #22a94c 0 3px 0 0; }
+    .btn-success:hover { transform: translateY(1px); box-shadow: #22a94c 0 2px 0 0; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); box-shadow: none; }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); }
+    .btn-danger { background: var(--error); color: #fff; box-shadow: #b91c1c 0 3px 0 0; }
+    .btn-danger:hover { transform: translateY(1px); box-shadow: #b91c1c 0 2px 0 0; }
+    .btn-warning { background: #f59e0b; color: #422006; box-shadow: #b45309 0 3px 0 0; }
+    .btn-sm { padding: 5px 10px; font-size: 0.7rem; }
+
+    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 16px; overflow: hidden; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .card-header h2 { font-size: 1.1rem; font-weight: 700; }
+    .card-body { padding: 16px 18px; }
+
+    .create-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: end; }
+    .form-group label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 0.8rem; background: var(--bg-surface); color: var(--text);
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(53,86,217,0.12); }
+
+    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-bar .btn.active { border-color: #000; color: #000; font-weight: 800; }
+    .search-bar { margin-bottom: 12px; }
+    .search-bar input { width: 100%; max-width: 420px; padding: 9px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.8rem; }
+
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 8px 10px; color: var(--text-secondary); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+    td { padding: 9px 10px; border-bottom: 1px solid var(--bg); vertical-align: middle; font-size: 0.78rem; }
+    tr:last-child td { border-bottom: none; }
+    .actions-cell { white-space: nowrap; }
+    .actions-cell .btn { margin: 1px; }
+
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 60px; font-size: 0.66rem; font-weight: 800; }
+    .badge-success { background: #D1FAE5; color: #047857; }
+    .badge-warning { background: #FEF3C7; color: #92400E; }
+    .badge-danger { background: #FEE2E2; color: #B91C1C; }
+    .badge-info { background: #E0E7FF; color: #4338CA; }
+    .email-cell { font-weight: 700; }
+
+    .empty-state { text-align: center; padding: 28px; color: var(--text-muted); }
+    .empty-state .icon { margin-bottom: 8px; }
+    .icon-svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.14em; flex-shrink: 0; }
+    .empty-state .icon .icon-svg { width: 26px; height: 26px; }
+    .log-entry { display: flex; gap: 12px; align-items: flex-start; padding: 10px 4px; border-bottom: 1px solid var(--bg); }
+    .log-entry:last-child { border-bottom: none; }
+    .log-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg); color: var(--text-secondary); }
+    .log-icon .icon-svg { width: 16px; height: 16px; }
+    .log-icon.activation { background: #D1FAE5; color: #047857; }
+    .log-icon.revoke { background: #FEE2E2; color: #B91C1C; }
+    .log-icon.session { background: #E0E7FF; color: #4338CA; }
+    .log-icon.admin { background: #FEF3C7; color: #92400E; }
+    .log-icon.key { background: var(--bg-elevated); color: var(--text-secondary); }
+    .log-body { flex: 1; min-width: 0; }
+    .log-title { font-weight: 700; font-size: 0.78rem; }
+    .log-detail { color: var(--text-secondary); font-size: 0.72rem; margin-top: 2px; word-break: break-word; }
+    .log-time { color: var(--text-muted); font-size: 0.68rem; white-space: nowrap; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+    .modal-overlay.visible { display: flex; }
+    .modal { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 24px; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow-md); }
+    .modal h3 { margin-bottom: 10px; font-size: 0.95rem; }
+    .modal p { color: var(--text-secondary); margin-bottom: 20px; font-size: 0.85rem; line-height: 1.5; }
+    .modal-actions { display: flex; gap: 10px; justify-content: center; }
+
+    .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px); background: #000; color: #fff; padding: 11px 20px; border-radius: 60px; font-size: 0.8rem; opacity: 0; transition: all 0.3s; z-index: 200; max-width: 90vw; }
+    .toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { background: #14532d; } .toast.error { background: #7f1d1d; }
+
+    @media (max-width: 768px) {
+      .d-main { padding: 12px; }
+      .d-header { padding: 12px 14px; }
+      .d-header h1 { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="d-header">
+    <h1><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Admin — Comptes & Abonnements</h1>
+    <div class="d-header-actions">
+      <a href="/" class="btn btn-ghost"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Site</a>
+      <button class="btn btn-ghost" onclick="logout()"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-power"></use></svg> Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="d-main">
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card"><div class="label">Comptes</div><div class="value v-accent" id="statTotal">-</div></div>
+      <div class="stat-card"><div class="label">Abonnés actifs</div><div class="value v-success" id="statSubscribed">-</div></div>
+      <div class="stat-card"><div class="label">Sessions actives</div><div class="value v-accent" id="statSessions">-</div></div>
+      <div class="stat-card"><div class="label">Expirent (7j)</div><div class="value v-warning" id="statExpiring">-</div></div>
+      <div class="stat-card"><div class="label">Comptes désactivés</div><div class="value v-error" id="statDisabled">-</div></div>
+      <div class="stat-card"><div class="label">Revenus (approuvés)</div><div class="value v-success" id="statRevenue">-</div></div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchTab('users')"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-users"></use></svg> Comptes</button>
+      <button class="tab" onclick="switchTab('sessions')"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Sessions</button>
+      <button class="tab" onclick="switchTab('payments')"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Paiements</button>
+      <button class="tab" onclick="switchTab('logs')"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg> Journal</button>
+      <button class="tab" onclick="switchTab('ai')"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Fournisseurs &amp; Clés IA</button>
+    </div>
+
+    <!-- ===== Créer un compte ===== -->
+    <div class="card" id="createCard">
+      <div class="card-header"><h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-plus"></use></svg> Créer un compte manuellement</h2></div>
+      <div class="card-body">
+        <form id="createForm" class="create-form">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="userEmail" required maxlength="255" placeholder="eleve@exemple.com">
+          </div>
+          <div class="form-group">
+            <label>Mot de passe * (8+)</label>
+            <input type="text" id="userPassword" required minlength="8" maxlength="100" placeholder="à transmettre à l'élève">
+          </div>
+          <div class="form-group">
+            <label>Prénom / description</label>
+            <input type="text" id="userDisplay" maxlength="120" placeholder="Ex: Ahmed — formation Linux">
+          </div>
+          <div class="form-group">
+            <label>Abonnement initial</label>
+            <select id="userMonths">
+              <option value="0">Gratuit (sans abonnement)</option>
+              <option value="1" selected>1 mois</option>
+              <option value="3">3 mois</option>
+              <option value="6">6 mois</option>
+              <option value="12">12 mois</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-success" id="btnCreate" style="width:100%;">Créer le compte</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== Liste users ===== -->
+    <div class="card" id="usersCard">
+      <div class="card-header">
+        <h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-users"></use></svg> Comptes utilisateurs</h2>
+        <div class="filter-bar">
+          <button class="btn btn-ghost btn-sm active" onclick="filterUsers('all')" data-filter="all">Tous</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterUsers('subscribed')" data-filter="subscribed">Abonnés</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterUsers('free')" data-filter="free">Gratuits</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterUsers('disabled')" data-filter="disabled">Désactivés</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="search-bar">
+          <input type="text" id="userSearch" placeholder="Rechercher par email ou nom..." oninput="debounceSearch()">
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>ID</th><th>Email</th><th>Abonnement</th><th>Expire le</th><th>Sessions</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="7"><div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-hourglass"></use></svg></div>Chargement...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Sessions ===== -->
+    <div class="card" id="tabSessions" style="display:none;">
+      <div class="card-header"><h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Sessions actives</h2></div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>ID</th><th>Email</th><th>État</th><th>Créée le</th><th>Dernière vérif.</th><th>Actions</th></tr></thead>
+            <tbody id="sessionsTableBody">
+              <tr><td colspan="6"><div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-hourglass"></use></svg></div>Chargement...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Paiements ===== -->
+    <div class="card" id="tabPayments" style="display:none;">
+      <div class="card-header"><h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Paiements FedaPay</h2></div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>ID</th><th>Email</th><th>Montant</th><th>Mois</th><th>Statut</th><th>Transaction</th><th>Date</th></tr></thead>
+            <tbody id="paymentsTableBody">
+              <tr><td colspan="7"><div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-hourglass"></use></svg></div>Chargement...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Journal ===== -->
+    <div class="card" id="tabLogs" style="display:none;">
+      <div class="card-header"><h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg> Journal d'activité</h2></div>
+      <div class="card-body">
+        <div class="filter-bar" style="margin-bottom:12px;">
+          <button class="btn btn-ghost btn-sm active" onclick="filterLogs(null)" data-logfilter="">Tout</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterLogs('login')" data-logfilter="login">Connexions</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterLogs('user_registered')" data-logfilter="user_registered">Inscriptions</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterLogs('payment_approved')" data-logfilter="payment_approved">Paiements</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterLogs('admin_login')" data-logfilter="admin_login">Admin</button>
+        </div>
+        <div id="logsContainer">
+          <div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-hourglass"></use></svg></div>Chargement...</div>
+        </div>
+        <div class="log-pagination" id="logsPagination" style="margin-top:12px;text-align:center;"></div>
+      </div>
+    </div>
+
+    <!-- ===== Fournisseurs & Clés IA ===== -->
+    <div id="tabAI" style="display:none;">
+      <!-- Carte 1 : Configuration active & Choix des Modèles -->
+      <div class="card">
+        <div class="card-header">
+          <h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Configuration IA Active &amp; Modèles</h2>
+          <span class="badge badge-info" id="aiActiveBadge">Fournisseur : -</span>
+        </div>
+        <div class="card-body">
+          <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:16px;line-height:1.5;">
+            Configurez le fournisseur d'intelligence artificielle utilisé pour l'assistant interactif et le tuteur de code.
+            Le système utilise un <strong>pool de clés équilibré en round-robin</strong> avec <strong>bascule automatique immédiate</strong> sur la clé suivante en cas de limitation de débit (429).
+          </p>
+          <form id="aiConfigForm" onsubmit="saveAiConfig(event)" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:end;">
+            <div class="form-group">
+              <label>Fournisseur Actif</label>
+              <select id="aiProviderSelect" onchange="onAiProviderChanged()">
+                <option value="openrouter">OpenRouter AI</option>
+                <option value="nvidia">NVIDIA NIM</option>
+                <option value="ollama">Ollama Cloud / VPS Local</option>
+                <option value="custom">Endpoint Personnalisé</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Modèle Chat Assistant</label>
+              <div style="display:flex;gap:6px;">
+                <select id="aiChatModelSelect" style="flex:1;" onchange="onModelSelectChanged('chat')">
+                  <option value="deepseek/deepseek-chat">deepseek/deepseek-chat</option>
+                </select>
+                <input type="text" id="aiChatModelCustom" placeholder="Modèle personnalisé..." style="display:none;flex:1;">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Modèle Tuteur Code</label>
+              <div style="display:flex;gap:6px;">
+                <select id="aiCodeModelSelect" style="flex:1;" onchange="onModelSelectChanged('code')">
+                  <option value="deepseek/deepseek-chat">deepseek/deepseek-chat</option>
+                </select>
+                <input type="text" id="aiCodeModelCustom" placeholder="Modèle personnalisé..." style="display:none;flex:1;">
+              </div>
+            </div>
+
+            <div class="form-group" style="display:flex;gap:8px;">
+              <button type="button" class="btn btn-ghost" id="btnFetchModels" onclick="fetchProviderModels()" style="width:100%;">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-refresh"></use></svg> Actualiser modèles
+              </button>
+              <button type="submit" class="btn btn-success" id="btnSaveAiConfig" style="width:100%;">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-check"></use></svg> Enregistrer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Carte 2 : Pool de Clés API & Statut -->
+      <div class="card">
+        <div class="card-header">
+          <h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-key"></use></svg> Pool de Clés API &amp; Tolérance aux Pannes</h2>
+          <div class="filter-bar">
+            <button class="btn btn-ghost btn-sm active" onclick="filterAiKeys(null)" data-aifilter="">Toutes</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterAiKeys('openrouter')" data-aifilter="openrouter">OpenRouter</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterAiKeys('nvidia')" data-aifilter="nvidia">NVIDIA NIM</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterAiKeys('ollama')" data-aifilter="ollama">Ollama</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterAiKeys('custom')" data-aifilter="custom">Custom</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fournisseur</th>
+                  <th>Libellé / Note</th>
+                  <th>Clé API (Masquée)</th>
+                  <th>Statut / Cooldown</th>
+                  <th>Requêtes</th>
+                  <th>Erreurs</th>
+                  <th>Dernière Utilisation</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="aiKeysTableBody">
+                <tr><td colspan="9"><div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-hourglass"></use></svg></div>Chargement du pool de clés...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 3 : Ajouter une Clé au Pool -->
+      <div class="card">
+        <div class="card-header">
+          <h2><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-plus"></use></svg> Ajouter une Clé API au Pool</h2>
+        </div>
+        <div class="card-body">
+          <form id="addAiKeyForm" onsubmit="addAiKey(event)" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;align-items:end;">
+            <div class="form-group">
+              <label>Fournisseur *</label>
+              <select id="newKeyProvider" required>
+                <option value="openrouter">OpenRouter</option>
+                <option value="nvidia">NVIDIA NIM</option>
+                <option value="ollama">Ollama Cloud / Local</option>
+                <option value="custom">Endpoint Personnalisé</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Clé API *</label>
+              <input type="password" id="newKeySecret" required placeholder="sk-or-... ou nvapi-..." autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label>Libellé / Note</label>
+              <input type="text" id="newKeyLabel" placeholder="Ex: Clé Principale Pro #1">
+            </div>
+            <div class="form-group">
+              <label>URL de Base (Optionnel)</label>
+              <input type="text" id="newKeyBaseUrl" placeholder="Ex: http://vps:11434/v1">
+            </div>
+            <div class="form-group" style="display:flex;gap:6px;">
+              <button type="button" class="btn btn-ghost" onclick="testNewKey()" id="btnTestNewKey" style="flex:1;">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-bolt"></use></svg> Tester
+              </button>
+              <button type="submit" class="btn btn-success" id="btnAddKey" style="flex:1;">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-plus"></use></svg> Ajouter au Pool
+              </button>
+            </div>
+          </form>
+          <div id="newKeyTestResult" style="margin-top:10px;font-size:0.75rem;display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <h3 id="modalTitle">Confirmation</h3>
+      <p id="modalMessage">Êtes-vous sûr ?</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+        <button class="btn btn-danger" id="modalConfirm">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentFilter = 'all', pendingAction = null, currentLogFilter = null, logOffset = 0;
+    const LOG_LIMIT = 50;
+    let searchTimeout = null;
+
+    async function init() {
+      await Promise.all([loadStats(), loadUsers(), loadSessions()]);
+    }
+
+    async function api(url, options = {}) {
+      const headers = options.body ? { 'Content-Type': 'application/json' } : {};
+      const res = await fetch(url, { credentials: 'include', headers, ...options });
+      if (res.status === 401) { window.location.href = '/_auth/admin/login.html'; return null; }
+      return res.json();
+    }
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // Icône SVG depuis le sprite partagé (aucun emoji dans l'interface).
+    function ico(name, size) {
+      var s = size || 16;
+      return '<svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true" style="width:' + s + 'px;height:' + s + 'px"><use href="/assets/img/ui-icons.svg#i-' + name + '"></use></svg>';
+    }
+
+    function fmtDate(v) {
+      if (!v) return '—';
+      const d = new Date(v);
+      return isNaN(d) ? '—' : d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+    function fmtDateTime(v) {
+      if (!v) return '—';
+      const d = new Date(v);
+      return isNaN(d) ? '—' : d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('active'));
+      const btn = Array.from(document.querySelectorAll('.tab-bar .tab')).find(b => (b.getAttribute('onclick') || '').includes("'" + tab + "'"));
+      if (btn) btn.classList.add('active');
+      document.getElementById('tabSessions').style.display = (tab === 'sessions') ? 'block' : 'none';
+      document.getElementById('tabPayments').style.display = (tab === 'payments') ? 'block' : 'none';
+      document.getElementById('tabLogs').style.display = (tab === 'logs') ? 'block' : 'none';
+      document.getElementById('tabAI').style.display = (tab === 'ai') ? 'block' : 'none';
+      const userCards = document.querySelectorAll('.d-main > .card:not([id])');
+      userCards.forEach(c => c.style.display = (tab === 'users') ? 'block' : 'none');
+      document.getElementById('usersCard').style.display = (tab === 'users') ? 'block' : 'none';
+      document.getElementById('createCard').style.display = (tab === 'users') ? 'block' : 'none';
+      if (tab === 'payments') loadPayments();
+      if (tab === 'logs') { logOffset = 0; loadLogs(); }
+      if (tab === 'ai') { loadAiConfig(); loadAiKeys(); }
+    }
+
+    async function loadStats() {
+      const s = await api('/api/admin/stats'); if (!s) return;
+      document.getElementById('statTotal').textContent = s.total_users || 0;
+      document.getElementById('statSubscribed').textContent = s.subscribed_users || 0;
+      document.getElementById('statSessions').textContent = s.active_sessions || 0;
+      document.getElementById('statExpiring').textContent = s.expiring_soon || 0;
+      document.getElementById('statDisabled').textContent = s.disabled_users || 0;
+      document.getElementById('statRevenue').textContent = new Intl.NumberFormat('fr-FR').format(s.revenue_total || 0) + ' F';
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => loadUsers(currentFilter), 300);
+    }
+
+    // ==================
+    // Users
+    // ==================
+    async function loadUsers(filter = 'all') {
+      currentFilter = filter;
+      const search = (document.getElementById('userSearch') || {}).value || '';
+      let url = '/api/admin/users?filter=' + encodeURIComponent(filter);
+      if (search.trim()) url += '&search=' + encodeURIComponent(search.trim());
+      const users = await api(url); if (!users) return;
+      const tbody = document.getElementById('usersTableBody');
+      if (users.length === 0) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-inbox"></use></svg></div>Aucun compte</div></td></tr>'; return; }
+      const now = new Date();
+      tbody.innerHTML = users.map(u => {
+        const isExpired = u.subscription_expires_at && new Date(u.subscription_expires_at) < now;
+        let sub;
+        if (!u.is_active) sub = '<span class="badge badge-danger">Désactivé</span>';
+        else if (u.subscription_status === 'active' && !isExpired) sub = '<span class="badge badge-success">Abonné</span>';
+        else if (u.subscription_status === 'active' && isExpired) sub = '<span class="badge badge-warning">Expiré</span>';
+        else sub = '<span class="badge badge-info">Gratuit</span>';
+        const exp = u.subscription_expires_at ? fmtDate(u.subscription_expires_at) : '—';
+        const created = fmtDate(u.created_at);
+        let acts = '';
+        if (u.is_active) {
+          acts += '<button class="btn btn-success btn-sm" onclick="confirmAction(\'subscribe\',' + u.id + ',\'' + esc(u.email) + '\')" title="Ajouter 1 mois">+1 mois</button> ';
+          acts += '<button class="btn btn-warning btn-sm" onclick="confirmAction(\'resetSessions\',' + u.id + ',\'' + esc(u.email) + '\')" title="Déverrouiller l&#39;appareil">' + ico('refresh', 14) + '</button> ';
+          acts += '<button class="btn btn-danger btn-sm" onclick="confirmAction(\'unsubscribe\',' + u.id + ',\'' + esc(u.email) + '\')" title="Retirer l&#39;abonnement">' + ico('cards', 14) + '</button> ';
+          acts += '<button class="btn btn-danger btn-sm" onclick="confirmAction(\'disable\',' + u.id + ',\'' + esc(u.email) + '\')" title="Désactiver le compte">' + ico('ban', 14) + '</button> ';
+        } else {
+          acts += '<button class="btn btn-success btn-sm" onclick="confirmAction(\'enable\',' + u.id + ',\'' + esc(u.email) + '\')" title="Réactiver">' + ico('check', 14) + '</button> ';
+        }
+        acts += '<button class="btn btn-ghost btn-sm" onclick="confirmAction(\'delete\',' + u.id + ',\'' + esc(u.email) + '\')" style="color:var(--error)">' + ico('trash', 14) + '</button>';
+        return '<tr><td>' + u.id + '</td><td class="email-cell">' + esc(u.email) + (u.display_name ? '<br><span style="font-weight:400;color:var(--text-muted);font-size:0.68rem">' + esc(u.display_name) + '</span>' : '') + '</td><td>' + sub + '</td><td>' + exp + '</td><td>' + (u.active_sessions || 0) + '</td><td>' + created + '</td><td class="actions-cell">' + acts + '</td></tr>';
+      }).join('');
+    }
+
+    function filterUsers(f) {
+      document.querySelectorAll('.filter-bar .btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+      loadUsers(f);
+    }
+
+    // ==================
+    // Create user
+    // ==================
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnCreate');
+      btn.disabled = true; btn.textContent = 'Création...';
+      const data = await api('/api/admin/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: document.getElementById('userEmail').value.trim(),
+          password: document.getElementById('userPassword').value,
+          displayName: document.getElementById('userDisplay').value.trim(),
+          months: parseInt(document.getElementById('userMonths').value) || 0
+        })
+      });
+      btn.disabled = false; btn.textContent = 'Créer le compte';
+      if (data && data.success) {
+        showToast('Compte créé : ' + data.user.email, 'success');
+        document.getElementById('createForm').reset();
+        loadStats(); loadUsers(currentFilter);
+      } else { showToast(data?.message || 'Erreur', 'error'); }
+    });
+
+    // ==================
+    // Sessions
+    // ==================
+    async function loadSessions() {
+      const sessions = await api('/api/admin/sessions'); if (!sessions) return;
+      const tbody = document.getElementById('sessionsTableBody');
+      const valid = sessions.filter(s => s.is_valid);
+      const list = valid.length ? valid : sessions.slice(0, 20);
+      if (list.length === 0) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-plug"></use></svg></div>Aucune session</div></td></tr>'; return; }
+      tbody.innerHTML = list.map(s => {
+        const st = s.is_valid ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Révoquée</span>';
+        const act = s.is_valid ? '<button class="btn btn-danger btn-sm" onclick="confirmAction(\'revokeSession\',' + s.id + ',\'' + esc(s.email || '') + '\')">' + ico('ban', 14) + ' Révoquer</button>' : '<span style="color:var(--text-muted);font-size:0.72rem">-</span>';
+        return '<tr><td>' + s.id + '</td><td class="email-cell">' + esc(s.email || '—') + '</td><td>' + st + '</td><td>' + fmtDateTime(s.created_at) + '</td><td>' + fmtDateTime(s.last_verified) + '</td><td class="actions-cell">' + act + '</td></tr>';
+      }).join('');
+    }
+
+    // ==================
+    // Paiements
+    // ==================
+    async function loadPayments() {
+      const payments = await api('/api/admin/payments'); if (!payments) return;
+      const tbody = document.getElementById('paymentsTableBody');
+      if (payments.length === 0) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg></div>Aucun paiement</div></td></tr>'; return; }
+      tbody.innerHTML = payments.map(p => {
+        const stMap = { pending: 'badge-warning', approved: 'badge-success', canceled: 'badge-danger', failed: 'badge-danger' };
+        const st = '<span class="badge ' + (stMap[p.status] || 'badge-info') + '">' + esc(p.status) + '</span>';
+        const amount = new Intl.NumberFormat('fr-FR').format(p.amount || 0) + ' ' + esc(p.currency || 'XOF');
+        return '<tr><td>' + p.id + '</td><td class="email-cell">' + esc(p.email || '—') + '</td><td>' + amount + '</td><td>' + (p.months_granted || 1) + '</td><td>' + st + '</td><td style="font-size:0.68rem">' + esc(p.fedapay_transaction_id || '—') + '</td><td>' + fmtDateTime(p.created_at) + '</td></tr>';
+      }).join('');
+    }
+
+    // ==================
+    // Logs
+    // ==================
+    const logIcons = {
+      'user_registered': { icon: ico('sparkles', 16), css: 'activation', label: 'Inscription' },
+      'login': { icon: ico('user', 16), css: 'admin', label: 'Connexion' },
+      'login_failed': { icon: ico('ban', 16), css: 'revoke', label: 'Échec connexion' },
+      'logout': { icon: ico('power', 16), css: 'session', label: 'Déconnexion' },
+      'password_reset_requested': { icon: ico('mail', 16), css: 'key', label: 'Reset demandé' },
+      'password_reset_done': { icon: ico('key', 16), css: 'activation', label: 'Reset effectué' },
+      'payment_started': { icon: ico('cards', 16), css: 'key', label: 'Paiement lancé' },
+      'payment_approved': { icon: ico('check', 16), css: 'activation', label: 'Paiement approuvé' },
+      'payment_canceled': { icon: ico('ban', 16), css: 'revoke', label: 'Paiement annulé' },
+      'admin_user_created': { icon: ico('plus', 16), css: 'admin', label: 'Compte créé (admin)' },
+      'admin_subscribed': { icon: ico('cards', 16), css: 'activation', label: 'Abonnement ajouté' },
+      'admin_unsubscribed': { icon: ico('ban', 16), css: 'revoke', label: 'Abonnement retiré' },
+      'admin_sessions_reset': { icon: ico('refresh', 16), css: 'session', label: 'Sessions réinitialisées' },
+      'admin_user_toggled': { icon: ico('wrench', 16), css: 'admin', label: 'Compte activé/désactivé' },
+      'admin_user_deleted': { icon: ico('trash', 16), css: 'revoke', label: 'Compte supprimé' },
+      'admin_login': { icon: ico('user', 16), css: 'admin', label: 'Connexion admin' },
+      'admin_login_failed': { icon: ico('ban', 16), css: 'revoke', label: 'Échec connexion admin' },
+      'session_created': { icon: ico('vm', 16), css: 'session', label: 'Session créée' },
+      'session_revoked': { icon: ico('ban', 16), css: 'revoke', label: 'Session révoquée' }
+    };
+
+    async function loadLogs() {
+      const url = '/api/admin/logs?limit=' + LOG_LIMIT + '&offset=' + logOffset + (currentLogFilter ? '&type=' + currentLogFilter : '');
+      const data = await api(url); if (!data) return;
+      const container = document.getElementById('logsContainer');
+      if (data.logs.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="icon"><svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-inbox"></use></svg></div>Aucun événement</div>';
+        document.getElementById('logsPagination').innerHTML = '';
+        return;
+      }
+      container.innerHTML = data.logs.map(log => {
+        const info = logIcons[log.event_type] || { icon: ico('clipboard', 16), css: 'key', label: log.event_type };
+        const t = new Date(log.created_at);
+        const timeStr = t.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        let detail = '';
+        if (log.email) detail += '<strong>' + esc(log.email) + '</strong> — ';
+        if (log.details) detail += esc(log.details) + ' ';
+        if (log.ip_address) detail += '(IP: ' + esc(log.ip_address) + ')';
+        return '<div class="log-entry">' +
+          '<div class="log-icon ' + info.css + '">' + info.icon + '</div>' +
+          '<div class="log-body"><div class="log-title">' + info.label + '</div><div class="log-detail">' + (detail || '-') + '</div></div>' +
+          '<div class="log-time">' + timeStr + '</div>' +
+          '</div>';
+      }).join('');
+      const totalPages = Math.ceil(data.total / LOG_LIMIT);
+      const currentPage = Math.floor(logOffset / LOG_LIMIT) + 1;
+      let pag = '';
+      if (totalPages > 1) {
+        if (currentPage > 1) pag += '<button class="btn btn-ghost btn-sm" onclick="goLogPage(' + (currentPage - 2) + ')">' + ico('arrow-left', 14) + ' Préc</button>';
+        pag += '<span style="color:var(--text-muted);font-size:0.75rem;padding:5px 10px;">Page ' + currentPage + ' / ' + totalPages + ' (' + data.total + ')</span>';
+        if (currentPage < totalPages) pag += '<button class="btn btn-ghost btn-sm" onclick="goLogPage(' + currentPage + ')">Suiv ' + ico('arrow-right', 14) + '</button>';
+      } else {
+        pag = '<span style="color:var(--text-muted);font-size:0.75rem;">' + data.total + ' événement(s)</span>';
+      }
+      document.getElementById('logsPagination').innerHTML = pag;
+    }
+
+    function goLogPage(page) { logOffset = page * LOG_LIMIT; loadLogs(); }
+
+    function filterLogs(type) {
+      currentLogFilter = type;
+      logOffset = 0;
+      document.querySelectorAll('[data-logfilter]').forEach(b => b.classList.toggle('active', (b.dataset.logfilter || '') === (type || '')));
+      loadLogs();
+    }
+
+    // ==================
+    // Actions & Modals
+    // ==================
+    function confirmAction(action, id, email) {
+      const e2 = esc(email);
+      const m = {
+        subscribe:     { t: 'Ajouter 1 mois ?',      m: 'L\'abonnement de <strong>' + e2 + '</strong> sera prolongé d\'un mois.', cls: 'btn-success' },
+        unsubscribe:   { t: 'Retirer l\'abonnement ?', m: '<strong>' + e2 + '</strong> redeviendra gratuit. Ses sessions seront invalidées.', cls: 'btn-danger' },
+        resetSessions: { t: 'Déverrouiller l\'appareil ?', m: 'Toutes les sessions de <strong>' + e2 + '</strong> seront invalidées. Il pourra se connecter sur un nouvel appareil.', cls: 'btn-warning' },
+        disable:       { t: 'Désactiver le compte ?', m: '<strong>' + e2 + '</strong> ne pourra plus se connecter. Sessions invalidées.', cls: 'btn-danger' },
+        enable:        { t: 'Réactiver le compte ?',  m: '<strong>' + e2 + '</strong> pourra de nouveau se connecter.', cls: 'btn-success' },
+        delete:        { t: 'Supprimer définitivement ?', m: 'Le compte <strong>' + e2 + '</strong> et toutes ses données seront supprimés. Irréversible.', cls: 'btn-danger' },
+        revokeSession: { t: 'Révoquer la session ?',  m: 'La session de <strong>' + e2 + '</strong> sera invalidée.', cls: 'btn-danger' },
+        deleteAiKey:   { t: 'Supprimer la clé API ?', m: 'La clé <strong>' + e2 + '</strong> sera définitivement retirée du pool d\'exécution.', cls: 'btn-danger' }
+      };
+      const cfg = m[action];
+      if (!cfg) return;
+      document.getElementById('modalTitle').textContent = cfg.t;
+      document.getElementById('modalMessage').innerHTML = cfg.m;
+      document.getElementById('modalConfirm').className = 'btn ' + (cfg.cls || 'btn-danger');
+      document.getElementById('confirmModal').classList.add('visible');
+      pendingAction = { action, id };
+    }
+
+    document.getElementById('modalConfirm').addEventListener('click', async () => {
+      if (!pendingAction) return;
+      const { action, id } = pendingAction; closeModal();
+      const ep = {
+        subscribe:     { url: '/api/admin/users/' + id + '/subscribe',      method: 'POST', body: JSON.stringify({ months: 1 }) },
+        unsubscribe:   { url: '/api/admin/users/' + id + '/unsubscribe',    method: 'POST' },
+        resetSessions: { url: '/api/admin/users/' + id + '/reset-sessions', method: 'POST' },
+        disable:       { url: '/api/admin/users/' + id + '/toggle-active',  method: 'POST' },
+        enable:        { url: '/api/admin/users/' + id + '/toggle-active',  method: 'POST' },
+        delete:        { url: '/api/admin/users/' + id,                     method: 'DELETE' },
+        revokeSession: { url: '/api/admin/sessions/' + id + '/revoke',      method: 'POST' },
+        deleteAiKey:   { url: '/api/admin/ai/keys/' + id,                   method: 'DELETE' }
+      }[action];
+      const data = await api(ep.url, { method: ep.method, body: ep.body });
+      if (data && data.success) {
+        showToast(data.message, 'success');
+        if (action === 'deleteAiKey') {
+          loadAiKeys();
+        } else {
+          loadStats(); loadUsers(currentFilter); loadSessions();
+        }
+      } else {
+        showToast(data?.message || 'Erreur', 'error');
+      }
+      pendingAction = null;
+    });
+
+    // ==========================================
+    // Gestion IA Multi-Fournisseurs & Pool de Clés
+    // ==========================================
+    let aiProviders = {};
+    let currentAiConfig = null;
+    let currentAiFilter = null;
+    let allAiKeys = [];
+
+    async function loadAiConfig() {
+      const res = await api('/api/admin/ai/config');
+      if (!res || !res.success) return;
+      aiProviders = res.providers || {};
+      currentAiConfig = res.config || {};
+
+      const sel = document.getElementById('aiProviderSelect');
+      sel.value = currentAiConfig.active_provider || 'openrouter';
+
+      const provDef = aiProviders[currentAiConfig.active_provider];
+      const provName = provDef ? provDef.name : currentAiConfig.active_provider;
+      document.getElementById('aiActiveBadge').textContent = 'Fournisseur actif : ' + provName;
+
+      populateModelSelects(
+        (provDef && provDef.defaultModels) || [],
+        currentAiConfig.chat_model,
+        currentAiConfig.code_model
+      );
+    }
+
+    function onAiProviderChanged() {
+      const prov = document.getElementById('aiProviderSelect').value;
+      const provDef = aiProviders[prov];
+      const models = (provDef && provDef.defaultModels) || [];
+      populateModelSelects(models, models[0] ? models[0].id : '', models[0] ? models[0].id : '');
+    }
+
+    function populateModelSelects(models, selectedChat, selectedCode) {
+      const chatSel = document.getElementById('aiChatModelSelect');
+      const codeSel = document.getElementById('aiCodeModelSelect');
+      const chatCustom = document.getElementById('aiChatModelCustom');
+      const codeCustom = document.getElementById('aiCodeModelCustom');
+
+      let optionsHtml = '';
+      let hasChat = false;
+      let hasCode = false;
+
+      (models || []).forEach(m => {
+        const id = m.id || m;
+        const name = m.name || m.id || m;
+        if (id === selectedChat) hasChat = true;
+        if (id === selectedCode) hasCode = true;
+        optionsHtml += '<option value="' + esc(id) + '">' + esc(name) + '</option>';
+      });
+
+      optionsHtml += '<option value="__custom__">Autre modèle (saisir manuellement)...</option>';
+
+      chatSel.innerHTML = optionsHtml;
+      codeSel.innerHTML = optionsHtml;
+
+      if (hasChat) {
+        chatSel.value = selectedChat;
+        chatCustom.style.display = 'none';
+        chatCustom.value = '';
+      } else if (selectedChat) {
+        chatSel.value = '__custom__';
+        chatCustom.style.display = 'block';
+        chatCustom.value = selectedChat;
+      }
+
+      if (hasCode) {
+        codeSel.value = selectedCode;
+        codeCustom.style.display = 'none';
+        codeCustom.value = '';
+      } else if (selectedCode) {
+        codeSel.value = '__custom__';
+        codeCustom.style.display = 'block';
+        codeCustom.value = selectedCode;
+      }
+    }
+
+    function onModelSelectChanged(type) {
+      const sel = document.getElementById(type === 'chat' ? 'aiChatModelSelect' : 'aiCodeModelSelect');
+      const inp = document.getElementById(type === 'chat' ? 'aiChatModelCustom' : 'aiCodeModelCustom');
+      if (sel.value === '__custom__') {
+        inp.style.display = 'block';
+        inp.focus();
+      } else {
+        inp.style.display = 'none';
+        inp.value = '';
+      }
+    }
+
+    async function fetchProviderModels() {
+      const prov = document.getElementById('aiProviderSelect').value;
+      const btn = document.getElementById('btnFetchModels');
+      btn.disabled = true;
+      btn.innerHTML = ico('hourglass', 14) + ' Récupération...';
+
+      try {
+        const res = await api('/api/admin/ai/fetch-models', {
+          method: 'POST',
+          body: JSON.stringify({ provider: prov })
+        });
+        if (res && res.success && Array.isArray(res.models) && res.models.length > 0) {
+          const chatVal = document.getElementById('aiChatModelSelect').value === '__custom__'
+            ? document.getElementById('aiChatModelCustom').value
+            : document.getElementById('aiChatModelSelect').value;
+          const codeVal = document.getElementById('aiCodeModelSelect').value === '__custom__'
+            ? document.getElementById('aiCodeModelCustom').value
+            : document.getElementById('aiCodeModelSelect').value;
+
+          populateModelSelects(res.models, chatVal, codeVal);
+          showToast(res.models.length + ' modèle(s) récupéré(s) auprès de ' + prov, 'success');
+        } else {
+          showToast('Aucun modèle supplémentaire renvoyé par l’API.', 'warning');
+        }
+      } catch (err) {
+        showToast('Erreur lors de la récupération des modèles.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = ico('refresh', 14) + ' Actualiser modèles';
+      }
+    }
+
+    async function saveAiConfig(e) {
+      e.preventDefault();
+      const prov = document.getElementById('aiProviderSelect').value;
+      const chatSel = document.getElementById('aiChatModelSelect').value;
+      const chatVal = chatSel === '__custom__' ? document.getElementById('aiChatModelCustom').value.trim() : chatSel;
+      const codeSel = document.getElementById('aiCodeModelSelect').value;
+      const codeVal = codeSel === '__custom__' ? document.getElementById('aiCodeModelCustom').value.trim() : codeSel;
+
+      if (!chatVal || !codeVal) {
+        showToast('Veuillez spécifier les modèles pour le chat et le tuteur.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btnSaveAiConfig');
+      btn.disabled = true;
+      btn.innerHTML = ico('hourglass', 14) + ' Enregistrement...';
+
+      const res = await api('/api/admin/ai/config', {
+        method: 'POST',
+        body: JSON.stringify({
+          active_provider: prov,
+          chat_model: chatVal,
+          code_model: codeVal
+        })
+      });
+
+      btn.disabled = false;
+      btn.innerHTML = ico('check', 14) + ' Enregistrer';
+
+      if (res && res.success) {
+        showToast(res.message, 'success');
+        loadAiConfig();
+      } else {
+        showToast(res?.message || 'Erreur lors de la sauvegarde.', 'error');
+      }
+    }
+
+    async function loadAiKeys() {
+      const res = await api('/api/admin/ai/keys');
+      if (!res || !res.success) return;
+      allAiKeys = res.keys || [];
+      renderAiKeys(allAiKeys.filter(k => !currentAiFilter || k.provider === currentAiFilter));
+    }
+
+    function filterAiKeys(prov) {
+      currentAiFilter = prov;
+      document.querySelectorAll('[data-aifilter]').forEach(b => {
+        b.classList.toggle('active', (b.dataset.aifilter || '') === (prov || ''));
+      });
+      renderAiKeys(allAiKeys.filter(k => !currentAiFilter || k.provider === currentAiFilter));
+    }
+
+    function renderAiKeys(keys) {
+      const tbody = document.getElementById('aiKeysTableBody');
+      if (!keys || keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="icon">' + ico('key', 24) + '</div>Aucune clé API configurée dans ce filtre.</div></td></tr>';
+        return;
+      }
+
+      let html = '';
+      keys.forEach(k => {
+        let statusBadge = '';
+        if (!k.isActive) {
+          statusBadge = '<span class="badge badge-danger">Désactivée</span>';
+        } else if (k.isCoolingDown) {
+          statusBadge = '<span class="badge badge-warning" title="Mise en pause automatique anti-429">' + ico('warning', 12) + ' Cooldown (' + k.cooldownRemainingSec + 's)</span>';
+        } else {
+          statusBadge = '<span class="badge badge-success">' + ico('check', 12) + ' Active</span>';
+        }
+
+        const provName = (aiProviders[k.provider] && aiProviders[k.provider].name) || k.provider.toUpperCase();
+
+        html += '<tr>' +
+          '<td>#' + k.id + '</td>' +
+          '<td><strong>' + esc(provName) + '</strong>' + (k.baseUrl ? '<br><span style="color:var(--text-muted);font-size:0.68rem;">' + esc(k.baseUrl) + '</span>' : '') + '</td>' +
+          '<td>' + esc(k.label || '—') + '</td>' +
+          '<td><code style="font-size:0.75rem;background:var(--bg);padding:2px 6px;border-radius:4px;">' + esc(k.maskedKey) + '</code></td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td>' + (k.requestCount || 0) + '</td>' +
+          '<td>' + (k.errorCount ? '<span style="color:var(--error);font-weight:700;">' + k.errorCount + '</span>' : '0') + '</td>' +
+          '<td>' + fmtDateTime(k.lastUsedAt) + '</td>' +
+          '<td class="actions-cell">' +
+            '<button class="btn btn-ghost btn-sm" onclick="testAiKey(' + k.id + ')" title="Tester la clé">' + ico('bolt', 12) + ' Tester</button>' +
+            '<button class="btn btn-ghost btn-sm" onclick="toggleAiKey(' + k.id + ')" title="' + (k.isActive ? 'Désactiver' : 'Activer') + '">' +
+              ico(k.isActive ? 'ban' : 'check', 12) + ' ' + (k.isActive ? 'Désactiver' : 'Activer') +
+            '</button>' +
+            '<button class="btn btn-danger btn-sm" onclick="confirmAction(\'deleteAiKey\', ' + k.id + ', \'' + esc(k.label || k.maskedKey) + '\')" title="Supprimer">' + ico('trash', 12) + '</button>' +
+          '</td>' +
+        '</tr>';
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    async function toggleAiKey(id) {
+      const res = await api('/api/admin/ai/keys/' + id + '/toggle', { method: 'POST' });
+      if (res && res.success) {
+        showToast('Statut de la clé mis à jour.', 'success');
+        loadAiKeys();
+      } else {
+        showToast(res?.message || 'Erreur lors du changement de statut.', 'error');
+      }
+    }
+
+    async function testAiKey(id) {
+      showToast('Test de la clé en cours...', 'info');
+      const res = await api('/api/admin/ai/test-key', { method: 'POST', body: JSON.stringify({ id }) });
+      if (res && res.ok) {
+        showToast('Succès ! Latence : ' + res.latencyMs + 'ms (modèle : ' + res.model + ')', 'success');
+      } else {
+        showToast('Échec : ' + (res?.error || 'Erreur inconnue'), 'error');
+      }
+    }
+
+    async function testNewKey() {
+      const provider = document.getElementById('newKeyProvider').value;
+      const apiKey = document.getElementById('newKeySecret').value.trim();
+      const baseUrl = document.getElementById('newKeyBaseUrl').value.trim();
+      const box = document.getElementById('newKeyTestResult');
+
+      if (!apiKey) {
+        showToast('Veuillez saisir une clé API à tester.', 'error');
+        return;
+      }
+
+      box.style.display = 'block';
+      box.innerHTML = '<span style="color:var(--text-secondary);">' + ico('hourglass', 14) + ' Test de connexion en cours...</span>';
+
+      const res = await api('/api/admin/ai/test-key', {
+        method: 'POST',
+        body: JSON.stringify({ provider, apiKey, baseUrl: baseUrl || null })
+      });
+
+      if (res && res.ok) {
+        box.innerHTML = '<span style="color:var(--success);font-weight:700;">' + ico('check', 14) + ' Clé valide ! Latence : ' + res.latencyMs + 'ms (modèle : ' + res.model + ')</span>';
+      } else {
+        box.innerHTML = '<span style="color:var(--error);font-weight:700;">' + ico('warning', 14) + ' Échec du test : ' + esc(res?.error || 'Erreur de connexion') + '</span>';
+      }
+    }
+
+    async function addAiKey(e) {
+      e.preventDefault();
+      const provider = document.getElementById('newKeyProvider').value;
+      const apiKey = document.getElementById('newKeySecret').value.trim();
+      const label = document.getElementById('newKeyLabel').value.trim();
+      const baseUrl = document.getElementById('newKeyBaseUrl').value.trim();
+
+      if (!apiKey) {
+        showToast('Veuillez renseigner la clé API.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btnAddKey');
+      btn.disabled = true;
+      btn.innerHTML = ico('hourglass', 14) + ' Ajout...';
+
+      const res = await api('/api/admin/ai/keys', {
+        method: 'POST',
+        body: JSON.stringify({ provider, apiKey, label, baseUrl: baseUrl || null })
+      });
+
+      btn.disabled = false;
+      btn.innerHTML = ico('plus', 14) + ' Ajouter au Pool';
+
+      if (res && res.success) {
+        showToast(res.message, 'success');
+        document.getElementById('newKeySecret').value = '';
+        document.getElementById('newKeyLabel').value = '';
+        document.getElementById('newKeyBaseUrl').value = '';
+        document.getElementById('newKeyTestResult').style.display = 'none';
+        loadAiKeys();
+      } else {
+        showToast(res?.message || 'Erreur lors de l’ajout.', 'error');
+      }
+    }
+
+    function closeModal() { document.getElementById('confirmModal').classList.remove('visible'); }
+    document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+    function showToast(msg, type = 'info') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = 'toast ' + type + ' visible';
+      setTimeout(() => t.classList.remove('visible'), 3500);
+    }
+
+    async function logout() {
+      await api('/api/admin/logout', { method: 'POST' });
+      window.location.href = '/_auth/admin/login.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

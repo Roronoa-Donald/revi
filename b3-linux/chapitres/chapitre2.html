@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Initialisation &amp;amp; Gestionnaire de Services Systemd Avancé | Linux Avancé B3</title>
+<meta name="description" content="Chapitre 2 du cours Linux Avancé B3 : Séquence d’initialisation (UEFI, GRUB2, initramfs), architecture de Systemd (PID 1), gestion déclarative des unités (.service, .socket, .target), graphes de dépendances et analyse de journaux avec journald. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-linux/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Initialisation &amp;amp; Gestionnaire de Services Systemd Avancé | Linux Avancé B3">
+<meta property="og:description" content="Chapitre 2 du cours Linux Avancé B3 : Séquence d’initialisation (UEFI, GRUB2, initramfs), architecture de Systemd (PID 1), gestion déclarative des unités (.service, .socket, .target), graphes de dépendances et analyse de journaux avec journald. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-linuxnav"><div class="b3-linuxnav__in">
+  <a class="b3-linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-linuxnav__sep" aria-hidden="true">/</span>
+  <a class="b3-linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux Avancé B3</a>
+  <div class="b3-linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-linuxwrap">
+<p class="crumb"><a href="../index.html">Linux Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Initialisation &amp; Gestionnaire de Services Systemd Avancé</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le démarrage d’un serveur Linux est un processus complexe orchestrant la détection matérielle, le chargement du noyau et le lancement des services réseau. Historiquement, le système hérité SysVinit reposait sur de lourds scripts bash séquentiels (/etc/init.d/) lents, fragiles et incapables de gérer les dépendances dynamiques. Aujourd’hui, Systemd est le gestionnaire de système et de services standard de toutes les distributions Linux majeures. En tant que premier processus de l’espace utilisateur (PID 1), Systemd gère la parallélisation du boot, la supervision de processus via cgroups, l’activation paresseuse par socket (Socket Activation) et la journalisation binaire structurée avec Journald. Maîtriser Systemd à un niveau avancé est une compétence cardinale pour tout administrateur ou ingénieur DevOps.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser la séquence complète de démarrage Linux : microprogramme UEFI/BIOS, chargeur GRUB2, image initramfs et switch_root ;</li>
+      <li>comprendre le rôle central de Systemd (PID 1) et sa gestion native des processus via les cgroups ;</li>
+      <li>concevoir et valider des fichiers d’unités Systemd (.service, .socket, .timer, .target) conformes aux exigences d’entreprise ;</li>
+      <li>maîtriser le graphe de dépendances (Requires, Wants, After, Before) et prévenir les blocages circulaires (deadlocks) ;</li>
+      <li>exploiter l’activation par socket (Socket Activation) pour éliminer les dépendances d’ordre et démarrer les démons à la demande ;</li>
+      <li>développer en Python 3 des validateurs d’unités de service, des détecteurs de cycles de dépendances et des parseurs d’événements Journald.</li>
+    </ol>
+  </div>
+
+<h2>1. La Séquence d’Initialisation Linux : De l’UEFI à Systemd (PID 1)</h2>
+
+<p>Le démarrage d’une machine Linux traverse quatre phases ordonnées avant de céder la main à l’espace utilisateur :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Matériel &amp; Chargeur d’Amorçage (GRUB2)</h4>
+    <ul>
+      <li><strong>UEFI / BIOS :</strong> Initialise le matériel physique (POST) et lit la partition système EFI (ESP) pour charger le gestionnaire d’amorçage.</li>
+      <li><strong>GRUB2 (Grand Unified Bootloader) :</strong> Présente le menu de boot, charge l’image compressée du noyau (<code>vmlinuz</code>) et le disque mémoire initial (<code>initramfs</code>) en RAM, puis passe la main au noyau en Ring 0.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Noyau, initramfs &amp; switch_root</h4>
+    <ul>
+      <li><strong>initramfs (Initial RAM File System) :</strong> Petit environnement root temporaire en mémoire contenant les pilotes nécessaires (contrôleurs RAID, LVM, déchiffrement LUKS, pilotes NVMe) pour monter la vraie partition racine.</li>
+      <li><strong>switch_root :</strong> Une fois le vrai système de fichiers racine monté en lecture-écriture, le noyau exécute <code>switch_root</code> et lance le tout premier processus utilisateur : <strong>Systemd avec le PID 1</strong>.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Architecture des Unités Systemd : Types d’Unités &amp; Directives</h2>
+
+<p>Dans Systemd, toute ressource gérée est une <strong>unité (Unit)</strong> définie dans un fichier texte déclaratif placé dans <code>/etc/systemd/system/</code> (priorité administrateur) ou <code>/lib/systemd/system/</code> (fichiers fournis par les paquets de la distribution) :</p>
+<table class="table">
+  <thead>
+    <tr><th>Type d’Unité</th><th>Extension</th><th>Rôle Opérationnel &amp; Caractéristiques</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Service</td><td><code>.service</code></td><td>Gère un démon ou processus en arrière-plan (démarrage, arrêt, redémarrage automatique).</td></tr>
+    <tr><td>Socket</td><td><code>.socket</code></td><td>Encapsule un socket réseau ou IPC pour l’activation à la demande (Socket Activation).</td></tr>
+    <tr><td>Timer</td><td><code>.timer</code></td><td>Planification temporelle d’événements (remplaçant moderne et fiable de cron avec logging unifié).</td></tr>
+    <tr><td>Target</td><td><code>.target</code></td><td>Point de synchronisation regroupant d’autres unités (ex: <code>multi-user.target</code>, <code>graphical.target</code>).</td></tr>
+    <tr><td>Mount</td><td><code>.mount</code></td><td>Gère un point de montage de système de fichiers (alternative déclarative à <code>/etc/fstab</code>).</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Ordonnancement, Graphes de Dépendances &amp; Socket Activation</h2>
+
+<p>Systemd construit un graphe orienté acyclique pour démarrer un maximum de services <strong>en parallèle</strong> dès la mise sous tension :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Dépendances vs Ordonnancement</h4>
+    <p>Il ne faut jamais confondre l’exigence d’activation et l’ordre temporel :</p>
+    <ul>
+      <li><code>Requires=</code> / <code>Wants=</code> : Déclare qu’un service a besoin d’un autre (dépendance d’état), mais <strong>n’impose aucun ordre</strong> ! Les deux services démarreront en même temps si <code>After=</code> n’est pas ajouté.</li>
+      <li><code>After=</code> / <code>Before=</code> : Définit strictement l’ordre chronologique de démarrage, sans créer de dépendance d’activation.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>La Révolution de la Socket Activation</h4>
+    <p>Pour éliminer le besoin de synchroniser les services au démarrage :</p>
+    <p>Systemd ouvre le socket réseau (ex: port 80 ou 3306) au boot. Si le client web tente de se connecter alors que la base de données n’a pas fini de démarrer, la connexion TCP est mise en attente dans le buffer du noyau.</p>
+    <p>Dès que le démon démarre, Systemd lui transmet le descripteur de fichier déjà ouvert via <code>sd_listen_fds(3)</code> sans perdre un seul paquet client.</p>
+  </div>
+</div>
+
+<h2>4. Journalisation Centralisée avec systemd-journald &amp; journalctl</h2>
+
+<p>Le démon <code>systemd-journald</code> capte automatiquement les flux <code>stdout</code> et <code>stderr</code> de tous les services, les messages du noyau (klog) et les événements syslog dans des fichiers binaires indexés sous <code>/var/log/journal/</code>.</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Commandes Essentielles de journalctl en Production</div>
+<pre><code># Suivre en direct les logs d’un service specifique
+journalctl -u nginx.service -f
+
+# Filtrer par niveau de gravite (de 0:emerg a 3:err)
+journalctl -p err -b
+
+# Afficher uniquement les logs du boot courant
+journalctl -b 0
+
+# Afficher la sortie au format JSON structure pour injection SIEM
+journalctl -u api.service -o json-pretty</code></pre>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="lx3-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SERVICE_DEF name=api.service desc=&quot;Backend API&quot; exec_start=/usr/bin/python3 wanted_by=multi-user.target">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c2-e1) — Validateur d’unité de service Systemd ([Unit], [Service], [Install])
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Rejet d’un exécutable avec chemin relatif]
+# Données : SERVICE_DEF name=worker.service desc="Taches asynchrones" exec_start=node wanted_by=multi-user.target
+A_COMPLETER
+
+[Cas 2 — Rejet pour description manquante ou WantedBy manquant]
+# Données : SERVICE_DEF name=audit.service desc=NONE exec_start=/opt/bin/agent wanted_by=multi-user.target
+# Données : SERVICE_DEF name=cron_job.service desc="Tache planifiee" exec_start=/bin/bash wanted_by=NONE
+A_COMPLETER
+
+[Cas 3 — Service complexe valide avec arguments]
+# Données : SERVICE_DEF name=nginx.service desc="Serveur Web Nginx" exec_start=/usr/sbin/nginx wanted_by=multi-user.target
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur d’unité de service Systemd ([Unit], [Service], [Install])</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité syntaxique et la validité des directives d’un fichier de service Systemd.</p>
+    <div class="lab__brief"><p>Sous Linux, <strong>Systemd</strong> (PID 1) orchestre le démarrage des démons via des fichiers déclaratifs d'unités (<code>.service</code>) placés dans <code>/etc/systemd/system/</code> ou <code>/lib/systemd/system/</code>.<br><br>
+Règles de conformité strictes d'une unité de service :<br>
+1. <code>ExecStart</code> est obligatoire et doit impérativement spécifier un <strong>chemin absolu</strong> (commençant par <code>/</code>). Un binaire relatif (ex: <code>python app.py</code>) est rejeté avec l'erreur <code>EXECSTART_RELATIF</code>.<br>
+2. <code>Description</code> doit être non vide (sinon <code>DESCRIPTION_MANQUANTE</code>).<br>
+3. <code>WantedBy</code> dans la section <code>[Install]</code> doit référencer une cible valide (ex: <code>multi-user.target</code>). S'il est vide ou absent, erreur <code>WANTEDBY_MANQUANT</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque service, afficher :<br>
+<code>SERVICE_VALIDATION name={name} valid={OUI|NON} error={OK|motif_erreur}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERVICE_DEF name=api.service desc="Backend API" exec_start=/usr/bin/python3 wanted_by=multi-user.target</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SERVICE_VALIDATION name=api.service valid=OUI error=OK</pre></div>
+    </div>
+    <p class="lab__note">Toutes les directives sont valides et le chemin d’exécutable est absolu.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier les critères dans l’ordre : Description non vide, ExecStart commençant par "/", WantedBy non vide.</li>
+        <li>Dès qu’une règle est violée, valid=NON avec l’erreur correspondante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="UNIT_DEP name=db.service requires=NONE&#10;UNIT_DEP name=web.service requires=db.service">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c2-e2) — Résolveur de dépendances et détection de cycles Systemd
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Détection d’auto-dépendance]
+# Données : UNIT_DEP name=loop.service requires=loop.service
+A_COMPLETER
+
+[Cas 2 — Détection de cycle direct croisé entre deux services]
+# Données : UNIT_DEP name=alpha.service requires=beta.service
+# Données : UNIT_DEP name=beta.service requires=alpha.service
+A_COMPLETER
+
+[Cas 3 — Chaîne saine à trois unités]
+# Données : UNIT_DEP name=redis.service requires=network.target
+# Données : UNIT_DEP name=network.target requires=NONE
+# Données : UNIT_DEP name=app.service requires=redis.service
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Résolveur de dépendances et détection de cycles Systemd</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser le graphe de dépendances d’unités et détecter les dépendances circulaires bloquantes (deadlocks).</p>
+    <div class="lab__brief"><p>Systemd gère les dépendances entre unités via les directives <code>Requires=</code> (dépendance forte) et <code>Wants=</code> (dépendance faible). Si deux unités se requièrent mutuellement de manière circulaire, Systemd rencontre une dépendance cyclique et doit casser le lien ou échouer le démarrage.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Règles :<br>
+1. Auto-dépendance (A requiert A) : <code>cycle=OUI reason=AUTO_DEPENDANCE</code>.<br>
+2. Cycle direct à deux unités (A requiert B et B requiert A) : <code>cycle=OUI reason=CYCLE_DIRECT</code>.<br>
+3. Dépendance saine ou sans dépendance (NONE) : <code>cycle=NON reason=OK</code>.<br><br>
+Pour chaque unité, afficher :<br>
+<code>DEP_CHECK unit={name} cycle={OUI|NON} reason={OK|motif}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>UNIT_DEP name=db.service requires=NONE
+UNIT_DEP name=web.service requires=db.service</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEP_CHECK unit=db.service cycle=NON reason=OK
+DEP_CHECK unit=web.service cycle=NON reason=OK</pre></div>
+    </div>
+    <p class="lab__note">Arborescence linéaire saine sans boucle.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker l’association {nom: requires} dans un dictionnaire.</li>
+        <li>Vérifier si requires == nom (auto-dépendance).</li>
+        <li>Vérifier si target a pour requires le nom courant (cycle à deux).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="JOURNAL id=1 priority=6 unit=sshd.service msg=&quot;Server listening on port 22&quot;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c2-e3) — Parseur et filtreur d’événements Systemd Journald
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Logs d’urgence et d’erreur critique (priority <= 3)]
+# Données : JOURNAL id=10 priority=0 unit=kernel msg="Kernel panic - not syncing"
+# Données : JOURNAL id=11 priority=3 unit=postgresql.service msg="Fatal connection error"
+A_COMPLETER
+
+[Cas 2 — Avertissement et notification standard]
+# Données : JOURNAL id=20 priority=4 unit=diskmon.service msg="Disk usage above 80%"
+# Données : JOURNAL id=21 priority=5 unit=systemd msg="Started Apache Web Server"
+A_COMPLETER
+
+[Cas 3 — Log de débogage (DEBUG)]
+# Données : JOURNAL id=30 priority=7 unit=app.service msg="Trace variable x=42"
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parseur et filtreur d’événements Systemd Journald</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les journaux binaires Systemd Journald selon les priorités Syslog RFC 5424 et isoler les incidents critiques.</p>
+    <div class="lab__brief"><p>Le démon <code>systemd-journald</code> centralise les logs du noyau, des services et de l'espace utilisateur dans un format binaire structuré indexé.<br><br>
+Analysez les paramètres du problème pour chaque cas..7&gt; unit=&lt;service&gt; msg=&lt;message&gt;</code>.<br><br>
+Échelle de sévérité Syslog (RFC 5424) :<br>
+- 0 : <code>EMERGENCY</code><br>
+- 1 : <code>ALERT</code><br>
+- 2 : <code>CRITICAL</code><br>
+- 3 : <code>ERROR</code><br>
+- 4 : <code>WARNING</code><br>
+- 5 : <code>NOTICE</code><br>
+- 6 : <code>INFO</code><br>
+- 7 : <code>DEBUG</code><br><br>
+Critère d'alerte : si <code>priority &le; 3</code>, l'événement est considéré comme critique (<code>SEVERITY_ALERT=OUI</code>), sinon (<code>SEVERITY_ALERT=NON</code>).<br><br>
+Pour chaque log, afficher :<br>
+<code>JOURNAL_AUDIT id={id} unit={unit} level={LABEL} alert={SEVERITY_ALERT}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>JOURNAL id=1 priority=6 unit=sshd.service msg="Server listening on port 22"</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>JOURNAL_AUDIT id=1 unit=sshd.service level=INFO alert=NON</pre></div>
+    </div>
+    <p class="lab__note">Priorité 6 (INFO), événement informatif standard.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser une table de correspondance associant les entiers 0..7 à leur libellé.</li>
+        <li>Comparer la priorité numérique pour déterminer le statut d’alerte.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le tout premier processus exécuté dans l’espace utilisateur (User Space) sous un système Linux moderne ?</p>
+      <div class="opts">
+        <button class="opt">bash (PID 100)</button>
+        <button class="opt" data-correct="1">systemd (PID 1)</button>
+        <button class="opt">grub2 (PID 0)</button>
+        <button class="opt">sshd (PID 2)</button>
+      </div>
+      <div class="q__exp">Systemd est lancé par le noyau à l’issue de la phase d’initialisation initramfs via switch_root et reçoit obligatoirement l’identifiant de processus PID 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la directive « ExecStart= » d’un service Systemd refuse-t-elle strictement les chemins relatifs ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le système de fichiers ext4 interdit les chemins relatifs</button>
+        <button class="opt" data-correct="1">Parce que Systemd s’exécute dans un environnement sans variable $PATH prédéfinie pour garantir un déterminisme et une sécurité absolus</button>
+        <button class="opt">Parce que les chemins relatifs consomment trop de mémoire dans le cache du processeur</button>
+        <button class="opt">Parce que Python refuse de s’exécuter avec des chemins relatifs</button>
+      </div>
+      <div class="q__exp">Pour éviter qu’un binaire malveillant placé dans un répertoire temporaire ne soit exécuté à la place du démon officiel, Systemd n’utilise pas de $PATH utilisateur et exige des chemins absolus commençant par /.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle directive Systemd permet de spécifier que le service A doit attendre que le service B soit prêt avant de démarrer ?</p>
+      <div class="opts">
+        <button class="opt">Requires=B.service</button>
+        <button class="opt" data-correct="1">After=B.service</button>
+        <button class="opt">Wants=B.service</button>
+        <button class="opt">WantedBy=B.service</button>
+      </div>
+      <div class="q__exp">La directive After= gère exclusivement l’ordre chronologique : elle ordonne à Systemd d’attendre la fin de l’initialisation de B.service avant de lancer A.service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle section d’un fichier d’unité Systemd la directive « WantedBy=multi-user.target » doit-elle être placée ?</p>
+      <div class="opts">
+        <button class="opt">[Unit]</button>
+        <button class="opt">[Service]</button>
+        <button class="opt" data-correct="1">[Install]</button>
+        <button class="opt">[Target]</button>
+      </div>
+      <div class="q__exp">WantedBy fait partie de la section [Install] et indique à quelle cible le service doit être rattaché lorsqu’on exécute la commande systemctl enable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le principe de l’activation par socket (Socket Activation) dans Systemd ?</p>
+      <div class="opts">
+        <button class="opt">Forcer tous les services à communiquer obligatoirement par des connexions Wi-Fi</button>
+        <button class="opt" data-correct="1">Systemd écoute sur le socket dès le boot et ne démarre le démon en mémoire que lorsqu’un client envoie une première requête</button>
+        <button class="opt">Chiffrer toutes les communications réseau avec une clé asymétrique RSA</button>
+        <button class="opt">Désactiver le pare-feu pendant l’exécution du service</button>
+      </div>
+      <div class="q__exp">La Socket Activation permet à Systemd de créer le socket à l’avance. Le démon n’est instancié que lorsqu’une requête arrive, réduisant la consommation de RAM à froid et parallélisant le boot.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet de suivre en temps réel les logs d’un service géré par Journald ?</p>
+      <div class="opts">
+        <button class="opt">cat /var/log/messages</button>
+        <button class="opt" data-correct="1">journalctl -u mon-service.service -f</button>
+        <button class="opt">tail -f /proc/kmsg</button>
+        <button class="opt">dmesg --follow-all</button>
+      </div>
+      <div class="q__exp">L’option -u cible l’unité Systemd et -f (follow) permet de suivre en direct l’ajout de nouvelles lignes de journaux dans la console.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande est impérative après avoir modifié un fichier d’unité dans /etc/systemd/system/ pour que Systemd prenne en compte les changements ?</p>
+      <div class="opts">
+        <button class="opt">systemctl restart all</button>
+        <button class="opt" data-correct="1">systemctl daemon-reload</button>
+        <button class="opt">reboot</button>
+        <button class="opt">update-initramfs -u</button>
+      </div>
+      <div class="q__exp">systemctl daemon-reload force Systemd à relire et recompiler en mémoire tous les fichiers de configuration d’unités du système.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un fichier d’unité, quelle directive garantit que le service redémarrera automatiquement si son processus plante avec une erreur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Restart=on-failure</button>
+        <button class="opt">AutoReboot=yes</button>
+        <button class="opt">KeepAlive=true</button>
+        <button class="opt">Retry=forever</button>
+      </div>
+      <div class="q__exp">Restart=on-failure ordonne à Systemd de redémarrer le service uniquement si le processus se termine par un signal ou un code de sortie non-zéro.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Fournir un chemin d’exécutable relatif dans ExecStart= (ex: node server.js provoquera une erreur immédiate au démarrage).</li>
+      <li>Croire que Requires= suffit pour ordonner le démarrage (sans After=, les deux services démarreront en parallèle au même instant).</li>
+      <li>Créer des dépendances circulaires où deux unités se requièrent mutuellement (Systemd devra casser le lien et échouer le démarrage).</li>
+      <li>Oublier d’exécuter systemctl daemon-reload après avoir modifié un fichier de service sous /etc/systemd/system/.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Création &amp; Durcissement d’une Unité de Service en Production</div>
+    <ol>
+      <li>Étape 1 : Rédiger le fichier dans /etc/systemd/system/mon-app.service avec Description explicite.</li>
+      <li>Étape 2 : Définir un utilisateur non privilégié dédié : User=appuser et Group=appuser.</li>
+      <li>Étape 3 : Spécifier la commande de lancement avec son chemin absolu complet : ExecStart=/usr/bin/python3 /opt/app/main.py.</li>
+      <li>Étape 4 : Configurer le redémarrage automatique en cas de plantage : Restart=on-failure et RestartSec=5s.</li>
+      <li>Étape 5 : Appliquer les directives de bac à sable de sécurité : ProtectSystem=strict, ProtectHome=true, NoNewPrivileges=true.</li>
+      <li>Étape 6 : Recharger la configuration du gestionnaire : systemctl daemon-reload, puis activer au démarrage avec systemctl enable --now mon-app.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La séquence de démarrage s’enchaîne : UEFI &rarr; GRUB2 &rarr; Noyau/initramfs &rarr; switch_root &rarr; Systemd (PID 1).</li>
+      <li>Systemd est le gestionnaire de système universel organisant les ressources en unités (.service, .socket, .timer, .target).</li>
+      <li>La directive ExecStart d’un service exige obligatoirement un chemin absolu débutant par « / ».</li>
+      <li>Requires/Wants définit la dépendance d’activation, tandis que After/Before définit l’ordre chronologique de démarrage.</li>
+      <li>L’activation par socket (Socket Activation) permet de démarrer des démons à la demande et supprime les temps d’attente.</li>
+      <li>systemd-journald enregistre les logs sous format binaire structuré, consultables et filtrables avec journalctl.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais les étapes successives du démarrage d’un système Linux (de l’UEFI à PID 1).</li>
+      <li>Je sais rédiger une unité Systemd complète avec ses sections [Unit], [Service] et [Install].</li>
+      <li>Je comprends la différence fondamentale entre Requires= et After=.</li>
+      <li>Je sais pourquoi l’utilisation de chemins absolus est obligatoire dans ExecStart.</li>
+      <li>Je comprends le mécanisme et les avantages de la Socket Activation.</li>
+      <li>Je sais utiliser journalctl avec les options -u, -p, -b et -f pour diagnostiquer un incident.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Séquence d’amorçage (UEFI, GRUB2, initramfs)</li><li>Processus d’initialisation PID 1 (Systemd)</li><li>Fichiers d’unités déclaratifs (.service, .socket, .target)</li><li>Dépendances d’activation (Requires, Wants)</li><li>Ordonnancement temporel (After, Before)</li><li>Activation par socket (Socket Activation)</li><li>Drapeaux de redémarrage (Restart=on-failure)</li><li>Journalisation binaire structurée (systemd-journald)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à distinguer Requires= et After= ou écriture de chemins relatifs dans les unités de service.</div>
+      <div class="bandrow bandrow--medium">Bonne rédaction des unités .service et .socket, utilisation fluide de systemctl et investigation efficace avec journalctl.</div>
+      <div class="bandrow bandrow--high">Conception avancée de graphes de dépendances sans deadlocks, maîtrise complète de la Socket Activation et durcissement des services via cgroups.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Gestion Avancée du Stockage : LVM, RAID Logiciel &amp; Inodes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle du noyau Linux (kernel.org), spécifications systemd (Lennart Poettering / Freedesktop), guides de durcissement ANSSI et CIS Benchmarks Linux.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

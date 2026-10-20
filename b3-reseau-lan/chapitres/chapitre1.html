@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Spanning Tree Protocol Avancé (STP / RSTP / MSTP) &amp;amp; Mécanismes de Protection | Réseau LAN Avancé B3</title>
+<meta name="description" content="Chapitre 1 du cours Réseau LAN Avancé B3 : Boucles de commutation de niveau 2, élection Root Bridge, sélection Root Port et Designated Port, convergence RSTP 802.1w, instances MSTP 802.1s, BPDU Guard, Root Guard et Loop Guard. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-reseau-lan/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Spanning Tree Protocol Avancé (STP / RSTP / MSTP) &amp;amp; Mécanismes de Protection | Réseau LAN Avancé B3">
+<meta property="og:description" content="Chapitre 1 du cours Réseau LAN Avancé B3 : Boucles de commutation de niveau 2, élection Root Bridge, sélection Root Port et Designated Port, convergence RSTP 802.1w, instances MSTP 802.1s, BPDU Guard, Root Guard et Loop Guard. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-reseau-lannav"><div class="b3-reseau-lannav__in">
+  <a class="b3-reseau-lannav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-reseau-lannav__sep" aria-hidden="true">/</span>
+  <a class="b3-reseau-lannav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-network"></use></svg> Réseau LAN Avancé B3</a>
+  <div class="b3-reseau-lannav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-reseau-lannav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-reseau-lanwrap">
+<p class="crumb"><a href="../index.html">Réseau LAN Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Spanning Tree Protocol Avancé (STP / RSTP / MSTP) &amp; Mécanismes de Protection</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un réseau local d’entreprise (LAN) de campus, la redondance des liens physiques entre commutateurs est indispensable pour prévenir les ruptures de service. Cependant, cette topologie maillée engendre un risque catastrophique : les boucles de niveau 2, provoquant des tempêtes de diffusion (broadcast storms), des instabilités permanentes de tables CAM (MAC flapping) et la duplication incontrôlée de trames Ethernet. L’ingénieur réseau de niveau Bachelor 3 doit maîtriser l’évolution des protocoles de l’arbre couvrant (IEEE 802.1D classique, 802.1w Rapid Spanning Tree et 802.1s Multiple Spanning Tree), calculer précisément les élections de pont racine et de ports de transit, et déployer les mécanismes indispensables de durcissement (BPDU Guard, Root Guard et Loop Guard) pour bâtir un cœur de réseau parfaitement stable et sécurisé.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre les mécanismes destructeurs des boucles de niveau 2 (tempête de broadcast, MAC flapping) ;</li>
+      <li>analyser la structure du Bridge Identifier (BID 802.1t) et simuler l’élection déterministe du Root Bridge ;</li>
+      <li>calculer la sélection des Root Ports, Designated Ports et Alternate/Backup Ports selon les métriques IEEE ;</li>
+      <li>comparer les mécanismes de convergence de 802.1D et la poignée de main Proposal / Agreement de RSTP 802.1w ;</li>
+      <li>configurer et optimiser les instances régionales Multiple Spanning Tree Protocol (MSTP 802.1s) ;</li>
+      <li>développer en Python 3 des simulateurs d’élection STP, des calculateurs de chemin et des auditeurs de sécurité BPDU.</li>
+    </ol>
+  </div>
+
+<h2>1. Topologies Maillées & Vulnérabilités de Niveau 2 (La Nécessité du STP)</h2>
+
+<p>Contrairement au protocole IPv4 ou IPv6 qui intègre un champ de durée de vie <em>TTL (Time-To-Live)</em> ou <em>Hop Limit</em> décrémenté par chaque routeur, <strong>l’en-tête Ethernet de niveau 2 ne possède aucun mécanisme de fin de vie</strong>. Par conséquent, toute trame de diffusion (Broadcast, Multicast ou unicast inconnu) injectée dans une boucle physique circule indéfiniment.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Conséquences d'une Boucle de Commutation Non Maîtrisée</h4>
+    <ul>
+      <li><strong>Broadcast Storm (Tempête de Diffusion) :</strong> Multiplication exponentielle des trames broadcast (ex: requêtes ARP), saturant 100 % de la bande passante des liaisons physiques en quelques secondes.</li>
+      <li><strong>MAC Address Flapping (Instabilité de Table CAM) :</strong> Le commutateur apprend la même adresse MAC alternativement sur deux ports distincts toutes les millisecondes, épuisant le CPU du plan de contrôle.</li>
+      <li><strong>Duplication Multiple de Trames :</strong> Les stations d’extrémité reçoivent des copies multiples d’un même paquet, provoquant des crashs applicatifs et des corruptions de flux TCP.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Rôle Fondamental du Spanning Tree Protocol</h4>
+    <p>Le Spanning Tree Protocol (STP) résout ce problème en découvrant dynamiquement la topologie réseau par échange de trames <strong>BPDU (Bridge Protocol Data Units)</strong>. Il calcule un arbre couvrant sans boucle en bloquant logiquement les ports redondants tout en maintenant les liens physiques prêts à reprendre le trafic en cas de panne.</p>
+  </div>
+</div>
+
+<h2>2. Élection du Root Bridge & Détermination des Rôles de Ports</h2>
+
+<p>L’algorithme Spanning Tree suit une cinématique déterministe en quatre étapes successives pour chaque topologie ou VLAN :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Élection Unique du Root Bridge (Pont Racine)</h4>
+    <p>Le commutateur possédant le <strong>Bridge ID (BID)</strong> le plus bas est élu racine :</p>
+    <ul>
+      <li><strong>Bridge Priority (4 bits) :</strong> Multiples de 4096 (de 0 à 61440, valeur par défaut : <code>32768</code>).</li>
+      <li><strong>Extended System ID (12 bits) :</strong> VLAN ID correspondant (1 à 4094).</li>
+      <li><strong>Adresse MAC (48 bits) :</strong> Plus petite adresse physique utilisée comme critère ultime de départage.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Sélection du Root Port (RP) sur Chaque Commutateur Non-Racine</h4>
+    <p>Chaque switch élit un unique port racine orienté vers le Root Bridge selon les critères stricts suivants :</p>
+    <ol>
+      <li>Le coût de chemin cumulé vers la racine (<strong>Root Path Cost</strong>) le plus faible.</li>
+      <li>Le <strong>Bridge ID</strong> du commutateur voisin émetteur du BPDU le plus bas.</li>
+      <li>Le <strong>Port ID (PID)</strong> du voisin le plus bas (priorité de port + numéro de port).</li>
+    </ol>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Rôles et États de Ports dans IEEE 802.1w (RSTP)</div>
+<p>Le protocole rapide RSTP 802.1w simplifie la machine à états de 802.1D en trois états : <em>Discarding</em>, <em>Learning</em> et <em>Forwarding</em>. Les rôles de ports sont enrichis :</p>,<ul>,  <li><strong>Root Port (RP) :</strong> Port offrant le chemin le plus rapide vers le pont racine (Forwarding).</li>,  <li><strong>Designated Port (DP) :</strong> Port responsable de l’acheminement du trafic sur un segment physique local (Forwarding). Tous les ports du Root Bridge sont Designated.</li>,  <li><strong>Alternate Port (AP) :</strong> Port de secours prêt à remplacer instantanément le Root Port en cas de rupture de lien (Discarding).</li>,  <li><strong>Backup Port (BP) :</strong> Port redondant sur un même segment partagé avec un Designated Port local (Discarding).</li>,</ul>
+  </div>
+
+<h2>3. Mécanismes de Sécurisation & Durcissement STP de Niveau 2</h2>
+
+<p>Pour empêcher qu’un équipement non autorisé, un câble mal branché ou une attaque malveillante ne déstabilise la topologie de l’arbre couvrant, des mécanismes de protection avancés doivent être configurés :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>BPDU Guard</h4>
+    <p>Activé sur tous les ports d’accès utilisateurs configurés en <em>PortFast</em>. Si un BPDU est détecté sur ce port (branchement d’un commutateur sauvage), le port est <strong>instantanément désactivé en état err-disable</strong> pour empêcher toute attaque sur la racine.</p>
+  </div>
+  <div class="card">
+    <h4>Root Guard</h4>
+    <p>Déployé sur les ports d’interconnexion où le pont racine ne doit jamais se trouver (ex: liaisons vers les commutateurs d’accès). Si un commutateur envoie un BPDU supérieur revendiquant le rôle de Root Bridge, le port passe en état <code>root-inconsistent</code> et bloque le trafic.</p>
+  </div>
+  <div class="card">
+    <h4>Loop Guard &amp; UDLD</h4>
+    <p>Protège contre les pannes matérielles de liaisons unidirectionnelles (ex: rupture de la fibre RX). Loop Guard empêche un port Alternate ou Root de devenir faussement Designated par absence de BPDUs en le maintenant en état <code>loop-inconsistent</code>.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="lan3-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="BRIDGE name=SW-CORE1 vlan=10 priority=32768 mac=00:11:22:33:44:55&#10;BRIDGE name=SW-CORE2 vlan=10 priority=4096 mac=00:aa:bb:cc:dd:ee&#10;BRIDGE name=SW-ACCESS1 vlan=10 priority=32768 mac=00:11:22:11:22:33">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c1-e1) — Calculateur de priorité et élection du Root Bridge STP (Bridge ID)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Départage sur adresse MAC en cas d'égalité parfaite de priorité]
+# Données : BRIDGE name=SW-A vlan=1 priority=32768 mac=00:50:56:00:00:02
+# Données : BRIDGE name=SW-B vlan=1 priority=32768 mac=00:50:56:00:00:01
+A_COMPLETER
+
+[Cas 2 — Priorité racine explicite configurée à 0]
+# Données : BRIDGE name=CORE_PRIMARY vlan=100 priority=0 mac=02:00:00:aa:bb:cc
+# Données : BRIDGE name=CORE_SECONDARY vlan=100 priority=4096 mac=02:00:00:11:22:33
+A_COMPLETER
+
+[Cas 3 — Formats de MAC avec tirets ou points normalisés]
+# Données : BRIDGE name=SW1 vlan=20 priority=32768 mac=00-1B-44-11-3A-B7
+# Données : BRIDGE name=SW2 vlan=20 priority=32768 mac=001b.4411.3ab6
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de priorité et élection du Root Bridge STP (Bridge ID)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'élection du commutateur racine (Root Bridge) dans une instance Spanning Tree 802.1D / PVST+.</p>
+    <div class="lab__brief"><p>Dans les architectures de commutation Ethernet, le protocole <strong>Spanning Tree (STP)</strong> élimine les boucles de couche 2 en élisant un commutateur racine unique (<strong>Root Bridge</strong>) par domaine de diffusion / VLAN.<br><br>
+Chaque commutateur est identifié par son <strong>Bridge ID (BID)</strong> composé de :<br>
+- <strong>Bridge Priority :</strong> valeur de base multiple de 4096 (ex: 32768, 4096, 0).<br>
+- <strong>System ID Extension :</strong> le numéro de VLAN (ex: VLAN 10).<br>
+- <strong>Adresse MAC :</strong> identifiant physique unique du commutateur.<br>
+La priorité totale est <code>total_priority = priority + vlan</code>.<br><br>
+Règles d'élection du Root Bridge :<br>
+1. Le commutateur ayant la plus petite <code>total_priority</code> est élu Root Bridge.<br>
+2. En cas d'égalité sur la priorité totale, le commutateur ayant la plus petite adresse MAC (ordre lexicographique de l'adresse en minuscules normalisée) l'emporte.<br><br>
+Le script lit dans l’énoncé du cas des déclarations de commutateurs pour un VLAN donné :<br>
+<code>BRIDGE name=&lt;nom&gt; vlan=&lt;int&gt; priority=&lt;int&gt; mac=&lt;mac_format_libre&gt;</code><br><br>
+Pour chaque commutateur (triés par nom alphabétique), afficher :<br>
+<code>STP_BRIDGE name={name} vlan={vlan} total_prio={total_priority} mac={mac_norm} role={ROOT|NON_ROOT}</code><br>
+Puis sur une ligne finale :<br>
+<code>ROOT_WINNER name={root_name} total_prio={root_prio} mac={root_mac}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BRIDGE name=SW-CORE1 vlan=10 priority=32768 mac=00:11:22:33:44:55
+BRIDGE name=SW-CORE2 vlan=10 priority=4096 mac=00:aa:bb:cc:dd:ee
+BRIDGE name=SW-ACCESS1 vlan=10 priority=32768 mac=00:11:22:11:22:33</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STP_BRIDGE name=SW-ACCESS1 vlan=10 total_prio=32778 mac=00:11:22:11:22:33 role=NON_ROOT
+STP_BRIDGE name=SW-CORE1 vlan=10 total_prio=32778 mac=00:11:22:33:44:55 role=NON_ROOT
+STP_BRIDGE name=SW-CORE2 vlan=10 total_prio=4106 mac=00:aa:bb:cc:dd:ee role=ROOT
+ROOT_WINNER name=SW-CORE2 total_prio=4106 mac=00:aa:bb:cc:dd:ee</pre></div>
+    </div>
+    <p class="lab__note">SW-CORE2 a la plus faible priorité (4096 + 10 = 4106) et devient Root Bridge.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Normaliser la MAC en minuscules avec des deux-points (ex: 00:1a:2b:3c:4d:5e) ou format comparable.</li>
+        <li>Calculer total_prio = priority + vlan.</li>
+        <li>Comparer le tuple (total_prio, mac_norm).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ROOT_PATH port=Gi0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1&#10;ROOT_PATH port=Gi0/2 path_cost=4 sender_bid_prio=32768 sender_port_id=128.2&#10;ROOT_PATH port=Gi0/3 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c1-e2) — Simulateur de calcul de coût et sélection du Root Port STP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Départage sur le Bridge ID émetteur (sender_bid_prio)]
+# Données : ROOT_PATH port=Fa0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1
+# Données : ROOT_PATH port=Fa0/2 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1
+A_COMPLETER
+
+[Cas 2 — Départage sur le Port ID de l'émetteur distant (sender_port_id)]
+# Données : ROOT_PATH port=Te1/1 path_cost=2 sender_bid_prio=4096 sender_port_id=128.2
+# Données : ROOT_PATH port=Te1/2 path_cost=2 sender_bid_prio=4096 sender_port_id=128.1
+A_COMPLETER
+
+[Cas 3 — Départage final sur le nom du port local]
+# Données : ROOT_PATH port=Eth2 path_cost=10 sender_bid_prio=1000 sender_port_id=1
+# Données : ROOT_PATH port=Eth1 path_cost=10 sender_bid_prio=1000 sender_port_id=1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de calcul de coût et sélection du Root Port STP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les règles de départage STP pour élire le port racine (Root Port) sur un commutateur non-racine.</p>
+    <div class="lab__brief"><p>Sur chaque commutateur non-racine, un seul port est élu <strong>Root Port (RP)</strong> : c'est le port offrant le chemin le plus court vers le Root Bridge.<br><br>
+Analysez les paramètres du problème pour chaque cas. <strong>Le plus faible coût de chemin (Lowest Path Cost) :</strong> <code>path_cost</code> minimal.<br>
+2. <strong>En cas d'égalité :</strong> Le plus faible Bridge ID du commutateur voisin émetteur (<code>sender_bid_prio</code>).<br>
+3. <strong>En cas d'égalité :</strong> Le plus faible Port ID de l'émetteur (<code>sender_port_id</code>).<br>
+4. <strong>En cas d'égalité :</strong> Le plus petit nom de port local dans l'ordre alphabétique (<code>port</code>).<br><br>
+Afficher d'abord l'évaluation de chaque port (triés par nom de port croissant) :<br>
+<code>PORT_EVAL port={port} cost={path_cost} status={ROOT_PORT|ALTERNATE_PORT}</code><br>
+Puis la ligne de synthèse finale :<br>
+<code>SELECTED_ROOT_PORT port={winner_port} total_cost={winner_cost}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROOT_PATH port=Gi0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1
+ROOT_PATH port=Gi0/2 path_cost=4 sender_bid_prio=32768 sender_port_id=128.2
+ROOT_PATH port=Gi0/3 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PORT_EVAL port=Gi0/1 cost=19 status=ALTERNATE_PORT
+PORT_EVAL port=Gi0/2 cost=4 status=ROOT_PORT
+PORT_EVAL port=Gi0/3 cost=19 status=ALTERNATE_PORT
+SELECTED_ROOT_PORT port=Gi0/2 total_cost=4</pre></div>
+    </div>
+    <p class="lab__note">Gi0/2 a le coût de chemin le plus bas (4 vs 19) et est élu Root Port.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser une clé de tri tuple : (path_cost, sender_bid_prio, sender_port_id, port).</li>
+        <li>Le premier élément du tri est l'élu Root Port.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="PORT name=Gi0/1 bpdu_guard=YES root_guard=NO loop_guard=NO&#10;PORT name=Gi0/2 bpdu_guard=NO root_guard=YES loop_guard=NO&#10;PORT name=Gi0/3 bpdu_guard=NO root_guard=NO loop_guard=YES&#10;EVENT port=Gi0/1 type=BPDU_RECEIVED&#10;EVENT port=Gi0/2 type=SUPERIOR_BPDU&#10;EVENT port=Gi0/3 type=BPDU_TIMEOUT">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c1-e3) — Auditeur de protection Spanning Tree (BPDU Guard, Root Guard & Loop Guard)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Événements sur ports sans protection activée]
+# Données : PORT name=Fa0/10 bpdu_guard=NO root_guard=NO loop_guard=NO
+# Données : EVENT port=Fa0/10 type=BPDU_RECEIVED
+# Données : EVENT port=Fa0/10 type=SUPERIOR_BPDU
+# Données : EVENT port=Fa0/10 type=BPDU_TIMEOUT
+A_COMPLETER
+
+[Cas 2 — Combinaison de protections multiples sur le même équipement]
+# Données : PORT name=Uplink1 bpdu_guard=NO root_guard=YES loop_guard=YES
+# Données : EVENT port=Uplink1 type=SUPERIOR_BPDU
+A_COMPLETER
+
+[Cas 3 — Port utilisateur violant la politique PortFast avec BPDU Guard]
+# Données : PORT name=UserPort1 bpdu_guard=YES root_guard=NO loop_guard=NO
+# Données : EVENT port=UserPort1 type=BPDU_RECEIVED
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Auditeur de protection Spanning Tree (BPDU Guard, Root Guard &amp; Loop Guard)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler les réactions des mécanismes de durcissement STP face aux anomalies topologiques.</p>
+    <div class="lab__brief"><p>Pour protéger la topologie Spanning Tree contre les attaques et les erreurs de câblage, les commutateurs d'entreprise disposent de fonctionnalités de protection avancées :<br>
+- <strong>BPDU Guard :</strong> Si une BPDU arrive sur un port d'accès configuré avec PortFast, le port est immédiatement désactivé par sécurité (<code>ERR_DISABLE</code>).<br>
+- <strong>Root Guard :</strong> Si une BPDU supérieure revendiquant le rôle de racine arrive sur un port désigné, le port passe en état incohérent (<code>ROOT_INCONSISTENT</code>) et bloque le trafic.<br>
+- <strong>Loop Guard :</strong> Si les BPDUs cessent d'arriver sur un port racine ou alternatif sans transition normale, le port passe en <code>LOOP_INCONSISTENT</code> pour éviter une boucle unidirectionnelle.<br><br>
+Analysez les paramètres du problème pour chaque cas. <strong>Si type == 'BPDU_RECEIVED' :</strong><br>
+   - Si <code>bpdu_guard == 'YES'</code> : <code>status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION</code><br>
+   - Sinon : <code>status=FORWARDING action=NORMAL_PROCESSING reason=BPDU_ACCEPTED</code><br>
+2. <strong>Si type == 'SUPERIOR_BPDU' :</strong><br>
+   - Si <code>root_guard == 'YES'</code> : <code>status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED</code><br>
+   - Sinon : <code>status=RECONFIGURING action=ELECT_NEW_ROOT reason=ROOT_MIGRATION</code><br>
+3. <strong>Si type == 'BPDU_TIMEOUT' :</strong><br>
+   - Si <code>loop_guard == 'YES'</code> : <code>status=LOOP_INCONSISTENT action=BLOCK_UNIDIRECTIONAL reason=LOOP_GUARD_TRIGGERED</code><br>
+   - Sinon : <code>status=TRANSITION_FORWARDING action=STP_AGED_OUT reason=POTENTIAL_LOOP_RISK</code><br><br>
+Pour chaque événement, afficher :<br>
+<code>STP_GUARD_REPORT port={port} event={type} status={status} action={action} reason={reason}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PORT name=Gi0/1 bpdu_guard=YES root_guard=NO loop_guard=NO
+PORT name=Gi0/2 bpdu_guard=NO root_guard=YES loop_guard=NO
+PORT name=Gi0/3 bpdu_guard=NO root_guard=NO loop_guard=YES
+EVENT port=Gi0/1 type=BPDU_RECEIVED
+EVENT port=Gi0/2 type=SUPERIOR_BPDU
+EVENT port=Gi0/3 type=BPDU_TIMEOUT</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STP_GUARD_REPORT port=Gi0/1 event=BPDU_RECEIVED status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION
+STP_GUARD_REPORT port=Gi0/2 event=SUPERIOR_BPDU status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED
+STP_GUARD_REPORT port=Gi0/3 event=BPDU_TIMEOUT status=LOOP_INCONSISTENT action=BLOCK_UNIDIRECTIONAL reason=LOOP_GUARD_TRIGGERED</pre></div>
+    </div>
+    <p class="lab__note">Gi0/1 est désactivé par BPDU Guard ; Gi0/2 bloque la tentative d'usurpation du Root ; Gi0/3 prévient une boucle unidirectionnelle.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un dictionnaire de configuration indexé par le nom du port.</li>
+        <li>Tester les cas de BPDU_RECEIVED, SUPERIOR_BPDU et BPDU_TIMEOUT selon les flags.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi une boucle de commutation de niveau 2 est-elle plus destructrice qu’une boucle de routage de niveau 3 ?</p>
+      <div class="opts">
+        <button class="opt">Parce que les trames Ethernet sont chiffrées par défaut</button>
+        <button class="opt" data-correct="1">Parce que l’en-tête Ethernet ne contient aucun champ de durée de vie (TTL) pour détruire les paquets en boucle</button>
+        <button class="opt">Parce que le câble Ethernet s’échauffe physiquement sous l’effet des boucles</button>
+        <button class="opt">Parce que les routeurs n’acceptent pas les adresses MAC impaires</button>
+      </div>
+      <div class="q__exp">L’en-tête Ethernet 802.3 ne comporte aucun champ TTL. En cas de boucle physique sans STP, les trames tournent indéfiniment jusqu’à saturation totale des liaisons.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la norme IEEE 802.1t, comment la priorité de pont est-elle structurée sur les 2 octets de poids fort du BID ?</p>
+      <div class="opts">
+        <button class="opt">16 bits continus de priorité sans distinction de VLAN</button>
+        <button class="opt" data-correct="1">4 bits de priorité (multiples de 4096) et 12 bits d’identifiant de système étendu (VLAN ID)</button>
+        <button class="opt">8 bits de priorité et 8 bits d’adresse IP</button>
+        <button class="opt">1 bit de polarité et 15 bits de numéro de port</button>
+      </div>
+      <div class="q__exp">La norme 802.1t dédie 4 bits à la priorité (valeurs multiples de 4096 : 0, 4096, 8192, ..., 61440) et 12 bits au VLAN ID (Extended System ID).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En cas d’égalité stricte de priorité totale entre deux commutateurs, quel critère physique détermine le Root Bridge ?</p>
+      <div class="opts">
+        <button class="opt">L’adresse IP la plus élevée</button>
+        <button class="opt" data-correct="1">L’adresse MAC la plus basse numériquement</button>
+        <button class="opt">Le nombre de ports physiques connectés</button>
+        <button class="opt">La vitesse du processeur central</button>
+      </div>
+      <div class="q__exp">En cas d’égalité de priorité, le commutateur dont l’adresse MAC est la plus basse (plus petite valeur hexadécimale) remporte l’élection de Root Bridge.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le premier critère examiné par un commutateur non-racine pour sélectionner son Root Port ?</p>
+      <div class="opts">
+        <button class="opt">Le Port ID le plus faible</button>
+        <button class="opt" data-correct="1">Le coût cumulé du chemin vers la racine (Root Path Cost) le plus bas</button>
+        <button class="opt">Le Bridge ID du commutateur voisin le plus bas</button>
+        <button class="opt">Le débit maximal de la carte mère</button>
+      </div>
+      <div class="q__exp">Le commutateur compare en priorité le coût cumulé de la liaison vers le Root Bridge. Les autres critères (BID voisin, PID voisin) ne servent qu’en cas d’égalité de coût.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans RSTP 802.1w, quel rôle de port correspond à un port de secours prêt à remplacer immédiatement le Root Port en cas de coupure ?</p>
+      <div class="opts">
+        <button class="opt">Designated Port</button>
+        <button class="opt" data-correct="1">Alternate Port</button>
+        <button class="opt">Backup Port</button>
+        <button class="opt">Disabled Port</button>
+      </div>
+      <div class="q__exp">L’Alternate Port est en attente (Discarding) et offre un chemin alternatif vers le Root Bridge, prêt à basculer immédiatement en état Forwarding.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment le protocole RSTP 802.1w parvient-il à converger en quelques dizaines de millisecondes sans attendre les timers passifs ?</p>
+      <div class="opts">
+        <button class="opt">En désactivant temporairement tous les VLANs du réseau</button>
+        <button class="opt" data-correct="1">Grâce au mécanisme de synchronisation active par poignée de main Proposal / Agreement sur liaisons point-à-point</button>
+        <button class="opt">En forçant le redémarrage électrique de tous les commutateurs voisins</button>
+        <button class="opt">En utilisant des paquets ICMP Echo réguliers</button>
+      </div>
+      <div class="q__exp">RSTP utilise une poignée de main explicite Proposal / Agreement qui négocie directement la transition vers l’état Forwarding sans délai de minuterie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle action la fonctionnalité BPDU Guard entreprend-elle si une trame BPDU est reçue sur un port configuré en PortFast ?</p>
+      <div class="opts">
+        <button class="opt">Elle ignore simplement la trame BPDU</button>
+        <button class="opt" data-correct="1">Elle désactive immédiatement le port et le place en état err-disable</button>
+        <button class="opt">Elle modifie la priorité du commutateur distant</button>
+        <button class="opt">Elle route le paquet vers la passerelle par défaut</button>
+      </div>
+      <div class="q__exp">BPDU Guard considère la réception d’un BPDU sur un port d’accès utilisateur comme une anomalie critique et désactive le port en état err-disable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel état un port protégé par Root Guard est-il placé s’il reçoit un BPDU revendiquant une priorité supérieure à celle de la racine actuelle ?</p>
+      <div class="opts">
+        <button class="opt">Forwarding immédiat</button>
+        <button class="opt" data-correct="1">Root-inconsistent (blocage du trafic sur le port)</button>
+        <button class="opt">Shutdown électrique</button>
+        <button class="opt">Loop-free mirroring</button>
+      </div>
+      <div class="q__exp">Root Guard protège la hiérarchie en basculant le port en état root-inconsistent (écoute bloquée) jusqu’à ce que les BPDUs illégitimes cessent d’être émis.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Laisser la priorité STP par défaut (32768) sur tous les switchs, laissant l’adresse MAC la plus ancienne choisir un switch d’accès obsolète comme Root Bridge.</li>
+      <li>Activer PortFast sur un port interconnectant deux commutateurs, risquant d’engendrer une tempête de diffusion instantanée lors d’un changement de topologie.</li>
+      <li>Oublier d’aligner les numéros de révision et les mappages VLAN-instance dans une région MSTP, provoquant un repli involontaire en mode compatibilité 802.1D.</li>
+      <li>Confondre Root Guard (qui protège le rôle racine) et BPDU Guard (qui interdit toute trame BPDU sur les ports d’accès).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Cartographier la topologie physique du LAN et identifier le commutateur cœur devant être élu Root Bridge principal.</li>
+      <li>Étape 2 : Configurer explicitement la priorité STP du pont racine à 4096 (ou 0) et celle du pont de secours à 8192.</li>
+      <li>Étape 3 : Calculer et vérifier les coûts de liaisons STP pour s’assurer que les liens à plus haut débit (10G/40G) sont privilégiés.</li>
+      <li>Étape 4 : Activer le standard rapide RSTP (Rapid-PVST+ ou MSTP 802.1s) pour garantir une convergence sub-seconde.</li>
+      <li>Étape 5 : Déployer PortFast et BPDU Guard de manière systématique sur l’ensemble des ports d’accès connectés aux postes de travail.</li>
+      <li>Étape 6 : Activer Root Guard et Loop Guard sur les liaisons montantes critiques pour pérenniser l’arbre couvrant.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les boucles de niveau 2 engendrent des tempêtes de broadcast dévastatrices dues à l’absence de TTL dans la trame Ethernet.</li>
+      <li>Le commutateur possédant le Bridge ID le plus bas (Priority + Extended System ID + MAC) est obligatoirement élu Root Bridge.</li>
+      <li>Chaque commutateur non-racine élit un unique Root Port en évaluant le coût de chemin, puis le BID voisin et le PID voisin.</li>
+      <li>RSTP 802.1w accélère la convergence grâce au mécanisme actif de négociation Proposal / Agreement en sautant les délais passifs.</li>
+      <li>BPDU Guard place immédiatement en état err-disable tout port d’accès PortFast recevant une trame BPDU.</li>
+      <li>Root Guard empêche les commutateurs non autorisés de détourner le rôle de Root Bridge en isolant le port en mode root-inconsistent.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer pourquoi une boucle Ethernet est infinie en l’absence de champ TTL.</li>
+      <li>Je maîtrise le découpage du BID en priorité de pont (4 bits), VLAN ID (12 bits) et adresse MAC (48 bits).</li>
+      <li>Je sais départager deux chemins STP en comparant le coût cumulé, le BID de l’émetteur et le numéro de port.</li>
+      <li>Je connais les 3 états (Discarding, Learning, Forwarding) et les 4 rôles de ports de RSTP 802.1w.</li>
+      <li>Je sais configurer et auditer l’action de BPDU Guard en cas de raccordement d’un switch non autorisé.</li>
+      <li>Je comprends l’utilité de Root Guard pour figer l’emplacement de la racine sur le commutateur de cœur.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Boucles de Niveau 2 & Tempêtes de Broadcast</li><li>Bridge ID (BID) & Extended System ID</li><li>Élection Root Bridge STP</li><li>Sélection Root Port & Designated Port</li><li>Rapid Spanning Tree (RSTP 802.1w)</li><li>Mécanisme Proposal / Agreement</li><li>Protection BPDU Guard & err-disable</li><li>Root Guard & Loop Guard</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à calculer le BID complet ou confusion entre les rôles de Root Port et Designated Port.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de l’élection Root Bridge, calcul des chemins STP et compréhension des protections BPDU Guard.</div>
+      <div class="bandrow bandrow--high">Expertise totale de la convergence sub-seconde RSTP, découpage en instances MSTP et durcissement avancé contre les attaques de niveau 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Agrégation de Liaisons EtherChannel (LACP &amp; PAgP) &amp; Répartition de Charge <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN & ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

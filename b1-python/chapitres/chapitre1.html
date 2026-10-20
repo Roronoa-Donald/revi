@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Environnement, variables et types | Python B1</title>
+<meta name="description" content="Chapitre 1 du cours Python B1 : environnement, REPL, variables, types de données, opérateurs, entrées/sorties. Théorie, exemples, exercices en 5 niveaux, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="1">
+
+<nav class="pynav"><div class="pynav__in">
+  <a class="pynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="pynav__sep" aria-hidden="true">/</span>
+  <a class="pynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Python B1</a>
+  <div class="pynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="pywrap">
+  <p class="crumb"><a href="../index.html">Python B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+  <h1>Chapitre 1 — Environnement, variables et types de données</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Gratuit</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Tu viens d'être recruté comme stagiaire IT. Ta première mission : écrire un petit script qui demande
+    à un utilisateur son nom et son année de naissance, puis affiche « Bonjour &lt;nom&gt;, tu as environ &lt;âge&gt; ans ».
+    Tu n'as jamais écrit une ligne de Python. Ce chapitre te donne exactement ce qu'il faut : savoir installer
+    et lancer Python, stocker une information dans une variable, connaître son type, la faire parler avec
+    <code>print()</code> et écouter l'utilisateur avec <code>input()</code>.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Lancer un script Python et le REPL, et diagnostiquer un problème de <code>PATH</code> ;</li>
+      <li>déclarer une variable et prédire son type (<code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>) ;</li>
+      <li>convertir un type avec <code>int()</code>, <code>float()</code>, <code>str()</code> ;</li>
+      <li>utiliser les opérateurs arithmétiques, de comparaison et logiques ;</li>
+      <li>lire une entrée avec <code>input()</code> et la convertir pour calculer ;</li>
+      <li>reconnaître et corriger une <code>IndentationError</code> et un <code>NameError</code>.</li>
+    </ol>
+  </div>
+
+  <h2>1. Ce que Python est (et pourquoi cela change ton travail)</h2>
+  <p><strong>Définition.</strong> Python est un langage de <em>haut niveau</em>, <em>interprété</em>,
+  <em>multi-paradigme</em> (impératif, orienté objet, fonctionnel) et à <em>typage dynamique</em>.
+  Créé par Guido van Rossum en 1989 et publié en 1991, il est aujourd'hui standard en web, data science,
+  automatisation et DevOps.</p>
+
+  <table>
+    <tr><th>Terme</th><th>Ce que ça veut dire concrètement</th></tr>
+    <tr><td>Haut niveau</td><td>Tu écris des concepts (listes, boucles), pas de gestion mémoire manuelle.</td></tr>
+    <tr><td>Interprété</td><td>Pas de compilation préalable : l'interpréteur lit et exécute. Cycle d'essai très rapide.</td></tr>
+    <tr><td>Typage dynamique</td><td>Le type d'une variable est déduit de la valeur, il n'est pas déclaré à l'avance.</td></tr>
+    <tr><td>Multi-paradigme</td><td>Tu peux écrire des fonctions, des classes, ou du code fonctionnel dans le même programme.</td></tr>
+  </table>
+
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>Un langage <em>compilé</em> (C++) ressemble à un livre qu'on traduit entièrement avant de le lire.
+    Python ressemble à un traducteur qui lit à voix haute : tu écris une phrase, il la dit tout de suite.
+    C'est pour ça que tu testes plus vite… mais que Python est en général plus lent à l'exécution.</p>
+  </div>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Niveau 2 — Technique</div>
+    <p>Python transforme ton fichier <code>.py</code> en <strong>bytecode</strong>, exécuté par la machine
+    virtuelle Python (PVM). Le REPL (Read-Eval-Print Loop) applique le même moteur, instruction par instruction.
+    Conséquence pratique : une erreur de syntaxe est détectée au chargement du fichier, mais une erreur de
+    logique n'apparaît qu'à la ligne exécutée.</p>
+  </div>
+
+  <h3>1.1 Installation et diagnostic</h3>
+  <pre><code>python --version
+python -c "import sys; print(sys.executable)"
+pip --version</code></pre>
+  <div class="out">Python 3.12.2
+/usr/bin/python3
+pip 24.0 from /usr/lib/python3/dist-packages/pip</div>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — « python introuvable »</div>
+    <p>1. Vérifie le <strong>PATH</strong> (réinstalle en cochant « Add Python to PATH »).
+    2. Demande à Python <em>qui je suis</em> : <code>python -c "import sys; print(sys.executable)"</code>.
+    3. Si l'IDE et le terminal ne montrent pas le même chemin, tu as un problème d'<em>interpréteur</em>, pas de code.</p>
+  </div>
+
+  <h2>2. Variables et types de base</h2>
+  <p><strong>Définition.</strong> Une <em>variable</em> est un nom qui pointe vers une valeur en mémoire.
+  En Python, la déclaration et l'affectation se font en une seule fois avec <code>=</code>.</p>
+  <pre><code>nombre_utilisateurs = 150          # int  : entier
+prix_ttc = 12.5                    # float: nombre à virgule
+nom_application = "GestionStock"   # str  : chaîne de caractères
+service_demarre = True             # bool : booléen (True / False)</code></pre>
+
+  <table>
+    <tr><th>Type</th><th>Exemples</th><th>À retenir</th></tr>
+    <tr><td><code>int</code></td><td><code>0</code>, <code>-7</code>, <code>42</code></td><td>Entiers, précision illimitée en Python.</td></tr>
+    <tr><td><code>float</code></td><td><code>3.14</code>, <code>-2.0</code></td><td>Décimaux ; attention aux arrondis binaires (<code>0.1 + 0.2</code>).</td></tr>
+    <tr><td><code>str</code></td><td><code>"a"</code>, <code>'abc'</code></td><td>Texte entre guillemets ou apostrophes.</td></tr>
+    <tr><td><code>bool</code></td><td><code>True</code>, <code>False</code></td><td>Majuscule obligatoire !</td></tr>
+    <tr><td><code>NoneType</code></td><td><code>None</code></td><td>Absence de valeur.</td></tr>
+  </table>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Erreurs classiques — types</div>
+    <ul>
+      <li><code>true</code> / <code>false</code> en minuscules <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>NameError</code> : Python attend <code>True</code>/<code>False</code>.</li>
+      <li>Oublier les guillemets : <code>nom = Alice</code> cherche une variable <code>Alice</code>, et échoue.</li>
+      <li>Comparer <code>1</code> (int) et <code>"1"</code> (str) : <code>1 == "1"</code> vaut <code>False</code>.</li>
+    </ul>
+  </div>
+
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-sparkles"></use></svg> Mnémotechnique</div>
+    <p><strong>I-F-S-B</strong> = <em>« Il Faut Savoir Bien »</em> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>.
+    Les 4 types que 90 % de tes exercices utiliseront.</p>
+  </div>
+
+  <h3>2.1 Convertir : la fonction qui sauve</h3>
+  <pre><code>age_texte = "21"
+age_nombre = int(age_texte)     # "21" -> 21
+prix = float("9.99")            # "9.99" -> 9.99
+message = str(42)               # 42 -> "42"</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Pourquoi convertir ?</div>
+    <p><code>input()</code> renvoie <strong>toujours</strong> du texte. <code>"20" + "5"</code> donne
+    <code>"205"</code> (concaténation), alors que <code>int("20") + 5</code> donne <code>25</code>. C'est
+    la source n°1 de bugs chez les débutants.</p>
+  </div>
+
+  <h2>3. Opérateurs</h2>
+  <table>
+    <tr><th>Opérateur</th><th>Rôle</th><th>Exemple</th><th>Résultat</th></tr>
+    <tr><td><code>+ - * /</code></td><td>Arithmétique</td><td><code>7 / 2</code></td><td><code>3.5</code> (toujours float)</td></tr>
+    <tr><td><code>//</code></td><td>Division entière</td><td><code>7 // 2</code></td><td><code>3</code></td></tr>
+    <tr><td><code>%</code></td><td>Modulo (reste)</td><td><code>7 % 2</code></td><td><code>1</code></td></tr>
+    <tr><td><code>**</code></td><td>Puissance</td><td><code>2 ** 3</code></td><td><code>8</code></td></tr>
+    <tr><td><code>== != &gt; &lt;</code></td><td>Comparaison</td><td><code>3 &gt;= 3</code></td><td><code>True</code></td></tr>
+    <tr><td><code>and or not</code></td><td>Logique</td><td><code>True and False</code></td><td><code>False</code></td></tr>
+  </table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège d'examen n°1</div>
+    <p><code>/</code> renvoie <strong>toujours</strong> un <code>float</code> : <code>10 / 2</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>5.0</code>, pas <code>5</code>.
+    Pour un entier, utilise <code>//</code>. Un énoncé qui écrit « le résultat doit être l'entier 5 » attend <code>10 // 2</code>.</p>
+  </div>
+
+  <h2>4. Exemples travaillés</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple A</span><span class="badge badge--n1">Très simple</span></div>
+    <p><strong>Énoncé.</strong> Afficher le prix TTC d'un article HT à 12,5 € avec 18 % de TVA.</p>
+    <pre><code>prix_ht = 12.5
+tva = 0.18
+prix_ttc = prix_ht * (1 + tva)
+print(f"Prix TTC : {prix_ttc:.2f} €")</code></pre>
+    <div class="out">Prix TTC : 14.75 €</div>
+    <p><strong>Pourquoi cette méthode ?</strong> On écrit la formule <em>avant</em> de l'afficher : la logique
+    de calcul reste testable. Le format <code>:.2f</code> arrondit à 2 décimales à l'affichage.</p>
+    <details><summary>Erreur classique possible</summary><div class="sol">
+      Écrire <code>prix_ht * 1,18</code> avec une virgule : Python lit deux arguments et lève
+      <code>TypeError</code>. En code, le séparateur décimal est le <strong>point</strong>.
+    </div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple B</span><span class="badge badge--n2">Intermédiaire</span></div>
+    <p><strong>Énoncé.</strong> Demander username et année de naissance, afficher un message avec l'âge approximatif.</p>
+    <pre><code>prenom = input("Quel est votre prénom ? ")
+annee = int(input("Année de naissance ? "))   # conversion obligatoire
+age = 2026 - annee
+print(f"Bonjour {prenom}, tu as environ {age} ans.")</code></pre>
+    <div class="out">Quel est votre prénom ? Léa
+Année de naissance ? 2003
+Bonjour Léa, tu as environ 23 ans.</div>
+    <p><strong>Analyse étape par étape.</strong> 1) <code>input()</code> renvoie du texte <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 2) on le convertit
+    avec <code>int()</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 3) on calcule <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 4) on formate avec une f-string. Oublier l'étape 2 donne
+    <code>TypeError: unsupported operand type(s)</code>.</p>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple C</span><span class="badge badge--n3">Difficile</span></div>
+    <p><strong>Énoncé.</strong> Décomposer un nombre de secondes (ex. 3725) en heures / minutes / secondes.</p>
+    <pre><code>total = 3725
+heures = total // 3600          # 1
+reste = total % 3600            # 125
+minutes = reste // 60           # 2
+secondes = reste % 60           # 5
+print(f"{heures}h {minutes}min {secondes}s")</code></pre>
+    <div class="out">1h 2min 5s</div>
+    <p><strong>Vérification.</strong> 1×3600 + 2×60 + 5 = 3725 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-check-circle"></use></svg>. La méthode <em>division entière + modulo</em>
+    est universelle pour décomposer une quantité en unités (secondes, centimes, octets…).</p>
+  </div>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Utilité IT</div>
+    <p>Les scripts Python sont partout dans l'administration système et le DevOps : convertir des tailles
+    (<code>//</code> et <code>%</code>), formater des rapports (f-strings), valider des entrées utilisateur.
+    Ces trois gestes de base reviennent dans presque tous les scripts de production.</p>
+  </div>
+
+  <h2>5. Exercices (5 niveaux)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Niveau 1 — Acquisition</span></div>
+    <p><strong>1.</strong> Quel est le type de <code>resultat</code> ? <code>resultat = 10 / 2</code></p>
+    <p><strong>2.</strong> Corrige : <code>actif = true</code>.</p>
+    <p><strong>3.</strong> Que vaut <code>17 % 5</code> ?</p>
+    <details><summary>Correction</summary><div class="sol">
+      1. <code>float</code> (car <code>/</code> renvoie toujours un float) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>5.0</code>. &nbsp;
+      2. <code>actif = True</code> (majuscule). &nbsp;
+      3. <code>2</code> (17 = 3×5 + 2).
+    </div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Niveau 2 — Application</span></div>
+    <p><strong>4.</strong> Écris un script qui demande deux nombres et affiche leur somme, leur produit et leur moyenne.</p>
+    <p><strong>5.</strong> Convertis 1500 minutes en heures et minutes.</p>
+    <details><summary>Correction</summary><div class="sol">
+      <pre><code>a = float(input("a ? ")); b = float(input("b ? "))
+print("somme", a + b, "produit", a * b, "moyenne", (a + b) / 2)
+
+m = 1500
+print(m // 60, "h", m % 60, "min")   # 25 h 0 min</code></pre>
+      Pour la moyenne, penser aux parenthèses : <code>a + b / 2</code> ≠ <code>(a + b) / 2</code>.
+    </div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Niveau 3 — Raisonnement</span></div>
+    <p><strong>6.</strong> Un énoncé dit : « le programme doit afficher <code>5</code> et non <code>5.0</code> ».
+    Parmi <code>10/2</code>, <code>10//2</code>, <code>int(10/2)</code>, lesquels sont acceptables ? Lequel est le plus propre ?</p>
+    <p><strong>7.</strong> Explique pourquoi <code>"3" * 3</code> ne lève pas d'erreur et vaut <code>"333"</code>.</p>
+    <details><summary>Correction</summary><div class="sol">
+      6. <code>10//2</code> et <code>int(10/2)</code> affichent <code>5</code>. Le plus propre est <code>10//2</code> :
+      il exprime directement l'intention « division entière », sans conversion inutile.
+      7. <code>*</code> sur une chaîne est une <em>répétition</em> : <code>"3"*3</code> = <code>"3"+"3"+"3"</code> = <code>"333"</code>.
+      L'opérateur a un sens différent selon le type des opérandes (surcharge).
+    </div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n4">Niveau 4 — Examen</span></div>
+    <p><strong>8.</strong> Écris un programme qui demande le prix HT d'un article, la quantité, puis affiche le total TTC
+    (TVA 18 %) arrondi à 2 décimales, sous la forme : <em>« Total : X € pour N articles »</em>.</p>
+    <details><summary>Correction détaillée</summary><div class="sol">
+      <pre><code>prix_ht = float(input("Prix HT unitaire ? "))
+qte = int(input("Quantité ? "))
+total = prix_ht * qte * 1.18
+print(f"Total : {total:.2f} € pour {qte} articles")</code></pre>
+      Points de barème : conversion <code>float</code>/<code>int</code> (sinon <code>TypeError</code> ou concaténation),
+      application de la TVA, format <code>:.2f</code>. Erreur fréquente : oublier <code>int()</code> sur la quantité
+      et obtenir une chaîne répétée.
+    </div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n5">Niveau 5 — Challenge</span></div>
+    <p><strong>9.</strong> Sans utiliser <code>//</code> ni <code>%</code>, écris une fonction qui convertit un nombre de
+    centimes en euros et centimes. (Indice : <code>int()</code> et la soustraction.)</p>
+    <details><summary>Piste et correction</summary><div class="sol">
+      <pre><code>centimes = 285
+euros = int(centimes / 100)
+reste = centimes - euros * 100
+print(f"{euros} € et {reste} centimes")   # 2 € et 85 centimes</code></pre>
+      On reconstruit le reste par soustraction. Cette reformulation prouve qu'on comprend
+      <em>pourquoi</em> le modulo marche : c'est le reste de la division euclidienne.
+    </div></details>
+  </div>
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="py-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="25">
+  <script type="text/plain" data-lab-starter>def convertir_temperature(celsius):
+    # À compléter : renvoyer la valeur convertie.
+    pass
+
+
+valeur = int(input())
+print(convertir_temperature(valeur))
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Conversion Celsius vers Fahrenheit</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction qui convertit une température, puis l’appeler avec une valeur lue sur l’entrée standard.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier sur l’entrée standard. Complétez la fonction <code>convertir_temperature</code> pour qu’elle renvoie la valeur en degrés Fahrenheit, puis affichez son résultat.</p><p>Formule : F = C × 9/5 + 32.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>25</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>77.0</pre></div>
+    </div>
+    <p class="lab__note">25 °C correspondent à 77 °F.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une fonction qui n’a pas de return renvoie None : si vous voyez None s’afficher, c’est qu’un print a remplacé le return.</li>
+        <li>Pour obtenir un résultat décimal, la division doit être décimale : en Python, 9 / 5 vaut 1.8 alors que 9 // 5 vaut 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="12&#10;15&#10;9">
+  <script type="text/plain" data-lab-starter>note1 = int(input())
+note2 = int(input())
+note3 = int(input())
+
+# À compléter : calculer puis afficher la moyenne avec deux décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moyenne de trois notes, formatée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Lire plusieurs valeurs et présenter un résultat décimal au format demandé.</p>
+    <div class="lab__brief"><p>Le programme reçoit trois lignes, chacune contenant une note entière. Affichez leur moyenne sur une seule ligne, avec exactement deux décimales (par exemple <code>12.33</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>12
+15
+9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>12.00</pre></div>
+    </div>
+    <p class="lab__note">12 + 15 + 9 = 36, et 36 / 3 = 12.00.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La division entière // tronque le résultat : pour une moyenne, c’est la division décimale / qu’il faut.</li>
+        <li>L’arrondi se fait au moment de l’affichage, pas dans le calcul : le format d’un f-string permet de fixer le nombre de décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="3723">
+  <script type="text/plain" data-lab-starter>total = int(input())
+
+# À compléter : découper la durée en heures, minutes et secondes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Découpage d’une durée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser la division entière et le reste pour décomposer une valeur.</p>
+    <div class="lab__brief"><p>Le programme reçoit un nombre entier de secondes. Affichez la durée découpée sous la forme <code>H h M min S s</code>.</p><p>Pour 3723 secondes, la sortie attendue est <code>1 h 2 min 3 s</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3723</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1 h 2 min 3 s</pre></div>
+    </div>
+    <p class="lab__note">1 h 2 min 3 s : 3600 + 120 + 3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une heure contient 3600 secondes : la division entière donne le nombre d’heures complètes, le reste ce qui reste à répartir.</li>
+        <li>Le même raisonnement s’applique une deuxième fois pour extraire les minutes du reste, et le reste final est la réponse en secondes.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+  <div class="qcm" data-mastery="1">
+    <div class="q">
+      <p class="q__stem">Que vaut <code>type(7 // 2)</code> ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">&lt;class 'int'&gt;</button>
+        <button class="opt">&lt;class 'float'&gt;</button>
+        <button class="opt">&lt;class 'str'&gt;</button>
+      </div>
+      <div class="q__exp"><code>//</code> renvoie un entier (division entière). <code>/</code> aurait renvoyé un float.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Résultat de <code>print("2" + "3")</code> ?</p>
+      <div class="opts">
+        <button class="opt">5</button>
+        <button class="opt" data-correct="1">23</button>
+        <button class="opt">TypeError</button>
+      </div>
+      <div class="q__exp">Sur deux chaînes, <code>+</code> concatène. Pour additionner, il faut <code>int("2") + int("3")</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie <code>input()</code> ?</p>
+      <div class="opts">
+        <button class="opt">Un int si l'utilisateur tape un nombre</button>
+        <button class="opt" data-correct="1">Toujours une chaîne de caractères</button>
+        <button class="opt">Un float</button>
+      </div>
+      <div class="q__exp">Toujours <code>str</code> : la conversion (<code>int</code>/<code>float</code>) est à ta charge.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle ligne lève une erreur ?</p>
+      <div class="opts">
+        <button class="opt"><code>x = 3.5</code></button>
+        <button class="opt"><code>ok = False</code></button>
+        <button class="opt" data-correct="1"><code>ok = false</code></button>
+      </div>
+      <div class="q__exp"><code>false</code> minuscule n'existe pas <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>NameError</code>. Python attend <code>False</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après <code>x = 3; x = x * 2</code>, que vaut <code>x</code> ?</p>
+      <div class="opts">
+        <button class="opt">3</button>
+        <button class="opt" data-correct="1">6</button>
+        <button class="opt">Erreur : on ne peut pas réaffecter</button>
+      </div>
+      <div class="q__exp">Une variable peut être réaffectée : on évalue d'abord à droite, puis on affecte à gauche.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu'affiche <code>print(f"{3.14159:.2f}")</code> ?</p>
+      <div class="opts">
+        <button class="opt">3.1</button>
+        <button class="opt" data-correct="1">3.14</button>
+        <button class="opt">3.1416</button>
+      </div>
+      <div class="q__exp">Le format <code>.2f</code> demande <strong>2</strong> décimales : 3.14 (arrondi). <code>3.1</code> = 1 décimale, <code>3.1416</code> = 4 décimales.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel opérateur donne le reste d'une division ?</p>
+      <div class="opts">
+        <button class="opt">//</button>
+        <button class="opt" data-correct="1">%</button>
+        <button class="opt">/</button>
+      </div>
+      <div class="q__exp"><code>%</code> = modulo. <code>//</code> = quotient entier, <code>/</code> = division réelle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour un total de 100 pièces réparties en boîtes de 12, combien de boîtes pleines et combien de pièces restantes ?</p>
+      <div class="opts">
+        <button class="opt">9 boîtes, 4 restantes</button>
+        <button class="opt" data-correct="1">8 boîtes, 4 restantes</button>
+        <button class="opt">8 boîtes, 12 restantes</button>
+      </div>
+      <div class="q__exp">100 // 12 = 8 (boîtes pleines) ; 100 % 12 = 4 (pièces restantes).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle affirmation est FAUSSE ?</p>
+      <div class="opts">
+        <button class="opt">Une variable Python peut changer de type</button>
+        <button class="opt" data-correct="1">Le type doit être déclaré avant d'affecter</button>
+        <button class="opt"><code>None</code> représente l'absence de valeur</button>
+      </div>
+      <div class="q__exp">Le typage est dynamique : aucune déclaration de type n'est nécessaire avant l'affectation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Objectif « afficher la note 15 sur 20 au format "15/20" ». Quelle ligne est correcte si <code>n = 15</code> ?</p>
+      <div class="opts">
+        <button class="opt"><code>print(n + "/20")</code></button>
+        <button class="opt" data-correct="1"><code>print(f"{n}/20")</code></button>
+        <button class="opt"><code>print("n/20")</code></button>
+      </div>
+      <div class="q__exp"><code>n + "/20"</code> lève un <code>TypeError</code> (int + str) ; <code>"n/20"</code> affiche le texte littéral. Seule la f-string insère la valeur.</div>
+    </div>
+  </div>
+
+  <h2>8. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Concaténer au lieu d'additionner</strong> : oublier <code>int()</code>/<code>float()</code> sur <code>input()</code>.</li>
+      <li><strong><code>/</code> vs <code>//</code></strong> : un résultat attendu « entier » trahit souvent l'usage de <code>/</code>.</li>
+      <li><strong><code>True</code>/<code>False</code></strong> en minuscules.</li>
+      <li><strong>Virgule décimale</strong> <code>1,5</code> au lieu de <code>1.5</code>.</li>
+      <li><strong>Indentation incohérente</strong> (espaces vs tabulations) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>IndentationError</code>.</li>
+    </ul>
+  </div>
+
+  <h2>9. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Quand tu vois un énoncé « entrée <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> calcul <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> sortie »</div>
+    <ol>
+      <li><strong>Lister les entrées</strong> et leur type réel (nombre ? texte ?).</li>
+      <li><strong>Écrire les conversions</strong> immédiatement après chaque <code>input()</code>.</li>
+      <li><strong>Écrire la formule</strong> sur une ligne séparée, jamais directement dans le <code>print</code>.</li>
+      <li><strong>Formater</strong> la sortie (f-string, <code>:.2f</code> si décimal).</li>
+      <li><strong>Vérifier</strong> avec un jeu de valeurs simple (ex. 10 s, 100 centimes).</li>
+    </ol>
+  </div>
+
+  <h2>10. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Python = interprété, typage dynamique ; <code>python --version</code> et <code>sys.executable</code> diagnostiquent l'environnement.</li>
+      <li>4 types de base : <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>.</li>
+      <li><code>input()</code> renvoie <em>toujours</em> une chaîne <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> convertir.</li>
+      <li><code>/</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> float ; <code>//</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> entier ; <code>%</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> reste ; <code>**</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> puissance.</li>
+      <li>f-string : <code>f"{valeur:.2f}"</code>.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais lancer un script et lire un diagnostic de PATH.</li>
+      <li>Je sais prédire le type d'une valeur sans l'exécuter.</li>
+      <li>Je sais convertir une entrée et éviter la concaténation accidentelle.</li>
+      <li>Je sais décomposer une quantité avec <code>//</code> et <code>%</code>.</li>
+      <li>Je sais formater un affichage à 2 décimales.</li>
+    </ul>
+    <h3>Les 10 notions à connaître absolument</h3>
+    <ol>
+      <li>interprété vs compilé</li><li>typage dynamique</li><li>variable et affectation</li>
+      <li><code>int</code>/<code>float</code>/<code>str</code>/<code>bool</code></li><li>conversion de type</li>
+      <li><code>print()</code> et <code>input()</code></li><li>f-strings</li><li>arithmétique <code>/ // % **</code></li>
+      <li>opérateurs logiques</li><li>indentation = syntaxe</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>11. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 2, 3 et les exemples A/B.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Compréhension partielle : refais les exercices niveaux 1-2.</div>
+      <div class="bandrow bandrow--good">70–89 % — Base correcte : refais les niveaux 3-4 et les pièges.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux passer au chapitre 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Structures de contrôle <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Ce cours vise un niveau de préparation correspondant à un objectif de maîtrise 19/20.
+  Ta note réelle dépend aussi de ton travail et de l'évaluation. Sources : support de cours « Fondamentaux du langage Python »
+  et « Introduction à la programmation en langage Python » (B1 — INF-1001), et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Les services virtualisés de l’histoire | Virtualisation B1</title>
+<meta name="description" content="Chapitre 3 du cours B1 : Base de données, site web, pare-feu virtuel, serveur de test : l’inventaire et la charge. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-virtualisation/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Les services virtualisés de l’histoire | Virtualisation B1">
+<meta property="og:description" content="Chapitre 3 du cours B1 : Base de données, site web, pare-feu virtuel, serveur de test : l’inventaire et la charge. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="vtnav"><div class="vtnav__in">
+  <a class="vtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="vtnav__sep" aria-hidden="true">/</span>
+  <a class="vtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Virtualisation B1</a>
+  <div class="vtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="vtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="vtwrap">
+<p class="crumb"><a href="../index.html">Virtualisation B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Les services virtualisés de l’histoire</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La fin de l’histoire donne l’inventaire : le serveur « hébergeait maintenant une base de données, un site web, un pare-feu virtuel et même un serveur de test. Et pour une fois, il ne s’ennuyait plus ! » Quatre services très différents vivent désormais ensemble. Ce chapitre apprend à inventorier ce qui tourne et à surveiller la charge de chacun.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>citer les quatre services virtualisés et leur rôle ;</li>
+      <li>classer chaque service dans sa catégorie : données, publication, protection, recette ;</li>
+      <li>dresser l’inventaire des VM par type de service, dans l’ordre d’apparition ;</li>
+      <li>mesurer la charge par service et repérer celui qui porte le plus.</li>
+    </ol>
+  </div>
+
+<h2>1. Quatre services, quatre rôles</h2>
+
+<p>L’histoire virtualise quatre services, chacun avec un rôle distinct :</p>
+<table>
+    <tr><th>Service</th><th>Rôle</th></tr>
+    <tr><td>Base de données</td><td>les <strong>données</strong> de l’entreprise, centralisées</td></tr>
+    <tr><td>Site web</td><td>la <strong>publication</strong> vers les utilisateurs et le monde</td></tr>
+    <tr><td>Pare-feu virtuel</td><td>la <strong>protection</strong> du reste du parc</td></tr>
+    <tr><td>Serveur de test</td><td>la <strong>recette</strong> : essayer sans casser la production</td></tr>
+  </table>
+<p>Le serveur de test mérite une pause : avant la virtualisation, il fallait une machine physique pour tester ; maintenant, une VM s’allume, essuie les plâtres, s’éteint. C’est l’un des grands bénéfices du partage.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Le même serveur, quatre métiers</div>
+    <p>Données, publication, protection, recette : quatre fonctions qui n’avaient auparavant droit qu’à quatre machines physiques. Le matériel est unique, les métiers sont multiples.</p>
+  </div>
+
+<h2>2. L’inventaire des VM</h2>
+
+<p>Gérer un parc, c’est d’abord savoir ce qui tourne. L’inventaire compte les VM <strong>par type de service</strong>, dans l’ordre de première apparition : « base : 2 vm », « site : 1 vm »… Cet ordre d’apparition est celui du fichier d’inventaire, pas un tri alphabétique — c’est l’ordre dans lequel le parc a grandi.</p>
+<p>Un inventaire qui dit aussi les fermes : cinq VM « site » derrière un même site web, trois VM « base » en redondance. Le nombre par service est le premier indicateur de la forme du parc.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> L’inventaire en trois gestes</div>
+    <p>Lire chaque VM et son service, compter par service (ordre d’apparition), rapporter le nombre de services distincts. Trois gestes qui se programment en Bash au chapitre.</p>
+  </div>
+
+<h2>3. La charge de chaque service</h2>
+
+<p>« On ne prendra chacun que ce dont on a besoin » suppose de <strong>mesurer</strong> ce qu’on prend. La charge se cumule par service : chaque VM déclare son pourcentage de processeur, le service additionne ses VM. Au-delà de 70 % cumulés, un service entre en zone « à surveiller » — pas encore en panne, mais la marge s’amincit.</p>
+<p>Le service « le plus chargé » se repère avec une règle stricte : un service ne devient champion que si sa charge dépasse <strong>strictement</strong> le maximum connu. À égalité, le premier arrivé garde la couronne — comme dans l’histoire, où chacun ne prend que son dû.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le test non strict du maximum</div>
+    <p>Si deux services atteignent 70 %, le premier rencontré doit rester « le plus chargé ». Un test « supérieur ou égal » couronnerait le second à tort : le maximum se met à jour en <strong>strictement supérieur</strong>.</p>
+  </div>
+
+<h2>4. Ce que l’inventaire révèle</h2>
+
+<p>L’inventaire et la charge préparent le dimensionnement du chapitre 4 : un service dont la charge cumulée grimpe aura besoin d’une VM supplémentaire ; un service à 5 % pourrait partager mieux. Le parc devient un objet que l’on lit, pas une collection de machines que l’on subit.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les exercices de ce chapitre</div>
+    <p>Classer les quatre services de l’histoire, dresser l’inventaire par service dans l’ordre d’apparition, calculer la charge par service avec le maximum strict et le seuil des 70 %.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="vt-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;base donnees&#10;site publication&#10;pare-feu protection&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c3-e1) — Les services de l’histoire
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Le parc complet]
+# Données : 4
+# Données : base donnees
+# Données : site publication
+# Données : pare-feu protection
+# Données : test recette
+A_COMPLETER
+
+[Cas 2 — Trois confusions]
+# Données : 4
+# Données : base publication
+# Données : site protection
+# Données : pare-feu recette
+# Données : test recette
+A_COMPLETER
+
+[Cas 3 — Ordre mélangé]
+# Données : 4
+# Données : test recette
+# Données : pare-feu protection
+# Données : site publication
+# Données : base donnees
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les services de l’histoire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider les quatre services virtualisés : base, site, pare-feu, test.</p>
+    <div class="lab__brief"><p>L’histoire se termine : le serveur « hébergeait maintenant une base de données, un site web, un pare-feu virtuel et même un serveur de test ». Analysez chaque ligne proposée « service categorie » : categorie est un code parmi <code>donnees</code> (base de données), <code>publication</code> (site web), <code>protection</code> (pare-feu) ou <code>recette</code> (serveur de test). Pour chaque ligne il Indiquez <code>service : OK</code> ou <code>service : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+base donnees
+site publication
+pare-feu protection
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>base : OK
+site : OK
+pare-feu : OK
+correctes : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le service : base → donnees, site → publication, pare-feu → protection, test → recette.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;vm-bd base&#10;vm-web site&#10;vm-bd2 base&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c3-e2) — Une machine par service : l’inventaire
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Le parc de la fin]
+# Données : 4
+# Données : vm1 base
+# Données : vm2 site
+# Données : vm3 pare-feu
+# Données : vm4 test
+A_COMPLETER
+
+[Cas 2 — Fermes de VM]
+# Données : 5
+# Données : web1 site
+# Données : web2 site
+# Données : bd1 base
+# Données : bd2 base
+# Données : bd3 base
+A_COMPLETER
+
+[Cas 3 — Ordre d’apparition]
+# Données : 4
+# Données : a test
+# Données : b site
+# Données : c test
+# Données : d pare-feu
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Une machine par service : l’inventaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Dresser l’inventaire des VM par type de service et compter les catégories.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « vm service » puis Indiquez chaque ligne <code>vm : service</code>. Ensuite, pour chaque service <strong>dans l’ordre de première apparition</strong>, il Indiquez <code>service : X vm</code>, et enfin <code>services : Y</code> — l’inventaire de ce que le serveur héberge maintenant, comme à la fin de l’histoire.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+vm-bd base
+vm-web site
+vm-bd2 base
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>vm-bd : base
+vm-web : site
+vm-bd2 : base
+base : 2 vm
+site : 1 vm
+services : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Nouveau service : [ -z "${compte[$service]+x}" ] → ordre[$g]=$service et g=$((g+1)).</li>
+        <li>Les bilans sortent après la boucle, dans l’ordre du tableau ordre, puis g.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;vm1 base 40&#10;vm2 site 30&#10;vm3 base 20&#10;vm4 test 5&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c3-e3) — La charge de chaque service
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Pare-feu chargé]
+# Données : 4
+# Données : vm1 site 50
+# Données : vm2 pare-feu 45
+# Données : vm3 site 20
+# Données : vm4 base 10
+A_COMPLETER
+
+[Cas 2 — Égalité de charge]
+# Données : 3
+# Données : vm1 base 35
+# Données : vm2 site 35
+# Données : vm3 test 10
+A_COMPLETER
+
+[Cas 3 — Un seul service]
+# Données : 2
+# Données : vm1 base 50
+# Données : vm2 base 30
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — La charge de chaque service</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la charge par service et repérer celui qui consomme le plus.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « vm service charge » (charge en % CPU), puis Indiquez pour chaque service <strong>dans l’ordre de première apparition</strong> <code>service : X% de charge</code> (somme des charges), puis <code>service le plus charge : NOM (Y%)</code> — le premier atteignant le maximum gagne, comme au support « on ne prendra chacun que ce dont on a besoin » : au-delà de 70 % cumulés, le service est <code>service : X% de charge (a surveiller)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+vm1 base 40
+vm2 site 30
+vm3 base 20
+vm4 test 5
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>base : 60% de charge
+site : 30% de charge
+test : 5% de charge
+service le plus charge : base (60%)</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Somme par service dans un tableau ; nouveau service → enregistrer l’ordre (g).</li>
+        <li>Maximum au sens strict : charge &gt; max → max=charge, max_nom=service (le premier atteignant le max gagne).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le site web sert à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la publication</button>
+        <button class="opt">la protection</button>
+        <button class="opt">la recette</button>
+      </div>
+      <div class="q__exp">Publication vers les utilisateurs ; la base porte les données, le pare-feu protège, le test recette.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le pare-feu virtuel assure…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la protection du parc</button>
+        <button class="opt">la publication du site</button>
+        <button class="opt">le stockage des données</button>
+      </div>
+      <div class="q__exp">C’est son rôle dans l’inventaire des quatre services.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le serveur de test illustre…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la recette sans machine physique dédiée</button>
+        <button class="opt">la sauvegarde automatique</button>
+        <button class="opt">la réplication</button>
+      </div>
+      <div class="q__exp">Une VM s’allume pour essayer, puis s’éteint — grand bénéfice du partage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L’inventaire par service se fait…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">dans l’ordre de première apparition</button>
+        <button class="opt">par ordre alphabétique</button>
+        <button class="opt">au hasard</button>
+      </div>
+      <div class="q__exp">L’ordre du fichier d’inventaire — celui dans lequel le parc a grandi.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La zone « à surveiller » commence…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">au-delà de 70 % de charge cumulée</button>
+        <button class="opt">à 0 %</button>
+        <button class="opt">après 100 %</button>
+      </div>
+      <div class="q__exp">Au-delà de 70 % cumulés, la marge s’amincit : à surveiller.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le service le plus chargé se choisit…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">en strictement supérieur, le premier arrivé gagne à égalité</button>
+        <button class="opt">en alphabétique</button>
+        <button class="opt">au hasard</button>
+      </div>
+      <div class="q__exp">Test strict : à égalité, le premier rencontré garde le titre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La charge d’un service est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la somme des charges de ses VM</button>
+        <button class="opt">le maximum de ses VM</button>
+        <button class="opt">la moyenne de ses VM</button>
+      </div>
+      <div class="q__exp">Chaque VM déclare sa part ; le service additionne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les quatre services de l’histoire sont…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">base de données, site web, pare-feu, serveur de test</button>
+        <button class="opt">DNS, DHCP, web, mail</button>
+        <button class="opt">proxy, VPN, web, FTP</button>
+      </div>
+      <div class="q__exp">L’inventaire exact de la fin de l’histoire.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre les rôles : la base porte les données, le site publie, le pare-feu protège, le test recette.</li>
+      <li>Trier l’inventaire alphabétiquement au lieu de respecter l’ordre d’apparition.</li>
+      <li>Utiliser un test non strict pour le maximum : le premier arrivé doit gagner à égalité.</li>
+      <li>Oublier le seuil des 70 % : un service cumulé au-delà entre en zone à surveiller.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire son parc</div>
+    <ol>
+      <li>Inventorier : chaque VM avec son service, comptage dans l’ordre d’apparition.</li>
+      <li>Charger : additionner les déclarations de chaque service, repérer les dépassements de 70 %.</li>
+      <li>Rapporter : le service le plus chargé, au maximum strict, est celui qu’on regarde en premier.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Quatre services dans l’histoire : base, site web, pare-feu virtuel, serveur de test.</li>
+      <li>Données, publication, protection, recette : quatre rôles, un seul serveur.</li>
+      <li>L’inventaire compte les VM par service, dans l’ordre de première apparition.</li>
+      <li>La charge se cumule par service ; au-delà de 70 % on surveille, le maximum se prend au sens strict.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je cite les quatre services et leur catégorie sans note.</li>
+      <li>Je produis un inventaire par service dans l’ordre d’apparition.</li>
+      <li>Je calcule la charge cumulée et j’applique le seuil des 70 %.</li>
+      <li>Je trouve le service le plus chargé avec le test strict.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>base de données</li><li>site web</li><li>pare-feu virtuel</li><li>serveur de test</li><li>inventaire</li><li>ordre d’apparition</li><li>charge cumulée</li><li>maximum strict</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis l’inventaire de fin d’histoire et refais le comptage.</div>
+      <div class="bandrow bandrow--mid">50–69 % — rejoue l’exercice d’inventaire jusqu’au sans-faute.</div>
+      <div class="bandrow bandrow--good">70–89 % — solide : analyse la charge d’un parc fictif de 6 VM.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : passe au dimensionnement et à la rentabilisation.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Rentabilisation et dimensionnement <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support B1 « Le serveur fainéant et les machines ambitieuses — histoire » (dossier « cours B1 IT / Virtualisation des serveurs ») : texte narratif et questions de compréhension, d’analyse technique et de réflexion.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

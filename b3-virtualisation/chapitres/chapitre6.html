@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6 — Sauvegarde Avancée (CBT), Sécurité &amp; Virtualisation du Poste de Travail (VDI) | Virtualisation Avancée B3</title>
+<meta name="description" content="Module 6 du cours Virtualisation Avancée B3 : Sauvegarde moderne sans agent par Changed Block Tracking (CBT) et APIs VADP, quiescing VSS, durcissement de sécurité ESXi (Lockdown mode, vTPM, chiffrement VM Encryption), architectures de virtualisation de postes VDI (VMware Horizon, Citrix HDX, Instant Clones) et dimensionnement IOPS Boot Storm. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-virtualisation/chapitres/chapitre6.html">
+<meta property="og:title" content="Module 6 — Sauvegarde Avancée (CBT), Sécurité &amp; Virtualisation du Poste de Travail (VDI) | Virtualisation Avancée B3">
+<meta property="og:description" content="Module 6 du cours Virtualisation Avancée B3 : Sauvegarde moderne sans agent par Changed Block Tracking (CBT) et APIs VADP, quiescing VSS, durcissement de sécurité ESXi (Lockdown mode, vTPM, chiffrement VM Encryption), architectures de virtualisation de postes VDI (VMware Horizon, Citrix HDX, Instant Clones) et dimensionnement IOPS Boot Storm. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-virtualisationnav"><div class="b3-virtualisationnav__in">
+  <a class="b3-virtualisationnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-virtualisationnav__sep" aria-hidden="true">/</span>
+  <a class="b3-virtualisationnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Virtualisation Avancée B3</a>
+  <div class="b3-virtualisationnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-virtualisationnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-virtualisationwrap">
+<p class="crumb"><a href="../index.html">Virtualisation Avancée B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Sauvegarde Avancée (CBT), Sécurité & Virtualisation du Poste de Travail (VDI)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Vous devez finaliser le schéma directeur de virtualisation d'une organisation de 1 000 collaborateurs en sécurisant les hyperviseurs et les données d'entreprise. Vous concevez la stratégie de sauvegarde incrémentielle basée sur le Changed Block Tracking (CBT) pour respecter une fenêtre de sauvegarde nocturne de 4 heures, appliquez le durcissement de sécurité de l'hyperviseur ESXi (Lockdown mode strict, attestation TPM 2.0 et chiffrement de machines virtuelles), et dimensionnez l'infrastructure de postes virtuels VDI (VMware Horizon et Citrix Desktops) pour garantir une expérience utilisateur fluide tout en absorbant les pics d'I/O du Boot Storm matinal.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Maîtriser le fonctionnement de Changed Block Tracking (CBT) et des APIs VADP pour orchestrer des sauvegardes incrémentielles sans agent à haute performance.</li>
+      <li>Intégrer le quiescing applicatif via Microsoft VSS pour garantir la cohérence transactionnelle des bases de données lors des clichés de sauvegarde.</li>
+      <li>Appliquer la matrice de durcissement sécuritaire des serveurs ESXi (désactivation SSH, Lockdown mode, puce TPM 2.0 et VM Encryption).</li>
+      <li>Concevoir et dimensionner une infrastructure de postes virtuels VDI (pools persistants vs instant clones non-persistants, protocoles Blast/PCoIP/HDX et calcul d'IOPS Boot Storm).</li>
+    </ol>
+  </div>
+
+<h2>1. Sauvegarde d'Infrastructure Moderne : Changed Block Tracking (CBT) & APIs VADP</h2>
+
+<p>Dans les centres de données virtualisés, l'ancienne méthode consistant à installer un agent de sauvegarde dans chaque système d'exploitation invité est abandonnée au profit de sauvegardes <strong>centralisées au niveau hyperviseur (Agentless)</strong> via les APIs <strong>VADP (vStorage APIs for Data Protection)</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mécanisme du Changed Block Tracking (CBT)</h4>
+    <ul>
+      <li><strong>Suivi des blocs modifiés :</strong> Le VMkernel enregistre en continu dans un fichier bitmap compact (<code>-ctk.vmdk</code>) la liste des blocs disques qui ont subi une écriture depuis le dernier snapshot.</li>
+      <li><strong>Sauvegarde incrémentielle ultra-rapide :</strong> Le serveur de sauvegarde (Veeam, Commvault) interroge l'API vSphere pour obtenir uniquement l'index des blocs modifiés, sans jamais relire le disque complet.</li>
+      <li><strong>Réduction d'E/S :</strong> Une VM de 500 Go n'ayant modifié que 5 Go de données est sauvegardée en quelques minutes au lieu de plusieurs heures.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Cohérence Applicative &amp; Quiescing VSS</h4>
+    <ul>
+      <li><strong>Crash-Consistent :</strong> Le snapshot capture le disque tel quel, équivalent à une coupure de courant. Les bases de données doivent rejouer leurs journaux au redémarrage.</li>
+      <li><strong>Application-Consistent (VSS) :</strong> L'hyperviseur interagit avec le service Microsoft VSS (Volume Shadow Copy Service) via les VMware Tools pour forcer les bases de données (SQL Server, Exchange) à vider leurs caches en mémoire sur disque avant de figer le cliché.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Sécurité & Durcissement des Hyperviseurs : Lockdown Mode, TPM 2.0 & VM Encryption</h2>
+
+<p>L'hyperviseur est le point névralgique de l'infrastructure : sa compromission livre l'accès immédiat à l'ensemble des machines virtuelles et des données hébergées. Les guides de durcissement (CIS Benchmarks, VMware Hardening Guides) imposent des contrôles stricts :</p>
+<table class="table">
+  <thead><tr><th>Mesure de Durcissement</th><th>Mécanisme Technique</th><th>Objectif de Sécurité / Conformité</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Désactivation Shell / SSH</strong></td><td>Services <code>ESXi Shell</code> et <code>SSH</code> arrêtés par défaut sur le démon hostd.</td><td>Supprime les risques d'attaques par force brute sur le compte root local via le réseau.</td></tr>
+    <tr><td><strong>Mode Lockdown (Normal)</strong></td><td>L'hôte ESXi ne peut être administré que via vCenter Server ; la console locale DCUI reste accessible aux administrateurs autorisés.</td><td>Empêche toute modification de configuration hors du contrôle d'audit centralisé de vCenter.</td></tr>
+    <tr><td><strong>Mode Lockdown (Strict)</strong></td><td>La console locale DCUI est elle-même désactivée. L'hôte est 100% dépendant de vCenter Server.</td><td>Sécurisation maximale des serveurs situés dans des datacenters distants ou des colocalisations non surveillées.</td></tr>
+    <tr><td><strong>Puce TPM 2.0 &amp; Secure Boot</strong></td><td>Validation cryptographique de l'intégrité des composants de boot du VMkernel au démarrage de l'hôte.</td><td>Garantit qu'aucun rootkit ou chargeur de démarrage modifié n'a infecté le serveur (Host Attestation).</td></tr>
+    <tr><td><strong>Chiffrement VM (VM Encryption)</strong></td><td>Chiffrement XTS-AES-256 des fichiers VMDK et VMX opéré par le VMkernel et géré par un serveur de clés KMS.</td><td>Rend les disques virtuels illisibles s'ils sont dérobés ou copiés hors du stockage sécurisé.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Virtualisation du Poste de Travail (VDI) : Architectures & Protocoles d'Affichage</h2>
+
+<p>Le <strong>VDI (Virtual Desktop Infrastructure)</strong> héberge les environnements de travail des utilisateurs (Windows 10/11 ou Linux) sous forme de machines virtuelles exécutées dans le Datacenter et accessibles à distance :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Pools de Postes Virtuels</h4>
+    <ul>
+      <li><strong>Pools Persistants (Dedicated) :</strong> Chaque utilisateur possède sa propre VM dédiée. Ses personnalisations et applications installées sont conservées d'une session à l'autre. Coût de stockage élevé.</li>
+      <li><strong>Pools Non-Persistants (Floating / Instant Clones) :</strong> Les VM sont créées instantanément à partir d'une image maîtresse (Golden Master) par clonage mémoire direct. À la déconnexion, la VM est détruite et recréée propre. Les profils utilisateurs sont déportés (FSLogix, DEM).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Protocoles d'Affichage Haute Performance</h4>
+    <ul>
+      <li><strong>VMware Blast Extreme :</strong> Protocole optimisé pour le Cloud utilisant les codecs vidéo H.264/H.265 avec transport adaptatif UDP/TCP (port 8443/22443).</li>
+      <li><strong>Teradici PCoIP :</strong> Protocole historique propriétaire basé sur UDP (port 4172), compressant l'image par encodage sans perte de texte.</li>
+      <li><strong>Citrix HDX / ICA :</strong> Suite de technologies d'accélération multimédia et de redirection de périphériques USB (port 1494/2598).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Dimensionnement du Stockage VDI & Absorption du Boot Storm</h2>
+
+<p>Contrairement aux serveurs classiques qui ont une consommation d'E/S prévisible, les infrastructures VDI sont soumises au phénomène critique du <strong>Boot Storm (tempête de démarrages)</strong> et du <strong>Logon Storm</strong> le matin lors de l'arrivée massive des collaborateurs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Profils d'Utilisateurs &amp; Besoins en IOPS</h4>
+    <ul>
+      <li><strong>Profil Bureautique (Task Worker) :</strong> 10 à 15 IOPS par utilisateur en vitesse de croisière (navigation, messagerie, saisie).</li>
+      <li><strong>Profil Connaissances (Knowledge Worker) :</strong> 25 à 35 IOPS par utilisateur (tableurs lourds, ERP, visioconférence).</li>
+      <li><strong>Profil Développeur / Power User :</strong> 40 à 60 IOPS par utilisateur (compilations, conteneurs, IDEs multiples).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Prise en Compte du Boot Storm</h4>
+    <p>Lors d'un démarrage simultané de 500 ou 1 000 postes entre 8h15 et 8h45, la demande d'IOPS en lecture explose de <strong>50% à 100% au-dessus de la consommation nominale</strong> :</p>
+    <pre><code>IOPS_Pic = Somme(Utilisateurs * IOPS_Profil) * (1.0 + Marge_Boot_Storm)</code></pre>
+    <p>Pour absorber ce pic sans figer les sessions, l'utilisation de <strong>stockage Full Flash NVMe</strong> et de technologies de clonage mémoire instantané (vSphere Instant Clones) est indispensable.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="vrt3-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="UUID=a84f32c1-829d-43cb-b09e-128492049182 NAME=Control-Domain DOMAIN_TYPE=DOM0 VIRT_MODE=NATIVE MEMORY_MB=4096 VCPUS=4&#10;UUID=b95e41a2-918c-42ba-c18f-993849182931 NAME=Linux-Web01 DOMAIN_TYPE=DOMU VIRT_MODE=PV MEMORY_MB=8192 VCPUS=2&#10;UUID=c12a93e3-718a-41aa-d09a-449182930192 NAME=Win-Desktop DOMAIN_TYPE=DOMU VIRT_MODE=HVM MEMORY_MB=16384 VCPUS=8">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c6-e1) — Parseur de Métadonnées XenServer / Citrix Hypervisor & Rôles Dom0 / DomU
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Incohérence architecturale Dom0 avec mode HVM]
+# Données : UUID=deadbeef-1111-2222-3333-444455556666 NAME=Bad-Dom0 DOMAIN_TYPE=DOM0 VIRT_MODE=HVM MEMORY_MB=2048 VCPUS=2
+A_COMPLETER
+
+[Cas 2 — Incohérence architecturale DomU avec mode NATIVE]
+# Données : UUID=cafebabe-1111-2222-3333-444455556666 NAME=Bad-DomU DOMAIN_TYPE=DOMU VIRT_MODE=NATIVE MEMORY_MB=4096 VCPUS=4
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur de Métadonnées XenServer / Citrix Hypervisor &amp; Rôles Dom0 / DomU</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les métadonnées d'un domaine XenServer (Citrix Hypervisor), qualifier les rôles Dom0/DomU et le mode de virtualisation.</p>
+    <div class="lab__brief"><p>L'architecture micro-noyau Xen distingue le domaine de contrôle (<code>Dom0</code>) des machines invitées (<code>DomU</code>) :<br><br>
+1. <strong>Règles architecturales</strong> :<br>
+- Si <code>DOMAIN_TYPE == "DOM0"</code> : Rôle <code>CONTROL_DOMAIN</code>, mode imposé <code>NATIVE</code> (accès matériel direct).<br>
+- Si <code>DOMAIN_TYPE == "DOMU"</code> : Rôle <code>GUEST_VM</code>, modes supportés : <code>PV</code> (paravirtualisation sans émulation) ou <code>HVM</code> (virtualisation assistée matériellement).<br>
+- Si une combinaison est incohérente (ex: Dom0 en mode PV/HVM ou DomU en mode NATIVE) : Statut <code>INVALID_XEN_TOPOLOGY</code>.<br><br>
+2. <strong>Identifiant UUID</strong> :<br>
+Afficher uniquement les 8 premiers caractères de l'UUID (préfixe court).<br><br>
+Format d'entrée (sur STDIN) :<br>
+Lignes : <code>UUID=&lt;uuid&gt; NAME=&lt;nom&gt; DOMAIN_TYPE=&lt;DOM0|DOMU&gt; VIRT_MODE=&lt;NATIVE|PV|HVM&gt; MEMORY_MB=&lt;nb&gt; VCPUS=&lt;nb&gt;</code>.<br><br>
+Format de sortie :<br>
+<code>VM:&lt;nom&gt; | UUID:&lt;uuid[:8]&gt; | TYPE:&lt;DOM0|DOMU&gt; | MODE:&lt;mode&gt; | ROLE:&lt;role&gt; | RAM:&lt;MEMORY_MB&gt;MB | VCPUS:&lt;VCPUS&gt;</code><br>
+(ou <code>ERROR:INVALID_XEN_TOPOLOGY</code> en cas d'incohérence).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>UUID=a84f32c1-829d-43cb-b09e-128492049182 NAME=Control-Domain DOMAIN_TYPE=DOM0 VIRT_MODE=NATIVE MEMORY_MB=4096 VCPUS=4
+UUID=b95e41a2-918c-42ba-c18f-993849182931 NAME=Linux-Web01 DOMAIN_TYPE=DOMU VIRT_MODE=PV MEMORY_MB=8192 VCPUS=2
+UUID=c12a93e3-718a-41aa-d09a-449182930192 NAME=Win-Desktop DOMAIN_TYPE=DOMU VIRT_MODE=HVM MEMORY_MB=16384 VCPUS=8</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VM:Control-Domain | UUID:a84f32c1 | TYPE:DOM0 | MODE:NATIVE | ROLE:CONTROL_DOMAIN | RAM:4096MB | VCPUS:4
+VM:Linux-Web01 | UUID:b95e41a2 | TYPE:DOMU | MODE:PV | ROLE:GUEST_VM | RAM:8192MB | VCPUS:2
+VM:Win-Desktop | UUID:c12a93e3 | TYPE:DOMU | MODE:HVM | ROLE:GUEST_VM | RAM:16384MB | VCPUS:8
+</pre></div>
+    </div>
+    <p class="lab__note">Domaine de contrôle Dom0, invité Linux paravirtualisé PV et invité Windows HVM.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Dom0 a obligatoirement le rôle CONTROL_DOMAIN et le mode NATIVE.</li>
+        <li>DomU a obligatoirement le rôle GUEST_VM et le mode PV ou HVM.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vrt3-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CATALOG=CallCenter PROFILE=TASK_WORKER USERS=100 CONCURRENT_PCT=80.0&#10;CATALOG=Engineering PROFILE=POWER_USER USERS=20 CONCURRENT_PCT=100.0&#10;CATALOG=Sales PROFILE=KNOWLEDGE_WORKER USERS=50 CONCURRENT_PCT=60.0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c6-e2) — Dimensionneur de Catalogue VDI (Postes Virtuels, IOPS par Utilisateur, RAM & Stockage)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Catalogue à 50% de simultanéité]
+# Données : CATALOG=Finance PROFILE=KNOWLEDGE_WORKER USERS=80 CONCURRENT_PCT=50.0
+A_COMPLETER
+
+[Cas 2 — Profil inconnu retournant une erreur]
+# Données : CATALOG=Custom PROFILE=UNKNOWN USERS=10 CONCURRENT_PCT=100.0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Dimensionneur de Catalogue VDI (Postes Virtuels, IOPS par Utilisateur, RAM &amp; Stockage)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Dimensionner les ressources matérielles nécessaires (vCPUs, RAM, IOPS, Stockage) pour un catalogue de postes virtuels VDI.</p>
+    <div class="lab__brief"><p>Le dimensionnement d'un parc de bureaux virtuels (VDI Citrix Virtual Desktops ou VMware Horizon) s'appuie sur des profils types d'utilisateurs :<br><br>
+1. <strong>Profils de postes de travail</strong> :<br>
+- <code>TASK_WORKER</code> : 2 vCPUs, 4 Go RAM, 10 IOPS, disque clone lié 20 Go.<br>
+- <code>KNOWLEDGE_WORKER</code> : 4 vCPUs, 8 Go RAM, 25 IOPS, disque 40 Go.<br>
+- <code>POWER_USER</code> : 8 vCPUs, 16 Go RAM, 60 IOPS, disque 80 Go.<br><br>
+2. <strong>Calcul de simultanéité</strong> :<br>
+Utilisateurs actifs simultanés :<br>
+<code>active_users = int(USERS * (CONCURRENT_PCT / 100.0))</code>.<br><br>
+3. <strong>Besoins calculés</strong> :<br>
+- <code>total_vcpus = active_users * profil.vcpus</code>.<br>
+- <code>total_ram_gb = active_users * profil.ram</code>.<br>
+- <code>total_iops = active_users * profil.iops</code>.<br>
+- <code>total_storage_gb = USERS * profil.disk</code> (le stockage est réservé pour la totalité des utilisateurs inscrits).<br><br>
+Format d'entrée (sur STDIN) :<br>
+Lignes : <code>CATALOG=&lt;nom&gt; PROFILE=&lt;nom_profil&gt; USERS=&lt;nb&gt; CONCURRENT_PCT=&lt;pct&gt;</code>.<br><br>
+Format de sortie :<br>
+<code>CATALOG:&lt;nom&gt; | ACTIVE:&lt;active_users&gt; | VCPUS:&lt;total_vcpus&gt; | RAM:&lt;total_ram_gb&gt;GB | IOPS:&lt;total_iops&gt; | STORAGE:&lt;total_storage_gb&gt;GB</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CATALOG=CallCenter PROFILE=TASK_WORKER USERS=100 CONCURRENT_PCT=80.0
+CATALOG=Engineering PROFILE=POWER_USER USERS=20 CONCURRENT_PCT=100.0
+CATALOG=Sales PROFILE=KNOWLEDGE_WORKER USERS=50 CONCURRENT_PCT=60.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CATALOG:CallCenter | ACTIVE:80 | VCPUS:160 | RAM:320GB | IOPS:800 | STORAGE:2000GB
+CATALOG:Engineering | ACTIVE:20 | VCPUS:160 | RAM:320GB | IOPS:1200 | STORAGE:1600GB
+CATALOG:Sales | ACTIVE:30 | VCPUS:120 | RAM:240GB | IOPS:750 | STORAGE:2000GB
+</pre></div>
+    </div>
+    <p class="lab__note">Catalogue centre d'appels, ingénierie avancée et équipe commerciale.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Associez à chaque profil ses caractéristiques (vcpus, ram, iops, disk).</li>
+        <li>Le CPU, la RAM et les IOPS sont basés sur active_users, tandis que le stockage est calculé sur USERS total.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vrt3-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="VM=vm-database SIZE_GB=500 DAILY_CHANGE_PCT=5.0 RETENTION_DAYS=7 DEDUP_RATIO=2.0 RESTORE_MBPS=150&#10;VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=2.5 RESTORE_MBPS=100">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c6-e3) — Calculateur de RPO/RTO & Volumétrie Sauvegarde Incrémentielle CBT (Changed Block Tracking)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — VM ultra-lourde 2 To et forte rétention 30 jours]
+# Données : VM=vm-fileserver SIZE_GB=2048 DAILY_CHANGE_PCT=3.0 RETENTION_DAYS=30 DEDUP_RATIO=2.0 RESTORE_MBPS=250
+A_COMPLETER
+
+[Cas 2 — Rétention d'un seul jour (Full seul)]
+# Données : VM=vm-single SIZE_GB=200 DAILY_CHANGE_PCT=10.0 RETENTION_DAYS=1 DEDUP_RATIO=2.0 RESTORE_MBPS=200
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calculateur de RPO/RTO &amp; Volumétrie Sauvegarde Incrémentielle CBT (Changed Block Tracking)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la volumétrie d'une chaîne de sauvegarde CBT (Full + Incréments) et estimer le temps de restauration (RTO).</p>
+    <div class="lab__brief"><p>Les solutions de sauvegarde pour machines virtuelles exploitent l'API Changed Block Tracking (CBT) pour minimiser la volumétrie :<br><br>
+1. <strong>Taille de sauvegarde dédupliquée/compressée</strong> :<br>
+- Sauvegarde complète (Full) :<br>
+<code>full_gb = SIZE_GB / DEDUP_RATIO</code>.<br>
+- Incrément quotidien CBT (Changed Blocks) :<br>
+<code>inc_gb = (SIZE_GB * (DAILY_CHANGE_PCT / 100.0)) / DEDUP_RATIO</code>.<br><br>
+2. <strong>Volume total de la chaîne de sauvegarde</strong> :<br>
+Pour une durée de rétention de <code>RETENTION_DAYS</code> jours (1 Full initial + <code>RETENTION_DAYS - 1</code> incréments) :<br>
+<code>total_chain_gb = full_gb + (RETENTION_DAYS - 1) * inc_gb</code>.<br><br>
+3. <strong>Temps de restauration complète (RTO)</strong> :<br>
+Le volume brut à réécrire sur le stockage est <code>SIZE_GB * 1024</code> Mo.<br>
+À une vitesse de restauration <code>RESTORE_MBPS</code> (en Mo/s) :<br>
+<code>rto_minutes = ((SIZE_GB * 1024) / RESTORE_MBPS) / 60.0</code>.<br><br>
+Format d'entrée (sur STDIN) :<br>
+Lignes : <code>VM=&lt;nom&gt; SIZE_GB=&lt;n&gt; DAILY_CHANGE_PCT=&lt;pct&gt; RETENTION_DAYS=&lt;nb&gt; DEDUP_RATIO=&lt;nb&gt; RESTORE_MBPS=&lt;nb&gt;</code>.<br><br>
+Format de sortie :<br>
+<code>VM:&lt;nom&gt; | FULL:&lt;full_gb:.1f&gt;GB | INC:&lt;inc_gb:.1f&gt;GB | TOTAL_CHAIN:&lt;total_chain_gb:.1f&gt;GB | RTO:&lt;rto_minutes:.1f&gt;min</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VM=vm-database SIZE_GB=500 DAILY_CHANGE_PCT=5.0 RETENTION_DAYS=7 DEDUP_RATIO=2.0 RESTORE_MBPS=150
+VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=2.5 RESTORE_MBPS=100</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VM:vm-database | FULL:250.0GB | INC:12.5GB | TOTAL_CHAIN:325.0GB | RTO:56.9min
+VM:vm-app-server | FULL:40.0GB | INC:0.8GB | TOTAL_CHAIN:50.4GB | RTO:17.1min
+</pre></div>
+    </div>
+    <p class="lab__note">Base de données 500 Go sur 7 jours avec 5% de modifications quotidiennes vs serveur applicatif 100 Go sur 14 jours.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Appliquez le ratio de déduplication au Full et à chaque incrément CBT.</li>
+        <li>Calculez le RTO en minutes à partir du volume brut en Mo et de la vitesse RESTORE_MBPS.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel fichier stocké sur le datastore contient la carte bitmap des blocs modifiés exploitée par le Changed Block Tracking (CBT) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le fichier se terminant par -ctk.vmdk.</button>
+        <button class="opt">Le fichier se terminant par -flat.vmdk.</button>
+        <button class="opt">Le fichier se terminant par .nvram.</button>
+        <button class="opt">Le fichier se terminant par .vswp.</button>
+      </div>
+      <div class="q__exp">Lorsqu'une VM active le CBT, le VMkernel crée un fichier compagnon `-ctk.vmdk` qui maintient la cartographie bitmap des blocs ayant fait l'objet d'écritures depuis le dernier point de référence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une sauvegarde au niveau hyperviseur avec quiescing VSS est-elle supérieure à une simple sauvegarde crash-consistent ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle garantit que les bases de données (SQL, Exchange) ont vidé leurs caches en mémoire sur le disque avant le cliché.</button>
+        <button class="opt">Elle compresse les fichiers vidéo avec le codec MP4 haute définition.</button>
+        <button class="opt">Elle augmente la vitesse d'affichage des cartes graphiques virtuelles.</button>
+        <button class="opt">Elle permet de supprimer le mot de passe administrateur de la machine virtuelle.</button>
+      </div>
+      <div class="q__exp">Le quiescing applicatif coordonné par Microsoft VSS force les applications et bases de données transactionnelles à finaliser leurs écritures en attente avant la prise du snapshot, garantissant une restauration sans corruption.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que bloque le mode de sécurité vSphere Lockdown Mode en configuration "Normal" ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Toute connexion administrative directe à l'hôte ESXi (web client, API), n'autorisant la gestion que via vCenter et la console physique DCUI.</button>
+        <button class="opt">Tous les accès aux disques durs de l'hyperviseur pendant 24 heures.</button>
+        <button class="opt">L'accès à Internet pour l'ensemble des machines virtuelles du cluster.</button>
+        <button class="opt">Le démarrage des processeurs Intel si la température dépasse 30 degrés.</button>
+      </div>
+      <div class="q__exp">Le mode Lockdown Normal empêche toute connexion directe par navigateur ou API à l'adresse IP de l'hôte ESXi pour centraliser toutes les actions dans les journaux d'audit de vCenter, tout en conservant l'accès d'urgence DCUI physique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel composant matériel permet de valider l'intégrité cryptographique du chargeur et des binaires du noyau VMkernel lors du démarrage (Host Attestation) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La puce de sécurité TPM 2.0 (Trusted Platform Module) associée à Secure Boot.</button>
+        <button class="opt">Le contrôleur RAID matériel de la baie de disques.</button>
+        <button class="opt">La carte réseau Gigabit Ethernet intégrée à la carte mère.</button>
+        <button class="opt">La batterie de secours du contrôleur de cache de stockage.</button>
+      </div>
+      <div class="q__exp">La puce TPM 2.0 enregistre et valide cryptographiquement les empreintes de hachage de chaque composant du chargeur de démarrage UEFI et du noyau VMkernel, attestant qu'aucun code malveillant n'a altéré l'hyperviseur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la particularité d'un pool de postes virtuels VDI non-persistants (Floating / Instant Clones) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les VM sont détruites à la déconnexion et recréées à l'identique depuis une image de référence pour garantir un OS toujours propre.</button>
+        <button class="opt">Chaque utilisateur a un disque dur fixe qui ne peut jamais être effacé ni mis à jour.</button>
+        <button class="opt">Les postes virtuels ne peuvent fonctionner que pendant 15 minutes par jour.</button>
+        <button class="opt">Le système d'exploitation doit impérativement être installé sur une clé USB.</button>
+      </div>
+      <div class="q__exp">Dans un pool non-persistant, les postes sont éphémères : chaque utilisateur reçoit une machine vierge dérivée de l'image de référence (Golden Master). À la fermeture de session, la machine est détruite et reconstruite instantanément.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole d'affichage distant propriétaire VMware s'appuie sur les codecs vidéo H.264/H.265 avec transport réseau adaptatif UDP/TCP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">VMware Blast Extreme.</button>
+        <button class="opt">Microsoft Remote Desktop Protocol (RDP) classique.</button>
+        <button class="opt">Protocole de terminal Telnet sur port 23.</button>
+        <button class="opt">File Transfer Protocol (FTP) en mode passif.</button>
+      </div>
+      <div class="q__exp">VMware Blast Extreme est le protocole d'affichage moderne de VMware Horizon utilisant l'accélération matérielle H.264/H.265 et un transport UDP/TCP adaptatif optimisé pour les réseaux WAN et Internet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu'appelle-t-on le phénomène de "Boot Storm" dans une infrastructure de postes de travail virtuels VDI ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L'avalanche d'E/S disques simultanées lors du démarrage matinal massif de centaines de postes virtuels.</button>
+        <button class="opt">Un orage électrique provoquant une coupure de courant dans le centre de données.</button>
+        <button class="opt">La propagation fulgurante d'un ver informatique entre machines virtuelles.</button>
+        <button class="opt">L'inondation des ventilateurs de serveurs par de la poussière.</button>
+      </div>
+      <div class="q__exp">Le Boot Storm désigne le pic massif d'entrées/sorties de lecture disque produit lorsque des centaines d'utilisateurs allument et initialisent leurs sessions Windows simultanément à leur arrivée au travail le matin.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour un parc de 200 postes VDI générant 20 IOPS moyens par utilisateur et une marge de sécurité de 50% pour absorber le Boot Storm, combien d'IOPS globaux la baie doit-elle délivrer ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">6 000 IOPS.</button>
+        <button class="opt">4 000 IOPS.</button>
+        <button class="opt">2 000 IOPS.</button>
+        <button class="opt">8 000 IOPS.</button>
+      </div>
+      <div class="q__exp">IOPS nominaux = 200 * 20 = 4 000 IOPS. Avec la surcapacité de 50% pour le Boot Storm : 4 000 * 1.50 = 6 000 IOPS requis au minimum en heure de pointe.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d'Ingénierie : Audit de Sauvegarde, Durcissement & Dimensionnement VDI</div>
+    <ol>
+      <li>Activer Changed Block Tracking (CBT) sur les machines virtuelles et programmer des fenêtres de sauvegarde incrémentielle compatibles avec les débits de stockage.</li>
+      <li>Intégrer le quiescing VSS pour toutes les VM hébergeant des bases de données relationnelles ou des annuaires d'entreprise.</li>
+      <li>Auditer le durcissement des hôtes ESXi : désactiver les services SSH/Shell, basculer en Lockdown Mode et activer Secure Boot avec puce TPM 2.0.</li>
+      <li>Calculer la volumétrie et la puissance d'IOPS globale d'un parc VDI en incluant une surcapacité de 50% à 80% pour encaisser le pic matinal de Boot Storm.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Changed Block Tracking (CBT) optimise radicalement les sauvegardes en ne lisant que les blocs disques modifiés consignés dans le fichier -ctk.vmdk.</li>
+      <li>Le quiescing VSS garantit la cohérence transactionnelle des bases de données en vidant leurs tampons avant la prise du cliché de sauvegarde.</li>
+      <li>Le durcissement de l'hyperviseur ESXi repose sur le Lockdown Mode, la désactivation des accès directs SSH et l'attestation cryptographique TPM 2.0.</li>
+      <li>Les architectures VDI à Instant Clones créent des postes de travail non-persistants à la volée avec une empreinte disque et mémoire ultra-réduite.</li>
+      <li>Le dimensionnement du stockage VDI impose de surdimensionner les IOPS de 50% à 80% pour absorber l'avalanche de lectures du Boot Storm matinal.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le paramètre `ctkEnabled = TRUE` est-il configuré dans le fichier .vmx de chaque VM pour activer le Changed Block Tracking ?</li>
+      <li>Les sauvegardes nocturnes utilisent-elles l'API vSphere VADP sans nécessiter d'agents résidents dans les systèmes invités ?</li>
+      <li>Le service SSH est-il arrêté sur tous les hyperviseurs ESXi de production et le mode Lockdown est-il activé ?</li>
+      <li>La baie de stockage VDI est-elle dimensionnée pour supporter le pic d'IOPS du Boot Storm calculé avec sa marge de sécurité ?</li>
+      <li>Les profils utilisateurs des postes VDI non-persistants sont-ils déportés et synchronisés via des conteneurs de profil (FSLogix) ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Changed Block Tracking (CBT) :</strong> Fonctionnalité VMware retraçant les blocs disques modifiés pour n'exporter que les deltas lors des sauvegardes incrémentielles.</li><li><strong>VADP (vStorage APIs for Data Protection) :</strong> Ensemble d'APIs permettant aux logiciels tiers d'effectuer des sauvegardes sans agent au niveau de l'hyperviseur.</li><li><strong>Quiescing VSS :</strong> Synchronisation avec le service Microsoft Volume Shadow Copy pour geler temporairement les écritures applicatives et garantir la cohérence des données.</li><li><strong>Lockdown Mode :</strong> Mode de sécurité vSphere interdisant la connexion directe aux hyperviseurs ESXi pour imposer une administration exclusive via vCenter.</li><li><strong>TPM 2.0 & Secure Boot :</strong> Composant matériel cryptographique validant l'intégrité des modules du VMkernel lors du démarrage de l'hôte physique.</li><li><strong>VDI (Virtual Desktop Infrastructure) :</strong> Architecture hébergeant des environnements de travail utilisateurs sous forme de machines virtuelles dans le Datacenter.</li><li><strong>Instant Clone :</strong> Technologie VMware créant un poste virtuel en quelques secondes par duplication de la mémoire vive d'une VM parent en cours d'exécution.</li><li><strong>Boot Storm :</strong> Phénomène de surcharge massive des entrées/sorties disque lors du démarrage simultané de centaines de postes de travail virtuels en début de journée.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow">Activer et vérifier le Changed Block Tracking (CBT) pour concevoir des plans de sauvegarde incrémentielle efficaces.</div>
+      <div class="bandrow">Orchestrer le quiescing applicatif Microsoft VSS pour garantir l'intégrité des bases de données lors des clichés.</div>
+      <div class="bandrow">Appliquer les règles de durcissement sécuritaire des hyperviseurs ESXi (SSH arrêté, Lockdown Mode et puce TPM 2.0).</div>
+      <div class="bandrow">Concevoir des architectures de postes virtuels VDI persistants ou non-persistants (Instant Clones).</div>
+      <div class="bandrow">Calculer le profil d'IOPS global d'un parc VDI et intégrer la surcapacité requise pour absorber le pic de Boot Storm matinal.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant & Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

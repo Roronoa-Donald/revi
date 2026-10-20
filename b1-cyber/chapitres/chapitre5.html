@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Détection et réponse aux incidents | Cybersécurité B1</title>
+<meta name="description" content="Chapitre 5 du cours de Cybersécurité B1 : SIEM et analyse de logs, les étapes de la réponse (identifier, contenir, éradiquer, rétablir), forensique, PCA/PRA. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-cyber/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Détection et réponse aux incidents | Cybersécurité B1">
+<meta property="og:description" content="Chapitre 5 du cours de Cybersécurité B1 : SIEM et analyse de logs, les étapes de la réponse (identifier, contenir, éradiquer, rétablir), forensique, PCA/PRA. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="cynav"><div class="cynav__in">
+  <a class="cynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cynav__sep" aria-hidden="true">/</span>
+  <a class="cynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B1</a>
+  <div class="cynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="cynav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="cywrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Détection et réponse aux incidents</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le SIEM réveille l'équipe à 3 h : 300 échecs de connexion depuis une même IP, puis un succès. La question n'est pas « qui ? » mais « dans quel ordre agir ? ». Ce chapitre donne la méthode : détecter dans les logs, contenir avant de comprendre, éradiquer, rétablir, puis apprendre.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire le rôle d'un SIEM et les sources de logs qu'il corrèle ;</li>
+      <li>détecter une force brute dans un journal d'authentification ;</li>
+      <li>dérouler les étapes de la réponse à incident dans l'ordre ;</li>
+      <li>relier PCA, PRA, RTO et RPO à la continuité d'activité.</li>
+    </ol>
+  </div>
+
+<h2>1. Le SIEM : centraliser et corréler</h2>
+
+<p>Un <strong>SIEM</strong> (Security Information and Event Management) combine deux fonctions : la gestion des informations de sécurité (collecte, stockage, analyse des logs) et la gestion des événements (surveillance en temps réel, alertes). Il agrège les sources — pare-feu, routeurs, serveurs, annuaires (LDAP, Active Directory), antivirus, IDS/IPS, EDR — les normalise, puis <strong>corréle</strong> : des échecs de connexion suivis d'une élévation de privilèges, c'est une force brute ; un trafic sortant anormal depuis une IP interne, un mouvement latéral.</p>
+<p>Exemples de solutions citées en cours : Splunk Enterprise Security, IBM QRadar, ArcSight, Elastic SIEM (ELK), Microsoft Sentinel. Limites à connaître : coût, complexité de réglage, et le piège des faux positifs qui noient l'analyste.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Ce que la corrélation voit, la ligne de log seule ne montre pas</div>
+    <p>Une ligne dit « échec ». Cent lignes de la même IP en dix minutes disent « attaque ». C'est toute la valeur du SIEM : transformer des milliers de lignes isolées en quelques scénarios nommés.</p>
+  </div>
+
+<h2>2. L'analyse des logs</h2>
+
+<p>Le <strong>log</strong> est l'enregistrement automatique d'un événement. Les journaux clés : <code>/var/log/auth.log</code> sous Linux (connexions, élévation), l'Observateur d'événements Windows, les logs de pare-feu (connexions bloquées), les logs web Apache/Nginx (requêtes), les journaux d'authentification (tentatives, changements de mots de passe).</p>
+<p>L'analyse manuelle ou outillée (ELK, Graylog, OSSEC, Wireshark pour le réseau) sert à quatre choses : détecter les intrusions (scans de ports, échecs en rafale), surveiller les comptes (connexions depuis des lieux inattendus), investiguer après incident (retracer la chronologie), et prouver la conformité (RGPD, PCI DSS exigent la rétention des journaux).</p>
+<pre><code>ECHEC  03:02:11  45.61.10.9
+ECHEC  03:02:15  45.61.10.9
+ECHEC  03:02:20  45.61.10.9
+SUCCES 03:03:00  45.61.10.9     ← la force brute a abouti</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — un succès après des échecs</div>
+    <p>La rafale d'échecs n'est pas l'incident ; le succès qui suit l'est peut-être. L'alerte se règle typiquement à 3 échecs ou plus pour une même IP : à ce seuil, on vérifie, on prévient le propriétaire du compte, on bloque si besoin.</p>
+  </div>
+
+<h2>3. Les étapes de la réponse à incident</h2>
+
+<p>La réponse suit un ordre qui ne se discute pas :</p>
+<table>
+    <tr><th>Étape</th><th>Action</th><th>Exemple</th></tr>
+    <tr><td>1. <strong>Identifier</strong></td><td>confirmer l'incident, son étendue et sa chronologie</td><td>corrélé dans le SIEM, compte compromis confirmé</td></tr>
+    <tr><td>2. <strong>Contenir</strong></td><td>stopper la propagation sans détruire les preuves</td><td>isoler la machine du réseau (pas l'éteindre)</td></tr>
+    <tr><td>3. <strong>Éradiquer</strong></td><td>supprimer la cause : malware, portes dérobées, comptes pirates</td><td>re-imageage du poste, réinitialisation des identifiants</td></tr>
+    <tr><td>4. <strong>Rétablir</strong></td><td>remettre en service et surveiller de près</td><td>restauration depuis sauvegarde saine, surveillance renforcée</td></tr>
+  </table>
+<p>Suivent l'<strong>analyse post-incident</strong> (retour d'expérience) et la <strong>forensique</strong> : préserver les preuves (images disque, journaux horodatés, chaîne de conservation) pour comprendre et, le cas échéant, pour la justice. C'est pourquoi on isole la machine au lieu de l'éteindre : la mémoire vive disparaît à la coupure.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « ICER » : identifier, contenir, éradiquer, rétablir</div>
+    <p><strong>I</strong>dentifier, <strong>C</strong>ontenir, <strong>E</strong>radiquer, <strong>R</strong>établir — dans cet ordre, toujours. Contenir avant d'éradiquer : on coupe la route avant de retirer l'obstacle. Eradiquer avant de rétablir : on ne remet pas un système encore infecté en production.</p>
+  </div>
+
+<h2>4. PCA, PRA, RTO, RPO</h2>
+
+<p>Le <strong>PCA</strong> (plan de continuité d'activité) décrit comment l'activité essentielle continue pendant la crise ; le <strong>PRA</strong> (plan de reprise) comment les systèmes reviennent à la normale. Deux objectifs chiffrés les gouvernent :</p>
+<ul>
+  <li><strong>RTO</strong> (Recovery Time Objective) : combien de temps l'entreprise peut rester à l'arrêt avant que la situation ne devienne critique ;</li>
+  <li><strong>RPO</strong> (Recovery Point Objective) : quelle quantité de données on peut se permettre de perdre (une heure de saisie ? un jour ?).</li>
+</ul>
+<p>Le RPO fixe la fréquence des sauvegardes ; le RTO fixe l'architecture de reprise. Un PRA non documenté et non testé vaut zéro : en crise, le stress empêche l'improvisation, la procédure doit être actionnable par un tiers.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> Le binôme à retenir</div>
+    <p>RTO = <strong>temps</strong> (durée d'interruption maximale) ; RPO = <strong>données</strong> (perte maximale admissible). Sauvegardes toutes les heures et RPO d'une journée : incohérence. Le PRA aligne toujours les deux.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cy-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="6&#10;CRITIQUE exfiltration&#10;INFO rotation_cles&#10;AVERTISSEMENT echecs_connexion&#10;CRITIQUE ransomware&#10;INFO sauvegarde&#10;AVERTISSEMENT trafic_sortant&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c5-e1) — Triage des alertes
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une info, une critique]
+# Données : 2
+# Données : INFO rotation_cles
+# Données : CRITIQUE intrusion
+A_COMPLETER
+
+[Cas 2 — Deux avertissements]
+# Données : 3
+# Données : AVERTISSEMENT trafic_sortant
+# Données : AVERTISSEMENT echecs_connexion
+# Données : INFO sauvegarde
+A_COMPLETER
+
+[Cas 3 — Cinq alertes]
+# Données : 5
+# Données : CRITIQUE ransomware
+# Données : CRITIQUE exfiltration
+# Données : INFO sauvegarde
+# Données : AVERTISSEMENT echecs_connexion
+# Données : INFO rotation_cles
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Triage des alertes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Router chaque alerte du SIEM vers le canal qui correspond à sa gravité.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « niveau evenement ». Route par ligne <code>niveau evenement : canal</code> : <code>pager</code> (CRITIQUE), <code>ticket</code> (AVERTISSEMENT), <code>journal</code> (INFO). Enfin <code>pager : a, ticket : b, journal : c</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>6
+CRITIQUE exfiltration
+INFO rotation_cles
+AVERTISSEMENT echecs_connexion
+CRITIQUE ransomware
+INFO sauvegarde
+AVERTISSEMENT trafic_sortant
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CRITIQUE exfiltration : pager
+INFO rotation_cles : journal
+AVERTISSEMENT echecs_connexion : ticket
+CRITIQUE ransomware : pager
+INFO sauvegarde : journal
+AVERTISSEMENT trafic_sortant : ticket
+pager : 2, ticket : 2, journal : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à trois branches exactes, un canal par niveau : l’aiguillage et le comptage vivent ensemble.</li>
+        <li>Le récapitulatif s’affiche une seule fois, après la boucle — jamais à l’intérieur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="6&#10;ECHEC 03:02:11 45.61.10.9&#10;ECHEC 03:02:15 45.61.10.9&#10;ECHEC 03:02:20 45.61.10.9&#10;SUCCES 03:03:00 45.61.10.9&#10;SUCCES 09:14:32 10.0.4.15&#10;ECHEC 09:15:01 10.0.4.15&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c5-e2) — Journal d’authentification
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un seul échec]
+# Données : 2
+# Données : SUCCES 08:00:01 10.0.4.15
+# Données : ECHEC 08:00:10 10.0.4.15
+A_COMPLETER
+
+[Cas 2 — Que des succès]
+# Données : 3
+# Données : SUCCES 08:00:01 10.0.4.15
+# Données : SUCCES 08:00:02 10.0.4.15
+# Données : SUCCES 08:00:03 10.0.4.15
+A_COMPLETER
+
+[Cas 3 — Deux IP concurrentes]
+# Données : 5
+# Données : ECHEC 23:59:01 198.51.100.7
+# Données : SUCCES 23:59:30 198.51.100.7
+# Données : ECHEC 23:59:45 198.51.100.7
+# Données : ECHEC 23:59:50 198.51.100.7
+# Données : SUCCES 00:00:10 10.0.4.15
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Journal d’authentification</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter une attaque par force brute dans un journal : compter les échecs par adresse IP.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « resultat heure ip » (resultat = SUCCES ou ECHEC). Il réIndiquez chaque ligne au format <code>heure ip : resultat</code>, puis deux lignes finales : <code>bilan : X echecs sur IP</code> (IP la plus fautive, échecs cumulés) et <code>alerte : oui</code> si elle en totalise 3 ou plus, <code>alerte : non</code> sinon. Sans aucun échec, l’IP rapportée est celle de la première ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>6
+ECHEC 03:02:11 45.61.10.9
+ECHEC 03:02:15 45.61.10.9
+ECHEC 03:02:20 45.61.10.9
+SUCCES 03:03:00 45.61.10.9
+SUCCES 09:14:32 10.0.4.15
+ECHEC 09:15:01 10.0.4.15
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>03:02:11 45.61.10.9 : ECHEC
+03:02:15 45.61.10.9 : ECHEC
+03:02:20 45.61.10.9 : ECHEC
+03:03:00 45.61.10.9 : SUCCES
+09:14:32 10.0.4.15 : SUCCES
+09:15:01 10.0.4.15 : ECHEC
+bilan : 3 echecs sur 45.61.10.9
+alerte : oui</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comptabilisez le nombre d’échecs d’authentification pour chaque adresse IP source.</li>
+        <li>Identifiez l’adresse IP présentant le nombre maximal de tentatives infructueuses.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;identifier 2&#10;contenir 3&#10;eradiquer 6&#10;retablir 13&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c5-e3) — Les étapes de la réponse
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un motif inconnu au passage]
+# Données : 4
+# Données : identifier 1
+# Données : cache 2
+# Données : contenir 3
+# Données : retablir 5
+A_COMPLETER
+
+[Cas 2 — Zéro minute et nuit blanche]
+# Données : 4
+# Données : identifier 0
+# Données : contenir 12
+# Données : eradiquer 9
+# Données : retablir 5
+A_COMPLETER
+
+[Cas 3 — Étapes dans le désordre]
+# Données : 4
+# Données : contenir 1
+# Données : identifier 1
+# Données : eradiquer 1
+# Données : retablir 1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Les étapes de la réponse</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Dérouler la réponse à incident dans l’ordre, chronométrée, avec rejet des étapes inconnues.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « motif duree ». Les motifs valides sont <code>identifier</code>, <code>contenir</code>, <code>eradiquer</code>, <code>retablir</code>. Pour la ligne K (à partir de 1) : <code>etape K : motif (duree h)</code> et cumul de la durée ; motif inconnu : <code>etape K : motif inconnu (identifier, contenir, eradiquer, retablir attendus)</code> sans cumul. La numérotation continue même après un rejet. Enfin <code>total : X h</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+identifier 2
+contenir 3
+eradiquer 6
+retablir 13
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>etape 1 : identifier (2 h)
+etape 2 : contenir (3 h)
+etape 3 : eradiquer (6 h)
+etape 4 : retablir (13 h)
+total : 24 h</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le numéro d’étape est l’index i de la boucle : un motif rejeté ne doit ni le reculer ni le faire sauter.</li>
+        <li>Le case accepte quatre motifs : identifier|contenir|eradiquer|retablir) fait les quatre d’un coup, *) rejette.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Un SIEM apporte surtout…</p>
+      <div class="opts">
+        <button class="opt">du stockage de fichiers</button>
+        <button class="opt" data-correct="1">de la corrélation d'événements</button>
+        <button class="opt">du chiffrement</button>
+      </div>
+      <div class="q__exp">Il agrège et corrèle les sources pour détecter les scénarios d'attaque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">3 échecs puis 1 succès depuis la même IP : c'est…</p>
+      <div class="opts">
+        <button class="opt">un faux positif à ignorer</button>
+        <button class="opt" data-correct="1">une force brute probablement réussie</button>
+        <button class="opt">une panne réseau</button>
+      </div>
+      <div class="q__exp">Rafale d'échecs suivie d'un succès : signature de force brute aboutie, à traiter.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Première étape de la réponse ?</p>
+      <div class="opts">
+        <button class="opt">éradiquer</button>
+        <button class="opt">contenir</button>
+        <button class="opt" data-correct="1">identifier</button>
+      </div>
+      <div class="q__exp">On confirme d'abord l'incident et son étendue avant d'agir.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Contenir, c'est…</p>
+      <div class="opts">
+        <button class="opt">éteindre la machine</button>
+        <button class="opt" data-correct="1">isoler la machine du réseau</button>
+        <button class="opt">formater le disque</button>
+      </div>
+      <div class="q__exp">Isoler stoppe la propagation en préservant la mémoire vive et les preuves.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La forensique exige…</p>
+      <div class="opts">
+        <button class="opt">d'éteindre immédiatement</button>
+        <button class="opt" data-correct="1">de préserver les preuves</button>
+        <button class="opt">de réinstaller vite</button>
+      </div>
+      <div class="q__exp">Images disque, journaux horodatés, chaîne de conservation : la preuve disparaît si l'on bricole.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le RPO mesure…</p>
+      <div class="opts">
+        <button class="opt">la durée d'arrêt maximale</button>
+        <button class="opt" data-correct="1">la perte de données maximale</button>
+        <button class="opt">le coût de reprise</button>
+      </div>
+      <div class="q__exp">RPO = combien de données on peut perdre ; RTO = combien de temps on peut s'arrêter.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le PCA décrit…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la continuité de l'activité pendant la crise</button>
+        <button class="opt">la restauration des systèmes</button>
+        <button class="opt">le budget sécurité</button>
+      </div>
+      <div class="q__exp">Le PCA fait tourner l'essentiel pendant la crise ; le PRA rétablit ensuite.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un PRA utile est…</p>
+      <div class="opts">
+        <button class="opt">rangé dans un classeur</button>
+        <button class="opt" data-correct="1">documenté et testé</button>
+        <button class="opt">connu du seul administrateur</button>
+      </div>
+      <div class="q__exp">En crise, la procédure doit être actionnable par un tiers : documentée et testée.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Éteindre la machine compromise</strong> : on isole du réseau, la mémoire vive est une preuve.</li>
+      <li><strong>Éradiquer avant de contenir</strong> : la propagation continue pendant qu'on nettoie.</li>
+      <li><strong>Nommer « incident » sans chronologie</strong> : l'analyse des logs reconstitue la suite des événements.</li>
+      <li><strong>Confondre RTO et RPO</strong> : l'un est du temps, l'autre des données.</li>
+      <li><strong>Croire la sauvegarde bonne sans test</strong> : une restauration jamais testée n'existe pas.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Traiter une alerte en cinq temps</div>
+    <ol>
+      <li><strong>Lire le log</strong> : résultat, horodatage, source — et corréler avec les lignes voisines.</li>
+      <li><strong>Qualifier</strong> : le seuil d'alerte est-il atteint (ex. 3 échecs même IP) ? Quelle composante CIA ?</li>
+      <li><strong>Contenir</strong> : isoler, bloquer, révoquer — sans détruire les preuves.</li>
+      <li><strong>Éradiquer puis rétablir</strong> : supprimer la cause, restaurer d'une source saine, surveiller renforcé.</li>
+      <li><strong>Apprendre</strong> : retour d'expérience, mise à jour des règles SIEM et du PRA.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>SIEM = collecte + corrélation + alertes en temps réel ; sources : pare-feu, serveurs, annuaires, EDR.</li>
+      <li>Auth.log, observateur d'événements, logs pare-feu et web : les journaux clés de l'analyste.</li>
+      <li>Force brute détectable : rafale d'échecs d'une même IP, suivie ou non d'un succès.</li>
+      <li>Réponse : identifier, contenir, éradiquer, rétablir — puis analyse post-incident et forensique.</li>
+      <li>RTO = temps d'arrêt maximal ; RPO = perte de données maximale ; le PRA les documente et les teste.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J'explique ce qu'un SIEM corrèle et pourquoi la corrélation détecte.</li>
+      <li>Je repère une force brute dans un journal et je donne le seuil d'alerte.</li>
+      <li>Je déroule ICER dans l'ordre avec un exemple concret par étape.</li>
+      <li>Je définis RTO et RPO et je les relie aux sauvegardes.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>SIEM</li><li>corrélation</li><li>log d'authentification</li><li>identifier</li><li>contenir</li><li>éradiquer</li><li>RTO</li><li>RPO</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Récite ICER et le rôle de chaque étape.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Analyse un journal de 20 lignes : qui attaque, quand, avec quel succès ?</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : rédige la réponse complète à une force brute réussie.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 6, la conformité et les bonnes pratiques.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Conformité et bonnes pratiques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Introduction à la Cybersécurité B1 IT 2024-2025 » (modules 1 à 7).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

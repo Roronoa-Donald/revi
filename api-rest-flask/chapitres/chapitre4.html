@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Codes d’état HTTP &amp; réponses JSON | API REST avec Flask B2</title>
+<meta name="description" content="Chapitre 4 du cours API REST avec Flask B2 : Familles de statuts HTTP, sérialisation avec jsonify(), tuples de réponse Flask, formatage d’erreurs et pagination. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/api-rest-flask/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Codes d’état HTTP &amp; réponses JSON | API REST avec Flask B2">
+<meta property="og:description" content="Chapitre 4 du cours API REST avec Flask B2 : Familles de statuts HTTP, sérialisation avec jsonify(), tuples de réponse Flask, formatage d’erreurs et pagination. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="api-rest-flasknav"><div class="api-rest-flasknav__in">
+  <a class="api-rest-flasknav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="api-rest-flasknav__sep" aria-hidden="true">/</span>
+  <a class="api-rest-flasknav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> API REST avec Flask B2</a>
+  <div class="api-rest-flasknav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="api-rest-flasknav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="api-rest-flaskwrap">
+<p class="crumb"><a href="../index.html">API REST avec Flask B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Codes d’état HTTP & réponses JSON</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Renvoyer systématiquement un code 200 OK avec un message {"erreur": "introuvable"} est une mauvaise pratique courante qui induit en erreur les bibliothèques clientes (Axios, Fetch, cURL). Une API RESTful utilise les codes d’état HTTP natifs pour signaler sans ambiguïté le succès ou la nature de l’échec.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la signification des grandes familles de codes HTTP (2xx, 3xx, 4xx, 5xx) ;</li>
+      <li>choisir le code de statut précis pour chaque scénario REST (200, 201, 204, 400, 404, 409) ;</li>
+      <li>sérialiser des dictionnaires et listes avec jsonify() et comprendre ses optimisations ;</li>
+      <li>construire des réponses Flask enrichies sous forme de tuples (body, status, headers) ;</li>
+      <li>définir un schéma JSON cohérent pour les erreurs et la pagination de collections.</li>
+    </ol>
+  </div>
+
+<h2>1. Les familles de codes de statut HTTP</h2>
+
+<p>Le protocole HTTP classe ses codes de réponse à trois chiffres en cinq catégories distinctes :</p>
+<ul>
+  <li><strong>1xx (Informationnel)</strong> : requête reçue, traitement en cours (ex. <code>100 Continue</code>).</li>
+  <li><strong>2xx (Succès)</strong> : l’action a été reçue, comprise et acceptée avec succès.</li>
+  <li><strong>3xx (Redirection)</strong> : le client doit effectuer une action supplémentaire pour compléter la requête.</li>
+  <li><strong>4xx (Erreur du client)</strong> : la requête contient une syntaxe erronée ou ne peut pas être honorée (responsabilité du client).</li>
+  <li><strong>5xx (Erreur du serveur)</strong> : le serveur a rencontré une anomalie interne lors du traitement (responsabilité du backend).</li>
+</ul>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> À qui la faute ?</div>
+    <p>Une règle mémotechnique simple pour débugger : si le code commence par <strong>4</strong>, c’est le client qui a envoyé une requête invalide, incomplète ou non autorisée. Si le code commence par <strong>5</strong>, c’est le serveur qui a planté ou généré une exception non interceptée.</p>
+  </div>
+
+<h2>2. Les codes de statut indispensables en REST</h2>
+
+<p>Dans une API REST professionnelle, une dizaine de codes couvrent l’immense majorité des besoins :</p>
+<table class="data-table">
+  <thead>
+    <tr><th>Code</th><th>Libellé officiel</th><th>Usage canonique en REST</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>200</code></td><td>OK</td><td>Succès d’une lecture (GET) ou d’une modification (PUT/PATCH).</td></tr>
+    <tr><td><code>201</code></td><td>Created</td><td>Succès d’une création (POST). Doit idéalement inclure l’en-tête <code>Location</code>.</td></tr>
+    <tr><td><code>204</code></td><td>No Content</td><td>Succès sans contenu de retour (idéal pour DELETE).</td></tr>
+    <tr><td><code>400</code></td><td>Bad Request</td><td>Corps JSON malformé ou champ obligatoire manquant.</td></tr>
+    <tr><td><code>401</code></td><td>Unauthorized</td><td>Authentification requise ou identifiants/jeton invalides.</td></tr>
+    <tr><td><code>403</code></td><td>Forbidden</td><td>Le client est authentifié mais ne possède pas les droits requis.</td></tr>
+    <tr><td><code>404</code></td><td>Not Found</td><td>La ressource ou la route ciblée n’existe pas.</td></tr>
+    <tr><td><code>409</code></td><td>Conflict</td><td>Violation de contrainte d’unicité (ex. email déjà enregistré).</td></tr>
+    <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>JSON valide syntaxiquement mais données sémantiquement invalides.</td></tr>
+    <tr><td><code>500</code></td><td>Internal Server Error</td><td>Exception Python non gérée ou panne de base de données.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Sérialisation avec jsonify et tuples de réponse Flask</h2>
+
+<p>Dans les versions récentes de Flask, retourner un dictionnaire Python (<code>dict</code>) ou une liste le convertit automatiquement en réponse JSON avec le code 200 par défaut.</p>
+<p>Cependant, l’utilisation explicite de la fonction <code>jsonify()</code> reste recommandée :</p>
+<ul>
+  <li>Elle configure immédiatement l’en-tête <code>Content-Type: application/json</code>.</li>
+  <li>Elle gère proprement la sérialisation des listes d’objets racines.</li>
+</ul>
+<pre><code>from flask import jsonify
+
+@app.route("/utilisateurs/&lt;int:id&gt;")
+def obtenir_utilisateur(id):
+    user = trouver_utilisateur(id)
+    if not user:
+        return jsonify({"erreur": "Utilisateur non trouvé"}), 404
+    return jsonify(user), 200</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Le tuple de réponse Flask</div>
+    <p>Une fonction vue Flask peut retourner un tuple contenant jusqu’à 3 éléments :</p>
+    <pre><code>return reponse, code_statut, en_tetes_dict
+# Exemple :
+return jsonify(article), 201, {"Location": f"/articles/{article['id']}"}</code></pre>
+  </div>
+
+<h2>4. Format d’erreur standardisé et pagination</h2>
+
+<p>Pour faciliter la tâche des développeurs frontend, une API doit renvoyer un format d’erreur prévisible :</p>
+<pre><code>{
+  "code": 404,
+  "error": "Not Found",
+  "message": "La facture 82 n’existe pas dans votre compte."
+}</code></pre>
+<p>De même, pour les collections volumineuses, l’enveloppe de pagination fournit les repères indispensables :</p>
+<pre><code>{
+  "total": 150,
+  "page": 2,
+  "limit": 20,
+  "data": [
+    {"id": 21, "titre": "Article 21"},
+    {"id": 22, "titre": "Article 22"}
+  ]
+}</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="fl2-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="creation">
+  <script type="text/plain" data-lab-starter>scenario = input().strip().lower()
+
+# À compléter : mapper le scénario vers le code HTTP approprié.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Codes d’état HTTP REST</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier le code de statut HTTP approprié selon le résultat de l’opération.</p>
+    <div class="lab__brief"><p>Une API REST communique le succès ou l’échec d’une requête via les codes de statut HTTP :<br>- <code>creation</code> &rarr; <code>201 Created</code><br>- <code>lecture</code> ou <code>succes</code> &rarr; <code>200 OK</code><br>- <code>suppression</code> (sans contenu renvoyé) &rarr; <code>204 No Content</code><br>- <code>introuvable</code> &rarr; <code>404 Not Found</code><br>- <code>invalide</code> &rarr; <code>400 Bad Request</code><br>- <code>non_autorise</code> &rarr; <code>401 Unauthorized</code><br>- <code>interdit</code> &rarr; <code>403 Forbidden</code><br><p>Lit le nom du scénario sur l’entrée standard (minuscules, sans espaces superflus) et affiche le code d’état exact suivi de son libellé officiel sous la forme <code>&lt;code&gt; &lt;libelle&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>creation</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>201 Created</pre></div>
+    </div>
+    <p class="lab__note">Création réussie d’une nouvelle ressource.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilise un dictionnaire Python associant chaque clé au tuple ou à la chaîne "CODE Libellé".</li>
+        <li>Exemple : "creation": "201 Created".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fl2-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="404&#10;Not Found&#10;Utilisateur 42 introuvable">
+  <script type="text/plain" data-lab-starter>import json
+
+code = int(input().strip())
+erreur = input().strip()
+message = input().strip()
+
+# À compléter : sérialiser le dictionnaire en JSON trié.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Payload d’erreur JSON standardisé</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Produire un objet JSON d’erreur uniforme avec code, type et description.</p>
+    <div class="lab__brief"><p>Une bonne pratique d’API consiste à renvoyer une charge utile JSON standardisée en cas d’erreur. L’objet doit contenir les trois propriétés : <code>code</code> (entier), <code>error</code> (chaîne courte) et <code>message</code> (explication).</p><p>Lit trois lignes sur l’entrée standard :<br>1. Le code HTTP numérique (ex: <code>404</code>)<br>2. Le titre de l’erreur (ex: <code>Not Found</code>)<br>3. Le message explicatif (ex: <code>Ressource introuvable</code>)<br>Construis un dictionnaire Python avec ces 3 clés et affiche sa sérialisation JSON compacte (avec les clés triées alphabétiquement via <code>json.dumps(..., sort_keys=True)</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>404
+Not Found
+Utilisateur 42 introuvable</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>{"code": 404, "error": "Not Found", "message": "Utilisateur 42 introuvable"}</pre></div>
+    </div>
+    <p class="lab__note">Formatage JSON ordonné sans retours à la ligne.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le dictionnaire doit avoir pour clés exactes "code", "error" et "message".</li>
+        <li>Assure-toi que "code" est bien un entier numérique (int).</li>
+        <li>Utilise json.dumps(payload, sort_keys=True).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fl2-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="1&#10;2&#10;[&quot;pomme&quot;, &quot;poire&quot;, &quot;cerise&quot;, &quot;banane&quot;]">
+  <script type="text/plain" data-lab-starter>import json
+
+page = int(input().strip())
+limit = int(input().strip())
+items = json.loads(input().strip())
+
+# À compléter : découper la tranche et sérialiser l'enveloppe.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Enveloppe paginée de collection</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire une enveloppe JSON complète de collection avec pagination (total, page, limit, items).</p>
+    <div class="lab__brief"><p>Lorsqu’une collection volumineuse est interrogée, une API REST renvoie une enveloppe contenant les métadonnées de navigation et la tranche d’éléments demandée.</p><p>Lit trois lignes sur l’entrée standard :<br>1. Le numéro de page demandé (entier, commence à 1)<br>2. La limite d’éléments par page (entier)<br>3. Une liste complète d’éléments au format JSON (tableau d’entiers ou de chaînes)<br>Calcule la tranche d’éléments correspondant à la page demandée, puis produis le JSON contenant :<br>- <code>"total"</code>: nombre total d’éléments dans la collection<br>- <code>"page"</code>: page courante (int)<br>- <code>"limit"</code>: taille de page (int)<br>- <code>"data"</code>: liste des éléments de la tranche courante<br>Affiche le résultat avec <code>json.dumps(..., sort_keys=True)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1
+2
+["pomme", "poire", "cerise", "banane"]</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>{"data": ["pomme", "poire"], "limit": 2, "page": 1, "total": 4}</pre></div>
+    </div>
+    <p class="lab__note">Première page de 2 éléments sur 4 au total.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’indice de début est (page - 1) * limit et l’indice de fin est début + limit.</li>
+        <li>Extrais la tranche avec items[debut:fin].</li>
+        <li>Assure-toi que les clés du dictionnaire sont "data", "limit", "page", "total".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel code HTTP est retourné lors de la création réussie d’une nouvelle ressource ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">201 Created</button>
+        <button class="opt">200 OK</button>
+        <button class="opt">204 No Content</button>
+      </div>
+      <div class="q__exp">201 Created est le statut standard pour signaler une création réussie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de statut indique un succès sans aucun contenu dans le corps de réponse ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">204 No Content</button>
+        <button class="opt">200 OK</button>
+        <button class="opt">202 Accepted</button>
+      </div>
+      <div class="q__exp">204 No Content est couramment employé après une suppression (DELETE).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence entre 401 Unauthorized et 403 Forbidden ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">401 concerne l’authentification (qui es-tu ?), 403 concerne les permissions (as-tu le droit ?)</button>
+        <button class="opt">401 est une erreur serveur, 403 une erreur client</button>
+        <button class="opt">Il n’y a aucune différence, ils sont synonymes</button>
+      </div>
+      <div class="q__exp">401 = non identifié ou jeton manquant ; 403 = identifié mais accès interdit.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle fonction Flask sérialise un dictionnaire en réponse HTTP JSON ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">jsonify()</button>
+        <button class="opt">json.dumps()</button>
+        <button class="opt">flask.encode()</button>
+      </div>
+      <div class="q__exp">jsonify() génère un objet Response complet avec le Content-Type application/json.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code signale une ressource introuvable sur le serveur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">404 Not Found</button>
+        <button class="opt">400 Bad Request</button>
+        <button class="opt">502 Bad Gateway</button>
+      </div>
+      <div class="q__exp">404 Not Found indique que la ressource demandée n’existe pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code HTTP utilise-t-on lorsqu’un email à inscrire existe déjà en base ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">409 Conflict</button>
+        <button class="opt">404 Not Found</button>
+        <button class="opt">500 Server Error</button>
+      </div>
+      <div class="q__exp">409 Conflict signale une violation de contrainte d’intégrité ou d’unicité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un tuple de retour Flask (corps, 201, headers), quel est le rôle du 2e élément ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le code de statut HTTP</button>
+        <button class="opt">Le nombre d’octets</button>
+        <button class="opt">Le temps de réponse en millisecondes</button>
+      </div>
+      <div class="q__exp">Le 2e élément du tuple Flask définit le code d’état HTTP de la réponse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il déconseillé de renvoyer 200 OK en cas d’erreur applicative ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Car le client considère la requête réussie et le traitement automatique échoue</button>
+        <button class="opt">Car cela consomme plus de bande passante</button>
+        <button class="opt">Car Flask plante si on utilise 200 pour une erreur</button>
+      </div>
+      <div class="q__exp">Les outils et librairies clientes s’appuient sur les codes d’état pour déclencher leurs blocs d’erreur.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Renvoyer un code 200 OK avec un corps contenant {"succes": false, "erreur": "..."}.</li>
+      <li>Renvoyer 200 OK au lieu de 201 Created lors d’une création par POST.</li>
+      <li>Renvoyer du texte brut au lieu de JSON pour les messages d’erreur (incohérence de format).</li>
+      <li>Confondre les codes 401 (non authentifié) et 403 (authentifié mais non autorisé).</li>
+      <li>Oublier d’inclure le code de statut dans le tuple Flask : return jsonify(err) produit un 200 par défaut.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire une réponse REST conforme dans Flask</div>
+    <ol>
+      <li><strong>Déterminer l’issue métier</strong> : succès complet, création, suppression ou anomalie.</li>
+      <li><strong>Sélectionner le code HTTP</strong> : 200, 201, 204, 400, 401, 403, 404, 409 ou 500.</li>
+      <li><strong>Structurer le payload</strong> : préparer le dictionnaire de données ou l’objet d’erreur standardisé.</li>
+      <li><strong>Sérialiser avec jsonify()</strong> : envelopper la charge utile pour garantir l’en-tête JSON.</li>
+      <li><strong>Former le tuple de retour</strong> : retourner return jsonify(payload), code_statut.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les codes HTTP informent immédiatement le client sur le succès ou l’échec d’une opération.</li>
+      <li>Les codes 2xx attestent du succès (200 OK, 201 Created, 204 No Content).</li>
+      <li>Les codes 4xx indiquent une anomalie imputable au client (400, 401, 403, 404, 409).</li>
+      <li>Flask permet de renvoyer un tuple (payload, statut, en-têtes) pour configurer la réponse.</li>
+      <li>Standardiser le format des erreurs JSON et paginer les collections garantit une API professionnelle.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais la classification des statuts HTTP (2xx, 3xx, 4xx, 5xx).</li>
+      <li>Je sais quand employer 200, 201 et 204.</li>
+      <li>Je fais la distinction précise entre 401 Unauthorized et 403 Forbidden.</li>
+      <li>Je maîtrise l’utilisation de jsonify() et les tuples de retour Flask.</li>
+      <li>Je structure des réponses d’erreur JSON prévisibles et informatives.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Codes HTTP</li><li>200 OK</li><li>201 Created</li><li>204 No Content</li><li>400 Bad Request</li><li>401 Unauthorized</li><li>403 Forbidden</li><li>404 Not Found</li><li>jsonify</li><li>Tuple de réponse</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la signification des codes 200, 201, 204 et 404.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les nuances 401/403 et l’écriture des tuples Flask.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les codes et le formatage des réponses.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à la validation des données au chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Validation des données & gestion d’erreurs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel API REST B2, la spécification RFC 9110 (HTTP Semantics), la documentation officielle Flask (palletsprojects.com) et le recueil de questions interactives.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

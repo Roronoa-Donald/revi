@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Architecture &amp;amp; Documentation Système (DAT &amp;amp; DEX) | Document Technique B3</title>
+<meta name="description" content="Chapitre 3 du cours Document Technique B3 : Dossier d’Architecture Technique (DAT), Dossier d’Exploitation (DEX / Runbook), ordonnancement de services, métriques de résilience RTO/RPO et procédures PRA. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-document-technique/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Architecture &amp;amp; Documentation Système (DAT &amp;amp; DEX) | Document Technique B3">
+<meta property="og:description" content="Chapitre 3 du cours Document Technique B3 : Dossier d’Architecture Technique (DAT), Dossier d’Exploitation (DEX / Runbook), ordonnancement de services, métriques de résilience RTO/RPO et procédures PRA. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-document-techniquenav"><div class="b3-document-techniquenav__in">
+  <a class="b3-document-techniquenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-document-techniquenav__sep" aria-hidden="true">/</span>
+  <a class="b3-document-techniquenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Document Technique B3</a>
+  <div class="b3-document-techniquenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-document-techniquenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-document-techniquewrap">
+<p class="crumb"><a href="../index.html">Document Technique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Architecture &amp; Documentation Système (DAT &amp; DEX)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lorsqu’un incident majeur survient à 3 heures du matin un jour férié, le technicien d’astreinte ne doit ni improviser ni deviner l’ordre d’extinction d’une base de données ou la procédure de bascule d’un cluster de serveurs. Dans les systèmes d’information d’envergure, deux documents constituent les pierres angulaires de la gouvernance opérationnelle : le Dossier d’Architecture Technique (DAT), qui décrit la topologie complète et statique des infrastructures, et le Dossier d’Exploitation (DEX ou Runbook), qui consigne les modes opératoires précis, les consignes d’ordonnancement, les politiques de sauvegarde et les engagements contractuels de résilience (RTO et RPO). L’ingénieur de Bachelor 3 doit maîtriser la rédaction et l’audit de ces deux documents capitaux.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>concevoir un Dossier d’Architecture Technique (DAT) exhaustif : topologie, dimensionnement, adressage IP et sécurité ;</li>
+      <li>rédiger un Dossier d’Exploitation (DEX / Runbook) opérationnel et directement actionnable par les équipes d’astreinte ;</li>
+      <li>formaliser les procédures d’arrêt et de démarrage ordonnancé selon le graphe de dépendances des services ;</li>
+      <li>auditer la conformité des procédures de sauvegarde et de restauration face aux objectifs RTO et RPO ;</li>
+      <li>modéliser les étapes chronologiques d’une procédure de bascule de secours dans un Plan de Reprise d’Activité (PRA) ;</li>
+      <li>développer en Python 3 des analyseurs d’objectifs RTO/RPO, des ordonnanceurs de runbooks et des simulateurs de bascule PRA.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Dossier d’Architecture Technique (DAT) : La Cartographie Globale</h2>
+
+<p>Le <strong>Dossier d’Architecture Technique (DAT)</strong> est le document de référence décrivant la constitution matérielle, logicielle et réseau d’un système d’information. Il répond aux besoins des architectes, des équipes d’infrastructure, des auditeurs de conformité et du Responsable de la Sécurité des Systèmes d’Information (RSSI).</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Topologie d’Infrastructure</h4>
+    <p>Inventaire des serveurs physiques, machines virtuelles, clusters de conteneurs (Kubernetes), sous-réseaux (VLAN/VPC), répartiteurs de charge (Load Balancers) et passerelles de bordure.</p>
+  </div>
+  <div class="card">
+    <h4>2. Plan d’Adressage &amp; Flux</h4>
+    <p>Cartographie complète de l’adressage IP (plages CIDR), segmentation des zones réseau (DMZ, zone applicative, zone données sécurisée) et flux de communication inter-composants.</p>
+  </div>
+  <div class="card">
+    <h4>3. Dimensionnement &amp; Redondance</h4>
+    <p>Spécifications des ressources CPU, RAM, disques (IOPS, RAID), mécanismes de haute disponibilité active/passive ou active/active et répartition multi-zones de disponibilité (Multi-AZ).</p>
+  </div>
+</div>
+
+<h2>2. Le Dossier d’Exploitation (DEX / Runbook) : Le Guide Opérationnel</h2>
+
+<p>Si le DAT décrit l’infrastructure dans son état statique, le <strong>Dossier d’Exploitation (DEX)</strong> consigne son fonctionnement dynamique au quotidien. C’est le document de chevet des équipes d’exploitation, des ingénieurs SRE et des équipes d’astreinte :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Contenu Obligatoire d’un DEX</h4>
+    <ul>
+      <li><strong>Démarrage et Arrêt ordonnancé :</strong> Procédure séquentielle exacte pour éteindre ou relancer la plateforme sans corrompre les données.</li>
+      <li><strong>Politique de Sauvegarde :</strong> Fréquence des snapshots et dumps, rétention (politique GFS : Grandfather-Father-Son) et procédures de test de restauration.</li>
+      <li><strong>Surveillance &amp; Métriques :</strong> Seuils d’alertes Prometheus/Zabbix, dashboards Grafana et actions réflexes en cas de dépassement.</li>
+      <li><strong>Gestion des Certificats TLS :</strong> Emplacement des magasins de certificats, autorités de certification (AC) et procédure de renouvellement avant expiration.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>L’Ordonnancement des Services</h4>
+    <p>L’ordre des étapes est critique :</p>
+    <ul>
+      <li><strong>Au Démarrage (amont vers aval) :</strong> Stockage &rarr; Bases de données &rarr; Caches (Redis) &rarr; Back-end applicatif &rarr; Passerelle Ingress.</li>
+      <li><strong>À l’Arrêt (aval vers amont) :</strong> Couper l’Ingress pour stopper les nouveaux utilisateurs &rarr; Laisser terminer les requêtes en cours &rarr; Éteindre le back-end &rarr; Couper les caches &rarr; Clore proprement les bases de données.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Plans de Continuité et de Reprise : La Métrologie RTO &amp; RPO</h2>
+
+<p>Tout Dossier d’Exploitation de niveau professionnel doit formaliser les engagements contractuels de résilience face aux désastres majeurs (PCA : Plan de Continuité d’Activité, PRA : Plan de Reprise d’Activité) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>RTO (Recovery Time Objective)</h4>
+    <p>Le <strong>Temps Maximal d’Interruption Admissible</strong> : la durée écoulée entre le déclenchement de l’incident et le rétablissement opérationnel du service.</p>
+    $$RTO = T_{retablissement} - T_{sinistre}$$
+    <p>Si votre contrat impose un RTO de 30 minutes, toute procédure de restauration qui prend 45 minutes constitue une faute contractuelle majeure.</p>
+  </div>
+  <div class="card">
+    <h4>RPO (Recovery Point Objective)</h4>
+    <p>La <strong>Perte Maximale de Données Tolérée</strong> : la durée maximale acceptable de données non sauvegardées détruites par le sinistre.</p>
+    $$RPO = T_{sinistre} - T_{derniere\_sauvegarde}$$
+    <p>Une sauvegarde quotidienne effectuée une fois par nuit à 02h00 induit un RPO maximal théorique de 24 heures (toutes les transactions enregistrées depuis 02h01 sont perdues).</p>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le Déroulement d’une Bascule de Secours (PRA Failover)</div>
+<p>Une procédure de bascule vers le site de secours comprend 4 étapes chronologiques incompressibles : 1. Détection de panne par monitoring (ex. 30s) &rarr; 2. Décision humaine ou arbitrage quorum (ex. 60s) &rarr; 3. Bascule réseau DNS/IP (ex. 120s) &rarr; 4. Vérification d’intégrité et ouverture du service (ex. 30s). La somme de ces temps doit impérativement demeurer inférieure au RTO garanti.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="dt3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RTO_RPO_AUDIT service=Paiement rto_estime_min=15 rto_max_min=30 rpo_estime_min=5 rpo_max_min=10">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c3-e1) — Analyseur d’objectifs de reprise d’activité (RTO & RPO) dans un DEX
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — RTO dépassé et RPO conforme]
+# Données : RTO_RPO_AUDIT service=Catalogue rto_estime_min=45 rto_max_min=30 rpo_estime_min=10 rpo_max_min=60
+A_COMPLETER
+
+[Cas 2 — RPO dépassé avec perte de données critique]
+# Données : RTO_RPO_AUDIT service=Facturation rto_estime_min=20 rto_max_min=30 rpo_estime_min=120 rpo_max_min=60
+A_COMPLETER
+
+[Cas 3 — Double dépassement RTO et RPO]
+# Données : RTO_RPO_AUDIT service=Messagerie rto_estime_min=180 rto_max_min=60 rpo_estime_min=240 rpo_max_min=120
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur d’objectifs de reprise d’activité (RTO &amp; RPO) dans un DEX</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Confronter les temps estimés de reprise (RTO) et de perte de données (RPO) aux engagements contractuels d’un plan d’exploitation.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>RTO_RPO_AUDIT service=&lt;nom&gt; rto_estime_min=&lt;N&gt; rto_max_min=&lt;N&gt; rpo_estime_min=&lt;N&gt; rpo_max_min=&lt;N&gt;</code>.<br><br>
+Calculs :<br>
+- RTO : si $rto\_estime \le rto\_max$, <code>RTO=[CONFORME]</code>. Sinon, $\Delta = rto\_estime - rto\_max$, <code>RTO=[DEPASSEMENT_CRITIQUE (+&lt;\Delta&gt;min)]</code>.<br>
+- RPO : si $rpo\_estime \le rpo\_max$, <code>RPO=[CONFORME]</code>. Sinon, $\Delta = rpo\_estime - rpo\_max$, <code>RPO=[DEPASSEMENT_CRITIQUE (+&lt;\Delta&gt;min)]</code>.<br>
+- Verdict global :<br>
+  - Si RTO et RPO sont tous deux conformes : <code>VERDICT=CONFORME_PCA_VALIDE</code><br>
+  - Sinon : <code>VERDICT=NON_CONFORME_PCA_REJETE</code><br><br>
+Afficher :<br>
+<code>PCA_AUDIT: &lt;service&gt; -&gt; RTO=&lt;RTO_STATUS&gt; | RPO=&lt;RPO_STATUS&gt; | VERDICT=&lt;VERDICT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RTO_RPO_AUDIT service=Paiement rto_estime_min=15 rto_max_min=30 rpo_estime_min=5 rpo_max_min=10</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PCA_AUDIT: Paiement -&gt; RTO=[CONFORME] | RPO=[CONFORME] | VERDICT=CONFORME_PCA_VALIDE</pre></div>
+    </div>
+    <p class="lab__note">RTO et RPO respectés : PCA validé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir les valeurs en entiers pour faire les comparaisons.</li>
+        <li>Calculer les dépassements positifs en minutes si les seuils sont enfreints.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RUNBOOK action=DEMARRAGE couches=BDD,API,WEB">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c3-e2) — Ordonnanceur de procédure d’arrêt et de démarrage d’infrastructure (Runbook DEX)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Arrêt ordonné dans le sens inverse]
+# Données : RUNBOOK action=ARRET couches=BDD,API,WEB
+A_COMPLETER
+
+[Cas 2 — Infrastructure complexe à 5 couches en démarrage]
+# Données : RUNBOOK action=DEMARRAGE couches=STORAGE,DB_SQL,CACHE_REDIS,BACKEND,INGRESS_LB
+A_COMPLETER
+
+[Cas 3 — Infrastructure complexe à 5 couches en arrêt d’urgence]
+# Données : RUNBOOK action=ARRET couches=STORAGE,DB_SQL,CACHE_REDIS,BACKEND,INGRESS_LB
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Ordonnanceur de procédure d’arrêt et de démarrage d’infrastructure (Runbook DEX)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la séquence d’exécution ordonnancée des couches de composants pour un démarrage propre ou un arrêt sécurisé.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>RUNBOOK action=&lt;DEMARRAGE|ARRET&gt; couches=&lt;c1,c2,c3,...&gt;</code>.<br><br>
+Règles d'ordonnancement d'un Runbook système :<br>
+- Lors d'un <code>DEMARRAGE</code> : les services doivent démarrer dans l'ordre de leurs dépendances amont vers aval (ordre direct de la liste déclarée : $c_1 \rightarrow c_2 \rightarrow \dots \rightarrow c_N$).<br>
+- Lors d'un <code>ARRET</code> : les services doivent être éteints dans l'ordre strictement inverse (ordre inverse de la liste : $c_N \rightarrow \dots \rightarrow c_2 \rightarrow c_1$) pour clore d'abord les points d'entrée publics avant de couper les bases de données sous-jacentes.<br><br>
+Afficher :<br>
+<code>RUNBOOK_SEQUENCE: ACTION=&lt;action&gt; -&gt; ETAPES=[&lt;c_seq_separees_par_fleche&gt;]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RUNBOOK action=DEMARRAGE couches=BDD,API,WEB</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RUNBOOK_SEQUENCE: ACTION=DEMARRAGE -&gt; ETAPES=[BDD -&gt; API -&gt; WEB]</pre></div>
+    </div>
+    <p class="lab__note">Démarrage de la base vers le front-end.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour l’action ARRET, inverser la liste avec list(reversed(couches)) ou couches[::-1].</li>
+        <li>Joindre les composants avec " -&gt; ".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="PRA_FAILOVER nom=DC_Secours t_detect_s=30 t_decision_s=60 t_bascule_s=120 t_verif_s=30 sla_max_s=300">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c3-e3) — Analyseur de procédure de bascule de secours PRA (Failover Downtime)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Bascule trop lente dépassant le SLA]
+# Données : PRA_FAILOVER nom=ZoneB_Failover t_detect_s=45 t_decision_s=120 t_bascule_s=180 t_verif_s=60 sla_max_s=300
+A_COMPLETER
+
+[Cas 2 — Bascule ultra-rapide automatisée]
+# Données : PRA_FAILOVER nom=DNS_GSLB t_detect_s=10 t_decision_s=5 t_bascule_s=30 t_verif_s=15 sla_max_s=120
+A_COMPLETER
+
+[Cas 3 — Bascule juste à la limite exacte du SLA]
+# Données : PRA_FAILOVER nom=BasculeLimite t_detect_s=50 t_decision_s=50 t_bascule_s=50 t_verif_s=50 sla_max_s=200
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur de procédure de bascule de secours PRA (Failover Downtime)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le temps total d’indisponibilité prévisionnel d’une bascule de secours et vérifier sa conformité au SLA admissible.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>PRA_FAILOVER nom=&lt;nom&gt; t_detect_s=&lt;N&gt; t_decision_s=&lt;N&gt; t_bascule_s=&lt;N&gt; t_verif_s=&lt;N&gt; sla_max_s=&lt;N&gt;</code>.<br><br>
+Calculs :<br>
+- Durée totale d'interruption :<br>
+  $T_{total} = t_{detect} + t_{decision} + t_{bascule} + t_{verif}$ (en secondes)<br>
+- Marge par rapport au SLA :<br>
+  $Marge = sla_{max} - T_{total}$<br>
+- Statut d'évaluation :<br>
+  - Si $T_{total} \le sla_{max}$ : <code>STATUT=SUCCES_PRA (MARGE=+&lt;Marge&gt;s)</code><br>
+  - Sinon : $\Delta = T_{total} - sla_{max}$, <code>STATUT=ECHEC_SLA_DEPASSE (RETARD=+&lt;\Delta&gt;s)</code><br><br>
+Afficher :<br>
+<code>PRA_DIAGNOSTIC: &lt;nom&gt; -&gt; INDISPONIBILITE=&lt;T_total&gt;s (SLA_MAX=&lt;sla_max&gt;s) | STATUT=&lt;STATUT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PRA_FAILOVER nom=DC_Secours t_detect_s=30 t_decision_s=60 t_bascule_s=120 t_verif_s=30 sla_max_s=300</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PRA_DIAGNOSTIC: DC_Secours -&gt; INDISPONIBILITE=240s (SLA_MAX=300s) | STATUT=SUCCES_PRA (MARGE=+60s)</pre></div>
+    </div>
+    <p class="lab__note">Total 240s &lt;= 300s : succès avec 60s de marge.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Additionner les 4 temps en secondes.</li>
+        <li>Comparer la somme au sla_max_s.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle métrique quantifie la durée maximale admissible d’interruption de service entre le déclenchement d’un sinistre et sa remise en service opérationnelle ?</p>
+      <div class="opts">
+        <button class="opt">Le RPO (Recovery Point Objective)</button>
+        <button class="opt" data-correct="1">Le RTO (Recovery Time Objective)</button>
+        <button class="opt">Le CPU Throttle</button>
+        <button class="opt">Le taux de clics (CTR)</button>
+      </div>
+      <div class="q__exp">Le RTO (Recovery Time Objective) est la durée maximale tolérée pour restaurer le service après un incident critique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une entreprise effectue une sauvegarde de base de données complète chaque nuit à minuit et qu’un sinistre détruit les serveurs à 15h00 le lendemain, quelle est la perte maximale de données constatée (RPO effectif) ?</p>
+      <div class="opts">
+        <button class="opt">0 minute</button>
+        <button class="opt" data-correct="1">15 heures de transactions perdues</button>
+        <button class="opt">24 heures</button>
+        <button class="opt">45 minutes</button>
+      </div>
+      <div class="q__exp">Entre minuit et 15h00, 15 heures de transactions se sont écoulées sans sauvegarde. Le RPO effectif subi par l’entreprise est donc de 15 heures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle séquence logique doit-on éteindre une architecture web 3-tiers (Base de données, API applicative, Passerelle Web NGINX) lors d’un arrêt planifié de production ?</p>
+      <div class="opts">
+        <button class="opt">Base de données -> API applicative -> Passerelle Web</button>
+        <button class="opt" data-correct="1">Passerelle Web -> API applicative -> Base de données</button>
+        <button class="opt">API applicative -> Passerelle Web -> Base de données</button>
+        <button class="opt">Les trois composants doivent être éteints de manière simultanée</button>
+      </div>
+      <div class="q__exp">À l’extinction, on coupe d’abord les accès extérieurs (Web) pour cesser de recevoir des requêtes, puis l’API pour vider les files, et enfin la BDD pour une clôture saine.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel élément technique indispensable distingue le Dossier d’Exploitation (DEX) du Dossier d’Architecture Technique (DAT) ?</p>
+      <div class="opts">
+        <button class="opt">Le DEX est imprimé en couleur tandis que le DAT est en noir et blanc</button>
+        <button class="opt" data-correct="1">Le DEX contient les consignes opérationnelles d’action (Runbooks, redémarrages, sauvegardes, astreinte), tandis que le DAT décrit la topologie et le dimensionnement statique du système</button>
+        <button class="opt">Le DEX est réservé aux commerciaux de l’entreprise</button>
+        <button class="opt">Le DAT ne contient aucune information sur les serveurs</button>
+      </div>
+      <div class="q__exp">Le DAT cartographie la structure du système, alors que le DEX fournit le mode d’emploi opérationnel au quotidien et les consignes de dépannage pour l’exploitation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une procédure de bascule PRA (Plan de Reprise d’Activité), quelles sont les 4 phases chronologiques dont la durée cumulée constitue le temps d’indisponibilité global ?</p>
+      <div class="opts">
+        <button class="opt">Pause déjeuner, réunion commerciale, audit fiscal, départ en vacances</button>
+        <button class="opt" data-correct="1">Détection de panne, décision/arbitrage, bascule réseau IP/DNS, vérification d’intégrité</button>
+        <button class="opt">Compilation du code, réécriture des tests, formation des stagiaires, livraison client</button>
+        <button class="opt">Achat du matériel, transport routier, déballage, installation physique</button>
+      </div>
+      <div class="q__exp">Le temps d’indisponibilité réel d’un failover comprend la détection, la prise de décision, l’application de la bascule technique et la vérification de conformité finale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impératif de tester régulièrement la restauration effective des sauvegardes plutôt que de simplement surveiller le succès des sauvegardes dans un DEX ?</p>
+      <div class="opts">
+        <button class="opt">Pour occuper les ingénieurs pendant la nuit</button>
+        <button class="opt" data-correct="1">Car une sauvegarde peut réussir sur le plan logiciel tout en produisant une archive corrompue, illisible ou incomplète rendant le RTO impossible à tenir lors d’une vraie crise</button>
+        <button class="opt">Pour effacer les données des clients et faire de la place sur le disque</button>
+        <button class="opt">Pour payer moins d’impôts</button>
+      </div>
+      <div class="q__exp">Une sauvegarde dont la restauration n’a jamais été testée avec succès n’est pas une sauvegarde : seul le test de restauration prouve que le RTO et le RPO sont atteignables.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un DAT, que désigne la « DMZ » (Zone Démilitarisée) ?</p>
+      <div class="opts">
+        <button class="opt">Une zone où aucun serveur n’est installé</button>
+        <button class="opt" data-correct="1">Un sous-réseau isolé intermédiaire séparant le réseau public non fiable (Internet) du réseau privé d’entreprise hautement sécurisé</button>
+        <button class="opt">Le bureau du directeur de la sécurité informatique</button>
+        <button class="opt">La salle de repos des développeurs</button>
+      </div>
+      <div class="q__exp">La DMZ héberge les services exposés à Internet (proxy, serveurs web publics) tout en empêchant un attaquant ayant compromis la DMZ d’accéder directement au réseau interne critique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’impact direct d’un RPO contractuel fixé à zéro (RPO = 0) sur l’architecture technique du DAT ?</p>
+      <div class="opts">
+        <button class="opt">Aucune conséquence, une sauvegarde quotidienne suffit</button>
+        <button class="opt" data-correct="1">L’obligation d’implémenter une réplication synchrone en temps réel des données sur au moins deux sites géographiquement distincts</button>
+        <button class="opt">L’interdiction d’utiliser des bases de données relationnelles</button>
+        <button class="opt">L’arrêt obligatoire du système tous les soirs à 18h00</button>
+      </div>
+      <div class="q__exp">Un RPO = 0 signifie qu’aucune transaction confirmée ne peut être perdue. Cela exige une écriture synchrone confirmée sur deux datacenters avant de valider la requête utilisateur.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Rédiger un Dossier d’Exploitation sous forme de texte narratif continu sans commandes de terminal copiables.</li>
+      <li>Éteindre les bases de données avant de couper le trafic réseau des passerelles web lors d’un arrêt d’infrastructure.</li>
+      <li>Confondre le RTO (délai de remise en route) et le RPO (quantité de données perdues dans le temps).</li>
+      <li>Présumer qu’une procédure de sauvegarde fonctionne sans jamais avoir testé sa restauration réelle (RPO non prouvé).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche de Structuration et de Rédaction d’un Dossier d’Exploitation</div>
+    <ol>
+      <li>Consigner les métadonnées opérationnelles : contacts d’astreinte, matrice d’escalade et liens vers les dashboards.</li>
+      <li>Établir l’arbre de dépendance des services pour définir l’ordre strict de démarrage et d’extinction ordonnancée.</li>
+      <li>Rédiger des fiches de tâches autonomes pour chaque routine : sauvegarde, rotation de logs, purge de base, renouvellement TLS.</li>
+      <li>Chiffrer et confronter les procédures de restauration aux seuils contractuels de RTO et de RPO.</li>
+      <li>Détailler le protocole de bascule PRA étape par étape avec les commandes shell exactes et les scripts de retour arrière.</li>
+      <li>Mettre à l’épreuve le DEX lors d’exercices de crise réels (Game Days) pour corriger les consignes obsolètes.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le DAT présente l’architecture statique (serveurs, réseau, briques logicielles) pour les concepteurs et le RSSI.</li>
+      <li>Le DEX (Runbook) consigne les modes opératoires quotidiens et d’astreinte pour les équipes d’exploitation.</li>
+      <li>L’ordonnancement d’infrastructure suit l’ordre direct des dépendances au démarrage et l’ordre inverse à l’extinction.</li>
+      <li>Le RTO mesure le délai maximal pour relancer le service ; le RPO mesure la perte maximale de données tolérée.</li>
+      <li>Un plan de reprise d’activité (PRA) doit cumuler les temps de détection, décision, bascule et vérification pour valider le RTO.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais identifier les sections obligatoires d’un Dossier d’Architecture Technique (DAT).</li>
+      <li>Je sais rédiger un Runbook d’exploitation clair et directement utilisable par une équipe d’astreinte.</li>
+      <li>Je maîtrise l’ordre de démarrage et d’arrêt d’une architecture multi-tiers (BDD, Cache, App, Web).</li>
+      <li>Je sais calculer et interpréter les métriques RTO et RPO.</li>
+      <li>Je sais estimer le temps d’indisponibilité global d’une procédure de bascule PRA.</li>
+      <li>Je sais formaliser une procédure de renouvellement de certificats TLS dans un DEX.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Dossier d’Architecture Technique (DAT)</li><li>Dossier d’Exploitation (DEX / Runbook)</li><li>Ordonnancement de services en grappe</li><li>Recovery Time Objective (RTO)</li><li>Recovery Point Objective (RPO)</li><li>Plan de Reprise d’Activité (PRA)</li><li>Plan de Continuité d’Activité (PCA)</li><li>Bascule de secours (Failover Downtime)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction DAT/DEX, les définitions de RTO et RPO et l’ordre d’arrêt des services.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez les mécanismes de failover PRA et les contraintes de RPO nul.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez parfaitement la documentation d’architecture système et d’exploitation opérationnelle.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Documentation d’API &amp; Référence Technique (OpenAPI / Swagger) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours Support_Elaboration Document Technique.pdf (Yan NYAKU), document_technique.docx, la spécification OpenAPI 3.0, la norme CommonMark et les référentiels Docs-as-Code.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

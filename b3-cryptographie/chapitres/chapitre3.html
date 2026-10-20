@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — Fonctions de Hachage, Intégrité et Authentification de Message (MAC) | Cryptographie &amp; PKI B3</title>
+<meta name="description" content="Module 3 du cours Cryptographie &amp; PKI B3 : Fonctions de hachage à sens unique (One-Way Hash Functions), construction itérative de Merkle-Damgård, propriétés de sécurité (résistance à la préimage, seconde préimage, résistance aux collisions), effet d'avalanche, analyse comparative de MD5, SHA-1, SHA-2 (SHA-256, SHA-512) et SHA-3 (Keccak / construction éponge), codes d'authentification de message HMAC (RFC 2104), attaques par extension de longueur, et modélisation probabiliste du paradoxe des anniversaires. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cryptographie/chapitres/chapitre3.html">
+<meta property="og:title" content="Module 3 — Fonctions de Hachage, Intégrité et Authentification de Message (MAC) | Cryptographie &amp; PKI B3">
+<meta property="og:description" content="Module 3 du cours Cryptographie &amp; PKI B3 : Fonctions de hachage à sens unique (One-Way Hash Functions), construction itérative de Merkle-Damgård, propriétés de sécurité (résistance à la préimage, seconde préimage, résistance aux collisions), effet d'avalanche, analyse comparative de MD5, SHA-1, SHA-2 (SHA-256, SHA-512) et SHA-3 (Keccak / construction éponge), codes d'authentification de message HMAC (RFC 2104), attaques par extension de longueur, et modélisation probabiliste du paradoxe des anniversaires. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cryptographienav"><div class="b3-cryptographienav__in">
+  <a class="b3-cryptographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cryptographienav__sep" aria-hidden="true">/</span>
+  <a class="b3-cryptographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg> Cryptographie &amp; PKI B3</a>
+  <div class="b3-cryptographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cryptographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cryptographiewrap">
+<p class="crumb"><a href="../index.html">Cryptographie & PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Fonctions de Hachage, Intégrité et Authentification de Message (MAC)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les architectures modernes de distribution logicielle (packages npm, conteneurs Docker, binaires OS) et de transactions financières en ligne, le chiffrement seul ne garantit absolument pas qu'un message n'a pas été altéré ou falsifié en cours de route. Un attaquant actif peut modifier des octets chiffrés ou réinjecter d'anciens messages sans en connaître la clé. De plus, continuer d'utiliser des fonctions dépréciées comme MD5 ou SHA-1 pour des signatures de certificats ou des condensés d'intégrité expose les infrastructures à des attaques par collision générant des faux certificats valides. En tant qu'ingénieur cybersécurité B3, vous devez maîtriser les mécanismes formels d'intégrité, implémenter des contrôles d'empreinte conformes aux directives du NIST, concevoir des HMAC pour l'authentification partagée et dimensionner les tailles de condensé face au paradoxe des anniversaires.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre les propriétés fondamentales des fonctions de hachage : sens unique, résistance aux préimages et aux collisions ;</li>
+      <li>analyser la construction de Merkle-Damgård et la construction éponge (Sponge Construction) de SHA-3 Keccak ;</li>
+      <li>identifier les vulnérabilités cryptanalytiques de MD5 et SHA-1 (attaques Wang et SHAttered) et appliquer les recommandations NIST ;</li>
+      <li>différencier intégrité simple (hachage) et authenticité d'origine (code HMAC selon la RFC 2104) ;</li>
+      <li>calculer la probabilité de collision selon le paradoxe des anniversaires et dimensionner la taille de sortie face aux attaques ;</li>
+      <li>développer en Python 3 des vérificateurs d'empreintes, des moteurs HMAC-SHA256 et des simulateurs de détection de collision.</li>
+    </ol>
+  </div>
+
+<h2>1. Propriétés Fondamentales des Fonctions de Hachage Cryptographiques</h2>
+
+<p>Une fonction de hachage cryptographique $H$ transforme un message $M$ de taille arbitraire en un condensé binaire (ou empreinte, <em>digest</em>) de taille fixe $n$ bits : $h = H(M)$. Pour être qualifiée de cryptographique, la fonction doit satisfaire trois exigences mathématiques strictes :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Résistance à la Préimage</h4>
+    <p>Étant donné un condensé $y$, il doit être calculatoirement impossible de trouver un message $M$ tel que $H(M) = y$.</p>
+    <p><strong>Complexité requise :</strong> $2^n$ opérations (sens unique strict).</p>
+  </div>
+  <div class="card">
+    <h4>2. Seconde Préimage</h4>
+    <p>Étant donné un message $M_1$, il doit être impossible de trouver un second message distinct $M_2 \neq M_1$ tel que $H(M_1) = H(M_2)$.</p>
+    <p><strong>Complexité requise :</strong> $2^n$ opérations (protection contre la falsification ciblée).</p>
+  </div>
+  <div class="card">
+    <h4>3. Résistance aux Collisions</h4>
+    <p>Il doit être impossible de trouver deux messages quelconques $M_1 \neq M_2$ tels que $H(M_1) = H(M_2)$.</p>
+    <p><strong>Complexité requise :</strong> $2^{n/2}$ opérations (dictée par le paradoxe des anniversaires).</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L'Effet d'Avalanche (Avalanche Effect)</div>
+<p>Une propriété indispensable d'un bon algorithme de hachage est l'<strong>effet d'avalanche</strong> : la modification d'un seul bit dans le message d'entrée doit provoquer la modification d'environ 50% des bits du condensé de sortie, de manière totalement imprévisible et non corrélée.</p>,<pre><code>sha256("Securite Informatique B3")  = 7e93a...c841 (256 bits)
+sha256("securite Informatique B3")  = 3a28f...09e2 (plus de 130 bits différents !)</code></pre>
+  </div>
+
+<h2>2. Architectures de Hachage : Merkle-Damgård vs Construction Éponge (SHA-3)</h2>
+
+<p>La conception interne des fonctions de hachage s'appuie sur deux paradigmes majeurs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Construction de Merkle-Damgård (MD5, SHA-1, SHA-2)</h4>
+    <ul>
+      <li>Le message est complété par un bourrage (padding) incluant sa longueur originale, puis découpé en blocs de taille fixe (512 ou 1024 bits).</li>
+      <li>Une fonction de compression $f$ applique une transformation itérative avec un vecteur d'initialisation $IV$ : $h_i = f(h_{i-1}, M_i)$.</li>
+      <li><strong>Faiblesse structurelle :</strong> vulnérable aux <em>attaques par extension de longueur</em> (Length Extension Attack), rendant dangereuse la construction naïve $H(K \parallel M)$ pour un MAC.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Construction Éponge (SHA-3 / Keccak)</h4>
+    <ul>
+      <li>Normalisée par le NIST en 2015 (FIPS 202), SHA-3 repose sur une permutation pseudo-aléatoire continue sur un état interne large (1600 bits pour Keccak-f[1600]).</li>
+      <li><strong>Phase d'absorption (Absorbing) :</strong> les blocs du message sont injectés par XOR dans la partie débit (<em>rate</em> $r$) de l'état.</li>
+      <li><strong>Phase d'essorage (Squeezing) :</strong> les bits du condensé sont extraits successivement.</li>
+      <li><strong>Immunité totale :</strong> totalement invulnérable aux attaques par extension de longueur.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> État de l'Art et Statuts de Sécurité NIST</div>
+<p>Le NIST et l'ANSSI classifient rigoureusement les algorithmes de hachage :</p>,<ul>,  <li><strong>MD5 (128 bits) :</strong> <span style="color:#b91c1c;font-weight:700;">TOTALEMENT OBSOLÈTE</span>. Collisions pratiques réalisables en quelques millisecondes sur un ordinateur portable depuis 2004 (équipe de Xiaoyun Wang). À proscrire impérativement.</li>,  <li><strong>SHA-1 (160 bits) :</strong> <span style="color:#b91c1c;font-weight:700;">DÉPRÉCIÉ ET BANI</span>. Première collision réelle démontrée par Google et le CWI en 2017 (attaque <em>SHAttered</em> sur des fichiers PDF). Banni de TLS et des certificats Web PKI.</li>,  <li><strong>SHA-2 (SHA-256, SHA-384, SHA-512) :</strong> <span style="color:#15803d;font-weight:700;">RECOMMANDÉ ET ROBUSTE</span>. Standard industriel mondial pour la blockchain, TLS et les signatures numériques.</li>,  <li><strong>SHA-3 (SHA3-256, SHA3-512) :</strong> <span style="color:#15803d;font-weight:700;">STANDARD MODERNE RECOMMANDÉ</span>. Alternative d'architecture cryptographique diversifiée.</li>,</ul>
+  </div>
+
+<h2>3. Codes d'Authentification de Message HMAC (RFC 2104)</h2>
+
+<p>Un condensé de hachage simple $H(M)$ prouve l'intégrité face aux erreurs de transmission aléatoires, mais n'assure aucune <strong>authenticité</strong> : un attaquant modifiant $M$ en $M'$ peut simplement recalculer $H(M')$. Pour authentifier la source, l'émetteur et le récepteur partagent une clé secrète $K$ :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Pourquoi pas simplement H(K || M) ?</h4>
+    <p>Sur les algorithmes basés sur Merkle-Damgård (SHA-1, SHA-256), la construction naïve $H(K \parallel M)$ permet à un attaquant connaissant la longueur de $K$ d'ajouter des données $M_{ext}$ à la fin du message et de calculer le hachage valide $H(K \parallel M \parallel \text{pad} \parallel M_{ext})$ <em>sans connaître la clé secrète $K$</em> (Length Extension Attack).</p>
+  </div>
+  <div class="card">
+    <h4>Mécanisme HMAC (RFC 2104)</h4>
+    <p>HMAC résout définitivement ce problème par une construction imbriquée à double passage :</p>
+    <pre><code>HMAC(K, M) = H((K' ^ opad) || H((K' ^ ipad) || M))</code></pre>
+    <ul>
+      <li>$K'$ : clé normalisée à la taille d'un bloc (64 octets pour SHA-256). Si $|K| > 64$, $K' = H(K)$ complétée de zéros ; si $|K| < 64$, $K' = K$ complétée de zéros.</li>
+      <li>$ipad$ : constante de bourrage interne (0x36 répété 64 fois).</li>
+      <li>$opad$ : constante de bourrage externe (0x5c répété 64 fois).</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Garantie de Sécurité de HMAC</div>
+<p>HMAC est prouvé résistant aux attaques par extension de longueur et reste sécurisé même si la fonction de hachage sous-jacente subit des faiblesses sur les collisions (HMAC-MD5 a résisté longtemps après la chute de MD5). Toutefois, les normes actuelles imposent <strong>HMAC-SHA256</strong> ou <strong>HMAC-SHA512</strong>.</p>
+  </div>
+
+<h2>4. Paradoxe des Anniversaires & Dimensionnement des Condensés</h2>
+
+<p>Le paradoxe des anniversaires est un résultat contre-intuitif fondamental de la théorie des probabilités : dans une classe de seulement 23 personnes, il y a plus de 50% de chances que deux d'entre elles partagent le même jour d'anniversaire (sur 365 jours possibles).</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Formulation Mathématique</h4>
+    <p>Pour un espace d'empreintes de taille $N = 2^b$ (où $b$ est le nombre de bits du hachage) et $k$ tirages indépendants :</p>
+    <pre><code>P(collision) ≈ 1 - exp( - (k * (k - 1)) / (2 * N) )</code></pre>
+    <p>Le nombre d'essais $k_{50\%}$ nécessaire pour avoir une probabilité d'au moins 50% de trouver une collision est :</p>
+    <pre><code>k_{50%} ≈ sqrt(2 * ln(2) * N) ≈ 1.1774 * sqrt(N) = 1.1774 * 2^(b / 2)</code></pre>
+  </div>
+  <div class="card">
+    <h4>Impact Pratique sur le Dimensionnement</h4>
+    <ul>
+      <li><strong>MD5 (128 bits) :</strong> espace de $2^{128}$, collision théorique en $2^{64}$ opérations. En pratique, des faiblesses structurelles permettent des collisions en $2^{16}$ opérations.</li>
+      <li><strong>SHA-1 (160 bits) :</strong> collision théorique en $2^{80}$ opérations, réduite à $2^{63}$ par l'attaque SHAttered.</li>
+      <li><strong>SHA-256 (256 bits) :</strong> résistance aux collisions de $2^{128}$ opérations, ce qui est hors de portée de toute la puissance de calcul planétaire cumulée.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cr3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="HASH algo=sha256 text=SECURITE_INFORMATIQUE">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c3-e1) — Vérificateur d'Intégrité et Comparateur d'Empreintes (MD5, SHA-1, SHA-256)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Empreinte MD5 obsolète]
+# Données : HASH algo=md5 text=HELLO
+A_COMPLETER
+
+[Cas 2 — Vérification intégrité conforme]
+# Données : VERIFY algo=sha256 expected=a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e text=Hello World
+A_COMPLETER
+
+[Cas 3 — Détection d altération de données]
+# Données : VERIFY algo=sha256 expected=ffff text=Hello World
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Vérificateur d'Intégrité et Comparateur d'Empreintes (MD5, SHA-1, SHA-256)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer et vérifier les empreintes cryptographiques avec MD5, SHA-1 et SHA-256 et évaluer leur conformité de sécurité NIST.</p>
+    <div class="lab__brief"><p>Les fonctions de hachage condensent un message en une empreinte de taille fixe.<br>
+Statuts de sécurité NIST :<br>
+- <code>md5</code> : 128 bits, <code>DEPRECATED (collision vulnerable)</code><br>
+- <code>sha1</code> : 160 bits, <code>DEPRECATED (SHAttered attack)</code><br>
+- <code>sha256</code> : 256 bits, <code>SECURE (NIST recommended)</code><br><br>
+Commandes lues sur STDIN :<br>
+1. <code>HASH algo=&lt;md5|sha1|sha256&gt; text=&lt;texte&gt;</code> :<br>
+   <code>HASH: algo=&lt;ALGO&gt; bits=&lt;B&gt; status=&lt;STATUS&gt; digest=&lt;DIGEST&gt;</code><br>
+2. <code>VERIFY algo=&lt;algo&gt; expected=&lt;hex&gt; text=&lt;texte&gt;</code> :<br>
+   - Si conforme : <code>VERIFY: algo=&lt;ALGO&gt; match=OK</code><br>
+   - Sinon : <code>VERIFY: algo=&lt;ALGO&gt; match=MISMATCH (integrity compromised)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HASH algo=sha256 text=SECURITE_INFORMATIQUE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>HASH: algo=SHA256 bits=256 status=SECURE (NIST recommended) digest=55be6350223b3da0e894a709edc0b1a193fe56325c97e8750262240935ef1958</pre></div>
+    </div>
+    <p class="lab__note">Empreinte SHA-256 standard NIST avec 256 bits de sécurité.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilisez hashlib.md5(), hashlib.sha1() ou hashlib.sha256() sur les données text.encode("utf-8").</li>
+        <li>Comparez les empreintes en convertissant les deux chaînes en minuscules avec .lower().</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="HMAC CALC key=SECRET_SHARED_KEY text=TRANSACTION amount=5000 from=alice to=bob">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c3-e2) — Implémentation du Mécanisme HMAC (RFC 2104) et Intégrité Authentifiée
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Vérification HMAC valide]
+# Données : HMAC VERIFY key=SECRET_SHARED_KEY tag=6a6208b649730f219b0ee67e60670beb6da40f5b2719cdd342f2cfeb3a7a575f text=TRANSACTION amount=5000 from=alice to=bob
+A_COMPLETER
+
+[Cas 2 — Détection d altération de montant dans HMAC]
+# Données : HMAC VERIFY key=SECRET_SHARED_KEY tag=6a6208b649730f219b0ee67e60670beb6da40f5b2719cdd342f2cfeb3a7a575f text=TRANSACTION amount=9999 from=alice to=bob
+A_COMPLETER
+
+[Cas 3 — Rejet HMAC avec mauvaise clé secrète]
+# Données : HMAC VERIFY key=WRONG_KEY tag=6a6208b649730f219b0ee67e60670beb6da40f5b2719cdd342f2cfeb3a7a575f text=TRANSACTION amount=5000 from=alice to=bob
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Implémentation du Mécanisme HMAC (RFC 2104) et Intégrité Authentifiée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter le calcul et la validation d'un code d'authentification de message HMAC-SHA256 selon la RFC 2104.</p>
+    <div class="lab__brief"><p>HMAC garantit intégrité et authenticité partagée avec une clé secrète K.<br>
+Construction RFC 2104 (bloc 64 octets pour SHA-256) :<br>
+- Clé ajustée à 64 octets (hachée si trop longue, complétée par des 0x00 si trop courte).<br>
+- Constantes : <code>ipad = 0x36 * 64</code>, <code>opad = 0x5C * 64</code>.<br>
+- <code>HMAC(K, M) = H((K ^ opad) || H((K ^ ipad) || M))</code>.<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>HMAC CALC key=&lt;cle&gt; text=&lt;texte&gt;</code> : produit <code>HMAC: algo=SHA256 key_len=&lt;L&gt; tag=&lt;tag_hex&gt;</code>.<br>
+2. <code>HMAC VERIFY key=&lt;cle&gt; tag=&lt;tag_hex&gt; text=&lt;texte&gt;</code> :<br>
+   - Si conforme : <code>HMAC_VERIFY: status=AUTHENTIC</code><br>
+   - Sinon : <code>HMAC_VERIFY: status=TAMPERED_OR_INVALID_KEY</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HMAC CALC key=SECRET_SHARED_KEY text=TRANSACTION amount=5000 from=alice to=bob</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>HMAC: algo=SHA256 key_len=17 tag=6a6208b649730f219b0ee67e60670beb6da40f5b2719cdd342f2cfeb3a7a575f</pre></div>
+    </div>
+    <p class="lab__note">Code HMAC garantissant l authenticité du message avec la clé partagée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Normalisez la clé à 64 octets puis calculez inner = sha256(ipad + msg) et outer = sha256(opad + inner).</li>
+        <li>Le module standard hmac.new(key, msg, hashlib.sha256).hexdigest() produit également le résultat conforme.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="COLLISION PROB bits=16 attempts=300">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c3-e3) — Simulateur d'Attaque des Anniversaires et Détection de Collision
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Calcul probabilité collision 32 bits]
+# Données : COLLISION PROB bits=32 attempts=50000
+A_COMPLETER
+
+[Cas 2 — Recherche effective de collision sur 12 bits]
+# Données : COLLISION SEARCH prefix=NONCE bits=12 max_attempts=500
+A_COMPLETER
+
+[Cas 3 — Pas de collision détectée sous la limite max]
+# Données : COLLISION SEARCH prefix=NONCE bits=16 max_attempts=10
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur d'Attaque des Anniversaires et Détection de Collision</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la probabilité théorique de collision du paradoxe des anniversaires et rechercher une collision concrète sur un hachage tronqué.</p>
+    <div class="lab__brief"><p>Pour un espace d'empreintes de taille <code>N = 2^b</code>, la probabilité d'avoir au moins une collision après <code>k</code> essais vaut :<br>
+<code>P(collision) = 1 - exp(- (k * (k - 1)) / (2 * N))</code>.<br>
+Le seuil de probabilité 50% est atteint dès <code>k_{50%} = ceil(sqrt(2 * ln(2) * N))</code>.<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>COLLISION PROB bits=&lt;b&gt; attempts=&lt;k&gt;</code> :<br>
+   <code>PROB: bits=&lt;b&gt; N=&lt;N&gt; attempts=&lt;k&gt; prob=&lt;P:.4f&gt; threshold_50=&lt;k_50&gt;</code><br>
+2. <code>COLLISION SEARCH prefix=&lt;pref&gt; bits=&lt;b&gt; max_attempts=&lt;M&gt;</code> :<br>
+   Teste séquentiellement les messages <code>&lt;pref&gt;-0</code>, <code>&lt;pref&gt;-1</code>, etc. sur les <code>b // 4</code> premiers caractères hexadécimaux de SHA-256.<br>
+   - Si collision trouvée : <code>COLLISION_FOUND: hash=&lt;h&gt; msg1=&lt;pref&gt;-&lt;j&gt; msg2=&lt;pref&gt;-&lt;i&gt; attempts=&lt;total&gt;</code><br>
+   - Si non trouvée : <code>NO_COLLISION: tested=&lt;M&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>COLLISION PROB bits=16 attempts=300</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PROB: bits=16 N=65536 attempts=300 prob=0.4956 threshold_50=302</pre></div>
+    </div>
+    <p class="lab__note">Seulement 300 tirages sur 65536 valeurs suffisent pour atteindre près de 50% de chance de collision.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Appliquez la formule du paradoxe des anniversaires P = 1 - exp(-k(k-1)/(2N)) et déterminez le seuil à 50%.</li>
+        <li>Pour la recherche de collision, extrayez le préfixe hexadécimal tronqué et détectez le premier doublon d'empreinte.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité théorique pour trouver une collision sur une fonction de hachage idéale produisant un condensé de n bits ?</p>
+      <div class="opts">
+        <button class="opt">2^n opérations</button>
+        <button class="opt" data-correct="1">2^(n/2) opérations</button>
+        <button class="opt">n^2 opérations</button>
+        <button class="opt">2^(2n) opérations</button>
+      </div>
+      <div class="q__exp">En vertu du paradoxe des anniversaires, la recherche d'une collision quelconque nécessite environ sqrt(2^n) = 2^(n/2) opérations, contre 2^n pour inverser une préimage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la construction naïve H(K || M) est-elle vulnérable sur des fonctions comme SHA-256 ?</p>
+      <div class="opts">
+        <button class="opt">Elle permet de retrouver la clé K par simple division modulaire</button>
+        <button class="opt" data-correct="1">La structure de Merkle-Damgård permet d'ajouter des données sans connaître K (Length Extension Attack)</button>
+        <button class="opt">Le hachage produit toujours une chaîne vide</button>
+        <button class="opt">Elle déclenche une boucle infinie dans l'interpréteur</button>
+      </div>
+      <div class="q__exp">L'état interne de Merkle-Damgård après le traitement du message correspond directement au condensé de sortie. Un attaquant peut injecter des blocs supplémentaires en reprenant cet état sans connaître la clé secrète K.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la taille de bloc standard et quelles sont les valeurs des masques ipad et opad dans la RFC 2104 pour SHA-256 ?</p>
+      <div class="opts">
+        <button class="opt">Bloc 32 octets, ipad=0x00, opad=0xFF</button>
+        <button class="opt" data-correct="1">Bloc 64 octets, ipad=0x36, opad=0x5c</button>
+        <button class="opt">Bloc 128 octets, ipad=0xAA, opad=0x55</button>
+        <button class="opt">Bloc 16 octets, ipad=0x12, opad=0x34</button>
+      </div>
+      <div class="q__exp">Pour les fonctions avec blocs de 512 bits (comme SHA-256), la taille de bloc est de 64 octets, ipad vaut l'octet 0x36 répété 64 fois et opad vaut 0x5c répété 64 fois.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle attaque a formellement démontré en 2017 la vulnérabilité pratique aux collisions de SHA-1 avec deux documents PDF ayant la même empreinte ?</p>
+      <div class="opts">
+        <button class="opt">L'attaque Heartbleed</button>
+        <button class="opt">L'attaque POODLE</button>
+        <button class="opt" data-correct="1">L'attaque SHAttered</button>
+        <button class="opt">L'attaque WannaCry</button>
+      </div>
+      <div class="q__exp">L'équipe de chercheurs de Google et du CWI a publié en février 2017 l'attaque SHAttered, produisant deux fichiers PDF différents ayant exactement la même empreinte SHA-1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la principale différence architecturale entre SHA-2 et SHA-3 (Keccak) ?</p>
+      <div class="opts">
+        <button class="opt">SHA-3 utilise un chiffrement par bloc DES interne</button>
+        <button class="opt" data-correct="1">SHA-3 repose sur une construction éponge (Sponge Construction) et non sur Merkle-Damgård</button>
+        <button class="opt">SHA-3 nécessite obligatoirement une carte graphique GPU</button>
+        <button class="opt">SHA-3 est limité à des sorties de 64 bits</button>
+      </div>
+      <div class="q__exp">SHA-3 abandonne l'architecture itérative de Merkle-Damgård au profit d'une construction éponge (Sponge Construction) à absorption et essorage, immunisée contre les attaques par extension de longueur.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser MD5 pour vérifier l'intégrité de binaires sensibles ou signer des jetons d'authentification en supposant que l'absence de collision fortuite suffit.</li>
+      <li>Concaténer naïvement clé et message sous la forme H(cle + message) : les fonctions basées sur Merkle-Damgård permettent des attaques par extension de longueur.</li>
+      <li>Confondre contrôle d'intégrité simple (hachage) et authenticité d'origine (HMAC ou signature) : un attaquant Man-in-the-Middle peut réécrire un hachage sans clé.</li>
+      <li>Négliger le paradoxe des anniversaires en utilisant un hachage tronqué à 32 ou 48 bits, rendant les collisions facilement atteignables par force brute.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Caractérisation du besoin de sécurité : déterminer si l'exigence relève du contrôle d'intégrité simple (SHA-256 pour des fichiers statiques) ou de l'authentification de message avec clé secrète partagée (HMAC-SHA256 pour des API ou des sessions).</li>
+      <li>Sélection rigoureuse des primitives autorisées : exclure sans compromis MD5 et SHA-1 des configurations système, et imposer SHA-256, SHA-512 ou SHA3-256 selon les standards NIST et ANSSI.</li>
+      <li>Implémentation conforme du protocole HMAC RFC 2104 : appliquer la normalisation de la clé à la taille du bloc (64 octets), effectuer les opérations XOR avec les masques ipad et opad, et calculer les deux passes de hachage.</li>
+      <li>Dimensionnement probabiliste face aux collisions : calculer le seuil du paradoxe des anniversaires $k \approx 1.1774 \cdot 2^{b/2}$ pour garantir une marge de sécurité de plus de 128 bits effectifs.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une fonction de hachage cryptographique doit garantir la résistance à la préimage ($2^n$), à la seconde préimage ($2^n$) et aux collisions ($2^{n/2}$).</li>
+      <li>L'effet d'avalanche assure qu'une modification d'un bit d'entrée bouleverse environ la moitié des bits de l'empreinte finale.</li>
+      <li>MD5 et SHA-1 sont formellement obsolètes et dépréciés suite à des attaques par collision pratiques ; SHA-256 et SHA-3 sont les standards actuels.</li>
+      <li>La construction naïve H(K || M) est vulnérable aux attaques par extension de longueur sur Merkle-Damgård ; HMAC (RFC 2104) immunise le système par une construction à double passe.</li>
+      <li>Le paradoxe des anniversaires réduit la complexité de recherche d'une collision à $2^{b/2}$, imposant des condensés d'au moins 256 bits pour un niveau de sécurité de 128 bits.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous définir et différencier les 3 propriétés de résistance : préimage, seconde préimage et collision ?</li>
+      <li>Pouvez-vous expliquer pourquoi la construction H(K || M) est dangereuse et comment HMAC résout cette vulnérabilité ?</li>
+      <li>Savez-vous citer les constantes et les étapes du calcul d'un HMAC selon la RFC 2104 (ipad 0x36, opad 0x5c, bloc 64 octets) ?</li>
+      <li>Comprenez-vous la formule du paradoxe des anniversaires et pourquoi un hachage de 128 bits n'offre que 64 bits de sécurité contre les collisions ?</li>
+      <li>Pouvez-vous justifier le rejet catégorique de MD5 et SHA-1 dans une revue de sécurité applicative ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Fonction de Hachage à Sens Unique :</strong> Algorithme déterministe condensant un message arbitraire en une empreinte de taille fixe, irréversible et sensible au moindre bit.</li><li><strong>Résistance aux Collisions :</strong> Propriété garantissant qu'il est calculatoirement impossible de trouver deux entrées distinctes produisant le même condensé de sortie.</li><li><strong>Construction de Merkle-Damgård :</strong> Méthode de hachage itérative découpant le message en blocs successifs traités par une fonction de compression avec vecteur d'initialisation.</li><li><strong>HMAC (Hash-based Message Authentication Code) :</strong> Mécanisme d'authentification cryptographique combinant une clé secrète partagée et une fonction de hachage selon la RFC 2104.</li><li><strong>Paradoxe des Anniversaires :</strong> Théorème probabiliste démontrant qu'une collision survient avec une probabilité de 50% après environ sqrt(N) tirages dans un espace de taille N.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Audit et détection d'algorithmes de hachage dépréciés :</strong> Identifier et éliminer toute utilisation de MD5 ou SHA-1 dans le code source, les certificats et les pipelines de déploiement.</div>
+      <div class="bandrow"><strong>Vérification d'intégrité automatisée en Python 3 :</strong> Développer des outils d'empreinte cryptographique capables de certifier l'intégrité de jeux de données et de binaires.</div>
+      <div class="bandrow"><strong>Implémentation conforme du protocole HMAC RFC 2104 :</strong> Concevoir et valider des mécanismes d'authentification de messages et de tokens API sécurisés avec clés partagées.</div>
+      <div class="bandrow"><strong>Simulation et analyse de résistance aux collisions :</strong> Modéliser le paradoxe des anniversaires pour dimensionner rigoureusement les longueurs d'empreintes selon les exigences de sécurité.</div>
+      <div class="bandrow"><strong>Transition vers SHA-3 et les constructions éponges :</strong> Intégrer les nouvelles primitives cryptographiques FIPS 202 dans les architectures logicielles de nouvelle génération.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Cryptographie Asymétrique & Arithmétique Modulaire <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

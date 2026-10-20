@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Conditions et fonctions | Robotique B1</title>
+<meta name="description" content="Chapitre 3 du club de robotique B1 : Tester la parité, écrire une fonction qui renvoie un booléen, tester la primalité, classer des relevés par seuil. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-robotique/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Conditions et fonctions | Robotique B1">
+<meta property="og:description" content="Chapitre 3 du club de robotique B1 : Tester la parité, écrire une fonction qui renvoie un booléen, tester la primalité, classer des relevés par seuil. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rbnav"><div class="rbnav__in">
+  <a class="rbnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rbnav__sep" aria-hidden="true">/</span>
+  <a class="rbnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Robotique B1</a>
+  <div class="rbnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rbnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rbwrap">
+<p class="crumb"><a href="../index.html">Robotique B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Conditions et fonctions</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le robot doit distinguer : ce capteur est-il activé ? Ce relevé dépasse-t-il le seuil ? Cette valeur est-elle acceptable ? La décision se code avec des conditions — et dès qu’une décision mérite d’être réutilisée, elle sort du programme principal pour devenir une <strong>fonction</strong> qui renvoie True ou False. Le TP du club demandait une fonction is_even : c’est exactement ce chapitre.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>écrire une fonction de test qui renvoie un booléen sans rien afficher ;</li>
+      <li>compter les deux branches d’une condition sur une série ;</li>
+      <li>implémenter un test de primalité qui s’arrête à la racine carrée ;</li>
+      <li>classer des relevés par seuil strict et compter les alertes.</li>
+    </ol>
+  </div>
+
+<h2>1. Une fonction qui répond vrai ou faux</h2>
+
+<p>Une <strong>fonction de test</strong> a un contrat précis : recevoir une valeur, renvoyer un booléen, <strong>ne rien afficher</strong>. C’est le programme qui décide quoi faire de la réponse.</p>
+<pre><code>RÈGLE DE DÉCISION EstPair(x) :
+  Si (x MOD 2 = 0) Alors VRAI Sinon FAUX
+
+Exemples :
+  EstPair(4) → VRAI
+  EstPair(7) → FAUX</code></pre>
+<p>La comparaison <code>x % 2 == 0</code> <em>est déjà</em> un booléen : pas besoin d’écrire <code>if ... : return True else: return False</code>. Un return direct est plus court et dit la même chose.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la fonction qui bavarde</div>
+    <p>Une fonction de test qui <code>print</code> son verdict est à moitié inutilisable : on ne peut ni compter avec, ni la recombiner. <strong>Une fonction calcule et renvoie ; l’affichage appartient au programme principal.</strong> Cette séparation est ce qui permet de tester une fonction toute seule.</p>
+  </div>
+
+<h2>2. Compter les deux branches</h2>
+
+<p>Sur une série, la condition s’applique valeur par valeur, et les deux issues se comptent.</p>
+<pre><code>pairs = impairs = 0
+for x in valeurs:
+    if est_pair(x):
+        pairs += 1
+    else:
+        impairs += 1</code></pre>
+<p>Chaque passage incrémente <strong>un seul</strong> compteur : la somme des deux vaut forcément n à la sortie. C’est un contrôle gratuit — si pairs + impairs ne vaut pas n, le programme a un bug ailleurs.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Un test, deux destins »</div>
+    <p>Dans un <code>if / else</code>, exactement une branche s’exécute par passage. Si un compteur double ou saute, c’est que le test n’est pas exclusif : relire l’opérateur de comparaison avant de soupçonner la boucle.</p>
+  </div>
+
+<h2>3. Tester la primalité</h2>
+
+<p>Un nombre <strong>premier</strong> possède exactement deux diviseurs : 1 et lui-même. 0 et 1 ne sont donc pas premiers. Tester tous les diviseurs jusqu’à x serait du gaspillage : il suffit d’aller jusqu’à <strong>la racine carrée</strong> de x.</p>
+<pre><code>ALGORITHME TestPrimalite(x) :
+  Si x &lt; 2 Alors Retourner FAUX
+  Pour d de 2 jusqu'à √x faire :
+    Si (x MOD d = 0) Alors Retourner FAUX
+  Retourner VRAI</code></pre>
+<p>Pourquoi s’arrêter à la racine ? Si x = a × b avec a ≤ b, alors a ≤ √x. Un diviseur au-delà de la racine en entraîne donc un plus petit déjà testé. Pour 97, on essaie 2 à 9 au lieu de 2 à 96.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Attention aux cas de bord</div>
+    <p>0, 1 et les nombres négatifs tombent dans le premier test <code>x &lt; 2</code>. Sans lui, la boucle while ne tournerait pas mais renverrait True pour 1 — un résultat faux. <strong>Les cas de bord se traitent d’abord, explicitement.</strong></p>
+  </div>
+
+<h2>4. Classer des relevés par seuil</h2>
+
+<p>Le capteur de distance du TP déclenche une alerte sous 10 cm. Le classement par seuil est la décision la plus fréquente en robotique.</p>
+<pre><code>if d &lt; seuil:      alerte
+else:              tout va bien</code></pre>
+<p><strong>Strictement inférieur</strong> se traduit par <code>&lt;</code> : une distance égale au seuil n’alerte pas. Avec un <code>&lt;=</code>, la frontière changerait de camp — et les tests le remarquent, car ils incluent toujours le cas de la valeur exactement au seuil.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Trois états avec elif</div>
+    <pre><code>if t &gt; 30:
+    etat = "ALERTE CHALEUR"
+elif t &lt; 15:
+    etat = "ALERTE FROID"
+else:
+    etat = "normale"</code></pre>
+    <p>Les trois branches sont mutuellement exclusives : le premier test vrai gagne, les autres ne sont même pas évalués. L’ordre des tests fait partie de la logique.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="rb-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="5&#10;7&#10;2&#10;8&#10;9&#10;4">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c3-e1) — Pairs et impairs
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Majorité de pairs]
+# Données : 3
+# Données : 10
+# Données : 21
+# Données : 12
+A_COMPLETER
+
+[Cas 2 — Aucun pair]
+# Données : 2
+# Données : 1
+# Données : 3
+A_COMPLETER
+
+[Cas 3 — Zéro et négatif]
+# Données : 3
+# Données : 0
+# Données : -7
+# Données : -4
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Pairs et impairs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction de test, l’appliquer à une série et compter les deux cas.</p>
+    <div class="lab__brief"><p>Analysez les données soumises pour chaque cas. Pour chacun il Indiquez <code>X pair</code> ou <code>X impair</code>. La dernière ligne donne les deux comptes : <code>pairs : P / impairs : I</code>. Le test s’écrit dans une fonction <code>est_pair(x)</code> qui renvoie un booléen.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5
+7
+2
+8
+9
+4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>7 impair
+2 pair
+8 pair
+9 impair
+4 pair
+pairs : 3 / impairs : 2</pre></div>
+    </div>
+    <p class="lab__note">Cinq verdicts, puis le bilan.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le reste d’une division par 2 décide : x % 2 vaut 0 exactement quand x est pair.</li>
+        <li>Deux compteurs, initialisés avant la boucle ; chaque if en incrémente un seul.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;2&#10;9&#10;11&#10;15">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c3-e2) — Test de primalité
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un et grands premiers]
+# Données : 3
+# Données : 1
+# Données : 97
+# Données : 25
+A_COMPLETER
+
+[Cas 2 — Nombres pairs]
+# Données : 3
+# Données : 0
+# Données : 2
+# Données : 49
+A_COMPLETER
+
+[Cas 3 — Carrés parfaits]
+# Données : 3
+# Données : 4
+# Données : 36
+# Données : 7
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Test de primalité</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction qui renvoie un booléen après une recherche de diviseur, puis la rejouer sur une série.</p>
+    <div class="lab__brief"><p>Analysez les données soumises pour chaque cas. Pour chacun il Indiquez <code>X : premier</code> ou <code>X : compose</code>. La décision se prend dans une fonction <code>est_premier(x)</code> : un nombre est premier s’il a exactement deux diviseurs ; <strong>0 et 1 sont composés</strong> ici. Le test des diviseurs s’arrête à la racine carrée de x.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+2
+9
+11
+15</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>2 : premier
+9 : compose
+11 : premier
+15 : compose</pre></div>
+    </div>
+    <p class="lab__note">9 = 3 × 3 et 15 = 3 × 5 : composés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traiter d’abord les cas x &lt; 2, puis boucler d de 2 à int(x ** 0.5) inclus : si x % d vaut 0, ce n’est pas premier.</li>
+        <li>La fonction ne doit rien afficher : elle renvoie True ou False, et c’est la boucle qui affiche.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="30&#10;4&#10;12&#10;45&#10;8&#10;30">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c3-e3) — Contrôle de seuil d’un capteur
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Autour du seuil]
+# Données : 10
+# Données : 3
+# Données : 9
+# Données : 10
+# Données : 11
+A_COMPLETER
+
+[Cas 2 — Tout proche]
+# Données : 15
+# Données : 2
+# Données : 15
+# Données : 14
+A_COMPLETER
+
+[Cas 3 — Aucune alerte]
+# Données : 5
+# Données : 2
+# Données : 6
+# Données : 100
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Contrôle de seuil d’un capteur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer chaque relevé à un seuil fixé, décider d’une alerte et compter les alertes.</p>
+    <div class="lab__brief"><p>Le capteur de distance renvoie des relevés. Analysez les données soumises pour chaque cas. Pour chaque relevé d il Indiquez <code>d cm : ALERTE</code> si d est strictement inférieur au seuil, sinon <code>d cm : OK</code>. La dernière ligne compte les alertes : <code>alertes : A</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>30
+4
+12
+45
+8
+30</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>12 cm : ALERTE
+45 cm : OK
+8 cm : ALERTE
+30 cm : OK
+alertes : 2</pre></div>
+    </div>
+    <p class="lab__note">30 cm atteint le seuil : pas d’alerte.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’ordre des lectures est imposé : le seuil arrive avant le compteur de relevés.</li>
+        <li>« Strictement inférieur » se traduit par &lt; : une distance égale au seuil n’alerte pas.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que doit faire une fonction de test ?</p>
+      <div class="opts">
+        <button class="opt">Afficher son verdict</button>
+        <button class="opt" data-correct="1">Renvoyer un booléen</button>
+        <button class="opt">Modifier la valeur reçue</button>
+      </div>
+      <div class="q__exp">Elle renvoie True ou False ; l’affichage appartient au programme.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut est_pair(0) avec return x % 2 == 0 ?</p>
+      <div class="opts">
+        <button class="opt">False</button>
+        <button class="opt" data-correct="1">True</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">0 % 2 vaut 0, donc 0 == 0 est True : zéro est pair.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi tester la primalité jusqu’à √x seulement ?</p>
+      <div class="opts">
+        <button class="opt">Pour éviter les erreurs</button>
+        <button class="opt" data-correct="1">Car un diviseur au-delà de la racine en suppose un plus petit déjà testé</button>
+        <button class="opt">Par convention</button>
+      </div>
+      <div class="q__exp">Si x = a × b avec a ≤ b, alors a ≤ √x : suffisant pour trouver un diviseur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut est_premier(1) ?</p>
+      <div class="opts">
+        <button class="opt">True</button>
+        <button class="opt" data-correct="1">False</button>
+        <button class="opt">Non défini</button>
+      </div>
+      <div class="q__exp">1 n’a qu’un seul diviseur : il n’est pas premier, le test x < 2 le renvoie en False.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">d = seuil avec le test d < seuil : y a-t-il alerte ?</p>
+      <div class="opts">
+        <button class="opt">Oui</button>
+        <button class="opt" data-correct="1">Non</button>
+        <button class="opt">Cela dépend du signe</button>
+      </div>
+      <div class="q__exp">Strictement inférieur : la valeur égale au seuil n’alerte pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une chaîne if / elif / else, combien de branches s’exécutent ?</p>
+      <div class="opts">
+        <button class="opt">Toutes les vraies</button>
+        <button class="opt" data-correct="1">La première vraie seulement</button>
+        <button class="opt">La dernière vraie</button>
+      </div>
+      <div class="q__exp">Le premier test vrai gagne ; les suivants sont ignorés.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Fonction qui affiche</strong> au lieu de renvoyer : impossible de compter avec son résultat.</li>
+      <li><strong>if ... : return True, else : return False</strong> : verbeux, mais surtout signe qu’on n’a pas vu que la comparaison est déjà un booléen.</li>
+      <li><strong>est_premier(1) mal géré</strong> : sans le test x &lt; 2, 1 sortirait « premier ».</li>
+      <li><strong>&lt;= au lieu de &lt;</strong> : la valeur au seuil change de camp et le compte d’alertes glisse.</li>
+      <li><strong>elif transformé en if séparés</strong> : un relevé peut alors être classé deux fois.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Décider puis compter</div>
+    <ol>
+      <li><strong>Isoler le critère</strong> dans une fonction de test qui renvoie un booléen.</li>
+      <li><strong>Traiter les cas de bord</strong> au début de la fonction (0, 1, négatifs).</li>
+      <li><strong>Comparer au seuil avec le bon opérateur</strong> : strict ou large, l’énoncé le dit.</li>
+      <li><strong>Compter chaque branche</strong> avec un compteur dédié initialisé avant la boucle.</li>
+      <li><strong>Contrôler</strong> que la somme des comptes redonne l’effectif total.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une fonction de test renvoie un booléen et n’affiche rien ; le programme principal décide.</li>
+      <li>La comparaison est déjà un booléen : return x % 2 == 0 suffit.</li>
+      <li>Premiers : x ≥ 2 et aucun diviseur jusqu’à √x ; 0 et 1 sont exclus d’entrée.</li>
+      <li>Strict ou large au seuil : la frontière change de camp, les tests la vérifient toujours.</li>
+      <li>if / elif / else : une seule branche par passage, la première vraie gagne.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J’écris une fonction de test qui renvoie True ou False sans afficher.</li>
+      <li>Je gère les cas de bord avant la boucle de test.</li>
+      <li>Je classe des relevés par seuil strict et je compte chaque catégorie.</li>
+      <li>Je vérifie que mes comptes additionnés redonnent le total.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>fonction</li><li>booléen</li><li>return</li><li>primalité</li><li>racine carrée</li><li>seuil</li><li>elif</li><li>compteur</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Réécris est_pair et est_premier sans regarder le corrigé.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Ajoute le compte des nombres composés pairs de la série.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : passe le contrôle de seuil en fonction aussi.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, les tableaux et algorithmes.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Tableaux et algorithmes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support du club « Séance TP — Club Robotique & Électronique » (programmation, CircuitVerse, Tinkercad) et le cours de logique fourni.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

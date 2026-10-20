@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Modélisation 3D, Maillages Polygonaux &amp;amp; Transformations TRS | Infographie B2</title>
+<meta name="description" content="Chapitre 4 du cours Infographie B2 : Structure des maillages (Sommets, Arêtes, Faces triangulaires), sens de parcours (Winding Order) et Back-Face Culling, calcul de normale unitaire par produit vectoriel, matrices de transformations affines 4x4 (Translation, Rotation, Scale TRS) et Niveaux de Détail (LOD). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/infographie/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Modélisation 3D, Maillages Polygonaux &amp;amp; Transformations TRS | Infographie B2">
+<meta property="og:description" content="Chapitre 4 du cours Infographie B2 : Structure des maillages (Sommets, Arêtes, Faces triangulaires), sens de parcours (Winding Order) et Back-Face Culling, calcul de normale unitaire par produit vectoriel, matrices de transformations affines 4x4 (Translation, Rotation, Scale TRS) et Niveaux de Détail (LOD). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="infographienav"><div class="infographienav__in">
+  <a class="infographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="infographienav__sep" aria-hidden="true">/</span>
+  <a class="infographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-image"></use></svg> Infographie B2</a>
+  <div class="infographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="infographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="infographiewrap">
+<p class="crumb"><a href="../index.html">Infographie B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Modélisation 3D, Maillages Polygonaux &amp; Transformations TRS</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans l’univers de la 3D numérique, tout objet complexe — du personnage articulé au décor architectural — est discrétisé sous forme d’un maillage polygonal (Polygon Mesh). Le triangle est la primitive géométrique reine de l’infographie temps réel : il est garanti d’être strictement planaire et ses trois sommets définissent une normale univoque dans l’espace. Cependant, manipuler des maillages exige une rigueur mathématique sans faille : l’ordre des sommets (Winding Order) détermine si une face regarde la caméra ou doit être ignorée (Back-Face Culling), les transformations géométriques obéissent à des multiplications de matrices affines 4x4 non-commutatives, et la performance requiert d’adapter la densité polygonale à la distance de la caméra (Niveaux de Détail LOD). Ce quatrième module structure les fondements mathématiques et géométriques indispensables pour tout développeur 3D.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser la structure de données d’un maillage 3D (buffers de sommets VBO, index de faces EBO, normales, UVs) ;</li>
+      <li>comprendre l’importance du sens de parcours (Counter-Clockwise CCW) et le mécanisme de Back-Face Culling ;</li>
+      <li>calculer le vecteur normal unitaire d’un triangle par produit vectoriel de deux vecteurs directeurs ;</li>
+      <li>maîtriser la composition des matrices de transformations affines 4x4 en coordonnées homogènes (TRS) ;</li>
+      <li>expliquer pourquoi l’ordre canonique Scale -&gt; Rotation -&gt; Translation est impératif pour éviter les déformations ;</li>
+      <li>implémenter des algorithmes de sélection de Niveaux de Détail (LOD - Level of Detail) en fonction de la distance caméra.</li>
+    </ol>
+  </div>
+
+<h2>1. Maillages Polygonaux, Triangulation &amp; Back-Face Culling</h2>
+
+<p>Un maillage 3D est un ensemble de primitives géométriques reliées entre elles :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Pourquoi le Triangle est-il la Primitive Universelle ?</h4>
+    <ul>
+      <li><strong>Planéité absolue :</strong> 3 points dans l’espace sont toujours coplanaires. Un quadrangle (4 sommets) peut être voilé ou tordu, créant des ambiguïtés de rendu.</li>
+      <li><strong>Optimisation matérielle :</strong> Les pipelines de rasterisation des GPU sont câblés en silicium pour découper et interpoler des triangles en parallèle.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Sens de Parcours (Winding Order) &amp; Culling</h4>
+    <ul>
+      <li><strong>Sens anti-horaire (CCW) :</strong> Par convention (OpenGL/Vulkan), les sommets A, B, C ordonnés dans le sens trigonométrique indiquent une face avant (Front Face).</li>
+      <li><strong>Back-Face Culling :</strong> Élimine instantanément ~50 % des triangles de la scène (ceux qui tournent le dos à la caméra), doublant les performances du GPU.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Calcul de la Normale de Face par Produit Vectoriel</div>
+<p>Soit un triangle défini par les sommets <code>A</code>, <code>B</code> et <code>C</code> ordonnés en sens CCW :</p><pre><code>u = B - A    (vecteur directeur 1)
+v = C - A    (vecteur directeur 2)
+n = u × v    (produit vectoriel orthogonal)
+nx = u.y * v.z - u.z * v.y
+ny = u.z * v.x - u.x * v.z
+nz = u.x * v.y - u.y * v.x
+N = n / ||n|| (normale unitaire de longueur 1.0)</code></pre>
+  </div>
+
+<h2>2. Transformations Affines 3D &amp; Ordre Matriciel TRS</h2>
+
+<p>Pour manipuler un objet dans l’espace tridimensionnel sans perte d’information, on utilise des matrices 4x4 en <strong>coordonnées homogènes</strong> <code>(x, y, z, w=1)</code> :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Scale (Mise à l’échelle)</h4>
+    <p>Multiplie les coordonnées par des facteurs <code>(sx, sy, sz)</code>. S’applique par rapport à l’origine locale <code>(0,0,0)</code> de l’objet.</p>
+  </div>
+  <div class="card">
+    <h4>2. Rotation (Orientation)</h4>
+    <p>Fait tourner l’objet autour de ses axes locaux (angles d’Euler ou quaternions). Doit s’appliquer avant toute translation.</p>
+  </div>
+  <div class="card">
+    <h4>3. Translation (Position)</h4>
+    <p>Déplace le centre de l’objet vers sa position finale dans l’espace monde <code>(tx, ty, tz)</code>.</p>
+  </div>
+</div>
+<table class="table">
+  <thead>
+    <tr><th>Ordre d’application au point P</th><th>Formule matricielle</th><th>Conséquence géométrique</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Canonique : Scale -&gt; Rotation -&gt; Translation</strong></td><td><code>P' = T · R · S · P</code></td><td>L’objet grandit sur place, pivote sur lui-même, puis se déplace. Comportement naturel attendu.</td></tr>
+    <tr><td><strong>Erroné : Translation -&gt; Rotation -&gt; Scale</strong></td><td><code>P' = S · R · T · P</code></td><td>L’objet tourne en orbite autour de l’origine du monde et sa forme est cisaillée par l’échelle.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Niveaux de Détail (LOD - Level of Detail)</h2>
+
+<p>Afficher un modèle haute définition de 100 000 polygones lorsqu’il ne fait que 10 pixels de haut à l’écran est un gaspillage majeur de ressources GPU. La technique du <strong>LOD</strong> adapte la complexité géométrique à la distance :</p>
+<table class="table">
+  <thead>
+    <tr><th>Palier LOD</th><th>Distance à la caméra</th><th>Pourcentage de polygones</th><th>Usage type</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>LOD 0</strong></td><td>Proche (&lt; 15 m)</td><td>100 % (maillage complet haute fidélité)</td><td>Vue subjective, gros plan cinématique.</td></tr>
+    <tr><td><strong>LOD 1</strong></td><td>Moyenne (15 m à 40 m)</td><td>~50 % (arêtes fusionnées par décimation)</td><td>Plan moyen, silhouette détaillée.</td></tr>
+    <tr><td><strong>LOD 2</strong></td><td>Lointaine (&gt; 40 m)</td><td>~20 % (forme cubique simplifiée / billboard)</td><td>Arrière-plan lointain, horizon.</td></tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ig2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="A=(0,0,0) B=(1,0,0) C=(0,1,0)&#10;A=(0,0,0) B=(0,0,1) C=(0,1,0)">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ig2-c4-e1) — Calculateur de normale d’un triangle 3D (Produit vectoriel)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Triangle incliné dans l’espace]
+# Données : A=(1,1,1) B=(2,1,1) C=(1,2,2)
+A_COMPLETER
+
+[Cas 2 — Triangle vertical plan YZ]
+# Données : A=(0,0,0) B=(0,1,0) C=(0,0,1)
+A_COMPLETER
+
+[Cas 3 — Triangle oblique 3D quelconque]
+# Données : A=(0,0,0) B=(2,0,1) C=(1,2,0)
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de normale d’un triangle 3D (Produit vectoriel)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le vecteur normal unitaire perpendiculaire à une face polygonale 3D pour le calcul d’ombrage.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Formules géométriques :<br>
+1. Vecteur <code>u = B - A = (x2-x1, y2-y1, z2-z1)</code>.<br>
+2. Vecteur <code>v = C - A = (x3-x1, y3-y1, z3-z1)</code>.<br>
+3. Produit vectoriel <code>n = u x v</code> :<br>
+   <code>nx = uy * vz - uz * vy</code><br>
+   <code>ny = uz * vx - ux * vz</code><br>
+   <code>nz = ux * vy - uy * vx</code><br>
+4. Normalisation unitaire : <code>norme = sqrt(nx^2 + ny^2 + nz^2)</code>.<br>
+   <code>(Nx, Ny, Nz) = (nx/norme, ny/norme, nz/norme)</code>.<br>
+Afficher :<br>
+<code>TRIANGLE: -&gt; NORMALE: (&lt;Nx:.3f&gt;, &lt;Ny:.3f&gt;, &lt;Nz:.3f&gt;)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>A=(0,0,0) B=(1,0,0) C=(0,1,0)
+A=(0,0,0) B=(0,0,1) C=(0,1,0)</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TRIANGLE: -&gt; NORMALE: (0.000, 0.000, 1.000)
+TRIANGLE: -&gt; NORMALE: (-1.000, 0.000, 0.000)</pre></div>
+    </div>
+    <p class="lab__note">Le triangle dans le plan XY pointe selon l’axe Z positif.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’ordre des sommets (sens trigonométrique CCW) détermine l’orientation de la normale.</li>
+        <li>Arrondir à 3 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="P=(1,2,3) S=(2,2,2) T=(10,0,-5)&#10;P=(0,0,0) S=(1,1,1) T=(5,5,5)&#10;P=(4,-2,8) S=(0.5,3,-1) T=(0,10,2)">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ig2-c4-e2) — Applicateur de transformations affines 3D (Scale puis Translation)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Agrandissement x10 sans déplacement]
+# Données : P=(2.5,1.0,-3.2) S=(10,10,10) T=(0,0,0)
+A_COMPLETER
+
+[Cas 2 — Échelle nulle ramenant à la translation]
+# Données : P=(100,200,300) S=(0,0,0) T=(12,34,56)
+A_COMPLETER
+
+[Cas 3 — Facteurs négatifs (inversion d’axe)]
+# Données : P=(5,10,15) S=(-1,1,-1) T=(0,0,0)
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Applicateur de transformations affines 3D (Scale puis Translation)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la position finale d’un sommet 3D après mise à l’échelle (Scale) puis déplacement (Translation).</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Règles matricielles (Scale puis Translation) :<br>
+- <code>x' = x * sx + tx</code><br>
+- <code>y' = y * sy + ty</code><br>
+- <code>z' = z * sz + tz</code><br>
+Afficher :<br>
+<code>TRANSFORMATION: P=(&lt;x:.2f&gt;, &lt;y:.2f&gt;, &lt;z:.2f&gt;) -&gt; P'=(&lt;x':.2f&gt;, &lt;y':.2f&gt;, &lt;z':.2f&gt;)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>P=(1,2,3) S=(2,2,2) T=(10,0,-5)
+P=(0,0,0) S=(1,1,1) T=(5,5,5)
+P=(4,-2,8) S=(0.5,3,-1) T=(0,10,2)</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TRANSFORMATION: P=(1.00, 2.00, 3.00) -&gt; P'=(12.00, 4.00, 1.00)
+TRANSFORMATION: P=(0.00, 0.00, 0.00) -&gt; P'=(5.00, 5.00, 5.00)
+TRANSFORMATION: P=(4.00, -2.00, 8.00) -&gt; P'=(2.00, 4.00, -6.00)</pre></div>
+    </div>
+    <p class="lab__note">Application séquentielle rigoureuse de la mise à l’échelle et de la translation.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Multiplier chaque composante par son facteur d’échelle avant d’ajouter le décalage de translation.</li>
+        <li>Arrondir à 2 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="OBJET=Personnage POLYGONES=35000 DISTANCE=3.2&#10;OBJET=ArbreLointain POLYGONES=8000 DISTANCE=25.0&#10;OBJET=MaisonArrierePlan POLYGONES=400 DISTANCE=60.0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ig2-c4-e3) — Audit de niveau de détail géométrique (LOD) selon la distance
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Frontières de distance exactes]
+# Données : OBJET=ObjetA POLYGONES=15000 DISTANCE=5.0
+# Données : OBJET=ObjetB POLYGONES=3000 DISTANCE=20.0
+# Données : OBJET=ObjetC POLYGONES=500 DISTANCE=50.0
+A_COMPLETER
+
+[Cas 2 — Gros dépassement en arrière-plan]
+# Données : OBJET=StatueFond POLYGONES=20000 DISTANCE=100.0
+A_COMPLETER
+
+[Cas 3 — Modèle optimal en gros plan]
+# Données : OBJET=HeroPrincipal POLYGONES=48000 DISTANCE=1.5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Audit de niveau de détail géométrique (LOD) selon la distance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer la charge polygonale d’un objet 3D en temps réel selon sa distance à la caméra et détecter les surcharges de rendu.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Grille de tolérance des paliers LOD (Level of Detail) :<br>
+- <code>D &lt; 5.0m</code> : Palier <code>LOD 0 (Gros plan)</code> -&gt; Seuil maximal <code>50000</code> polygones.<br>
+- <code>5.0m &lt;= D &lt; 20.0m</code> : Palier <code>LOD 1 (Plan moyen)</code> -&gt; Seuil maximal <code>15000</code> polygones.<br>
+- <code>20.0m &lt;= D &lt; 50.0m</code> : Palier <code>LOD 2 (Plan lointain)</code> -&gt; Seuil maximal <code>3000</code> polygones.<br>
+- <code>D &gt;= 50.0m</code> : Palier <code>LOD 3 (Arriere-plan)</code> -&gt; Seuil maximal <code>500</code> polygones.<br>
+Pour chaque objet :<br>
+- Si <code>N &lt;= Seuil</code> : afficher <code>&lt;Nom&gt; [D=&lt;D&gt;m, &lt;N&gt; poly] -&gt; &lt;Palier&gt;: OPTIMAL</code><br>
+- Si <code>N &gt; Seuil</code> : calculer le surplus <code>surplus = N - Seuil</code> et afficher :<br>
+  <code>&lt;Nom&gt; [D=&lt;D&gt;m, &lt;N&gt; poly] -&gt; &lt;Palier&gt;: SURCHARGE (Depassement de &lt;surplus&gt; polygones)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OBJET=Personnage POLYGONES=35000 DISTANCE=3.2
+OBJET=ArbreLointain POLYGONES=8000 DISTANCE=25.0
+OBJET=MaisonArrierePlan POLYGONES=400 DISTANCE=60.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Personnage [D=3.2m, 35000 poly] -&gt; LOD 0 (Gros plan): OPTIMAL
+ArbreLointain [D=25.0m, 8000 poly] -&gt; LOD 2 (Plan lointain): SURCHARGE (Depassement de 5000 polygones)
+MaisonArrierePlan [D=60.0m, 400 poly] -&gt; LOD 3 (Arriere-plan): OPTIMAL</pre></div>
+    </div>
+    <p class="lab__note">L’arbre à 25m avec 8000 polygones surcharge inutilement le GPU alors que 3000 suffisent.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester les 4 paliers de distance : &lt;5, &lt;20, &lt;50, &gt;=50 mètres.</li>
+        <li>Calculer l’écart exact en cas de dépassement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi l’infographie 3D temps réel privilégie-t-elle exclusivement les triangles comme primitive géométrique de base ?</p>
+      <div class="opts">
+        <button class="opt">Parce que les triangles consomment moins d’électricité que les carrés</button>
+        <button class="opt" data-correct="1">Parce que 3 points dans l’espace sont toujours strictement coplanaires, évitant toute ambiguïté de déformation ou de torsion de surface</button>
+        <button class="opt">Parce que les cartes mères ne savent compter que jusqu’à 3</button>
+        <button class="opt">Pour des raisons purement esthétiques</button>
+      </div>
+      <div class="q__exp">Trois points définissent un plan unique de manière indiscutable, garantissant que la face n’est jamais tordue et que sa normale est uniforme.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle du mécanisme de « Back-Face Culling » dans un moteur de rendu 3D ?</p>
+      <div class="opts">
+        <button class="opt">Changer la couleur du fond d’écran</button>
+        <button class="opt" data-correct="1">Rejeter avant le calcul d’ombrage tous les triangles dont la normale pointe à l’opposé de la caméra, éliminant environ 50 % des faces invisibles</button>
+        <button class="opt">Augmenter le volume sonore des dialogues</button>
+        <button class="opt">Sauvegarder la partie sur disque dur</button>
+      </div>
+      <div class="q__exp">Sur un objet fermé (sphère, personnage, véhicule), les faces arrière sont masquées par les faces avant. Les éliminer d’emblée divise le travail de rasterisation par deux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle opération mathématique entre deux vecteurs directeurs u et v d’un triangle produit un vecteur orthogonal à la surface ?</p>
+      <div class="opts">
+        <button class="opt">Le produit scalaire (Dot Product)</button>
+        <button class="opt" data-correct="1">Le produit vectoriel (Cross Product)</button>
+        <button class="opt">L’addition vectorielle</button>
+        <button class="opt">La division composante par composante</button>
+      </div>
+      <div class="q__exp">Le produit vectoriel u × v génère par définition un vecteur perpendiculaire au plan formé par u et v, orienté selon la règle de la main droite.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel ordre canonique les transformations affines doivent-elles être composées matriciellement pour transformer un sommet P sans déformation orbitale parasite ?</p>
+      <div class="opts">
+        <button class="opt">P' = Scale · Translation · Rotation · P</button>
+        <button class="opt" data-correct="1">P' = Translation · Rotation · Scale · P</button>
+        <button class="opt">P' = Rotation · Scale · Translation · P</button>
+        <button class="opt">L’ordre n’a aucune importance car la multiplication matricielle est commutative</button>
+      </div>
+      <div class="q__exp">Les matrices s’appliquent de droite à gauche : d’abord l’échelle (S) par rapport à l’origine, puis la rotation (R) autour des axes locaux, et enfin la translation (T) vers la position monde.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un programmeur applique une translation T AVANT d’appliquer une rotation R sur un objet 3D ?</p>
+      <div class="opts">
+        <button class="opt">Le programme plante immédiatement</button>
+        <button class="opt" data-correct="1">L’objet pivote autour de l’origine du monde (révolution orbitale) au lieu de pivoter sur son propre centre de gravité</button>
+        <button class="opt">L’objet devient invisible</button>
+        <button class="opt">La résolution de l’écran diminue</button>
+      </div>
+      <div class="q__exp">Si la translation est effectuée en premier, le centre de l’objet s’éloigne de l’origine ; la rotation ultérieure le fait alors décrire un grand cercle autour de l’origine.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi utilise-t-on des coordonnées homogènes à 4 composantes (X, Y, Z, W=1) et des matrices 4x4 plutôt que des matrices 3x3 en géométrie 3D ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour pouvoir représenter les translations et les projections perspectives sous forme de simples multiplications matricielles linéaires</button>
+        <button class="opt">Parce que le chiffre 4 porte chance</button>
+        <button class="opt">Pour doubler la mémoire vive consommée</button>
+        <button class="opt">Pour empêcher les attaques par injection SQL</button>
+      </div>
+      <div class="q__exp">En 3D euclidienne (3x3), la translation est une addition (P + T). En coordonnées homogènes 4x4, elle devient une multiplication linéaire unifiée avec la rotation et le scale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’objectif principal des Niveaux de Détail (LOD - Level of Detail) dans un jeu vidéo 3D ?</p>
+      <div class="opts">
+        <button class="opt">Changer la musique selon la zone</button>
+        <button class="opt" data-correct="1">Substituer un maillage allégé comptant moins de polygones lorsque l’objet s’éloigne de la caméra, réduisant la charge géométrique du GPU</button>
+        <button class="opt">Empêcher le joueur de tricher</button>
+        <button class="opt">Ajouter des armes supplémentaires</button>
+      </div>
+      <div class="q__exp">À grande distance, un objet occupe très peu de pixels. Utiliser un modèle simplifié de quelques centaines de polygones au lieu de 50 000 économise massivement le temps de calcul.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle formule donne la norme (longueur euclidienne) d’un vecteur 3D n = (nx, ny, nz) pour le normaliser ?</p>
+      <div class="opts">
+        <button class="opt">norme = nx + ny + nz</button>
+        <button class="opt" data-correct="1">norme = sqrt(nx*nx + ny*ny + nz*nz)</button>
+        <button class="opt">norme = max(nx, ny, nz)</button>
+        <button class="opt">norme = nx * ny * nz</button>
+      </div>
+      <div class="q__exp">La norme euclidienne correspond à la racine carrée de la somme des carrés des trois composantes cartésiennes.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Inverser l’ordre de deux sommets d’un triangle (ex: CW au lieu de CCW), ce qui retourne la normale vers l’intérieur et rend le triangle invisible à cause du Back-Face Culling.</li>
+      <li>Appliquer la translation avant la rotation : l’objet effectue une révolution orbitale au lieu de tourner sur son propre centre de masse.</li>
+      <li>Oublier de normaliser le résultat du produit vectoriel : la longueur de la normale fausse les équations de réflectance diffuse.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Modélisation Géométrique et de Transformation TRS</div>
+    <ol>
+      <li>Étape 1 — Définir les sommets et faces : Structurer le maillage en triangles coplanaires et ordonner les sommets en sens anti-horaire (CCW).</li>
+      <li>Étape 2 — Calculer la normale unitaire : Extraire deux vecteurs directeurs u = B - A et v = C - A, calculer le produit vectoriel n = u × v et normaliser N = n / ||n||.</li>
+      <li>Étape 3 — Configurer le Back-Face Culling : Activer l’élimination des faces arrière pour doubler le débit de rasterisation sur les volumes fermés.</li>
+      <li>Étape 4 — Composer les transformations géométriques : Multiplier les matrices affines dans l’ordre canonique TRS : Scale en premier, puis Rotation, puis Translation.</li>
+      <li>Étape 5 — Projeter en coordonnées homogènes : Appliquer la transformation 4x4 au point P(x, y, z, 1) pour obtenir sa position monde sans distorsion orbitale.</li>
+      <li>Étape 6 — Générer les paliers de LOD : Créer des versions décimées à 50 % et 20 % de polygones pour alléger la charge GPU selon la distance caméra.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le triangle est la seule primitive géométrique 3D garantie d’être strictement plane.</li>
+      <li>Le sens de parcours CCW (Counter-Clockwise) définit la face avant et active le Back-Face Culling.</li>
+      <li>Le produit vectoriel u × v de deux arêtes d’un triangle produit un vecteur orthogonal à la face.</li>
+      <li>Une normale doit impérativement être normalisée (divisée par sa norme) pour que les calculs d’ombrage soient exacts.</li>
+      <li>L’ordre canonique de multiplication matricielle est Translation × Rotation × Scale appliquée au sommet.</li>
+      <li>Le système de LOD réduit le nombre de polygones des objets lointains sans dégradation perceptible pour le joueur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer pourquoi les quads sont systématiquement découpés en triangles pour le GPU.</li>
+      <li>Je comprends comment le Back-Face Culling permet d’ignorer la moitié des faces d’un maillage fermé.</li>
+      <li>Je sais calculer les composantes (nx, ny, nz) d’un produit vectoriel de deux vecteurs 3D.</li>
+      <li>Je connais l’ordre canonique TRS et je sais pourquoi il ne doit pas être inversé.</li>
+      <li>Je comprends la règle de sélection de LOD selon la distance à la caméra.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Maillages polygonaux (Vertices, Edges, Faces)</li><li>Triangulation et planéité géométrique</li><li>Sens de parcours (Winding Order CCW vs CW)</li><li>Élimination des faces arrière (Back-Face Culling)</li><li>Produit vectoriel (Cross Product) et normale de face</li><li>Coordonnées homogènes 4D et matrices 4x4</li><li>Ordre des transformations affines TRS (Scale, Rotate, Translate)</li><li>Niveaux de Détail géométriques (LOD)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez le rôle du triangle, le Back-Face Culling et le calcul de normale par produit vectoriel.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon socle de géométrie 3D. Approfondissez l’ordre TRS et l’utilité des coordonnées homogènes 4x4.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise des mathématiques de la modélisation 3D.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les maillages et les transformations affines au niveau d’un ingénieur moteur 3D.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Éclairage, Shaders Programmables &amp; Rendu PBR <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les spécifications Khronos Group (OpenGL, Vulkan), les documentations officielles Blender, Unity et Unreal Engine, et les traités de référence Real-Time Rendering.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

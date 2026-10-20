@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Maîtrise de la Documentation Technique &amp;amp; Spécifications d’API | Anglais B3</title>
+<meta name="description" content="Chapitre 2 du cours Anglais B3 : Anatomie des spécifications d’API REST (OpenAPI, Swagger, endpoints, verbes HTTP, en-têtes et codes de statut 2xx/4xx/5xx), analyse des clauses normatives de la norme RFC 2119 (MUST, MUST NOT, SHOULD, SHOULD NOT, MAY) et conception de documentations de projets structurées (fichiers README.md professionnels). Notions clés, vocabulaire professionnel, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-anglais/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Maîtrise de la Documentation Technique &amp;amp; Spécifications d’API | Anglais B3">
+<meta property="og:description" content="Chapitre 2 du cours Anglais B3 : Anatomie des spécifications d’API REST (OpenAPI, Swagger, endpoints, verbes HTTP, en-têtes et codes de statut 2xx/4xx/5xx), analyse des clauses normatives de la norme RFC 2119 (MUST, MUST NOT, SHOULD, SHOULD NOT, MAY) et conception de documentations de projets structurées (fichiers README.md professionnels). Notions clés, vocabulaire professionnel, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-anglaisnav"><div class="b3-anglaisnav__in">
+  <a class="b3-anglaisnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-anglaisnav__sep" aria-hidden="true">/</span>
+  <a class="b3-anglaisnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Anglais B3</a>
+  <div class="b3-anglaisnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-anglaisnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-anglaiswrap">
+<p class="crumb"><a href="../index.html">Anglais B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Maîtrise de la Documentation Technique &amp; Spécifications d’API</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lors de l’intégration d’un nouveau service de paiement (Stripe), d’une passerelle SMS (Twilio) ou d’un microservice interne développé par une équipe basée à l’étranger, l’ingénieur doit être capable de lire, comprendre et auditer une documentation technique rédigée intégralement en anglais sans recourir à des outils de traduction approximatifs. Une mécompréhension des verbes normatifs d’une RFC (confondre SHOULD et MUST) ou l’ignorance des codes de statut HTTP expose l’architecture à des failles de sécurité majeures, des pertes de transactions ou des blocages d’intégration.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décortiquer la structure normalisée d’une documentation d’API REST (endpoints, paramètres d’URI, en-têtes Bearer et payloads JSON) ;</li>
+      <li>interpréter les codes de statut HTTP standard (200, 201, 204, 400, 401, 403, 404, 500, 502, 503) et leurs implications opérationnelles ;</li>
+      <li>auditer et classifier les clauses contractuelles d’une spécification technique selon les mots-clés normatifs de la RFC 2119 ;</li>
+      <li>concevoir un fichier README.md technique conforme aux standards de l’industrie (prérequis, installation, configuration d’environnement et dépannage) ;</li>
+      <li>développer en Python 3 des linters d’OpenAPI, des analyseurs de conformité RFC 2119 et des générateurs de sommaires Markdown avec ancres.</li>
+    </ol>
+  </div>
+
+<h2>1. Anatomie d’une Spécification d’API REST &amp; Standards OpenAPI</h2>
+
+<p>Une documentation d’API de niveau industriel (OpenAPI / Swagger) formalise le contrat d’échange entre le fournisseur de service et les développeurs intégrateurs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Verbes d’Action HTTP &amp; Idempotence</h4>
+    <ul>
+      <li><strong>GET (Read) :</strong> récupération de ressources sans effet de bord. Sûr et idempotent.</li>
+      <li><strong>POST (Create) :</strong> création d’une nouvelle ressource ou déclenchement d’un traitement. Non idempotent (deux appels créent deux ressources distinctes).</li>
+      <li><strong>PUT (Replace) :</strong> remplacement intégral d’une ressource existante à l’URI spécifiée. Idempotent.</li>
+      <li><strong>PATCH (Update) :</strong> modification partielle des attributs d’une ressource existante. Généralement non idempotent.</li>
+      <li><strong>DELETE (Remove) :</strong> suppression définitive de la ressource. Idempotent.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Codes de Statut HTTP et Gestion des Erreurs</h4>
+    <ul>
+      <li><strong>2xx Success :</strong> <code>200 OK</code> (succès avec contenu), <code>201 Created</code> (ressource créée), <code>204 No Content</code> (succès sans corps renvoyé, typique sur DELETE).</li>
+      <li><strong>4xx Client Error :</strong> <code>400 Bad Request</code> (syntaxe JSON invalide), <code>401 Unauthorized</code> (token manquant ou invalide), <code>403 Forbidden</code> (droits insuffisants), <code>404 Not Found</code>.</li>
+      <li><strong>5xx Server Error :</strong> <code>500 Internal Server Error</code> (exception non gérée), <code>502 Bad Gateway</code> (serveur amont injoignable), <code>503 Service Unavailable</code> (surcharge temporaire), <code>504 Gateway Timeout</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. La Norme RFC 2119 : Mots-clés Normatifs d’Exigence Technique</h2>
+
+<p>Rédigée par Scott Bradner en 1997 pour l’IETF, la norme <b>RFC 2119</b> élimine toute subjectivité dans la rédaction des spécifications logicielles et protocolaires :</p>
+<table class="table">
+  <thead><tr><th>Mot-clé Normatif</th><th>Degré d’Obligation</th><th>Conséquence pour l’Ingénieur</th></tr></thead>
+  <tbody>
+    <tr><td><strong>MUST / REQUIRED / SHALL</strong></td><td>Exigence absolue (P1)</td><td>Le système n’est pas interopérable ou non conforme s’il ne respecte pas cette directive. Aucun compromis toléré.</td></tr>
+    <tr><td><strong>MUST NOT / SHALL NOT</strong></td><td>Interdiction absolue (P1)</td><td>Comportement formellement prohibé. L’implémentation de ce comportement invalide la certification.</td></tr>
+    <tr><td><strong>SHOULD / RECOMMENDED</strong></td><td>Forte recommandation (P2)</td><td>Des raisons valables peuvent exister dans des circonstances particulières pour ne pas l’appliquer, mais le choix doit être motivé et documenté.</td></tr>
+    <tr><td><strong>SHOULD NOT / NOT RECOMMENDED</strong></td><td>Pratique déconseillée (P2)</td><td>Comportement indésirable qui doit être évité sauf justification technique explicite.</td></tr>
+    <tr><td><strong>MAY / OPTIONAL</strong></td><td>Option purement facultative (P3)</td><td>L’implémenteur peut librement choisir d’inclure ou non l’élément sans compromettre l’interopérabilité générale.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Conception d’un README.md Professionnel : Clarté &amp; Reproductibilité</h2>
+
+<p>Le fichier <code>README.md</code> constitue la vitrine technique et le premier point de contact avec un référentiel de code. Un bon README permet à un nouvel ingénieur d’exécuter le projet en moins de 5 minutes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Six Sections Obligatoires d’un README</h4>
+    <ol>
+      <li><strong>Project Title &amp; One-line Pitch :</strong> intitulé clair et énoncé de valeur immédiat (rôle du composant dans l’architecture).</li>
+      <li><strong>Prerequisites &amp; Dependencies :</strong> versions exactes du runtime (Node 20, Python 3.11), outils requis (Docker, Make) et services tiers.</li>
+      <li><strong>Quickstart / Installation :</strong> commandes en bloc de code copiables directement (<code>npm install</code>, <code>pip install -r requirements.txt</code>).</li>
+      <li><strong>Configuration / Environment Variables :</strong> tableau exhaustif des variables d’environnement avec valeurs par défaut et caractère obligatoire.</li>
+      <li><strong>Running Tests :</strong> commande pour exécuter la suite de tests automatisée (<code>npm test</code>, <code>pytest</code>).</li>
+      <li><strong>Troubleshooting &amp; FAQ :</strong> recensement des erreurs d’installation courantes et procédures de contournement.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Exemple de Matrice de Variables d’Environnement</h4>
+    <table class="table">
+      <thead><tr><th>Variable</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>PORT</code></td><td>Integer</td><td><code>3000</code></td><td>Port d’écoute du serveur web HTTP.</td></tr>
+        <tr><td><code>DATABASE_URL</code></td><td>String</td><td><em>(Required)</em></td><td>Chaîne de connexion PostgreSQL avec schéma SSL.</td></tr>
+        <tr><td><code>JWT_SECRET</code></td><td>String</td><td><em>(Required)</em></td><td>Clé cryptographique de signature des tokens de session.</td></tr>
+        <tr><td><code>LOG_LEVEL</code></td><td>String</td><td><code>info</code></td><td>Verbosité des journaux (debug, info, warn, error).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="an3-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RFC_CLAUSE id=REQ-101 text=The client MUST validate the TLS certificate chain before sending data.">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (an3-c2-e1) — Analyseur et auditeur de conformité RFC 2119
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Interdiction absolue MUST NOT]
+# Données : RFC_CLAUSE id=REQ-102 text=The gateway MUST NOT forward unauthenticated requests to internal microservices.
+A_COMPLETER
+
+[Cas 2 — Recommandation positive SHOULD et clause optionnelle MAY]
+# Données : RFC_CLAUSE id=REQ-103 text=Servers SHOULD cache database query responses for at least sixty seconds.
+# Données : RFC_CLAUSE id=REQ-104 text=Clients MAY include a custom trace-id header for distributed observability.
+A_COMPLETER
+
+[Cas 3 — Pratique déconseillée SHOULD NOT et clause descriptive informative]
+# Données : RFC_CLAUSE id=REQ-105 text=Applications SHOULD NOT store plaintext passwords in environment variables.
+# Données : RFC_CLAUSE id=REQ-106 text=This specification was drafted in accordance with international security guidelines.
+A_COMPLETER
+
+[Cas 4 — Termes synonymes REQUIRED et NOT RECOMMENDED]
+# Données : RFC_CLAUSE id=REQ-107 text=Two-factor authentication is REQUIRED for administrator console access.
+# Données : RFC_CLAUSE id=REQ-108 text=Using MD5 hashing is NOT RECOMMENDED due to known collision attacks.
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur et auditeur de conformité RFC 2119</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les mots-clés normatifs d’une spécification technique en anglais (RFC 2119) pour déterminer le niveau d’exigence contractuel.</p>
+    <div class="lab__brief"><p>La norme <b>RFC 2119</b> définit avec rigueur les mots-clés indiquant les exigences impératives, recommandées ou optionnelles dans les standards de l'Internet.<br>
+Pour chaque cas d’application des clauses techniques au format :<br>
+<code>RFC_CLAUSE id=&lt;ID&gt; text=&lt;clause en anglais&gt;</code>.<br><br>
+Règles d'évaluation (recherche de mots entiers, insensible à la casse) :<br>
+- Si le texte contient <code>MUST NOT</code> ou <code>SHALL NOT</code> :<br>
+  <code>LEVEL=ABSOLUTE_PROHIBITION | PRIORITY=P1_CRITICAL</code><br>
+- Sinon, si le texte contient <code>MUST</code>, <code>REQUIRED</code> ou <code>SHALL</code> :<br>
+  <code>LEVEL=ABSOLUTE_REQUIREMENT | PRIORITY=P1_CRITICAL</code><br>
+- Sinon, si le texte contient <code>SHOULD NOT</code> ou <code>NOT RECOMMENDED</code> :<br>
+  <code>LEVEL=DEPRECATED_PRACTICE | PRIORITY=P2_RECOMMENDED</code><br>
+- Sinon, si le texte contient <code>SHOULD</code> ou <code>RECOMMENDED</code> :<br>
+  <code>LEVEL=BEST_PRACTICE | PRIORITY=P2_RECOMMENDED</code><br>
+- Sinon, si le texte contient <code>MAY</code> ou <code>OPTIONAL</code> :<br>
+  <code>LEVEL=OPTIONAL_FEATURE | PRIORITY=P3_OPTIONAL</code><br>
+- Dans les autres cas :<br>
+  <code>LEVEL=INFORMATIONAL | PRIORITY=P4_INFO</code><br><br>
+Afficher :<br>
+<code>RFC_AUDIT: &lt;ID&gt; -&gt; LEVEL=&lt;LEVEL&gt; | PRIORITY=&lt;PRIORITY&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RFC_CLAUSE id=REQ-101 text=The client MUST validate the TLS certificate chain before sending data.</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RFC_AUDIT: REQ-101 -&gt; LEVEL=ABSOLUTE_REQUIREMENT | PRIORITY=P1_CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">Le mot-clé MUST impose une exigence absolue de niveau P1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traiter les négations ("MUST NOT", "SHALL NOT", "SHOULD NOT") avant les affirmations simples.</li>
+        <li>Utiliser re.search avec \b pour ne pas confondre "may" dans un autre mot comme "maybe".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="an3-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="API_ENDPOINT method=GET path=/api/v1/users auth=true status_codes=200,401,500">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (an3-c2-e2) — Linter de documentation d’endpoints REST & OpenAPI
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Endpoint avec authentification manquante de code 401/403]
+# Données : API_ENDPOINT method=POST path=/api/v1/orders auth=true status_codes=201,400,500
+A_COMPLETER
+
+[Cas 2 — Méthode HTTP et chemin non conformes]
+# Données : API_ENDPOINT method=FETCH path=api/v1/invalid\path auth=false status_codes=200
+A_COMPLETER
+
+[Cas 3 — Absence de code de succès HTTP 2xx]
+# Données : API_ENDPOINT method=DELETE path=/api/v1/sessions/{id} auth=false status_codes=404,500
+A_COMPLETER
+
+[Cas 4 — Endpoint valide avec code 204 No Content]
+# Données : API_ENDPOINT method=DELETE path=/api/v1/cache auth=true status_codes=204,401,403
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Linter de documentation d’endpoints REST &amp; OpenAPI</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité et la complétude de la documentation d’une route d’API REST (méthode HTTP, format de chemin, authentification et codes de retour).</p>
+    <div class="lab__brief"><p>Dans la documentation d'API (type Swagger/OpenAPI ou Stripe/Twilio), chaque endpoint doit respecter des conventions strictes.<br>
+Pour chaque cas d’application des définitions d'endpoints au format :<br>
+<code>API_ENDPOINT method=&lt;METHOD&gt; path=&lt;PATH&gt; auth=&lt;true|false&gt; status_codes=&lt;c1,c2,...&gt;</code>.<br><br>
+Règles de validation :<br>
+1. <b>Méthode HTTP</b> : doit appartenir à <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>, <code>PATCH</code>. Si invalide : ajouter <code>INVALID_METHOD</code>.<br>
+2. <b>Chemin (URI)</b> : doit débuter par <code>/</code> et ne contenir que des caractères alphanumériques, tirets, underscores, slashes et accolades de variables d'URL (<code>{id}</code>). Si invalide : ajouter <code>INVALID_PATH_FORMAT</code>.<br>
+3. <b>Succès</b> : la liste des codes doit comporter au moins un code de succès (<code>200</code>, <code>201</code> ou <code>204</code>). Si absent : ajouter <code>MISSING_SUCCESS_STATUS</code>.<br>
+4. <b>Authentification</b> : si <code>auth=true</code>, la liste doit contenir au moins un code d'erreur d'authentification ou d'autorisation (<code>401</code> ou <code>403</code>). Si absent : ajouter <code>MISSING_AUTH_ERROR_CODE</code>.<br><br>
+Afficher :<br>
+- Si aucune anomalie :<br>
+  <code>ENDPOINT_STATUS: &lt;METHOD&gt; &lt;PATH&gt; -&gt; VALID</code><br>
+- Si des anomalies sont détectées :<br>
+  <code>ENDPOINT_STATUS: &lt;METHOD&gt; &lt;PATH&gt; -&gt; INVALID | ISSUES=&lt;issue1,issue2,...&gt;</code> (anomalies triées par ordre alphabétique).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>API_ENDPOINT method=GET path=/api/v1/users auth=true status_codes=200,401,500</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ENDPOINT_STATUS: GET /api/v1/users -&gt; VALID</pre></div>
+    </div>
+    <p class="lab__note">Méthode GET valide, chemin conforme, code 200 présent et code 401 présent pour auth=true.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Valider le format du chemin avec une expression régulière : ^/[a-zA-Z0-9/_{}-]+$</li>
+        <li>Trier la liste des anomalies avec sorted() avant de la joindre avec une virgule.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="an3-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="# Introduction to Cloud API&#10;## Getting Started&#10;### Installation Guide">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (an3-c2-e3) — Générateur de sommaire technique Markdown et slugification
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — README avec texte informatif intercalé et caractères spéciaux]
+# Données : # Payment Service v2.0!
+# Données : This service handles credit cards.
+# Données : ## Setup & Configuration
+# Données : Run npm install.
+# Données : ### Environment Variables (ENV)
+A_COMPLETER
+
+[Cas 2 — Sous-sections multiples au niveau h2]
+# Données : # Architecture
+# Données : ## Microservices
+# Données : ## Database Cluster
+# Données : ## Monitoring & Alerts
+A_COMPLETER
+
+[Cas 3 — Document vide ou sans aucun titre Markdown]
+# Données : Just a regular paragraph with no markdown headers.
+# Données : Another note.
+A_COMPLETER
+
+[Cas 4 — Titres avec tirets existants et espaces multiples]
+# Données : # Single--Sign-On   SSO
+# Données : ## SAML 2.0 Auth
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Générateur de sommaire technique Markdown et slugification</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une documentation technique en Markdown, extraire les titres h1, h2, h3 et générer une table des matières indentée avec ancres de liens conformes.</p>
+    <div class="lab__brief"><p>Une documentation technique de qualité professionnelle (fichier <code>README.md</code> ou spécification d'architecture) comporte une table des matières (<i>Table of Contents</i>) structurée permettant une navigation rapide.<br>
+Pour chaque cas d’application des lignes d'un document Markdown.<br><br>
+Règles d'extraction et de formatage :<br>
+- Les lignes de titres commencent par <code># </code> (h1), <code>## </code> (h2) ou <code>### </code> (h3). Ignorer les autres lignes.<br>
+- Pour chaque titre, nettoyer les espaces superflus et construire un slug d'ancre :<br>
+  * Convertir le texte du titre en minuscules.<br>
+  * Remplacer tout caractère qui n'est ni une lettre minuscule, ni un chiffre par un tiret <code>-</code>.<br>
+  * Réduire les tirets consécutifs à un seul tiret.<br>
+  * Supprimer les tirets au début et à la fin du slug.<br>
+- Formatage de la table des matières :<br>
+  * Titre h1 : <code>- [&lt;Titre&gt;](#&lt;slug&gt;)</code><br>
+  * Titre h2 : <code>  - [&lt;Titre&gt;](#&lt;slug&gt;)</code> (2 espaces d'indentation)<br>
+  * Titre h3 : <code>    - [&lt;Titre&gt;](#&lt;slug&gt;)</code> (4 espaces d'indentation)<br><br>
+Afficher :<br>
+<code>TABLE_OF_CONTENTS_START</code><br>
+&lt;lignes du sommaire&gt;<br>
+<code>TABLE_OF_CONTENTS_END | COUNT=&lt;nombre_de_titres&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre># Introduction to Cloud API
+## Getting Started
+### Installation Guide</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TABLE_OF_CONTENTS_START
+- [Introduction to Cloud API](#introduction-to-cloud-api)
+  - [Getting Started](#getting-started)
+    - [Installation Guide](#installation-guide)
+TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
+    </div>
+    <p class="lab__note">Génération de la table des matières avec trois niveaux d'indentation et slugs conformes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer le niveau de titre selon le nombre de dièses consécutifs (1, 2 ou 3).</li>
+        <li>Construire le slug avec re.sub(r"[^a-z0-9]+", "-", texte.lower()).strip("-").</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans la norme RFC 2119, que signifie la directive « The server MUST NOT log bearer tokens » ?</p>
+      <div class="opts">
+        <button class="opt">Il est recommandé de ne pas journaliser les tokens sauf en cas de débogage.</button>
+        <button class="opt" data-correct="1">La journalisation des tokens est formellement interdite et constitue une non-conformité absolue.</button>
+        <button class="opt">Le serveur peut journaliser les tokens s’il utilise le format JSON.</button>
+        <button class="opt">Cette directive est purement informative et n’a aucune valeur contraignante.</button>
+      </div>
+      <div class="q__exp">« MUST NOT » désigne une interdiction absolue et impérative dans la norme RFC 2119.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de statut HTTP indique que le client est authentifié mais ne possède pas les permissions nécessaires pour accéder à la ressource demandée ?</p>
+      <div class="opts">
+        <button class="opt">401 Unauthorized</button>
+        <button class="opt" data-correct="1">403 Forbidden</button>
+        <button class="opt">404 Not Found</button>
+        <button class="opt">409 Conflict</button>
+      </div>
+      <div class="q__exp">Le code 401 signale une absence d’authentification valide, tandis que 403 Forbidden indique que l’identité est connue mais que les droits sont insuffisants.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que garantit la propriété d’idempotence d’une méthode HTTP comme PUT ou DELETE ?</p>
+      <div class="opts">
+        <button class="opt">La méthode s’exécute deux fois plus vite qu’une méthode non idempotente.</button>
+        <button class="opt" data-correct="1">Exécuter la requête une ou plusieurs fois consécutives produit exactement le même effet sur l’état du serveur.</button>
+        <button class="opt">La méthode ne nécessite aucun token d’authentification.</button>
+        <button class="opt">Le résultat est automatiquement mis en cache par tous les proxys réseau.</button>
+      </div>
+      <div class="q__exp">Une opération est dite idempotente si la répéter plusieurs fois avec les mêmes paramètres aboutit au même état final sur le serveur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la documentation d’une API REST, quelle est la méthode HTTP recommandée pour créer une nouvelle commande d’achat ?</p>
+      <div class="opts">
+        <button class="opt">GET</button>
+        <button class="opt" data-correct="1">POST</button>
+        <button class="opt">HEAD</button>
+        <button class="opt">OPTIONS</button>
+      </div>
+      <div class="q__exp">POST est la méthode standard pour créer de nouvelles ressources dont l’identifiant n’est pas encore déterminé par le client.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence entre les mots-clés RFC 2119 « MUST » et « SHOULD » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">MUST est une exigence absolue ; SHOULD est une forte recommandation qui peut être contournée si des raisons valables existent.</button>
+        <button class="opt">MUST concerne les clients et SHOULD concerne uniquement les serveurs.</button>
+        <button class="opt">SHOULD est obligatoire tandis que MUST est purement optionnel.</button>
+        <button class="opt">Les deux termes ont exactement la même valeur juridique et technique.</button>
+      </div>
+      <div class="q__exp">MUST impose une obligation absolue. SHOULD tolère des exceptions motivées et documentées par les ingénieurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de retour HTTP est le plus approprié lorsqu’une ressource est supprimée avec succès et qu’aucun corps de réponse n’est renvoyé ?</p>
+      <div class="opts">
+        <button class="opt">200 OK</button>
+        <button class="opt">201 Created</button>
+        <button class="opt" data-correct="1">204 No Content</button>
+        <button class="opt">304 Not Modified</button>
+      </div>
+      <div class="q__exp">Le code HTTP 204 No Content confirme le succès du traitement tout en spécifiant qu’aucun corps de réponse n’est transmis.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un fichier README.md de qualité professionnelle, quelle section doit obligatoirement détailler les versions de Node.js, Python ou Docker nécessaires ?</p>
+      <div class="opts">
+        <button class="opt">License & Copyright</button>
+        <button class="opt" data-correct="1">Prerequisites (Prérequis)</button>
+        <button class="opt">Contributing Guide</button>
+        <button class="opt">Changelog</button>
+      </div>
+      <div class="q__exp">La section Prerequisites énumère l’ensemble des dépendances matérielles et logicielles requises pour exécuter le projet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signale un code d’erreur HTTP 502 Bad Gateway reçu par un navigateur ?</p>
+      <div class="opts">
+        <button class="opt">Le navigateur a envoyé une URL contenant des caractères interdits.</button>
+        <button class="opt" data-correct="1">Un serveur mandataire ou proxy inverse a reçu une réponse invalide d’un serveur en amont (upstream).</button>
+        <button class="opt">La base de données locale du client est corrompue.</button>
+        <button class="opt">Le mot de passe de l’utilisateur a expiré.</button>
+      </div>
+      <div class="q__exp">Le code 502 Bad Gateway survient lorsqu’un reverse proxy (ex: Nginx, Traefik) ne parvient pas à obtenir une réponse valide du microservice applicatif amont.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre SHOULD (recommandation avec dérogation permise) et MUST (obligation absolue incontournable).</li>
+      <li>Oublier de documenter les codes d’erreur 401/403 sur un endpoint sécurisé par token Bearer.</li>
+      <li>Fournir un README sans préciser les versions exactes des runtimes (ex. Node.js ou Python requis).</li>
+      <li>Utiliser PUT pour une modification partielle d’attributs au lieu de PATCH.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Vérifier chaque clause de spécification technique en repérant les mots-clés RFC 2119 pour distinguer obligations absolues et recommandations.</li>
+      <li>Contrôler la présence d’au moins un code 2xx et des codes 401/403 pour tout endpoint protégé dans la documentation OpenAPI.</li>
+      <li>Structurer tout fichier README selon les 6 sections standard pour garantir une reproduction en moins de cinq minutes.</li>
+      <li>Documenter systématiquement l’idempotence des méthodes HTTP exposées pour guider les intégrateurs sur la politique de retry.</li>
+      <li>Générer automatiquement une table des matières Markdown avec slugs valides pour faciliter la navigation dans les longs documents techniques.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les spécifications OpenAPI formalisent les contrats d’API : verbes HTTP, URI, en-têtes et statuts 2xx/4xx/5xx.</li>
+      <li>La norme RFC 2119 élimine l’ambiguïté avec MUST (obligatoire), SHOULD (recommandé) et MAY (optionnel).</li>
+      <li>La différence entre 401 (non authentifié) et 403 (non autorisé) est cruciale dans la gestion des permissions.</li>
+      <li>Un README.md professionnel fournit prérequis, installation, variables d’environnement et guide de dépannage.</li>
+      <li>L’idempotence (GET, PUT, DELETE) permet de répéter une requête en cas d’échec réseau sans effet de bord imprévu.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Ai-je audité les clauses MUST vs SHOULD dans mes spécifications d’interface ?</li>
+      <li>Mes routes d’API protégées documentent-elles les statuts 401 et 403 ?</li>
+      <li>Mon README contient-il un tableau complet des variables d’environnement avec valeurs par défaut ?</li>
+      <li>Les commandes d’installation et d’exécution des tests sont-elles directement copiables ?</li>
+      <li>Les ancres de ma table des matières Markdown renvoient-elles vers des slugs valides ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Spécification OpenAPI & Swagger</li><li>Verbes HTTP (GET, POST, PUT, DELETE, PATCH)</li><li>Codes de statut HTTP (2xx, 4xx, 5xx)</li><li>Idempotence des requêtes réseau</li><li>Norme RFC 2119 (MUST, SHOULD, MAY)</li><li>Structure canonique d’un README.md</li><li>Matrice de variables d’environnement</li><li>Slugification et ancres Markdown</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Confusion entre verbes normatifs RFC 2119 ou omission des codes d’erreur dans la documentation d’API.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise d’OpenAPI, distinction claire entre 401 et 403, et structuration correcte d’un fichier README.</div>
+      <div class="bandrow bandrow--high">Excellence technique : audit rigoureux de spécifications RFC 2119, conception de documentations industrielles et maîtrise complète des statuts HTTP.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Communication Écrite Professionnelle : Emails, Bug Reports &amp; Escalades <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports officiels de cours B3 IT (Dorcas Tchogoue, Collège de Paris), Normes RFC 2119 / RFC 2616 (IETF), Spécifications OpenAPI 3.0, Principes Google Site Reliability Engineering (SRE) et Modèle comportemental STAR.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

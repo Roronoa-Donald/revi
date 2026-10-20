@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémo PHP — PHP POO B2</title>
+<meta name="description" content="Mémo du cours de PHP objet B2 : classes, visibilité, héritage, traits, namespaces, exceptions et PDO sur une page.">
+<link rel="canonical" href="https://revi-mu.vercel.app/php/chapitres/formules.html">
+<meta property="og:title" content="Mémo PHP — PHP POO B2">
+<meta property="og:description" content="Mémo du cours de PHP objet B2 : classes, visibilité, héritage, traits, namespaces, exceptions et PDO sur une page.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="phpnav"><div class="phpnav__in">
+  <a class="phpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phpnav__sep" aria-hidden="true">/</span>
+  <a class="phpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP POO B2</a>
+  <div class="phpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html" class="is-active">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="phpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="phpwrap">
+<p class="crumb"><a href="../index.html">PHP POO B2</a> › <a href="../sommaire.html">Sommaire</a> › Mémo</p>
+
+  <h1>Mémo PHP</h1>
+
+  <p class="lead">Syntaxe des classes, visibilité, héritage, exceptions et PDO sur une page. À garder ouvert pendant les exercices et l’atelier.</p>
+
+  <h2>Une classe, un objet</h2>
+<pre><code>class Point {
+
+    private $x;                       // état
+
+    public function __construct(int $x) { $this-&gt;x = $x; }
+
+    public function afficher(): string { return "(" . $this-&gt;x . ")"; }
+
+}
+
+$p = new Point(3);      // new déclenche le constructeur
+
+$p-&gt;afficher();          // flèche pour un membre</code></pre>
+<p>Le point <code>.</code> concatène ; la flèche <code>-&gt;</code> atteint un membre.</p>
+
+  <h2>Visibilité, constantes, statique</h2>
+<pre><code>public     ouvert à tous        protected  classe + filles
+
+private    réservé à la classe  const      const TVA = 18;   self::TVA
+
+static     partagé par la classe           self::$compteur (pas $this)
+
+fluent     return $this;         permet   $obj-&gt;a()-&gt;b()</code></pre>
+<p>Encapsulation : propriétés en private, accès par getters et setters qui valident.</p>
+
+  <h2>Héritage, abstrait, interfaces</h2>
+<pre><code>class Chien extends Animal { ... }        parent::__construct($nom)
+
+abstract class Forme { abstract public function aire(): float; }
+
+interface Affichable { public function afficher(): string; }
+
+class Cercle extends Forme implements Affichable { ... }
+
+polymorphisme : $forme-&gt;aire() exécute la version du type réel</code></pre>
+<p>Interface = contrat de signatures ; classe abstraite = squelette réutilisable.</p>
+
+  <h2>Traits et namespaces</h2>
+<pre><code>trait Salutation { public function saluer(): string { ... } }
+
+class Accueil { use Salutation; }        // importe les méthodes
+
+conflit : use A, B { A::demarrer insteadof B; B::demarrer as demarrerB; }
+
+namespace App;                             // tout en haut, après <?php
+
+use Core\Calcul as Calc;                   // import + alias
+
+spl_autoload_register(function ($classe) { ... });</code></pre>
+<p>Le namespace fait partie du nom complet : <code>App\Utilisateur</code>.</p>
+
+  <h2>Erreurs et exceptions</h2>
+<pre><code>throw new Exception("message");            // lance
+
+try { ... } catch (Exception $e) { $e-&gt;getMessage(); }
+
+class SoldeInsuffisant extends Exception {}    // personnalisée
+
+catch (InvalidArgumentException | RangeException $e) { ... }  // multi
+
+finally { ... }                            // exécuté dans tous les cas</code></pre>
+<p>Attraper précis plutôt que <code>catch (Exception $e)</code> : un type fils avant le parent.</p>
+
+  <h2>PDO et architecture</h2>
+<pre><code>$pdo = new PDO("sqlite::memory:");
+
+$pdo-&gt;setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$stmt = $pdo-&gt;prepare("INSERT INTO t (n) VALUES (:n)");
+
+$stmt-&gt;execute([":n" =&gt; $valeur]);        // jamais de concaténation SQL
+
+class Depot { public function __construct(PDO $pdo) { ... } }</code></pre>
+<p>Couches : entités → dépôt → service → affichage. Chaque couche ne connaît que la suivante.</p>
+
+  <h2>Lire l’entrée en CLI</h2>
+<pre><code>$ligne   = trim(fgets(STDIN));      // une valeur par ligne, débarrassée du 
+
+
+$nombre  = (int) $ligne;            // cast explicite
+
+echo "resultat : " . $nombre . "
+";</code></pre>
+<p>Toujours <code>trim()</code> une entrée : elle conserve sinon le saut de ligne final.</p>
+
+  <h2>Erreurs fréquentes à éviter</h2>
+<ul>
+    <li>Écrire <code>$this.x</code> au lieu de <code>$this-&gt;x</code>.</li>
+    <li>Mettre un <code>$</code> devant une constante.</li>
+    <li>Oublier <code>parent::__construct()</code> dans une classe fille.</li>
+    <li>Tenter <code>new</code> sur une classe abstraite ou une interface.</li>
+    <li>Concaténer une entrée utilisateur dans une requête SQL.</li>
+    <li>Oublier <code>trim()</code> sur <code>fgets(STDIN)</code>.</li>
+  </ul>
+
+  <div class="chnav">
+    <a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Cartes</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

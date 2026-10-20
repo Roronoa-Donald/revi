@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercices &amp;amp; projet intégrateur — Windows Server B2</title>
+<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours Windows Server B2 : scripts gradués et audit d’infrastructure en PowerShell.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_winserver/exercices/exercices.html">
+<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Windows Server B2">
+<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours Windows Server B2 : scripts gradués et audit d’infrastructure en PowerShell.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_winservernav"><div class="rd_winservernav__in">
+  <a class="rd_winservernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_winservernav__sep" aria-hidden="true">/</span>
+  <a class="rd_winservernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B2</a>
+  <div class="rd_winservernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html" class="is-active">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_winservernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_winserverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B2</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
+
+  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+
+  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui assemble un tableau de bord d’infrastructure. Les scripts sont en PowerShell, comme à l’atelier.</p>
+
+  <h2>Entraînement rapide (acquisition)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
+    <ol>
+      <li>Lire deux entiers et afficher leur somme.</li>
+      <li>Lire un âge de snapshot et dire s’il faut le purger (> 7 jours).</li>
+      <li>Lire une température et classer normal / chaud / danger / critique.</li>
+      <li>Compter le nombre d’échecs parmi n mises à jour.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>$a = [int][Console]::In.ReadLine()
+$b = [int][Console]::In.ReadLine()
+Write-Output ("somme : " + ($a + $b))
+
+$age = [int][Console]::In.ReadLine()
+if ($age -gt 7) { Write-Output "snapshot : a purger" } else { Write-Output "snapshot : conserve" }
+
+$temp = [int][Console]::In.ReadLine()
+if ($temp -ge 85) { Write-Output "danger" } elseif ($temp -ge 60) { Write-Output "chaud" } else { Write-Output "normal" }
+
+$n = [int][Console]::In.ReadLine()
+$echecs = 0
+for ($i = 0; $i -lt $n; $i++) {
+    if ([Console]::In.ReadLine() -eq "echec") { $echecs++ }
+}
+Write-Output ("echecs : " + $echecs)</code></pre></div></details>
+  </div>
+
+  <h2>Application</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Application</span></div>
+    <ol>
+      <li>Valider la stratégie 3-2-1 à partir de trois valeurs.</li>
+      <li>Calculer la charge par serveur et le reste non réparti.</li>
+      <li>Détecter une surallocation de vCPU.</li>
+      <li>Totaliser un volume de VM et le comparer à la capacité d’une cible.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>$copies = [int][Console]::In.ReadLine()
+$supports = [int][Console]::In.ReadLine()
+$horsSite = [Console]::In.ReadLine()
+if (($copies -ge 3) -and ($supports -ge 2) -and ($horsSite -eq "oui")) {
+    Write-Output "3-2-1 : conforme"
+} else {
+    Write-Output "3-2-1 : non conforme"
+}
+
+$requetes = [int][Console]::In.ReadLine()
+$serveurs = [int][Console]::In.ReadLine()
+$par = [int]([math]::Floor($requetes / $serveurs))
+Write-Output ("par serveur : " + $par)
+Write-Output ("non reparties : " + ($requetes % $serveurs))
+
+$vcpu = [int][Console]::In.ReadLine()
+$coeurs = [int][Console]::In.ReadLine()
+if ($vcpu -gt $coeurs) { Write-Output "surallocation : oui" } else { Write-Output "surallocation : non" }
+
+$capacite = [int][Console]::In.ReadLine()
+$n = [int][Console]::In.ReadLine()
+$total = 0
+for ($i = 0; $i -lt $n; $i++) { $total += [int][Console]::In.ReadLine() }
+if ($total -le $capacite) { Write-Output "planifiee" } else { Write-Output "capacite insuffisante" }</code></pre></div></details>
+  </div>
+
+  <h2>Raisonnement</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
+    <ol>
+      <li>Classifier un mode réseau (NAT / Bridge / Host-Only) selon l’accès Internet et l’accès LAN.</li>
+      <li>Déterminer si un clone survit à la suppression de sa source.</li>
+      <li>Vérifier le quorum d’un cluster à partir du nombre de nœuds en ligne.</li>
+      <li>Établir un plan de maintenance à partir d’une fréquence (switch).</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>$mode = [Console]::In.ReadLine()
+switch ($mode) {
+    "nat" { Write-Output "internet : oui"; Write-Output "lan : non" }
+    "bridge" { Write-Output "internet : oui"; Write-Output "lan : oui" }
+    "host-only" { Write-Output "internet : non"; Write-Output "lan : non" }
+    default { Write-Output "internet : non"; Write-Output "lan : non" }
+}
+
+$type = [Console]::In.ReadLine()
+$sourceSupprimee = [Console]::In.ReadLine()
+if ($type -eq "complet" -or $sourceSupprimee -ne "oui") { Write-Output "clone : fonctionne" } else { Write-Output "clone : hors service" }
+
+$total = [int][Console]::In.ReadLine()
+$enLigne = [int][Console]::In.ReadLine()
+if ($enLigne * 2 -gt $total) { Write-Output "quorum : atteint" } else { Write-Output "quorum : perdu" }
+
+$freq = [Console]::In.ReadLine()
+switch ($freq) {
+    "hebdomadaire" { Write-Output "action : analyse des logs" }
+    "mensuelle" { Write-Output "action : test de sauvegarde" }
+    "trimestrielle" { Write-Output "action : test PRA" }
+    "annuelle" { Write-Output "action : audit securite" }
+}</code></pre></div></details>
+  </div>
+
+  <h2>Projet intégrateur — « audit d’une infrastructure »</h2>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
+    <p>On te confie un script d’audit. Le script lit d’abord un entier <code>n</code> : le nombre de VM. Puis, pour chaque VM, une ligne <code>nom vcpu coeurs</code>. Il affiche, VM par VM, si elle est en surallocation. À la fin, il affiche le nombre total de VM en surallocation, puis un verdict : <code>infrastructure : a surveiller</code> si au moins une VM est en surallocation, sinon <code>infrastructure : saine</code>.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <ol>
+      <li><strong>Lire</strong> n, puis n lignes « nom vcpu coeurs ».</li>
+      <li><strong>Tester</strong> la surallocation (vcpu &gt; coeurs) pour chaque VM.</li>
+      <li><strong>Afficher</strong> une ligne par VM : <code>NOM : surallocation oui/non</code>.</li>
+      <li><strong>Compter</strong> les VM en surallocation.</li>
+      <li><strong>Afficher</strong> le total puis le verdict global.</li>
+      <li><strong>Gérer</strong> le cas n = 0 sans erreur.</li>
+    </ol>
+    <p>Contraintes : comparaisons avec <code>-gt</code>, <code>switch</code> ou <code>if</code>, et une seule boucle de lecture.</p>
+  </div>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d’auto-évaluation du projet (sur 100)</div>
+    <div class="bands">
+      <div class="bandrow">Lecture ordonnée et gestion de n = 0 <strong>20</strong></div>
+      <div class="bandrow">Test correct de la surallocation <strong>20</strong></div>
+      <div class="bandrow">Affichage par VM au bon format <strong>20</strong></div>
+      <div class="bandrow">Comptage et verdict global <strong>20</strong></div>
+      <div class="bandrow">Lisibilité, noms, cohérence <strong>20</strong></div>
+    </div>
+    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
+  </div>
+
+  <details>
+
+    <summary>Voir une solution de référence (après avoir essayé !)</summary>
+
+    <div class="sol">
+
+      <pre><code>$n = [int][Console]::In.ReadLine()
+$enSurallocation = 0
+for ($i = 0; $i -lt $n; $i++) {
+    $nom = [Console]::In.ReadLine()
+    $vcpu = [int][Console]::In.ReadLine()
+    $coeurs = [int][Console]::In.ReadLine()
+    if ($vcpu -gt $coeurs) {
+        Write-Output ($nom + " : surallocation oui")
+        $enSurallocation++
+    } else {
+        Write-Output ($nom + " : surallocation non")
+    }
+}
+Write-Output ("surallocation : " + $enSurallocation)
+if ($enSurallocation -gt 0) {
+    Write-Output "infrastructure : a surveiller"
+} else {
+    Write-Output "infrastructure : saine"
+}</code></pre>
+
+      Cette solution combine lecture ordonnée, test de surallocation, comptage et verdict — l’essentiel des premiers chapitres en un seul script.
+
+    </div>
+
+  </details>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../chapitres/simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Exercices construits à partir du cours historique RD WinServer. Sources : le cours historique RD WinServer (modules 1 à 5 : sauvegarde, haute disponibilité, maintenance, virtualisation/VMware, snapshots/clones).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

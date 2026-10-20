@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Services de Fichiers, Permissions NTFS vs Partage SMB &amp;amp; Espaces de Stockage | Windows Server B3</title>
+<meta name="description" content="Chapitre 4 du cours Windows Server B3 : Systèmes de fichiers Windows (NTFS vs ReFS, métadonnées, flux alternatifs ADS et résilience), partage de fichiers réseau SMB 3.1.1, calcul mathématique des permissions réseau effectives (règle universelle du plus restrictif entre Partage et NTFS), hiérarchie officielle d’arbitrage des ACEs dans les DACL (Explicit Deny &gt; Explicit Allow &gt; Inherited Deny &gt; Inherited Allow), chiffrement BitLocker et EFS, déduplication de données (Data Deduplication), et technologies d’Espaces de Stockage (Storage Spaces, pools et résilience Simple, Mirror 2/3 voies et Parité). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-windows-server/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Services de Fichiers, Permissions NTFS vs Partage SMB &amp;amp; Espaces de Stockage | Windows Server B3">
+<meta property="og:description" content="Chapitre 4 du cours Windows Server B3 : Systèmes de fichiers Windows (NTFS vs ReFS, métadonnées, flux alternatifs ADS et résilience), partage de fichiers réseau SMB 3.1.1, calcul mathématique des permissions réseau effectives (règle universelle du plus restrictif entre Partage et NTFS), hiérarchie officielle d’arbitrage des ACEs dans les DACL (Explicit Deny &gt; Explicit Allow &gt; Inherited Deny &gt; Inherited Allow), chiffrement BitLocker et EFS, déduplication de données (Data Deduplication), et technologies d’Espaces de Stockage (Storage Spaces, pools et résilience Simple, Mirror 2/3 voies et Parité). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-windows-servernav"><div class="b3-windows-servernav__in">
+  <a class="b3-windows-servernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-windows-servernav__sep" aria-hidden="true">/</span>
+  <a class="b3-windows-servernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B3</a>
+  <div class="b3-windows-servernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-windows-servernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-windows-serverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Services de Fichiers, Permissions NTFS vs Partage SMB &amp; Espaces de Stockage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le partage de fichiers et la sécurisation des données stockées constituent le premier service historique d’un serveur d’entreprise. Pourtant, la coexistence des permissions de partage réseau (SMB) et des listes de contrôle d’accès du système de fichiers (NTFS) engendre fréquemment des failles de sécurité majeures ou des blocages d’utilisateurs incompréhensibles si la règle du plus restrictif n’est pas rigoureusement assimilée. De surcroît, la gestion moderne du stockage ne se limite plus à formater des disques physiques isolés : elle intègre des technologies avancées de mutualisation et de tolérance aux pannes comme les Espaces de Stockage (Storage Spaces), la déduplication pour réduire les coûts d’infrastructure et les systèmes de fichiers modernes comme ReFS. Pour un ingénieur de niveau Bachelor 3, la gouvernance des données exige une maîtrise mathématique de la combinatoire des droits d’accès et un dimensionnement précis des architectures de stockage résilientes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comparer les architectures des systèmes de fichiers d’entreprise Windows Server : NTFS et ReFS (Resilient File System) ;</li>
+      <li>distinguer les autorisations de partage SMB (Read, Change, Full Control) des permissions granulaires NTFS ;</li>
+      <li>calculer avec une rigueur mathématique absolue la permission réseau effective résultante selon la règle du plus restrictif ;</li>
+      <li>appliquer la hiérarchie officielle des ACEs dans la DACL : Explicit Deny > Explicit Allow > Inherited Deny > Inherited Allow ;</li>
+      <li>dimensionner et configurer des pools de disques avec Storage Spaces (Simple, Two-Way Mirror, Three-Way Mirror, Parity) et mesurer la tolérance aux pannes ;</li>
+      <li>implémenter en Python 3 des calculateurs de droits effectifs SMB/NTFS, des arbitres de conflits d’héritage et des simulateurs d’espaces de stockage.</li>
+    </ol>
+  </div>
+
+<h2>1. Systèmes de Fichiers d’Entreprise : NTFS vs ReFS</h2>
+
+<p>Windows Server prend en charge deux systèmes de fichiers majeurs destinés aux environnements de production d’entreprise :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Système de Fichiers NTFS (New Technology File System)</h4>
+    <ul>
+      <li><strong>Fonctionnalités clés :</strong> listes de contrôle d’accès de sécurité (DACL), journalisation des métadonnées (journal USN), quotas de disques, compression native, chiffrement transparent (EFS) et flux de données alternatifs (ADS - Alternate Data Streams).</li>
+      <li><strong>Taille maximale :</strong> jusqu’à 8 Pétaoctets (Po) avec une taille de cluster de 2 Mo.</li>
+      <li><strong>Usage cible :</strong> disques système (C:), partages de fichiers bureautiques standards et applications nécessitant des quotas fins.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Système de Fichiers ReFS (Resilient File System)</h4>
+    <ul>
+      <li><strong>Fonctionnalités clés :</strong> intégrité des flux de données avec contrôle de cohérence automatique (scrubbing), auto-réparation sans arrêt de service (absence de chkdsk hors ligne), allocations rapides de disques virtuels VHDX (Block Cloning) et résilience maximale aux corruptions de blocs.</li>
+      <li><strong>Limitations :</strong> non amorçable (impossible d’installer Windows Server sur un volume ReFS), pas de compression ni de chiffrement EFS natif.</li>
+      <li><strong>Usage cible :</strong> volumes de virtualisation Hyper-V et cibles de sauvegardes volumineuses (Veeam, Windows Server Backup).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Sécurité d’Accès Réseau : Règle du Plus Restrictif & Hiérarchie DACL</h2>
+
+<p>Lorsqu’un utilisateur accède à un dossier à travers le réseau local via le protocole SMB, deux couches de sécurité s’exécutent simultanément :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>La Règle du Plus Restrictif (Share vs NTFS)</h4>
+    <p>L’accès réseau effectif est l’intersection la plus restrictive entre les droits de partage SMB et les permissions NTFS :</p>
+    <table class="table">
+      <thead><tr><th>Partage SMB</th><th>Système NTFS</th><th>Droit Réseau Effectif</th></tr></thead>
+      <tbody>
+        <tr><td>Read</td><td>Full Control</td><td><strong>Read (Lecture seule)</strong></td></tr>
+        <tr><td>Full Control</td><td>Read</td><td><strong>Read (Lecture seule)</strong></td></tr>
+        <tr><td>Change</td><td>Modify</td><td><strong>Modify (Lecture/Écriture/Suppression)</strong></td></tr>
+        <tr><td>Full Control</td><td>Full Control</td><td><strong>Full Control (Gestion des ACLs)</strong></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Bonne pratique Microsoft :</strong> configurer le partage SMB avec <code>Tout le monde = Change</code> ou <code>Full Control</code>, et verrouiller la granularité fine exclusivement dans les permissions NTFS.</p>
+  </div>
+  <div class="card">
+    <h4>Hiérarchie Officielle des ACEs dans la DACL</h4>
+    <p>Pour un même utilisateur appartenant à plusieurs groupes cumulant des droits sur un fichier, les ACEs sont arbitrées selon 4 niveaux stricts :</p>
+    <ol>
+      <li><strong>1. Explicit Deny (Refus direct) :</strong> priorité absolue. Un refus explicite posé directement sur le fichier l’emporte sur n’importe quelle autorisation.</li>
+      <li><strong>2. Explicit Allow (Autorisation directe) :</strong> accorde le droit, surpassant tout refus hérité.</li>
+      <li><strong>3. Inherited Deny (Refus hérité) :</strong> refus provenant du dossier parent.</li>
+      <li><strong>4. Inherited Allow (Autorisation héritée) :</strong> autorisation transmise par le dossier parent.</li>
+    </ol>
+  </div>
+</div>
+
+<h2>3. Stockage Moderne d’Entreprise : Espaces de Stockage (Storage Spaces)</h2>
+
+<p>La technologie <strong>Storage Spaces</strong> virtualise les disques durs physiques (SAS, SATA, NVMe) en pools de stockage pour créer des disques virtuels résilients :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Typologie des Disques Virtuels Résilients</h4>
+    <ul>
+      <li><strong>Simple (Sans résilience) :</strong> écriture par bandes (Striping style RAID-0). 1 disque minimum. Aucune tolérance de panne (0 disque). Capacité utile = 100 % du pool. Performance maximale mais risque de perte totale de données.</li>
+      <li><strong>Two-Way Mirror (Miroir double) :</strong> duplication des données en 2 exemplaires (style RAID-1). 2 disques minimum. Tolère la panne de <strong>1 disque</strong>. Capacité utile = 50 %. Idéal pour les VMs et les bases de données.</li>
+      <li><strong>Three-Way Mirror (Miroir triple) :</strong> duplication en 3 exemplaires. 5 disques minimum requis. Tolère la panne simultanée de <strong>2 disques</strong>. Capacité utile = 33,3 %.</li>
+      <li><strong>Parity (Parité distribuée) :</strong> calcul de parité par bandes (style RAID-5). 3 disques minimum. Tolère la panne de <strong>1 disque</strong>. Capacité utile = $(N - 1) / N$. Idéal pour les archives et le streaming vidéo séquentiel.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Déduplication de Données (Data Deduplication)</h4>
+    <p>Fonctionnalité native analysant les volumes NTFS/ReFS pour identifier les blocs de données dupliqués :</p>
+    <ul>
+      <li>Segmente les fichiers en blocs variables (de 32 à 128 Ko) et calcule leur empreinte de hachage.</li>
+      <li>Stocke une seule copie unique du bloc dans le magasin de blocs (Chunk Store) et remplace les doublons par des pointeurs de réanalyse (Reparse Points).</li>
+      <li>Permet d’économiser de 50 à 80 % d’espace disque sur les partages bureautiques et les banques de disques virtuels VHDX.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ws3-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ACCESS user=Alice share=READ ntfs=FULL_CONTROL&#10;ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY&#10;ACCESS user=Charlie share=CHANGE ntfs=WRITE">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e1) — Calculateur de permissions effectives (Partage SMB vs NTFS)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Accès totalement refusé par le partage ou NTFS]
+# Données : ACCESS user=David share=NONE ntfs=FULL_CONTROL
+# Données : ACCESS user=Emma share=FULL_CONTROL ntfs=NONE
+A_COMPLETER
+
+[Cas 2 — Accès maximal Full Control des deux côtés]
+# Données : ACCESS user=Admin share=FULL_CONTROL ntfs=FULL_CONTROL
+A_COMPLETER
+
+[Cas 3 — Profils mixtes avec lecture seule et écriture]
+# Données : ACCESS user=User1 share=READ ntfs=READ
+# Données : ACCESS user=User2 share=CHANGE ntfs=READ
+# Données : ACCESS user=User3 share=CHANGE ntfs=MODIFY
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de permissions effectives (Partage SMB vs NTFS)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la permission réseau résultante selon la règle universelle Windows du plus restrictif entre le partage et le système de fichiers.</p>
+    <div class="lab__brief">Dans un accès distant à travers le protocole SMB, Windows Server applique l’intersection la plus restrictive entre les permissions de partage et les permissions NTFS :
+- Permissions Partage (Share) : `NONE` < `READ` < `CHANGE` < `FULL_CONTROL`
+- Permissions NTFS : `NONE` < `READ` < `WRITE` < `MODIFY` < `FULL_CONTROL`
+
+Règles d’évaluation des droits effectifs distants :
+- `FULL_CONTROL` effectif : requiert `share == FULL_CONTROL` ET `ntfs == FULL_CONTROL`.
+- `MODIFY` effectif : requiert `share >= CHANGE` ET `ntfs >= MODIFY`.
+- `WRITE` effectif : requiert `share >= CHANGE` ET `ntfs >= WRITE`.
+- `READ` effectif : requiert `share >= READ` ET `ntfs >= READ`.
+- Sinon : `NONE` (aucun accès).
+
+Entrée :
+`ACCESS user=<NOM> share=<NONE|READ|CHANGE|FULL_CONTROL> ntfs=<NONE|READ|WRITE|MODIFY|FULL_CONTROL>`
+
+Sortie :
+- Pour chaque utilisateur :
+  `EFFECTIVE_ACCESS user=<NOM> share=<S> ntfs=<N> effective=<EFF>`
+- Bilan :
+  `SUMMARY total_users=<U> acces_ecriture=<W> lecture_seule=<R> aucun_acces=<Z>`
+  (acces_ecriture = WRITE, MODIFY, FULL_CONTROL ; lecture_seule = READ ; aucun_acces = NONE).</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACCESS user=Alice share=READ ntfs=FULL_CONTROL
+ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY
+ACCESS user=Charlie share=CHANGE ntfs=WRITE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EFFECTIVE_ACCESS user=Alice share=READ ntfs=FULL_CONTROL effective=READ
+EFFECTIVE_ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY effective=MODIFY
+EFFECTIVE_ACCESS user=Charlie share=CHANGE ntfs=WRITE effective=WRITE
+SUMMARY total_users=3 acces_ecriture=2 lecture_seule=1 aucun_acces=0</pre></div>
+    </div>
+    <p class="lab__note">Alice est bloquée en READ car son partage limite les droits malgré son NTFS Full Control. Bob obtient MODIFY (le partage autorise, NTFS bride).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Créer des échelles numériques ou fonctions booléennes pour chaque droit.</li>
+        <li>Tester du plus haut au plus bas (FULL_CONTROL -&gt; MODIFY -&gt; WRITE -&gt; READ -&gt; NONE).</li>
+        <li>Comptabiliser les types d’accès pour le résumé final.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="USER name=Alice groups=GG_Compta,GG_Employes&#10;ACE target=GG_Employes type=INHERITED perm=DELETE action=DENY&#10;ACE target=Alice type=EXPLICIT perm=DELETE action=ALLOW&#10;ACE target=GG_Compta type=INHERITED perm=READ action=ALLOW">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e2) — Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Explicit Deny direct verrouillant un droit]
+# Données : USER name=Bob groups=GG_Devs
+# Données : ACE target=GG_Devs type=EXPLICIT perm=READ action=ALLOW
+# Données : ACE target=Bob type=EXPLICIT perm=READ action=DENY
+A_COMPLETER
+
+[Cas 2 — Toutes les permissions accordées par héritage]
+# Données : USER name=Claire groups=GG_Admins
+# Données : ACE target=GG_Admins type=INHERITED perm=READ action=ALLOW
+# Données : ACE target=GG_Admins type=INHERITED perm=WRITE action=ALLOW
+# Données : ACE target=GG_Admins type=INHERITED perm=DELETE action=ALLOW
+A_COMPLETER
+
+[Cas 3 — Aucune ACE applicable (tout en refus implicite)]
+# Données : USER name=Inconnu groups=GG_Visiteurs
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les permissions NTFS cumulatives pour chaque opération selon la hiérarchie : Explicit Deny &gt; Explicit Allow &gt; Inherited Deny &gt; Inherited Allow.</p>
+    <div class="lab__brief">Dans le modèle de contrôle d’accès Windows NTFS (DACL), la priorité d’arbitrage pour chaque droit (`READ`, `WRITE`, `DELETE`) est ordonnée ainsi :
+1. `EXPLICIT_DENY` (Priorité absolue 4) -> Accordé : NON
+2. `EXPLICIT_ALLOW` (Priorité 3) -> Accordé : OUI (surpasse les refus hérités)
+3. `INHERITED_DENY` (Priorité 2) -> Accordé : NON
+4. `INHERITED_ALLOW` (Priorité 1) -> Accordé : OUI
+5. Défaut (`IMPLICIT_DENY`, Priorité 0) -> Accordé : NON
+
+Entrée :
+`USER name=<NOM> groups=<G1,G2,...>`
+`ACE target=<NOM_OU_GROUPE> type=<EXPLICIT|INHERITED> perm=<READ|WRITE|DELETE> action=<ALLOW|DENY>` (1 ou plusieurs)
+
+Sortie :
+- Pour les trois droits `READ`, `WRITE`, `DELETE` (dans cet ordre) :
+  `PERM_RESULT perm=<P> status=<ACCORDE|REFUSE> decision_level=<NIVEAU>`
+- Bilan :
+  `SUMMARY user=<NOM> accordees=<A> refusees=<R>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>USER name=Alice groups=GG_Compta,GG_Employes
+ACE target=GG_Employes type=INHERITED perm=DELETE action=DENY
+ACE target=Alice type=EXPLICIT perm=DELETE action=ALLOW
+ACE target=GG_Compta type=INHERITED perm=READ action=ALLOW</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PERM_RESULT perm=READ status=ACCORDE decision_level=INHERITED_ALLOW
+PERM_RESULT perm=WRITE status=REFUSE decision_level=IMPLICIT_DENY
+PERM_RESULT perm=DELETE status=ACCORDE decision_level=EXPLICIT_ALLOW
+SUMMARY user=Alice accordees=2 refusees=1</pre></div>
+    </div>
+    <p class="lab__note">DELETE : Explicit Allow d’Alice bat le Inherited Deny du groupe GG_Employes. READ : accordé par héritage. WRITE : refus implicite.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Filtrer les ACEs qui ciblent l’utilisateur ou l’un de ses groupes.</li>
+        <li>Pour chaque droit, chercher la règle ayant le niveau de priorité le plus élevé.</li>
+        <li>Déduire ACCORDE si action==ALLOW, REFUSE sinon.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="POOL nom=Pool-Compta resiliency=TWO_WAY_MIRROR&#10;DISK id=D1 size_gb=1000&#10;DISK id=D2 size_gb=1000">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e3) — Simulateur d’espaces de stockage et résilience Storage Spaces
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Mode Parité avec 4 disques de 500 Go]
+# Données : POOL nom=Pool-Archives resiliency=PARITY
+# Données : DISK id=D1 size_gb=500
+# Données : DISK id=D2 size_gb=500
+# Données : DISK id=D3 size_gb=500
+# Données : DISK id=D4 size_gb=500
+A_COMPLETER
+
+[Cas 2 — Erreur : disques insuffisants pour Three-Way Mirror]
+# Données : POOL nom=Pool-Critique resiliency=THREE_WAY_MIRROR
+# Données : DISK id=D1 size_gb=2000
+# Données : DISK id=D2 size_gb=2000
+# Données : DISK id=D3 size_gb=2000
+A_COMPLETER
+
+[Cas 3 — Mode Simple mono-disque]
+# Données : POOL nom=Pool-Temp resiliency=SIMPLE
+# Données : DISK id=D1 size_gb=512
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur d’espaces de stockage et résilience Storage Spaces</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la capacité utile, le taux d’efficacité et la tolérance aux pannes d’un pool de stockage Windows Server.</p>
+    <div class="lab__brief">La fonctionnalité Storage Spaces agrège des disques durs physiques en pools pour créer des espaces virtuels résilients :
+- `SIMPLE` (agrégation par bandes sans tolérance de panne) :
+  - Min disques : 1 | Pannes tolérées : 0 | Capacité utile = Somme brute | Efficacité = 100.0%
+- `TWO_WAY_MIRROR` (miroir double bidirectionnel) :
+  - Min disques : 2 | Pannes tolérées : 1 | Capacité utile = round(Somme brute / 2, 1) | Efficacité = 50.0%
+- `THREE_WAY_MIRROR` (miroir triple pour haute résilience) :
+  - Min disques : 5 | Pannes tolérées : 2 | Capacité utile = round(Somme brute / 3, 1) | Efficacité = 33.3%
+- `PARITY` (parité distribuée style RAID-5) :
+  - Min disques : 3 | Pannes tolérées : 1 | Capacité utile = round(Somme brute * (N - 1) / N, 1) | Efficacité = round(((N - 1) / N) * 100, 1)%
+
+Entrée :
+`POOL nom=<NOM> resiliency=<SIMPLE|TWO_WAY_MIRROR|THREE_WAY_MIRROR|PARITY>`
+`DISK id=<ID> size_gb=<N>` (1 ou plusieurs disques)
+
+Sortie :
+- Si le nombre de disques est suffisant pour le mode choisi :
+  `POOL_RESULT nom=<P> disks=<N> raw_gb=<RAW> usable_gb=<USABLE> efficiency=<EFF>% fault_tolerance=<FT>_disks`
+  `SUMMARY status=VALIDE mode=<MODE>`
+- Si disques insuffisants :
+  `POOL_ERROR nom=<P> disques_fournis=<N> disques_requis=<MIN>`
+  `SUMMARY status=ERREUR_CAPACITE_MIN mode=<MODE>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POOL nom=Pool-Compta resiliency=TWO_WAY_MIRROR
+DISK id=D1 size_gb=1000
+DISK id=D2 size_gb=1000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>POOL_RESULT nom=Pool-Compta disks=2 raw_gb=2000 usable_gb=1000.0 efficiency=50.0% fault_tolerance=1_disks
+SUMMARY status=VALIDE mode=TWO_WAY_MIRROR</pre></div>
+    </div>
+    <p class="lab__note">2 disques de 1 To = 2000 Go bruts. Miroir double = 1000.0 Go utiles, 1 panne tolérée, efficacité 50.0%.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier N &gt;= min_disks selon le mode de résilience.</li>
+        <li>Calculer la somme totale des capacités brutes.</li>
+        <li>Appliquer les formules de capacité utile et d’efficacité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Si un utilisateur dispose de l’autorisation Partage « Change » et de la permission NTFS « Full Control », quel est son droit effectif à distance ?</p>
+      <div class="opts">
+        <button class="opt">Full Control</button>
+        <button class="opt" data-correct="1">Change (Modify)</button>
+        <button class="opt">Read uniquement</button>
+        <button class="opt">Accès interdit</button>
+      </div>
+      <div class="q__exp">En vertu de la règle du plus restrictif, le partage SMB (Change) bride le contrôle total NTFS : l’utilisateur peut modifier mais pas changer les ACLs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle entrée de contrôle d’accès possède la plus haute priorité d’évaluation dans une DACL NTFS ?</p>
+      <div class="opts">
+        <button class="opt">Inherited Allow</button>
+        <button class="opt">Explicit Allow</button>
+        <button class="opt">Inherited Deny</button>
+        <button class="opt" data-correct="1">Explicit Deny</button>
+      </div>
+      <div class="q__exp">L’Explicit Deny (refus direct) est évalué en priorité absolue et surpasse immédiatement toutes les autorisations explicites ou héritées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le nombre minimum de disques physiques requis pour créer un espace de stockage en mode Parité (Parity) ?</p>
+      <div class="opts">
+        <button class="opt">1 disque</button>
+        <button class="opt">2 disques</button>
+        <button class="opt" data-correct="1">3 disques</button>
+        <button class="opt">5 disques</button>
+      </div>
+      <div class="q__exp">Le mode Parité nécessite au minimum 3 disques physiques pour répartir les bandes de données et le bloc de parité (style RAID-5).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel système de fichiers Microsoft offre la fonctionnalité de clonage de blocs (Block Cloning) accélérant les disques virtuels Hyper-V ?</p>
+      <div class="opts">
+        <button class="opt">FAT32</button>
+        <button class="opt">exFAT</button>
+        <button class="opt">NTFS</button>
+        <button class="opt" data-correct="1">ReFS</button>
+      </div>
+      <div class="q__exp">ReFS intègre le Block Cloning qui permet de dupliquer les métadonnées de blocs VHDX instantanément sans copier les données réelles sur disque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un utilisateur reçoit une autorisation directe « Explicit Allow » sur un droit et hérite d’un « Inherited Deny », que se passe-t-il ?</p>
+      <div class="opts">
+        <button class="opt">Le droit est refusé car tout Deny l’emporte</button>
+        <button class="opt" data-correct="1">Le droit est accordé car l’Explicit Allow l’emporte sur un refus hérité (Inherited Deny)</button>
+        <button class="opt">L’ordinateur redémarre immédiatement</button>
+        <button class="opt">Le fichier est verrouillé par l’administrateur</button>
+      </div>
+      <div class="q__exp">Dans l’ordre des ACEs, l’Explicit Allow (priorité 2) est supérieur à l’Inherited Deny (priorité 3) : l’autorisation directe gagne sur le refus parent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la tolérance aux pannes d’un pool de stockage en mode Two-Way Mirror ?</p>
+      <div class="opts">
+        <button class="opt">0 disque en panne</button>
+        <button class="opt" data-correct="1">1 disque en panne</button>
+        <button class="opt">2 disques en panne</button>
+        <button class="opt">3 disques en panne</button>
+      </div>
+      <div class="q__exp">Le miroir double conserve les données en deux copies distinctes : il tolère la défaillance d’un seul disque physique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment la déduplication de données Windows Server libère-t-elle de l’espace disque ?</p>
+      <div class="opts">
+        <button class="opt">En compressant tous les fichiers au format ZIP</button>
+        <button class="opt">En supprimant les fichiers qui n’ont pas été ouverts depuis 6 mois</button>
+        <button class="opt" data-correct="1">En remplaçant les blocs de données dupliqués par des pointeurs vers une copie unique stockée dans le Chunk Store</button>
+        <button class="opt">En transférant automatiquement les fichiers vers le Cloud Azure</button>
+      </div>
+      <div class="q__exp">La déduplication découpe les fichiers en blocs, stocke une copie unique dans le Chunk Store et insère des points de réanalyse dans les fichiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la bonne pratique recommandée par Microsoft pour la gestion des partages de fichiers SMB ?</p>
+      <div class="opts">
+        <button class="opt">Bloquer le partage et ne travailler que localement sur le serveur</button>
+        <button class="opt" data-correct="1">Accorder Change ou Full Control au niveau du partage SMB et gérer les droits réels fins dans les permissions NTFS</button>
+        <button class="opt">Attribuer un mot de passe différent par sous-dossier</button>
+        <button class="opt">Désactiver totalement le protocole SMB pour utiliser FTP</button>
+      </div>
+      <div class="q__exp">Ouvrir largement le partage SMB (Change/Full Control) permet de centraliser toute la sécurité dans les permissions NTFS sans redondance conflictuelle.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Privilégier le système de fichiers ReFS pour les volumes d’hébergement de machines virtuelles Hyper-V et NTFS pour les partages bureautiques.</li>
+      <li>Appliquer la recommandation Microsoft : octroyer le droit de partage Change ou Full Control au niveau SMB et gérer l’étanchéité fine dans les ACLs NTFS.</li>
+      <li>Analyser les droits effectifs résultants en calculant l’intersection minimale entre le niveau Partage et le niveau NTFS.</li>
+      <li>Vérifier la présence d’Explicit Deny dans la DACL lors du diagnostic d’un utilisateur bloqué malgré son appartenance à un groupe autorisé.</li>
+      <li>Dimensionner le pool de disques Storage Spaces en vérifiant que le nombre de disques physiques satisfait le prérequis du mode de résilience retenu.</li>
+      <li>Activer la déduplication de données sur les volumes de partages de fichiers et planifier les tâches d’optimisation en heures creuses.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>NTFS fournit une sécurité granulaire fine (ACL, EFS, quotas), tandis que ReFS excelle en résilience et clonage de blocs pour Hyper-V.</li>
+      <li>L’accès réseau via SMB applique toujours la règle du plus restrictif : $\text{Droit effectif} = \min(\text{Partage SMB}, \text{Permissions NTFS})$.</li>
+      <li>La hiérarchie des ACEs au sein de la DACL suit l’ordre universel : Explicit Deny > Explicit Allow > Inherited Deny > Inherited Allow.</li>
+      <li>Un refus explicite (Explicit Deny) posé sur un fichier verrouille l’accès quelles que soient les autorisations héritées par les groupes.</li>
+      <li>Storage Spaces mutualise les disques physiques en pools offrant des modes résilients : Simple (0 panne), Miroir 2 voies (1 panne), Miroir 3 voies (2 pannes) et Parité (1 panne).</li>
+      <li>La déduplication de données remplace les blocs redondants par des pointeurs dans le Chunk Store, libérant jusqu’à 80 % d’espace disque.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le partage réseau est-il créé avec des autorisations SMB généreuses pour laisser la gouvernance aux permissions NTFS ?</li>
+      <li>Chaque dossier partagé dispose-t-il d’une structure de permissions NTFS attribuant les accès à des groupes Locaux de Domaine (DL) ?</li>
+      <li>L’utilisateur dispose-t-il bien des droits d’écriture à la fois dans le partage (Change) et dans le dossier local NTFS (Modify ou Write) ?</li>
+      <li>Aucun refus explicite accidentel ne neutralise-t-il les droits d’un groupe métier sur l’arborescence des fichiers ?</li>
+      <li>Le nombre de disques physiques est-il suffisant pour le type de résilience Storage Spaces sélectionné (min 2 en miroir, min 3 en parité) ?</li>
+      <li>La tâche d’optimisation de la déduplication de données est-elle programmée hors des heures de production pour préserver les performances I/O ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong> :</strong> Principe de sécurité imposant que l’accès réseau effectif soit égal à la restriction maximale entre les droits de partage SMB et les permissions NTFS.</li><li><strong> :</strong> Liste ordonnée d’entrées de contrôle d’accès (ACE) définissant les autorisations et refus d’accès accordés aux utilisateurs et groupes sur un objet.</li><li><strong> :</strong> Entrée d’interdiction définie directement sur un objet spécifique, possédant la priorité absolue sur toutes les autres autorisations.</li><li><strong> :</strong> Système de fichiers de nouvelle génération de Microsoft conçu pour maximiser la disponibilité des données et la résilience aux corruptions.</li><li><strong> :</strong> Technologie de virtualisation du stockage Windows Server agrégeant des disques physiques hétérogènes en pools résilients.</li><li><strong> :</strong> Mode de résilience d’Espaces de Stockage dupliquant chaque bloc de données sur deux disques distincts et tolérant la perte d’un disque physique.</li><li><strong> :</strong> Mode de résilience calculant une information de parité distribuée sur un minimum de trois disques physiques pour optimiser la capacité utile.</li><li><strong> :</strong> Service d’optimisation du stockage identifiant et éliminant les blocs de données redondants sur les volumes pour diviser l’espace occupé.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Confusion dans le calcul du droit effectif Partage vs NTFS ou méconnaissance de la hiérarchie des ACEs.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de la combinatoire de sécurité, configuration propre des partages et dimensionnement des pools Storage Spaces.</div>
+      <div class="bandrow bandrow--high">Excellence en gouvernance du stockage : architecture ReFS optimisée pour Hyper-V, déduplication avancée et résilience matérielle maximale.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Virtualisation d’Entreprise Hyper-V, Commutateurs Virtuels &amp; Haute Disponibilité <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

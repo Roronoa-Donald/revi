@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Stratégies de Groupe (GPO), Modèle LSDOU &amp;amp; Gouvernance de Parc | Windows Server B3</title>
+<meta name="description" content="Chapitre 3 du cours Windows Server B3 : Architecture des Group Policy Objects (conteneur GPC dans AD et modèle GPT dans SYSVOL), cycle d’évaluation et ordre d’application strict LSDOU (Local, Site, Domaine, Unité Organisationnelle), résolution des conflits et arbitrage d’héritage (Enforced / No Override vs Block Inheritance), filtrage fin de sécurité par ACL et filtres dynamiques WMI (WQL), modèles d’administration ADMX/ADML, Central Store, et durcissement de sécurité du parc de machines clientes. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-windows-server/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Stratégies de Groupe (GPO), Modèle LSDOU &amp;amp; Gouvernance de Parc | Windows Server B3">
+<meta property="og:description" content="Chapitre 3 du cours Windows Server B3 : Architecture des Group Policy Objects (conteneur GPC dans AD et modèle GPT dans SYSVOL), cycle d’évaluation et ordre d’application strict LSDOU (Local, Site, Domaine, Unité Organisationnelle), résolution des conflits et arbitrage d’héritage (Enforced / No Override vs Block Inheritance), filtrage fin de sécurité par ACL et filtres dynamiques WMI (WQL), modèles d’administration ADMX/ADML, Central Store, et durcissement de sécurité du parc de machines clientes. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-windows-servernav"><div class="b3-windows-servernav__in">
+  <a class="b3-windows-servernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-windows-servernav__sep" aria-hidden="true">/</span>
+  <a class="b3-windows-servernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B3</a>
+  <div class="b3-windows-servernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-windows-servernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-windows-serverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Stratégies de Groupe (GPO), Modèle LSDOU &amp; Gouvernance de Parc</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Les stratégies de groupe (GPO - Group Policy Objects) représentent le levier d’automatisation et de sécurité le plus puissant d’un domaine Windows Server : elles permettent de déployer de manière centralisée des configurations système, des restrictions logicielles et des politiques de durcissement sur des milliers de postes clients et serveurs en quelques secondes. Cependant, une mauvaise maîtrise de la cinématique d’évaluation GPO entraîne des ralentissements majeurs à l’ouverture de session, des conflits de stratégies inexplicables et des failles d’application critiques. Pour un ingénieur système de niveau Bachelor 3, la gouvernance de parc impose une rigueur absolue : comprendre la dissociation physique entre le conteneur logique (GPC) et les fichiers de modèles (GPT dans SYSVOL), appliquer la règle de précédence LSDOU (Local -> Site -> Domain -> OU), maîtriser les mécanismes d’exception (Enforced et Block Inheritance), et exploiter les filtres WMI pour cibler chirurgicalement les déploiements selon le matériel et la version d’OS.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser l’architecture interne des GPOs : synchronisation entre le Group Policy Container (GPC) et le Group Policy Template (GPT dans SYSVOL) ;</li>
+      <li>appliquer l’ordre séquentiel strict de traitement LSDOU (Local, Site, Domaine, OU) et déterminer la stratégie gagnante en cas de conflit ;</li>
+      <li>résoudre les cas complexes d’héritage de stratégies avec les options Enforced (application forcée) et Block Inheritance (blocage de l’héritage) ;</li>
+      <li>configurer un filtrage de sécurité (Security Filtering) par groupes d’ordinateurs et restreindre l’application via le droit Apply Group Policy ;</li>
+      <li>concevoir des filtres dynamiques WMI en langage WQL pour conditionner l’application d’une GPO aux spécifications matérielles et d’OS ;</li>
+      <li>implémenter en Python 3 des calculateurs de précédence LSDOU, des moteurs d’arbitrage Enforced/Block et des évaluateurs de filtres WMI.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture Interne et Composants d’une GPO (GPC vs GPT)</h2>
+
+<p>Une stratégie de groupe n’est pas un fichier monolithique : elle est constituée de deux composants distincts physiquement synchronisés par les contrôleurs de domaine :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Conteneur GPC (Group Policy Container)</h4>
+    <ul>
+      <li><strong>Emplacement :</strong> stocké directement dans la base de données Active Directory (<code>CN=Policies,CN=System,DC=domaine,DC=lan</code>).</li>
+      <li><strong>Contenu :</strong> métadonnées de la GPO, identifiant unique GUID (ex. <code>{31B2F340-016D-11D2-945F-00C04FB984F9}</code> pour la Default Domain Policy), numéro de version, statut (activée, désactivée, composants utilisateur/ordinateur désactivés) et listes de contrôle d’accès (ACL).</li>
+      <li><strong>Réplication :</strong> répliqué par le moteur standard multi-maîtres d’Active Directory.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Modèle GPT (Group Policy Template)</h4>
+    <ul>
+      <li><strong>Emplacement :</strong> stocké dans le système de fichiers partagé sur tous les contrôleurs : <code>\\domaine\SYSVOL\domaine\Policies\{GUID}</code>.</li>
+      <li><strong>Contenu :</strong> fichiers de configuration réels, scripts de démarrage/ouverture de session, paramètres de registre (<code>Registry.pol</code>), modèles de sécurité et fichiers <code>gpt.ini</code> contenant le numéro de version.</li>
+      <li><strong>Réplication :</strong> répliqué entre contrôleurs de domaine par le service de réplication DFS (DFSR - Distributed File System Replication).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Cycle d’Évaluation et Ordre de Précédence LSDOU</h2>
+
+<p>Lors du démarrage de l’ordinateur ou de l’ouverture de session d’un utilisateur, le moteur Group Policy traite les stratégies dans une séquence chronologique immuable :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>La Règle Séquentielle L - S - D - O - U</h4>
+    <ol>
+      <li><strong>1. Local (L) :</strong> Stratégie de sécurité locale définie sur le poste de travail individuel (niveau le plus faible).</li>
+      <li><strong>2. Site (S) :</strong> Stratégies liées au site Active Directory auquel appartient le sous-réseau IP de la machine.</li>
+      <li><strong>3. Domaine (D) :</strong> Stratégies liées à la racine du domaine (ex. <code>Default Domain Policy</code>).</li>
+      <li><strong>4. Unité Organisationnelle (OU) :</strong> Stratégies liées aux OUs parentes puis aux OUs enfants les plus imbriquées.</li>
+    </ol>
+    <p><strong>Principe du « Dernier Écrivain Gagne » :</strong> Les niveaux s’exécutent dans l’ordre $1 \to 2 \to 3 \to 4$. En cas de conflit sur un même paramètre, la stratégie appliquée en dernier (le niveau le plus profond) écrase les valeurs précédentes.</p>
+  </div>
+  <div class="card">
+    <h4>Ordre de Liaison (Link Order)</h4>
+    <p>Lorsque plusieurs GPOs sont liées au même conteneur (ex. sur la même OU) :</p>
+    <ul>
+      <li>Chaque lien possède un numéro d’ordre : 1, 2, 3...</li>
+      <li>Le lien d’ordre le plus élevé est traité en premier, et le <strong>Link Order 1</strong> est exécuté en dernier.</li>
+      <li>Par conséquent, la GPO avec <strong>Link Order = 1 a la précédence la plus haute</strong> au sein de ce conteneur.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Arbitrage Avancé : Enforced, Block Inheritance & Filtres WMI</h2>
+
+<p>Pour adapter le déploiement aux contraintes métier complexes, Windows Server fournit des mécanismes d’exception et de ciblage conditionnel :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Blocage d’Héritage vs Application Forcée (Enforced)</h4>
+    <ul>
+      <li><strong>Bloquer l’héritage (Block Inheritance) :</strong> option activée au niveau d’une OU. Empêche l’application de toutes les GPOs héritées des niveaux supérieurs (Site, Domaine, OUs parentes). Les stratégies de l’OU s’appliquent seules.</li>
+      <li><strong>Appliquée / Forcée (Enforced - ancien No Override) :</strong> option configurée sur un lien de GPO. Une GPO Enforced <strong>traverse obligatoirement tous les blocages d’héritage</strong> et ne peut être écrasée par aucune stratégie fille. C’est l’arme absolue de la sécurité régalienne.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Filtrage de Sécurité & Requêtes WMI</h4>
+    <ul>
+      <li><strong>Filtrage de Sécurité (Security Filtering) :</strong> retire le groupe par défaut <code>Utilisateurs authentifiés</code> des ACLs de la GPO pour le remplacer par un groupe de sécurité spécifique (ex. <code>GG_Postes_Compta</code>) avec le droit <em>Appliquer la stratégie de groupe</em> (Apply Group Policy).</li>
+      <li><strong>Filtres WMI (WQL) :</strong> évaluent dynamiquement les caractéristiques matérielles du poste avant d’exécuter la GPO. Exemple : <code>SELECT * FROM Win32_OperatingSystem WHERE Version LIKE "10.0%" AND ProductType = "1"</code> (cible uniquement les postes clients Windows 10/11 et exclut les serveurs).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ws3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="GPO name=DefaultDomainPolicy level=DOMAIN link_order=1 param=MaxPasswordAge value=42&#10;GPO name=LocalSecurity level=LOCAL link_order=1 param=MaxPasswordAge value=90&#10;GPO name=OUPolicy level=OU link_order=1 param=MaxPasswordAge value=30">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e1) — Calculateur de précédence de stratégies de groupe (Modèle LSDOU)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deux GPOs sur le même niveau DOMAIN départagées par link_order]
+# Données : GPO name=GPO_Base level=DOMAIN link_order=2 param=ScreenSaverTimeout value=900
+# Données : GPO name=GPO_Override level=DOMAIN link_order=1 param=ScreenSaverTimeout value=300
+A_COMPLETER
+
+[Cas 2 — Multiples paramètres distincts sur différents niveaux]
+# Données : GPO name=GPO_Site level=SITE link_order=1 param=ProxyServer value=proxy.site.lan
+# Données : GPO name=GPO_Domain level=DOMAIN link_order=1 param=Wallpaper value=corp.jpg
+# Données : GPO name=GPO_OU level=OU link_order=1 param=ProxyServer value=proxy.ou.lan
+A_COMPLETER
+
+[Cas 3 — Paramètre unique défini uniquement au niveau LOCAL]
+# Données : GPO name=LocalMachine level=LOCAL link_order=1 param=AuditLogon value=Success
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de précédence de stratégies de groupe (Modèle LSDOU)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la valeur effective d’un paramètre selon l’ordre strict de traitement LSDOU (Local -&gt; Site -&gt; Domaine -&gt; OU) et les liens de liaison.</p>
+    <div class="lab__brief">Le moteur Group Policy applique les stratégies selon la hiérarchie stricte LSDOU :
+- `LOCAL` (Priorité niveau 1)
+- `SITE` (Priorité niveau 2)
+- `DOMAIN` (Priorité niveau 3)
+- `OU` (Priorité niveau 4)
+
+Règles de précédence :
+1. Les niveaux s’appliquent dans l’ordre 1 -> 2 -> 3 -> 4. Un niveau supérieur (ex: OU) écrase toujours les niveaux inférieurs (ex: DOMAIN).
+2. Au sein d’un même niveau, les GPOs ont un numéro de liaison `link_order=1, 2, ...` : le link_order 1 est le plus prioritaire (il est traité en dernier dans le niveau et gagne face au link_order 2).
+
+Entrée :
+`GPO name=<NOM> level=<LOCAL|SITE|DOMAIN|OU> link_order=<N> param=<P> value=<V>`
+
+Sortie :
+- Pour chaque paramètre unique (trié par nom alphabétique) :
+  `EFFECTIVE_SETTING param=<P> value=<V> source_gpo=<NOM> level=<LEVEL>`
+- Bilan :
+  `SUMMARY params_evalues=<P> gpos_total=<G>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GPO name=DefaultDomainPolicy level=DOMAIN link_order=1 param=MaxPasswordAge value=42
+GPO name=LocalSecurity level=LOCAL link_order=1 param=MaxPasswordAge value=90
+GPO name=OUPolicy level=OU link_order=1 param=MaxPasswordAge value=30</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EFFECTIVE_SETTING param=MaxPasswordAge value=30 source_gpo=OUPolicy level=OU
+SUMMARY params_evalues=1 gpos_total=3</pre></div>
+    </div>
+    <p class="lab__note">La GPO liée à l’OU a la plus forte précédence (niveau OU &gt; DOMAIN &gt; LOCAL) : 30 jours s’appliquent.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Attribuer un poids numérique à chaque niveau (LOCAL:1, SITE:2, DOMAIN:3, OU:4).</li>
+        <li>Pour le link_order, un ordre plus petit (1) doit avoir une priorité plus élevée que 2 (ex: utiliser -link_order).</li>
+        <li>Trier par (poids_niveau, -link_order) pour déterminer la GPO gagnante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="OU_SETTING ou=OU_Finance block_inheritance=ENABLED&#10;GPO name=GPO_Securite level=DOMAIN enforced=ENABLED param=MinPasswordLength value=14&#10;GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=ScreenTimeout value=15&#10;GPO name=GPO_Finance level=OU enforced=DISABLED param=MinPasswordLength value=8&#10;GPO name=GPO_Finance level=OU enforced=DISABLED param=ScreenTimeout value=60">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e2) — Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Blocage actif sans aucune GPO forcée]
+# Données : OU_SETTING ou=OU_Filiale block_inheritance=ENABLED
+# Données : GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=WallPaper value=corporate.png
+# Données : GPO name=GPO_Filiale level=OU enforced=DISABLED param=WallPaper value=local.png
+A_COMPLETER
+
+[Cas 2 — Aucun blocage d’héritage (héritage normal écrasé par l’OU)]
+# Données : OU_SETTING ou=OU_Dev block_inheritance=DISABLED
+# Données : GPO name=GPO_Global level=DOMAIN enforced=DISABLED param=MaxLogSize value=2048
+# Données : GPO name=GPO_Local level=OU enforced=DISABLED param=MaxLogSize value=8192
+A_COMPLETER
+
+[Cas 3 — GPO Enforced sans aucune concurrence dans l’OU]
+# Données : OU_SETTING ou=OU_Standard block_inheritance=ENABLED
+# Données : GPO name=GPO_Audit level=DOMAIN enforced=ENABLED param=AuditPrivilege value=Enabled
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les conflits d’héritage entre une Unité Organisationnelle avec blocage et des GPOs parentes forcées (Enforced).</p>
+    <div class="lab__brief">Dans Active Directory, les règles avancées d’héritage de stratégies modifient le flux LSDOU :
+- `OU_SETTING ou=<OU> block_inheritance=<ENABLED|DISABLED>` : si ENABLED, toutes les GPOs des niveaux parents (Site, Domaine) sont bloquées.
+- `GPO name=<NOM> level=<DOMAIN|OU> enforced=<ENABLED|DISABLED> param=<P> value=<V>`
+
+Règle d’or Microsoft :
+1. Si une GPO parente (DOMAIN) a `enforced=ENABLED`, elle traverse TOUS les blocages d’héritage et NE PEUT PAS être écrasée par une GPO de l’OU enfant (sa valeur prévaut sur tout).
+2. Si `block_inheritance=ENABLED` sur l’OU, toutes les GPOs DOMAIN avec `enforced=DISABLED` sont purement et simplement IGNORÉES.
+3. Si `block_inheritance=DISABLED`, les GPOs DOMAIN (enforced=DISABLED) s’appliquent mais peuvent être écrasées par les GPOs de l’OU.
+
+Sortie :
+- Pour chaque paramètre (trié par nom alphabétique) :
+  `EFFECTIVE_SETTING param=<P> value=<V> source_gpo=<NOM>`
+- Bilan :
+  `SUMMARY block_applied=<TRUE|FALSE> enforced_count=<E> params_count=<P>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OU_SETTING ou=OU_Finance block_inheritance=ENABLED
+GPO name=GPO_Securite level=DOMAIN enforced=ENABLED param=MinPasswordLength value=14
+GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=ScreenTimeout value=15
+GPO name=GPO_Finance level=OU enforced=DISABLED param=MinPasswordLength value=8
+GPO name=GPO_Finance level=OU enforced=DISABLED param=ScreenTimeout value=60</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EFFECTIVE_SETTING param=MinPasswordLength value=14 source_gpo=GPO_Securite
+EFFECTIVE_SETTING param=ScreenTimeout value=60 source_gpo=GPO_Finance
+SUMMARY block_applied=TRUE enforced_count=1 params_count=2</pre></div>
+    </div>
+    <p class="lab__note">MinPasswordLength est Enforced par le Domaine : il bat la tentative de réduction à 8 de l’OU. ScreenTimeout du Domaine est bloqué par l’OU, donc la valeur 60 de l’OU s’applique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garder la valeur Enforced en priorité absolue (indétrônable).</li>
+        <li>Si block_inheritance=ENABLED, éliminer les GPOs DOMAIN non forcées.</li>
+        <li>Les GPOs de niveau OU s’appliquent ensuite si aucun Enforced ne verrouille le paramètre.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CLIENT name=PC-DEV-01 os_build=19045 arch=64BIT ram_gb=16 groups=Domain_Computers,DevWorkstations&#10;GPO name=GPO_BitLocker security_groups=Domain_Computers min_os_build=19041 arch=ANY min_ram_gb=4&#10;GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT min_ram_gb=32">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e3) — Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Refus WMI sur la quantité de RAM disponible]
+# Données : CLIENT name=PC-LITE os_build=22000 arch=64BIT ram_gb=8 groups=Domain_Computers
+# Données : GPO name=GPO_HyperV security_groups=Domain_Computers min_os_build=20000 arch=64BIT min_ram_gb=16
+A_COMPLETER
+
+[Cas 2 — Refus WMI sur l’architecture 32-bit]
+# Données : CLIENT name=PC-OLD os_build=17763 arch=32BIT ram_gb=4 groups=Domain_Computers
+# Données : GPO name=GPO_x64Only security_groups=Domain_Computers min_os_build=10000 arch=64BIT min_ram_gb=2
+A_COMPLETER
+
+[Cas 3 — Toutes les GPOs appliquées avec succès]
+# Données : CLIENT name=SRV-APP os_build=20348 arch=64BIT ram_gb=64 groups=Domain_Controllers,Servers
+# Données : GPO name=GPO_Hardening security_groups=Servers min_os_build=19000 arch=64BIT min_ram_gb=16
+# Données : GPO name=GPO_NTP security_groups=Servers min_os_build=10000 arch=ANY min_ram_gb=1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si une GPO est applicable à un poste client en évaluant l’appartenance aux groupes de sécurité et les critères matériels/OS du filtre WMI.</p>
+    <div class="lab__brief">Une stratégie de groupe n’est traitée par un ordinateur client que si elle satisfait deux filtres simultanés :
+1. Filtrage de sécurité : l’ordinateur doit appartenir à au moins un des groupes listés dans `security_groups`.
+2. Filtre WMI : les spécifications de l’ordinateur doivent vérifier tous les critères techniques :
+   - `min_os_build` : `client.os_build >= gpo.min_os_build`
+   - `arch` : `gpo.arch == ANY` ou `client.arch == gpo.arch`
+   - `min_ram_gb` : `client.ram_gb >= gpo.min_ram_gb`
+
+Entrée :
+`CLIENT name=<NOM> os_build=<N> arch=<64BIT|32BIT> ram_gb=<N> groups=<G1,G2,...>`
+`GPO name=<NOM> security_groups=<G1,G2,...> min_os_build=<N> arch=<64BIT|32BIT|ANY> min_ram_gb=<N>` (1 ou plusieurs)
+
+Sortie :
+- Pour chaque GPO (triée par nom alphabétique) :
+  `GPO_EVAL gpo=<NOM> statut=<APPLIQUE|IGNORE> motif=<OK|REFUS_SECURITE|REFUS_WMI>`
+  (Priorité de motif : si la sécurité échoue -> `REFUS_SECURITE` ; si la sécurité passe mais WMI échoue -> `REFUS_WMI` ; si tout passe -> `OK`).
+- Bilan :
+  `SUMMARY total_gpos=<N> appliquees=<A> ignorees=<I>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CLIENT name=PC-DEV-01 os_build=19045 arch=64BIT ram_gb=16 groups=Domain_Computers,DevWorkstations
+GPO name=GPO_BitLocker security_groups=Domain_Computers min_os_build=19041 arch=ANY min_ram_gb=4
+GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT min_ram_gb=32</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>GPO_EVAL gpo=GPO_BitLocker statut=APPLIQUE motif=OK
+GPO_EVAL gpo=GPO_CADSoftware statut=IGNORE motif=REFUS_SECURITE
+SUMMARY total_gpos=2 appliquees=1 ignorees=1</pre></div>
+    </div>
+    <p class="lab__note">GPO_BitLocker satisfait la sécurité et WMI (16 &gt;= 4, build OK). GPO_CADSoftware est rejetée pour sécurité car le client n’est pas dans Engineers.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparer les ensembles de groupes avec set.intersection().</li>
+        <li>Vérifier os_build, arch et ram_gb si la sécurité est validée.</li>
+        <li>Classer le motif en REFUS_SECURITE, REFUS_WMI ou OK.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans quel ordre séquentiel les stratégies de groupe sont-elles évaluées par le client Windows ?</p>
+      <div class="opts">
+        <button class="opt">OU -> Domaine -> Site -> Local</button>
+        <button class="opt" data-correct="1">Local -> Site -> Domaine -> Unité Organisationnelle (LSDOU)</button>
+        <button class="opt">Domaine -> Local -> OU -> Site</button>
+        <button class="opt">Par ordre alphabétique du nom des stratégies</button>
+      </div>
+      <div class="q__exp">L’ordre officiel est LSDOU : Local, puis Site, puis Domaine, et enfin Unité Organisationnelle (le dernier niveau appliqué l’emporte).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où sont physiquement stockés les fichiers de modèles de stratégie GPT (Registry.pol, scripts) ?</p>
+      <div class="opts">
+        <button class="opt">Dans le répertoire C:\Windows\System32\config</button>
+        <button class="opt">Directement dans la base de registre locale</button>
+        <button class="opt" data-correct="1">Dans le partage réseau SYSVOL répliqué entre contrôleurs de domaine</button>
+        <button class="opt">Sur le site web de support de Microsoft</button>
+      </div>
+      <div class="q__exp">Le Group Policy Template (GPT) est stocké dans le partage réseau répliqué \\domaine\SYSVOL\domaine\Policies\{GUID}.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une GPO de niveau Domaine est marquée « Enforced » et qu’une OU enfant active « Bloquer l’héritage », que se passe-t-il ?</p>
+      <div class="opts">
+        <button class="opt">La stratégie de domaine est totalement bloquée</button>
+        <button class="opt" data-correct="1">La stratégie de domaine s’applique obligatoirement et ne peut pas être écrasée</button>
+        <button class="opt">Le serveur affiche un écran bleu BSoD</button>
+        <button class="opt">L’OU enfant est automatiquement supprimée de l’annuaire</button>
+      </div>
+      <div class="q__exp">L’option Enforced surpasse impérativement le blocage d’héritage : la GPO de domaine s’applique sans exception.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Au sein d’une même Unité Organisationnelle avec trois GPOs liées, laquelle a la priorité la plus élevée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Celle dont le Link Order est égal à 1</button>
+        <button class="opt">Celle dont le Link Order est égal à 3</button>
+        <button class="opt">Celle qui contient le plus de paramètres</button>
+        <button class="opt">Celle créée le plus récemment</button>
+      </div>
+      <div class="q__exp">Le Link Order 1 est évalué en dernier au sein du conteneur : il écrase donc les ordres supérieurs (2, 3...) et gagne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel droit d’accès d’ACL est obligatoire pour qu’une GPO soit exécutée sur un groupe de machines ciblées ?</p>
+      <div class="opts">
+        <button class="opt">Contrôle total (Full Control)</button>
+        <button class="opt" data-correct="1">Appliquer la stratégie de groupe (Apply Group Policy) en plus du droit Lire (Read)</button>
+        <button class="opt">Écriture seule</button>
+        <button class="opt">Supprimer l’objet</button>
+      </div>
+      <div class="q__exp">Pour que le moteur GPO applique la stratégie, la cible doit détenir à la fois les droits Read et Apply Group Policy.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un filtre WMI sur une stratégie de groupe ?</p>
+      <div class="opts">
+        <button class="opt">À chiffrer le mot de passe de l’administrateur</button>
+        <button class="opt" data-correct="1">À conditionner l’application de la GPO à des critères matériels ou de version d’OS évalués dynamiquement</button>
+        <button class="opt">À supprimer les fichiers temporaires du poste client</button>
+        <button class="opt">À bloquer les ports USB du serveur</button>
+      </div>
+      <div class="q__exp">Un filtre WMI (requête WQL) vérifie des propriétés du poste (RAM, processeur, version de build d’OS) avant d’autoriser l’application de la GPO.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où est déployé le Central Store permettant de centraliser les modèles de stratégies ADMX ?</p>
+      <div class="opts">
+        <button class="opt">Dans C:\Program Files\Microsoft GPO</button>
+        <button class="opt" data-correct="1">Dans \\domaine\SYSVOL\domaine\Policies\PolicyDefinitions</button>
+        <button class="opt">Sur une clé USB connectée au contrôleur principal</button>
+        <button class="opt">Dans la base de registre HKEY_LOCAL_MACHINE</button>
+      </div>
+      <div class="q__exp">Le Central Store se place dans \\domaine\SYSVOL\domaine\Policies\PolicyDefinitions pour être partagé par tous les contrôleurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet de générer un diagnostic complet en HTML des stratégies appliquées sur un poste ?</p>
+      <div class="opts">
+        <button class="opt">ping /all</button>
+        <button class="opt">gpupdate /clean</button>
+        <button class="opt" data-correct="1">gpresult /h rapport.html</button>
+        <button class="opt">ipconfig /release</button>
+      </div>
+      <div class="q__exp">La commande gpresult /h rapport.html génère un rapport visuel exhaustif détaillant toutes les GPOs appliquées et rejetées.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Éviter de surcharger la Default Domain Policy : réserver cette GPO uniquement aux paramètres transverses minimaux (politique de compte, mots de passe).</li>
+      <li>Créer des GPOs modulaires dédiées à une seule fonction (ex. GPO-BitLocker, GPO-PareFeu, GPO-ConfigProxy) pour faciliter le diagnostic.</li>
+      <li>Utiliser le Magasin Central (Central Store) dans SYSVOL pour centraliser les modèles d’administration ADMX/ADML et éviter les divergences de versions.</li>
+      <li>Vérifier la cohérence de version entre le conteneur GPC dans AD et le modèle GPT dans SYSVOL à l’aide de l’outil d’analyse de réplication.</li>
+      <li>Appliquer l’option Enforced avec une extrême parcimonie et uniquement sur des impératifs légaux ou sécuritaires non négociables.</li>
+      <li>Tester l’application effective des stratégies sur les postes clients via la commande gpresult /h rapport.html.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une GPO est composée de métadonnées dans l’annuaire AD (GPC) et de fichiers de configuration dans le partage réseau SYSVOL (GPT).</li>
+      <li>L’ordre d’application chronologique strict est LSDOU : Local -> Site -> Domaine -> Unité Organisationnelle (le niveau le plus profond gagne).</li>
+      <li>Au sein d’une même OU, la GPO avec le Link Order 1 possède la précédence la plus élevée face aux ordres supérieurs.</li>
+      <li>L’option Enforced (application forcée) prévaut absolument sur le blocage d’héritage (Block Inheritance) et interdit tout écrasement descendant.</li>
+      <li>Le filtrage de sécurité restreint l’exécution d’une GPO aux membres d’un groupe détenant le droit d’accès « Appliquer la stratégie ».</li>
+      <li>Les filtres WMI permettent d’interroger les propriétés matérielles et l’OS (WQL) pour conditionner dynamiquement le traitement de la stratégie.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le Central Store des fichiers ADMX/ADML est-il déployé dans SYSVOL pour harmoniser les consoles d’administration ?</li>
+      <li>La Default Domain Policy contient-elle exclusivement les politiques globales de compte et de mot de passe ?</li>
+      <li>L’ordre de liaison (Link Order) a-t-il été contrôlé sur chaque conteneur regroupant plusieurs GPOs actives ?</li>
+      <li>L’activation de Block Inheritance sur une OU a-t-elle été validée pour ne pas couper des accès ou des configurations vitales ?</li>
+      <li>Les requêtes de filtre WMI ont-elles été testées avec wmic ou Get-CimInstance pour éviter les temps d’attente excessifs à l’ouverture de session ?</li>
+      <li>Un rapport gpresult /h a-t-il été généré sur un poste cible pour vérifier la liste exacte des GPOs gagnantes et rejetées ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong> :</strong> Séquence chronologique officielle d’application des stratégies de groupe : Local, Site, Domaine, Unité Organisationnelle.</li><li><strong> :</strong> Répertoire unique situé dans SYSVOL hébergeant les modèles d’administration ADMX/ADML pour tous les contrôleurs de domaine.</li><li><strong> :</strong> Paramètre de liaison de GPO forçant son application prioritaire à travers tous les blocages d’héritage sans possibilité d’écrasement.</li><li><strong> :</strong> Option d’une Unité Organisationnelle empêchant l’héritage des stratégies de groupe configurées sur les conteneurs parents.</li><li><strong> :</strong> Mécanisme d’ACL restreignant l’exécution d’une GPO aux seuls objets ayant le droit « Appliquer la stratégie de groupe ».</li><li><strong> :</strong> Requête d’interrogation de la base de gestion Windows conditionnant l’application d’une GPO aux caractéristiques matérielles du poste.</li><li><strong> :</strong> Composant logique d’une GPO stocké dans Active Directory contenant les métadonnées, le GUID, la version et les ACLs.</li><li><strong> :</strong> Composant physique d’une GPO stocké dans SYSVOL contenant les fichiers de registre, scripts et modèles de configuration.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à ordonner la séquence LSDOU ou confusion entre Enforced et Block Inheritance.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de la précédence GPO, structuration propre des OUs et ciblage précis par filtrage de sécurité.</div>
+      <div class="bandrow bandrow--high">Excellence en gouvernance de parc : déploiement du Central Store ADMX, requêtes WMI complexes et diagnostic gpresult avancé.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Services de Fichiers, Permissions NTFS vs Partage SMB &amp; Espaces de Stockage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

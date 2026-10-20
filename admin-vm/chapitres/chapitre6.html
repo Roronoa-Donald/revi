@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Administration avancée | Admin VM B2</title>
+<meta name="description" content="Chapitre 6 du cours Admin VM B2 : Réservations, limites et shares, cluster HA, migration, sauvegarde avancée, monitoring et sécurité. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/admin-vm/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Administration avancée | Admin VM B2">
+<meta property="og:description" content="Chapitre 6 du cours Admin VM B2 : Réservations, limites et shares, cluster HA, migration, sauvegarde avancée, monitoring et sécurité. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="admin-vmnav"><div class="admin-vmnav__in">
+  <a class="admin-vmnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="admin-vmnav__sep" aria-hidden="true">/</span>
+  <a class="admin-vmnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Admin VM B2</a>
+  <div class="admin-vmnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="admin-vmnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="admin-vmwrap">
+<p class="crumb"><a href="../index.html">Admin VM B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Administration avancée</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Quand plusieurs VM cohabitent sur un cluster, la question n’est plus « ça marche ? » mais « qui passe d’abord, et que se passe-t-il si un nœud tombe ? ». L’administration avancée arbitre les ressources et garantit la continuité.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>réguler les ressources avec réservations, limites et shares ;</li>
+      <li>expliquer cluster, quorum, fencing et failover ;</li>
+      <li>décrire la migration et ses dépendances ;</li>
+      <li>situer sauvegarde avancée, monitoring et durcissement.</li>
+    </ol>
+  </div>
+
+<h2>1. Gestion avancée des ressources</h2>
+
+<ul>
+  <li><strong>Réservations</strong> : minimum garanti pour une VM critique.</li>
+  <li><strong>Limites</strong> : plafonner CPU et RAM d’une VM.</li>
+  <li><strong>Shares</strong> : priorité relative entre VM en cas de contention.</li>
+</ul>
+<p>Exemple : un serveur de bases de données reçoit une réservation de RAM plus élevée, pour être servi en priorité quand l’hôte est sous pression.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-scale"></use></svg> Garantir plutôt que promettre</div>
+    <p>Une réservation s’oppose à la surallocation : elle réserve vraiment une part de ressource. C’est le bon outil pour les services critiques, à condition d’en réserver peu et bien.</p>
+  </div>
+
+<h2>2. Cluster, quorum, fencing et failover</h2>
+
+<p>Un <strong>cluster</strong> relie plusieurs hyperviseurs pour assurer la continuité :</p>
+<ul>
+  <li><strong>Quorum</strong> : garantit la prise de décision (majorité des nœuds).</li>
+  <li><strong>Fencing</strong> : isole un nœud instable pour éviter le « split brain ».</li>
+  <li><strong>Failover</strong> : redémarre les VM sur un autre nœud.</li>
+</ul>
+<p>La redondance réduit le risque d’arrêt : en cas de panne d’un nœud, ses VM reprennent ailleurs selon les règles HA configurées.</p>
+
+<h2>3. Migration</h2>
+
+<p>La <strong>migration</strong> déplace une VM d’un nœud à un autre. Elle illustre le lien entre réseau, stockage et RAM :</p>
+<ul>
+  <li><strong>Stockage partagé</strong> : facilite la mobilité.</li>
+  <li><strong>Réseau</strong> : conditionne la durée du transfert.</li>
+  <li><strong>Charge</strong> : impacte la stabilité de l’opération.</li>
+</ul>
+<p>Plus les dépendances sont fortes, plus la migration est délicate. Une migration à chaud réussit quand les ressources sont correctement dimensionnées.</p>
+
+<h2>4. Sauvegarde avancée, monitoring et sécurité</h2>
+
+<p>La sauvegarde avancée ajoute : <strong>déduplication</strong> (réduction d’espace), <strong>chiffrement</strong> (protection des sauvegardes) et <strong>restauration granulaire</strong> (un fichier ou une VM entière).</p>
+<p>Le <strong>monitoring</strong> suit des métriques (CPU, RAM, I/O, latence), des seuils d’alerte et la gouvernance des usages.</p>
+<p>Le durcissement consiste à désactiver l’accès root en SSH si possible, activer le pare-feu au niveau Datacenter, séparer les comptes, auditer les logs et planifier les mises à jour avec un snapshot préalable. Un hyperviseur non patché expose <strong>toutes</strong> ses VM.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> La sécurité d’un hôte vaut celle de ses VM</div>
+    <p>Compromettre l’hyperviseur, c’est accéder à toutes ses machines. C’est pourquoi le durcissement et les mises à jour de l’hôte sont prioritaires : ils protègent l’ensemble de la plateforme.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vm2-c6-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="4&#10;3">
+  <script type="text/plain" data-lab-starter>$total = [int][Console]::In.ReadLine()
+$enLigne = [int][Console]::In.ReadLine()
+
+# À compléter : tester la majorité et afficher l'état du quorum.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Quorum d’un cluster</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier que la majorité des nœuds est en ligne.</p>
+    <div class="lab__brief"><p>Le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds <strong>en ligne</strong>. Le quorum est atteint si les nœuds en ligne représentent plus de la moitié du cluster. Affichez <code>quorum : atteint</code> ou <code>quorum : perdu</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>quorum : atteint</pre></div>
+    </div>
+    <p class="lab__note">3 nœuds sur 4 : majorité.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Plus de la moitié s’écrit ($enLigne * 2 -gt $total).</li>
+        <li>Multiplier par 2 évite la division et garde des entiers.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c6-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="92&#10;85">
+  <script type="text/plain" data-lab-starter>$valeur = [int][Console]::In.ReadLine()
+$seuil = [int][Console]::In.ReadLine()
+
+# À compléter : comparer la valeur au seuil et afficher l'état.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Alerte de monitoring</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer une métrique à son seuil critique.</p>
+    <div class="lab__brief"><p>Le script lit la <strong>valeur</strong> d’une métrique (par exemple un taux d’utilisation CPU en pourcentage), puis son <strong>seuil</strong> d’alerte. Si la valeur atteint ou dépasse le seuil, affichez <code>etat : alerte</code> ; sinon <code>etat : normal</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>92
+85</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>etat : alerte</pre></div>
+    </div>
+    <p class="lab__note">92 % dépasse le seuil de 85 %.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Alerte dès que ($valeur -ge $seuil).</li>
+        <li>Un seuil bien choisi évite le bruit autant que l’aveuglement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c6-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="100&#10;40">
+  <script type="text/plain" data-lab-starter>$brut = [int][Console]::In.ReadLine()
+$taux = [int][Console]::In.ReadLine()
+
+# À compléter : calculer la taille après déduplication et l'afficher.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Gain du dédoublonnage</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la taille d’une sauvegarde après déduplication.</p>
+    <div class="lab__brief"><p>Le script lit la taille <strong>brute</strong> d’une sauvegarde (Go), puis le <strong>taux de déduplication</strong> en pourcentage. Affichez <code>apres dedup : X Go</code> où <code>X</code> est la taille restante après déduplication (division entière).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>100
+40</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>apres dedup : 60 Go</pre></div>
+    </div>
+    <p class="lab__note">40 % d’espace économisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Taille restante = $brut * (100 - $taux) / 100.</li>
+        <li>Arrondis avec [int]([math]::Floor(...)) pour un entier.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que garantit une réservation ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un minimum de ressource</button>
+        <button class="opt">Un maximum</button>
+        <button class="opt">Une priorité</button>
+      </div>
+      <div class="q__exp">Elle réserve une part de CPU ou de RAM.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait une limite ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Plafonne une ressource</button>
+        <button class="opt">Réserve un minimum</button>
+        <button class="opt">Priorise</button>
+      </div>
+      <div class="q__exp">Elle empêche une VM de consommer au-delà.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi servent les shares ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Priorité relative entre VM</button>
+        <button class="opt">Chiffrer</button>
+        <button class="opt">Segmenter</button>
+      </div>
+      <div class="q__exp">Elles départagent la contention.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que garantit le quorum ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La prise de décision</button>
+        <button class="opt">Le chiffrement</button>
+        <button class="opt">La migration</button>
+      </div>
+      <div class="q__exp">La majorité des nœuds décide.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait le fencing ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Isole un nœud instable</button>
+        <button class="opt">Sauvegarde les VM</button>
+        <button class="opt">Monitore</button>
+      </div>
+      <div class="q__exp">Il évite le split brain.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que facilite le stockage partagé ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La migration</button>
+        <button class="opt">Le chiffrement</button>
+        <button class="opt">Le NAT</button>
+      </div>
+      <div class="q__exp">Il rend la VM mobile entre nœuds.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que réduit la déduplication ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’espace de sauvegarde</button>
+        <button class="opt">La latence</button>
+        <button class="opt">Les VLAN</button>
+      </div>
+      <div class="q__exp">Elle élimine les données redondantes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que protège une sauvegarde chiffrée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les données sauvegardées</button>
+        <button class="opt">Le réseau</button>
+        <button class="opt">Les vCPU</button>
+      </div>
+      <div class="q__exp">Le chiffrement protège la sauvegarde elle-même.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Réserver trop de ressources et freiner la densité.</li>
+      <li>Oublier le quorum : un cluster peut se diviser (split brain).</li>
+      <li>Migrer sans stockage partagé ni réseau adapté.</li>
+      <li>Négliger le durcissement de l’hyperviseur.</li>
+      <li>Sauvegarder sans chiffrer ni tester la restauration.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Administrer un cluster de VM</div>
+    <ol>
+      <li><strong>Réguler</strong> les ressources : réservations, limites, shares.</li>
+      <li><strong>Configurer</strong> le cluster (quorum, fencing, HA).</li>
+      <li><strong>Planifier</strong> les migrations selon stockage, réseau et charge.</li>
+      <li><strong>Sauvegarder</strong> avec déduplication, chiffrement et restauration granulaire.</li>
+      <li><strong>Surveiller</strong> et <strong>durcir</strong> l’hyperviseur.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Réservations (minimum), limites (plafond), shares (priorité).</li>
+      <li>Cluster : quorum (décision), fencing (isolement), failover (redémarrage).</li>
+      <li>Migration dépend du stockage partagé, du réseau et de la charge.</li>
+      <li>Sauvegarde avancée : déduplication, chiffrement, restauration granulaire.</li>
+      <li>Monitoring et durcissement protègent toutes les VM.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je régule les ressources (réservation/limite/share).</li>
+      <li>J’explique quorum, fencing et failover.</li>
+      <li>Je décris la migration et ses dépendances.</li>
+      <li>Je situe sauvegarde avancée, monitoring et durcissement.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>réservation</li><li>limite</li><li>shares</li><li>cluster</li><li>quorum</li><li>fencing</li><li>failover</li><li>migration</li><li>stockage partagé</li><li>déduplication</li><li>chiffrement</li><li>restauration granulaire</li><li>monitoring</li><li>durcissement</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends réservations, limites et shares.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur cluster et migration.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu administres un cluster sereinement.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique Admin VM (modules 1 à 7 : introduction, prérequis, architecture, cycle de vie, stockage, réseau, administration avancée).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercices &amp;amp; projet intégrateur — Administration Windows B1</title>
+<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours B1 : scripts Bash gradués et mise en service d’un domaine.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-admin-windows/exercices/exercices.html">
+<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Administration Windows B1">
+<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours B1 : scripts Bash gradués et mise en service d’un domaine.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="awnav"><div class="awnav__in">
+  <a class="awnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="awnav__sep" aria-hidden="true">/</span>
+  <a class="awnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Administration Windows B1</a>
+  <div class="awnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html" class="is-active">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="awnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="awwrap">
+<p class="crumb"><a href="../index.html">Administration Windows B1</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
+
+  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+
+  <p class="lead">De la pratique graduée pour consolider chaque chapitre, puis un projet final qui met le domaine en service de bout en bout. Les scripts sont en Bash, comme à l’atelier.</p>
+
+  <h2>Entraînement rapide (acquisition)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
+    <ol>
+      <li>Lit n lignes « tache famille » (comptes/logiciels/materiel/securite) et valide chaque classement, puis le compteur.</li>
+      <li>Lit n lignes « edition limite » (u15/u25/vm2/vmillimite) et valide chaque édition, puis le compteur.</li>
+      <li>Lit n lignes « action onglet » du Gestionnaire de serveur et valide, puis le compteur d’erreurs.</li>
+      <li>Lit n lignes « poste ram disque » et dit si le poste tient la configuration requise (2 Go, 60 Go), puis le compteur.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+e=0
+for ((k=0; k&lt;n; k++)); do
+  read -r tache famille
+  case "$tache" in
+    comptes) attendu="comptes" ;;
+    installer|configurer|patcher) attendu="logiciels" ;;
+    panne|remplacement|ajout) attendu="materiel" ;;
+    sauvegardes|acces) attendu="securite" ;;
+  esac
+  if [ "$famille" = "$attendu" ]; then
+    echo "$tache : OK"
+  else
+    echo "$tache : KO ($attendu attendu)"
+    e=$((e + 1))
+  fi
+done
+echo "erreurs : $e/$n"
+
+read -r n
+e=0
+for ((k=0; k&lt;n; k++)); do
+  read -r edition limite
+  case "$edition" in
+    foundation) attendu="u15" ;;
+    essential) attendu="u25" ;;
+    standard) attendu="vm2" ;;
+    datacenter) attendu="vmillimite" ;;
+  esac
+  if [ "$limite" = "$attendu" ]; then
+    echo "$edition : OK"
+  else
+    echo "$edition : KO ($attendu attendu)"
+    e=$((e + 1))
+  fi
+done
+echo "erreurs : $e/$n"
+
+read -r n
+e=0
+for ((k=0; k&lt;n; k++)); do
+  read -r action onglet
+  case "$action" in
+    roles|groupes) attendu="tableaudebord" ;;
+    renommer|carte|bureau) attendu="serveurlocal" ;;
+    erreurs) attendu="notifications" ;;
+    parefeu) attendu="outils" ;;
+  esac
+  if [ "$onglet" = "$attendu" ]; then
+    echo "$action : OK"
+  else
+    echo "$action : KO ($attendu attendu)"
+    e=$((e + 1))
+  fi
+done
+echo "erreurs : $e/$n"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r poste ram disque
+  if [ "$ram" -ge 2 ] &amp;&amp; [ "$disque" -ge 60 ]; then
+    echo "$poste : installable"
+    ok=$((ok + 1))
+  else
+    echo "$poste : a renforcer"
+  fi
+done
+echo "installables : $ok/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Application</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Application</span></div>
+    <ol>
+      <li>Lit 3 lignes « profil etat » (domaine/prive/public) et compte les profils encore actifs du pare-feu.</li>
+      <li>Lit n lignes « contexte identite machine » et forme la syntaxe de session (locale, NETBIOS, UPN).</li>
+      <li>Lit n lignes « objet uo » et compte les objets de chaque unité d’organisation dans l’ordre d’apparition.</li>
+      <li>Lit n lignes « utilisateur identifiant changement » et classe UPN/domaine plus compteur d’init-mdp.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>ok=0
+for ((i=1; i&lt;=3; i++)); do
+  read -r profil etat
+  if [ "$etat" = "actif" ]; then
+    echo "$profil : a desactiver"
+    ok=$((ok + 1))
+  else
+    echo "$profil : ok"
+  fi
+done
+echo "a desactiver : $ok/3"
+
+read -r n
+sep='\'
+for ((i=0; i&lt;n; i++)); do
+  read -r contexte identite machine
+  case "$contexte" in
+    locale|domaine-netbios) echo "$contexte : $machine$sep$identite" ;;
+    domaine-upn) echo "$contexte : $identite@$machine" ;;
+  esac
+done
+
+read -r n
+declare -A compte
+declare -A ordre
+g=0
+for ((i=0; i&lt;n; i++)); do
+  read -r objet uo
+  if [ -z "\${compte[$uo]+x}" ]; then
+    ordre[$g]=$uo
+    g=$((g + 1))
+  fi
+  compte[$uo]=$((\${compte[$uo]:-0} + 1))
+done
+for ((i=0; i&lt;g; i++)); do
+  uo=\${ordre[$i]}
+  echo "$uo : \${compte[$uo]} objets"
+done
+
+read -r n
+upn=0
+init=0
+for ((i=0; i&lt;n; i++)); do
+  read -r utilisateur identifiant changement
+  case "$identifiant" in
+    *@*) echo "$utilisateur : upn-valide" ; upn=$((upn + 1)) ;;
+    *) echo "$utilisateur : forme-domaine" ;;
+  esac
+  if [ "$changement" = "oui" ]; then
+    echo "$utilisateur : init-mdp"
+    init=$((init + 1))
+  fi
+done
+echo "upn : $upn/$n"
+echo "a-initialiser : $init"</code></pre></div></details>
+  </div>
+
+  <h2>Raisonnement</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
+    <ol>
+      <li>Lit n lignes « domaine parent » et classe racines/enfants d’une arborescence, puis les deux bilans.</li>
+      <li>Lit n lignes « info statut » et signale les informations AD requises manquantes, puis le verdict.</li>
+      <li>Lit n lignes « domaine niveau longueur » et contrôle niveau fonctionnel + mot de passe DSRM.</li>
+      <li>Lit g lignes « groupe type etendue » puis n lignes « poste dns » et produit les deux bilans (droits, jointures).</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+r=0
+e=0
+for ((k=0; k&lt;n; k++)); do
+  read -r domaine parent
+  if [ "$parent" = "-" ]; then
+    echo "$domaine : racine"
+    r=$((r + 1))
+  else
+    echo "$domaine : enfant de $parent"
+    e=$((e + 1))
+  fi
+done
+echo "racines : $r"
+echo "enfants : $e"
+
+read -r n
+b=0
+for ((k=0; k&lt;n; k++)); do
+  read -r info statut
+  case "$info" in
+    dns|netbios|niveau|dnsrole|ntds|sysvol|restauration)
+      if [ "$statut" = "manquant" ]; then
+        echo "$info : bloquante"
+        b=$((b + 1))
+      else
+        echo "$info : prete"
+      fi
+      ;;
+    *) echo "$info : ignoree" ;;
+  esac
+done
+echo "bloquantes : $b"
+[ "$b" -eq 0 ] &amp;&amp; echo "configuration possible"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r domaine niveau longueur
+  if [ "$niveau" != "2012R2" ] &amp;&amp; [ "$longueur" -lt 12 ]; then
+    echo "$domaine : a revoir (les-deux)"
+  elif [ "$niveau" != "2012R2" ]; then
+    echo "$domaine : a revoir (niveau)"
+  elif [ "$longueur" -lt 12 ]; then
+    echo "$domaine : a revoir (mdp)"
+  else
+    echo "$domaine : conforme"
+    ok=$((ok + 1))
+  fi
+done
+echo "conformes : $ok/$n"
+
+read -r g
+droits=0
+for ((i=0; i&lt;g; i++)); do
+  read -r groupe type etendue
+  if [ "$type" = "securite" ]; then
+    echo "$groupe : droits"
+    droits=$((droits + 1))
+  else
+    echo "$groupe : diffusion"
+  fi
+done
+read -r n
+j=0
+for ((i=0; i&lt;n; i++)); do
+  read -r poste dns
+  if [ "$dns" = "ad-dns" ]; then
+    echo "$poste : joint"
+    j=$((j + 1))
+  else
+    echo "$poste : dns a corriger"
+  fi
+done
+echo "groupes-droits : $droits"
+echo "jointures : $j/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Projet intégrateur — « la mise en service d’un domaine »</h2>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
+    <p>Le script reçoit le journal de mise en service. D’abord <code>n</code> lignes <code>machine config</code> où config est une suite de lettres sans espace — <code>f</code> = pare-feu traité sur les trois profils, <code>i</code> = IP statique validée, <code>a</code> = activation faite, <code>d</code> = DNS pointé vers le domaine, le tiret <code>-</code> = étape non faite. Puis <code>m</code> lignes <code>objet classe</code> (utilisateur/ordinateur/groupe) à créer dans le domaine. Il affiche pour chaque machine <code>machine : prete</code> si les quatre lettres sont présentes, sinon <code>machine : a corriger (manque X)</code> avec la première lettre manquante dans l’ordre f, i, a, d ; pour chaque objet <code>objet : classe-valide</code> si la classe est l’une des trois attendues, sinon <code>objet : classe-inconnue</code> ; enfin le verdict : <code>domaine en service</code> si toutes les machines sont prêtes ET qu’il y a au moins un utilisateur, <code>domaine a finir</code> si les machines sont prêtes sans utilisateur, <code>domaine bloque</code> sinon.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <ol>
+      <li><strong>Lire</strong> les deux blocs sans mélanger machines et objets.</li>
+      <li><strong>Auditer</strong> chaque machine : première étape manquante dans l’ordre f, i, a, d.</li>
+      <li><strong>Valider</strong> les classes d’objets et repérer le premier utilisateur.</li>
+      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>
+    </ol>
+    <p>Contraintes : parsing lettre à lettre, premier manque dans l’ordre, bilan après lecture complète.</p>
+  </div>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d’auto-évaluation du projet (sur 100)</div>
+    <div class="bands">
+      <div class="bandrow">Lecture des deux blocs et parsing correct <strong>20</strong></div>
+      <div class="bandrow">Audit des machines (premier manque) <strong>20</strong></div>
+      <div class="bandrow">Validation des objets et détection d’un utilisateur <strong>20</strong></div>
+      <div class="bandrow">Verdict global conforme <strong>20</strong></div>
+      <div class="bandrow">Rapport lisible et formats exacts <strong>20</strong></div>
+    </div>
+    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
+  </div>
+
+  <details>
+
+    <summary>Voir une solution de référence (après avoir essayé !)</summary>
+
+    <div class="sol">
+
+      <pre><code>read -r n
+toutes_ok=1
+for ((k=0; k&lt;n; k++)); do
+  read -r machine config
+  f=0 ; i=0 ; a=0 ; d=0
+  if [ "$config" != "-" ]; then
+    for ((j=0; j&lt;${#config}; j++)); do
+      lettre=${config:$j:1}
+      case "$lettre" in
+        f) f=1 ;;
+        i) i=1 ;;
+        a) a=1 ;;
+        d) d=1 ;;
+      esac
+    done
+  fi
+  if [ "$f" = "1" ] &amp;&amp; [ "$i" = "1" ] &amp;&amp; [ "$a" = "1" ] &amp;&amp; [ "$d" = "1" ]; then
+    echo "$machine : prete"
+  elif [ "$f" = "0" ]; then
+    echo "$machine : a corriger (manque f)" ; toutes_ok=0
+  elif [ "$i" = "0" ]; then
+    echo "$machine : a corriger (manque i)" ; toutes_ok=0
+  elif [ "$a" = "0" ]; then
+    echo "$machine : a corriger (manque a)" ; toutes_ok=0
+  else
+    echo "$machine : a corriger (manque d)" ; toutes_ok=0
+  fi
+done
+read -r m
+objets_ok=1
+a_un_utilisateur=0
+for ((k=0; k&lt;m; k++)); do
+  read -r objet classe
+  case "$classe" in
+    utilisateur)
+      echo "$objet : classe-valide"
+      a_un_utilisateur=1
+      ;;
+    ordinateur|groupe)
+      echo "$objet : classe-valide"
+      ;;
+    *)
+      echo "$objet : classe-inconnue"
+      objets_ok=0
+      ;;
+  esac
+done
+if [ "$toutes_ok" = "1" ] &amp;&amp; [ "$a_un_utilisateur" = "1" ]; then
+  echo "verdict : domaine en service"
+elif [ "$toutes_ok" = "1" ]; then
+  echo "verdict : domaine a finir"
+else
+  echo "verdict : domaine bloque"
+fi</code></pre>
+
+      Cette solution combine parsing lettre à lettre, premier manque dans l’ordre, validation des objets et verdict global — les chapitres 3, 5 et 6 en un seul script.
+
+    </div>
+
+  </details>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../chapitres/simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Exercices construits d’après les supports « Base de l’Administration Windows » (IT_B1A et IT_B1B) du Dr Abasse KPEGOUNI. Sources : les supports B1 « Base de l’Administration Windows » (IT_B1A et IT_B1B) du Dr Abasse KPEGOUNI : introduction à l’administration Windows, installation du serveur Active Directory AD DS, gestion des objets AD DS (unités d’organisation, utilisateurs, groupes).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Rentabilisation et dimensionnement | Virtualisation B1</title>
+<meta name="description" content="Chapitre 4 du cours B1 : De 80 % à 100 %, le taux de réveil, les serveurs économisés, le plan de consolidation. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-virtualisation/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Rentabilisation et dimensionnement | Virtualisation B1">
+<meta property="og:description" content="Chapitre 4 du cours B1 : De 80 % à 100 %, le taux de réveil, les serveurs économisés, le plan de consolidation. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="vtnav"><div class="vtnav__in">
+  <a class="vtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="vtnav__sep" aria-hidden="true">/</span>
+  <a class="vtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Virtualisation B1</a>
+  <div class="vtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="vtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="vtwrap">
+<p class="crumb"><a href="../index.html">Virtualisation B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Rentabilisation et dimensionnement</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le constat est posé, la promesse acceptée : place aux résultats. « Le serveur, bien que toujours un peu paresseux, se retrouva rentabilisé à 100 %. » Ce chapitre transforme la fable en tableau de bord : mesurer le réveil d’un serveur, comparer le parc physique au parc virtualisé, décider quelle VM va sur quel hôte.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>mesurer le réveil d’un serveur : taux d’utilisation avant et après ;</li>
+      <li>comparer le coût du parc physique à celui du parc virtualisé ;</li>
+      <li>calculer le nombre de VM nécessaires à un coût donné (plafond de la division) ;</li>
+      <li>placer les VM sur les hôtes selon la capacité restante (premier hôte suffisant).</li>
+    </ol>
+  </div>
+
+<h2>1. De 80 % d’oisiveté à 100 % d’usage</h2>
+
+<p>La rentabilisation se mesure par le <strong>taux d’utilisation</strong> : la part du temps où le serveur travaille vraiment. Le fainéant de l’histoire tournait à environ 20 % ; après virtualisation, « rentabilisé à 100 % » signifie que ses ressources ne dorment plus.</p>
+<p>Le « réveil » d’un serveur se constate par deux mesures : un taux <strong>avant</strong> bas (moins de 30 %) et un taux <strong>après</strong> élevé (80 % ou plus). Entre les deux, un serveur dont le taux monte est « en progrès » ; celui qui ne bouge pas reste insuffisant — le gaspillage continue.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pourquoi 30 et 80 ?</div>
+    <p>Sous 30 %, un serveur vit le mode de vie du fainéant ; à 80 % et plus, il rejoint le serveur « rentabilisé à 100 % » de la fin de l’histoire. Entre les deux, c’est un chantier en cours — pas une réussite, pas un scandale.</p>
+  </div>
+
+<h2>2. Combien de serveurs économisés ?</h2>
+
+<p>Le calcul qui convainc : le parc physique coûte la somme des serveurs ; le parc virtualisé coûte le nombre de VM × le coût d’une VM. Le nombre de VM nécessaires se calcule au <strong>plafond</strong> de la division : total des coûts / coût d’une VM, plus un si le reste n’est pas nul. On ne peut pas louer une demi-machine.</p>
+<p>Exemple du cours : 300 000 FCFA de serveurs, une VM à 60 000 FCFA → 300 000 / 60 000 = 5 VM exactement : 300 000 FCFA aussi, économie nulle. Mais à 80 000 FCFA la VM, 200 000 / 80 000 = 2,5 → <strong>3 VM</strong> : 240 000 FCFA. L’économie peut être négative : la consolidation a un coût, et l’arithmétique le dit sans complaisance.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — arrondir au plus proche</div>
+    <p>2,5 VM, ça n’existe pas : l’arrondi est au <strong>plafond</strong> (3), pas au plus proche (2). Un plafond oublié = un parc sous-dimensionné = des VM qui ne tiennent pas.</p>
+  </div>
+
+<h2>3. Le plan de consolidation</h2>
+
+<p>Dernier calcul avant d’agir : quelle VM sur quel hôte ? La règle du cours — et du bon sens — est le <strong>premier hôte suffisant</strong> : les serveurs physiques sont listés dans un ordre (fainéants d’abord : c’est eux qu’on veut réveiller), et chaque VM prend le premier hôte dont la capacité restante couvre son besoin. Si aucun hôte ne suffit, la VM reste « sans place » — et rien n’est décompté.</p>
+<p>La fin du plan reporte la capacité restante de chaque hôte : un hôte à 0 est « rentabilisé à 100 % » comme dans l’histoire ; un hôte à 200 est encore un fainéant en puissance.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Trois calculs, un plan</div>
+    <p>1. Le réveil (avant &lt; 30, après ≥ 80). 2. L’économie (plafond de la division). 3. Le placement (premier hôte suffisant). Avec ces trois calculs, le dossier de virtualisation est chiffré de bout en bout.</p>
+  </div>
+
+<h2>4. Ce que le tableau de bord doit dire</h2>
+
+<p>Un plan de consolidation se lit par un responsable, pas par un ingénieur. Il doit répondre en une page : combien de serveurs réveillés, combien de VM au final, quelle économie (ou quel surcoût) mensuel, quels hôtes pleins et quels hôtes restants. Chaque chiffre du dossier est reproductible par un script — c’est exactement le travail des exercices de ce chapitre.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les exercices de ce chapitre</div>
+    <p>Classer les serveurs (réveil, progrès, insuffisant), calculer l’économie du parc au plafond de la division, puis placer les VM sur les hôtes au premier suffisant avec les restes en bilan.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="vt-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;srv1 20 90&#10;srv2 40 60&#10;srv3 25 50&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c4-e1) — De 80 % à 100 % : le taux de rentabilisation
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Parc virtualisé]
+# Données : 4
+# Données : a 10 95
+# Données : b 15 80
+# Données : c 35 90
+# Données : d 20 30
+A_COMPLETER
+
+[Cas 2 — Déjà occupé]
+# Données : 3
+# Données : a 50 85
+# Données : b 60 90
+# Données : c 45 50
+A_COMPLETER
+
+[Cas 3 — Frontières exactes]
+# Données : 3
+# Données : a 29 80
+# Données : b 30 80
+# Données : c 29 79
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — De 80 % à 100 % : le taux de rentabilisation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le taux de rentabilisation de chaque serveur avant/après virtualisation.</p>
+    <div class="lab__brief"><p>Le serveur de l’histoire « se retrouva rentabilisé à 100 % ». Analysez chaque ligne proposée « serveur avant apres » (taux d’utilisation en %). Un serveur est <code>reveille</code> si le taux passe sous 30 % avant à 80 % ou plus après ; <code>en progres</code> si le taux augmente sans atteindre 80 % ; sinon <code>insuffisant</code>. Pour chaque ligne il Indiquez <code>serveur : verdict</code>, puis <code>reveilles : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+srv1 20 90
+srv2 40 60
+srv3 25 50
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>srv1 : reveille
+srv2 : en progres
+srv3 : en progres
+reveilles : 1/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois cas : avant -lt 30 ET apres -ge 80 → reveille ; apres -gt avant → en progres ; sinon insuffisant.</li>
+        <li>Le compteur ne progresse que pour les reveilles ; bilan après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;srv1 100000&#10;srv2 80000&#10;srv3 60000&#10;40000&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c4-e2) — Combien de serveurs économisés ?
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Consolidation rentable]
+# Données : 4
+# Données : a 200000
+# Données : b 150000
+# Données : c 180000
+# Données : d 120000
+# Données : 50000
+A_COMPLETER
+
+[Cas 2 — Petites VM]
+# Données : 3
+# Données : a 100000
+# Données : b 100000
+# Données : c 100000
+# Données : 60000
+A_COMPLETER
+
+[Cas 3 — Vraie économie]
+# Données : 2
+# Données : a 100000
+# Données : b 100000
+# Données : 80000
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Combien de serveurs économisés ?</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer le parc physique avant et le parc virtualisé après.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. La consolidation regroupe tous les services sur des VM : le nombre de VM nécessaires est le plafond de (total des coûts / cout_vm) — division entière plus 1 si le reste est non nul. Indiquez <code>parc actuel : n serveurs — X FCFA</code>, <code>parc virtualise : Y vm — Z FCFA</code> (Y × cout_vm) et <code>economie : W FCFA (T%)</code> où T est la part économisée (0 à 100).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+srv1 100000
+srv2 80000
+srv3 60000
+40000
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>parc actuel : 3 serveurs — 240000 FCFA
+parc virtualise : 6 vm — 240000 FCFA
+economie : 0 FCFA (0%)</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Plafond : vm = total / cout_vm ; si total % cout_vm != 0 alors vm = vm + 1.</li>
+        <li>Pourcentage : economie * 100 / total (division entière).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="2&#10;srv1 100&#10;srv2 100&#10;2&#10;vm-a 60&#10;vm-b 60&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c4-e3) — Le plan de consolidation
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Trois VM, deux hôtes]
+# Données : 2
+# Données : srv1 100
+# Données : srv2 100
+# Données : 3
+# Données : vm-a 60
+# Données : vm-b 60
+# Données : vm-c 60
+A_COMPLETER
+
+[Cas 2 — Remplissage optimal]
+# Données : 2
+# Données : srv1 100
+# Données : srv2 50
+# Données : 4
+# Données : vm-a 50
+# Données : vm-b 50
+# Données : vm-c 50
+# Données : vm-d 50
+A_COMPLETER
+
+[Cas 3 — Un seul hôte généreux]
+# Données : 1
+# Données : fainéant 200
+# Données : 3
+# Données : vm-bd 80
+# Données : vm-web 40
+# Données : vm-feu 80
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Le plan de consolidation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décider quel serveur physique héberger chaque VM selon la capacité restante.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. On place chaque VM sur le <strong>premier hôte</strong> dont la capacité restante suffit (l’ordre du fichier fait foi). Pour chaque VM il Indiquez <code>vm : hote</code> ou <code>vm : sans-place</code>, décrémente la capacité de l’hôte choisi, et à la fin Indiquez une ligne <code>hote : reste</code> par hôte puis <code>orinelles : X/n</code> — pardon, <code>non-placees : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
+srv1 100
+srv2 100
+2
+vm-a 60
+vm-b 60
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>vm-a : srv1
+vm-b : srv2
+srv1 : 40
+srv2 : 40
+non-placees : 0/2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Premier hôte suffisant : parcourir ordre, prendre le premier avec capacite[hote] -ge besoin.</li>
+        <li>Une VM non placée ne décrémente rien ; les bilans sortent dans l’ordre des hôtes.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Un serveur est « réveillé » quand…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">il passe de moins de 30 % à 80 % ou plus</button>
+        <button class="opt">il s’éteint la nuit</button>
+        <button class="opt">il change de salle</button>
+      </div>
+      <div class="q__exp">Avant bas, après élevé : la double mesure du réveil.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le nombre de VM d’une consolidation se calcule…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">au plafond de la division</button>
+        <button class="opt">à l’arrondi au plus proche</button>
+        <button class="opt">à la partie entière toujours</button>
+      </div>
+      <div class="q__exp">Plafond : division entière plus 1 si le reste n’est pas nul — 2,5 VM = 3 VM.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une économie négative signifie…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">que la consolidation coûte plus cher</button>
+        <button class="opt">que le calcul est faux</button>
+        <button class="opt">qu’il faut arrêter les VM</button>
+      </div>
+      <div class="q__exp">Le surcoût est possible : l’arithmétique tranche, sans complaisance.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La règle de placement des VM est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">le premier hôte suffisant, dans l’ordre du fichier</button>
+        <button class="opt">l’hôte le plus rapide</button>
+        <button class="opt">au hasard</button>
+      </div>
+      <div class="q__exp">Premier hôte dont la capacité restante couvre le besoin — l’ordre fait foi.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une VM sans place…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ne décompte rien</button>
+        <button class="opt">décompte quand même</button>
+        <button class="opt">détruit le plan</button>
+      </div>
+      <div class="q__exp">Aucun hôte ne suffit : rien n’est consommé, elle reste à placer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un hôte dont la capacité restante vaut 0 est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">rentabilisé à 100 % comme dans l’histoire</button>
+        <button class="opt">cassé</button>
+        <button class="opt">à remplacer</button>
+      </div>
+      <div class="q__exp">Toutes ses ressources sont utilisées : la fin heureuse du fainéant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le taux d’utilisation se mesure…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">avant et après la virtualisation</button>
+        <button class="opt">une seule fois, après</button>
+        <button class="opt">jamais, il se devine</button>
+      </div>
+      <div class="q__exp">Le réveil se prouve par deux mesures : le « avant » et le « après ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le dossier de consolidation se lit…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">en une page chiffrée, reproductible par script</button>
+        <button class="opt">en un récit d’ingénieur</button>
+        <button class="opt">dans le journal des événements</button>
+      </div>
+      <div class="q__exp">Réveillés, VM, économie, restes : les quatre lignes que le responsable lit.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Arrondir 2,5 VM à 2 : le plafond est obligatoire, sinon le parc déborde.</li>
+      <li>Décompter une VM sans place : elle n’a touché à aucune capacité.</li>
+      <li>Placer les VM en désordre : le premier hôte suffisant exige l’ordre du fichier.</li>
+      <li>Présenter une consolidation sans mesurer les taux avant/après : le réveil se prouve.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire le plan de consolidation</div>
+    <ol>
+      <li>Mesurer les taux avant/après de chaque serveur et compter les réveillés.</li>
+      <li>Chiffrer le parc cible : total des coûts, plafond de la division par le coût d’une VM, économie.</li>
+      <li>Placer les VM au premier hôte suffisant, puis reporter les restes : le plan est chiffré.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le réveil se mesure : avant moins de 30 %, après 80 % ou plus.</li>
+      <li>Le parc cible se calcule au plafond de la division — 2,5 VM font 3.</li>
+      <li>Le placement suit le premier hôte suffisant, dans l’ordre du fichier.</li>
+      <li>Un hôte à 0 est rentabilisé à 100 % : la fin heureuse du fainéant.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je calcule le taux de réveil et je classe un parc en trois verdicts.</li>
+      <li>J’applique le plafond de la division sans me tromper d’arrondi.</li>
+      <li>Je place des VM selon la capacité restante et je reporte les restes.</li>
+      <li>Je présente un plan en une page lisible par un responsable.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>taux d’utilisation</li><li>réveil d’un serveur</li><li>consolidation</li><li>plafond de division</li><li>économie</li><li>premier hôte suffisant</li><li>capacité restante</li><li>tableau de bord</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — refais l’exemple des 2,5 VM jusqu’à comprendre le plafond.</div>
+      <div class="bandrow bandrow--mid">50–69 % — rejoue les trois exercices avec un parc fictif différent.</div>
+      <div class="bandrow bandrow--good">70–89 % — solide : chiffre la consolidation d’un parc de 8 serveurs.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : passe aux risques de la surcharge.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Les risques de la surcharge <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support B1 « Le serveur fainéant et les machines ambitieuses — histoire » (dossier « cours B1 IT / Virtualisation des serveurs ») : texte narratif et questions de compréhension, d’analyse technique et de réflexion.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

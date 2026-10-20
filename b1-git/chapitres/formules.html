@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémo Git — Git B1</title>
+<meta name="description" content="Mémo du cours de Git B1 : les trois espaces, création, index et commits, gitignore, annulations, branches, distant, stash et archive sur une page.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/chapitres/formules.html">
+<meta property="og:title" content="Mémo Git — Git B1">
+<meta property="og:description" content="Mémo du cours de Git B1 : les trois espaces, création, index et commits, gitignore, annulations, branches, distant, stash et archive sur une page.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html" class="is-active">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Mémo</p>
+
+  <h1>Mémo Git</h1>
+
+  <p class="lead">Les commandes du cours sur une page, dans l'ordre des trajets. À garder ouvert pendant les exercices et l'atelier.</p>
+
+  <h2>Les trois espaces</h2>
+<pre><code>copie de travail   fichiers du développeur
+
+index              zone de transit (ce qui partira au commit)
+
+dépôt local (HEAD) historique des versions
+
+
+
+copie ──add──→ index ──commit──→ dépôt
+
+copie ←──reset HEAD── index ←──checkout── dépôt</code></pre>
+<p>status observe sans rien déplacer ; diff compare deux espaces.</p>
+
+  <h2>Créer et configurer</h2>
+<pre><code>git init [projet]        crée .git (le dépôt local)
+
+git clone url            télécharge projet + historique + origin
+
+git config --global user.name "Nom"
+
+git config --global user.email "mail"   (ou sans --global : par projet)
+
+git config --list        vérifier</code></pre>
+<p>Sans identité, le commit est refusé ou signé faux : configurer avant tout.</p>
+
+  <h2>Index et commits</h2>
+<pre><code>git add fichier | dossier | .    dépose dans l'index
+
+git add -A    nouveaux + modifiés + détruits
+
+git add -u    modifiés + détruits des fichiers suivis seulement
+
+git reset HEAD fichier    sort de l'index (reste suivi)
+
+git rm fichier            copie + index | --cached : index seul
+
+git commit -m "Message"   archive l'index (SHA-1)
+
+git commit --amend -m     réécrit le dernier commit (avant push)</code></pre>
+<p>Le commit archive l'état de l'index au moment du add : modifier après = re-add.</p>
+
+  <h2>.gitignore</h2>
+<pre><code>fichier      un nom exact
+
+dossier/     un dossier entier
+
+*.pyc        un suffixe (* = tout ce qui finit par)
+
+
+
+__pycache__/   *.pyc   venv/          (projet Python du TP1)
+
+
+
+git ls-files --other --ignored --exclude-standard   auditer les exclus
+
+git rm --cached fichier    dé-suivre un fichier déjà commité</code></pre>
+<p>Le .gitignore ne s'applique qu'aux fichiers pas encore suivis.</p>
+
+  <h2>Historique et annulations</h2>
+<pre><code>git log --oneline [--graph --all]      l'historique lisible
+
+git show SHA                le contenu d'un commit
+
+git diff [--cached | --staged]        copie↔index | index↔dépôt
+
+git diff brancheA..brancheB           deux branches
+
+
+
+git reset --soft HEAD~n    commits remontés dans l'index
+
+git reset --mixed HEAD~n   (défaut) index vidé, copie gardée
+
+git reset --hard HEAD~n    tout effacé après le commit cible
+
+git revert HEAD^           annule EN AJOUTANT un commit (partagé)</code></pre>
+<p>reset réécrit le passé (local) ; revert écrit l'inverse (partagé).</p>
+
+  <h2>Branches et fusion</h2>
+<pre><code>git branch nom             crée | -v : locales | -r : distantes | -d : supprime
+
+git checkout nom           bascule | -b nom : crée + bascule | -f : force (perd)
+
+git checkout main &amp;&amp; git merge feature    fusionne dans main
+
+git merge --abort          annule un merge en cours
+
+fast-forward               avance le pointeur, plus de trace de la branche
+
+--no-ff                    crée un commit de fusion (branche visible)
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD ... ======= ... &gt;&gt;&gt;&gt;&gt;&gt;&gt; branche    marqueurs de conflit</code></pre>
+<p>Conflit = même zone, deux versions : lire, décider, add, commit.</p>
+
+  <h2>Distant, stash, archive</h2>
+<pre><code>git remote add origin url    lie le distant | -v : vérifie
+
+git push [-u origin main]    envoie | rejeté = pull d'abord
+
+git fetch origin             actualise les références, sans fusionner
+
+git pull                     fetch + merge
+
+
+
+git stash | pop | list | drop    remise / reprise / pile / destruction
+
+
+
+git archive --format=tar --prefix=d/ HEAD | gzip &gt; v1.tar.gz
+
+GitHub Pages : Settings → Pages → branch main, /root</code></pre>
+<p>Rejet et conflit sont des protections : on les résout, jamais on ne les contourne.</p>
+
+  <h2>Erreurs fréquentes à éviter</h2>
+<ul>
+    <li>Committer sans user.name/user.email configurés.</li>
+    <li>Croire que .gitignore dé-suivra un fichier déjà commité.</li>
+    <li>reset --hard sur un dépôt partagé (ou sans stash au préalable).</li>
+    <li>Amend après push : le SHA change pour tout le monde.</li>
+    <li>Forcer un push au lieu de pull et résoudre.</li>
+    <li>Committer des marqueurs de conflit &lt;&lt;&lt;&lt;&lt;&lt;&lt; par add aveugle.</li>
+  </ul>
+
+  <div class="chnav">
+    <a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Cartes</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

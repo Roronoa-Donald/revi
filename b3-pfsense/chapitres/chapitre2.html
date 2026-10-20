@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Règles de Pare-Feu, Aliases, États de Connexion (Stateful) &amp;amp; Limiteurs | pfSense &amp; Routage B3</title>
+<meta name="description" content="Chapitre 2 du cours pfSense &amp; Routage B3 : Cinématique d’évaluation First-Match Wins, mot-clé quick, Aliases (Host/Network/Port), table d’états pfctl, règles flottantes et limiteurs Dummynet. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-pfsense/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Règles de Pare-Feu, Aliases, États de Connexion (Stateful) &amp;amp; Limiteurs | pfSense &amp; Routage B3">
+<meta property="og:description" content="Chapitre 2 du cours pfSense &amp; Routage B3 : Cinématique d’évaluation First-Match Wins, mot-clé quick, Aliases (Host/Network/Port), table d’états pfctl, règles flottantes et limiteurs Dummynet. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-pfsensenav"><div class="b3-pfsensenav__in">
+  <a class="b3-pfsensenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-pfsensenav__sep" aria-hidden="true">/</span>
+  <a class="b3-pfsensenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> pfSense &amp; Routage B3</a>
+  <div class="b3-pfsensenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-pfsensenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-pfsensewrap">
+<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Règles de Pare-Feu, Aliases, États de Connexion (Stateful) &amp; Limiteurs</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le filtrage de paquets moderne ne se résume pas à l’ouverture statique de ports. Dans pfSense, chaque règle est soumise à un ordre d’évaluation strict, géré par le compilateur interne du moteur pf. L’ingénieur sécurité doit maîtriser la cinématique séquentielle « First-Match Wins » imposée par le mot-clé quick, concevoir des jeux de règles modulaires et maintenables grâce aux Aliases récursifs, superviser la table d’états (State Table) pour traquer les connexions orphelines ou les attaques par saturation SYN Flood, et façonner le trafic réseau à l’aide des pipes Dummynet pour garantir la qualité de service (QoS) des applications métiers critiques.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la cinématique de traitement des règles dans l’interface web pfSense et la portée du mot-clé quick ;</li>
+      <li>concevoir, organiser et hiérarchiser les règles sur les interfaces physiques, groupes et règles flottantes ;</li>
+      <li>créer des Aliases récursifs (Host, Network, Port, URL Table) et comprendre leur compilation en tables radix ;</li>
+      <li>analyser le cycle de vie des sessions dans la table d’états pf (SYN_SENT, ESTABLISHED, FIN_WAIT) ;</li>
+      <li>auditer et purger les connexions en mémoire vive à l’aide des commandes CLI pfctl ;</li>
+      <li>développer en Python 3 des résolveurs d’Aliases récursifs, des moteurs d’évaluation First-Match et des parseurs de table d’états.</li>
+    </ol>
+  </div>
+
+<h2>1. Cinématique d’Évaluation des Règles : De la Théorie pf au « First-Match Wins »</h2>
+
+<p>L’une des subtilités majeures de pfSense réside dans la différence entre le comportement natif du fichier <code>pf.conf</code> OpenBSD et l’implémentation choisie par Netgate pour son interface d’administration graphique.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. La Règle Historique OpenBSD : Last-Match Wins</h4>
+    <p>En syntaxe brute <code>pf.conf</code>, un paquet traverse la totalité du jeu de règles. Si plusieurs règles correspondent, <strong>la dernière règle correspondante l’emporte</strong> :</p>
+    <pre><code>block in all
+pass in proto tcp to port 80
+block in proto tcp to port 80 # &lt;-- C’est cette règle qui s’applique !</code></pre>
+    <p>Pour forcer l’application immédiate d’une règle sans continuer la lecture, il faut insérer explicitement le mot-clé <code>quick</code> :</p>
+    <pre><code>pass in quick proto tcp to port 80 # &lt;-- Arrêt immédiat de l’évaluation</code></pre>
+  </div>
+  <div class="card">
+    <h4>2. Le Choix Ergonomique de pfSense : First-Match Wins</h4>
+    <p>Dans l’interface WebGUI de pfSense, <strong>toutes les règles standard sont automatiquement générées avec le mot-clé <code>quick</code></strong>.</p>
+    <p>Conséquences opérationnelles pour l’administrateur :</p>
+    <ul>
+      <li>Les règles sont évaluées de <strong>haut en bas</strong>.</li>
+      <li>Dès qu’un paquet correspond aux critères d’une règle, l’action (<code>Pass</code>, <code>Block</code> ou <code>Reject</code>) est exécutée sur-le-champ.</li>
+      <li>Aucune règle située plus bas dans la liste ne sera examinée.</li>
+      <li>Les règles les plus spécifiques doivent <strong>toujours être placées au-dessus</strong> des règles génériques.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Hiérarchie Globale des Règles dans pfSense</div>
+<p>Lorsqu’un paquet pénètre sur une interface, l’ordre d’évaluation traverse les onglets suivants :</p>,<ol>,  <li><strong>Floating Rules (Règles Flottantes) :</strong> Règles globales applicables à plusieurs interfaces simultanément, évaluées en premier (si l’option « Quick » est cochée).</li>,  <li><strong>Interface Groups :</strong> Règles s’appliquant à des familles d’interfaces (ex: tous les tunnels OpenVPN ou IPsec).</li>,  <li><strong>Interface Rules :</strong> Règles spécifiques de l’interface réceptrice (WAN, LAN, DMZ), lues de haut en bas.</li>,  <li><strong>Règle Implicite Default Deny :</strong> Si le paquet ne correspond à aucune règle, pfSense applique un blocage silencieux (<code>block drop in all</code>).</li>,</ol>
+  </div>
+
+<h2>2. Gestion Modulaire des Aliases &amp; Tables Radix pf</h2>
+
+<p>Pour éviter la duplication des règles de pare-feu et faciliter la maintenance, pfSense propose le mécanisme d’<strong>Aliases</strong> (<em>Firewall &gt; Aliases</em>). Un alias est une étiquette textuelle représentant un ensemble d’objets réseau.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Host Aliases</h4>
+    <p>Regroupement d’adresses IP uniques (ex: <code>SRV_AD = 192.168.1.10, 192.168.1.11</code>). Un alias peut inclure un autre alias (imbrication récursive).</p>
+  </div>
+  <div class="card">
+    <h4>Network Aliases</h4>
+    <p>Regroupement de sous-réseaux en notation CIDR (ex: <code>RESEAUX_ADMIN = 10.0.10.0/24, 10.0.20.0/24</code>) pour appliquer des politiques de sécurité par zone.</p>
+  </div>
+  <div class="card">
+    <h4>Port Aliases</h4>
+    <p>Regroupement de ports de services ou plages de ports (ex: <code>WEB_PORTS = 80, 443, 8080, 8443</code>), simplifiant grandement les règles d’exposition.</p>
+  </div>
+</div>
+<p>Au niveau bas niveau, pf traduit chaque alias contenant des adresses IP en une <strong>table pf</strong> stockée dans une structure en arbre radix optimisée. La recherche d’une adresse IP dans une table comprenant 100 000 entrées s’exécute ainsi en temps quasi-instantané $O(1)$, sans dégrader le débit du pare-feu.</p>
+
+<h2>3. Inspection Stateful &amp; Façonnement du Trafic (Limiters Dummynet)</h2>
+
+<p>pfSense est un pare-feu à état (<strong>Stateful Inspection</strong>). Lorsqu’une règle autorise une nouvelle connexion (action <code>Pass</code>), le moteur pf alloue une structure dans sa <strong>Table d’États (State Table)</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Cycle de Vie d’une Connexion TCP dans la State Table</h4>
+    <ul>
+      <li><strong>SYN_SENT :</strong> Le client a émis le SYN, pf mémorise le numéro de séquence initial et attend la réponse du serveur distant.</li>
+      <li><strong>ESTABLISHED :</strong> Le handshake à 3 voies (SYN, SYN-ACK, ACK) est validé. Tous les paquets aller-retour de cette session passent désormais sans consulter la liste des règles de filtrage.</li>
+      <li><strong>FIN_WAIT / CLOSED :</strong> Fermeture de la connexion par émission de FIN/RST. L’entrée reste temporairement en mémoire puis est purgée après expiration du timeout TCP.</li>
+    </ul>
+    <p>Commandes CLI de supervision : <code>pfctl -ss</code> (lister les états), <code>pfctl -si</code> (statistiques d’états), <code>pfctl -k &lt;ip&gt;</code> (fermeture forcée d’une session compromise).</p>
+  </div>
+  <div class="card">
+    <h4>2. Limiters &amp; Traffic Shaping (Dummynet)</h4>
+    <p>Le module de contrôle de flux Dummynet permet de brider ou réserver la bande passante sans complexité :</p>
+    <ul>
+      <li><strong>Pipe :</strong> Canal virtuel définissant un débit maximal (ex: 10 Mbps) et un délai optionnel.</li>
+      <li><strong>Queue :</strong> Sous-canal associé à un Pipe doté d’un poids de priorité (Weight) pour ordonnancer les paquets.</li>
+      <li><strong>Application :</strong> Les pipes sont assignés directement dans les paramètres avancés d’une règle de pare-feu (champs <em>In / Out pipe</em>).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="pf3-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ALIAS_DEF name=WEB_PORTS values=80,443,8080&#10;CHECK_ALIAS alias=WEB_PORTS target=443&#10;CHECK_ALIAS alias=WEB_PORTS target=22">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e1) — Résolveur d’alias d’adresses et de ports pfSense (Firewall Aliases)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Alias d’adresses IP de serveurs DNS]
+# Données : ALIAS_DEF name=DNS_SERVERS values=1.1.1.1,8.8.8.8,9.9.9.9
+# Données : CHECK_ALIAS alias=DNS_SERVERS target=8.8.8.8
+# Données : CHECK_ALIAS alias=DNS_SERVERS target=192.168.1.1
+A_COMPLETER
+
+[Cas 2 — Alias contenant un seul élément]
+# Données : ALIAS_DEF name=BASTION values=10.0.0.100
+# Données : CHECK_ALIAS alias=BASTION target=10.0.0.100
+# Données : CHECK_ALIAS alias=BASTION target=10.0.0.101
+A_COMPLETER
+
+[Cas 3 — Plusieurs vérifications consécutives]
+# Données : ALIAS_DEF name=ADMIN_PORTS values=22,3389,8443
+# Données : CHECK_ALIAS alias=ADMIN_PORTS target=22
+# Données : CHECK_ALIAS alias=ADMIN_PORTS target=80
+# Données : CHECK_ALIAS alias=ADMIN_PORTS target=3389
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Résolveur d’alias d’adresses et de ports pfSense (Firewall Aliases)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si un paquet correspond aux critères d’un Alias d’adresses IP ou de ports dans pfSense.</p>
+    <div class="lab__brief"><p>Les <strong>Alias</strong> dans pfSense simplifient la maintenance des règles de filtrage en regroupant des adresses IP, des réseaux ou des ports sous un nom unique (ex: <code>WEB_PORTS</code> pour <code>80,443</code>).<br><br>
+Analysez les paramètres du problème pour chaque cas...&gt;</code>.<br>
+Puis une série de vérifications :<br>
+<code>CHECK_ALIAS alias=&lt;nom&gt; target=&lt;valeur&gt;</code>.<br><br>
+Pour chaque vérification, afficher :<br>
+<code>ALIAS_RESULT alias={alias} target={target} match={YES|NO}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALIAS_DEF name=WEB_PORTS values=80,443,8080
+CHECK_ALIAS alias=WEB_PORTS target=443
+CHECK_ALIAS alias=WEB_PORTS target=22</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALIAS_RESULT alias=WEB_PORTS target=443 match=YES
+ALIAS_RESULT alias=WEB_PORTS target=22 match=NO</pre></div>
+    </div>
+    <p class="lab__note">Le port 443 est dans l’alias, le port 22 n’y est pas.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les valeurs de l’alias dans un ensemble set().</li>
+        <li>Tester si target est présent dans l’ensemble pour répondre YES ou NO.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RULE id=R1 action=PASS src=192.168.1.10 port=443&#10;RULE id=R2 action=BLOCK src=192.168.1.10 port=any&#10;EVAL_PKT pkt_id=P1 src=192.168.1.10 port=443&#10;EVAL_PKT pkt_id=P2 src=192.168.1.10 port=80">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e2) — Moteur d’évaluation séquentielle de règles de filtrage (First-Match Wins)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Paquet ne correspondant à aucune règle (Default Deny)]
+# Données : RULE id=R1 action=PASS src=10.0.0.1 port=22
+# Données : EVAL_PKT pkt_id=EXT src=192.168.1.50 port=80
+A_COMPLETER
+
+[Cas 2 — Règle générique masquant une règle ultérieure (Shadowing)]
+# Données : RULE id=R_ALLOW_ALL action=PASS src=any port=any
+# Données : RULE id=R_BLOCK_SSH action=BLOCK src=any port=22
+# Données : EVAL_PKT pkt_id=P_SSH src=172.16.0.4 port=22
+A_COMPLETER
+
+[Cas 3 — Série de règles avec filtrage strict par port]
+# Données : RULE id=R1 action=PASS src=any port=53
+# Données : RULE id=R2 action=PASS src=any port=80
+# Données : RULE id=R3 action=BLOCK src=any port=any
+# Données : EVAL_PKT pkt_id=PKT_DNS src=1.2.3.4 port=53
+# Données : EVAL_PKT pkt_id=PKT_HTTP src=1.2.3.4 port=80
+# Données : EVAL_PKT pkt_id=PKT_TELNET src=1.2.3.4 port=23
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur d’évaluation séquentielle de règles de filtrage (First-Match Wins)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l’évaluation ordonnée des règles dans pfSense : la première règle correspondante s’applique immédiatement.</p>
+    <div class="lab__brief"><p>Contrairement au moteur PF brut sous OpenBSD (où la dernière règle gagne sauf directive <code>quick</code>), <strong>pfSense applique par défaut le comportement First-Match</strong> (toutes les règles graphiques portent implicitement l'option <code>quick</code>).<br><br>
+Analysez les paramètres du problème pour chaque cas.<br>
+Puis des paquets à évaluer :<br>
+<code>EVAL_PKT pkt_id=&lt;id&gt; src=&lt;ip&gt; port=&lt;int&gt;</code>.<br><br>
+Règles :<br>
+- Parcourir les règles dans l'ordre de déclaration.<br>
+- La première règle qui correspond (src match et port match) s'applique :<br>
+  <code>decision={PASS|BLOCK} matched_rule={rule_id}</code>.<br>
+- Si aucune règle ne correspond, la règle implicite de fin de chaîne s'applique (Deny All) :<br>
+  <code>decision=BLOCK matched_rule=DEFAULT_DENY</code>.<br><br>
+Pour chaque paquet, afficher :<br>
+<code>PKT_DECISION pkt_id={pkt_id} decision={decision} rule={matched_rule}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE id=R1 action=PASS src=192.168.1.10 port=443
+RULE id=R2 action=BLOCK src=192.168.1.10 port=any
+EVAL_PKT pkt_id=P1 src=192.168.1.10 port=443
+EVAL_PKT pkt_id=P2 src=192.168.1.10 port=80</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PKT_DECISION pkt_id=P1 decision=PASS rule=R1
+PKT_DECISION pkt_id=P2 decision=BLOCK rule=R2</pre></div>
+    </div>
+    <p class="lab__note">P1 correspond à R1 (port 443). P2 ne correspond pas à R1, mais correspond à R2 (port any).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les règles dans une liste ordonnée.</li>
+        <li>Pour chaque paquet, boucler sur les règles et s’arrêter dès la première correspondance.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="STATE_ENTRY id=10 proto=tcp src=192.168.1.10:49152 dst=93.184.216.34:443 state=SYN_SENT age_sec=45">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e3) — Parseur de table d’états PF et détection de connexions semi-ouvertes
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Session TCP normale établie]
+# Données : STATE_ENTRY id=20 proto=tcp src=10.0.0.5:52000 dst=1.1.1.1:443 state=ESTABLISHED age_sec=120
+A_COMPLETER
+
+[Cas 2 — Trafic UDP et session en fermeture]
+# Données : STATE_ENTRY id=30 proto=udp src=10.0.0.5:53000 dst=8.8.8.8:53 state=SINGLE age_sec=5
+# Données : STATE_ENTRY id=31 proto=tcp src=10.0.0.5:54000 dst=8.8.8.8:80 state=TIME_WAIT age_sec=15
+A_COMPLETER
+
+[Cas 3 — SYN_SENT récent sous le seuil d’alerte]
+# Données : STATE_ENTRY id=40 proto=tcp src=192.168.1.15:4400 dst=10.0.0.1:80 state=SYN_SENT age_sec=5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parseur de table d’états PF et détection de connexions semi-ouvertes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser la table d’états du pare-feu (pfctl -ss) et détecter les attaques par saturation SYN Flood (états SYN_SENT semi-ouverts).</p>
+    <div class="lab__brief"><p>pfSense est un pare-feu à inspection d'états (Stateful Inspection). Lorsqu'un paquet traverse le filtre avec succès, une entrée est enregistrée dans la table d'états (State Table).<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Règles de diagnostic :<br>
+1. Une connexion TCP à l'état <code>SYN_SENT</code> durant depuis plus de 30 secondes (<code>age_sec &gt; 30</code>) traduit un serveur cible injoignable ou une attaque SYN Flood :<br>
+   <code>alert=HALF_OPEN_ATTACK_SUSPECT</code>.<br>
+2. Si <code>state == 'ESTABLISHED'</code> : <code>alert=HEALTHY_SESSION</code>.<br>
+3. Si <code>state in ['FIN_WAIT', 'TIME_WAIT']</code> : <code>alert=CLOSING_SESSION</code>.<br>
+4. Pour UDP (sans état natif) : <code>alert=STATELESS_UDP</code>.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>STATE_DIAG id={id} proto={proto} state={state} alert={alert}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STATE_ENTRY id=10 proto=tcp src=192.168.1.10:49152 dst=93.184.216.34:443 state=SYN_SENT age_sec=45</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STATE_DIAG id=10 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT</pre></div>
+    </div>
+    <p class="lab__note">État SYN_SENT bloqué depuis 45s : suspicion d’attaque ou panne cible.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester d’abord si proto == "tcp" et state == "SYN_SENT" avec age_sec &gt; 30.</li>
+        <li>Classifier les autres états selon les règles.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel mot-clé est automatiquement injecté par pfSense dans les règles créées via la WebGUI ?</p>
+      <div class="opts">
+        <button class="opt">keep state</button>
+        <button class="opt" data-correct="1">quick</button>
+        <button class="opt">log</button>
+        <button class="opt">scrub</button>
+      </div>
+      <div class="q__exp">pfSense ajoute le mot-clé quick à toutes les règles d’interface, ce qui interrompt immédiatement l’évaluation dès la première règle correspondante (First-Match Wins).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle direction sont évaluées les règles de filtrage dans pfSense ?</p>
+      <div class="opts">
+        <button class="opt">De bas en haut (la dernière l’emporte)</button>
+        <button class="opt" data-correct="1">De haut en bas (la première qui correspond l’emporte)</button>
+        <button class="opt">Par ordre alphabétique du nom de la règle</button>
+        <button class="opt">Aléatoirement selon la charge CPU</button>
+      </div>
+      <div class="q__exp">En raison du mot-clé quick, les règles sont lues de haut en bas : la première règle valide s’applique immédiatement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle catégorie de règles place-t-on une politique de sécurité s’appliquant à toutes les interfaces simultanément ?</p>
+      <div class="opts">
+        <button class="opt">Interface LAN</button>
+        <button class="opt" data-correct="1">Floating Rules (Règles Flottantes)</button>
+        <button class="opt">Interface WAN</button>
+        <button class="opt">Passerelles par défaut</button>
+      </div>
+      <div class="q__exp">Les Floating Rules permettent de créer des règles globales couvrant plusieurs interfaces en une seule déclaration.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle structure de données le moteur pf utilise-t-il pour stocker les tables d’adresses IP d’un alias ?</p>
+      <div class="opts">
+        <button class="opt">Une liste simplement chaînée</button>
+        <button class="opt" data-correct="1">Un arbre radix (Radix Tree)</button>
+        <button class="opt">Un tableau statique non indexé</button>
+        <button class="opt">Une file FIFO</button>
+      </div>
+      <div class="q__exp">Les tables pf exploitent un arbre radix, offrant une recherche d’adresse IP et de sous-réseau en temps O(1) ou O(log N).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appelle-t-on l’état TCP dans la table d’états lorsque la connexion est totalement établie entre deux hôtes ?</p>
+      <div class="opts">
+        <button class="opt">SYN_SENT</button>
+        <button class="opt" data-correct="1">ESTABLISHED</button>
+        <button class="opt">TIME_WAIT</button>
+        <button class="opt">LISTEN</button>
+      </div>
+      <div class="q__exp">L’état ESTABLISHED signale que le handshake à 3 voies TCP est complété et que le trafic bidirectionnel est fluide.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande CLI FreeBSD permet d’afficher toutes les connexions actives dans la table d’états pf ?</p>
+      <div class="opts">
+        <button class="opt">pfctl -sr</button>
+        <button class="opt" data-correct="1">pfctl -ss</button>
+        <button class="opt">pfctl -sa</button>
+        <button class="opt">netstat -rn</button>
+      </div>
+      <div class="q__exp">La commande pfctl -ss (show states) affiche l’ensemble des sessions mémorisées dans la table d’états du noyau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel utilitaire noyau sous-jacent est utilisé par pfSense pour le module de limitation de débit (Limiters) ?</p>
+      <div class="opts">
+        <button class="opt">Traffic Control (tc)</button>
+        <button class="opt" data-correct="1">Dummynet</button>
+        <button class="opt">CBQ natif uniquement</button>
+        <button class="opt">Netem</button>
+      </div>
+      <div class="q__exp">Sous FreeBSD/pfSense, les Limiters reposent sur le sous-système de simulation réseau et de contrôle de trafic Dummynet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il crucial de positionner les règles spécifiques au-dessus des règles génériques dans pfSense ?</p>
+      <div class="opts">
+        <button class="opt">Pour économiser la mémoire RAM</button>
+        <button class="opt" data-correct="1">Car le principe First-Match Wins masquerait la règle spécifique si une règle générique la précédait</button>
+        <button class="opt">Parce que pfSense refuse de compiler les règles sinon</button>
+        <button class="opt">Pour accélérer les requêtes DHCP</button>
+      </div>
+      <div class="q__exp">Si une règle générique (ex: allow any to any) est placée au sommet, elle correspondra à tous les paquets et empêchera les règles de restriction plus bas d’être lues.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer une règle large (Pass any to any) au-dessus de règles d’interdiction, annulant tout effet de filtrage.</li>
+      <li>Créer des références cycliques d’Aliases imbriqués (A contient B qui contient A).</li>
+      <li>Croire qu’une règle Floating sans l’option Quick prime toujours sur les règles d’interface.</li>
+      <li>Oublier que les paquets retour d’une connexion établie ne re-testent pas la liste des règles de filtrage.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Cartographier les flux autorisés et définir les Aliases requis pour les hôtes, sous-réseaux et groupes de ports.</li>
+      <li>Étape 2 : Créer les règles de blocage explicites les plus prioritaires au sommet de la liste d’interface.</li>
+      <li>Étape 3 : Insérer les règles d’autorisation spécifiques (Pass) en exploitant les Aliases créés.</li>
+      <li>Étape 4 : Vérifier que la règle Default Deny bloque bien tout paquet non explicitement ciblé.</li>
+      <li>Étape 5 : Superviser la table d’états (pfctl -ss) pour contrôler l’établissement correct des flux TCP.</li>
+      <li>Étape 6 : Attacher les Limiters Dummynet dans les options avancées des règles pour réguler la bande passante.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Dans pfSense, le mot-clé quick est injecté sur chaque règle, imposant l’évaluation First-Match Wins de haut en bas.</li>
+      <li>Les Floating Rules s’évaluent avant les règles d’interface si l’option Quick est cochée.</li>
+      <li>Les Aliases évitent la duplication de règles et sont compilés en tables radix pour une recherche en O(1).</li>
+      <li>La State Table mémorise les sessions autorisées, permettant aux flux retour de passer sans règle WAN additionnelle.</li>
+      <li>Les états TCP transitent de SYN_SENT à ESTABLISHED puis FIN_WAIT/CLOSED avant purge.</li>
+      <li>Le moteur Dummynet permet de façonner le trafic via des Pipes et Queues directement associés aux règles de filtrage.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la différence fondamentale entre Last-Match Wins (OpenBSD brut) et First-Match Wins (pfSense WebGUI).</li>
+      <li>Je sais pourquoi une règle spécifique doit impérativement précéder une règle générique.</li>
+      <li>Je sais créer et imbriquer récursivement des Aliases de type Host, Network et Port.</li>
+      <li>Je sais interpréter une sortie de la commande pfctl -ss et détecter un état SYN_SENT orphelin.</li>
+      <li>Je sais comment fermer immédiatement les connexions d’une IP compromise avec pfctl -k.</li>
+      <li>Je sais comment configurer un Limiter Dummynet pour plafonner un débit utilisateur.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>First-Match Wins & Mot-Clé Quick</li><li>Hiérarchie Floating vs Interface Rules</li><li>Politique Implicite Default Deny</li><li>Aliases Récursifs & Tables Radix</li><li>Stateful Inspection & State Table</li><li>Machine à États TCP (SYN_SENT, ESTABLISHED)</li><li>Commandes pfctl -ss et pfctl -k</li><li>Limiters Dummynet (Pipes & Queues)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à ordonner les règles de filtrage ou incompréhension de l’impact du mot-clé quick sur le First-Match.</div>
+      <div class="bandrow bandrow--medium">Création méthodique de jeux de règles d’interface, utilisation des Aliases et analyse de la table d’états pfctl.</div>
+      <div class="bandrow bandrow--high">Conception d’architectures de filtrage complexes, mise en œuvre de Floating Rules, optimisation de tables radix et QoS par Dummynet.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Translation d’Adresses (NAT), Redirections &amp; Routage Multi-WAN <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Netgate pfSense, Architecture FreeBSD Packet Filter (pf), RFC 5798 (CARP/VRRP), RFC 7296 (IKEv2) et Guides de durcissement ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémo SQL — SQL B1</title>
+<meta name="description" content="Mémo du cours de bases de données et SQL B1 : vocabulaire, types, ordre des clauses, opérateurs, jointures, agrégation et droits sur une page.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-sql/chapitres/formules.html">
+<meta property="og:title" content="Mémo SQL — SQL B1">
+<meta property="og:description" content="Mémo du cours de bases de données et SQL B1 : vocabulaire, types, ordre des clauses, opérateurs, jointures, agrégation et droits sur une page.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B1</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html" class="is-active">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B1</a> › <a href="../sommaire.html">Sommaire</a> › Mémo</p>
+
+  <h1>Mémo SQL</h1>
+
+  <p class="lead">Syntaxes, ordre des clauses et types du cours sur une page. À garder ouvert pendant le simulateur et les exercices.</p>
+
+  <h2>Vocabulaire</h2>
+<table>
+    <tr><th>Terme</th><th>Sens</th></tr>
+    <tr><td>Base de données</td><td>informations organisées, interrogeables par le contenu</td></tr>
+    <tr><td>SGBD</td><td>logiciel qui gère la base (MySQL, PostgreSQL, SQLite…)</td></tr>
+    <tr><td>Table</td><td>lignes (enregistrements) et colonnes (attributs)</td></tr>
+    <tr><td>Clé primaire</td><td>identifie chaque ligne sans ambiguïté</td></tr>
+    <tr><td>Clé étrangère</td><td>pointe vers une ligne d’une autre table</td></tr>
+    <tr><td>NULL</td><td>absence d’information — ni 0, ni chaîne vide</td></tr>
+  </table>
+
+  <h2>Types de colonnes</h2>
+<pre><code>entiers        TINYINT, SMALLINT, MEDIUMINT, INT, BIGINT
+
+décimaux exacts  DECIMAL(p, s)   -- l’argent : toujours DECIMAL
+
+mesures         FLOAT, DOUBLE    -- arrondis possibles
+
+chaînes fixes   CHAR(x)          -- complété d’espaces
+
+chaînes variables  VARCHAR(x)    -- stocké tel quel
+
+temps           DATE 'AAAA-MM-JJ', TIME 'HH:MM:SS', DATETIME, TIMESTAMP, YEAR</code></pre>
+<p>INT(x) ne change que l’affichage (avec ZEROFILL), pas le stockage.</p>
+
+  <h2>Ordre des clauses (et de l’exécution)</h2>
+<pre><code>SELECT   colonnes, agrégats
+
+FROM     tables (jointures)
+
+WHERE    filtre les LIGNES
+
+GROUP BY découpe en GROUPES
+
+HAVING   filtre les GROUPES (condition avec agrégat)
+
+ORDER BY trie (ASC par défaut, DESC décroissant)
+
+LIMIT    n [OFFSET d]   borne le résultat</code></pre>
+<p>L’ordre d’écriture est imposé ; une clause déplacée est une erreur de syntaxe.</p>
+
+  <h2>Opérateurs de WHERE</h2>
+<pre><code>=  &lt;&gt;  !=  &lt;  &lt;=  &gt;  &gt;=
+
+BETWEEN a AND b         intervalle inclus
+
+IN (v1, v2, …)          appartient à la liste
+
+LIKE '%ab'              % = toute suite ; _ = un caractère
+
+IS NULL / IS NOT NULL   absence d’information (jamais = NULL)</code></pre>
+<p>Les chaînes se quotent avec des apostrophes simples : 'DIESEL'.</p>
+
+  <h2>Jointures</h2>
+<pre><code>SELECT V.immat, M.nommarque
+
+FROM Voiture V
+
+INNER JOIN Marque M ON V.marque = M.nommarque   -- correspondances seules
+
+
+
+FROM Marque M
+
+LEFT JOIN Voiture V ON …   -- toute la table de gauche, NULL à droite</code></pre>
+<p>Sur une LEFT JOIN, compter COUNT(V.colonne) et non COUNT(*) : les NULL ne se comptent pas. Deux tables qui partagent un nom de colonne : toujours préfixer par l’alias.</p>
+
+  <h2>Agrégation</h2>
+<pre><code>COUNT(*)              toutes les lignes
+
+COUNT(colonne)        lignes sans NULL
+
+COUNT(DISTINCT col)   valeurs distinctes
+
+MIN(x) / MAX(x)       extrêmes (nombres, textes, dates)
+
+SUM(x) / AVG(x)       somme / moyenne (colonnes numériques)
+
+
+
+GROUP BY col          toute colonne du SELECT y figure ou est agrégée
+
+HAVING COUNT(*) &gt; 2   filtre les groupes (jamais WHERE avec un agrégat)</code></pre>
+
+  <h2>Modification et droits</h2>
+<pre><code>UPDATE table SET col = val WHERE cond;    -- sans WHERE : toute la table
+
+DELETE FROM table WHERE cond;             -- sans WHERE : la table est vidée
+
+ALTER TABLE t ADD COLUMN c TYPE;          -- évolution de structure
+
+DROP TABLE t;                             -- suppression de la structure
+
+
+
+CREATE USER 'login'@'hote' IDENTIFIED BY 'mdp';   -- % = joker d’hôte
+
+GRANT SELECT ON base.table TO 'login'@'hote';
+
+REVOKE SELECT ON base.table FROM 'login'@'hote';
+
+GRANT ALL PRIVILEGES ON base.* TO … WITH GRANT OPTION;   -- ALL seul ; OPTION = délégation</code></pre>
+<p>Tester toute modification par le SELECT équivalent avant de l’exécuter.</p>
+
+  <div class="chnav">
+    <a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Cartes</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

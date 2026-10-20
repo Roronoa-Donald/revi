@@ -1,0 +1,208 @@
+/**
+ * Pages « examens » et « exercices » du cours « Google Cloud Platform B3 ».
+ */
+'use strict';
+
+const { ic, crumb, box } = require('../../../../scripts/course-kit');
+const { chnav, disclaimer } = require('./helpers');
+
+/* ======================== Examens Blancs ======================== */
+
+function examens(course) {
+  const crumbs = crumb(course, [
+    { label: 'Accueil', href: '../index.html' },
+    { label: 'Sommaire', href: '../sommaire.html' },
+    { label: 'Examens blancs' }
+  ]);
+
+  const body = [
+    crumbs,
+    '  <h1>Examens Blancs &amp; Épreuves Corrigées — Google Cloud Platform B3</h1>',
+    '  <p class="lead">Deux épreuves académiques complètes d’architecture et d’ingénierie Cloud conformes au cursus Bachelor 3 et aux certifications professionnelles Google Cloud (Associate Cloud Engineer &amp; Professional Cloud Architect) : gouvernance, IAM, Compute Engine, VPC, Cloud Storage, Cloud Run, GKE, FinOps et Terraform.</p>',
+    '',
+    '  <h2>Épreuve 1 : Contrôle Continu (CC) — Durée 1 h 30 (Barème sur 20 points)</h2>',
+    box('standard', 'Sujet du Contrôle Continu — Hiérarchie GCP, Gestion des Identités IAM &amp; Calcul IaaS', [
+      '<h4>Partie 1 : Hiérarchie des Ressources, Projets &amp; Outils CLI (6 points)</h4>',
+      '<ol>',
+      '  <li>Décrivez les 4 niveaux de la hiérarchie organisationnelle de Google Cloud (Organisation, Dossiers, Projets, Ressources). Pourquoi est-il déconseillé de créer des ressources sans attachement à un projet ? (3 pts)</li>',
+      '  <li>Expliquez la différence fondamentale entre le Project ID, le Project Name et le Project Number sous Google Cloud. Quelles sont les règles RFC 1035 appliquées au Project ID ? (3 pts)</li>',
+      '</ol>',
+      '<h4>Partie 2 : Sécurité IAM, Rôles &amp; Comptes de Service (7 points)</h4>',
+      '<ol>',
+      '  <li>Distinguez les rôles primitifs (Viewer, Editor, Owner) des rôles prédéfinis (Predefined Roles). Pourquoi les rôles primitifs doivent-ils être rigoureusement bannis des environnements de production ? (4 pts)</li>',
+      '  <li>Qu\'est-ce qu\'un compte de service (Service Account) ? Expliquez les risques associés au téléchargement de clés privées JSON de comptes de service et présentez la solution alternative recommandée par Google (Workload Identity Federation). (3 pts)</li>',
+      '</ol>',
+      '<h4>Partie 3 : Calcul &amp; Élasticité avec Compute Engine (7 points)</h4>',
+      '<ol>',
+      '  <li>Qu\'est-ce qu\'un groupe d\'instances géré (Managed Instance Group - MIG) ? Comment fonctionnent les mécanismes d\'auto-scaling et d\'auto-healing basés sur les sondes de santé (Health Checks) ? (4 pts)</li>',
+      '  <li>Comparez le SLA de disponibilité d\'une instance Compute Engine mono-zone (99.5%) avec un déploiement de VM réparties sur plusieurs zones de disponibilité au sein d\'une même région (99.99%). Calculez le temps d\'indisponibilité mensuel maximal autorisé dans chaque cas. (3 pts)</li>',
+      '</ol>'
+    ].join('\n')),
+    '',
+    box('solution', 'Corrigé type &amp; Barème détaillé du Contrôle Continu', [
+      '<h4>Corrigé Partie 1 (6 points)</h4>',
+      '<ul>',
+      '  <li><strong>Hiérarchie des Ressources (3 pts) :</strong> ' +
+      '  1. <em>Organisation :</em> Racine absolue représentant l\'entreprise (liée à un domaine Google Workspace ou Cloud Identity). ' +
+      '  2. <em>Dossiers (Folders) :</em> Regroupements logiques par départements, environnements (Prod, Dev) ou filiales. ' +
+      '  3. <em>Projets :</em> Unités fondamentales d\'allocation de ressources, d\'activation d\'API, de facturation et de délimitation de sécurité. ' +
+      '  4. <em>Ressources :</em> Éléments terminaux (VMs, buckets, tables BigQuery). ' +
+      '  Toute ressource doit impérativement appartenir à un projet car les quotas, les autorisations IAM et la facturation y sont directement rattachés.</li>',
+      '  <li><strong>Identifiants de Projet &amp; RFC 1035 (3 pts) :</strong> ' +
+      '  - <em>Project Name :</em> Nom lisible par l\'humain, modifiable, non unique mondialement. ' +
+      '  - <em>Project Number :</em> Entier unique généré automatiquement par Google, utilisé en interne pour les comptes de service par défaut. ' +
+      '  - <em>Project ID :</em> Identifiant permanent, immuable et unique à l\'échelle mondiale. Règles RFC 1035 : 6 à 30 caractères, lettres minuscules (a-z), chiffres (0-9) et tirets (-), doit commencer par une lettre et ne peut se terminer par un tiret.</li>',
+      '</ul>',
+      '<h4>Corrigé Partie 2 (7 points)</h4>',
+      '<ul>',
+      '  <li><strong>Rôles Primitifs vs Prédéfinis (4 pts) :</strong> ' +
+      '  Les rôles primitifs (Viewer, Editor, Owner) accordent des privilèges globaux excessifs sur l\'intégralité des services du projet (par exemple, Editor permet de supprimer des bases de données et modifier le réseau). ' +
+      '  Ils violent le principe du moindre privilège (Least Privilege). En production, seuls les rôles prédéfinis (ex: <code>roles/storage.objectViewer</code> ou <code>roles/compute.instanceAdmin.v1</code>) ou des rôles personnalisés (Custom Roles) doivent être attribués.</li>',
+      '  <li><strong>Comptes de Service &amp; Workload Identity (3 pts) :</strong> ' +
+      '  Un compte de service est une identité non humaine utilisée par des applications ou des VMs pour s\'authentifier auprès des API Google Cloud. ' +
+      '  Télécharger des clés privées JSON pose un risque majeur de fuite de secret dans Git ou sur des postes de travail non sécurisés. ' +
+      '  <em>Workload Identity Federation</em> élimine totalement les clés de compte de service en permettant aux conteneurs GKE ou aux charges de travail externes (AWS, GitHub Actions) d\'échanger des jetons OIDC éphémères contre des jetons d\'accès Google Cloud temporaires.</li>',
+      '</ul>',
+      '<h4>Corrigé Partie 3 (7 points)</h4>',
+      '<ul>',
+      '  <li><strong>Groupes d\'Instances Gérés (MIG) (4 pts) :</strong> ' +
+      '  Un MIG gère un parc de VMs identiques créées à partir d\'un template d\'instance. ' +
+      '  <em>Auto-scaling :</em> ajuste dynamiquement le nombre d\'instances en fonction d\'une métrique cible (ex: utilisation CPU à 60% ou requêtes HTTP). ' +
+      '  <em>Auto-healing :</em> interroge périodiquement chaque VM via un Health Check applicatif ; si une instance ne répond plus (timeout), elle est automatiquement recréée sans intervention humaine.</li>',
+      '  <li><strong>SLA Mono-Zone vs Multi-Zones (3 pts) :</strong> ' +
+      '  - Mono-Zone (SLA 99.5%) : <code>0.005 * 30 jours * 24 h * 60 min = 216 minutes</code> d\'indisponibilité mensuelle (3 h 36 min). ' +
+      '  - Multi-Zones (SLA 99.99%) : <code>0.0001 * 30 jours * 24 h * 60 min = 4.32 minutes</code> d\'indisponibilité mensuelle. ' +
+      '  Le déploiement multi-zones réduit le temps d\'arrêt toléré de plus de 50 fois.</li>',
+      '</ul>'
+    ].join('\n')),
+    '',
+    '  <h2>Épreuve 2 : Examen Terminal (ET) — Durée 2 h 00 (Barème sur 20 points)</h2>',
+    box('standard', 'Sujet de l\'Examen Terminal — Conception d\'une Architecture Globale d\'Entreprise sur Google Cloud', [
+      '<p>Une entreprise fintech internationale souhaite déployer sa nouvelle plateforme bancaire sur Google Cloud. La solution doit gérer une API sécurisée à très faible latence mondiale, stocker des transactions financières sous conformité stricte et garantir une résilience totale aux pannes zonales.</p>',
+      '<h4>Section A : Réseau Virtuel VPC, Sécurité &amp; Load Balancing (5 points)</h4>',
+      '<ol>',
+      '  <li>Concevez l\'architecture VPC en mode sous-réseaux personnalisés (Custom Subnet Mode). Quels sont les rôles des 4 adresses IP réservées par Google dans un sous-réseau /24 ? (2.5 pts)</li>',
+      '  <li>Présentez l\'architecture d\'un Global External HTTP(S) Load Balancer. Détaillez le rôle de l\'IP Anycast, du Target HTTPS Proxy et de l\'URL Map pour acheminer le trafic mondial. (2.5 pts)</li>',
+      '</ol>',
+      '<h4>Section B : Moteurs de Persistance &amp; Stratégie de Données (5 points)</h4>',
+      '<ol>',
+      '  <li>Comparez Cloud SQL, Cloud Spanner et Cloud Bigtable. Quel moteur recommandez-vous pour le grand livre des transactions financières mondiales nécessitant une cohérence stricte ACID et un SLA 99.999% ? Justifiez votre choix. (3 pts)</li>',
+      '  <li>Définissez une politique de cycle de vie (Lifecycle Management) sur un bucket Cloud Storage pour optimiser les coûts des reçus de paiement : Standard les 30 premiers jours, Nearline jusqu\'à 90 jours, Coldline jusqu\'à 365 jours, puis Archive au-delà. (2 pts)</li>',
+      '</ol>',
+      '<h4>Section C : Conteneurs &amp; Serverless (GKE vs Cloud Run) (5 points)</h4>',
+      '<ol>',
+      '  <li>Comparez les cas d\'usage de Google Kubernetes Engine (GKE) en mode Autopilot avec Cloud Run. Quel service préconisez-vous pour des microservices HTTP sans état devant passer à l\'échelle à zéro pendant les heures creuses ? (3 pts)</li>',
+      '  <li>Décrivez la mise en œuvre d\'un déploiement progressif de type Canary Release (80% sur la révision stable, 20% sur la nouvelle révision) avec Cloud Run. (2 pts)</li>',
+      '</ol>',
+      '<h4>Section D : Observabilité, FinOps &amp; Terraform (5 points)</h4>',
+      '<ol>',
+      '  <li>Expliquez comment superviser les erreurs applicatives avec Google Cloud Operations (Monitoring et Cloud Logging). Comment configurer un Log Sink pour archiver les journaux d\'audit vers BigQuery ? (2.5 pts)</li>',
+      '  <li>En tant qu\'ingénieur FinOps, comparez les remises d\'utilisation soutenue (SUD) et les remises sur engagement d\'utilisation (CUD 1 an et 3 ans). Pourquoi le code Terraform ne doit-il jamais contenir de clés de service account en dur ? (2.5 pts)</li>',
+      '</ol>'
+    ].join('\n')),
+    '',
+    box('solution', 'Corrigé type &amp; Barème détaillé de l\'Examen Terminal', [
+      '<h4>Corrigé Section A (5 points)</h4>',
+      '<ul>',
+      '  <li><strong>VPC Custom &amp; Adresses Réservées (2.5 pts) :</strong> ' +
+      '  Le mode personnalisé évite la création automatique de sous-réseaux par défaut dans toutes les régions et permet une segmentation stricte du plan d\'adressage CIDR. ' +
+      '  Dans chaque sous-réseau, 4 adresses sont réservées : <code>.0</code> (réseau), <code>.1</code> (passerelle par défaut), <code>.2</code> (DNS interne Google) et <code>.255</code> (diffusion). Un sous-réseau 10.10.0.0/24 offre donc 252 adresses utilisables (256 - 4).</li>',
+      '  <li><strong>Global External HTTP(S) Load Balancer (2.5 pts) :</strong> ' +
+      '  Ce répartiteur de charge repose sur une adresse IP Anycast mondiale unique annoncée par BGP sur les 100+ points de présence (PoP) de Google. ' +
+      '  Le trafic client entre dans le réseau mondial Google au plus près de l\'utilisateur. Le <em>Target HTTPS Proxy</em> termine la session TLS au PoP edge, et l\'<em>URL Map</em> inspecte les en-têtes et chemins d\'URL pour acheminer la requête via la dorsale privée en fibre optique de Google vers le backend régional le plus proche.</li>',
+      '</ul>',
+      '<h4>Corrigé Section B (5 points)</h4>',
+      '<ul>',
+      '  <li><strong>Sélection du Moteur de Données (3 pts) :</strong> ' +
+      '  - <em>Cloud SQL :</em> base relationnelle régionale (max 64 To), limitée en montée en charge horizontale. ' +
+      '  - <em>Cloud Bigtable :</em> NoSQL analytique ultra-rapide mais cohérence finale et absence de transactions relationnelles ACID multi-tables. ' +
+      '  - <em>Cloud Spanner :</em> recommandé sans équivoque pour le grand livre des transactions financières. Spanner est une base relationnelle NewSQL distribuée mondialement avec synchronisation d\'horloges matérielles TrueTime (GPS et horloges atomiques), garantissant une cohérence stricte (external consistency) et un SLA exceptionnel de 99.999% (moins de 5 minutes d\'arrêt par an).</li>',
+      '  <li><strong>Politique de Cycle de Vie Cloud Storage (2 pts) :</strong> ' +
+      '  Configuration JSON/XML de règles Lifecycle : ' +
+      '  Règle 1 : Action <code>SetStorageClass: NEARLINE</code> si <code>age &gt;= 30</code>. ' +
+      '  Règle 2 : Action <code>SetStorageClass: COLDLINE</code> si <code>age &gt;= 90</code>. ' +
+      '  Règle 3 : Action <code>SetStorageClass: ARCHIVE</code> si <code>age &gt;= 365</code>. ' +
+      '  Permet d\'économiser jusqu\'à 90% sur la facture de stockage sans aucune intervention applicative.</li>',
+      '</ul>',
+      '<h4>Corrigé Section C (5 points)</h4>',
+      '<ul>',
+      '  <li><strong>GKE Autopilot vs Cloud Run (3 pts) :</strong> ' +
+      '  GKE Autopilot gère les clusters Kubernetes complets avec provisionnement automatique des nœuds, idéal pour des applications complexes avec microservices communicants, maillages de services (Istio) et protocoles non HTTP. ' +
+      '  Pour des microservices HTTP sans état avec besoin de mise à l\'échelle à zéro (scale-to-zero), <em>Cloud Run</em> est supérieur : conteneurs serverless démarrant en moins d\'une seconde, facturation exacte à la milliseconde de calcul consommé, zéro coût en l\'absence de trafic.</li>',
+      '  <li><strong>Canary Release sur Cloud Run (2 pts) :</strong> ' +
+      '  Cloud Run génère une révision immuable à chaque déploiement (ex: <code>v1</code> et <code>v2</code>). La commande <code>gcloud run services update-traffic [SERVICE] --to-revisions=v1=80,v2=20</code> configure le répartiteur de charge interne pour router 20% du trafic vers la nouvelle version pour validation opérationnelle avant basculement à 100%.</li>',
+      '</ul>',
+      '<h4>Corrigé Section D (5 points)</h4>',
+      '<ul>',
+      '  <li><strong>Cloud Operations &amp; Log Sink (2.5 pts) :</strong> ' +
+      '  Cloud Logging centralise les logs de toutes les ressources. Un <em>Log Sink</em> définit une requête de filtrage (ex: <code>logName:\"cloudaudit.googleapis.com\"</code>) et exporte en streaming continu les journaux vers un jeu de données BigQuery pour analyse SQL et conformité réglementaire à long terme.</li>',
+      '  <li><strong>FinOps CUD/SUD &amp; Sécurité Terraform (2.5 pts) :</strong> ' +
+      '  - SUD s\'applique automatiquement sans engagement (jusqu\'à 20% de remise si la VM tourne tout le mois). ' +
+      '  - CUD nécessite un engagement contractuel d\'1 an (~37% de remise) ou 3 ans (~55% de remise) sur des capacités de vCPU et RAM. ' +
+      '  - Dans Terraform, inscrire des clés de service account en dur (<code>credentials = file(...)</code>) expose les identifiants au vol lors de commits dans Git. On utilise systématiquement <em>Application Default Credentials (ADC)</em> en local et <em>Workload Identity Federation</em> dans les pipelines CI/CD.</li>',
+      '</ul>'
+    ].join('\n')),
+    '',
+    chnav({ href: 'exercices.html', label: 'Catalogue des exercices' }, { href: '../index.html', label: 'Retour au portail d\'accueil' }),
+    '',
+    disclaimer()
+  ].join('\n\n');
+
+  return {
+    'chapitres/examens.html': {
+      title: 'Examens Blancs Corrigés — ' + course.brand,
+      description: 'Épreuves corrigées de Contrôle Continu et Examen Terminal du cours Google Cloud Platform B3.',
+      active: 'examens',
+      body
+    }
+  };
+}
+
+/* ======================== Exercices ======================== */
+
+function exercices(course, chapterList) {
+  const crumbs = crumb(course, [
+    { label: 'Accueil', href: '../index.html' },
+    { label: 'Sommaire', href: '../sommaire.html' },
+    { label: 'Exercices' }
+  ]);
+
+  const chExercises = chapterList.map(ch => {
+    return [
+      '  <h3>Module ' + ch.n + ' — ' + ch.title + '</h3>',
+      '  <div class="table-wrap">',
+      '    <table class="table">',
+      '      <thead><tr><th>Code</th><th>Niveau</th><th>Titre de l\'Exercice</th><th>Objectif Pédagogique</th><th>Accès</th></tr></thead>',
+      '      <tbody>',
+      '        <tr><td><code>gcp3-c' + ch.n + '-e1</code></td><td><span class="badge badge--success">N1 Acquisition</span></td><td>Exercice 1 du Module ' + ch.n + '</td><td>Validation des concepts fondamentaux et analyse de structure.</td><td><a href="chapitre' + ch.n + '.html#lab-1" class="btn btn--sm">Pratiquer</a></td></tr>',
+      '        <tr><td><code>gcp3-c' + ch.n + '-e2</code></td><td><span class="badge badge--warning">N2 Application</span></td><td>Exercice 2 du Module ' + ch.n + '</td><td>Application pratique, simulation et résolution algorithmique.</td><td><a href="chapitre' + ch.n + '.html#lab-2" class="btn btn--sm">Pratiquer</a></td></tr>',
+      '        <tr><td><code>gcp3-c' + ch.n + '-e3</code></td><td><span class="badge badge--danger">N3 Raisonnement</span></td><td>Exercice 3 du Module ' + ch.n + '</td><td>Conception avancée, audit de conformité et modélisation complexe.</td><td><a href="chapitre' + ch.n + '.html#lab-3" class="btn btn--sm">Pratiquer</a></td></tr>',
+      '      </tbody>',
+      '    </table>',
+      '  </div>'
+    ].join('\n');
+  }).join('\n\n');
+
+  const body = [
+    crumbs,
+    '  <h1>Répertoire Exhaustif des 18 Exercices Pratiques — Google Cloud Platform B3</h1>',
+    '  <p class="lead">18 ateliers de programmation Python 3 interactifs intégrés dans vos modules d\'apprentissage : validation de conformité, gestion d\'identités IAM, élasticité de calcul, routage réseau VPC, gestion de cycle de vie et automatisation déclarative Terraform.</p>',
+    '',
+    chExercises,
+    '',
+    chnav({ href: 'formules.html', label: 'Consulter le mémento technique' }, { href: 'examens.html', label: 'Passer aux examens blancs' }),
+    '',
+    disclaimer()
+  ].join('\n\n');
+
+  return {
+    'chapitres/exercices.html': {
+      title: 'Catalogue des 18 Exercices — ' + course.brand,
+      description: 'Répertoire complet des 18 exercices de code lab en Python 3 du cours Google Cloud Platform B3.',
+      active: 'exercices',
+      body
+    }
+  };
+}
+
+module.exports = { examens, exercices };

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 8 — Tableaux 2D et chaînes | Algorithmique B1</title>
+<meta name="description" content="Chapitre 8 du cours d'algorithmique B1 : matrices, double boucle, diagonale principale et anti-diagonale, traitement des chaînes caractère par caractère. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="8">
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algo B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre7.html">Ch. 7</a>
+    <a href="chapitre8.html" class="is-active">Ch. 8</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="alwrap">
+  <p class="crumb"><a href="../index.html">Algo B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 8</p>
+  <h1>Chapitre 8 — Tableaux à deux dimensions et chaînes</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 8</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un amphithéâtre se décrit par des rangées et des sièges : une seule coordonnée ne suffit pas pour
+    désigner ta place. De même, une grille de notes (étudiants × matières) demande deux indices. Et quand
+    l'information devient du texte, la chaîne se parcourt exactement comme un tableau de caractères.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>déclarer et remplir un tableau à deux dimensions ;</li>
+      <li>parcourir une matrice avec une double boucle (somme, maximum) ;</li>
+      <li>exploiter la diagonale principale et l'anti-diagonale d'une matrice carrée ;</li>
+      <li>traiter une chaîne comme une collection indexée de caractères.</li>
+    </ol>
+  </div>
+
+  <h2>1. Une matrice, c'est un tableau de tableaux</h2>
+  <p><strong>Définition.</strong> Un tableau à deux dimensions (matrice) range ses éléments selon deux indices :
+  le premier désigne la <em>ligne</em>, le second la <em>colonne</em>. On déclare ses deux tailles à l'avance.</p>
+
+  <div class="pseudo"><b>Pseudo-code</b><br>Tableau T[1..L, 1..C] : Entiers<br>Pour i de 1 à L Faire<br>&nbsp;&nbsp;Pour j de 1 à C Faire<br>&nbsp;&nbsp;&nbsp;&nbsp;Écrire "T[", i, ",", j, "] = "<br>&nbsp;&nbsp;&nbsp;&nbsp;Lire T[i, j]<br>&nbsp;&nbsp;FinPour<br>FinPour</div>
+  <pre><code><span class="k">var</span>
+  t: <span class="k">array</span>[1..3, 1..4] <span class="k">of</span> integer;
+  i, j: integer;
+<span class="k">begin</span>
+  <span class="k">for</span> i := 1 <span class="k">to</span> 3 <span class="k">do</span>
+    <span class="k">for</span> j := 1 <span class="k">to</span> 4 <span class="k">do</span>
+      readln(t[i, j]);
+<span class="k">end</span>;</code></pre>
+  <pre><code><span class="c"># Python : une liste de listes, indices a partir de 0</span>
+<span class="k">for</span> i <span class="k">in</span> range(3):
+    ligne = [int(v) <span class="k">for</span> v <span class="k">in</span> input().split()]
+    matrice.append(ligne)
+
+<span class="k">print</span>(matrice[1][2])   <span class="c"># ligne 2, colonne 3 (0-based)</span></code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — deux conventions d'indices</div>
+    <p>Pascal et le pseudo-code numérotent souvent à partir de 1 ; Python à partir de 0. Les formules de
+    l'examen sont en général écrites avec des indices qui commencent à 1 : retranscris-les en décalant d'une
+    unité, mais ne mélange jamais les deux conventions dans le même programme.</p>
+  </div>
+
+  <h2>2. Parcourir une matrice : la double boucle</h2>
+  <p>Pour visiter chaque cellule, une boucle pour les lignes contient une boucle pour les colonnes. La somme
+  des éléments illustre le schéma :</p>
+  <pre><code>total = 0
+<span class="k">for</span> ligne <span class="k">in</span> matrice:
+    <span class="k">for</span> valeur <span class="k">in</span> ligne:
+        total += valeur</code></pre>
+  <p>Le nombre d'itérations est le produit des deux tailles : une matrice 3 × 4 impose 12 tours de boucle
+  interne. Pour la somme, l'ordre des deux boucles n'a pas d'importance ; pour certains parcours (par colonne),
+  c'est lui qui décide.</p>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition</div>
+    <p>La boucle externe avance d'une ligne comme la main qui descend une page ; la boucle interne lit la ligne
+    de gauche à droite comme l'œil qui balaie. On ne change de ligne qu'une fois la ligne courante finie.</p>
+  </div>
+
+  <h2>3. Diagonales d'une matrice carrée</h2>
+  <p><strong>Définition.</strong> Dans une matrice carrée de taille n, la <em>diagonale principale</em> réunit les
+  éléments où l'indice de ligne égale l'indice de colonne. L'<em>anti-diagonale</em> réunit ceux dont les indices
+  sont complémentaires : leur somme vaut la taille plus une (convention 1-based).</p>
+  <table>
+    <tr><th>Diagonale</th><th>Convention 1-based</th><th>Convention Python (0-based)</th></tr>
+    <tr><td>Principale</td><td>T[i, i]</td><td>matrice[i][i]</td></tr>
+    <tr><td>Anti-diagonale</td><td>T[i, n + 1 - i]</td><td>matrice[i][n - 1 - i]</td></tr>
+  </table>
+  <pre><code>diagonale = 0
+anti_diagonale = 0
+<span class="k">for</span> i <span class="k">in</span> range(n):
+    diagonale += matrice[i][i]
+    anti_diagonale += matrice[i][n - 1 - i]</code></pre>
+  <p>Une seule boucle suffit : les deux diagonales visitent exactement un élément par ligne. C'est l'indice qui
+  fait le travail, pas la double boucle.</p>
+
+  <h2>4. Les chaînes, des tableaux de caractères</h2>
+  <p><strong>Définition.</strong> Une chaîne est une suite finie de caractères, indexée comme un tableau : chaque
+  position porte un caractère unique. Sa <em>longueur</em> se connaît sans compter (<code>length</code> en Pascal,
+  <code>len</code> en Python).</p>
+  <pre><code><span class="k">var</span>
+  mot: <span class="k">string</span>;
+<span class="k">begin</span>
+  readln(mot);
+  writeln(mot[1]);          <span class="c">{ premier caractere, indices 1-based }</span>
+  writeln(length(mot));     <span class="c">{ longueur }</span>
+<span class="k">end</span>;</code></pre>
+  <pre><code>mot = <span class="k">input</span>()
+<span class="k">print</span>(mot[0])        <span class="c"># premier caractere, indices 0-based</span>
+<span class="k">print</span>(<span class="k">len</span>(mot))      <span class="c"># longueur</span>
+<span class="k">print</span>(mot[len(mot) - 1])   <span class="c"># dernier caractere</span></code></pre>
+  <p>Reconstruire une chaîne se fait en partant d'une chaîne vide et en ajoutant les caractères un à un, dans
+  l'ordre voulu. Pour inverser un mot, on parcourt les positions du dernier au premier :</p>
+  <pre><code>inverse = ""
+<span class="k">for</span> i <span class="k">in</span> range(len(mot) - 1, -1, -1):
+    inverse += mot[i]</code></pre>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Le pas de la boucle</div>
+    <p>La forme <code>range(début, arrêt, pas)</code> descend quand le pas vaut -1 : l'arrêt est exclu, d'où le
+    second -1 pour englober la position 0. En Pascal, la boucle <code>for...downto</code> joue le même rôle.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="algo-c8-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="2&#10;3&#10;1 2 3&#10;4 5 6">
+  <script type="text/plain" data-lab-starter>lignes = int(input())
+colonnes = int(input())
+matrice = []
+for i in range(lignes):
+    matrice.append([int(valeur) for valeur in input().split()])
+
+# À compléter : calculer la somme de tous les éléments.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Somme d’une matrice</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir un tableau à deux dimensions.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier l (lignes), un entier c (colonnes), puis l × c entiers ligne par ligne. Affichez la somme de tous les éléments de la matrice.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+3
+1 2 3
+4 5 6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>21</pre></div>
+    </div>
+    <p class="lab__note">1+2+3+4+5+6 = 21.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un double parcours s’impose : une boucle pour les lignes, imbriquée dans une pour les colonnes.</li>
+        <li>La deuxième boucle peut parcourir directement les valeurs de la ligne courante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c8-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;1 2 3&#10;4 5 6&#10;7 8 9">
+  <script type="text/plain" data-lab-starter>n = int(input())
+matrice = []
+for i in range(n):
+    matrice.append([int(valeur) for valeur in input().split()])
+
+# À compléter : sommes des deux diagonales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Diagonale d’une matrice carrée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Exploiter la relation entre indices de ligne et de colonne.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n lignes de n entiers. Affichez la somme de la diagonale principale (éléments où numéro de ligne et numéro de colonne sont égaux), puis celle de l’anti-diagonale, chacune sur sa ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1 2 3
+4 5 6
+7 8 9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>15
+15</pre></div>
+    </div>
+    <p class="lab__note">Diagonale 1+5+9 = 15 ; anti-diagonale 3+5+7 = 15.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Dans la diagonale principale, l’indice de colonne est toujours égal à l’indice de ligne.</li>
+        <li>Dans l’anti-diagonale, la colonne vaut « dernière moins ligne » : la relation se déduit de la taille.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c8-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="bonjour">
+  <script type="text/plain" data-lab-starter>mot = input()
+
+# À compléter : reconstruire le mot à l'envers, sans slicing ni reversed().
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Inverser une chaîne sans slicing</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traiter une chaîne comme une collection indexée.</p>
+    <div class="lab__brief"><p>Le programme reçoit un mot. Affichez-le à l’envers <strong>sans</strong> utiliser le découpage par pas négatif (<code>[::-1]</code>) ni <code>reversed()</code> : reconstruisez-le caractère par caractère.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>bonjour</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ruojnob</pre></div>
+    </div>
+    <p class="lab__note">Les caractères sont repris du dernier au premier.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Partez d’une chaîne vide et ajoutez chaque caractère du mot, en commençant par le dernier.</li>
+        <li>La position du dernier caractère se déduit de la longueur, moins une unité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">En Python, comment accède-t-on à l'élément de la ligne 2, colonne 3 d'une matrice M ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">M[1][2]</button>
+        <button class="opt">M[2][3]</button>
+        <button class="opt">M[2, 3]</button>
+      </div>
+      <div class="q__exp">Les indices Python partent de 0 : ligne 2 donne 1, colonne 3 donne 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de boucles faut-il pour parcourir toutes les cellules d'une matrice ?</p>
+      <div class="opts">
+        <button class="opt">Une seule</button>
+        <button class="opt" data-correct="1">Deux, imbriquées</button>
+        <button class="opt">Autant que de lignes</button>
+      </div>
+      <div class="q__exp">Une boucle par dimension : la boucle interne finit sa ligne avant que l'externe n'avance.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la diagonale principale d'une matrice carrée…</p>
+      <div class="opts">
+        <button class="opt">ligne + colonne = n</button>
+        <button class="opt" data-correct="1">l'indice de ligne égale l'indice de colonne</button>
+        <button class="opt">la colonne vaut n - ligne</button>
+      </div>
+      <div class="q__exp">T[i, i] : même indice des deux côtés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Anti-diagonale d'un tableau T[1..n, 1..n] : la colonne vaut…</p>
+      <div class="opts">
+        <button class="opt">i</button>
+        <button class="opt">n - i</button>
+        <button class="opt" data-correct="1">n + 1 - i</button>
+      </div>
+      <div class="q__exp">La somme ligne + colonne reste constante et vaut n + 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut len("algo") en Python ?</p>
+      <div class="opts">
+        <button class="opt">3</button>
+        <button class="opt" data-correct="1">4</button>
+        <button class="opt">5</button>
+      </div>
+      <div class="q__exp">Quatre caractères, numérotés de 0 à 3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour afficher un mot à l'envers sans slicing, on…</p>
+      <div class="opts">
+        <button class="opt">trie les caractères puis les affiche</button>
+        <button class="opt" data-correct="1">reconstruit une chaîne du dernier caractère au premier</button>
+        <button class="opt">affiche la chaîne deux fois</button>
+      </div>
+      <div class="q__exp">On part d'une chaîne vide et on ajoute les caractères en partant de la fin.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Permuter ligne et colonne</strong> : T[i][j] et T[j][i] ne désignent pas la même cellule.</li>
+      <li><strong>Mélanger les conventions d'indices</strong> dans un même programme.</li>
+      <li><strong>Boucle interne qui tourne sur les lignes</strong> : relire l'énoncé, savoir ce que chaque indice désigne.</li>
+      <li><strong>Formule d'anti-diagonale décalée</strong> : la vérifier sur une matrice 2 × 2 dessinée.</li>
+      <li><strong>Indexer une chaîne au-delà de sa longueur</strong> : le dernier indice est longueur - 1 en Python.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Travailler sur une matrice</div>
+    <ol>
+      <li><strong>Dessiner</strong> la matrice sur papier avec ses indices de ligne et de colonne.</li>
+      <li><strong>Nommer</strong> ce que représente chaque indice (i = ligne, j = colonne) dans un commentaire.</li>
+      <li><strong>Écrire</strong> la double boucle, puis la relation d'indices demandée (diagonale, voisin...).</li>
+      <li><strong>Vérifier les bornes</strong> : première et dernière ligne, première et dernière colonne.</li>
+      <li><strong>Tester</strong> sur le plus petit cas : une matrice 1 × 1, puis 2 × 2.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une matrice a deux indices : ligne d'abord, colonne ensuite.</li>
+      <li>Parcours complet = double boucle imbriquée ; le nombre de tours vaut lignes × colonnes.</li>
+      <li>Diagonale principale : T[i, i] ; anti-diagonale : T[i, n + 1 - i] (1-based).</li>
+      <li>Une chaîne s'indexe comme un tableau de caractères ; longueur = len.</li>
+      <li>Inverser = reconstruire du dernier indice vers le premier.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je me repère dans une matrice sans confondre les deux indices.</li>
+      <li>J'écris une double boucle de lecture ou de calcul sans hésiter.</li>
+      <li>Je retrouve les formules des deux diagonales.</li>
+      <li>Je parcours une chaîne dans les deux sens.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>matrice</li><li>ligne et colonne</li><li>double boucle</li><li>diagonale principale</li>
+      <li>anti-diagonale</li><li>chaîne de caractères</li><li>indice</li><li>longueur</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2 avec une matrice dessinée.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3-4 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : revérifie la formule de l'anti-diagonale.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 9, les algorithmes classiques.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre7.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 7</a>
+    <a class="btn btn--primary" href="chapitre9.html">Chapitre 9 — Algorithmes classiques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (INF-1002) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

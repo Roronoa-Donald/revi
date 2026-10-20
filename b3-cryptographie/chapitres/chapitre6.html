@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) &amp; Post-Quantique | Cryptographie &amp; PKI B3</title>
+<meta name="description" content="Module 6 du cours Cryptographie &amp; PKI B3 : Protocole TLS 1.3 (RFC 8446) et refonte architecturale par rapport à TLS 1.2, optimisation du handshake (1-RTT et 0-RTT Early Data), confidentialité persistante (Perfect Forward Secrecy - PFS), anatomie et audit des suites cryptographiques (Cipher Suites), protocoles d'infrastructure SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), impact de l'ordinateur quantique (algorithmes de Shor et Grover), et standards post-quantiques du NIST (FIPS 203 ML-KEM, FIPS 204 ML-DSA, cryptographie hybride). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cryptographie/chapitres/chapitre6.html">
+<meta property="og:title" content="Module 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) &amp; Post-Quantique | Cryptographie &amp; PKI B3">
+<meta property="og:description" content="Module 6 du cours Cryptographie &amp; PKI B3 : Protocole TLS 1.3 (RFC 8446) et refonte architecturale par rapport à TLS 1.2, optimisation du handshake (1-RTT et 0-RTT Early Data), confidentialité persistante (Perfect Forward Secrecy - PFS), anatomie et audit des suites cryptographiques (Cipher Suites), protocoles d'infrastructure SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), impact de l'ordinateur quantique (algorithmes de Shor et Grover), et standards post-quantiques du NIST (FIPS 203 ML-KEM, FIPS 204 ML-DSA, cryptographie hybride). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cryptographienav"><div class="b3-cryptographienav__in">
+  <a class="b3-cryptographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cryptographienav__sep" aria-hidden="true">/</span>
+  <a class="b3-cryptographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg> Cryptographie &amp; PKI B3</a>
+  <div class="b3-cryptographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cryptographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cryptographiewrap">
+<p class="crumb"><a href="../index.html">Cryptographie & PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) & Post-Quantique</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un contexte géopolitique où les cyberattaques étatiques et les interceptions massives de flux de données s'intensifient (« Store Now, Decrypt Later »), la sécurité des communications réseau ne peut plus reposer sur des protocoles vieillissants ou des configurations laxistes autorisant des suites cryptographiques dépréciées. De surcroît, l'avènement imminent des ordinateurs quantiques cryptographiquement pertinents menace de réduire à néant l'ensemble des algorithmes asymétriques actuels (RSA, Diffie-Hellman, courbes elliptiques). En tant qu'architecte en cybersécurité B3, vous devez maîtriser le durcissement des protocoles TLS 1.3, SSH et IPsec, auditer les suites cryptographiques d'infrastructure et orchestrer la transition vers les nouveaux standards post-quantiques du NIST.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser les avancées de TLS 1.3 par rapport à TLS 1.2 : élimination des algorithmes vulnérables, poignée de mains 1-RTT et mode 0-RTT ;</li>
+      <li>comprendre le principe fondamental de la Confidentialité Persistante (PFS - Perfect Forward Secrecy) avec échanges éphémères (ECDHE) ;</li>
+      <li>décortiquer la structure des suites cryptographiques et classifier leur niveau de conformité selon les recommandations ANSSI/NIST ;</li>
+      <li>maîtriser le fonctionnement de SSHv2 (clés ed25519, known_hosts) et d'IPsec (protocoles AH/ESP, modes Transport et Tunnel, négociations IKEv2) ;</li>
+      <li>évaluer l'impact des algorithmes de Shor et de Grover sur la cryptographie moderne et comprendre les nouveaux standards post-quantiques (FIPS 203, FIPS 204) ;</li>
+      <li>développer en Python 3 des analyseurs de suites TLS, des simulateurs de négociation TLS 1.3 et des auditeurs de conformité post-quantique.</li>
+    </ol>
+  </div>
+
+<h2>1. Protocole TLS 1.3 (RFC 8446) &amp; Confidentialité Persistante (PFS)</h2>
+
+<p>Le protocole TLS (Transport Layer Security) sécurise l'écrasante majorité du trafic Internet moderne (HTTPS, SMTPS, DNS-over-TLS). Publié en août 2018 (RFC 8446), TLS 1.3 représente la plus importante refonte de sécurité et de performance de l'histoire du protocole :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Ruptures Fondamentales de TLS 1.3</h4>
+    <ul>
+      <li><strong>Suppression radicale de l'obsolescence :</strong> exclusion totale de RSA pour l'échange de clés, des modes CBC (vulnérables aux attaques par oracle), de RC4, de 3DES, de MD5 et de SHA-1.</li>
+      <li><strong>Chiffrement AEAD exclusif :</strong> seuls les chiffrements authentifiés (AES-GCM, AES-CCM, ChaCha20-Poly1305) sont autorisés.</li>
+      <li><strong>PFS obligatoire (Perfect Forward Secrecy) :</strong> l'échange de clés doit impérativement utiliser Diffie-Hellman éphémère (DHE ou ECDHE). Même si la clé privée du serveur est volée plus tard, les sessions passées interceptées restent indéchiffrables.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Optimisation de la Poignée de Mains (Handshake)</h4>
+    <ul>
+      <li><strong>TLS 1.2 (2-RTT) :</strong> nécessitait 2 allers-retours réseau complets avant que les données applicatives ne puissent transiter en sécurité.</li>
+      <li><strong>TLS 1.3 (1-RTT) :</strong> le client envoie dès son <code>ClientHello</code> ses propositions de groupes de clés éphémères (<em>key shares</em>). La connexion sécurisée est établie en un seul aller-retour.</li>
+      <li><strong>Mode 0-RTT (Early Data) :</strong> lors d'une reconnexion avec un serveur déjà visité (PSK), le client peut envoyer des données applicatives chiffrées dès le tout premier paquet (attention au risque de rejeu).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Analyse et Durcissement des Suites Cryptographiques (Cipher Suites)</h2>
+
+<p>Une suite cryptographique définit la combinaison précise d'algorithmes négociée entre le client et le serveur. L'architecture de nommage a été profondément simplifiée entre TLS 1.2 et TLS 1.3 :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Syntaxe TLS 1.2 (Complexe)</h4>
+    <pre><code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code></pre>
+    <ul>
+      <li><strong>Échange de clés :</strong> <code>ECDHE</code> (éphémère sur courbe elliptique, garantit le PFS).</li>
+      <li><strong>Authentification :</strong> <code>RSA</code> (signature du certificat serveur).</li>
+      <li><strong>Chiffrement symétrique :</strong> <code>AES_128_GCM</code> (bloc 128 bits, mode AEAD).</li>
+      <li><strong>Fonction de hachage :</strong> <code>SHA256</code> (PRF et dérivation des clés).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Syntaxe TLS 1.3 (Compacte &amp; Sécurisée)</h4>
+    <pre><code>TLS_AES_256_GCM_SHA384</code></pre>
+    <ul>
+      <li>TLS 1.3 dissocie totalement l'échange de clés et les certificats de la suite cryptographique.</li>
+      <li>La suite ne spécifie que le chiffrement symétrique et la fonction de hachage de dérivation.</li>
+      <li>Seulement 5 suites standardisées : <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>, <code>TLS_AES_128_CCM_SHA256</code>, <code>TLS_AES_128_CCM_8_SHA256</code>.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Règles de Durcissement ANSSI pour Serveurs HTTPS</div>
+<p>Dans une configuration sécurisée conforme au référentiel ANSSI :</p>,<ul>,  <li>Désactiver absolument les protocoles SSL 2.0, SSL 3.0, TLS 1.0 et TLS 1.1.</li>,  <li>N'autoriser que TLS 1.2 (avec suites ECDHE uniquement) et TLS 1.3.</li>,  <li>Bannir les suites sans Forward Secrecy débutant par <code>TLS_RSA_WITH_...</code>.</li>,</ul>
+  </div>
+
+<h2>3. Protocoles d'Infrastructure Sécurisés : SSHv2 &amp; IPsec</h2>
+
+<p>Au-delà du Web, la sécurité des couches d'infrastructure d'entreprise repose sur SSH pour l'administration système et IPsec pour les réseaux privés virtuels (VPN) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>SSHv2 (Secure Shell v2 - RFC 4253)</h4>
+    <ul>
+      <li>Opère au-dessus de TCP (port 22). Négocie une session chiffrée via Diffie-Hellman ou Curve25519.</li>
+      <li><strong>Authentification de l'hôte :</strong> vérification de l'empreinte de clé publique du serveur stockée dans <code>~/.ssh/known_hosts</code> (détection d'usurpation).</li>
+      <li><strong>Authentification de l'utilisateur :</strong> clés asymétriques stockées dans <code>~/.ssh/authorized_keys</code> (standard moderne : clé Ed25519 générée par <code>ssh-keygen -t ed25519</code>).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>IPsec (Internet Protocol Security - RFC 4301)</h4>
+    <ul>
+      <li>Opère au niveau de la couche réseau IP (couche 3 du modèle OSI), rendant le chiffrement transparent pour les applications.</li>
+      <li><strong>AH (Authentication Header - protocole IP 51) :</strong> garantit l'intégrité et l'authentification de l'en-tête IP et des données, mais <em>sans aucun chiffrement</em> (obsolète en pratique).</li>
+      <li><strong>ESP (Encapsulating Security Payload - protocole IP 50) :</strong> fournit confidentialité, intégrité et authentification des données.</li>
+      <li><strong>Mode Transport :</strong> ne chiffre que la charge utile (payload) IP (communication hôte à hôte).</li>
+      <li><strong>Mode Tunnel :</strong> encapsule le paquet IP d'origine entier dans un nouvel en-tête IP externe (interconnexion de réseaux VPN passerelle à passerelle).</li>
+      <li><strong>IKEv2 (Internet Key Exchange v2) :</strong> négocie automatiquement les associations de sécurité (SA) et les clés.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. La Menace Quantique &amp; la Cryptographie Post-Quantique (NIST PQC)</h2>
+
+<p>L'ordinateur quantique n'est pas un ordinateur classique plus rapide, mais une machine exploitant les lois de la mécanique quantique (superposition et intrication d'états). Il remet en cause les fondements de la cryptographie moderne :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Deux Grands Algorithmes Quantiques</h4>
+    <ul>
+      <li><strong>Algorithme de Peter Shor (1994) :</strong> résout la factorisation des entiers et le logarithme discret en temps <em>polynomial</em> $O((\log N)^3)$.<br><span style="color:#b91c1c;font-weight:700;">Conséquence dramatique :</span> rupture totale et instantanée de RSA, Diffie-Hellman, DSA, ECDH et ECDSA dès l'apparition d'un processeur quantique à tolérance de fautes.</li>
+      <li><strong>Algorithme de Lov Grover (1996) :</strong> accélère la recherche dans un espace non structuré en temps $O(\sqrt{N})$.<br><span style="color:#b45309;font-weight:700;">Conséquence :</span> divise par deux la taille effective des clés symétriques. AES-128 ne procure plus que 64 bits de sécurité (insuffisant), tandis qu'AES-256 conserve 128 bits de sécurité (parfaitement robuste).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Standards Post-Quantiques du NIST (Août 2024)</h4>
+    <p>Le NIST a publié les premiers standards cryptographiques officiels conçus pour résister aux attaques quantiques :</p>
+    <ul>
+      <li><strong>FIPS 203 (ML-KEM / Kyber) :</strong> mécanisme d'encapsulation de clé (KEM) basé sur les réseaux euclidiens (Module Learning With Errors - MLWE) pour remplacer RSA et ECDH.</li>
+      <li><strong>FIPS 204 (ML-DSA / Dilithium) :</strong> signature numérique basée sur les réseaux euclidiens pour remplacer RSA et ECDSA.</li>
+      <li><strong>FIPS 205 (SLH-DSA / SPHINCS+) :</strong> signature sans état basée sur les fonctions de hachage (sécurité éprouvée sans hypothèse sur les réseaux).</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Stratégie de Transition : Cryptographie Hybride</div>
+<p>La recommandation officielle de l'ANSSI, du BSI allemand et du NIST consiste à déployer une <strong>cryptographie hybride</strong> : combiner un algorithme classique éprouvé (comme X25519) et un algorithme post-quantique (comme ML-KEM-768). Si l'une des primitives révélait une faiblesse mathématique imprévue, la seconde garantirait la sécurité globale.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cr3-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="PARSE_SUITE suite=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c6-e1) — Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Suite standard TLS 1.3]
+# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384
+A_COMPLETER
+
+[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]
+# Données : PARSE_SUITE suite=TLS_RSA_WITH_AES_256_CBC_SHA256
+A_COMPLETER
+
+[Cas 3 — Suite TLS dépréciée et vulnérable]
+# Données : PARSE_SUITE suite=TLS_RSA_WITH_RC4_128_SHA
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une suite cryptographique TLS pour déterminer sa version, ses primitives, sa garantie de confidentialité persistante (PFS) et sa conformité.</p>
+    <div class="lab__brief"><p>Une suite TLS définit l'assemblage de primitives cryptographiques pour une session.<br>
+Règles :<br>
+1. Suites TLS 1.3 : (ex: <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>) :<br>
+   <code>ver=TLS1.3 kex=ECDHE/DHE enc=&lt;algo&gt; pfs=YES status=SECURE</code>.<br>
+2. Suites TLS 1.2 : comportent <code>_WITH_</code> :<br>
+   - <code>pfs=YES</code> si l'échange contient <code>DHE</code> ou <code>ECDHE</code>, sinon <code>pfs=NO</code>.<br>
+   - Si le chiffrement contient <code>RC4</code>, <code>DES</code>, <code>3DES</code>, <code>NULL</code> ou <code>EXPORT</code> :<br>
+     <code>status=INSECURE (deprecated cipher)</code><br>
+   - Sinon si <code>pfs == NO</code> : <code>status=WEAK (no forward secrecy)</code><br>
+   - Sinon : <code>status=SECURE</code>.<br><br>
+Commande : <code>PARSE_SUITE suite=&lt;nom_suite&gt;</code>.<br>
+Sortie : <code>SUITE: &lt;nom&gt; ver=&lt;ver&gt; kex=&lt;kex&gt; enc=&lt;enc&gt; pfs=&lt;pfs&gt; status=&lt;status&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARSE_SUITE suite=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM_SHA256 pfs=YES status=SECURE</pre></div>
+    </div>
+    <p class="lab__note">Suite TLS 1.2 moderne avec échange ECDHE apportant la confidentialité persistante.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Identifiez d abord si la suite est TLS 1.3 via sa présence dans la liste blanche TLS 1.3.</li>
+        <li>Pour TLS 1.2, découpez sur "_WITH_" pour isoler kex_part et l algorithme de chiffrement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=none">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c6-e2) — Simulateur de Négociation TLS 1.3 et Validation de Confidentialité Persistante (PFS)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Reprise de session TLS 1.3 en mode 0-RTT]
+# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=0-rtt
+A_COMPLETER
+
+[Cas 2 — Négociation de repli en TLS 1.2]
+# Données : TLS_HANDSHAKE client_version=TLSv1.2 server_version=TLSv1.2 group=secp256r1 client_share=A1B2 server_share=C3D4 psk_mode=none
+A_COMPLETER
+
+[Cas 3 — Rejet version obsolète TLS 1.0]
+# Données : TLS_HANDSHAKE client_version=TLSv1.0 server_version=TLSv1.0 group=none client_share=none server_share=none psk_mode=none
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de Négociation TLS 1.3 et Validation de Confidentialité Persistante (PFS)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'établissement de session TLS 1.3 (1-RTT et 0-RTT PSK) et dériver le secret maître éphémère.</p>
+    <div class="lab__brief"><p>TLS 1.3 (RFC 8446) accélère la poignée de mains à 1 aller-retour (1-RTT) ou 0 aller-retour (0-RTT avec risque de rejeu) :<br>
+Règles :<br>
+- Si <code>server_version == 'TLSv1.2'</code> : <code>TLS1.2: rtt=2-RTT pfs=CONDITIONAL status=LEGACY_HANDSHAKE</code>.<br>
+- Si version autre : <code>STATUS=REJECTED (TLS version unsupported: &lt;v&gt;)</code>.<br>
+- Pour TLSv1.3, groupes autorisés : <code>x25519</code>, <code>secp256r1</code>, <code>secp384r1</code>.<br>
+- Si non supporté : <code>STATUS=REJECTED (unsupported elliptic group: &lt;grp&gt;)</code>.<br>
+- Dériver <code>master_secret</code> sur 16 caractères hexadécimaux de <code>sha256(client_share:server_share:group)</code>.<br><br>
+Sortie : <code>TLS1.3: rtt=&lt;rtt&gt; group=&lt;grp&gt; pfs=PERFECT_FORWARD_SECRECY master_secret=&lt;ms&gt; status=ESTABLISHED</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=none</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TLS1.3: rtt=1-RTT group=x25519 pfs=PERFECT_FORWARD_SECRECY master_secret=f91a13a53fa8daae status=ESTABLISHED</pre></div>
+    </div>
+    <p class="lab__note">Poignée de mains 1-RTT avec échange éphémère x25519 garantissant le PFS.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Validez d abord server_version avant de tester les groupes de négociation.</li>
+        <li>Concaténez f"{client_share}:{server_share}:{group}".encode("utf-8") et prenez hexdigest()[:16] pour master_secret.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="AUDIT_ALGO name=RSA key_size=2048 type=ASYMMETRIC">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c6-e3) — Auditeur de Conformité Cryptographique et Transition Post-Quantique (NIST PQC)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Clé symétrique 128 bits vulnérable à l accélération de Grover]
+# Données : AUDIT_ALGO name=AES_128 key_size=128 type=SYMMETRIC
+A_COMPLETER
+
+[Cas 2 — AES-256 résistant à Grover avec 128 bits de sécurité résiduelle]
+# Données : AUDIT_ALGO name=AES_256 key_size=256 type=SYMMETRIC
+A_COMPLETER
+
+[Cas 3 — Algorithme post-quantique basé sur les réseaux euclidiens standardisé]
+# Données : AUDIT_ALGO name=ML_KEM_768 key_size=768 type=PQC
+A_COMPLETER
+
+[Cas 4 — Empreinte courte dépréciée et non post-quantique]
+# Données : AUDIT_ALGO name=SHA_1 key_size=160 type=HASH
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Auditeur de Conformité Cryptographique et Transition Post-Quantique (NIST PQC)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer l'inventaire cryptographique d'une organisation et planifier la migration vers les standards post-quantiques NIST.</p>
+    <div class="lab__brief"><p>L'ordinateur quantique menace les fondations asymétriques (Shor) et affaiblit les clés symétriques (Grover) :<br>
+Règles d'audit :<br>
+1. <code>ASYMMETRIC</code> (RSA, ECC, DH) : <code>pqc_ready=NO status=VULNERABLE_QUANTUM action=MIGRATE_TO_ML_KEM_OR_ML_DSA</code>.<br>
+2. <code>SYMMETRIC</code> : si <code>key_size &lt; 256</code> -&gt; <code>pqc_ready=NO status=INSUFFICIENT_SECURITY action=UPGRADE_TO_AES_256</code> ; sinon -&gt; <code>pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN</code>.<br>
+3. <code>HASH</code> : si <code>key_size &lt; 256</code> -&gt; <code>pqc_ready=NO status=DEPRECATED action=MIGRATE_TO_SHA_256_OR_SHA_3</code> ; sinon -&gt; <code>pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN</code>.<br>
+4. <code>PQC</code> (ML-KEM, ML-DSA, SLH-DSA) : <code>pqc_ready=YES status=NIST_STANDARDIZED action=PRODUCTION_READY</code>.<br><br>
+Sortie : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt; key_size=&lt;key_size&gt; pqc_ready=&lt;pqc&gt; status=&lt;status&gt; action=&lt;action&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUDIT_ALGO name=RSA key_size=2048 type=ASYMMETRIC</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT: algo=RSA type=ASYMMETRIC key_size=2048 pqc_ready=NO status=VULNERABLE_QUANTUM action=MIGRATE_TO_ML_KEM_OR_ML_DSA</pre></div>
+    </div>
+    <p class="lab__note">RSA repose sur la factorisation entière cassée par l algorithme de Shor.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Branchez selon t == "ASYMMETRIC", "SYMMETRIC", "HASH", "PQC".</li>
+        <li>Pour SYMMETRIC et HASH, comparez key_size &lt; 256 vs key_size &gt;= 256.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi le protocole TLS 1.3 a-t-il totalement interdit l'échange de clés basé sur le chiffrement RSA statique ?</p>
+      <div class="opts">
+        <button class="opt">Parce que RSA ne fonctionne pas avec le protocole TCP</button>
+        <button class="opt" data-correct="1">Parce que RSA statique ne fournit pas la confidentialité persistante (PFS)</button>
+        <button class="opt">Parce que RSA consomme trop d'électricité</button>
+        <button class="opt">Parce que RSA a été racheté par une entreprise privée</button>
+      </div>
+      <div class="q__exp">Avec RSA statique, le client chiffre le secret pré-maître avec la clé publique du serveur. Si la clé privée du serveur est volée des années plus tard, tous les enregistrements passés peuvent être déchiffrés. TLS 1.3 impose le PFS avec ECDHE/DHE éphémère.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d'allers-retours réseau (RTT) sont nécessaires pour établir une connexion complète et sécurisée en TLS 1.3 lors d'une première visite ?</p>
+      <div class="opts">
+        <button class="opt">0-RTT</button>
+        <button class="opt" data-correct="1">1-RTT</button>
+        <button class="opt">2-RTT</button>
+        <button class="opt">3-RTT</button>
+      </div>
+      <div class="q__exp">En TLS 1.3, le client envoie ses parts de clés éphémères dès le premier paquet ClientHello, permettant au serveur de répondre et de finaliser la clé en 1-RTT (contre 2-RTT en TLS 1.2).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le protocole IPsec, quel mode d'encapsulation permet de créer un tunnel VPN reliant deux réseaux distants en encapsulant le paquet IP complet ?</p>
+      <div class="opts">
+        <button class="opt">Mode Transport avec AH</button>
+        <button class="opt" data-correct="1">Mode Tunnel avec ESP</button>
+        <button class="opt">Mode Loopback avec ICMP</button>
+        <button class="opt">Mode Broadcast avec ARP</button>
+      </div>
+      <div class="q__exp">Le mode Tunnel encapsule l'intégralité du paquet IP d'origine (en-tête IP d'origine + données) dans un nouvel en-tête IP routable entre les deux passerelles VPN, et le protocole ESP assure le chiffrement et l'intégrité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel algorithme quantique constitue une menace existentielle pour RSA et les courbes elliptiques (ECC) en résolvant la factorisation et le logarithme discret en temps polynomial ?</p>
+      <div class="opts">
+        <button class="opt">L'algorithme de Grover</button>
+        <button class="opt" data-correct="1">L'algorithme de Shor</button>
+        <button class="opt">L'algorithme de Dijkstra</button>
+        <button class="opt">L'algorithme A*</button>
+      </div>
+      <div class="q__exp">Publié en 1994 par Peter Shor, cet algorithme quantique factorise les entiers et calcule les logarithmes discrets en temps polynomial, réduisant à néant la sécurité de RSA et d'ECC.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle norme NIST publiée en août 2024 définit le standard de mécanisme d'encapsulation de clés (KEM) post-quantique basé sur les réseaux euclidiens ?</p>
+      <div class="opts">
+        <button class="opt">FIPS 140-3</button>
+        <button class="opt">FIPS 197</button>
+        <button class="opt" data-correct="1">FIPS 203 (ML-KEM / Kyber)</button>
+        <button class="opt">RFC 2104</button>
+      </div>
+      <div class="q__exp">FIPS 203 officialise le standard ML-KEM (Module Lattice-based Key Encapsulation Mechanism, dérivé de Crystals-Kyber) comme référence post-quantique pour le remplacement de Diffie-Hellman et RSA.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Conserver des suites cryptographiques TLS sans Forward Secrecy (comme TLS_RSA_WITH_AES_256_CBC_SHA) : l'interception du trafic permet son déchiffrement rétroactif si la clé privée fuite.</li>
+      <li>Activer le mode 0-RTT dans TLS 1.3 pour des requêtes HTTP non idempotentes (ex: POST de virement bancaire) : un attaquant peut rejouer la requête à volonté.</li>
+      <li>Utiliser le protocole IPsec AH en croyant chiffrer le trafic : AH n'assure que l'intégrité et laisse l'intégralité des données en clair sur le réseau.</li>
+      <li>Croire que doubler la taille d'une clé RSA (passer de 2048 à 4096 bits) suffira face à l'ordinateur quantique : Shor casse RSA en temps polynomial quelle que soit sa taille.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Audit de configuration des protocoles réseau : vérifier l'exclusion définitive de SSL v3, TLS 1.0 et TLS 1.1 sur les répartiteurs de charge et serveurs web, et imposer TLS 1.3 comme protocole privilégié.</li>
+      <li>Analyse rigoureuse des suites cryptographiques : inspecter les paramètres d'échange de clés, vérifier la garantie de confidentialité persistante (PFS avec ECDHE) et valider l'utilisation de chiffrements AEAD (AES-GCM ou ChaCha20-Poly1305).</li>
+      <li>Sécurisation des accès d'infrastructure SSH et VPN IPsec : configurer des clés d'hôtes et d'utilisateurs Ed25519 pour SSH, et déployer des tunnels IPsec ESP en mode Tunnel avec IKEv2 et groupes Diffie-Hellman modernes.</li>
+      <li>Planification de la feuille de route post-quantique : inventorier les actifs cryptographiques asymétriques, migrer les clés symétriques vers AES-256 pour contrer Grover, et tester les suites hybrides (X25519 + ML-KEM-768).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire.</li>
+      <li>Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats.</li>
+      <li>SSHv2 sécurise l'administration système via des clés publiques (Ed25519 recommandée), tandis qu'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel.</li>
+      <li>L'algorithme de Shor brise théoriquement tous les cryptosystèmes asymétriques actuels (RSA, ECC), tandis que Grover exige le passage à AES-256.</li>
+      <li>Le NIST a standardisé en août 2024 les premiers algorithmes post-quantiques (FIPS 203 ML-KEM et FIPS 204 ML-DSA), préconisés en mode hybride.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous expliquer pourquoi TLS 1.3 impose la confidentialité persistante (PFS) et interdit les échanges de clés RSA statiques ?</li>
+      <li>Comprenez-vous la différence de durée de handshake entre TLS 1.2 (2-RTT) et TLS 1.3 (1-RTT) ?</li>
+      <li>Pouvez-vous décortiquer une suite cryptographique TLS 1.2 et déterminer si elle procure ou non le PFS ?</li>
+      <li>Connaissez-vous la différence entre les protocoles AH et ESP d'IPsec et entre le mode Transport et le mode Tunnel ?</li>
+      <li>Savez-vous citer les impacts respectifs de l'algorithme de Shor (ruine d'asymétrique) et de Grover (racine carrée sur le symétrique) ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Confidentialité Persistante (PFS) :</strong> Propriété d'un protocole garantissant que la compromission ultérieure de la clé privée à long terme du serveur ne permettra pas de déchiffrer les sessions passées.</li><li><strong>Chiffrement Authentifié (AEAD) :</strong> Mode de chiffrement symétrique (ex: GCM) fournissant simultanément la confidentialité des données et la preuve formelle de leur intégrité.</li><li><strong>IPsec ESP (Encapsulating Security Payload) :</strong> Protocole IPsec fournissant l'authentification, l'intégrité et le chiffrement des paquets réseau en mode Transport ou Tunnel.</li><li><strong>Algorithme de Shor :</strong> Algorithme quantique résolvant la factorisation et le logarithme discret en temps polynomial, cassant RSA et les courbes elliptiques.</li><li><strong>ML-KEM (FIPS 203) :</strong> Standard post-quantique du NIST pour l'encapsulation de clés basé sur les réseaux euclidiens (anciennement Crystals-Kyber).</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Audit et analyse automatique de suites TLS en Python 3 :</strong> Développer des parsers inspectant les versions TLS, les algorithmes de chiffrement et la présence du Forward Secrecy.</div>
+      <div class="bandrow"><strong>Configuration et durcissement de serveurs TLS 1.3 :</strong> Mettre en œuvre les recommandations ANSSI/NIST sur les passerelles web et les répartiteurs de charge en production.</div>
+      <div class="bandrow"><strong>Déploiement d'infrastructures sécurisées SSH et IPsec :</strong> Configurer des clés Ed25519 pour SSH et des tunnels VPN IPsec ESP sécurisés avec négociation IKEv2.</div>
+      <div class="bandrow"><strong>Évaluation des vulnérabilités face à l'ordinateur quantique :</strong> Classifier l'exposition des parcs applicatifs aux algorithmes de Shor et de Grover et planifier la migration symétrique.</div>
+      <div class="bandrow"><strong>Mise en œuvre des standards post-quantiques NIST PQC :</strong> Intégrer les mécanismes ML-KEM et ML-DSA en mode hybride pour immuniser les communications à long terme.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Le modèle OSI | Architecture des réseaux B1</title>
+<meta name="description" content="Chapitre 3 du cours d'Architecture des réseaux B1 : Les sept couches du modèle OSI, de la physique à l'application ; les équipements par couche ; la méthode de dépannage par couches. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-reseaux/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Le modèle OSI | Architecture des réseaux B1">
+<meta property="og:description" content="Chapitre 3 du cours d'Architecture des réseaux B1 : Les sept couches du modèle OSI, de la physique à l'application ; les équipements par couche ; la méthode de dépannage par couches. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="renav"><div class="renav__in">
+  <a class="renav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="renav__sep" aria-hidden="true">/</span>
+  <a class="renav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Architecture des réseaux B1</a>
+  <div class="renav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="renav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rewrap">
+<p class="crumb"><a href="../index.html">Architecture des réseaux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Le modèle OSI</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>« Il est difficile de comprendre la technologie des réseaux sans faire référence au modèle OSI » : l'ISO a bâti un modèle générique de sept couches qui ne décrit aucun produit mais cadre toutes les discussions — et le professionnel commence toujours un dépannage par la couche 1.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>nommer les sept couches OSI dans l'ordre, de la physique à l'application ;</li>
+      <li>associer chaque couche à son rôle (encapsulation, routage, session, format) ;</li>
+      <li>placer les équipements : câble (1), commutateur (2), routeur (3) ;</li>
+      <li>appliquer la méthode de dépannage : remonter depuis la couche physique.</li>
+    </ol>
+  </div>
+
+<h2>1. Les sept couches</h2>
+
+<p>L'ISO a élaboré le modèle <strong>OSI</strong> (Open System Interconnection) : sept couches qui couvrent tous les aspects de la communication entre machines en réseau. Il ne décrit aucun produit, mais sert de référentiel pour corréler les modèles réels et garantir l'interopérabilité.</p>
+<p>De bas en haut : <strong>1-Physique</strong> (câbles, broches, tensions, radiofréquences) ; <strong>2-Liaison de données</strong> (transfert de nœud à nœud, correction d'erreurs, sous-couches MAC et LLC — la plupart des commutateurs vivent ici) ; <strong>3-Réseau</strong> (transmission des paquets et routage entre routeurs, les adresses IP) ; <strong>4-Transport</strong> (coordination du transfert, TCP et UDP, les numéros de port) ; <strong>5-Session</strong> (ouverture, coordination et terminaison des sessions, synchronisation du dialogue) ; <strong>6-Présentation</strong> (formatage, chiffrement/déchiffrement, compression) ; <strong>7-Application</strong> (la couche la plus proche de l'utilisateur : navigateur, messagerie, FTP, Skype, Outlook).</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Physique-Liaison-Réseau-Transport-Session-Présentation-Application »</div>
+    <p>De la prise électrique au clic de souris : 1 câble, 2 trame, 3 route, 4 port, 5 dialogue, 6 format, 7 logiciel. En cas de panne, on remonte dans cet ordre.</p>
+  </div>
+
+<h2>2. Les équipements et le dépannage</h2>
+
+<p>Chaque couche héberge ses équipements : le <strong>câble</strong> et le connecteur en couche 1, le <strong>commutateur</strong> (switch) en couche 2, le <strong>routeur</strong> en couche 3 — « la couche très surveillée par les professionnels », celle des millions de chemins possibles entre Boston et la Californie. Les adresses IP travaillent en couche 3, les ports TCP/UDP en couche 4.</p>
+<p>Le dépannage suit le modèle : « en cas de problème de réseau, les professionnels commencent souvent par vérifier la couche physique » — câbles branchés, alimentation branchée — avant de soupçonner la carte réseau (2), le routage (3) ou l'application (7).</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Le commutateur est de couche 2, le routeur de couche 3 : l'inverse est le piège classique.</li>
+      <li>Les adresses IP vivent en couche 3, les ports TCP/UDP en couche 4.</li>
+      <li>Le chiffrement est de la couche 6 (présentation), pas de la couche 7.</li>
+      <li>La couche session synchronise le dialogue : ouverture, coordination, terminaison.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="re-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;cable c1&#10;adresse c3&#10;port c4&#10;navigateur c7&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c3-e1) — Les sept couches OSI
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un seul c3]
+# Données : 1
+# Données : paquet c3
+A_COMPLETER
+
+[Cas 2 — Couche 2]
+# Données : 2
+# Données : trame c1
+# Données : mac c2
+A_COMPLETER
+
+[Cas 3 — Cinq objets]
+# Données : 5
+# Données : a c7
+# Données : b c2
+# Données : c c3
+# Données : d c5
+# Données : e c6
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les sept couches OSI</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Ranger chaque élément dans sa couche OSI, de la couche 1 physique à la couche 7 application.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « objet couche » : couche vaut <code>c1</code> à <code>c7</code>. Pour chaque ligne il Indiquez <code>objet : N-nom</code>, où N est le numéro et nom la couche : <code>1-physique</code>, <code>2-liaison</code>, <code>3-reseau</code>, <code>4-transport</code>, <code>5-session</code>, <code>6-presentation</code>, <code>7-application</code>. Il termine par <code>routeurs : X/n</code> (les objets de la couche 3).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+cable c1
+adresse c3
+port c4
+navigateur c7
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>cable : 1-physique
+adresse : 3-reseau
+port : 4-transport
+navigateur : 7-application
+routeurs : 1/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à sept valeurs, chaque valeur donnant « N-nom ».</li>
+        <li>La couche 3 (reseau) est celle des routeurs : c'est elle qu'on compte.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;routeur c3&#10;switch c2&#10;cable c1&#10;routeur c2&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c3-e2) — Où travaille l'équipement
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un routeur bien placé]
+# Données : 1
+# Données : routeur c3
+A_COMPLETER
+
+[Cas 2 — Hors couche]
+# Données : 2
+# Données : switch c3
+# Données : navigateur c2
+A_COMPLETER
+
+[Cas 3 — Cinq equipements]
+# Données : 5
+# Données : routeur c3
+# Données : switch c2
+# Données : cable c1
+# Données : application c7
+# Données : switch c3
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Où travaille l'équipement</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Placer les équipements dans leurs couches : câble (1), commutateur (2), routeur (3), application (7).</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « equipement couche » : couche vaut <code>c1</code> (câble, connecteur), <code>c2</code> (commutateur), <code>c3</code> (routeur) ou <code>c7</code> (navigateur, messagerie). Pour chaque ligne il Indiquez <code>equipement : couche N</code> si l'équipement correspond bien à cette couche, <code>equipement : hors couche</code> sinon. Il termine par <code>routeurs : X/n</code> (les équipements placés correctement en couche 3).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+routeur c3
+switch c2
+cable c1
+routeur c2
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>routeur : couche 3
+switch : couche 2
+cable : couche 1
+routeur : hors couche
+routeurs : 1/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur la couche donne l'équipement attendu : c1 cable, c2 commutateur, c3 routeur, c7 application.</li>
+        <li>La comparaison équipement reçu contre équipement attendu décide du verdict.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;pc1 c1&#10;pc2 c2&#10;srv c3&#10;web c7&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c3-e3) — Le dépannage par couches
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cable debranche]
+# Données : 1
+# Données : imprimante c1
+A_COMPLETER
+
+[Cas 2 — Routage absent]
+# Données : 2
+# Données : vlan c3
+# Données : appli c7
+A_COMPLETER
+
+[Cas 3 — Cinq incidents]
+# Données : 5
+# Données : a c1
+# Données : b c3
+# Données : c c2
+# Données : d c1
+# Données : e c7
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Le dépannage par couches</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la méthode du professionnel : en cas de panne, remonter les couches OSI depuis la couche physique.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « incident couche » : couche est la couche où se situe la panne — <code>c1</code> (câble débranché), <code>c2</code> (carte réseau fautive), <code>c3</code> (routage absent) ou <code>c7</code> (application en cause). Pour chaque ligne il Indiquez : <code>incident : verifier les cables</code> (c1), <code>incident : verifier la carte</code> (c2), <code>incident : verifier le routage</code> (c3), <code>incident : verifier les applications</code> (c7). Il termine par <code>physiques : X/n</code> (les pannes de couche 1, les plus fréquentes).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+pc1 c1
+pc2 c2
+srv c3
+web c7
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>pc1 : verifier les cables
+pc2 : verifier la carte
+srv : verifier le routage
+web : verifier les applications
+physiques : 1/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à quatre couches, quatre gestes : cables, carte, routage, applications.</li>
+        <li>Le compteur suit exactement les incidents de couche 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">La couche la plus proche de l'utilisateur est…</p>
+      <div class="opts">
+        <button class="opt">la couche 6</button>
+        <button class="opt" data-correct="1">la couche 7 application</button>
+        <button class="opt">la couche 5 session</button>
+      </div>
+      <div class="q__exp">Navigateur, messagerie, FTP : couche 7.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le routage des paquets se fait en couche…</p>
+      <div class="opts">
+        <button class="opt">2</button>
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">4</button>
+      </div>
+      <div class="q__exp">Couche réseau : routeurs et adresses IP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les commutateurs travaillent surtout en couche…</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">2</button>
+        <button class="opt">3</button>
+      </div>
+      <div class="q__exp">Liaison de données, sous-couches MAC et LLC.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les ports TCP et UDP fonctionnent en couche…</p>
+      <div class="opts">
+        <button class="opt">3</button>
+        <button class="opt" data-correct="1">4</button>
+        <button class="opt">7</button>
+      </div>
+      <div class="q__exp">Transport ; les adresses IP, elles, sont en couche 3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le chiffrement et la compression appartiennent à…</p>
+      <div class="opts">
+        <button class="opt">la couche 5</button>
+        <button class="opt" data-correct="1">la couche 6 présentation</button>
+        <button class="opt">la couche 7</button>
+      </div>
+      <div class="q__exp">Présentation : formater, chiffrer, compresser.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La couche session assure…</p>
+      <div class="opts">
+        <button class="opt">le routage</button>
+        <button class="opt" data-correct="1">la synchronisation du dialogue</button>
+        <button class="opt">l'encodage</button>
+      </div>
+      <div class="q__exp">Ouverture, coordination, terminaison des sessions.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Premier réflexe de dépannage :</p>
+      <div class="opts">
+        <button class="opt">réinstaller l'application</button>
+        <button class="opt" data-correct="1">vérifier la couche physique</button>
+        <button class="opt">changer le routeur</button>
+      </div>
+      <div class="q__exp">Câbles et alimentation d'abord — couche 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La couche physique décrit…</p>
+      <div class="opts">
+        <button class="opt">les protocoles de messagerie</button>
+        <button class="opt" data-correct="1">câbles, broches, tensions, radio</button>
+        <button class="opt">les tables de routage</button>
+      </div>
+      <div class="q__exp">Caractéristiques électriques, logiques et physiques.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer le routeur en couche 2 ou le commutateur en couche 3 : la confusion classique.</li>
+      <li>Chercher le chiffrement en couche 7 : il se fait en couche 6.</li>
+      <li>Oublier les sous-couches MAC et LLC de la couche 2.</li>
+      <li>Commencer le dépannage par les logiciels : la couche 1 d'abord.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — dépanner par couches en trois gestes</div>
+    <ol>
+      <li>Vérifier la couche 1 : câbles, connecteurs, alimentation.</li>
+      <li>Monter d'un cran : carte et commutateur (2), routage et adresses (3).</li>
+      <li>Terminer par les couches hautes : session (5), format (6), application (7).</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Sept couches : physique, liaison, réseau, transport, session, présentation, application.</li>
+      <li>Câble en 1, commutateur en 2, routeur en 3 ; IP en 3, ports en 4.</li>
+      <li>Chiffrement et compression : couche 6 ; sessions : couche 5.</li>
+      <li>Le dépannage remonte les couches depuis la physique.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais réciter les sept couches dans l'ordre.</li>
+      <li>Je sais associer rôle, équipement et couche.</li>
+      <li>Je sais placer IP (3), ports (4), chiffrement (6).</li>
+      <li>Je sais appliquer la méthode de dépannage par couches.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>OSI</strong> : modèle générique ISO de sept couches.</li><li><strong>Couche 1</strong> : physique — câbles, broches, tensions, radio.</li><li><strong>Couche 2</strong> : liaison de données — MAC et LLC, commutateurs.</li><li><strong>Couche 3</strong> : réseau — routage, adresses IP, routeurs.</li><li><strong>Couche 4</strong> : transport — TCP/UDP, ports, rythme et destination.</li><li><strong>Couche 5</strong> : session — ouverture, coordination, terminaison.</li><li><strong>Couche 6</strong> : présentation — format, chiffrement, compression.</li><li><strong>Couche 7</strong> : application — navigateur, messagerie, FTP.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis la définition des sept couches du support.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais le classement équipements/objets par couche.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, entraîne-toi aux scénarios de dépannage.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Le modèle TCP/IP <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

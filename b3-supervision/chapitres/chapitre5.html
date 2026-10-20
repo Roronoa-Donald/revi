@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 — Gestion des Journaux &amp; Logs Centralisés, Détection d'Anomalies &amp; SIEM (ELK/EFK) | Supervision &amp;amp; Observabilité B3</title>
+<meta name="description" content="Module 5 du cours Supervision &amp; Observabilité B3 : Pipeline Filebeat, Logstash, Elasticsearch et Kibana, parsing grok, surveillance de débit EPS (Spike &amp; Drop) et corrélation multi-sources d'incidents. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-supervision/chapitres/chapitre5.html">
+<meta property="og:title" content="Module 5 — Gestion des Journaux &amp; Logs Centralisés, Détection d'Anomalies &amp; SIEM (ELK/EFK) | Supervision &amp;amp; Observabilité B3">
+<meta property="og:description" content="Module 5 du cours Supervision &amp; Observabilité B3 : Pipeline Filebeat, Logstash, Elasticsearch et Kibana, parsing grok, surveillance de débit EPS (Spike &amp; Drop) et corrélation multi-sources d'incidents. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-supervisionnav"><div class="b3-supervisionnav__in">
+  <a class="b3-supervisionnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-supervisionnav__sep" aria-hidden="true">/</span>
+  <a class="b3-supervisionnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Supervision &amp;amp; Observabilité B3</a>
+  <div class="b3-supervisionnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-supervisionnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-supervisionwrap">
+<p class="crumb"><a href="../index.html">Supervision &amp; Observabilité B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Gestion des Journaux & Logs Centralisés, Détection d'Anomalies & SIEM (ELK/EFK)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L'équipe sécurité (SOC) et les exploitants système constatent des difficultés à identifier l'origine des incidents complexes sur les 50 serveurs de l'entreprise : les journaux sont dispersés sur chaque machine, formatés de manière hétérogène et écrasés par la rotation locale des fichiers. Vous êtes mandaté pour déployer un pipeline centralisé d'ingestion et d'analyse de logs : configurer des agents légers Filebeat, concevoir des filtres Logstash pour normaliser les logs applicatifs et web en JSON structuré, surveiller en temps réel le débit d'événements (EPS) pour repérer les pannes silencieuses ou les inondations, et corréler les traces multi-équipements pour isoler et mettre en quarantaine les comportements hostiles.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Concevoir et déployer un pipeline complet de collecte de logs avec la suite Elastic (Filebeat, Logstash, Elasticsearch, Kibana) ou OpenSearch.</li>
+      <li>Analyser et structurer des journaux texte bruts (Apache, Nginx, Syslog) en documents JSON normalisés via des filtres et motifs grok.</li>
+      <li>Surveiller la métrologie des flux de logs en calculant le taux d'événements par seconde (EPS) pour détecter les anomalies de type Spike et Drop.</li>
+      <li>Corréler des événements multi-sources (pare-feu, reverse proxy, serveur d'authentification) pour reconstituer la chronologie d'un incident de sécurité.</li>
+    </ol>
+  </div>
+
+<h2>1. L'Architecture de Centralisation des Journaux : Filebeat, Logstash &amp; Elasticsearch</h2>
+
+<p>La centralisation des logs répond à trois impératifs : conformité légale de rétention, audit de sécurité après compromission et diagnostic rapide en production :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Collecte : Filebeat</h4>
+    <p>Agent de transport ultra-léger développé en Go, déployé sur chaque nœud pour lire les fichiers journaux locaux sur disque (<code>/var/log/*</code>).</p>
+    <p>Filebeat intègre la gestion de contre-pression (<em>backpressure</em>) : si le serveur central est saturé, Filebeat ralentit sa lecture sans saturer la mémoire.</p>
+  </div>
+  <div class="card">
+    <h4>2. Traitement : Logstash</h4>
+    <p>Moteur d'ingestion et de transformation lourde fonctionnant en pipeline à 3 étapes :</p>
+    <ul>
+      <li><strong>Inputs :</strong> Écoute Beats (port 5044/TCP), Syslog (514), Kafka.</li>
+      <li><strong>Filters :</strong> Découpage grok, parsing JSON, normalisation de dates et enrichissement GeoIP.</li>
+      <li><strong>Outputs :</strong> Indexation vers Elasticsearch (port 9200/TCP).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>3. Indexation : Elasticsearch</h4>
+    <p>Moteur d'indexation inversée distribué basé sur Apache Lucene :</p>
+    <p>Organise les documents en index découpés en fragments (<em>shards</em>) répliqués sur un cluster pour garantir tolérance aux pannes et recherche textuelle instantanée.</p>
+    <p>Visualisation via l'interface <strong>Kibana</strong> (port 5601/TCP).</p>
+  </div>
+</div>
+
+<h2>2. Normalisation des Logs &amp; Parsing Grok</h2>
+
+<p>Un log texte non structuré est inexploitable pour les agrégations statistiques et les requêtes analytiques :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Du Texte Brut au Document JSON</h4>
+    <p>Soit une ligne de log web au format Apache/Nginx Combined :</p>
+    <pre><code>192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] "GET /api/v1/users HTTP/1.1" 500 2314 "-" "curl/7.88.1"</code></pre>
+    <p>Après application du filtre grok, elle devient un document structuré indexé avec des types de données stricts :</p>
+    <ul>
+      <li><code>client_ip</code> : type <code>ip</code> pour géolocalisation et filtrage CIDR.</li>
+      <li><code>status_code</code> : type <code>integer</code> permettant de calculer le taux d'erreurs HTTP 4xx et 5xx.</li>
+      <li><code>response_bytes</code> : type <code>long</code> pour mesurer la bande passante consommée.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Standardisation ECS (Elastic Common Schema)</h4>
+    <p>Pour corréler des logs provenant de serveurs Windows, d'équipements Cisco et de conteneurs Linux, il est impératif d'unifier le nommage des champs grâce au schéma standard ECS :</p>
+    <ul>
+      <li><code>source.ip</code> pour l'adresse IP cliente.</li>
+      <li><code>http.response.status_code</code> pour le code HTTP.</li>
+      <li><code>event.dataset</code> pour classifier la source applicative.</li>
+      <li><code>@timestamp</code> normalisé en UTC selon la norme ISO 8601.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Métrologie des Flux de Logs (EPS) &amp; Détection d'Incidents SIEM</h2>
+
+<p>La télémétrie du volume d'événements est une sonde de surveillance opérationnelle majeure :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Analyse de Débit EPS (Events Per Second)</h4>
+    <p>Surveiller l'EPS moyen par rapport à une base de référence (<em>Baseline</em>) permet de détecter deux types de crises majeures :</p>
+    <ul>
+      <li><strong>Log Flood (Spike, &gt; +200%) :</strong> Inondation anormale de journaux provoquée par une attaque par déni de service, une boucle infinie de code générant des exceptions en cascade ou un brute-force massif.</li>
+      <li><strong>Log Drop (Chute, &lt; -80%) :</strong> Silence anormal signalant qu'un équipement critique a crashé, qu'un agent Filebeat est bloqué ou qu'un lien réseau est interrompu.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Corrélation Multi-Sources d'Incidents</h4>
+    <p>Un attaquant ou une panne transverse laisse des empreintes dispersées dans plusieurs journaux :</p>
+    <ol>
+      <li>Le pare-feu enregistre des scans de ports depuis l'IP suspecte.</li>
+      <li>Le reverse proxy Nginx enregistre des dizaines de requêtes 401 Unauthorized sur <code>/auth/login</code>.</li>
+      <li>Le démon SSH consigne de multiples échecs de connexion root.</li>
+    </ol>
+    <p>En corrélant ces événements par adresse IP sur une fenêtre temporelle restreinte, le SIEM isole automatiquement la menace et applique une règle de quarantaine dynamique.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sup3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] &quot;GET /api/v1/users HTTP/1.1&quot; 500 2314 &quot;-&quot; &quot;curl/7.88.1&quot;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e1) — Parseur et Normalisateur de Logs Web Nginx / Apache
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Requête POST de connexion réussie 200]
+# Données : LOG_PARSE 10.0.4.15 - - [11/Oct/2026:15:00:01 +0000] "POST /auth/login HTTP/1.1" 200 450 "https://app.corp.local" "Mozilla/5.0"
+A_COMPLETER
+
+[Cas 2 — Erreur client 404 page non trouvée avec octets nuls]
+# Données : LOG_PARSE 203.0.113.89 - - [11/Oct/2026:15:05:00 +0000] "GET /admin/setup.php HTTP/1.1" 404 - "-" "scanner-bot"
+A_COMPLETER
+
+[Cas 3 — Redirection HTTP 302 catégorisée OTHER]
+# Données : LOG_PARSE 172.16.0.2 - - [11/Oct/2026:15:10:00 +0000] "GET /old-portal HTTP/1.1" 302 120 "-" "curl/8.0"
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur et Normalisateur de Logs Web Nginx / Apache</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire les champs structurés d'une ligne de journal HTTP Combined Log et classifier la réponse par catégorie.</p>
+    <div class="lab__brief"><p>Dans une chaîne Logstash / Fluentd, le parsing grok décompose la ligne de log :<br><br>
+Format standard Combined Log :<br>
+<code>&lt;client_ip&gt; - - [&lt;timestamp&gt;] "&lt;method&gt; &lt;uri&gt; &lt;http_version&gt;" &lt;status_code&gt; &lt;response_bytes&gt; "&lt;referrer&gt;" "&lt;user_agent&gt;"</code><br><br>
+Catégories de statut :<br>
+- 200..299 : <code>SUCCESS</code><br>
+- 400..499 : <code>CLIENT_ERROR</code><br>
+- 500..599 : <code>SERVER_ERROR</code><br>
+- Autre : <code>OTHER</code><br><br>
+Entrée STDIN : <code>LOG_PARSE &lt;combined_log_line&gt;</code>.<br>
+Sortie : <code>WEB_LOG: ip=&lt;client_ip&gt; method=&lt;method&gt; uri=&lt;uri&gt; status=&lt;status_code&gt; bytes=&lt;bytes&gt; category=&lt;category&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] "GET /api/v1/users HTTP/1.1" 500 2314 "-" "curl/7.88.1"</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>WEB_LOG: ip=192.168.1.10 method=GET uri=/api/v1/users status=500 bytes=2314 category=SERVER_ERROR</pre></div>
+    </div>
+    <p class="lab__note">Erreur serveur 500 sur une requête GET.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isolez l'adresse IP, la requête entre guillemets et le code de statut HTTP.</li>
+        <li>Gérez le cas où les octets sont représentés par un tiret '-' en affectant 0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e2) — Détecteur d’Anomalies de Débit de Logs (Spike & Drop)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Chute brutale de logs (service écroulé)]
+# Données : EPS_CHECK BASELINE=1000.0 MIN_DROP=80.0 MAX_SPIKE=150.0 SAMPLES=980.0,950.0,120.0
+A_COMPLETER
+
+[Cas 2 — Débit nominal parfaitement stable]
+# Données : EPS_CHECK BASELINE=250.0 MIN_DROP=75.0 MAX_SPIKE=150.0 SAMPLES=245.0,260.0,255.0
+A_COMPLETER
+
+[Cas 3 — Légère baisse sans dépassement du seuil de drop]
+# Données : EPS_CHECK BASELINE=400.0 MIN_DROP=50.0 MAX_SPIKE=100.0 SAMPLES=380.0,300.0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Détecteur d’Anomalies de Débit de Logs (Spike &amp; Drop)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Surveiller les variations d'Events Per Second (EPS) et détecter les pics anormaux (inondation) ou chutes brutales (panne de collecte).</p>
+    <div class="lab__brief"><p>La télémétrie des flux de logs permet de repérer des anomalies opérationnelles majeures :<br><br>
+Calcul de déviation sur le dernier échantillon de débit mesuré <code>current</code> :<br>
+<code>deviation_pct = ((current - BASELINE) / BASELINE) * 100.0</code>.<br><br>
+Règles d'alerte :<br>
+- Si <code>deviation_pct &gt;= MAX_SPIKE</code> : <code>alert=LOG_FLOOD action=REQUIRED</code>.<br>
+- Sinon si <code>deviation_pct &lt;= -MIN_DROP</code> : <code>alert=LOG_DROP action=REQUIRED</code>.<br>
+- Sinon : <code>alert=NORMAL action=NONE</code>.<br><br>
+Entrée STDIN : <code>EPS_CHECK BASELINE=&lt;base&gt; MIN_DROP=&lt;drop_pct&gt; MAX_SPIKE=&lt;spike_pct&gt; SAMPLES=&lt;s1,s2,...&gt;</code>.<br>
+Sortie : <code>EPS_ALERT: current=&lt;curr:.1f&gt; deviation=&lt;dev_pct:+.1f&gt;% alert=&lt;LOG_FLOOD|LOG_DROP|NORMAL&gt; action=&lt;REQUIRED|NONE&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EPS_ALERT: current=1600.0 deviation=+220.0% alert=LOG_FLOOD action=REQUIRED</pre></div>
+    </div>
+    <p class="lab__note">Pic de débit de +220% dépassant le seuil de 200% : LOG_FLOOD.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extrayez la dernière valeur de la liste SAMPLES.</li>
+        <li>Formatez la déviation avec un signe explicite (+ ou -) via :+.1f.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e3) — Corrélateur Multi-Sources de Logs d’Incidents de Sécurité
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Trafic légitime sans alerte]
+# Données : CORRELATE TARGET_IP=192.168.1.50 LOGS=firewall:192.168.1.50:TcpSyn:INFO|proxy:192.168.1.50:PageGet:INFO
+A_COMPLETER
+
+[Cas 2 — Blocage immédiat sur règle DENY de pare-feu]
+# Données : CORRELATE TARGET_IP=10.10.10.10 LOGS=firewall:10.10.10.10:SqlInjection:DENY
+A_COMPLETER
+
+[Cas 3 — Deux avertissements sous le seuil de 3]
+# Données : CORRELATE TARGET_IP=172.20.1.100 LOGS=proxy:172.20.1.100:SlowRequest:WARN|app:172.20.1.100:DeprecationCall:WARN
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Corrélateur Multi-Sources de Logs d’Incidents de Sécurité</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Regrouper et corréler les traces d'une adresse IP suspecte à travers des équipements hétérogènes.</p>
+    <div class="lab__brief"><p>En analyse SOC / SIEM, les traces laissées sur différents serveurs sont corrélées :<br><br>
+Critères de décision :<br>
+- Un événement est considéré <strong>suspect</strong> si sa sévérité est <code>WARN</code>, <code>ALERT</code> ou <code>DENY</code>.<br>
+- La mise en quarantaine (<code>quarantine=YES</code>) est décidée si l'adresse IP cible cumule <code>&gt;= 3</code> événements suspects OU si au moins un événement porte la sévérité bloquante <code>DENY</code>.<br>
+- Sinon, <code>quarantine=NO</code>.<br><br>
+Entrée STDIN : <code>CORRELATE TARGET_IP=&lt;ip&gt; LOGS=&lt;src1:ip1:act1:sev1|src2:ip2:act2:sev2|...&gt;</code>.<br>
+Sortie : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&lt;total_matches&gt; suspicious=&lt;n_suspects&gt; quarantine=&lt;YES|NO&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CORRELATION: ip=198.51.100.42 events=3 suspicious=3 quarantine=YES</pre></div>
+    </div>
+    <p class="lab__note">3 événements suspects cumulés entraînent une mise en quarantaine.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isolez les événements correspondant à TARGET_IP.</li>
+        <li>Vérifiez si le nombre d'événements suspects est &gt;= 3 ou si la sévérité DENY apparaît.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l'avantage principal de Filebeat par rapport à Logstash pour la collecte de journaux sur les serveurs applicatifs ?</p>
+      <div class="opts">
+        <button class="opt">Filebeat est une application Java lourde</button>
+        <button class="opt" data-correct="1">Filebeat est un binaire autonome léger écrit en Go qui consomme très peu de CPU et de mémoire RAM</button>
+        <button class="opt">Filebeat remplace la base Elasticsearch</button>
+        <button class="opt">Filebeat ne fonctionne que sous Windows</button>
+      </div>
+      <div class="q__exp">Filebeat a été spécialement conçu pour être un expéditeur ultra-léger (Go) qui n'impacte pas les performances des serveurs hébergeant les applications métiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur quel port TCP par défaut l'API REST d'Elasticsearch écoute-t-elle les requêtes d'indexation et de recherche ?</p>
+      <div class="opts">
+        <button class="opt">Port 5601</button>
+        <button class="opt" data-correct="1">Port 9200</button>
+        <button class="opt">Port 5044</button>
+        <button class="opt">Port 9090</button>
+      </div>
+      <div class="q__exp">Elasticsearch écoute sur le port 9200/TCP pour son API REST HTTP. Le port 5601 est Kibana, le 5044 le port d'écoute Beats de Logstash.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la terminologie Logstash, que désigne un filtre « grok » ?</p>
+      <div class="opts">
+        <button class="opt">Un protocole de routage réseau</button>
+        <button class="opt" data-correct="1">Une bibliothèque de motifs d'expressions régulières nommées permettant de découper du texte brut en champs JSON structurés</button>
+        <button class="opt">Un algorithme de chiffrement asymétrique</button>
+        <button class="opt">Un outil de compression zip</button>
+      </div>
+      <div class="q__exp">Grok permet d'associer des motifs regex réutilisables (ex: %{IP:client_ip}) pour transformer facilement des lignes de logs brutes en documents JSON.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un cluster de logs fonctionnant habituellement à 500 EPS subit une chute brutale à 10 EPS sur un service critique, comment qualifie-t-on cette anomalie ?</p>
+      <div class="opts">
+        <button class="opt">Log Flood</button>
+        <button class="opt" data-correct="1">Log Drop</button>
+        <button class="opt">Normal Drift</button>
+        <button class="opt">Capacity Spike</button>
+      </div>
+      <div class="q__exp">Une chute massive de débit sous la baseline normale est un Log Drop, indiquant fréquemment un arrêt inopiné du service émetteur ou une rupture de connectivité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel port TCP Kibana utilise-t-il par défaut pour son interface web d'administration et de tableaux de bord ?</p>
+      <div class="opts">
+        <button class="opt">Port 9200</button>
+        <button class="opt" data-correct="1">Port 5601</button>
+        <button class="opt">Port 3000</button>
+        <button class="opt">Port 8080</button>
+      </div>
+      <div class="q__exp">Kibana est accessible sur le port 5601/TCP par défaut.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie le concept de « backpressure » implémenté dans Filebeat ?</p>
+      <div class="opts">
+        <button class="opt">L'arrêt complet du serveur Linux</button>
+        <button class="opt" data-correct="1">La capacité de l'agent à ralentir la lecture des logs si le collecteur Logstash ou Elasticsearch est saturé, évitant ainsi tout débordement mémoire</button>
+        <button class="opt">Le chiffrement des disques durs</button>
+        <button class="opt">L'inversion des flux réseau</button>
+      </div>
+      <div class="q__exp">Le contrôle de contre-pression permet à Filebeat d'adapter son rythme d'émission à la capacité d'ingestion en aval sans perdre d'événements.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il nécessaire d'utiliser un schéma commun comme l'ECS (Elastic Common Schema) lors de l'ingestion de logs provenant de sources hétérogènes ?</p>
+      <div class="opts">
+        <button class="opt">Pour rendre les logs illisibles aux attaquants</button>
+        <button class="opt" data-correct="1">Pour standardiser les noms de champs (ex: client_ip vs src_ip) et permettre des corrélations transversales dans le SIEM</button>
+        <button class="opt">Pour économiser les adresses IPv4</button>
+        <button class="opt">Pour désactiver le pare-feu</button>
+      </div>
+      <div class="q__exp">Si chaque équipement nomme différemment l'adresse IP source (src_ip, client, host_ip, remote_addr), il est impossible d'exécuter une requête corrélée unique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un SIEM, quel critère permet de relier chronologiquement une attaque par injection SQL sur un serveur web à une création suspecte de compte administrateur sur une machine Linux ?</p>
+      <div class="opts">
+        <button class="opt">Le numéro de série de l'ordinateur</button>
+        <button class="opt" data-correct="1">L'adresse IP source commune et l'horodatage précis sur une fenêtre temporelle courte</button>
+        <button class="opt">Le nom du système d'exploitation</button>
+        <button class="opt">La taille du fichier de log</button>
+      </div>
+      <div class="q__exp">La corrélation spatio-temporelle repose sur des identifiants partagés (adresse IP, trace_id, identifiant utilisateur) et une synchronisation d'horloge rigoureuse (NTP).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Déployer Logstash directement sur tous les serveurs clients à la place de Filebeat : Logstash consomme une JVM lourde et monopolise les ressources applicatives.</li>
+      <li>Ne pas indexer les timestamps dans un format UTC normalisé (ISO 8601), ce qui rend impossible la corrélation chronologique entre serveurs situés sur des fuseaux différents.</li>
+      <li>Négliger la rotation et la purge des index anciens dans Elasticsearch, conduisant à la saturation complète des disques et au gel du cluster.</li>
+      <li>Ignorer les chutes brutales d'EPS (Log Drop) : un silence radio dans les logs est souvent le signe d'une panne majeure non détectée.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : Centralisation & Analyse de Logs (ELK)</div>
+    <ol>
+      <li>Déployer des expéditeurs légers (Beats) : installer Filebeat sur les serveurs cibles avec contrôle de débit (backpressure) et acheminement chiffré vers Logstash ou Elasticsearch.</li>
+      <li>Structurer et enrichir les journaux : construire des filtres Logstash ou Ingest Node avec motifs grok, conversions de types, géolocalisation IP et normalisation UTC.</li>
+      <li>Dimensionner le stockage et l'indexation Elasticsearch : configurer les Index Lifecycle Management (ILM) avec politiques de rétention, rollovers et tiers chauds/froids.</li>
+      <li>Implémenter la détection d'anomalies et la corrélation SIEM : surveiller les débits EPS (spikes et drops) et croiser les sources (Nginx, SSH, pare-feu) pour neutraliser les cyberattaques.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La stack Elastic (Elasticsearch, Logstash, Kibana, Beats) constitue le standard de l'industrie pour la centralisation, le parsing et l'analyse de logs massifs.</li>
+      <li>Filebeat assure une collecte locale économe en ressources avec maintien d'un registre d'offset disque pour garantir l'absence de perte de données.</li>
+      <li>Le parsing grok transforme les flux de texte brut (ex: format Combined Nginx/Apache) en documents JSON typés et interrogeables en quasi temps réel.</li>
+      <li>La volumétrie EPS (Events Per Second) reflète la dynamique opérationnelle : un pic signale une attaque ou une boucle d'erreurs, une chute indique une panne réseau ou le crash d'un service.</li>
+      <li>La corrélation multi-sources est l'atout maître du SIEM pour regrouper les indices faibles disséminés entre pare-feux, serveurs web et systèmes d'authentification.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous justifier le découplage entre l'agent léger Filebeat et le moteur de transformation Logstash ?</li>
+      <li>Pouvez-vous écrire une expression régulière grok pour extraire IP, verbe, URL et statut HTTP d'une ligne de log ?</li>
+      <li>Comprenez-vous pourquoi une chute brutale du débit EPS (Log Drop) est aussi critique qu'un pic d'erreurs ?</li>
+      <li>Comment fonctionne la corrélation multi-sources par adresse IP ou identifiant de session au sein d'un SIEM ?</li>
+      <li>Quelles sont les bonnes pratiques de cycle de vie (ILM) pour éviter la saturation disque d'un cluster Elasticsearch ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Filebeat :</strong> Agent léger en langage Go dédié à la lecture des fichiers de logs sur disque et à leur transmission sécurisée.</li><li><strong>Logstash :</strong> Moteur d'ingestion et de transformation de données exécutant des pipelines de filtrage, parsing grok et enrichissement.</li><li><strong>Elasticsearch :</strong> Moteur de recherche et d'indexation distribué de documents JSON structurés basé sur Apache Lucene.</li><li><strong>Kibana :</strong> Interface utilisateur graphique pour explorer, requêter et visualiser les données stockées dans Elasticsearch.</li><li><strong>EPS :</strong> Events Per Second : débit volumétrique mesurant le nombre de lignes d'événements ingérées par seconde.</li><li><strong>SIEM :</strong> Security Information and Event Management : système de centralisation et corrélation temps réel des événements de sécurité.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Composants ELK et analyse de logs incertains. Révisez le rôle de Filebeat et Logstash.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Architecture comprise. Approfondissez les expressions grok et la détection d'anomalies EPS.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à parser et corréler des flux de logs dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau opérationnel solide. Vous maîtrisez le pipeline de logs et la corrélation de sécurité SIEM.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte. Prêt pour les stratégies d'alerting et l'auto-remédiation du Module 6 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Stratégies d'Alerting, Capacity Planning & Auto-Remédiation SRE <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Supervision Système et Réseaux (Enseignant : Essowaba AHOULOUMI, Ingénieur en Informatique et Réseaux, 2024/2025), Référentiels RFC 1157/1213/3414 (SNMP), RFC 5424 (Syslog), Documentations officielles Prometheus, Grafana, Zabbix et Elastic.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

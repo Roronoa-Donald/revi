@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Maintenance de Windows Server | Windows Server B2</title>
+<meta name="description" content="Chapitre 4 du cours Windows Server B2 : Maintenance préventive, corrective et évolutive, surveillance, seuils de température et planning. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_winserver/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Maintenance de Windows Server | Windows Server B2">
+<meta property="og:description" content="Chapitre 4 du cours Windows Server B2 : Maintenance préventive, corrective et évolutive, surveillance, seuils de température et planning. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_winservernav"><div class="rd_winservernav__in">
+  <a class="rd_winservernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_winservernav__sep" aria-hidden="true">/</span>
+  <a class="rd_winservernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B2</a>
+  <div class="rd_winservernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_winservernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_winserverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Maintenance de Windows Server</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur ne reste fiable que si on s’en occupe. La maintenance englobe les actions qui garantissent la disponibilité, la performance, la sécurité et la continuité : surveiller, mettre à jour, dépanner, documenter.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer maintenance préventive, corrective et évolutive ;</li>
+      <li>surveiller CPU, RAM, disque, réseau et journaux d’événements ;</li>
+      <li>interpréter les seuils de température du matériel ;</li>
+      <li>établir un planning de maintenance par fréquence.</li>
+    </ol>
+  </div>
+
+<h2>1. Maintenance préventive</h2>
+
+<p>La maintenance <strong>préventive</strong> exécute régulièrement des actions destinées à <strong>éviter l’apparition des pannes</strong>, minimiser les risques et anticiper les incidents. Elle réduit les interruptions, garantit la sécurité, optimise les performances et prévient la dégradation matérielle ou logicielle.</p>
+<p>Elle couvre : les <strong>mises à jour</strong> (Windows Update, pilotes, BIOS, firmware), la <strong>surveillance</strong> de l’état du système, la <strong>vérification des sauvegardes</strong>, le <strong>contrôle de la sécurité</strong> (comptes inactifs, groupes sensibles, pare-feu, antivirus) et la <strong>vérification du matériel</strong> (température, ventilateurs, SMART).</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Mettre à jour sans risque</div>
+    <p>Avant une mise à jour : tester sur un serveur de préproduction, prendre un <strong>snapshot</strong> de la VM, puis planifier l’opération après les heures de production. Trois réflexes qui transforment une mise à jour risquée en opération maîtrisée.</p>
+  </div>
+
+<h2>2. Surveiller le système</h2>
+
+<p>La surveillance s’appuie sur des outils dédiés à chaque ressource :</p>
+<table><thead><tr><th>Élément</th><th>Outils</th><th>Objectif</th></tr></thead><tbody>
+<tr><td>CPU &amp; RAM</td><td>Task Manager, Resource Monitor</td><td>Détecter surutilisation ou fuite mémoire</td></tr>
+<tr><td>Disque</td><td>Performance Monitor, Disk Management</td><td>Anticiper le stockage, repérer les secteurs défectueux</td></tr>
+<tr><td>Réseau</td><td>netstat, ping, Wireshark</td><td>Vérifier bande passante, latence, ports ouverts</td></tr>
+<tr><td>Journaux</td><td>Event Viewer</td><td>Repérer erreurs, anomalies et alertes</td></tr>
+</tbody></table>
+<p>Surveiller, c’est aussi vérifier que les sauvegardes ont bien tourné, tester leur restauration, contrôler l’espace des cibles et s’assurer que l’annuaire (AD) est sauvegardé.</p>
+
+<h2>3. Matériel et fréquences</h2>
+
+<p>Sur les serveurs physiques, on surveille la température du processeur, les ventilateurs, l’état des disques (SMART) et la redondance d’alimentation.</p>
+<table><thead><tr><th>État</th><th>Température</th></tr></thead><tbody>
+<tr><td>Normal</td><td>30 – 60 °C</td></tr>
+<tr><td>Chaud</td><td>60 – 80 °C</td></tr>
+<tr><td>Danger</td><td>&gt; 85 °C</td></tr>
+<tr><td>Critique</td><td>&gt; 95 °C</td></tr>
+</tbody></table>
+<p>Un planning type répartit les tâches dans le temps : analyse des logs chaque semaine, nettoyage disque, test de sauvegarde et correctifs chaque mois, mise à jour du firmware et test du PRA chaque trimestre, audit de sécurité et documentation chaque année.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Une maintenance sans planning</div>
+    <p>Sans calendrier, la maintenance se fait « quand on y pense » — c’est-à-dire jamais. Le planning transforme de bonnes intentions en routine vérifiable.</p>
+  </div>
+
+<h2>4. Maintenance corrective et évolutive</h2>
+
+<p>La maintenance <strong>corrective</strong> intervient <strong>après</strong> une panne ou un dysfonctionnement. Objectifs : restaurer le service au plus vite, identifier la cause, apporter un correctif durable. Exemples : relancer un service (AD DS, DNS, DHCP), corriger un fichier corrompu, résoudre un problème réseau avec <code>ping</code>, <code>tracert</code> ou <code>nslookup</code>.</p>
+<p>La maintenance <strong>évolutive</strong> vise à <strong>améliorer, moderniser ou faire évoluer</strong> l’infrastructure : renforcer la sécurité, ajouter des fonctionnalités, améliorer les performances, préparer la croissance. Exemple : migrer une version de Windows Server (2012 R2 → 2016 → 2019 → 2022).</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Anticiper plutôt que réparer</div>
+    <p>Plus l’effort porte sur le préventif, moins le correctif est fréquent. La maintenance n’est pas une dépense subie mais un investissement qui se mesure en heures d’arrêt évitées.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ws2-c4-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="3&#10;ok&#10;echec&#10;ok">
+  <script type="text/plain" data-lab-starter>$n = [int][Console]::In.ReadLine()
+$echecs = 0
+for ($i = 0; $i -lt $n; $i++) {
+    $res = [Console]::In.ReadLine()
+    # À compléter : incrémenter $echecs si $res vaut "echec".
+}
+
+# À compléter : afficher le nombre d'échecs puis l'état de maintenance.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Suivi des mises à jour</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter les échecs parmi une liste de mises à jour et décider d’une maintenance.</p>
+    <div class="lab__brief"><p>Le script lit un entier <code>n</code>, puis <code>n</code> résultats de mise à jour (<code>ok</code> ou <code>echec</code>). Affichez <code>echecs : X</code>, puis <code>maintenance : requise</code> s’il y a au moins un échec, sinon <code>maintenance : a jour</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+ok
+echec
+ok</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>echecs : 1
+maintenance : requise</pre></div>
+    </div>
+    <p class="lab__note">Une mise à jour en échec.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparez avec -eq : ($res -eq "echec").</li>
+        <li>Choisissez la ligne d’état selon ($echecs -gt 0).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c4-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="45">
+  <script type="text/plain" data-lab-starter>$temp = [int][Console]::In.ReadLine()
+
+# À compléter : afficher "etat : normal", "etat : chaud",
+# "etat : danger" ou "etat : critique" selon la température.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Seuil de température CPU</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer une mesure dans l’une des quatre plages de surveillance du matériel.</p>
+    <div class="lab__brief"><p>Le script lit une <strong>température</strong> de processeur en degrés Celsius. Affichez <code>etat : normal</code> en dessous de 60, <code>etat : chaud</code> de 60 à 84, <code>etat : danger</code> de 85 à 94, et <code>etat : critique</code> à partir de 95.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>45</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>etat : normal</pre></div>
+    </div>
+    <p class="lab__note">45 °C : plage normale.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traitez les cas les plus graves d’abord, en descendant : -ge 95, puis -ge 85, etc.</li>
+        <li>Utilisez if / elseif / else : chaque branche couvre une plage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c4-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="mensuelle">
+  <script type="text/plain" data-lab-starter>$freq = [Console]::In.ReadLine()
+
+# À compléter : avec un switch sur $freq, afficher l'action correspondante.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Planning de maintenance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer une fréquence à l’action correspondante avec switch.</p>
+    <div class="lab__brief"><p>Le script lit une <strong>fréquence</strong> parmi <code>hebdomadaire</code>, <code>mensuelle</code>, <code>trimestrielle</code> ou <code>annuelle</code>. Affichez l’action correspondante : <code>action : analyse des logs</code>, <code>action : test de sauvegarde</code>, <code>action : test PRA</code> ou <code>action : audit securite</code>. Pour toute autre valeur, affichez <code>action : inconnue</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>mensuelle</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>action : test de sauvegarde</pre></div>
+    </div>
+    <p class="lab__note">Le mensuel teste les sauvegardes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>PowerShell dispose d’un switch : switch ($freq) { "hebdomadaire" { ... } ... }.</li>
+        <li>Prévoyez une branche default pour les valeurs non reconnues.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel type de maintenance évite les pannes ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Préventive</button>
+        <button class="opt">Corrective</button>
+        <button class="opt">Évolutive</button>
+      </div>
+      <div class="q__exp">Elle agit régulièrement avant l’incident.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand intervient la maintenance corrective ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Après une panne</button>
+        <button class="opt">Avant toute panne</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">Elle répare un dysfonctionnement survenu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel outil pour les journaux système ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Event Viewer</button>
+        <button class="opt">Wireshark</button>
+        <button class="opt">Disk Management</button>
+      </div>
+      <div class="q__exp">L’observateur d’événements liste erreurs et alertes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel outil pour le réseau ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">netstat, ping, Wireshark</button>
+        <button class="opt">Event Viewer</button>
+        <button class="opt">Resource Monitor</button>
+      </div>
+      <div class="q__exp">Ils vérifient bande passante, latence et ports.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Température « danger » du CPU ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">> 85 °C</button>
+        <button class="opt">> 30 °C</button>
+        <button class="opt">> 60 °C</button>
+      </div>
+      <div class="q__exp">Au-delà de 85 °C, risque d’arrêt brutal.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que faire avant une mise à jour majeure ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un snapshot de la VM</button>
+        <button class="opt">Rien</button>
+        <button class="opt">Éteindre le serveur</button>
+      </div>
+      <div class="q__exp">Le snapshot permet de revenir en arrière.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Tâche hebdomadaire de maintenance ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Analyse des logs</button>
+        <button class="opt">Audit de sécurité complet</button>
+        <button class="opt">Migration de version</button>
+      </div>
+      <div class="q__exp">L’analyse des logs est la routine hebdomadaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vise la maintenance évolutive ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Améliorer et moderniser</button>
+        <button class="opt">Réparer une panne</button>
+        <button class="opt">Éviter les pannes</button>
+      </div>
+      <div class="q__exp">Elle fait évoluer l’infrastructure.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Mettre à jour un serveur en pleine journée de production.</li>
+      <li>Ne pas prendre de snapshot avant une modification critique.</li>
+      <li>Ignorer les journaux : les avertissements précèdent souvent la panne.</li>
+      <li>Faire du préventif sans jamais tester la restauration.</li>
+      <li>Rester sur une version obsolète au lieu de planifier une migration.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Organiser la maintenance d’un serveur</div>
+    <ol>
+      <li><strong>Surveiller</strong> CPU, RAM, disque, réseau et journaux en continu.</li>
+      <li><strong>Prévenir</strong> : mises à jour, sécurité, matériel, sauvegardes vérifiées.</li>
+      <li><strong>Planifier</strong> les tâches par fréquence (hebdomadaire à annuelle).</li>
+      <li><strong>Corriger</strong> rapidement toute panne en s’appuyant sur les outils de diagnostic.</li>
+      <li><strong>Faire évoluer</strong> l’infrastructure pour préparer la croissance.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Préventive : agir avant la panne (mises à jour, surveillance, sécurité, matériel).</li>
+      <li>Outils : Task Manager, Performance Monitor, Event Viewer, netstat, Wireshark.</li>
+      <li>Température : normal 30-60 °C, danger > 85 °C, critique > 95 °C.</li>
+      <li>Planning : hebdomadaire à annuelle selon la tâche.</li>
+      <li>Corrective : réparer ; évolutive : moderniser et migrer.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je distingue préventive, corrective et évolutive.</li>
+      <li>Je connais les outils de surveillance.</li>
+      <li>J’interprète les seuils de température.</li>
+      <li>Je sais établir un planning de maintenance.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>maintenance</li><li>préventive</li><li>corrective</li><li>évolutive</li><li>mises à jour</li><li>surveillance</li><li>Event Viewer</li><li>Performance Monitor</li><li>netstat</li><li>Wireshark</li><li>SMART</li><li>planning</li><li>migration</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les trois types de maintenance.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les outils de surveillance.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu planifies un préventif complet.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : enchaîne sur la virtualisation, chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Virtualisation & VMware <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique RD WinServer (modules 1 à 5 : sauvegarde, haute disponibilité, maintenance, virtualisation/VMware, snapshots/clones).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

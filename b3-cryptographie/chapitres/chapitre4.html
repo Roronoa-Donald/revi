@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 — Cryptographie Asymétrique &amp; Arithmétique Modulaire | Cryptographie &amp; PKI B3</title>
+<meta name="description" content="Module 4 du cours Cryptographie &amp; PKI B3 : Arithmétique modulaire, division euclidienne et algorithme d'Euclide étendu, théorème de Bézout et calcul de l'inverse modulaire, indicatrice d'Euler et exponentiation modulaire rapide, protocole d'échange de clés de Diffie-Hellman (DH/ECDH) et attaque de l'homme du milieu (MITM), cryptosystème asymétrique RSA (génération de clés, chiffrement, déchiffrement, bourrage OAEP), et principes de la cryptographie sur les courbes elliptiques (ECC). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cryptographie/chapitres/chapitre4.html">
+<meta property="og:title" content="Module 4 — Cryptographie Asymétrique &amp; Arithmétique Modulaire | Cryptographie &amp; PKI B3">
+<meta property="og:description" content="Module 4 du cours Cryptographie &amp; PKI B3 : Arithmétique modulaire, division euclidienne et algorithme d'Euclide étendu, théorème de Bézout et calcul de l'inverse modulaire, indicatrice d'Euler et exponentiation modulaire rapide, protocole d'échange de clés de Diffie-Hellman (DH/ECDH) et attaque de l'homme du milieu (MITM), cryptosystème asymétrique RSA (génération de clés, chiffrement, déchiffrement, bourrage OAEP), et principes de la cryptographie sur les courbes elliptiques (ECC). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cryptographienav"><div class="b3-cryptographienav__in">
+  <a class="b3-cryptographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cryptographienav__sep" aria-hidden="true">/</span>
+  <a class="b3-cryptographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg> Cryptographie &amp; PKI B3</a>
+  <div class="b3-cryptographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cryptographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cryptographiewrap">
+<p class="crumb"><a href="../index.html">Cryptographie & PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Cryptographie Asymétrique & Arithmétique Modulaire</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le problème fondamental de la cryptographie symétrique réside dans la distribution sécurisée de la clé secrète partagée : comment deux interlocuteurs n'ayant jamais communiqué auparavant peuvent-ils convenir d'un secret commun sans qu'un espion sur la ligne ne puisse le deviner ? L'invention de la cryptographie à clé publique par Diffie, Hellman, Merkle, Rivest, Shamir et Adleman a révolutionné la sécurité informatique en fondant la confidentialité sur des problèmes mathématiques difficiles (logarithme discret, factorisation d'entiers). En tant qu'ingénieur sécurité B3, vous devez maîtriser les fondements d'arithmétique modulaire, comprendre le fonctionnement intime de Diffie-Hellman et de RSA, implémenter les algorithmes d'Euclide étendu et d'inversion, et identifier les conditions indispensables pour contrer les attaques Man-in-the-Middle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser l'arithmétique modulaire : congruences, algorithme d'Euclide étendu, identité de Bézout et inverse modulaire ;</li>
+      <li>appliquer les théorèmes arithmétiques fondamentaux : petit théorème de Fermat, indicatrice d'Euler phi(n) et théorème d'Euler ;</li>
+      <li>analyser le protocole d'échange de clés de Diffie-Hellman (DH) et démontrer sa vulnérabilité à l'attaque de l'homme du milieu (MITM) sans authentification ;</li>
+      <li>comprendre le cryptosystème RSA de bout en bout : choix des nombres premiers, calcul des clés publique et privée, chiffrement et déchiffrement ;</li>
+      <li>comparer les performances et les tailles de clés entre RSA (2048/4096 bits) et la cryptographie sur les courbes elliptiques ECC (256/384 bits) ;</li>
+      <li>développer en Python 3 l'algorithme d'Euclide étendu, le calcul d'inverses modulaires, des simulateurs Diffie-Hellman/MITM et un moteur RSA complet.</li>
+    </ol>
+  </div>
+
+<h2>1. Arithmétique Modulaire : Euclide Étendu, Bézout &amp; Inverse Modulaire</h2>
+
+<p>La cryptographie asymétrique repose sur des opérations dans des anneaux finis $\mathbb{Z}/n\mathbb{Z}$. Deux entiers $a$ et $b$ sont dits congrus modulo $n$, noté $a \equiv b \pmod n$, si leur différence $(a - b)$ est un multiple entier de $n$.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Algorithme d'Euclide Étendu &amp; Théorème de Bézout</h4>
+    <p>Pour deux entiers $a$ et $b$, le théorème de Bézout affirme qu'il existe deux entiers relatifs $u$ et $v$ tels que :</p>
+    <pre><code>a * u + b * v = pgcd(a, b)</code></pre>
+    <p>L'algorithme d'Euclide étendu calcule simultanément le plus grand commun diviseur $\text{pgcd}(a, b)$ et les coefficients de Bézout $(u, v)$ en temps logarithmique $O(\log(\min(a, b)))$.</p>
+  </div>
+  <div class="card">
+    <h4>Inverse Modulaire</h4>
+    <p>L'inverse modulaire d'un entier $a$ modulo $m$ est l'entier $x$ tel que :</p>
+    <pre><code>(a * x) mod m = 1   (noté x = a^(-1) mod m)</code></pre>
+    <p><strong>Condition nécessaire et suffisante :</strong> l'inverse existe si et seulement si $a$ et $m$ sont premiers entre eux, c'est-à-dire $\text{pgcd}(a, m) = 1$.</p>
+    <p>Selon Bézout : $a \cdot u + m \cdot v = 1 \implies a \cdot u \equiv 1 \pmod m$, donc $x = u \bmod m$.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Exponentiation Modulaire Rapide (Square-and-Multiply)</div>
+<p>Calculer $a^b \pmod m$ pour des entiers de plusieurs milliers de bits ne peut pas se faire en calculant d'abord $a^b$ (qui contiendrait des millions de chiffres). L'algorithme d'<strong>exponentiation modulaire rapide</strong> effectue des carrés successifs combinés à des réductions modulaires à chaque étape, ramenant la complexité de $O(b)$ à $O(\log_2 b)$ multiplications modulaires.</p>,<pre><code>ALGORITHME ExponentiationModulaireRapide(base, exp, mod) :
+  résultat ← 1
+  base ← base MOD mod
+  Tant que exp &gt; 0 faire :
+    Si exp est impair Alors :
+      résultat ← (résultat * base) MOD mod
+    base ← (base * base) MOD mod
+    exp ← exp DIV 2
+  Retourner résultat</code></pre>
+  </div>
+
+<h2>2. Échange de Clés de Diffie-Hellman (DH) &amp; Attaque de l'Homme du Milieu</h2>
+
+<p>Proposé en 1976 par Whitfield Diffie et Martin Hellman, ce protocole permet à deux entités (Alice et Bob) de convenir d'un secret partagé sans transmettre ce secret sur le réseau :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Protocole d'Échange Diffie-Hellman</h4>
+    <ul>
+      <li><strong>Paramètres publics :</strong> un grand nombre premier $p$ et un générateur $g$ du groupe multiplicatif $\mathbb{Z}/p\mathbb{Z}^*$.</li>
+      <li>Alice choisit un secret privé $a$, calcule sa clé publique $A = g^a \pmod p$, et l'envoie à Bob.</li>
+      <li>Bob choisit un secret privé $b$, calcule sa clé publique $B = g^b \pmod p$, et l'envoie à Alice.</li>
+      <li><strong>Calcul du secret commun :</strong>
+        <ul>
+          <li>Alice calcule : $S = B^a \pmod p = (g^b)^a \pmod p = g^{ab} \pmod p$.</li>
+          <li>Bob calcule : $S = A^b \pmod p = (g^a)^b \pmod p = g^{ab} \pmod p$.</li>
+        </ul>
+      </li>
+      <li>La sécurité repose sur la difficulté du <em>problème du logarithme discret (DLP)</em> : retrouver $a$ connaissant $g, p$ et $g^a \pmod p$.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Vulnérabilité Majeure : L'Attaque MITM</h4>
+    <p>Le protocole Diffie-Hellman original ne comporte <strong>aucun mécanisme d'authentification</strong> des clés publiques échangées.</p>
+    <ul>
+      <li>Un attaquant actif (Mallory) placé entre Alice et Bob intercepte $A$ et $B$.</li>
+      <li>Mallory génère ses propres secrets $m_a$ et $m_b$, et envoie $M_A = g^{m_a} \pmod p$ à Alice et $M_B = g^{m_b} \pmod p$ à Bob.</li>
+      <li>Alice négocie un secret avec Mallory ($S_{AM} = g^{a \cdot m_a}$), Bob négocie un secret avec Mallory ($S_{BM} = g^{b \cdot m_b}$).</li>
+      <li>Mallory déchiffre, lit, modifie et rechiffre l'intégralité du trafic en temps réel de manière totalement transparente !</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La Nécessité des Certificats et des Signatures</div>
+<p>Pour empêcher définitivement l'attaque de l'homme du milieu sur Diffie-Hellman, les clés publiques échangées doivent impérativement être <strong>signées numériquement</strong> par une autorité de certification de confiance ou liées à un certificat X.509 (mécanisme mis en œuvre dans TLS avec ECDHE et validation de certificat).</p>
+  </div>
+
+<h2>3. Le Cryptosystème RSA (Rivest-Shamir-Adleman)</h2>
+
+<p>Conçu en 1977 au MIT, RSA est le cryptosystème asymétrique le plus déployé au monde pour le chiffrement et la signature numérique. Sa sécurité repose sur la difficulté de la factorisation d'un grand entier semi-premier :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Génération des Clés RSA</h4>
+    <ol>
+      <li>Choisir deux très grands nombres premiers distincts $p$ et $q$.</li>
+      <li>Calculer le module RSA : $n = p \cdot q$.</li>
+      <li>Calculer l'indicatrice d'Euler : $\varphi(n) = (p - 1)(q - 1)$.</li>
+      <li>Choisir un exposant public $e$ premier avec $\varphi(n)$ (généralement $e = 65537 = 2^{16} + 1$).</li>
+      <li>Calculer l'exposant privé $d$ comme l'inverse modulaire de $e$ modulo $\varphi(n)$ : $d = e^{-1} \pmod{\varphi(n)}$, soit $e \cdot d \equiv 1 \pmod{\varphi(n)}$.</li>
+      <li><strong>Clé publique :</strong> $(e, n)$ | <strong>Clé privée :</strong> $(d, n)$ (les facteurs $p, q, \varphi(n)$ doivent être détruits en mémoire).</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Chiffrement et Déchiffrement</h4>
+    <p>Soit un message clair représenté par un entier $M$ tel que $0 \le M < n$ :</p>
+    <ul>
+      <li><strong>Chiffrement (avec la clé publique de Bob) :</strong><br><code>C = (M^e) mod n</code></li>
+      <li><strong>Déchiffrement (avec la clé privée de Bob) :</strong><br><code>M = (C^d) mod n</code></li>
+    </ul>
+    <p><strong>Justification mathématique :</strong> par le théorème d'Euler, comme $e \cdot d = 1 + k \cdot \varphi(n)$, on a :<br>$C^d = (M^e)^d = M^{ed} = M^{1 + k \cdot \varphi(n)} \equiv M \pmod n$.</p>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Vulnérabilités de « Textbook RSA » et Bourrage OAEP</div>
+<p>Le RSA élémentaire (sans bourrage, dit <em>Textbook RSA</em>) est déterministe et malléable : chiffrer deux fois le même message produit le même chiffré, et $C_1 \cdot C_2 \equiv (M_1 \cdot M_2)^e \pmod n$. En production, RSA doit impérativement être combiné à un schéma de bourrage probabiliste standardisé : <strong>RSA-OAEP (Optimal Asymmetric Encryption Padding)</strong> défini dans la RFC 8017 (PKCS#1 v2.2).</p>
+  </div>
+
+<h2>4. Cryptographie sur les Courbes Elliptiques (ECC)</h2>
+
+<p>La cryptographie sur les courbes elliptiques (ECC - <em>Elliptic Curve Cryptography</em>) offre une alternative moderne à RSA en fondant sa sécurité sur le problème du logarithme discret sur des groupes de points de courbes algébriques (ECDLP) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Équation de Weierstrass et Addition de Points</h4>
+    <p>Sur un corps fini $\mathbb{F}_p$, une courbe elliptique vérifie :</p>
+    <pre><code>y^2 = x^3 + a*x + b   (mod p)   avec 4*a^3 + 27*b^2 != 0</code></pre>
+    <p>L'ensemble des points de la courbe, muni d'un point à l'infini $\mathcal{O}$, forme un groupe abélien. La multiplication scalaire $Q = d \cdot P$ (additionner un point $P$ sur lui-même $d$ fois) est facile à calculer, mais retrouver le scalaire $d$ connaissant $P$ et $Q$ est d'une complexité exponentielle.</p>
+  </div>
+  <div class="card">
+    <h4>Comparaison des Tailles de Clés RSA vs ECC</h4>
+    <p>ECC offre le même niveau de sécurité que RSA avec des clés infiniment plus compactes, réduisant drastiquement la consommation CPU et la bande passante réseau :</p>
+    <table class="table-sm">
+      <thead><tr><th>Sécurité équivalente</th><th>Taille clé RSA</th><th>Taille clé ECC</th></tr></thead>
+      <tbody>
+        <tr><td>80 bits (obsolète)</td><td>1024 bits</td><td>160 bits</td></tr>
+        <tr><td>112 bits</td><td>2048 bits</td><td>224 bits</td></tr>
+        <tr><td><strong>128 bits (standard)</strong></td><td><strong>3072 bits</strong></td><td><strong>256 bits (P-256 / Ed25519)</strong></td></tr>
+        <tr><td>256 bits (haute sécurité)</td><td>15360 bits</td><td>512 bits (P-521)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cr3-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="EUCLID a=252 b=105">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c4-e1) — Algorithme d'Euclide Étendu et Inverse Modulaire
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Calcul inverse modulaire valide]
+# Données : MODINV a=17 m=3120
+A_COMPLETER
+
+[Cas 2 — Rejet entier non inversible car pgcd != 1]
+# Données : MODINV a=6 m=15
+A_COMPLETER
+
+[Cas 3 — Euclide étendu sur deux nombres premiers]
+# Données : EUCLID a=61 b=53
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Algorithme d'Euclide Étendu et Inverse Modulaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter l'algorithme d'Euclide étendu, calculer les coefficients de Bézout (u, v) et déterminer l'inverse modulaire d'un entier.</p>
+    <div class="lab__brief"><p>Pour deux entiers <code>a</code> et <code>b</code>, le théorème de Bézout garantit :<br>
+<code>a * u + b * v = pgcd(a, b)</code>.<br>
+Si <code>pgcd(a, m) == 1</code>, l'inverse modulaire <code>inv = a^(-1) mod m</code> existe et vérifie <code>(a * inv) mod m == 1</code>.<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>EUCLID a=&lt;a&gt; b=&lt;b&gt;</code> :<br>
+   <code>EUCLID: a=&lt;a&gt; b=&lt;b&gt; gcd=&lt;g&gt; u=&lt;u&gt; v=&lt;v&gt;</code><br>
+2. <code>MODINV a=&lt;a&gt; m=&lt;m&gt;</code> :<br>
+   - Si <code>pgcd(a, m) != 1</code> : <code>ERROR: NO_MODULAR_INVERSE (gcd!=1)</code><br>
+   - Sinon : <code>MODINV: a=&lt;a&gt; m=&lt;m&gt; inv=&lt;inv&gt; check=(a*inv)%m=1</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EUCLID a=252 b=105</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EUCLID: a=252 b=105 gcd=21 u=-2 v=5</pre></div>
+    </div>
+    <p class="lab__note">PGCD(252, 105) = 21 avec relation 252 * (-2) + 105 * 5 = 21.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Implémentez la récursion d Euclide étendu : si b == 0 retourner (a, 1, 0) sinon (g, u1, v1) = ext(b, a%b) et retourner (g, v1, u1 - (a//b)*v1).</li>
+        <li>Normalisez l inverse modulaire avec inv = u % m.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="DH EXCHANGE p=23 g=5 a=6 b=15">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c4-e2) — Simulateur du Protocole d'Échange de Clés Diffie-Hellman
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Diffie-Hellman avec modulus supérieur]
+# Données : DH EXCHANGE p=997 g=7 a=123 b=456
+A_COMPLETER
+
+[Cas 2 — Simulation attaque de l homme du milieu sans certificat]
+# Données : DH MITM p=23 g=5 a=6 b=15 m_a=3 m_b=4
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur du Protocole d'Échange de Clés Diffie-Hellman</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'échange de clés Diffie-Hellman et démontrer la vulnérabilité à l'attaque de l'homme du milieu (MITM) en l'absence d'authentification.</p>
+    <div class="lab__brief"><p>Diffie-Hellman permet d'établir un secret commun à travers un canal public sans transmettre le secret :<br>
+- Clés publiques : <code>A = (g^a) mod p</code> et <code>B = (g^b) mod p</code>.<br>
+- Secrets partagés : <code>S_A = (B^a) mod p</code> et <code>S_B = (A^b) mod p</code> (avec <code>S_A == S_B</code>).<br>
+En attaque Man-in-the-Middle (Mallory avec clés <code>m_a</code> et <code>m_b</code>) :<br>
+- Mallory intercepte et substitue ses propres clés publiques, négociant deux secrets distincts <code>S_{AM}</code> et <code>S_{BM}</code>.<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>DH EXCHANGE p=&lt;p&gt; g=&lt;g&gt; a=&lt;a&gt; b=&lt;b&gt;</code> :<br>
+   <code>DH: p=&lt;p&gt; g=&lt;g&gt; pub_alice=&lt;A&gt; pub_bob=&lt;B&gt; shared_secret=&lt;S&gt;</code><br>
+2. <code>DH MITM p=&lt;p&gt; g=&lt;g&gt; a=&lt;a&gt; b=&lt;b&gt; m_a=&lt;ma&gt; m_b=&lt;mb&gt;</code> :<br>
+   <code>MITM: secret_alice_mallory=&lt;S_AM&gt; secret_bob_mallory=&lt;S_BM&gt; status=COMPROMISED</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DH EXCHANGE p=23 g=5 a=6 b=15</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DH: p=23 g=5 pub_alice=8 pub_bob=19 shared_secret=2</pre></div>
+    </div>
+    <p class="lab__note">Alice et Bob dérivent le même secret partagé 2 sur un canal non sécurisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilisez la fonction intégrée pow(base, exp, mod) pour une exponentiation modulaire rapide et exacte.</li>
+        <li>Pour le MITM, Alice calcule pow(M_A, a, p) et Bob calcule pow(M_B, b, p).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RSA KEYGEN p=61 q=53 e=17">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c4-e3) — Moteur Cryptographique RSA (Génération de Clés, Chiffrement et Déchiffrement)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Chiffrement RSA caractère par caractère]
+# Données : RSA ENC n=3233 e=17 text=CRYPTO
+A_COMPLETER
+
+[Cas 2 — Déchiffrement RSA avec exposant privé]
+# Données : RSA DEC n=3233 d=2753 cipher=641,1859,99,2933,2159,1307
+A_COMPLETER
+
+[Cas 3 — Rejet exposant public non premier avec phi]
+# Données : RSA KEYGEN p=61 q=53 e=16
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur Cryptographique RSA (Génération de Clés, Chiffrement et Déchiffrement)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter le cryptosystème asymétrique RSA (génération de clés, chiffrement et déchiffrement).</p>
+    <div class="lab__brief"><p>Algorithme RSA :<br>
+- <code>n = p * q</code>, <code>phi = (p - 1) * (q - 1)</code>.<br>
+- Clé publique : <code>(e, n)</code> avec <code>pgcd(e, phi) == 1</code>.<br>
+- Clé privée : <code>d = pow(e, -1, phi)</code>.<br>
+- Chiffrement : pour chaque caractère, <code>c = pow(ord(ch), e, n)</code>.<br>
+- Déchiffrement : <code>m = pow(c, d, n)</code> puis <code>chr(m)</code>.<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>RSA KEYGEN p=&lt;p&gt; q=&lt;q&gt; e=&lt;e&gt;</code> : produit <code>RSA_KEYGEN: n=&lt;n&gt; phi=&lt;phi&gt; e=&lt;e&gt; d=&lt;d&gt;</code> (ou <code>ERROR: gcd(e,phi)!=1</code>).<br>
+2. <code>RSA ENC n=&lt;n&gt; e=&lt;e&gt; text=&lt;texte&gt;</code> : produit <code>RSA_ENC: cipher=&lt;c0,c1,...&gt;</code>.<br>
+3. <code>RSA DEC n=&lt;n&gt; d=&lt;d&gt; cipher=&lt;c0,c1,...&gt;</code> : produit <code>RSA_DEC: text=&lt;texte&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RSA KEYGEN p=61 q=53 e=17</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RSA_KEYGEN: n=3233 phi=3120 e=17 d=2753</pre></div>
+    </div>
+    <p class="lab__note">Bi-clé RSA standard avec n=3233, e=17 et d=2753.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculez phi = (p - 1) * (q - 1) et testez math.gcd(e, phi) == 1 avant d inverser avec pow(e, -1, phi).</li>
+        <li>Pour le chiffrement de texte, appliquez pow(ord(ch), e, n) et pour le déchiffrement chr(pow(c, d, n)).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Sous quelle condition mathématique l'inverse modulaire d'un entier 'a' modulo 'm' existe-t-il ?</p>
+      <div class="opts">
+        <button class="opt">a doit être strictement supérieur à m</button>
+        <button class="opt">a et m doivent être tous les deux pairs</button>
+        <button class="opt" data-correct="1">pgcd(a, m) doit être égal à 1 (a et m premiers entre eux)</button>
+        <button class="opt">m doit être un nombre premier</button>
+      </div>
+      <div class="q__exp">D'après le théorème de Bézout, a admet un inverse modulaire modulo m si et seulement si pgcd(a, m) = 1, ce qui assure l'existence de coefficients vérifiant a*u + m*v = 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel problème mathématique assure la sécurité du protocole d'échange de clés de Diffie-Hellman ?</p>
+      <div class="opts">
+        <button class="opt">La factorisation de grands entiers</button>
+        <button class="opt">Le problème du sac à dos</button>
+        <button class="opt" data-correct="1">Le problème du logarithme discret (DLP)</button>
+        <button class="opt">La recherche de collision MD5</button>
+      </div>
+      <div class="q__exp">Diffie-Hellman repose sur la difficulté calculatoire du problème du logarithme discret : étant donnés g, p et g^x mod p, il est extrêmement difficile de retrouver x.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l'algorithme RSA, comment calcule-t-on l'exposant privé 'd' connaissant 'e', 'p' et 'q' ?</p>
+      <div class="opts">
+        <button class="opt">d = (p * q) mod e</button>
+        <button class="opt" data-correct="1">d est l'inverse modulaire de e modulo phi(n) = (p - 1)(q - 1)</button>
+        <button class="opt">d = e^(p - 1) mod q</button>
+        <button class="opt">d = pgcd(e, p - 1)</button>
+      </div>
+      <div class="q__exp">Par définition de RSA, d est l'inverse de l'exposant public e modulo l'indicatrice d'Euler phi(n) = (p - 1)(q - 1), vérifiant e * d = 1 mod phi(n).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle taille de clé pour une courbe elliptique (ECC) offre un niveau de sécurité équivalent à une clé RSA de 3072 bits ?</p>
+      <div class="opts">
+        <button class="opt">128 bits</button>
+        <button class="opt" data-correct="1">256 bits (ex: secp256k1 ou Curve25519)</button>
+        <button class="opt">1024 bits</button>
+        <button class="opt">2048 bits</button>
+      </div>
+      <div class="q__exp">Une clé ECC de 256 bits procure un niveau de sécurité d'environ 128 bits symétriques, équivalent à une clé RSA de 3072 bits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l'utilisation de Textbook RSA (RSA sans bourrage) est-elle proscrite en production ?</p>
+      <div class="opts">
+        <button class="opt">Elle ne fonctionne pas avec Python</button>
+        <button class="opt" data-correct="1">Elle est déterministe et malléable, nécessitant un padding probabiliste comme OAEP</button>
+        <button class="opt">Elle ne permet pas de chiffrer des entiers supérieurs à 10</button>
+        <button class="opt">Elle ralentit les cartes réseau</button>
+      </div>
+      <div class="q__exp">Textbook RSA est strictement déterministe (un même clair donne toujours le même chiffré) et homomorphe multiplicatif, ce qui permet à un attaquant de manipuler le message sans le déchiffrer. Le standard RSA-OAEP élimine ces failles.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter d'inverser un entier a modulo m sans vérifier que pgcd(a, m) == 1, provoquant une division par zéro ou un comportement imprévisible.</li>
+      <li>Déployer un échange de clés Diffie-Hellman sans certificat ni signature, permettant à un pirate de réaliser une attaque Man-in-the-Middle complète.</li>
+      <li>Utiliser le chiffrement RSA élémentaire (« Textbook RSA ») sans schéma de bourrage aléatoire OAEP en production, exposant le clair à des attaques algébriques.</li>
+      <li>Choisir des nombres premiers p et q trop proches dans RSA : la méthode de factorisation de Fermat permet alors de casser la clé en quelques secondes.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Évaluation des exigences cryptographiques : identifier si le besoin implique un échange de clés éphémère (Diffie-Hellman / ECDHE) ou un chiffrement de secret asymétrique (RSA-OAEP).</li>
+      <li>Application de l'algorithme d'Euclide étendu : exécuter la division euclidienne récursive ou itérative pour obtenir le pgcd et les coefficients de Bézout $(u, v)$ et vérifier l'inversibilité modulo $m$.</li>
+      <li>Conception et dimensionnement des paramètres RSA : sélectionner des nombres premiers $p$ et $q$ de taille conforme (au minimum 2048 bits, idéalement 3072 ou 4096 bits), imposer l'exposant de Fermat $e = 65537$ et calculer $d = e^{-1} \pmod{\varphi(n)}$.</li>
+      <li>Neutralisation des attaques de l'homme du milieu : combiner systématiquement l'échange Diffie-Hellman avec une authentification d'identité par signature numérique et certificat X.509.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L'algorithme d'Euclide étendu calcule les coefficients de Bézout $a \cdot u + b \cdot v = \text{pgcd}(a, b)$ et permet de déterminer l'inverse modulaire si $\text{pgcd}(a, m) = 1$.</li>
+      <li>L'échange de clés Diffie-Hellman permet à deux pairs de construire un secret commun sur un canal public grâce à la difficulté du logarithme discret.</li>
+      <li>Diffie-Hellman pur est vulnérable à l'attaque de l'homme du milieu (MITM) et nécessite impérativement une authentification des clés par signature ou certificat.</li>
+      <li>RSA repose sur la difficulté de la factorisation d'un grand entier $n = p \cdot q$ ; son chiffrement s'écrit $C = M^e \bmod n$ et son déchiffrement $M = C^d \bmod n$.</li>
+      <li>La cryptographie sur courbes elliptiques (ECC) atteint un niveau de sécurité identique à RSA avec des clés beaucoup plus courtes (256 bits ECC équivalent à 3072 bits RSA).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous dérouler l'algorithme d'Euclide étendu pour trouver l'inverse modulaire d'un entier ?</li>
+      <li>Comprenez-vous pourquoi l'inverse modulaire n'existe pas lorsque pgcd(a, m) != 1 ?</li>
+      <li>Pouvez-vous expliquer le déroulement de Diffie-Hellman et décrire précisément l'interception menée lors d'une attaque MITM ?</li>
+      <li>Savez-vous calculer les clés publiques et privées RSA à partir de deux nombres premiers p et q ?</li>
+      <li>Savez-vous comparer les tailles de clés et les performances entre RSA-2048 et la courbe elliptique P-256 / Curve25519 ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Algorithme d'Euclide Étendu :</strong> Algorithme arithmétique déterminant le plus grand commun diviseur de deux entiers et les coefficients de l'identité de Bézout au + bv = pgcd(a, b).</li><li><strong>Inverse Modulaire :</strong> Entier x tel que (a * x) mod m = 1, existant si et seulement si pgcd(a, m) = 1.</li><li><strong>Problème du Logarithme Discret (DLP) :</strong> Difficulté calculatoire consistant à retrouver x connaissant g, p et g^x mod p dans un groupe fini cyclique.</li><li><strong>Cryptosystème RSA :</strong> Algorithme asymétrique basé sur la difficulté de factoriser n = p * q, utilisant une paire de clés publique (e, n) et privée (d, n).</li><li><strong>Cryptographie sur Courbes Elliptiques (ECC) :</strong> Cryptographie à clé publique exploitant la loi de groupe des points d'une courbe elliptique sur corps fini, offrant des clés très courtes.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Implémentation de primitives modulaires avancées :</strong> Coder des fonctions robustes d'Euclide étendu, de calcul d'inverse et d'exponentiation rapide en Python 3.</div>
+      <div class="bandrow"><strong>Simulation et sécurisation d'échanges Diffie-Hellman :</strong> Maîtriser les scénarios de négociation de clés éphémères et mettre en œuvre les signatures numériques anti-MITM.</div>
+      <div class="bandrow"><strong>Conception d'un moteur de chiffrement RSA conforme :</strong> Programmer la chaîne complète de génération de bi-clé, de chiffrement et de déchiffrement asymétrique.</div>
+      <div class="bandrow"><strong>Sélection et dimensionnement des paramètres asymétriques :</strong> Choisir judicieusement entre RSA et courbes elliptiques (ECC) selon les contraintes de performance et de sécurité.</div>
+      <div class="bandrow"><strong>Analyse des vulnérabilités de Textbook RSA :</strong> Identifier les risques de malléabilité et intégrer les schémas de bourrage probabiliste OAEP (PKCS#1 v2.2).</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Module 5 — Signatures Numériques, PKI & Gestion des Certificats X.509 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

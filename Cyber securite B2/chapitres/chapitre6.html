@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Détection d’Intrusions (NIDS/SIEM), Analyse de Traces &amp;amp; Réponse aux Incidents | Cybersécurité B2</title>
+<meta name="description" content="Chapitre 6 du cours Cybersécurité B2 : Systèmes de détection d’intrusions NIDS/HIDS (moteur de signatures Snort/Suricata), centralisation et corrélation de journaux SIEM, typologie des dénis de service (SYN Flood, amplification UDP), ransomwares et méthodologie de réponse à incident NIST SP 800-61. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/Cyber%20securite%20B2/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Détection d’Intrusions (NIDS/SIEM), Analyse de Traces &amp;amp; Réponse aux Incidents | Cybersécurité B2">
+<meta property="og:description" content="Chapitre 6 du cours Cybersécurité B2 : Systèmes de détection d’intrusions NIDS/HIDS (moteur de signatures Snort/Suricata), centralisation et corrélation de journaux SIEM, typologie des dénis de service (SYN Flood, amplification UDP), ransomwares et méthodologie de réponse à incident NIST SP 800-61. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="Cyber securite B2nav"><div class="Cyber securite B2nav__in">
+  <a class="Cyber securite B2nav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="Cyber securite B2nav__sep" aria-hidden="true">/</span>
+  <a class="Cyber securite B2nav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B2</a>
+  <div class="Cyber securite B2nav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="Cyber securite B2nav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="Cyber securite B2wrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Détection d’Intrusions (NIDS/SIEM), Analyse de Traces &amp; Réponse aux Incidents</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>À 3 h 12 du matin, le centre de surveillance opérationnelle (SOC) reçoit une cascade d’alertes critiques : un volume anormal de requêtes sortantes vers des adresses IP suspectes et des extensions de fichiers renommées en masse avec le suffixe .locked sur le serveur de stockage principal. Un rançongiciel est en train de chiffrer les données de l’entreprise. Comment les sondes NIDS et les règles de signatures détectent-elles les flux malveillants ? Comment le SIEM corrèle-t-il les événements provenant des pare-feux, serveurs web et contrôleurs de domaine ? Quelles mesures immédiates de confinement et d’éradication l’équipe CSIRT/CERT doit-elle appliquer pour endiguer l’attaque sans détruire les preuves numériques ? Ce module étudie la veille défensive, l’analyse des traces et la gestion méthodique des crises cybernétiques.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser la structure d’une règle de détection NIDS Snort (en-tête, options content, sid, rev, threshold) ;</li>
+      <li>comprendre l’architecture d’un SIEM (collecte d’événements Syslog/EventLog, normalisation, indexation et règles de corrélation) ;</li>
+      <li>expliquer les mécanismes d’attaques DDoS (SYN Flood, amplification DNS/NTP) et les stratégies de mitigation (SYN Cookies, scrubbing) ;</li>
+      <li>décortiquer la chaîne d’infection d’un ransomware moderne (accès initial, mouvement latéral, exfiltration, chiffrement, double extorsion) ;</li>
+      <li>appliquer les 6 étapes de la méthodologie de gestion d’incidents de sécurité selon le standard NIST SP 800-61.</li>
+    </ol>
+  </div>
+
+<h2>1. Systèmes de détection d’intrusions (IDS) &amp; Moteur de règles Snort</h2>
+
+<p>Un système de détection d’intrusions surveille les activités suspectes et génère des alertes sans modifier le trafic en transit (mode passif sur port miroir SPAN ou TAP réseau). À l’inverse, un IPS (Intrusion Prevention System) est placé en coupure (in-line) et bloque activement les paquets malveillants.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">NIDS vs HIDS</h4>
+    <ul>
+      <li><strong>NIDS (Network IDS - Snort, Suricata, Zeek) :</strong> Analyse le flux réseau brut circulant sur les segments, inspecte les en-têtes TCP/IP et les charges utiles applicatives. Limite : aveugle face aux trafics chiffrés (TLS) sans déchiffrement intermédiaire.</li>
+      <li><strong>HIDS / EDR (Host IDS / Endpoint Detection &amp; Response - Wazuh, OSSEC) :</strong> Installé directement sur les hôtes, surveille les fichiers journaux, l’intégrité des fichiers système (FIM), les appels noyau et les créations suspectes de processus.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Approches de détection</h4>
+    <ul>
+      <li><strong>Détection par signatures :</strong> Compare le trafic à une base de motifs connus (chaînes d’octets, hash, regex). Très rapide et faible taux de faux positifs, mais incapable de bloquer une vulnérabilité 0-day inconnue.</li>
+      <li><strong>Détection comportementale / par anomalies :</strong> Établit une référence du trafic normal et alerte en cas d’écart statistique notable (débit inhabituel, volume de requêtes). Détecte les menaces émergentes mais génère davantage de faux positifs.</li>
+    </ul>
+  </div>
+</div>
+<h4>Syntaxe d’une règle Snort</h4>
+<p>Une règle Snort se divise en deux parties distinctes : l’en-tête (Header) et les options de la règle (Rule Options).</p>
+<div class="code-block">alert tcp $EXTERNAL_NET any -&gt; $HOME_NET 80 (msg:"ATTACK-RESPONSES /etc/passwd disclosure"; content:"root:x:0:0:"; nocase; sid:1000001; rev:1;)</div>
+<table class="table-compact">
+  <thead>
+    <tr><th>Composant</th><th>Exemple</th><th>Rôle</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Action</strong></td><td><code>alert</code>, <code>drop</code>, <code>pass</code></td><td>Action déclenchée lorsque le paquet correspond aux critères.</td></tr>
+    <tr><td><strong>Protocole</strong></td><td><code>tcp</code>, <code>udp</code>, <code>icmp</code>, <code>ip</code></td><td>Protocole de la couche réseau ou transport ciblé.</td></tr>
+    <tr><td><strong>Source / Destination</strong></td><td><code>$EXTERNAL_NET any -&gt; $HOME_NET 80</code></td><td>IP et ports source vers IP et ports destination.</td></tr>
+    <tr><td><strong>msg</strong></td><td><code>"Web Shell Detected"</code></td><td>Description textuelle de l’alerte transmise au SOC.</td></tr>
+    <tr><td><strong>content</strong></td><td><code>"cmd.exe"</code></td><td>Motif textuel ou binaire recherché dans la charge utile.</td></tr>
+    <tr><td><strong>sid</strong></td><td><code>sid:1000001</code></td><td>Identifiant unique de la règle (1 à 999999 réservés Snort, &ge; 1000000 pour les règles locales).</td></tr>
+    <tr><td><strong>rev</strong></td><td><code>rev:2</code></td><td>Numéro de révision de la règle lors des mises à jour.</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Centralisation des journaux, SIEM &amp; Détection d’attaques DDoS</h2>
+
+<p>Dans une infrastructure d’entreprise, des milliers d’équipements génèrent quotidiennement des millions de lignes de logs (pare-feux, serveurs web, annuaires Active Directory, bases de données). Sans outil unifié, la détection précoce d’une intrusion transverse est matériellement impossible.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Architecture d’un SIEM (Security Information and Event Management)</h4>
+    <ul>
+      <li><strong>Collecte &amp; Réception :</strong> Agents locaux ou flux Syslog (UDP/TCP 514, TLS 6514) et Event Forwarding (WEC).</li>
+      <li><strong>Normalisation :</strong> Traduction de formats hétérogènes vers un schéma commun (ex. Elastic Common Schema - ECS).</li>
+      <li><strong>Indexation &amp; Stockage :</strong> Base temporelle rapide (OpenSearch, Splunk, Graylog) pour les recherches à grande échelle.</li>
+      <li><strong>Moteur de corrélation :</strong> Détection de scénarios complexes reliant plusieurs événements (ex. 5 échecs de connexion SSH sur 1 minute suivis d’une réussite, puis ajout d’une clé sudoer).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Attaques par déni de service distribué (DDoS)</h4>
+    <ul>
+      <li><strong>SYN Flood (Épuisement des ressources TCP) :</strong> L’attaquant envoie une masse de paquets TCP SYN avec des IP sources usurpées (spoofées), sans jamais répondre aux SYN-ACK du serveur. La table des demi-connexions de l’OS se sature. Mitigation : <em>SYN Cookies</em>.</li>
+      <li><strong>Amplification UDP (DNS / NTP / Memcached) :</strong> L’attaquant envoie de courtes requêtes UDP vers des résolveurs ouverts avec l’IP source de la victime. Les réponses renvoyées sont 50 à 500 fois plus volumineuses que la requête, saturant la bande passante de la cible.</li>
+      <li><strong>Inondation applicative HTTP (Slowloris / HTTP Flood) :</strong> Maintien de milliers de requêtes HTTP incomplètes pour saturer les threads du serveur web.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Ransomwares, Chaîne d’Infection &amp; Gestion des Incidents (NIST SP 800-61)</h2>
+
+<p>Le rançongiciel (ransomware) est l’une des cybermenaces les plus dévastatrices pour les organisations. Les groupes criminels modernes pratiquent la <em>double extorsion</em> : exfiltration préalable des données confidentielles sous menace de publication, suivie du chiffrement intégral des disques et sauvegardes en ligne.</p>
+<div class="card">
+  <h4 class="card-title">Les 6 phases de gestion d’un incident de sécurité (NIST SP 800-61 Rev. 2)</h4>
+  <ol>
+    <li><strong>1. Préparation (Preparation) :</strong> Mise en place des outils de surveillance, politiques de sécurité, procédures de crise, sauvegardes immuables hors-ligne (règle 3-2-1) et formation des équipes de réponse (CSIRT).</li>
+    <li><strong>2. Détection &amp; Analyse (Detection &amp; Analysis) :</strong> Réception des alertes SIEM/EDR, triage, vérification des indicateurs de compromission (IoC : adresses IP, hash de fichiers, domaines C2) et qualification de la gravité.</li>
+    <li><strong>3. Confinement (Containment) :</strong> Stopper la propagation de l’attaque sans détruire les traces volatiles (isolation réseau de la machine, blocage des ports aux pare-feux, suspension temporaire de comptes compromis).</li>
+    <li><strong>4. Éradication (Eradication) :</strong> Nettoyage complet des systèmes infectés (suppression des malwares, fermeture des failles de sécurité exploitées, rotation de tous les mots de passe et clés compromises).</li>
+    <li><strong>5. Recouvrement (Recovery) :</strong> Restauration progressive des services à partir de sauvegardes certifiées saines, tests d’intégrité et surveillance renforcée du trafic post-redémarrage.</li>
+    <li><strong>6. Leçons apprises / Post-Mortem (Post-Incident Activity) :</strong> Rapport d’incident détaillant la chronologie, analyse des causes racines, évaluation de l’efficacité des réponses et mise à jour du plan de défense.</li>
+  </ol>
+</div>
+  <div class="box box--Préserver les preuves numériques (Forensics)">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Lors d’un incident grave, n’éteignez jamais brusquement une machine infectée en coupant l’alimentation secteur ! La mémoire vive (RAM) contient des données volatiles capitales (processus injectés, clés de déchiffrement résiduelles, sockets réseau actives et mots de passe en mémoire). Isolez la machine du réseau (débranchez le câble Ethernet ou désactivez le Wi-Fi) et effectuez une capture de mémoire vive (dump RAM avec LiME ou FTK Imager) avant toute investigation.</div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cs2-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="alert tcp any any -&gt; 192.168.1.10 80 (msg:&quot;Tentative acces admin&quot;; content:&quot;/admin.php&quot;; sid:10001;)&#10;tcp 10.0.0.5 45892 192.168.1.10 80 GET /admin.php HTTP/1.1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c6-e1) — Moteur de détection de signature NIDS (Format Snort simplifié)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : alert tcp any any -> 192.168.1.10 80 (msg:"Tentative acces admin"; content:"/admin.php"; sid:10001;)
+# Données : tcp 10.0.0.5 45892 192.168.1.10 80 GET /index.html HTTP/1.1
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : alert tcp any any -> 10.0.0.1 22 (msg:"Scan SSH brute"; content:"SSH-2.0"; sid:10002;)
+# Données : tcp 172.16.0.4 55000 10.0.0.1 22 SSH-2.0-OpenSSH_8.9
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : alert udp any any -> 192.168.1.1 53 (msg:"Attaque DNS malveillante"; content:"malware.xyz"; sid:10003;)
+# Données : udp 192.168.1.50 61234 192.168.1.1 53 query malware.xyz A
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : alert tcp any any -> 10.0.0.1 80 (msg:"Injection SQL url"; content:"UNION"; sid:10004;)
+# Données : udp 10.0.0.5 12345 10.0.0.1 80 UNION SELECT
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moteur de détection de signature NIDS (Format Snort simplifié)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Moteur de détection de signature NIDS (Format Snort simplifié)</p>
+    <div class="lab__brief"><p>Un NIDS (Network Intrusion Detection System) comme Snort analyse les paquets réseau en temps réel pour détecter des motifs d’attaque connus dans les en-têtes et la charge utile (payload).
+
+Entrée :
+- Ligne 1 : Règle Snort simplifiée : <code>alert proto any any -> dest_ip dest_port (msg:"&lt;msg&gt;"; content:"&lt;motif&gt;"; sid:&lt;sid&gt;;)</code>
+- Ligne 2 : Paquet capturé : <code>proto src_ip src_port dest_ip dest_port payload</code>
+
+Traitement :
+Vérifier si le paquet correspond au <code>proto</code>, à la <code>dest_ip</code>, au <code>dest_port</code> ET si le <code>content</code> recherché est présent dans le <code>payload</code>.
+
+Sortie :
+- Si alerte déclenchée : <code>[ALERT] [sid:&lt;sid&gt;] &lt;msg&gt; (source: &lt;src_ip&gt;:&lt;src_port&gt; -&gt; dest: &lt;dest_ip&gt;:&lt;dest_port&gt;)</code>
+- Sinon : <code>PAQUET NORMAL (aucun match)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>alert tcp any any -&gt; 192.168.1.10 80 (msg:"Tentative acces admin"; content:"/admin.php"; sid:10001;)
+tcp 10.0.0.5 45892 192.168.1.10 80 GET /admin.php HTTP/1.1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[ALERT] [sid:10001] Tentative acces admin (source: 10.0.0.5:45892 -&gt; dest: 192.168.1.10:80)</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une signature NIDS inspecte simultanément l’en-tête IP/port et le motif binaire ou textuel du payload.</li>
+        <li>Déclenchez l’alerte de sécurité dès que tous les prédicats de la règle de détection sont satisfaits.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="100 192.168.1.50 FAIL|110 192.168.1.50 FAIL|120 192.168.1.50 FAIL|130 192.168.1.50 FAIL|140 192.168.1.50 FAIL">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c6-e2) — Détection d’attaque par force brute dans les journaux d’événements
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : 10 10.0.0.1 FAIL|20 10.0.0.2 FAIL|30 10.0.0.1 SUCCESS|40 10.0.0.1 FAIL
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : 10 192.168.1.50 FAIL|80 192.168.1.50 FAIL|150 192.168.1.50 FAIL|220 192.168.1.50 FAIL|290 192.168.1.50 FAIL
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : 5 172.16.5.99 FAIL|10 172.16.5.99 FAIL|15 172.16.5.99 FAIL|20 172.16.5.99 FAIL|25 172.16.5.99 FAIL
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : 1 1.1.1.1 SUCCESS|2 2.2.2.2 SUCCESS
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Détection d’attaque par force brute dans les journaux d’événements</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détection d’attaque par force brute dans les journaux d’événements</p>
+    <div class="lab__brief"><p>Les outils de corrélation SIEM scrutent les journaux d’authentification pour détecter les attaques par force brute.
+
+Entrée : Liste d’événements séparés par des barres verticales <code>|</code>.
+Format de chaque événement : <code>timestamp IP STATUT</code> (ex. <code>100 192.168.1.50 FAIL</code>).
+
+Règle de détection :
+Si une même adresse IP accumule <strong>au moins 5 échecs consécutifs (FAIL)</strong> dans une fenêtre temporelle inférieure ou égale à <strong>60 secondes</strong> (c’est-à-dire $timestamp_{5e} - timestamp_{1er} \le 60$), une alerte est levée.
+
+Sortie :
+- Si détecté : <code>ALERTE BRUTE FORCE: IP &lt;IP&gt; (&lt;count&gt; echecs en &lt;delta&gt;s) -&gt; BANNISSEMENT IP</code> (afficher la première IP qui déclenche l’alerte).
+- Sinon : <code>JOURNAUX NORMAUX (&lt;total_fails&gt; echecs disperses)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>100 192.168.1.50 FAIL|110 192.168.1.50 FAIL|120 192.168.1.50 FAIL|130 192.168.1.50 FAIL|140 192.168.1.50 FAIL</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALERTE BRUTE FORCE: IP 192.168.1.50 (5 echecs en 40s) -&gt; BANNISSEMENT IP</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez la fréquence temporelle des échecs d’authentification provenant d’une même source IP.</li>
+        <li>Dépassement du seuil de tentatives infructueuses = suspicion avérée d’attaque par force brute ou dictionnaire.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855:Trojan.Downloader,ed01ebfbc9eb5bbea545af4d01bf5f1071661840480439c6e5babe8e080e41aa:Ransomware.WannaCry&#10;/usr/bin/bash:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,/tmp/updater.exe:ed01ebfbc9eb5bbea545af4d01bf5f1071661840480439c6e5babe8e080e41aa">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c6-e3) — Analyseur de compromission et corrélation d’IoC (Hashes malveillants)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : aaaa:VirusA,bbbb:WormB
+# Données : /bin/ls:1111,/bin/cat:2222
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : deadbeef:Rootkit.Zero,cafebabe:Keylogger.Spy
+# Données : /var/tmp/svchost.exe:DEADBEEF
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : 1234:Backdoor.X
+# Données : /etc/init.d/service:9999,/opt/agent:1234
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : 1111:Threat1
+# Données : /tmp/test:2222
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur de compromission et corrélation d’IoC (Hashes malveillants)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyseur de compromission et corrélation d’IoC (Hashes malveillants)</p>
+    <div class="lab__brief"><p>Les Indicateurs de Compromission (IoC) permettent d’identifier la présence de malwares connus sur un système en comparant les empreintes cryptographiques des fichiers exécutables avec une base de données de renseignement sur les menaces.
+
+Entrée :
+- Ligne 1 : Base IoC de signatures malveillantes : <code>hash:nom,hash:nom...</code>
+- Ligne 2 : Fichiers inspectés sur l’hôte : <code>chemin:hash,chemin:hash...</code>
+
+Traitement :
+Pour chaque fichier, comparer son hachage (insensible à la casse) avec la base IoC.
+Sortie :
+- Pour chaque menace trouvée (dans l’ordre de la ligne 2) : <code>MENACE DETECTEE: &lt;chemin&gt; correspond a &lt;nom_malware&gt;</code>
+- Si aucun fichier suspect : <code>SYSTEME SAIN (aucun IoC detecte)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855:Trojan.Downloader,ed01ebfbc9eb5bbea545af4d01bf5f1071661840480439c6e5babe8e080e41aa:Ransomware.WannaCry
+/usr/bin/bash:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,/tmp/updater.exe:ed01ebfbc9eb5bbea545af4d01bf5f1071661840480439c6e5babe8e080e41aa</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MENACE DETECTEE: /usr/bin/bash correspond a Trojan.Downloader
+MENACE DETECTEE: /tmp/updater.exe correspond a Ransomware.WannaCry</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un IoC (Indicateur de Compromission) fournit la preuve technique d’une infection ou intrusion sur le système.</li>
+        <li>Confrontez les empreintes collectées aux signatures connues de menaces pour qualifier la compromission.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans une règle de détection Snort, quel paramètre sert à définir l’identifiant numérique unique de la règle ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">sid (Snort ID)</button>
+        <button class="opt">rev (Revision ID)</button>
+        <button class="opt">gid (Generator ID)</button>
+        <button class="opt">classtype</button>
+      </div>
+      <div class="q__exp">L’option sid (Snort ID) définit l’identifiant unique de la règle. Les numéros &ge; 1 000 000 sont réservés pour les règles locales définies par l’administrateur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la principale différence opérationnelle entre un NIDS (ex. Snort en écoute passive) et un NIPS ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le NIDS analyse les flux en copie sans bloquer le trafic, alors que le NIPS est placé en coupure (in-line) et peut rejeter les paquets malveillants</button>
+        <button class="opt">Le NIDS déchiffre automatiquement le trafic HTTPS, contrairement au NIPS</button>
+        <button class="opt">Le NIDS ne fonctionne que sur le réseau local, alors que le NIPS ne protège que le cloud</button>
+        <button class="opt">Le NIDS remplace un pare-feu matériel, alors que le NIPS ne surveille que les emails</button>
+      </div>
+      <div class="q__exp">Le NIDS écoute passivement le trafic (via un port miroir SPAN ou un TAP) pour alerter sans impacter la latence réseau, tandis que le NIPS intercepte le trafic en coupure directe et neutralise les attaques en temps réel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment la contre-mesure « SYN Cookies » protège-t-elle un serveur contre une attaque DDoS par SYN Flood ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En encodant les informations de connexion dans le numéro de séquence initial TCP (ISN) sans allouer de mémoire noyau tant que le ACK final n’est pas reçu</button>
+        <button class="opt">En bloquant automatiquement toutes les adresses IP d’origine asiatique ou américaine</button>
+        <button class="opt">En forçant le client à utiliser un cookie HTTP avant d’autoriser la négociation TCP</button>
+        <button class="opt">En augmentant la taille de la mémoire vive allouée au pare-feu d’entreprise</button>
+      </div>
+      <div class="q__exp">Les SYN Cookies évitent la saturation de la table des demi-connexions : le serveur calcule un ISN cryptographique contenant les paramètres de la connexion. La structure mémoire n’est allouée que si le client renvoie un paquet ACK valide contenant ce cookie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le cycle de gestion des incidents NIST SP 800-61, quelle est la priorité immédiate lors de la phase de « Confinement » (Containment) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Limiter la propagation de l’attaque à d’autres machines du système d’information sans altérer les preuves numériques volatiles</button>
+        <button class="opt">Réinstaller immédiatement le système d’exploitation de la machine infectée à neuf</button>
+        <button class="opt">Rédiger le rapport de leçons apprises pour la direction générale</button>
+        <button class="opt">Contacter les attaquants pour négocier le montant de la rançon</button>
+      </div>
+      <div class="q__exp">Le confinement vise à circonscrire l’incident (ex. isolement réseau d’une machine ou coupure d’un VLAN) pour empêcher la contamination latérale, tout en préservant l’état mémoire pour l’analyse médico-légale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle caractéristique distingue une attaque DDoS par amplification DNS d’une inondation classique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’attaquant usurpe l’adresse IP de la victime dans des requêtes UDP vers des serveurs récursifs ouverts qui renvoient des réponses beaucoup plus massives à la cible</button>
+        <button class="opt">L’attaquant prend le contrôle physique du routeur frontière de la victime</button>
+        <button class="opt">Le trafic est entièrement encapsulé dans un tunnel SSH sécurisé</button>
+        <button class="opt">L’attaque s’arrête automatiquement dès que la victime redémarre son serveur DNS</button>
+      </div>
+      <div class="q__exp">L’amplification UDP tire parti de l’absence de connexion en UDP : en forgeant l’IP source (spoofing) et en envoyant des requêtes provoquant de très grosses réponses DNS, le volume de trafic reçu par la victime est multiplié par un facteur de 50 à 70.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Éteindre ou débrancher électriquement un serveur infecté au lieu de l’isoler logiquement du réseau, ce qui détruit irrémédiablement la mémoire vive (RAM) et les preuves d’injection de code.</li>
+      <li>Penser qu’un NIDS sans déchiffrement SSL/TLS peut inspecter le contenu des charges utiles applicatives chiffrées en HTTPS.</li>
+      <li>Créer des règles de détection Snort trop permissives (ex. content:"GET") qui inondent la console SOC de faux positifs inexploitables.</li>
+      <li>Restaurez des sauvegardes après une attaque de ransomware sans avoir identifié et colmaté au préalable la faille d’accès initial.</li>
+      <li>Négliger la phase post-mortem (leçons apprises), garantissant que la même faille sera exploitée à nouveau quelques semaines plus tard.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole opérationnel en 4 étapes de gestion d’un incident de sécurité critique</div>
+    <ol>
+      <li>Qualifier et catégoriser l’alerte : corréler les logs SIEM, valider les IoC (adresses IP d’attaquants, hash de malwares, signatures Snort) et mesurer le niveau de sévérité.</li>
+      <li>Isoler immédiatement les hôtes compromis : déconnexion physique ou logique du réseau (isolement EDR) pour stopper la dissémination latérale sans couper le système.</li>
+      <li>Acquérir les artefacts médico-légaux (forensics) : dump de la mémoire RAM volatile, capture des journaux de connexion et création d’une image disque bit-à-bit.</li>
+      <li>Éradiquer la menace et restaurer les services : fermeture des vecteurs d’intrusion, réinitialisation de tous les secrets d’authentification et remise en production progressive.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les NIDS (Snort, Suricata) analysent passivement le trafic réseau par signatures d’octets et règles d’en-tête (action, protocoles, content, sid).</li>
+      <li>Un SIEM agrège et normalise les logs d’équipements variés pour corréler des scénarios d’attaques avancés.</li>
+      <li>Les attaques DDoS exploitent l’épuisement des états (SYN flood contré par SYN Cookies) ou l’asymétrie de protocoles sans état (amplification UDP).</li>
+      <li>La chaîne d’attaque par ransomware associe intrusion initiale, élévation de privilèges, propagation latérale, double extorsion et chiffrement destructeur.</li>
+      <li>Le référentiel NIST SP 800-61 structure la réponse à incident en 6 phases : Préparation, Détection, Confinement, Éradication, Recouvrement et Leçons apprises.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais la syntaxe et les champs obligatoires d’une règle de détection Snort (action, protocole, en-tête, options, sid).</li>
+      <li>Je sais distinguer le rôle d’un NIDS passif de celui d’un NIPS actif.</li>
+      <li>Je comprends l’intérêt des SYN Cookies face à une attaque par déni de service SYN Flood.</li>
+      <li>Je sais expliquer le principe d’une attaque DDoS par réflexion et amplification UDP.</li>
+      <li>Je maîtrise l’ordre des 6 phases du cycle de réponse à incident NIST SP 800-61.</li>
+      <li>Je sais pourquoi il ne faut jamais éteindre un serveur compromis avant d’avoir extrait la RAM.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>NIDS (Network Intrusion Detection System)</li><li>Règles et signatures Snort (sid, rev, content)</li><li>SIEM et corrélation de journaux de sécurité</li><li>Attaques DDoS SYN Flood et SYN Cookies</li><li>Amplification et réflexion UDP (DNS, NTP)</li><li>Ransomwares et modèle de double extorsion</li><li>Méthodologie NIST SP 800-61</li><li>Forensics numérique et acquisition de mémoire RAM</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les bases des signatures NIDS Snort et les étapes du cycle NIST.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Consolide tes acquis sur la corrélation SIEM et les techniques de mitigation DDoS.</div>
+      <div class="bandrow bandrow--good">70–89 % — Très bon niveau : tu maîtrises les principes de détection et la réaction aux incidents cyber.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise d’expert : tu es prêt pour auditer et défendre des architectures complexes en B2 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Cybersécurité B2, les guides de l’ANSSI, les référentiels du NIST (SP 800-61), de l’OWASP et les documentations Snort et Nmap.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

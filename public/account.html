@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon compte — Cours Interactifs</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+  <style>
+    :root {
+      --bg-deep: #f5f3f1;
+      --bg-surface: #ffffff;
+      --text-primary: #141414;
+      --text-secondary: #57534e;
+      --border-oat: #e4e4e4;
+      --radius: 18px;
+      --radius-sm: 12px;
+      --green: #29cc57;
+      --green-dark: #22a94c;
+      --on-green: #14320f;
+      --blue: #3556d9;
+      --gold: #c69c1e;
+      --tr: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --font: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-oat);
+      border-radius: var(--radius);
+      padding: 40px 38px 34px;
+      max-width: 560px; width: 100%;
+      box-shadow: 0 8px 30px rgba(28, 25, 23, 0.06), 0 1px 3px rgba(28, 25, 23, 0.04);
+    }
+    .state { display: none; }
+    .state.is-visible { display: block; }
+    /* Icône en flux, sans pavé : évite la vignette générique au-dessus du titre. */
+    .logo { margin: 0 auto 12px; color: var(--blue, #456dff); display: flex; justify-content: center; }
+    .logo svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+    h1 { font-size: 1.3rem; text-align: center; margin-bottom: 6px; }
+    .subtitle { color: var(--text-secondary); font-size: 0.88rem; text-align: center; margin-bottom: 24px; line-height: 1.6; }
+    .rows { background: var(--bg-deep); border: 1px solid var(--border-oat); border-radius: var(--radius-sm); padding: 6px 0; margin-bottom: 18px; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 10px 16px; font-size: 0.85rem; }
+    .row + .row { border-top: 1px solid var(--border-oat); }
+    .row .k { color: var(--text-secondary); flex-shrink: 0; }
+    .row .v { font-weight: 700; text-align: right; word-break: break-word; }
+    .row .v.is-gold { color: var(--gold); }
+    .row .v.is-green { color: #047857; }
+    .row .v.is-red { color: #B91C1C; }
+    .btn {
+      width: 100%; min-height: 48px; padding: 14px; font-size: 0.95rem; font-weight: 800;
+      font-family: var(--font); border: none; border-radius: 60px; cursor: pointer;
+      color: var(--on-green); background: var(--green); box-shadow: var(--green-dark) 0 4px 0 0;
+      transition: transform var(--tr), box-shadow var(--tr);
+      text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn:hover { transform: translateY(2px); box-shadow: var(--green-dark) 0 2px 0 0; }
+    .btn:active { transform: translateY(4px); box-shadow: none; }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn.is-white {
+      background: #ffffff; color: var(--text-primary);
+      box-shadow: #e4e4e4 0 4px 0 0; border: 1px solid var(--border-oat);
+    }
+    .btn.is-white:hover { box-shadow: #e4e4e4 0 2px 0 0; }
+    .btn + .btn { margin-top: 10px; }
+    .msg { display: none; padding: 12px 14px; border-radius: var(--radius-sm); font-size: 0.84rem; margin-bottom: 16px; line-height: 1.5; }
+    .msg.is-visible { display: block; }
+    .msg-error { background: #FEE2E2; border: 1px solid #fecaca; color: #B91C1C; }
+    .msg-success { background: #D1FAE5; border: 1px solid #a7f3d0; color: #047857; }
+    .hint { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.6; margin-top: 14px; text-align: center; }
+    /* ── Switcher de cours ── */
+    .switcher { margin: 26px 0 4px; padding-top: 20px; border-top: 1px solid var(--border-oat); }
+    .switcher h2 { font-size: 1rem; text-align: left; margin-bottom: 4px; }
+    .sw-sub { font-size: 0.76rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+    .sw-level { margin-bottom: 16px; }
+    .sw-level-head { display: flex; align-items: center; gap: 8px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 8px; }
+    .sw-level-head .badge { background: var(--bg-deep); border: 1px solid var(--border-oat); border-radius: 999px; padding: 1px 8px; font-size: 0.62rem; }
+    .sw-level.is-locked .sw-level-head { opacity: 0.65; }
+    .sw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .sw-course { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border: 1px solid var(--border-oat); border-radius: 11px; text-decoration: none; color: var(--text-primary); font-size: 0.78rem; line-height: 1.25; background: var(--bg-surface); transition: all var(--tr); }
+    .sw-course:hover { border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(28, 25, 23, 0.06); }
+    .sw-course .ic { width: 1rem; height: 1rem; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+    .sw-course.is-locked { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    .sw-course .ic--lock { margin-left: auto; }
+    .back-link {
+      display: flex; align-items: center; gap: 6px; justify-content: center;
+      margin-top: 22px; color: var(--text-secondary); font-size: 0.84rem; font-weight: 500;
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--text-primary); }
+    .back-link .ic, .link-btn .ic { width: 1rem; height: 1rem; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid rgba(20, 50, 15, 0.25); border-top-color: var(--on-green);
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <main class="card" id="main-content">
+    <!-- ===== Chargement ===== -->
+    <div class="state is-visible" id="stateLoading">
+      <div class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-graduation"></use></svg></div>
+      <h1>Mon compte</h1>
+      <p class="subtitle">Chargement…</p>
+    </div>
+
+    <!-- ===== Non connecté ===== -->
+    <div class="state" id="stateAnon">
+      <div class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg></div>
+      <h1>Connexion requise</h1>
+      <p class="subtitle">Connecte-toi pour gérer ton compte et ton abonnement.</p>
+      <a class="btn" id="anonLoginBtn" href="/_auth/login.html">Se connecter</a>
+      <a class="btn is-white" id="anonRegisterBtn" href="/_auth/login.html?mode=register">Créer un compte</a>
+      <a href="/" class="back-link"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg>Retour à l'accueil</a>
+    </div>
+
+    <!-- ===== Compte connecté ===== -->
+    <div class="state" id="stateAccount">
+      <div class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-graduation"></use></svg></div>
+      <h1>Mon compte</h1>
+      <p class="subtitle" id="accountEmail"></p>
+
+      <div class="rows">
+        <div class="row">
+          <span class="k">Niveau</span>
+          <span class="v" id="levelStatus">—</span>
+        </div>
+        <div class="row">
+          <span class="k">Abonnement</span>
+          <span class="v" id="subStatus">—</span>
+        </div>
+        <div class="row" id="subExpiryRow">
+          <span class="k">Valide jusqu'au</span>
+          <span class="v" id="subExpiry">—</span>
+        </div>
+        <div class="row">
+          <span class="k">Appareil actuel</span>
+          <span class="v" id="deviceInfo">—</span>
+        </div>
+      </div>
+
+      <div id="payMsg" class="msg" role="alert"></div>
+
+      <!-- Paywall : abonnement requis -->
+      <div id="payBlock">
+        <button class="btn" id="subscribeBtn">S'abonner — 1 000 F / mois</button>
+        <p class="hint">Paiement sécurisé FedaPay — Mobile Money ou carte.<br>Renouvellement en un clic, sans engagement.</p>
+      </div>
+
+      <!-- Abonné : gestion -->
+      <div id="manageBlock" style="display:none;">
+        <button class="btn" id="renewBtn">Renouveler — +1 mois (1 000 F)</button>
+        <p class="hint">Le renouvellement s'ajoute après ta date d'échéance actuelle.</p>
+      </div>
+
+      <section class="switcher" id="switcher">
+        <h2>Mes cours</h2>
+        <p class="sw-sub" id="switcherSub">Chargement du catalogue…</p>
+        <div id="switcherLevels"></div>
+      </section>
+
+      <button class="btn is-white" id="logoutBtn" style="margin-top:18px;">Se déconnecter</button>
+      <a href="/" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Retour à l'accueil
+      </a>
+    </div>
+  </main>
+
+  <script src="/_auth/js/fingerprint.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var urlParams = new URLSearchParams(window.location.search);
+      var redirect = urlParams.get('redirect') || '/';
+      var payRequired = urlParams.get('payment') === 'required';
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[<>&"']/g, '');
+      }
+
+      function showState(name) {
+        var ids = ['stateLoading', 'stateAnon', 'stateAccount'];
+        ids.forEach(function (id) {
+          document.getElementById(id).classList.toggle('is-visible', id === name);
+        });
+      }
+
+      function showMsg(text, isError) {
+        var el = document.getElementById('payMsg');
+        if (!text) { el.classList.remove('is-visible'); return; }
+        el.textContent = text;
+        el.classList.remove('msg-error', 'msg-success');
+        el.classList.add('is-visible', isError ? 'msg-error' : 'msg-success');
+      }
+
+      function fmtDate(iso) {
+        if (!iso) return '—';
+        try {
+          return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch (e) { return '—'; }
+      }
+
+      function fmtAmount(n) {
+        return new Intl.NumberFormat('fr-FR').format(n) + ' F';
+      }
+
+      var subscribed = false;
+      var payEnabled = false;
+      var payAmount = 1000;
+
+      // ── Étape 1 : qui suis-je ?
+      fetch('/api/verify', { credentials: 'include' })
+        .then(function (r) { return r.json(); })
+        .then(function (verify) {
+          if (!verify.authenticated) {
+            showState('stateAnon');
+            return null;
+          }
+          return fetch('/api/me', { credentials: 'include' })
+            .then(function (r) { return r.json(); })
+            .then(function (me) {
+              renderAccount(me);
+              // Étape 2 : le paiement en ligne est-il actif ?
+              return fetch('/api/fedapay/config')
+                .then(function (r) { return r.json(); })
+                .then(function (cfg) {
+                  payEnabled = !!cfg.enabled;
+                  payAmount = cfg.amount || 1000;
+                  updatePayBlocks();
+                  if (payRequired) {
+                    showMsg("L'abonnement est requis pour accéder à ce contenu. Choisis ton mode de paiement ci-dessus.", true);
+                  }
+                })
+                .catch(function () { updatePayBlocks(); });
+            });
+        })
+        .catch(function () { showState('stateAnon'); });
+
+      var LEVEL_LABELS = { b1: 'Licence 1 (B1)', b2: 'Licence 2 (B2)', b3: 'Licence 3 (B3)' };
+
+      // Icône SVG du sprite partagé (aucun emoji).
+      function icon(name, extra) {
+        return '<svg class="ic' + (extra ? ' ' + extra : '') + '" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-' +
+          String(name || 'book').replace(/[^a-z-]/g, '') + '"></use></svg>';
+      }
+
+      function renderAccount(me) {
+        document.getElementById('accountEmail').textContent = esc(me.account && me.account.email) || '';
+        var statusEl = document.getElementById('subStatus');
+        var expiryRow = document.getElementById('subExpiryRow');
+        var expiryEl = document.getElementById('subExpiry');
+        var deviceEl = document.getElementById('deviceInfo');
+        var levelEl = document.getElementById('levelStatus');
+
+        var lvl = (me.account && me.account.level) || 'b2';
+        levelEl.textContent = LEVEL_LABELS[lvl] || lvl;
+
+        subscribed = !!me.subscribed;
+        if (subscribed) {
+          statusEl.textContent = 'Actif';
+          statusEl.className = 'v is-green';
+          expiryRow.style.display = 'flex';
+          expiryEl.textContent = fmtDate(me.subscriptionExpiresAt);
+          expiryEl.className = 'v is-gold';
+        } else {
+          statusEl.textContent = 'Gratuit';
+          statusEl.className = 'v';
+          expiryRow.style.display = 'none';
+        }
+        deviceEl.textContent = me.device && me.device.since
+          ? 'connecté depuis le ' + fmtDate(me.device.since)
+          : '—';
+        showState('stateAccount');
+        loadCatalogue();
+      }
+
+      // ── Switcher de cours : catalogue filtré par le niveau du compte
+      function loadCatalogue() {
+        var host = document.getElementById('switcherLevels');
+        var sub = document.getElementById('switcherSub');
+        fetch('/api/courses', { credentials: 'include' })
+          .then(function (r) { return r.json(); })
+          .then(function (cat) {
+            if (!cat || !cat.levels) { sub.textContent = 'Catalogue indisponible.'; return; }
+            sub.textContent = 'Niveau ' + String(cat.level).toUpperCase() + ' — ' +
+              cat.total + ' cours débloqués. Les niveaux supérieurs sont verrouillés.';
+            host.innerHTML = '';
+            cat.levels.forEach(function (lv) {
+              if (!lv.courses || !lv.courses.length) return;
+              var sec = document.createElement('div');
+              sec.className = 'sw-level' + (lv.accessible ? '' : ' is-locked');
+              var head = document.createElement('div');
+              head.className = 'sw-level-head';
+              head.innerHTML = esc(lv.label) + ' <span class="badge">' + lv.courses.length +
+                (lv.accessible ? ' dispo' : ' verrouillé') + '</span>';
+              sec.appendChild(head);
+              var grid = document.createElement('div');
+              grid.className = 'sw-grid';
+              lv.courses.forEach(function (c) {
+                var a = document.createElement('a');
+                a.className = 'sw-course' + (c.locked ? ' is-locked' : '');
+                a.href = '/' + c.id + '/index.html';
+                a.innerHTML = icon(c.icon) + '<span>' + esc(c.name) + '</span>' +
+                  (c.locked ? icon('lock', 'ic--lock') : '');
+                grid.appendChild(a);
+              });
+              sec.appendChild(grid);
+              host.appendChild(sec);
+            });
+          })
+          .catch(function () { sub.textContent = 'Catalogue indisponible.'; });
+      }
+
+      function updatePayBlocks() {
+        var payBlock = document.getElementById('payBlock');
+        var manageBlock = document.getElementById('manageBlock');
+        var subscribeBtn = document.getElementById('subscribeBtn');
+        var renewBtn = document.getElementById('renewBtn');
+
+        if (subscribed) {
+          payBlock.style.display = 'none';
+          manageBlock.style.display = 'block';
+          renewBtn.textContent = 'Renouveler — +1 mois (' + fmtAmount(payAmount) + ')';
+        } else {
+          manageBlock.style.display = 'none';
+          payBlock.style.display = 'block';
+          subscribeBtn.textContent = "S'abonner — " + fmtAmount(payAmount) + ' / mois';
+          if (!payEnabled) {
+            subscribeBtn.disabled = true;
+            showMsg('Paiement en ligne bientôt disponible. Contacte Donald pour activer ton abonnement.', true);
+          }
+        }
+      }
+
+      // ── Lancer un paiement (abonnement ou renouvellement)
+      function startCheckout() {
+        var btn = subscribed ? document.getElementById('renewBtn') : document.getElementById('subscribeBtn');
+        btn.disabled = true;
+        showMsg('Création du paiement…', false);
+        fetch('/api/fedapay/checkout', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ months: 1 })
+        })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (res.ok && res.d.success && res.d.url) {
+              window.location.href = res.d.url;
+            } else {
+              showMsg(esc(res.d.message) || 'Paiement indisponible. Réessaie.', true);
+              btn.disabled = false;
+            }
+          })
+          .catch(function () {
+            showMsg('Erreur réseau. Réessaie.', true);
+            btn.disabled = false;
+          });
+      }
+      document.getElementById('subscribeBtn').addEventListener('click', startCheckout);
+      document.getElementById('renewBtn').addEventListener('click', startCheckout);
+
+      // ── Déconnexion
+      document.getElementById('logoutBtn').addEventListener('click', function () {
+        fetch('/api/logout', { method: 'POST', credentials: 'include' })
+          .then(function () { window.location.href = '/'; });
+      });
+
+      // ── Retour de paiement FedaPay
+      if (urlParams.get('payment') === 'return') {
+        var txId = urlParams.get('id') || urlParams.get('txId') || '';
+        showMsg('Vérification du statut de votre paiement auprès de l\'opérateur…', false);
+
+        fetch('/api/fedapay/check-status' + (txId ? '?txId=' + encodeURIComponent(txId) : ''), { credentials: 'include' })
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (res && (res.subscribed || res.status === 'approved')) {
+              showMsg('Paiement confirmé ! Votre abonnement est désormais actif.', false);
+              fetch('/api/me', { credentials: 'include' })
+                .then(function (r) { return r.json(); })
+                .then(renderAccount);
+            } else if (res && res.status === 'canceled') {
+              showMsg('Paiement annulé. Aucun montant n\'a été débité.', true);
+            } else if (res && (res.status === 'declined' || res.status === 'failed')) {
+              showMsg('Le paiement a échoué ou a été refusé. Aucun montant n\'a été débité.', true);
+            } else if (res && res.status === 'pending') {
+              showMsg('Paiement en attente de confirmation par votre opérateur. Si vous venez de valider sur votre téléphone, rechargez dans quelques secondes.', false);
+            } else {
+              showMsg('Aucun paiement validé n\'a été enregistré.', true);
+            }
+          })
+          .catch(function () {
+            showMsg('Impossible de vérifier le statut immédiatement. Si vous avez été débité, rechargez la page.', true);
+          })
+          .finally(function () {
+            // Nettoyer l'URL pour ne pas redéclencher au prochain rafraîchissement
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          });
+      }
+    })();
+  </script>
+</body>
+</html>

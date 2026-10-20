@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Isolation &amp;amp; Conteneurisation Noyau : Namespaces &amp;amp; Cgroups v2 | Linux Avancé B3</title>
+<meta name="description" content="Chapitre 4 du cours Linux Avancé B3 : Les 8 namespaces Linux (pid, net, mnt, ipc, uts, user, cgroup, time), contrôle de ressources avec Cgroups v2 (cpu.max, memory.max), mécanique de l’OOM Killer et fondements des conteneurs. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-linux/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Isolation &amp;amp; Conteneurisation Noyau : Namespaces &amp;amp; Cgroups v2 | Linux Avancé B3">
+<meta property="og:description" content="Chapitre 4 du cours Linux Avancé B3 : Les 8 namespaces Linux (pid, net, mnt, ipc, uts, user, cgroup, time), contrôle de ressources avec Cgroups v2 (cpu.max, memory.max), mécanique de l’OOM Killer et fondements des conteneurs. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-linuxnav"><div class="b3-linuxnav__in">
+  <a class="b3-linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-linuxnav__sep" aria-hidden="true">/</span>
+  <a class="b3-linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux Avancé B3</a>
+  <div class="b3-linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-linuxwrap">
+<p class="crumb"><a href="../index.html">Linux Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Isolation &amp; Conteneurisation Noyau : Namespaces &amp; Cgroups v2</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Contrairement à une idée reçue répandue, les conteneurs (Docker, containerd, Kubernetes, Podman) ne sont pas des « machines virtuelles légères ». D’un point de vue noyau, un conteneur n’est rien d’autre qu’un processus Linux standard s’exécutant directement sur le noyau de l’hôte, mais dont la vision du système est cloisonnée par deux briques primitives du noyau : les Namespaces (qui limitent ce que le processus peut voir) et les Cgroups (Control Groups, qui limitent ce que le processus peut consommer). En Bachelor 3, l’ingénieur système et cloud doit maîtriser les rouages internes de ces mécanismes pour sécuriser l’exécution multi-locataire, prévenir les attaques par évasion de conteneur et configurer des quotas stricts pour éviter les crashs en chaîne provoqués par l’OOM Killer.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser le rôle et la granularité d’isolation des huit namespaces Linux (PID, NET, MNT, IPC, UTS, USER, CGROUP, TIME) ;</li>
+      <li>manipuler les primitives de bas niveau de conteneurisation : clone(2), unshare(1), nsenter(1) et chroot/pivot_root ;</li>
+      <li>comprendre l’architecture unifiée de Cgroups v2 (/sys/fs/cgroup/) par rapport aux limitations historiques de Cgroups v1 ;</li>
+      <li>configurer des quotas processeur stricts (cpu.max) et des plafonds de mémoire vive (memory.max) dans Cgroups v2 ;</li>
+      <li>analyser le fonctionnement interne de l’OOM (Out Of Memory) Killer et maîtriser la pondération via oom_score_adj ;</li>
+      <li>développer en Python 3 des auditeurs de namespaces, des contrôleurs de quotas cgroups et des calculateurs de sacrifice OOM.</li>
+    </ol>
+  </div>
+
+<h2>1. Les Fondations des Conteneurs : Les Huit Namespaces du Noyau Linux</h2>
+
+<p>Un <strong>namespace</strong> crée une vue virtualisée d’une ressource globale du système pour un groupe de processus. Chaque processus n’a conscience que des entités appartenant à son propre namespace :</p>
+<table class="table">
+  <thead>
+    <tr><th>Namespace</th><th>Drapeau clone(2)</th><th>Ressource Cloisonnée</th><th>Effet Concret dans le Conteneur</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PID</code></td><td><code>CLONE_NEWPID</code></td><td>Arbre des identifiants de processus</td><td>Le processus principal devient <strong>PID 1</strong> dans son namespace et ne voit aucun processus hôte.</td></tr>
+    <tr><td><code>NET</code></td><td><code>CLONE_NEWNET</code></td><td>Pile réseau complète</td><td>Interfaces réseau privées (<code>eth0</code>, <code>lo</code>), tables de routage indépendantes, ports TCP/UDP distincts.</td></tr>
+    <tr><td><code>MNT</code></td><td><code>CLONE_NEWNS</code></td><td>Points de montage de système de fichiers</td><td>Isolation des montages disques (permet de substituer la racine via <code>pivot_root</code>).</td></tr>
+    <tr><td><code>IPC</code></td><td><code>CLONE_NEWIPC</code></td><td>Communication inter-processus</td><td>Isolation de la mémoire partagée POSIX / SysV et des files de messages.</td></tr>
+    <tr><td><code>UTS</code></td><td><code>CLONE_NEWUTS</code></td><td>Nom d’hôte et domaine</td><td>Permet au conteneur de posséder son propre nom de machine (<code>hostname</code>) sans affecter l’hôte.</td></tr>
+    <tr><td><code>USER</code></td><td><code>CLONE_NEWUSER</code></td><td>Mappage des UID et GID</td><td>L’utilisateur est root (UID 0) dans le conteneur mais un utilisateur non privilégié (ex: 100000) sur l’hôte.</td></tr>
+    <tr><td><code>CGROUP</code></td><td><code>CLONE_NEWCGROUP</code></td><td>Vue de la hiérarchie cgroup</td><td>Masque la hiérarchie globale des groupes de contrôle hôte.</td></tr>
+    <tr><td><code>TIME</code></td><td><code>CLONE_NEWTIME</code></td><td>Horloges système</td><td>Permet d’ajuster l’horloge de démarrage ou monotone sans modifier l’heure de l’hôte physique.</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Manipulation Bas Niveau : unshare, nsenter &amp; clone</h2>
+
+<p>Il est possible de créer un conteneur complet avec les outils standards Linux sans installer Docker :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Création d’Espaces avec unshare(1)</h4>
+    <pre><code># Lancer un shell isole avec ses propres namespaces
+unshare --pid --net --mount --uts --fork /bin/bash</code></pre>
+    <p>La commande détache le shell des namespaces de l’hôte : un <code>ps aux</code> ou un <code>ip link</code> n’affiche que les éléments du nouveau conteneur.</p>
+  </div>
+  <div class="card">
+    <h4>Injection dans un Namespace avec nsenter(1)</h4>
+    <pre><code># S’injecter dans le namespace reseau d’un conteneur
+nsenter -t &lt;PID&gt; -n ip addr</code></pre>
+    <p>Permet à un administrateur d’entrer dans n’importe quel namespace d’un processus actif pour déboguer le réseau ou les montages.</p>
+  </div>
+</div>
+
+<h2>3. Hiérarchie Unifiée Cgroups v2 : Quotas CPU &amp; Mémoire</h2>
+
+<p>Alors que les Namespaces contrôlent <em>ce que l’on voit</em>, les <strong>Cgroups (Control Groups)</strong> contrôlent <em>ce que l’on consomme</em>. Depuis le noyau Linux 4.5 et l’adoption généralisée dans les distributions modernes, <strong>Cgroups v2</strong> remplace l’ancienne version avec une hiérarchie unifiée sous <code>/sys/fs/cgroup/</code> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Régulation du Processeur (cpu.max)</h4>
+    <p>Format : <code>echo "200000 100000" &gt; /sys/fs/cgroup/app/cpu.max</code>.</p>
+    <p>Sur chaque période de 100 000 microsecondes (100 ms), le groupe a droit à 200 000 microsecondes de temps processeur, soit <strong>exactement 2.0 cœurs</strong>.</p>
+    <p>Si la charge dépasse le quota, le noyau applique un <strong>étranglement (throttling)</strong> en suspendant temporairement les threads jusqu’à la période suivante.</p>
+  </div>
+  <div class="card">
+    <h4>Plafonnement Mémoire (memory.max)</h4>
+    <p>Format : <code>echo "536870912" &gt; /sys/fs/cgroup/app/memory.max</code> (512 Mo).</p>
+    <p>Dès que le groupe approche du plafond, le noyau commence par purger agressivement les caches de pages (page cache). Si la mémoire anonyme dépasse le seuil, l’OOM Killer local est déclenché au sein du groupe.</p>
+  </div>
+</div>
+
+<h2>4. L’OOM Killer &amp; la Pondération /proc/[pid]/oom_score_adj</h2>
+
+<p>Lorsque le système ne peut plus allouer de mémoire physique et que le swap est épuisé, l’<strong>OOM (Out Of Memory) Killer</strong> sélectionne le processus ayant le score le plus élevé et lui envoie un signal <code>SIGKILL</code> immédiat.</p>
+  <div class="box box--danger">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Immunité &amp; Configuration de l’oom_score_adj</div>
+<p>Le score de base est proportionnel au pourcentage de RAM consommé par le processus. Il est pondéré par la valeur du fichier <code>/proc/[pid]/oom_score_adj</code> comprise entre <code>-1000</code> et <code>+1000</code> :</p>,<ul>,  <li><strong>Valeur -1000 :</strong> Confère une <strong>immunité absolue</strong>. L’OOM Killer ne tuera JAMAIS ce processus. Utilisé impérativement pour le serveur SSH (<code>sshd</code>), l’orchestrateur (<code>systemd</code>) et les bases de données primaires.</li>,  <li><strong>Valeur +1000 :</strong> Désigne le processus comme cible de sacrifice prioritaire dès la première alerte mémoire (ex: workers de calcul non critiques, tâches batch).</li>,</ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="lx3-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="NS_CHECK pid=101 ns_pid=4026531836 ns_net=4026531992 ns_mnt=4026532000 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c4-e1) — Classificateur et auditeur de namespaces Linux par processus
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Processus en conteneur complet avec isolation totale (3/3)]
+# Données : NS_CHECK pid=5000 ns_pid=4026532500 ns_net=4026532501 ns_mnt=4026532502 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000
+A_COMPLETER
+
+[Cas 2 — Processus avec isolation réseau uniquement (ex: conteneur host network)]
+# Données : NS_CHECK pid=6000 ns_pid=4026531836 ns_net=4026533000 ns_mnt=4026531836 host_pid=4026531836 host_net=4026531992 host_mnt=4026531836
+A_COMPLETER
+
+[Cas 3 — Processus système hôte standard]
+# Données : NS_CHECK pid=1 ns_pid=1000 ns_net=2000 ns_mnt=3000 host_pid=1000 host_net=2000 host_mnt=3000
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Classificateur et auditeur de namespaces Linux par processus</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer les identifiants d’inodes de namespaces d’un processus par rapport à l’espace hôte.</p>
+    <div class="lab__brief"><p>Les <strong>namespaces</strong> Linux fournissent l'isolation nécessaire aux conteneurs (Docker, containerd, LXC) en partitionnant les ressources globales du système (PID, NET, MNT, IPC, UTS, USER). Chaque namespace est identifié dans <code>/proc/[pid]/ns/</code> par un numéro d'inode unique.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Règles :<br>
+1. Comparer chaque namespace (PID, NET, MNT) à sa contrepartie hôte.<br>
+2. Compter le nombre de namespaces isolés (différents de l'hôte) : <code>diff_count</code>.<br>
+3. Si <code>diff_count &gt; 0</code> : <code>isolated=OUI</code>, sinon <code>isolated=NON</code>.<br><br>
+Pour chaque processus, afficher :<br>
+<code>NS_STATUS pid={pid} isolated={OUI|NON} isolated_count={diff_count}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NS_CHECK pid=101 ns_pid=4026531836 ns_net=4026531992 ns_mnt=4026532000 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NS_STATUS pid=101 isolated=NON isolated_count=0</pre></div>
+    </div>
+    <p class="lab__note">Le processus partage tous les namespaces de l’hôte : il n’est pas conteneurisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparer ns_pid != host_pid, ns_net != host_net, ns_mnt != host_mnt.</li>
+        <li>Incrémenter un compteur pour chaque divergence constatée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CGROUP group=web_tier cpu_quota=200000 cpu_period=100000 mem_curr_mb=256 mem_max_mb=512">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c4-e2) — Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max & memory.max)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Groupe sans limite CPU (max) et mémoire saturée]
+# Données : CGROUP group=batch_proc cpu_quota=max cpu_period=100000 mem_curr_mb=1024 mem_max_mb=1024
+A_COMPLETER
+
+[Cas 2 — Demi-cœur alloué (0.5) et statut mémoire sain]
+# Données : CGROUP group=micro_api cpu_quota=50000 cpu_period=100000 mem_curr_mb=64 mem_max_mb=128
+A_COMPLETER
+
+[Cas 3 — Quatre cœurs alloués et dépassement mémoire]
+# Données : CGROUP group=db_container cpu_quota=400000 cpu_period=100000 mem_curr_mb=4096 mem_max_mb=2048
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max &amp; memory.max)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la bande passante processeur autorisée et vérifier le plafonnement mémoire dans la hiérarchie Cgroups v2.</p>
+    <div class="lab__brief"><p><strong>Cgroups v2 (Control Groups)</strong> sous Linux unifie la gestion des ressources système dans <code>/sys/fs/cgroup/</code>.<br><br>
+Directives Cgroups v2 :<br>
+- <code>cpu.max = &lt;quota&gt; &lt;period&gt;</code> : Si quota vaut <code>max</code>, la limite CPU est <code>UNLIMITED</code>. Sinon, le nombre de cœurs alloués équivalent vaut <code>quota / period</code> (ex: 200000 100000 &rarr; 2.0 cœurs).<br>
+- <code>memory.max = &lt;limite_Mo&gt;</code> : Si la mémoire actuelle dépasse ou égale la limite, le groupe subit un étranglement ou risque l'OOM (<code>mem_status=SATURATED</code>), sinon <code>mem_status=OK</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque groupe, afficher :<br>
+<code>CGROUP_AUDIT group={group} cpu_cores={val|UNLIMITED} mem_status={OK|SATURATED}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CGROUP group=web_tier cpu_quota=200000 cpu_period=100000 mem_curr_mb=256 mem_max_mb=512</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CGROUP_AUDIT group=web_tier cpu_cores=2.0 mem_status=OK</pre></div>
+    </div>
+    <p class="lab__note">200000 / 100000 = 2.0 cœurs. Mémoire 256 &lt; 512 Mo : statut OK.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Si cpu_quota == "max", la valeur de cpu_cores est la chaîne "UNLIMITED".</li>
+        <li>Sinon, calculer int(cpu_quota) / int(cpu_period) et formater avec un chiffre après la virgule (ex: 1.5, 2.0).</li>
+        <li>Comparer mem_curr_mb &gt;= mem_max_mb pour le statut mémoire.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="OOM_PROC pid=1 comm=systemd mem_mb=25 oom_score_adj=-1000">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c4-e3) — Détecteur de sacrifice OOM Killer et pondération oom_score_adj
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Processus consommateur à haut risque de sacrifice]
+# Données : OOM_PROC pid=3420 comm=mem_leak mem_mb=1200 oom_score_adj=200
+A_COMPLETER
+
+[Cas 2 — Processus protégé avec score négatif sans être immunisé]
+# Données : OOM_PROC pid=880 comm=sshd mem_mb=50 oom_score_adj=-500
+A_COMPLETER
+
+[Cas 3 — Processus standard modéré]
+# Données : OOM_PROC pid=2100 comm=worker mem_mb=600 oom_score_adj=0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur de sacrifice OOM Killer et pondération oom_score_adj</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le score de sacrifice du mécanisme Out Of Memory (OOM Killer) du noyau Linux.</p>
+    <div class="lab__brief"><p>Lorsque la RAM physique et le swap sont intégralement épuisés, le noyau Linux invoque l'<strong>OOM Killer</strong> pour terminer un processus et libérer d'urgence de la mémoire.<br><br>
+Chaque processus dispose d'un score d'ajustement configurable dans <code>/proc/[pid]/oom_score_adj</code> allant de <code>-1000</code> à <code>+1000</code> :<br>
+- Si <code>oom_score_adj == -1000</code> : le processus est <strong>totalement immunisé</strong> contre l'OOM Killer (ex: SSH, base de données critique). Son score final est <code>IMMUNE</code> et son risque est <code>NONE</code>.<br>
+- Sinon : <code>score = int(mem_mb) + int(oom_score_adj)</code>.<br>
+Évaluation du risque :<br>
+- Si <code>score &gt; 1000</code> : <code>risk=HIGH</code> (première cible de sacrifice).<br>
+- Sinon : <code>risk=LOW</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque processus, afficher :<br>
+<code>OOM_TARGET pid={pid} comm={comm} score={score|IMMUNE} risk={HIGH|LOW|NONE}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OOM_PROC pid=1 comm=systemd mem_mb=25 oom_score_adj=-1000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OOM_TARGET pid=1 comm=systemd score=IMMUNE risk=NONE</pre></div>
+    </div>
+    <p class="lab__note">PID 1 (systemd) a un ajustement de -1000 : il ne sera jamais ciblé par l’OOM Killer.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traiter en priorité le cas oom_score_adj == -1000 qui confère l’immunité absolue.</li>
+        <li>Pour les autres processus, additionner mem_mb et oom_score_adj puis comparer à 1000.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale de rôle entre les Namespaces et les Cgroups dans le noyau Linux ?</p>
+      <div class="opts">
+        <button class="opt">Les Namespaces gèrent le réseau et les Cgroups gèrent l’affichage graphique</button>
+        <button class="opt" data-correct="1">Les Namespaces cloisonnent la visibilité des ressources (ce que le processus peut voir) tandis que les Cgroups limitent la quantité de ressources consommées</button>
+        <button class="opt">Les Namespaces sont réservés à Windows et les Cgroups à Linux</button>
+        <button class="opt">Les Namespaces augmentent la fréquence du processeur</button>
+      </div>
+      <div class="q__exp">Les Namespaces créent des vues isolées (arborescence PID, réseau, montages), tandis que les Cgroups régulent et limitent la consommation physique (temps CPU, mémoire vive, bande passante I/O).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel namespace permet à un utilisateur non privilégié d’apparaître comme l’utilisateur « root » (UID 0) à l’intérieur de son conteneur ?</p>
+      <div class="opts">
+        <button class="opt">PID Namespace</button>
+        <button class="opt" data-correct="1">USER Namespace (CLONE_NEWUSER)</button>
+        <button class="opt">UTS Namespace</button>
+        <button class="opt">MNT Namespace</button>
+      </div>
+      <div class="q__exp">Le User Namespace mappe les identifiants d’utilisateurs : un processus peut être root (UID 0) à l’intérieur du conteneur sans disposer du moindre privilège d’administration sur la machine hôte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet à un administrateur système d’exécuter une commande à l’intérieur du namespace réseau d’un conteneur en cours d’exécution ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">nsenter -t <PID> -n <commande></button>
+        <button class="opt">chroot /proc/<PID></button>
+        <button class="opt">systemctl network-enter</button>
+        <button class="opt">unshare --net-only</button>
+      </div>
+      <div class="q__exp">nsenter (Namespace Enter) permet de s’attacher aux namespaces d’un processus cible via son PID (-t) pour inspecter son réseau (-n), ses montages (-m), etc.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans Cgroups v2, quelle est la signification de la directive « cpu.max = 150000 100000 » ?</p>
+      <div class="opts">
+        <button class="opt">Le processus a le droit de consommer 150 Mo de RAM toutes les 100 secondes</button>
+        <button class="opt" data-correct="1">Le groupe de processus peut consommer au maximum 150 ms de temps CPU par période de 100 ms, soit l’équivalent exact de 1.5 cœur</button>
+        <button class="opt">Le processus est limité à 150 threads</button>
+        <button class="opt">La vitesse du processeur est fixée à 1,5 GHz</button>
+      </div>
+      <div class="q__exp">cpu.max spécifie le quota et la période en microsecondes. Le ratio 150000 / 100000 = 1.5 correspond à une allocation maximale de 1.5 cœur de calcul.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il lorsqu’un processus dépasse son quota processeur défini dans « cpu.max » ?</p>
+      <div class="opts">
+        <button class="opt">Le processus est immédiatement tué par SIGKILL</button>
+        <button class="opt" data-correct="1">Le processus subit un étranglement (throttling) temporaire et ses threads sont mis en pause jusqu’à la période suivante</button>
+        <button class="opt">Le noyau déclenche un Kernel Panic</button>
+        <button class="opt">Le serveur redémarre automatiquement</button>
+      </div>
+      <div class="q__exp">Le régulateur CPU n’interrompt pas brutalement le processus : il suspend son exécution (throttling) pendant le reste de la période en cours et le réactive dès la période suivante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle valeur dans « /proc/[pid]/oom_score_adj » garantit qu’un processus ne sera jamais tué par l’OOM Killer du noyau ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">-1000</button>
+        <button class="opt">+1000</button>
+        <button class="opt">9999</button>
+      </div>
+      <div class="q__exp">La valeur -1000 désactive complètement le ciblage par l’OOM Killer, conférant une immunité totale indispensable pour les processus d’infrastructure vitaux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel répertoire unifié de système de fichiers les groupes de contrôle Cgroups v2 sont-ils montés sous Linux moderne ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">/sys/fs/cgroup/</button>
+        <button class="opt">/proc/cgroups/</button>
+        <button class="opt">/etc/cgroups.d/</button>
+        <button class="opt">/dev/cgroup/</button>
+      </div>
+      <div class="q__exp">Cgroups v2 utilise une arborescence unifiée montée sous /sys/fs/cgroup/, où chaque sous-dossier représente un groupe de contrôle héritant des contrôleurs parents.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel namespace isole le nom d’hôte de la machine (hostname) pour un conteneur ?</p>
+      <div class="opts">
+        <button class="opt">IPC Namespace</button>
+        <button class="opt" data-correct="1">UTS Namespace (CLONE_NEWUTS)</button>
+        <button class="opt">NET Namespace</button>
+        <button class="opt">TIME Namespace</button>
+      </div>
+      <div class="q__exp">L’UTS Namespace (UNIX Timesharing System) isole le nom d’hôte et le nom de domaine NIS, permettant à chaque conteneur de définir son propre hostname indépendant.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que les conteneurs exécutent un noyau Linux distinct (ils partagent tous le noyau unique de l’hôte).</li>
+      <li>Laisser un conteneur sans limite memory.max (un memory leak dans le conteneur peut crasher tout le serveur hôte).</li>
+      <li>Penser que cpu.max tue le processus en cas de dépassement (il subit un étranglement temporaire sans crash).</li>
+      <li>Affecter oom_score_adj = -1000 à tous les processus (l’OOM Killer sera forcé de paniquer le noyau si la RAM sature).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Isolation &amp; Confinement Strict d’une Application</div>
+    <ol>
+      <li>Étape 1 : Créer un sous-répertoire cgroup dédié : mkdir /sys/fs/cgroup/production_app.</li>
+      <li>Étape 2 : Définir le plafond mémoire strict : echo 512M > /sys/fs/cgroup/production_app/memory.max.</li>
+      <li>Étape 3 : Définir la limite de cœurs CPU : echo "150000 100000" > /sys/fs/cgroup/production_app/cpu.max (1.5 cœur).</li>
+      <li>Étape 4 : Isoler le processus dans un espace de namespaces dédié avec unshare --pid --net --mount.</li>
+      <li>Étape 5 : Attacher le PID du processus au cgroup : echo $PID > /sys/fs/cgroup/production_app/cgroup.procs.</li>
+      <li>Étape 6 : Protéger le processus contre l’OOM Killer si critique : echo -500 > /proc/$PID/oom_score_adj.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un conteneur sous Linux est un simple processus isolé par des Namespaces et restreint par des Cgroups.</li>
+      <li>Les 8 namespaces isolent PID, NET, MNT, IPC, UTS, USER, CGROUP et TIME.</li>
+      <li>unshare(1) détache les namespaces d’un processus ; nsenter(1) permet de s’injecter dans les namespaces d’un autre processus.</li>
+      <li>Cgroups v2 offre une hiérarchie arborescente unifiée dans /sys/fs/cgroup/ régulant CPU, mémoire, I/O et PIDs.</li>
+      <li>cpu.max contrôle la bande passante processeur en microsecondes (quota / période).</li>
+      <li>memory.max impose un plafond dur : tout dépassement non compressible déclenche l’OOM Killer.</li>
+      <li>oom_score_adj permet d’ajuster le risque de sacrifice : la valeur -1000 confère une immunité totale.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais les 8 namespaces du noyau Linux et la ressource système associée à chacun.</li>
+      <li>Je sais expliquer la différence fondamentale entre Namespaces (visibilité) et Cgroups (consommation).</li>
+      <li>Je sais utiliser unshare pour lancer un processus isolé et nsenter pour inspecter un conteneur.</li>
+      <li>Je comprends l’architecture unifiée de Cgroups v2 par rapport à Cgroups v1.</li>
+      <li>Je sais configurer cpu.max et memory.max dans /sys/fs/cgroup/.</li>
+      <li>Je maîtrise le fonctionnement de l’OOM Killer et l’utilisation de oom_score_adj.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Les 8 Namespaces Linux</li><li>Commandes d’isolation (unshare, nsenter)</li><li>Appel système clone(2) & drapeaux CLONE_NEW*</li><li>Hiérarchie unifiée Cgroups v2</li><li>Contrôleur CPU (cpu.max quota/période)</li><li>Plafond mémoire (memory.max)</li><li>Out Of Memory Killer (OOM Killer)</li><li>Ajustement de sacrifice (oom_score_adj)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Confusion entre conteneurs et machines virtuelles ou méconnaissance du rôle respectif des Namespaces et des Cgroups.</div>
+      <div class="bandrow bandrow--medium">Bonne manipulation de unshare et nsenter, configuration correcte de Cgroups v2 et ajustement de l’oom_score_adj.</div>
+      <div class="bandrow bandrow--high">Conception experte de runtimes de conteneurs bas niveau, maîtrise fine des 8 namespaces et durcissement des cgroups en environnement multi-tenant.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Réseau Avancé Linux : Namespaces, Bridges &amp; Policy Routing <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle du noyau Linux (kernel.org), spécifications systemd (Lennart Poettering / Freedesktop), guides de durcissement ANSSI et CIS Benchmarks Linux.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Topologies et supports | Architecture des réseaux B1</title>
+<meta name="description" content="Chapitre 2 du cours d'Architecture des réseaux B1 : Les trois topologies (bus, anneau, étoile) et leur comportement en panne ; les supports de transmission (UTP, STP, fibre, Wi-Fi, CPL). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-reseaux/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Topologies et supports | Architecture des réseaux B1">
+<meta property="og:description" content="Chapitre 2 du cours d'Architecture des réseaux B1 : Les trois topologies (bus, anneau, étoile) et leur comportement en panne ; les supports de transmission (UTP, STP, fibre, Wi-Fi, CPL). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="renav"><div class="renav__in">
+  <a class="renav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="renav__sep" aria-hidden="true">/</span>
+  <a class="renav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Architecture des réseaux B1</a>
+  <div class="renav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="renav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rewrap">
+<p class="crumb"><a href="../index.html">Architecture des réseaux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Topologies et supports</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un câble se coupe : dans un réseau en bus, tout s'arrête ; dans un double anneau, les données basculent sur le secondaire ; dans une étoile, un seul poste s'isole. Le support justifie chaque topologie par ce comportement — puis choisit le support de transmission selon la distance, la vitesse et l'environnement.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire les topologies bus, anneau et étoile avec leurs avantages et inconvénients ;</li>
+      <li>expliquer le jeton du Token Ring et le double anneau de secours ;</li>
+      <li>choisir un support : UTP (100 m), STP blindé, fibre longue distance, Wi-Fi, CPL ;</li>
+      <li>prévoir l'effet d'une coupure de câble selon la topologie.</li>
+    </ol>
+  </div>
+
+<h2>1. Bus, anneau, étoile</h2>
+
+<p>La <strong>topologie en bus</strong> relie toutes les machines sur un seul câble — cas des Ethernet 10Base2 (« thinnet ») au câble coaxial fin raccordé en T. Un seul ordinateur émet à la fois. Simple et peu coûteuse, cette liaison est <strong>fragile</strong> : tout le réseau tombe dès qu'une connexion est défectueuse.</p>
+<p>La <strong>topologie en anneau</strong> forme une boucle fermée où circule un <strong>jeton</strong> (token ring, créé par IBM) qui désigne l'ordinateur autorisé à émettre — ce qui évite les collisions, jusqu'à 16 Mbit/s. Chaque station reçoit le message, seule la destinataire le traite. L'anneau offre <strong>deux chemins</strong> d'un point à l'autre ; un <strong>double anneau</strong> permet aux données de passer sur l'anneau secondaire si le premier est interrompu.</p>
+<p>La <strong>topologie en étoile</strong> relie chaque équipement individuellement à un nœud central (liaison point à point, paires torsadées ou fibre). Si un câble est interrompu, le reste du réseau n'est pas perturbé — et les connexions centralisées se modifient facilement. L'inconvénient : la <strong>quantité de câbles</strong> nécessaire.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « bus fragile, anneau débrouillard, étoile solide mais câblée »</div>
+    <p>Le bus casse tout, l'anneau rebondit, l'étoile isole. Retenez le comportement en panne : c'est lui que l'examen teste.</p>
+  </div>
+
+<h2>2. Les supports de transmission</h2>
+
+<p>La <strong>paire torsadée non blindée UTP</strong> (Unshielded Twisted Pair) est la plus utilisée en réseau local : 2 fils de cuivre isolés, segment de <strong>100 mètres</strong> maximum. Catégorie 1 : téléphone (voix, pas de données) ; catégorie 4 : 16 Mbit/s ; catégorie 5 : 100 Mbit/s ; catégorie 5e : 1000 Mbit/s. Faiblesse : la sensibilité aux <strong>interférences</strong>.</p>
+<p>La <strong>paire torsadée blindée STP</strong> (Shielded Twisted Pair) ajoute une enveloppe de protection entre et autour des paires : excellent blindage, transmission plus rapide et sur plus longue distance — le choix des environnements perturbés.</p>
+<p>Les autres liaisons : la <strong>fibre optique</strong> pour la dorsale et les grandes distances ; les <strong>ondes radio</strong> — Wi-Fi (normes IEEE 802.11) et Bluetooth (service RFCOMM) — pour le sans-fil ; le <strong>CPL</strong> (Courants Porteurs en Ligne) qui réutilise les lignes électriques, réservé au domestique. Quoi qu'il en soit, le principe reste le même : les données partent en série, bit après bit, encapsulées comme une lettre dans une enveloppe timbrée.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Le bus ne survit pas à une coupure : tout le réseau est affecté.</li>
+      <li>Le jeton évite les collisions — c'est sa raison d'être, pas un détail historique.</li>
+      <li>UTP : 100 m maximum par segment, catégorie 5e pour le gigabit.</li>
+      <li>L'étoile consomme beaucoup de câble : c'est son seul défaut majeur.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="re-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;thinnet bus&#10;tokenring anneau&#10;campus etoile&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c2-e1) — Bus, anneau, étoile
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule etoile]
+# Données : 1
+# Données : tour etoile
+A_COMPLETER
+
+[Cas 2 — Deux bus]
+# Données : 2
+# Données : usine bus
+# Données : labo bus
+A_COMPLETER
+
+[Cas 3 — Cinq reseaux]
+# Données : 5
+# Données : a bus
+# Données : b etoile
+# Données : c anneau
+# Données : d etoile
+# Données : e bus
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Bus, anneau, étoile</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Caractériser les trois topologies : bus fragile, anneau en boucle, étoile centralisée.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « reseau topo » : topo vaut <code>bus</code> (un seul câble), <code>anneau</code> (boucle fermée à jeton) ou <code>etoile</code> (point central). Pour chaque ligne il Indiquez <code>reseau : fragile</code> (bus), <code>reseau : boucle</code> (anneau) ou <code>reseau : centralise</code> (étoile). Il termine par <code>etoiles : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+thinnet bus
+tokenring anneau
+campus etoile
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>thinnet : fragile
+tokenring : boucle
+campus : centralise
+etoiles : 1/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à trois topologies, trois verdicts : fragile, boucle, centralise.</li>
+        <li>Le compteur suit exactement les lignes « etoile ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;bureau utp&#10;atelier stp&#10;cities fibre&#10;reunion wifi&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c2-e2) — Choisir le support
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un seul blindé]
+# Données : 1
+# Données : chaudiere stp
+A_COMPLETER
+
+[Cas 2 — Support inconnu]
+# Données : 2
+# Données : bureau coaxial
+# Données : salle utp
+A_COMPLETER
+
+[Cas 3 — Cinq reseaux]
+# Données : 5
+# Données : a utp
+# Données : b wifi
+# Données : c stp
+# Données : d fibre
+# Données : e stp
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Choisir le support</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Conseiller le bon support de transmission : UTP 100 m, STP blindé, fibre longue distance, Wi-Fi sans fil.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « reseau support » : support vaut <code>utp</code> (paire torsadée non blindée, 100 m max), <code>stp</code> (blindé contre les interférences), <code>fibre</code> (longue distance, haut débit) ou <code>wifi</code> (ondes radio 802.11). Pour chaque ligne il Indiquez <code>reseau : conseille</code> (utp, stp, fibre), <code>reseau : sans fil</code> (wifi) ou <code>reseau : support inconnu</code>. Il termine par <code>blindes : X/n</code> (les STP).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+bureau utp
+atelier stp
+cities fibre
+reunion wifi
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>bureau : conseille
+atelier : conseille
+cities : conseille
+reunion : sans fil
+blindes : 1/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à quatre supports, plus le cas par défaut pour l'inconnu.</li>
+        <li>Seul le support stp est blindé dans ce contrôle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;a bus ok&#10;b bus coupe&#10;c anneau coupe&#10;d etoile coupe&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c2-e3) — La panne de câble
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Anneau double]
+# Données : 1
+# Données : r1 anneau coupe
+A_COMPLETER
+
+[Cas 2 — Rien ne casse]
+# Données : 2
+# Données : a etoile ok
+# Données : b anneau ok
+A_COMPLETER
+
+[Cas 3 — Cinq reseaux]
+# Données : 5
+# Données : a bus coupe
+# Données : b etoile ok
+# Données : c bus ok
+# Données : d etoile coupe
+# Données : e anneau coupe
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — La panne de câble</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'effet d'une coupure selon la topologie : bus hors service, anneau bascule sur le secondaire, étoile isole un poste.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « reseau topo panne » : topo vaut <code>bus</code>, <code>anneau</code> ou <code>etoile</code> ; panne vaut <code>ok</code> ou <code>coupe</code> (câble coupé). Pour chaque ligne il Indiquez : <code>reseau : liaison correcte</code> (ok) ; sinon <code>reseau : reseau hors service</code> (bus), <code>reseau : bascule anneau secondaire</code> (anneau) ou <code>reseau : un poste isole</code> (étoile). Il termine par <code>pannes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+a bus ok
+b bus coupe
+c anneau coupe
+d etoile coupe
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>a : liaison correcte
+b : reseau hors service
+c : bascule anneau secondaire
+d : un poste isole
+pannes : 3/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un if sur panne, puis un case sur topo : ok court-circuite tout.</li>
+        <li>Le compteur suit exactement les lignes « coupe », quelle que soit la topologie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">La topologie 10Base2 (« thinnet ») est…</p>
+      <div class="opts">
+        <button class="opt">un anneau</button>
+        <button class="opt" data-correct="1">un bus</button>
+        <button class="opt">une étoile</button>
+      </div>
+      <div class="q__exp">Câble coaxial fin, raccord en T, un seul lien partagé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le défaut majeur du bus est…</p>
+      <div class="opts">
+        <button class="opt">le coût des équipements</button>
+        <button class="opt" data-correct="1">la fragilité : tout tombe</button>
+        <button class="opt">la lenteur du jeton</button>
+      </div>
+      <div class="q__exp">Une connexion défectueuse affecte tout le réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le jeton du Token Ring sert à…</p>
+      <div class="opts">
+        <button class="opt">accélérer la fibre</button>
+        <button class="opt" data-correct="1">désigner qui peut émettre, sans collisions</button>
+        <button class="opt">chiffrer les données</button>
+      </div>
+      <div class="q__exp">Un seul ordinateur émet à la fois : jusqu'à 16 Mbit/s.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un câble se coupe dans un double anneau :</p>
+      <div class="opts">
+        <button class="opt">tout tombe</button>
+        <button class="opt" data-correct="1">bascule sur l'anneau secondaire</button>
+        <button class="opt">un poste s'isole</button>
+      </div>
+      <div class="q__exp">L'anneau offre deux chemins ; le secondaire prend le relais.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une étoile, une coupure isole…</p>
+      <div class="opts">
+        <button class="opt">tout le réseau</button>
+        <button class="opt">le nœud central</button>
+        <button class="opt" data-correct="1">un seul poste</button>
+      </div>
+      <div class="q__exp">Liaisons point à point : le reste du réseau continue.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La longueur maximale d'un segment UTP est…</p>
+      <div class="opts">
+        <button class="opt">10 m</button>
+        <button class="opt" data-correct="1">100 m</button>
+        <button class="opt">1000 m</button>
+      </div>
+      <div class="q__exp">100 mètres ; 5e catégorie pour 1000 Mbit/s.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Face aux interférences, on choisit…</p>
+      <div class="opts">
+        <button class="opt">l'UTP</button>
+        <button class="opt" data-correct="1">le STP blindé</button>
+        <button class="opt">le CPL</button>
+      </div>
+      <div class="q__exp">STP : enveloppe de protection, meilleure distance et vitesse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le CPL réutilise…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">les lignes électriques</button>
+        <button class="opt">la fibre</button>
+        <button class="opt">les ondes radio</button>
+      </div>
+      <div class="q__exp">Courants Porteurs en Ligne : réservé au domestique.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Promettre la continuité de service en bus : une coupure arrête tout.</li>
+      <li>Oublier le double anneau dans les questions de résilience Token Ring.</li>
+      <li>Tirer de l'UTP au-delà de 100 m : hors norme.</li>
+      <li>Confondre STP (blindage) et UTP (économique mais sensible).</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — choisir la topologie et le support en trois gestes</div>
+    <ol>
+      <li>Évaluer la résilience voulue : bus économique, anneau redondant, étoile isolante.</li>
+      <li>Mesurer distance et environnement : UTP 100 m, STP perturbé, fibre longue distance, Wi-Fi mobilité.</li>
+      <li>Vérifier le débit visé : catégorie du câble (5 : 100 Mbit/s, 5e : 1 Gbit/s).</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Bus : simple, fragile — tout le réseau tombe sur une coupure.</li>
+      <li>Anneau : jeton sans collisions, deux chemins, double anneau de secours.</li>
+      <li>Étoile : point central, coupure = un poste isolé, beaucoup de câbles.</li>
+      <li>Supports : UTP 100 m, STP blindé, fibre longue distance, Wi-Fi 802.11, CPL domestique.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais décrire les trois topologies et leur réaction à une panne.</li>
+      <li>Je sais expliquer le rôle du jeton et du double anneau.</li>
+      <li>Je sais choisir entre UTP, STP, fibre et Wi-Fi sur un cahier des charges.</li>
+      <li>Je sais citer les catégories de câbles et leurs débits.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Bus</strong> : un seul câble partagé, 10Base2, fragile.</li><li><strong>Anneau</strong> : boucle à jeton (Token Ring, IBM), 16 Mbit/s.</li><li><strong>Double anneau</strong> : anneau secondaire en cas de coupure.</li><li><strong>Étoile</strong> : nœud central, liaisons point à point, câblage abondant.</li><li><strong>UTP</strong> : paire torsadée non blindée, 100 m, catégories 1 à 5e.</li><li><strong>STP</strong> : blindage entre et autour des paires.</li><li><strong>Wi-Fi</strong> : WLAN régi par IEEE 802.11 ; Bluetooth par RFCOMM.</li><li><strong>CPL</strong> : transmission sur lignes électriques, usage domestique.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les trois topologies et le tableau des supports.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais les questions de panne par topologie.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, entraîne-toi à conseiller un support.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Le modèle OSI <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

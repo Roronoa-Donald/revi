@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Problèmes de Transport &amp;amp; Affectation | Recherche Opérationnelle B2</title>
+<meta name="description" content="Chapitre 5 du cours Recherche Opérationnelle B2 : Matrice de transport équilibrée, méthodes du Coin Nord-Ouest et du Moindre Coût, optimisation MODI (u-v) et algorithme Hongrois. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/RD-RO/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Problèmes de Transport &amp;amp; Affectation | Recherche Opérationnelle B2">
+<meta property="og:description" content="Chapitre 5 du cours Recherche Opérationnelle B2 : Matrice de transport équilibrée, méthodes du Coin Nord-Ouest et du Moindre Coût, optimisation MODI (u-v) et algorithme Hongrois. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="RD-ROnav"><div class="RD-ROnav__in">
+  <a class="RD-ROnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="RD-ROnav__sep" aria-hidden="true">/</span>
+  <a class="RD-ROnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Recherche Opérationnelle B2</a>
+  <div class="RD-ROnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="RD-ROnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="RD-ROwrap">
+<p class="crumb"><a href="../index.html">Recherche Opérationnelle B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Problèmes de Transport &amp; Affectation</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un constructeur automobile alimente 4 concessions à partir de 3 usines d’assemblage réparties sur le territoire. Chaque usine a une capacité de production mensuelle fixe, et chaque concessionnaire formule une demande précise. Les coûts unitaires d’expédition diffèrent selon les distances autoroutières. Comment déterminer la grille d’acheminement qui minimise le budget logistique global sans rupture de stock ? Et dans le cas particulier de l’affectation unitaire où chaque développeur doit être assigné à un unique projet, comment l’élégant algorithme Hongrois trouve-t-il la bijection de coût minimal en quelques soustractions matricielles ?</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>modéliser un réseau d’approvisionnement sous forme de matrice de transport équilibrée ($\sum O_i = \sum D_j$) ;</li>
+      <li>gérer un déséquilibre offre-demande par l’adjonction d’un entrepôt ou d’un client fictif à coût nul ;</li>
+      <li>déterminer une solution de base réalisable initiale par la règle géométrique du Coin Nord-Ouest ;</li>
+      <li>construire une solution initiale de meilleure qualité par la méthode économique du Moindre Coût ;</li>
+      <li>calculer les potentiels de lignes et de colonnes par la méthode MODI ($u_i + v_j = c_{ij}$) pour évaluer l’optimalité ;</li>
+      <li>comprendre le cycle du marchepied (stepping-stone) pour faire pivoter un flux vers une cellule améliorante ;</li>
+      <li>exécuter l’algorithme Hongrois (Kuhn-Munkres) pour résoudre les problèmes d’affectation bijective minimale.</li>
+    </ol>
+  </div>
+
+<h2>1. Modélisation du Problème de Transport</h2>
+
+<p>Le problème de transport est une classe spéciale de programmation linéaire où l’on achemine un produit homogène depuis $m$ origines (usines, entrepôts) vers $n$ destinations (clients, magasins) :</p>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Formalisation mathématique du Problème de Transport</div>
+<div class="math-block">
+$$\begin{aligned}
+\text{MIN } & C = \sum_{i=1}^{m} \sum_{j=1}^{n} c_{ij} x_{ij} \\[6pt]
+\text{sous } & \sum_{j=1}^{n} x_{ij} = O_i \quad (i = 1, \dots, m) \\[6pt]
+& \sum_{i=1}^{m} x_{ij} = D_j \quad (j = 1, \dots, n) \\[6pt]
+& x_{ij} \ge 0 \quad (\forall i, j)
+\end{aligned}$$
+</div>
+  </div>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Condition d’équilibre global</div>
+<p>Le problème est dit <strong>équilibré</strong> si la somme totale des capacités d’offre est égale à la somme totale des demandes : $\sum_{i=1}^m O_i = \sum_{j=1}^n D_j$.</p>
+<p>Si $\sum O_i > \sum D_j$ : on ajoute une <em>destination fictive</em> qui absorbe l’excédent d’offre à coût nul ($c_{i, fictif} = 0$).<br>Si $\sum D_j > \sum O_i$ : on ajoute une <em>origine fictive</em> dont l’offre comble le déficit à coût nul ($c_{fictif, j} = 0$).</p>
+  </div>
+
+<h2>2. Méthodes heuristiques de Solution Initiale</h2>
+
+<p>Pour initialiser le tableau de transport sans passer par le simplexe complet, deux méthodes classiques sont couramment employées :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> 1. La règle du Coin Nord-Ouest (North-West Corner)</div>
+<p>Méthode purement positionnelle qui ignore complètement les coûts de transport :</p>
+<ol>
+  <li>On commence dans la cellule en haut à gauche $(1, 1)$.</li>
+  <li>On alloue le maximum possible : $x_{11} = \min(O_1, D_1)$.</li>
+  <li>On déduit cette quantité de l’offre $O_1$ et de la demande $D_1$.</li>
+  <li>Si l’offre est épuisée, on descend à la ligne suivante ($i \leftarrow i + 1$). Si la demande est satisfaite, on avance à la colonne suivante ($j \leftarrow j + 1$).</li>
+  <li>On répète jusqu’à ce que toutes les cellules soient allouées ($m + n - 1$ variables de base).</li>
+</ol>
+  </div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> 2. La méthode du Moindre Coût (Least Cost Method)</div>
+<p>Méthode économique plus intelligente :</p>
+<ol>
+  <li>Rechercher dans toute la matrice la cellule disponible $(i, j)$ qui affiche le <strong>coût unitaire $c_{ij}$ le plus bas</strong>.</li>
+  <li>Y allouer le flux maximal possible $q = \min(O_i, D_j)$.</li>
+  <li>Rayer la ligne saturée ou la colonne satisfaite.</li>
+  <li>Réitérer sur la sous-matrice restante jusqu’à épuisement complet.</li>
+</ol>
+<p>Cette heuristique produit immédiatement un coût total très proche de l’optimum absolu.</p>
+  </div>
+
+<h2>3. Optimisation par la Méthode MODI (Potentiels u-v)</h2>
+
+<p>Une fois la solution de base obtenue ($m + n - 1$ cellules occupées sans cycle), la <strong>méthode MODI (Modified Distribution)</strong> permet de tester si un réacheminement de flux peut encore réduire le coût total :</p>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Méthode MODI (Potentiels $u_i$ et $v_j$)</div>
+<div class="box--formula">
+  <span class="formula-label">1. Équations de base pour les cases occupées ($x_{ij} > 0$)</span>
+  <div class="math-block">$$u_i + v_j = c_{ij}$$</div>
+  <p>On pose arbitrairement $u_1 = 0$ pour résoudre le système de $m + n - 1$ équations à $m + n$ inconnues.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">2. Coûts marginaux d’opportunité pour les cases vides</span>
+  <div class="math-block">$$\Delta_{ij} = c_{ij} - (u_i + v_j)$$</div>
+</div>
+<div class="box--formula">
+  <span class="formula-label">3. Règle d’optimalité</span>
+  <p>Si tous les $\Delta_{ij} \ge 0$, le plan de transport est <strong>optimal</strong>. Si au moins un $\Delta_{ij} < 0$, on réalloue un flux $\theta$ via le cycle de marchepied (stepping-stone).</p>
+</div>
+  </div>
+
+<h2>4. Le Problème d’Affectation & l’Algorithme Hongrois</h2>
+
+<p>Le <strong>problème d’affectation</strong> est le cas particulier où $m = n$ et toutes les offres et demandes valent exactement 1 (une personne par tâche, une tâche par personne). Les variables valent $x_{ij} \in \{0, 1\}$.</p>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les étapes clés de l’algorithme Hongrois (Kuhn-Munkres)</div>
+<ol>
+  <li><strong>Réduction par ligne</strong> : identifier le minimum de chaque ligne et le soustraire à tous les éléments de la ligne (apparition d’au moins un 0 par ligne).</li>
+  <li><strong>Réduction par colonne</strong> : identifier le minimum de chaque colonne et le soustraire à tous les éléments de la colonne (apparition d’au moins un 0 par colonne).</li>
+  <li><strong>Couverture des zéros</strong> : tracer le nombre minimum de lignes horizontales et verticales pour couvrir tous les zéros de la matrice. Soit $k$ ce nombre.</li>
+  <li><strong>Test d’arrêt</strong> : si $k = n$, il existe une affectation optimale complète parmi les zéros indépendants. STOP.</li>
+  <li><strong>Ajustement matriciel</strong> : si $k < n$, trouver le plus petit élément non couvert $m$. Soustraire $m$ à tous les éléments non couverts et l’ajouter aux intersections des lignes de couverture. Retourner à l’étape 3.</li>
+</ol>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ro2-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="30,40;20,30,20;3,5,7|2,4,6">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c5-e1) — Méthode du Coin Nord-Ouest (Transport)
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deux origines deux destinations]
+# Données : 25,25;30,20;2,4|3,5
+A_COMPLETER
+
+[Cas 2 — Trois origines deux destinations]
+# Données : 10,20,30;25,35;4,6|2,5|3,1
+A_COMPLETER
+
+[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]
+# Données : 20,30;20,30;5,8|4,2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Méthode du Coin Nord-Ouest (Transport)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire une solution de base réalisable initiale par la règle du coin Nord-Ouest.</p>
+    <div class="lab__brief"><p>Dans un problème de transport équilibré (somme des offres = somme des demandes), la règle du <strong>Coin Nord-Ouest</strong> commence en haut à gauche $(i=0, j=0)$ :</p><ul>  <li>Alloue $x_{ij} = \min(offre_i, demande_j)$ ;</li>  <li>Soustrait cette quantité de $offre_i$ et $demande_j$ ;</li>  <li>Si $offre_i = 0$, avance vers le bas ($i \leftarrow i + 1$) ; si $demande_j = 0$, avance vers la droite ($j \leftarrow j + 1$).</li></ul><p>Analysez les paramètres du problème pour chaque cas...;d1,d2,...;cout11,cout12,...|cout21,cout22,...|...</code>.<br>Calcule les flux non nuls alloués et le coût total de transport $C = \sum x_{ij} \times c_{ij}$.<br>Indiquez :<br><code>FLUX: (i,j)=qte,... COUT_TOTAL=&lt;C à 1 décimale&gt;</code><br>(les indices $i, j$ sont 1-indexés).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>30,40;20,30,20;3,5,7|2,4,6</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>FLUX: (1,1)=20.0,(1,2)=10.0,(2,2)=20.0,(2,3)=20.0 COUT_TOTAL=310.0</pre></div>
+    </div>
+    <p class="lab__note">O1=30, D1=20 -&gt; (1,1)=20. D1 est satisfaite. O1 restant=10, D2=30 -&gt; (1,2)=10. O1 épuisée. O2=40, D2 restant=20 -&gt; (2,2)=20. O2 restant=20, D3=20 -&gt; (2,3)=20. Coût: 20*3 + 10*5 + 20*4 + 20*6 = 60+50+80+120 = 310.0.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La méthode du coin Nord-Ouest initialise la matrice de transport en saturant d’abord la case (1, 1).</li>
+        <li>À chaque étape, allouez min(offre restante, demande restante) et déplacez-vous vers la droite ou vers le bas selon la saturation.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="20,30;25,25;3,5|2,4">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c5-e2) — Méthode du Moindre Coût (Transport économique)
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Matrice 2x2 contrastée]
+# Données : 30,20;25,25;4,2|3,5
+A_COMPLETER
+
+[Cas 2 — Matrice 2x2 avec coûts équilibrés]
+# Données : 40,40;30,50;1,3|2,1
+A_COMPLETER
+
+[Cas 3 — Avantage net sur la diagonale]
+# Données : 15,15;15,15;1,9|9,2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Méthode du Moindre Coût (Transport économique)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire une solution initiale de transport par allocation gloutonne sur la case la moins chère.</p>
+    <div class="lab__brief"><p>Contrairement au Coin Nord-Ouest qui ignore les prix, la <strong>Méthode du Moindre Coût</strong> sélectionne à chaque étape la cellule $(i, j)$ encore active ayant le coût unitaire $c_{ij}$ le plus faible de toute la matrice :</p><ul>  <li>Alloue $q = \min(offre_i, demande_j)$ à cette cellule ;</li>  <li>Met à jour l’offre et la demande restantes ;</li>  <li>Désactive la ligne $i$ (si $offre_i = 0$) ou la colonne $j$ (si $demande_j = 0$).</li></ul><p>Analysez les paramètres du problème pour chaque cas.<br>Indiquez : <code>MOINDRE_COUT: COUT_TOTAL=&lt;C à 1 décimale&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>20,30;25,25;3,5|2,4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MOINDRE_COUT: COUT_TOTAL=170.0</pre></div>
+    </div>
+    <p class="lab__note">Allocation : (2,1)=25 (coût 2), (2,2)=5 (coût 4), (1,2)=20 (coût 5). Coût total = 25*2 + 5*4 + 20*5 = 50 + 20 + 100 = 170.0.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Repère les indices (i, j) non encore saturés avec le coût min.</li>
+        <li>Soustrait q de l'offre i et de la demande j jusqu'à épuisement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="10,15,20|12,8,14|9,13,11">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c5-e3) — Algorithme Hongrois (Affectation minimale)
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Matrice 3x3 diagonale optimale]
+# Données : 4,8,9|6,3,7|8,5,2
+A_COMPLETER
+
+[Cas 2 — Matrice 3x3 avec permutation croisée]
+# Données : 15,10,9|9,15,10|10,12,8
+A_COMPLETER
+
+[Cas 3 — Coûts identiques sur plusieurs cases]
+# Données : 5,5,5|5,5,5|5,5,5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Algorithme Hongrois (Affectation minimale)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les étapes de réduction de matrice pour résoudre un problème d’affectation.</p>
+    <div class="lab__brief"><p>Le problème d’affectation consiste à attribuer $n$ personnes à $n$ tâches de façon bijective en minimisant la somme des coûts. L’<strong>algorithme de Kuhn-Munkres (Hongrois)</strong> débute par :</p><ol>  <li><strong>Réduction par ligne</strong> : soustraire le minimum de chaque ligne à tous ses éléments ;</li>  <li><strong>Réduction par colonne</strong> : soustraire le minimum de chaque colonne à tous ses éléments.</li></ol><p>Analysez les paramètres du problème pour chaque cas.<br>Effectue la réduction complète (lignes puis colonnes).<br>Pour toutes les permutations possibles de 3 affectations bijectives, trouve celle qui minimise la somme des coûts d’origine.<br>Indiquez : <code>COUT_MIN=&lt;valeur entière&gt; AFFECTATION=&lt;j1&gt;,&lt;j2&gt;,&lt;j3&gt;</code><br>où $j_k$ est la tâche (1-indexée) affectée à la personne $k$.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10,15,20|12,8,14|9,13,11</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>COUT_MIN=29 AFFECTATION=1,2,3</pre></div>
+    </div>
+    <p class="lab__note">Affectation : P1-&gt;T1 (10), P2-&gt;T2 (8), P3-&gt;T3 (11). Coût total = 10 + 8 + 11 = 29.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour une matrice 3x3, il y a exactement 3! = 6 permutations d'affectation.</li>
+        <li>Évalue les 6 sommes des coûts d'origine pour trouver la bijection optimale.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans un problème de transport équilibré avec m usines et n magasins, combien de cellules de base une solution réalisable non dégénérée doit-elle contenir ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">m + n - 1 cellules</button>
+        <button class="opt">m * n cellules</button>
+        <button class="opt">m + n cellules</button>
+        <button class="opt">m - n + 1 cellules</button>
+      </div>
+      <div class="q__exp">Le nombre de contraintes indépendantes est $m + n - 1$ en raison de la redondance de l’équation d’équilibre global.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait-on si la somme des offres des usines (1 200 unités) dépasse la somme des demandes des clients (1 000 unités) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">On ajoute une destination fictive ayant une demande de 200 unités avec des coûts de transport nuls (0 €)</button>
+        <button class="opt">On refuse de résoudre le problème</button>
+        <button class="opt">On réduit arbitrairement la capacité de la première usine</button>
+        <button class="opt">On augmente les prix de transport de 20 %</button>
+      </div>
+      <div class="q__exp">Une colonne fictive à coût nul absorbe l’excédent de production sans biaiser les coûts réels.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’inconvénient majeur de la méthode du Coin Nord-Ouest par rapport à la méthode du Moindre Coût ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle ignore totalement les coûts de transport c_ij et peut attribuer de gros volumes aux liaisons les plus chères</button>
+        <button class="opt">Elle ne garantit pas la faisabilité de la solution</button>
+        <button class="opt">Elle crée des divisions par zéro</button>
+        <button class="opt">Elle ne fonctionne que pour les matrices carrées</button>
+      </div>
+      <div class="q__exp">Le Coin Nord-Ouest ne regarde que la position dans la matrice, conduisant souvent à une solution initiale coûteuse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la méthode MODI, quelle équation lie les potentiels u_i et v_j aux coûts c_ij pour les cases occupées de la base ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">u_i + v_j = c_ij</button>
+        <button class="opt">u_i * v_j = c_ij</button>
+        <button class="opt">u_i - v_j = c_ij</button>
+        <button class="opt">u_i + v_j = 0</button>
+      </div>
+      <div class="q__exp">Pour chaque case de base, la somme des potentiels de ligne et de colonne égale exactement le coût unitaire de transport.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle condition une solution de transport est-elle déclarée optimale selon la méthode MODI ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Lorsque tous les coûts marginaux Δ_ij = c_ij - (u_i + v_j) des cases vides sont positifs ou nuls (≥ 0)</button>
+        <button class="opt">Lorsque tous les potentiels u_i sont négatifs</button>
+        <button class="opt">Lorsque le coût total est strictement égal à 0</button>
+        <button class="opt">Quand toutes les cellules de la matrice sont remplies</button>
+      </div>
+      <div class="q__exp">Si tous les $\Delta_{ij} \ge 0$, aucune réallocation le long d’un cycle ne peut faire baisser le coût total.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment s’appelle la première étape de l’algorithme Hongrois pour le problème d’affectation ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La réduction des lignes (soustraire le minimum de chaque ligne)</button>
+        <button class="opt">L’inversion de la matrice de covariance</button>
+        <button class="opt">Le calcul du déterminant de Vandermonde</button>
+        <button class="opt">La triangulation de Cholesky</button>
+      </div>
+      <div class="q__exp">On commence par soustraire le plus petit coût de chaque ligne afin de créer au moins un zéro par ligne sans changer les écarts relatifs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’algorithme Hongrois pour une matrice 4×4, que conclut-on si l’on peut recouvrir l’ensemble des zéros avec seulement 3 lignes ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’affectation n’est pas encore optimale, il faut effectuer un ajustement matriciel</button>
+        <button class="opt">La solution optimale est déjà trouvée</button>
+        <button class="opt">Le problème n’a aucune solution bijective</button>
+        <button class="opt">Il faut permuter les colonnes</button>
+      </div>
+      <div class="q__exp">Il faut un nombre de lignes de couverture égal à la dimension de la matrice ($k = n = 4$) pour pouvoir extraire 4 zéros indépendants.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité théorique de l’algorithme Hongrois pour affecter n personnes à n postes ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Polynomiale en O(n³)</button>
+        <button class="opt">Exponentielle en O(n!)</button>
+        <button class="opt">Linéaire en O(n)</button>
+        <button class="opt">Logarithmique en O(log n)</button>
+      </div>
+      <div class="q__exp">L’algorithme de Kuhn-Munkres résout l’affectation en temps polynomial $O(n^3)$, évitant la recherche exhaustive parmi les $n!$ permutations.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de vérifier l’équilibre offre-demande avant de lancer le Coin Nord-Ouest.</li>
+      <li>Construire un cycle de marchepied (stepping-stone) qui ne comporte pas exactement des angles droits sur des cellules de base.</li>
+      <li>Confondre le coût marginal $\Delta_{ij} = c_{ij} - (u_i + v_j)$ avec le coût réel $c_{ij}$.</li>
+      <li>Dans l’algorithme Hongrois, soustraire le minimum de colonne avant d’avoir terminé la réduction par ligne.</li>
+      <li>Ajouter $m$ au lieu de le soustraire lors de l’ajustement des cellules non couvertes dans l’algorithme Hongrois.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de résolution d’un problème de transport par MODI</div>
+    <ol>
+      <li>Vérifier que le problème est équilibré ($\sum O_i = \sum D_j$) ou ajouter une ligne/colonne fictive à coût nul.</li>
+      <li>Déterminer une solution de base réalisable initiale de $m + n - 1$ flux par la méthode du Moindre Coût.</li>
+      <li>Poser $u_1 = 0$, puis résoudre le système $u_i + v_j = c_{ij}$ sur l’ensemble des cases de base pour trouver tous les potentiels.</li>
+      <li>Calculer $\Delta_{ij} = c_{ij} - (u_i + v_j)$ sur toutes les cases vides. Si tous les $\Delta_{ij} \ge 0$, la solution est optimale.</li>
+      <li>Si le plus petit $\Delta_{ij} < 0$, tracer son cycle de marchepied unique, réallouer le flux maximal $\theta$, et recalculer les potentiels.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le problème de transport est équilibré si $\sum O_i = \sum D_j$. Sinon, on crée une entité fictive à coût nul.</li>
+      <li>Une solution de base compte exactement $m + n - 1$ cellules occupées sans former de boucle fermée.</li>
+      <li>La méthode du Moindre Coût alloue prioritairement les flux aux liaisons les moins chères.</li>
+      <li>La méthode MODI utilise les potentiels $u_i + v_j = c_{ij}$ pour évaluer les coûts marginaux $\Delta_{ij} = c_{ij} - u_i - v_j$.</li>
+      <li>L’algorithme Hongrois résout l’affectation $n \times n$ en $O(n^3)$ par réductions successives des lignes et colonnes.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais vérifier l’équilibre d’un tableau de transport et introduire une ligne/colonne fictive.</li>
+      <li>Je sais dérouler la méthode du Coin Nord-Ouest et celle du Moindre Coût.</li>
+      <li>Je sais poser et résoudre les équations des potentiels $u_i + v_j = c_{ij}$.</li>
+      <li>Je sais calculer les coûts réduits $\Delta_{ij}$ pour prouver l’optimalité.</li>
+      <li>Je sais dérouler les 5 étapes de l’algorithme Hongrois sur une matrice d’affectation.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Problème de transport</li><li>Matrice équilibrée</li><li>Origine / Destination fictive</li><li>Coin Nord-Ouest (NWC)</li><li>Moindre Coût (LCM)</li><li>Méthode MODI (u-v)</li><li>Cycle du marchepied (Stepping-stone)</li><li>Problème d’affectation</li><li>Algorithme Hongrois (Kuhn-Munkres)</li><li>Potentiels duaux</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois le principe d’équilibrage offre/demande et la méthode du Coin Nord-Ouest.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le calcul des potentiels duaux u_i et v_j dans la méthode MODI.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises le critère d’optimalité et les réductions de l’algorithme Hongrois.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux graphes, flots et ordonnancement au chapitre 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Ordonnancement PERT / CPM &amp; Flots de Réseaux <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Recherche Opérationnelle B2, les publications historiques de George Dantzig (1947), Ford & Fulkerson (1956) et les manuels de référence en optimisation linéaire.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

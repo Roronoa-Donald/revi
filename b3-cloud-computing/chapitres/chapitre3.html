@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Technologies de Virtualisation, Hyperviseurs &amp;amp; Dimensionnement | Cloud Computing B3</title>
+<meta name="description" content="Chapitre 3 du cours Cloud Computing B3 : Hyperviseurs Type 1 Bare-Metal vs Type 2 Hosted, virtualisation matérielle HVM vs paravirtualisation, ratios de sur-allocation (vCPU/RAM), dimensionnement d’instances face aux charges crêtes. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-computing/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Technologies de Virtualisation, Hyperviseurs &amp;amp; Dimensionnement | Cloud Computing B3">
+<meta property="og:description" content="Chapitre 3 du cours Cloud Computing B3 : Hyperviseurs Type 1 Bare-Metal vs Type 2 Hosted, virtualisation matérielle HVM vs paravirtualisation, ratios de sur-allocation (vCPU/RAM), dimensionnement d’instances face aux charges crêtes. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-computingnav"><div class="b3-cloud-computingnav__in">
+  <a class="b3-cloud-computingnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-computingnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-computingnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Cloud Computing B3</a>
+  <div class="b3-cloud-computingnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-computingnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-computingwrap">
+<p class="crumb"><a href="../index.html">Cloud Computing B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Technologies de Virtualisation, Hyperviseurs &amp; Dimensionnement</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La virtualisation constitue le socle technologique fondamental sans lequel le Cloud Computing ne pourrait exister. C’est elle qui permet d’abstraire les composants matériels physiques (processeurs, mémoire vive, disques, cartes réseau) pour créer à la volée des machines virtuelles isolées et dynamiques. Toutefois, mal appréhendée, la virtualisation introduit des pertes de performances (overhead), des contentions d’accès aux ressources physiques et des goulots d’étranglement sévères lors de pics de trafic. L’ingénieur système et cloud de niveau B3 doit maîtriser les rouages internes des hyperviseurs de Type 1 et 2, calculer les limites saines de sur-allocation (overcommitment) et dimensionner rigoureusement ses instances face aux contraintes transactionnelles.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser le fonctionnement interne et les couches d’abstraction des hyperviseurs de Type 1 (Bare-Metal) et Type 2 (Hosted) ;</li>
+      <li>différencier la virtualisation complète assistée matériellement (HVM) de la paravirtualisation (PV) et des conteneurs ;</li>
+      <li>comprendre les mécanismes d’ordonnancement CPU (vCPU vers cœurs physiques pCPU) et de gestion mémoire (Memory Ballooning, KSM) ;</li>
+      <li>calculer les ratios de consolidation et de sur-allocation admissible pour les processeurs et la mémoire vive ;</li>
+      <li>dimensionner une flotte d’instances pour absorber une charge transactionnelle crête en calculant les limites CPU, RAM et IOPS ;</li>
+      <li>prévenir les phénomènes de « noisy neighbor » et les contentions de ressources sur les hôtes mutualisés.</li>
+    </ol>
+  </div>
+
+<h2>1. Taxonomie des Hyperviseurs : Type 1 Bare-Metal vs Type 2 Hosted</h2>
+
+<p>L’hyperviseur (ou Virtual Machine Monitor - VMM) gère l’allocation des ressources physiques et l’isolation des machines virtuelles. On distingue deux architectures fondamentales :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Hyperviseur de Type 1 (Bare-Metal / Natif)</h4>
+    <p>S’exécute directement sur le matériel nu (processeur, RAM, bus) sans système d’exploitation hôte intermédiaire.<br>
+    <strong>Avantages :</strong> Overhead ultra-faible (&lt; 2-3%), latence minimale, sécurité maximale.<br>
+    <strong>Exemples :</strong> KVM (intégré au noyau Linux), VMware ESXi, Citrix XenServer, Microsoft Hyper-V Core.<br>
+    <strong>Usage :</strong> Tous les datacenters de production Cloud mondiaux (AWS Nitro, Azure Hyper-V, GCP KVM).</p>
+  </div>
+  <div class="card">
+    <h4>Hyperviseur de Type 2 (Hosted / Hébergé)</h4>
+    <p>S’exécute comme une application logicielle conventionnelle au-dessus d’un OS hôte complet (Windows, macOS, Linux).<br>
+    <strong>Inconvénients :</strong> Double ordonnanceur, overhead élevé (7% à 15%), latence accrue des entrées/sorties.<br>
+    <strong>Exemples :</strong> VirtualBox, VMware Workstation, VMware Fusion.<br>
+    <strong>Usage :</strong> Environnements de développement local, tests ponctuels sur poste de travail ingénieur.</p>
+  </div>
+</div>
+
+<h2>2. Modes d’Émulation : HVM, Paravirtualisation (PV) et Conteneurs</h2>
+
+<p>La manière dont les instructions processeur et les pilotes de périphériques sont traduits détermine directement la vitesse d’exécution :</p>
+<ul>
+  <li><strong>HVM (Hardware Virtual Machine) :</strong> Exploite les extensions matérielles des processeurs modernes (Intel VT-x / AMD-V) qui ajoutent un niveau de privilège sous le Ring 0 (« Ring -1 » ou mode VMX root). L’OS invité fonctionne sans aucune modification comme sur une machine physique dédiée.</li>
+  <li><strong>Paravirtualisation (PV) :</strong> L’OS invité est modifié pour avoir conscience qu’il tourne dans une machine virtuelle. Il communique avec l’hyperviseur via des appels système spécifiques (<em>hypercalls</em>), réduisant l’émulation logicielle des périphériques réseau et disque.</li>
+  <li><strong>Conteneurisation (OS-level Virtualization) :</strong> Ne virtualise pas le matériel, mais isole des processus applicatifs partageant le même noyau d’OS hôte via les <em>cgroups</em> (limitation des ressources CPU/RAM) et les <em>namespaces</em> (isolation des processus, réseaux et systèmes de fichiers). Démarrage instantané en millisecondes et zéro overhead d’hyperviseur.</li>
+</ul>
+
+<h2>3. Consolidation, Sur-Allocation (Overcommitment) &amp; Dimensionnement</h2>
+
+<p>Pour rentabiliser les investissements matériels, les hébergeurs mutualisent les capacités en misant sur le fait que toutes les VMs n’exploitent pas 100% de leurs ressources en même temps :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Sur-Allocation CPU (vCPU to pCPU Ratio)</h4>
+    <p>On alloue plus de cœurs virtuels que de cœurs physiques réels :<br>
+    $$Ratio_{vCPU} = \frac{\sum vCPU}{pCPU}$$<br>
+    - Ratio standard admis en Cloud d’entreprise : 2:1 à 4:1.<br>
+    - Au-delà de 5:1 : risque critique de saturation CPU Ready Time (les VMs attendent pour exécuter un cycle CPU).</p>
+  </div>
+  <div class="card">
+    <h4>Sur-Allocation Mémoire (RAM Overcommitment)</h4>
+    <p>La RAM ne pouvant être compressée indéfiniment sans impacter la réactivité, le sur-engagement mémoire doit rester très modéré :<br>
+    $$Ratio_{RAM} = \frac{\sum RAM_{allouée}}{RAM_{physique}}$$<br>
+    - Ratio sain : 1.0 à 1.25 maximum.<br>
+    - Exploite le <em>Memory Ballooning</em> (gonflement d’un pilote invité pour récupérer les pages inactives) et le dédoublonnage (KSM).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cc3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="HYPERVISEUR nom=kvm_prod COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=1.8&#10;HYPERVISEUR nom=virtualbox_dev COUCHE=HOSTED ACCEL=OUI OVERHEAD=9.2&#10;HYPERVISEUR nom=xen_legacy COUCHE=BARE_METAL ACCEL=NON OVERHEAD=4.5">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c3-e1) — Classificateur d’hyperviseurs (Bare-Metal vs Hosted, HVM vs PV)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — VMware ESXi Datacenter]
+# Données : HYPERVISEUR nom=esxi_cluster COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=2.1
+A_COMPLETER
+
+[Cas 2 — Poste de travail avec VMware Workstation]
+# Données : HYPERVISEUR nom=vm_workstation COUCHE=HOSTED ACCEL=OUI OVERHEAD=7.5
+A_COMPLETER
+
+[Cas 3 — Vieux conteneur hébergé sans assistance CPU]
+# Données : HYPERVISEUR nom=vserver_old COUCHE=HOSTED ACCEL=NON OVERHEAD=12.0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Classificateur d’hyperviseurs (Bare-Metal vs Hosted, HVM vs PV)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier le type architectural d’hyperviseur et le mode d’émulation matérielle pour qualifier son overhead et son adéquation Cloud.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Règles de classification :<br>
+- <strong>Type architectural</strong> : <code>TYPE_1_BARE_METAL</code> si <code>COUCHE == BARE_METAL</code>, sinon <code>TYPE_2_HOSTED</code>.<br>
+- <strong>Mode d’exécution</strong> : <code>HVM</code> (Hardware Virtual Machine) si <code>ACCEL == OUI</code> (Intel VT-x / AMD-V actif), sinon <code>PV</code> (Paravirtualisation avec modification du noyau invité).<br>
+- <strong>Performance</strong> :<br>
+  - Si <code>OVERHEAD &lt;= 3.0</code> : <code>PERF=OPTIMALE</code><br>
+  - Sinon si <code>OVERHEAD &lt;= 8.0</code> : <code>PERF=BONNE</code><br>
+  - Sinon : <code>PERF=DEGRADEE</code><br><br>
+Afficher :<br>
+<code>HYPERVISEUR: &lt;nom&gt; -&gt; ARCH=&lt;TYPE&gt; | MODE=&lt;MODE&gt; | PERF=&lt;PERF&gt; (OVERHEAD=&lt;OVERHEAD:.1f&gt;%)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HYPERVISEUR nom=kvm_prod COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=1.8
+HYPERVISEUR nom=virtualbox_dev COUCHE=HOSTED ACCEL=OUI OVERHEAD=9.2
+HYPERVISEUR nom=xen_legacy COUCHE=BARE_METAL ACCEL=NON OVERHEAD=4.5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>HYPERVISEUR: kvm_prod -&gt; ARCH=TYPE_1_BARE_METAL | MODE=HVM | PERF=OPTIMALE (OVERHEAD=1.8%)
+HYPERVISEUR: virtualbox_dev -&gt; ARCH=TYPE_2_HOSTED | MODE=HVM | PERF=DEGRADEE (OVERHEAD=9.2%)
+HYPERVISEUR: xen_legacy -&gt; ARCH=TYPE_1_BARE_METAL | MODE=PV | PERF=BONNE (OVERHEAD=4.5%)</pre></div>
+    </div>
+    <p class="lab__note">KVM bare-metal avec HVM offre les meilleures performances en production Cloud.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les hyperviseurs de Type 1 (ESXi, KVM, Xen) tournent directement sur le matériel.</li>
+        <li>Le mode HVM exploite la virtualisation assistée par le processeur hôte.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.20&#10;VM id=web1 vcpu=8 ram_gb=16&#10;VM id=web2 vcpu=8 ram_gb=16&#10;VM id=app1 vcpu=16 ram_gb=32">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c3-e2) — Calculateur de consolidation et sur-allocation (Overcommitment)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Surcharge exclusive sur la RAM]
+# Données : HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.10
+# Données : VM id=vm1 vcpu=16 ram_gb=40
+# Données : VM id=vm2 vcpu=16 ram_gb=40
+A_COMPLETER
+
+[Cas 2 — Surcharge exclusive sur les vCPU]
+# Données : HOTE pcpu=8 ram_gb=128 max_vcpu_ratio=2.00 max_ram_ratio=1.20
+# Données : VM id=node1 vcpu=12 ram_gb=32
+# Données : VM id=node2 vcpu=12 ram_gb=32
+A_COMPLETER
+
+[Cas 3 — Double dépassement vCPU et RAM]
+# Données : HOTE pcpu=4 ram_gb=16 max_vcpu_ratio=2.00 max_ram_ratio=1.00
+# Données : VM id=heavy1 vcpu=8 ram_gb=12
+# Données : VM id=heavy2 vcpu=8 ram_gb=12
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de consolidation et sur-allocation (Overcommitment)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la faisabilité d’hébergement d’un lot de machines virtuelles sur un hôte physique selon les plafonds de sur-allocation vCPU et RAM.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br><br>
+Calculs :<br>
+- $VCPU_{total} = \sum vcpu$<br>
+- $RAM_{total} = \sum ram\_gb$<br>
+- $Ratio_{vcpu} = VCPU_{total} / pcpu$<br>
+- $Ratio_{ram} = RAM_{total} / ram\_gb$<br><br>
+Vérification des contraintes :<br>
+- Si $Ratio_{vcpu} &gt; max\_vcpu\_ratio$ et $Ratio_{ram} &gt; max\_ram\_ratio$ : <code>STATUT=SURCHARGE (DEPASSEMENT=VCPU_ET_RAM)</code><br>
+- Si $Ratio_{vcpu} &gt; max\_vcpu\_ratio$ seul : <code>STATUT=SURCHARGE (DEPASSEMENT=VCPU)</code><br>
+- Si $Ratio_{ram} &gt; max\_ram\_ratio$ seul : <code>STATUT=SURCHARGE (DEPASSEMENT=RAM)</code><br>
+- Sinon : <code>STATUT=VALIDE</code><br><br>
+Afficher :<br>
+<code>CONSOLIDATION: VMS=&lt;nb&gt; | VCPU=&lt;VCPU_total&gt;/&lt;p&gt; (ratio=&lt;Ratio_vcpu:.2f&gt;/&lt;max_v:.2f&gt;) | RAM=&lt;RAM_total&gt;/&lt;r&gt;GB (ratio=&lt;Ratio_ram:.2f&gt;/&lt;max_r:.2f&gt;) | STATUT=&lt;STATUT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.20
+VM id=web1 vcpu=8 ram_gb=16
+VM id=web2 vcpu=8 ram_gb=16
+VM id=app1 vcpu=16 ram_gb=32</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CONSOLIDATION: VMS=3 | VCPU=32/16 (ratio=2.00/3.00) | RAM=64/64GB (ratio=1.00/1.20) | STATUT=VALIDE</pre></div>
+    </div>
+    <p class="lab__note">Ratio CPU de 2.00 &lt;= 3.00 et ratio RAM de 1.00 &lt;= 1.20 : consolidation parfaitement recevable.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En virtualisation Cloud, un ratio vCPU:pCPU de 2:1 à 4:1 est courant, mais la RAM ne doit être que très modérément sur-allouée (1.0 à 1.25).</li>
+        <li>Arrondir les ratios à 2 décimales pour l'affichage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CHARGE tps=500 cpu_ms=12 ram_mb=16 iops=4&#10;SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=3000 marge_securite=70">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c3-e3) — Dimensionnement d’instances face à une charge crête transactionnelle
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Goulot d’étranglement sur les entrées-sorties disque IOPS]
+# Données : CHARGE tps=2000 cpu_ms=2 ram_mb=8 iops=10
+# Données : SPEC_NOEUD cpu_max_ms=8000 ram_max_gb=32 iops_max=4000 marge_securite=80
+A_COMPLETER
+
+[Cas 2 — Application gloutonne en mémoire vive RAM]
+# Données : CHARGE tps=1000 cpu_ms=3 ram_mb=128 iops=2
+# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=5000 marge_securite=75
+A_COMPLETER
+
+[Cas 3 — Charge modérée sur nœud puissant]
+# Données : CHARGE tps=100 cpu_ms=10 ram_mb=32 iops=5
+# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=2000 marge_securite=80
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Dimensionnement d’instances face à une charge crête transactionnelle</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre minimal d’instances Cloud nécessaires pour absorber un pic de transactions par seconde (TPS) selon les limites CPU, RAM et IOPS.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
+Formules :<br>
+Le coefficient de sécurité $K = marge\_securite / 100.0$ (ex: 70% -&gt; 0.70).<br>
+Besoins globaux par seconde :<br>
+- $Besoin_{cpu} = tps \times cpu\_ms$ (en ms)<br>
+- $Besoin_{ram} = (tps \times ram\_mb) / 1024$ (en Go)<br>
+- $Besoin_{iops} = tps \times iops$ (en opérations/sec)<br><br>
+Instances requises par critère (arrondi supérieur <code>math.ceil</code>) :<br>
+- $N_{cpu} = \lceil Besoin_{cpu} / (cpu\_max\_ms \times K) \rceil$<br>
+- $N_{ram} = \lceil Besoin_{ram} / (ram\_max\_gb \times K) \rceil$<br>
+- $N_{iops} = \lceil Besoin_{iops} / (iops\_max \times K) \rceil$<br><br>
+Nombre final d'instances : $N_{final} = \max(N_{cpu}, N_{ram}, N_{iops})$.<br>
+Facteur limitant : le premier critère atteignant $N_{final}$ dans l'ordre de priorité <code>CPU</code>, <code>RAM</code>, <code>IOPS</code>.<br><br>
+Afficher :<br>
+<code>SIZING: TPS=&lt;tps&gt; -&gt; INSTANCES=&lt;N_final&gt; (CPU=&lt;N_cpu&gt;, RAM=&lt;N_ram&gt;, IOPS=&lt;N_iops&gt;) | LIMITANT=&lt;LIMITANT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CHARGE tps=500 cpu_ms=12 ram_mb=16 iops=4
+SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=3000 marge_securite=70</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SIZING: TPS=500 -&gt; INSTANCES=3 (CPU=3, RAM=1, IOPS=1) | LIMITANT=CPU</pre></div>
+    </div>
+    <p class="lab__note">CPU réclame 500 * 12 = 6000 ms/s. Chaque nœud à 70% délivre 2800 ms/s. ceil(6000/2800) = 3 instances.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser math.ceil pour obtenir un nombre entier d’instances suffisant.</li>
+        <li>Ne pas oublier de diviser ram_mb par 1024 pour comparer avec ram_max_gb.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel type d’hyperviseur s’exécute directement sur le matériel physique sans passer par un système d’exploitation hôte intermédiaire ?</p>
+      <div class="opts">
+        <button class="opt">Hyperviseur de Type 2 (Hosted)</button>
+        <button class="opt" data-correct="1">Hyperviseur de Type 1 (Bare-Metal)</button>
+        <button class="opt">Moteur de conteneurs Docker</button>
+        <button class="opt">Émulateur d’architecture QEMU en mode utilisateur</button>
+      </div>
+      <div class="q__exp">L’hyperviseur de Type 1 (Bare-Metal) est installé directement sur le matériel informatique physique, offrant un niveau de performance et de sécurité optimal.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle technologie matérielle permet aux processeurs modernes d’exécuter des machines virtuelles HVM avec un minimum d’émulation logicielle ?</p>
+      <div class="opts">
+        <button class="opt">L’hyper-threading uniquement</button>
+        <button class="opt" data-correct="1">Les extensions Intel VT-x et AMD-V</button>
+        <button class="opt">Le bus PCI Express 5.0</button>
+        <button class="opt">Le protocole d’adressage IPv6</button>
+      </div>
+      <div class="q__exp">Intel VT-x et AMD-V sont des instructions processeur dédiées qui créent un mode d’exécution racine sous le Ring 0 (VMX root) pour intercepter efficacement les opérations sensibles des invités.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un serveur hôte physique disposant de 16 cœurs physiques (pCPU), on déploie 12 VMs configurées avec 4 vCPU chacune. Quel est le ratio de sur-allocation CPU résultant ?</p>
+      <div class="opts">
+        <button class="opt">1.50:1</button>
+        <button class="opt" data-correct="1">3.00:1</button>
+        <button class="opt">0.33:1</button>
+        <button class="opt">4.00:1</button>
+      </div>
+      <div class="q__exp">Total vCPU alloués = 12 * 4 = 48 vCPU. Ratio = 48 / 16 = 3.00:1 (3 vCPU virtuels pour chaque cœur physique réel).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment s’appelle la technique qui permet à l’hyperviseur de récupérer de la RAM inutilisée au sein d’une VM invité sans redémarrage ?</p>
+      <div class="opts">
+        <button class="opt">Le Swapping disque brut</button>
+        <button class="opt" data-correct="1">Le Memory Ballooning</button>
+        <button class="opt">L’Overclocking dynamique</button>
+        <button class="opt">La pagination synchrone</button>
+      </div>
+      <div class="q__exp">Le pilote de ballonnement (Memory Ballooning) gonfle artificiellement à l’intérieur de la VM pour contraindre son OS invité à libérer des pages mémoires inactives au profit de l’hyperviseur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle métrique de l’hyperviseur indique qu’une machine virtuelle possède du travail à exécuter mais attend désespérément qu’un cœur physique se libère ?</p>
+      <div class="opts">
+        <button class="opt">CPU Utilization</button>
+        <button class="opt" data-correct="1">CPU Ready Time (%RDY)</button>
+        <button class="opt">Memory Footprint</button>
+        <button class="opt">Disk IOPS</button>
+      </div>
+      <div class="q__exp">Le CPU Ready Time (%RDY) mesure le pourcentage de temps pendant lequel une VM prête à exécuter des instructions est mise en attente par l’ordonnanceur faute de pCPU disponible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une charge transactionnelle crête réclame 5 instances pour le CPU, 2 instances pour la RAM et 8 instances pour absorber les IOPS disque, combien d’instances complètes faut-il allouer au minimum ?</p>
+      <div class="opts">
+        <button class="opt">2 instances</button>
+        <button class="opt">5 instances</button>
+        <button class="opt" data-correct="1">8 instances</button>
+        <button class="opt">15 instances</button>
+      </div>
+      <div class="q__exp">Il faut retenir le maximum des besoins, soit 8 instances. Le facteur limitant ici est le sous-système de disques IOPS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment qualifie-t-on le problème où une machine virtuelle voisine consomme de manière abusive les ressources partagées (CPU, bus disque), dégradant les autres VMs sur le même hôte ?</p>
+      <div class="opts">
+        <button class="opt">Le problème du « Silent Partner »</button>
+        <button class="opt" data-correct="1">Le phénomène du « Noisy Neighbor » (voisin bruyant)</button>
+        <button class="opt">L’attaque par rejeu temporel</button>
+        <button class="opt">La rupture de quorum</button>
+      </div>
+      <div class="q__exp">Le phénomène de « Noisy Neighbor » survient lorsqu’une VM monopolise les ressources physiques partagées au détriment des autres locataires de l’hôte physique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la principale différence architecturale entre un conteneur et une machine virtuelle classique ?</p>
+      <div class="opts">
+        <button class="opt">Le conteneur possède son propre hyperviseur Type 1 dédié</button>
+        <button class="opt" data-correct="1">Le conteneur partage le noyau du système d’exploitation hôte avec les autres conteneurs</button>
+        <button class="opt">Le conteneur ne peut pas exécuter de code binaire</button>
+        <button class="opt">Le conteneur ne supporte pas le réseau IP</button>
+      </div>
+      <div class="q__exp">Les conteneurs partagent le noyau de l’OS hôte et isolent les processus via des mécanismes natifs (cgroups, namespaces), éliminant l’émulation matérielle d’une VM.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Sur-allouer la RAM au-delà de 1.30 sans surveiller les temps d’accès disque, causant des gels complets de machines virtuelles.</li>
+      <li>Assigner 16 vCPU à une machine virtuelle sur un hôte à 16 cœurs, paralysant l’ordonnanceur SMP de l’hyperviseur.</li>
+      <li>Croire que la conteneurisation Docker est un hyperviseur complet : elle partage le noyau de l’hôte.</li>
+      <li>Dimensionner une application uniquement sur le critère CPU en ignorant les limites de débit disque IOPS.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Dimensionnement d’une Infrastructure Virtualisée</div>
+    <ol>
+      <li>Caractériser le profil de charge de chaque service : intensif en calcul (CPU-bound), en mémoire (RAM-bound) ou en entrées/sorties (I/O-bound).</li>
+      <li>Déterminer le nombre de transactions par seconde (TPS) attendu en régime nominal et en pic critique.</li>
+      <li>Mesurer les métriques unitaires consommées par transaction : temps CPU (ms), mémoire allouée (Mo) et nombre d’IOPS disque.</li>
+      <li>Appliquer une marge de sécurité opérationnelle de 20% à 30% (taux d’utilisation cible de 70% à 80% maximum).</li>
+      <li>Calculer le nombre minimal d’instances requis pour chaque axe de ressource et retenir le facteur limitant.</li>
+      <li>Configurer des politiques d’auto-scaling horizontal (HPA) basées sur des métriques réelles (CPU, latence, file de messages).</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les hyperviseurs de Type 1 (Bare-Metal) exécutent les machines virtuelles directement sur le matériel avec un overhead négligeable.</li>
+      <li>HVM tire parti des instructions CPU Intel VT-x/AMD-V pour exécuter des systèmes d’exploitation non modifiés en quasi-natif.</li>
+      <li>La sur-allocation CPU (overcommitment) est courante (jusqu’à 3:1 ou 4:1), mais la sur-allocation RAM doit rester rigoureusement contenue pour éviter le swap disque.</li>
+      <li>Le dimensionnement face à une charge crête transactionnelle exige de comparer les besoins CPU, RAM et IOPS pour identifier le facteur limitant.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer la différence architecturale entre KVM/ESXi (Type 1) et VirtualBox (Type 2).</li>
+      <li>Je comprends le rôle des extensions Intel VT-x et AMD-V dans la virtualisation HVM.</li>
+      <li>Je sais calculer un ratio de consolidation vCPU:pCPU et vérifier son admissibilité.</li>
+      <li>Je sais expliquer comment fonctionne le memory ballooning.</li>
+      <li>Je sais dimensionner le nombre de nœuds nécessaires pour absorber un volume de transactions par seconde.</li>
+      <li>Je connais la définition du CPU Ready Time et ses conséquences sur les performances.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Hyperviseur Type 1 Bare-Metal</li><li>Hyperviseur Type 2 Hosted</li><li>Virtualisation assistée par le processeur (HVM)</li><li>Paravirtualisation (PV) et Hypercalls</li><li>Sur-allocation CPU (vCPU to pCPU Overcommitment)</li><li>Sur-allocation mémoire et Memory Ballooning</li><li>Contention et phénomène du « Noisy Neighbor »</li><li>Dimensionnement transactionnel et facteur limitant</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la différence Type 1 vs Type 2 et les calculs de ratios de sur-allocation.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bonnes connaissances, perfectionnez le dimensionnement de flotte et la gestion de l’overhead.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! L’ingénierie de la virtualisation et le dimensionnement de serveurs sont parfaitement assimilés.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Green IT, Efficacité Énergétique &amp; Métriques Environnementales <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral COURS CLOUD COMPUTING CDPS ITB3, les publications spéciales du NIST (SP 800-145), les standards The Green Grid / ISO 30134 et les référentiels professionnels AWS, Azure et ANSSI SecNumCloud.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

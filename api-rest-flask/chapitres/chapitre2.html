@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Architecture REST &amp; modélisation des ressources | API REST avec Flask B2</title>
+<meta name="description" content="Chapitre 2 du cours API REST avec Flask B2 : Contraintes architecturales de Roy Fielding, conventions d’URI, verbes HTTP canoniques, sécurité et idempotence. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/api-rest-flask/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Architecture REST &amp; modélisation des ressources | API REST avec Flask B2">
+<meta property="og:description" content="Chapitre 2 du cours API REST avec Flask B2 : Contraintes architecturales de Roy Fielding, conventions d’URI, verbes HTTP canoniques, sécurité et idempotence. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="api-rest-flasknav"><div class="api-rest-flasknav__in">
+  <a class="api-rest-flasknav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="api-rest-flasknav__sep" aria-hidden="true">/</span>
+  <a class="api-rest-flasknav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> API REST avec Flask B2</a>
+  <div class="api-rest-flasknav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="api-rest-flasknav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="api-rest-flaskwrap">
+<p class="crumb"><a href="../index.html">API REST avec Flask B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Architecture REST & modélisation des ressources</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Concevoir une API sans règles directrices produit des routes chaotiques (ex. /creerUtilisateur, /delete_item?id=5) difficiles à maintenir et à consommer. L’architecture REST standardise l’organisation autour de ressources identifiées par des URI stables et manipulées par les verbes natifs du protocole HTTP.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>assimiler les contraintes fondatrices du style architectural REST ;</li>
+      <li>comprendre le principe fondamental du Stateless (sans état) ;</li>
+      <li>modéliser des URI canoniques basées sur des noms pluriels et hiérarchiques ;</li>
+      <li>associer chaque verbe HTTP (GET, POST, PUT, PATCH, DELETE) à son usage canonique ;</li>
+      <li>distinguer les notions clés de sécurité (safe) et d’idempotence des opérations.</li>
+    </ol>
+  </div>
+
+<h2>1. Les fondements de l’architecture REST</h2>
+
+<p>L’acronyme <strong>REST</strong> (<em>Representational State Transfer</em>) désigne un style architectural théorisé en 2000 par <strong>Roy Fielding</strong> dans sa thèse de doctorat. REST ne constitue pas un protocole ou une norme fermée, mais un ensemble de contraintes architecturales guidant la conception d’API distribuées.</p>
+<p>Les 6 contraintes majeures de REST sont :</p>
+<ol>
+  <li><strong>Architecture Client-Serveur</strong> : séparation stricte de l’interface utilisateur et de la logique de persistance.</li>
+  <li><strong>Sans état (Stateless)</strong> : chaque requête du client doit contenir toutes les informations nécessaires à son traitement par le serveur. Aucune session de contexte client n’est conservée sur le serveur entre deux appels.</li>
+  <li><strong>Mise en cache (Cacheable)</strong> : les réponses doivent explicitement se déclarer cachables ou non pour réduire la latence.</li>
+  <li><strong>Interface uniforme</strong> : identification standardisée des ressources par URI, manipulation par représentations, messages auto-descriptifs et hypermédias (HATEOAS).</li>
+  <li><strong>Système en couches (Layered System)</strong> : le client ne sait pas s’il communique avec le serveur final, un reverse proxy ou un répartiteur de charge.</li>
+  <li><strong>Code à la demande (optionnel)</strong> : exécution de scripts côté client (ex. JavaScript).</li>
+</ol>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Stateless : Pourquoi aucune session serveur ?</div>
+    <p>Le principe du <em>Stateless</em> garantit une excellente scalabilité horizontale : n’importe quel nœud d’un cluster de serveurs peut traiter n’importe quelle requête client, à condition que le client transmette son jeton d’authentification à chaque fois.</p>
+  </div>
+
+<h2>2. Conception d’URI canoniques pour les ressources</h2>
+
+<p>Dans une API RESTful, une <strong>ressource</strong> représente une entité métier du système (un utilisateur, un article, une facture). L’identification s’effectue à l’aide d’une <strong>URI</strong> (<em>Uniform Resource Identifier</em>).</p>
+<p>Règles d’or de nommage des URI REST :</p>
+<ul>
+  <li><strong>Utiliser des noms, jamais des verbes</strong> : <code>/articles</code> et non <code>/getArticles</code>.</li>
+  <li><strong>Privilégier le pluriel pour les collections</strong> : <code>/utilisateurs</code> pour la collection, <code>/utilisateurs/42</code> pour un élément.</li>
+  <li><strong>Minuscules et tirets</strong> : privilégier le kebab-case (ex. <code>/centres-interet</code>) et bannir les majuscules ou underscores.</li>
+  <li><strong>Hiérarchie logique d’imbrication</strong> : pour une sous-ressource dépendante : <code>/auteurs/7/livres</code> ou <code>/commandes/12/lignes/3</code>.</li>
+</ul>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Anti-pattern : Le verbe dans l’URI</div>
+    <p>Évitez à tout prix les URI contenant des actions comme <code>/api/ajouterUtilisateur</code> ou <code>/api/supprimerArticle?id=12</code>. En REST, l’URI désigne la ressource (le <em>quoi</em>) et le verbe HTTP exprime l’action (le <em>comment</em>).</p>
+  </div>
+
+<h2>3. Verbes HTTP et matrice CRUD</h2>
+
+<p>L’interface uniforme REST mappe directement les opérations fondamentales de manipulation de données (CRUD) sur les méthodes standard du protocole HTTP :</p>
+<table class="data-table">
+  <thead>
+    <tr><th>Verbe HTTP</th><th>URI cible</th><th>Rôle CRUD</th><th>Statut typique</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>GET</code></td><td><code>/articles</code></td><td>Lister la collection</td><td><code>200 OK</code></td></tr>
+    <tr><td><code>GET</code></td><td><code>/articles/42</code></td><td>Consulter une ressource individuelle</td><td><code>200 OK</code></td></tr>
+    <tr><td><code>POST</code></td><td><code>/articles</code></td><td>Créer une nouvelle ressource</td><td><code>201 Created</code></td></tr>
+    <tr><td><code>PUT</code></td><td><code>/articles/42</code></td><td>Remplacement complet d’une ressource</td><td><code>200 OK</code></td></tr>
+    <tr><td><code>PATCH</code></td><td><code>/articles/42</code></td><td>Modification partielle d’attributs</td><td><code>200 OK</code></td></tr>
+    <tr><td><code>DELETE</code></td><td><code>/articles/42</code></td><td>Suppression d’une ressource</td><td><code>204 No Content</code></td></tr>
+  </tbody>
+</table>
+
+<h2>4. Sécurité et Idempotence des opérations</h2>
+
+<p>Deux propriétés fondamentales régissent le comportement prédictible des méthodes HTTP :</p>
+<ul>
+  <li><strong>Méthode sûre (Safe)</strong> : n’altère aucunement l’état du serveur (aucune écriture ou modification en base). Seuls <code>GET</code>, <code>HEAD</code> et <code>OPTIONS</code> sont réputés sûrs.</li>
+  <li><strong>Méthode idempotente</strong> : exécuter la requête une seule fois ou 100 fois consécutives produit exactement le même état final sur le serveur. <code>GET</code>, <code>PUT</code> et <code>DELETE</code> sont idempotents. En revanche, <code>POST</code> <strong>n’est pas idempotent</strong> (répéter la requête crée 100 ressources dupliquées).</li>
+</ul>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PUT vs PATCH : La nuance essentielle</div>
+    <p><code>PUT</code> exige de fournir l’intégralité de la ressource : les champs omis sont souvent écrasés ou réinitialisés à leur valeur par défaut. <code>PATCH</code> ne transmet que les champs à modifier sans altérer les autres propriétés existantes.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="fl2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="/API//V1/Students//">
+  <script type="text/plain" data-lab-starter>chemin = input().strip()
+
+# À compléter : normaliser le chemin REST et afficher le résultat.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Normalisation d’un chemin REST</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Formater et nettoyer un chemin d’accès REST en supprimant les doublons de slashes et les majuscules.</p>
+    <div class="lab__brief"><p>Une bonne pratique de conception REST consiste à utiliser des chemins en minuscules, sans slashes superflus, et sans slash final (sauf pour la racine <code>/</code>).</p><p>Lit une chaîne de chemin sur l’entrée standard. Nettoie la chaîne :<br>1. Convertis en minuscules.<br>2. Remplacer les séquences de slashes multiples par un slash unique.<br>3. Retirer le slash final s’il y en a un et que le chemin ne se réduit pas à <code>/</code>.<br>4. S’assurer que le chemin commence bien par un slash <code>/</code>.<br>Affiche le chemin normalisé.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/API//V1/Students//</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>/api/v1/students</pre></div>
+    </div>
+    <p class="lab__note">Slashes multiples et majuscules nettoyés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tu peux découper la chaîne avec .split("/") et filtrer les segments non vides avec [s for s in ... if s].</li>
+        <li>Reconstitue le chemin avec "/" + "/".join(segments).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fl2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="creer">
+  <script type="text/plain" data-lab-starter>action = input().strip().lower()
+
+# À compléter : afficher le verbe HTTP correspondant.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Choix du verbe HTTP canonique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer une intention métier en français à son verbe HTTP REST canonique.</p>
+    <div class="lab__brief"><p>Les principes REST associent les opérations sur les ressources aux verbes du protocole HTTP : <code>GET</code> pour lire ou lister, <code>POST</code> pour créer, <code>PUT</code> pour remplacer complètement, <code>PATCH</code> pour modifier partiellement, et <code>DELETE</code> pour supprimer.</p><p>Lit une action métier sur l’entrée standard (en ignorant la casse et les espaces) et affiche le verbe HTTP correspondant :<br>- <code>creer</code> ou <code>ajouter</code> &rarr; <code>POST</code><br>- <code>lister</code> ou <code>recuperer</code> &rarr; <code>GET</code><br>- <code>remplacer</code> &rarr; <code>PUT</code><br>- <code>modifier</code> &rarr; <code>PATCH</code><br>- <code>supprimer</code> &rarr; <code>DELETE</code><br>Pour toute autre action non reconnue, affiche <code>INCONNU</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>creer</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>POST</pre></div>
+    </div>
+    <p class="lab__note">Création d’une nouvelle ressource.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilise un dictionnaire Python associant chaque mot-clé à son verbe HTTP.</li>
+        <li>Utilise .get(action, "INCONNU") pour gérer les valeurs hors table.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fl2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="/utilisateurs/42">
+  <script type="text/plain" data-lab-starter>uri = input().strip()
+
+# À compléter : analyser l'URI et afficher le type et la cible.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Structure d’URI : Collection vs Ressource</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier si une URI REST cible une collection ou une ressource spécifique.</p>
+    <div class="lab__brief"><p>Une URI REST bien conçue suit une hiérarchie alternant nom de collection (au pluriel) et identifiant unique. Si le dernier segment est un identifiant (numérique), l’URI cible une ressource individuelle ; si le dernier segment est un nom, l’URI cible une collection.</p><p>Lit une URI sur l’entrée standard (ex: <code>/api/clients/42</code> ou <code>/api/clients/42/commandes</code>).<br>- Si le dernier segment est un entier (identifiant) : affiche <code>Type: ressource | Cible: &lt;nom_collection&gt; | ID: &lt;id&gt;</code>.<br>- Si le dernier segment est textuel : affiche <code>Type: collection | Cible: &lt;nom_collection&gt;</code>.<br>Ignore les préfixes éventuels comme <code>/api</code> ou <code>/v1</code> pour trouver la collection ciblée.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/utilisateurs/42</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Type: ressource | Cible: utilisateurs | ID: 42</pre></div>
+    </div>
+    <p class="lab__note">Cible l’utilisateur 42.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe l’URI en segments non vides avec [s for s in uri.split("/") if s].</li>
+        <li>Vérifie si le dernier segment est composé uniquement de chiffres avec segment.isdigit().</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Qui a théorisé l’architecture REST en l’an 2000 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Roy Fielding</button>
+        <button class="opt">Tim Berners-Lee</button>
+        <button class="opt">Linus Torvalds</button>
+      </div>
+      <div class="q__exp">Roy Fielding a présenté les principes fondamentaux de REST dans sa thèse doctorale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie la contrainte Stateless dans une API REST ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le serveur ne conserve aucun état client entre deux requêtes successives</button>
+        <button class="opt">Le serveur ne possède aucune base de données</button>
+        <button class="opt">Les requêtes n’ont pas le droit de modifier les données</button>
+      </div>
+      <div class="q__exp">Chaque requête doit être auto-suffisante et fournir toutes les informations nécessaires à son traitement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle URI respecte le mieux les conventions de nommage REST ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">/api/v1/etudiants/42</button>
+        <button class="opt">/api/v1/recupererEtudiant?id=42</button>
+        <button class="opt">/api/v1/get_etudiant_42</button>
+      </div>
+      <div class="q__exp">Les URI REST utilisent des noms au pluriel et séparent l’identifiant par un slash.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel verbe HTTP est utilisé pour remplacer intégralement une ressource ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">PUT</button>
+        <button class="opt">PATCH</button>
+        <button class="opt">POST</button>
+      </div>
+      <div class="q__exp">PUT remplace l’intégralité de la ressource ciblée par la nouvelle représentation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une méthode HTTP est dite idempotente si…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La répéter plusieurs fois produit le même résultat sur le serveur</button>
+        <button class="opt">Elle ne renvoie jamais de code d’erreur 404</button>
+        <button class="opt">Elle est obligatoirement chiffrée en HTTPS</button>
+      </div>
+      <div class="q__exp">L’idempotence garantit qu’une répétition d’appels identiques ne modifie pas l’état du serveur au-delà du premier.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lequel de ces verbes HTTP n’est PAS idempotent ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">POST</button>
+        <button class="opt">PUT</button>
+        <button class="opt">DELETE</button>
+      </div>
+      <div class="q__exp">Exécuter plusieurs requêtes POST identiques entraîne des créations multiples successives.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle méthode HTTP modifie partiellement certains attributs d’une ressource ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">PATCH</button>
+        <button class="opt">PUT</button>
+        <button class="opt">GET</button>
+      </div>
+      <div class="q__exp">PATCH est conçu spécifiquement pour les modifications différentielles ou partielles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour lister les commandes passées par l’utilisateur 7, quelle URI est la plus RESTful ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">/utilisateurs/7/commandes</button>
+        <button class="opt">/commandes_utilisateur_7</button>
+        <button class="opt">/listeCommandes?user=7</button>
+      </div>
+      <div class="q__exp">La hiérarchie /utilisateurs/7/commandes exprime élégamment la relation parent-enfant.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Insérer des verbes d’action dans l’URI (ex. /modifierArticle au lieu de PUT /articles/1).</li>
+      <li>Conserver des sessions utilisateur côté serveur (session cookie d’état) dans une API qui se veut RESTful.</li>
+      <li>Utiliser le verbe GET pour effectuer une mutation ou une suppression (non-respect de la sécurité HTTP).</li>
+      <li>Confondre PUT (remplacement intégral) et PATCH (mise à jour partielle d’attributs).</li>
+      <li>Employer des noms au singulier de manière incohérente (/client puis /articles).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Modéliser une ressource et ses points d’accès REST</div>
+    <ol>
+      <li><strong>Identifier les entités métier</strong> : repérer les concepts clés du domaine (utilisateurs, commandes, produits).</li>
+      <li><strong>Fixer l’URI de base</strong> : choisir un substantif au pluriel en minuscules (ex. /produits).</li>
+      <li><strong>Structurer les relations</strong> : concevoir les sous-ressources imbriquées pour les dépendances fortes.</li>
+      <li><strong>Mapper les verbes HTTP</strong> : associer GET, POST, PUT, PATCH et DELETE aux besoins de l’application.</li>
+      <li><strong>Valider l’idempotence</strong> : s’assurer que les méthodes sûres et idempotentes respectent leur contrat.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>REST est un style architectural fondé sur le découplage client-serveur et l’absence d’état (Stateless).</li>
+      <li>Les URI identifient des ressources au moyen de substantifs au pluriel, sans verbes d’action.</li>
+      <li>Les verbes HTTP (GET, POST, PUT, PATCH, DELETE) expriment les opérations de manipulation.</li>
+      <li>Une opération sûre ne modifie pas le serveur ; une opération idempotente peut être rejouée sans effet cumulé.</li>
+      <li>PUT remplace la ressource en totalité, tandis que PATCH applique une mise à jour partielle.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais les 6 contraintes architecturales majeures de REST.</li>
+      <li>Je comprends l’intérêt du Stateless pour la montée en charge.</li>
+      <li>Je sais concevoir des URI de collections et d’éléments cohérentes.</li>
+      <li>Je sais choisir le bon verbe HTTP pour chaque cas d’usage CRUD.</li>
+      <li>Je sais expliquer la différence entre sécurité et idempotence.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>REST</li><li>Roy Fielding</li><li>Stateless</li><li>Ressource</li><li>URI</li><li>CRUD</li><li>Idempotence</li><li>Sécurité HTTP</li><li>PUT</li><li>PATCH</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les 6 contraintes de REST et la règle du sans-état.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le nommage d’URI et le choix du bon verbe HTTP.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la conception et les nuances PUT/PATCH.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à l’implémentation pratique avec Flask au chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Démarrage avec Flask & Routage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel API REST B2, la spécification RFC 9110 (HTTP Semantics), la documentation officielle Flask (palletsprojects.com) et le recueil de questions interactives.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

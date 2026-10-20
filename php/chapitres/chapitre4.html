@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Traits, namespaces et chargement des classes | PHP POO B2</title>
+<meta name="description" content="Chapitre 4 du cours de PHP objet B2 : Réutiliser des méthodes avec un trait, organiser le code en namespaces, importer et charger les classes. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/php/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Traits, namespaces et chargement des classes | PHP POO B2">
+<meta property="og:description" content="Chapitre 4 du cours de PHP objet B2 : Réutiliser des méthodes avec un trait, organiser le code en namespaces, importer et charger les classes. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="phpnav"><div class="phpnav__in">
+  <a class="phpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phpnav__sep" aria-hidden="true">/</span>
+  <a class="phpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP POO B2</a>
+  <div class="phpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="phpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="phpwrap">
+<p class="crumb"><a href="../index.html">PHP POO B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Traits, namespaces et chargement des classes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Deux classes sans lien de parenté ont besoin de la même méthode : l’héritage ne convient pas. Et quand un projet grossit, deux développeurs finissent par nommer une classe <code>Utilisateur</code> — impossible de les distinguer. Traits et namespaces répondent à ces deux problèmes d’organisation.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>factoriser des méthodes réutilisables dans un trait ;</li>
+      <li>résoudre un conflit de méthodes entre deux traits ;</li>
+      <li>déclarer et utiliser des namespaces ;</li>
+      <li>importer une classe avec use et comprendre l’autoloading.</li>
+    </ol>
+  </div>
+
+<h2>1. Les traits : réutiliser sans hériter</h2>
+
+<p>Un <strong>trait</strong> est un paquet de méthodes qu’une classe peut importer avec <code>use</code>. Ce n’est ni une classe ni une interface : il ne s’instancie pas, mais son code devient celui de la classe qui l’utilise.</p>
+<pre><code>trait Salutation {
+    public function saluer(string $nom): string {
+        return "Bonjour " . $nom;
+    }
+}
+
+class Accueil {
+    use Salutation;
+}</code></pre>
+<p>Ici <code>Accueil</code> possède <code>saluer()</code> comme si elle l’avait écrite elle-même. Le trait évite de dupliquer du code entre des classes qui n’ont aucun lien de parenté.</p>
+
+<h2>2. Résoudre un conflit de traits</h2>
+
+<p>Si deux traits apportent la même méthode, <code>use</code> refuse de choisir et PHP lève une erreur fatale. On lève l’ambiguïté avec <code>insteadof</code> pour désigner celui qui gagne, et <code>as</code> pour renommer l’autre.</p>
+<pre><code>class Service {
+    use A, B {
+        A::demarrer insteadof B;
+        B::demarrer as demarrerB;
+    }
+}</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le silence du conflit</div>
+    <p>Un conflit de méthodes entre deux traits n’est pas une commodité : c’est une erreur. Il faut le dire explicitement, sinon la classe ne compile pas. C’est une protection : PHP refuse de décider à notre place quand le choix a un sens.</p>
+  </div>
+
+<h2>3. Les namespaces</h2>
+
+<p>Un <strong>namespace</strong> est un espace de noms : il préfixe les classes pour éviter les collisions. La déclaration <code>namespace App;</code> se place tout en haut du fichier, juste après <code>&lt;?php</code>.</p>
+<pre><code>&lt;?php
+namespace App;
+
+class Utilisateur {
+    // App\Utilisateur, distinct d’un autre Utilisateur
+}</code></pre>
+<p>Sans namespace, deux bibliothèques définissant <code>Utilisateur</code> entreraient en conflit. Avec, les noms complets <code>App\Utilisateur</code> et <code>Auth\Utilisateur</code> coexistent.</p>
+
+<h2>4. Importer et charger les classes</h2>
+
+<p>Pour ne pas écrire le chemin complet à chaque fois, on importe la classe avec <code>use</code>. On peut la renommer avec <code>as</code>. À l’échelle d’un projet, on ne fait plus <code>require</code> à la main : un <strong>autoloader</strong> (<code>spl_autoload_register</code>, ou Composer) charge la classe au moment où on en a besoin.</p>
+<pre><code>&lt;?php
+namespace App;
+
+use Core\Calcul as Calc;
+
+$c = new Calc();   // Core\Calcul</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-bolt"></use></svg> Le chargeur automatique</div>
+    <p>On enregistre une fonction auprès de <code>spl_autoload_register()</code>. Quand PHP rencontre une classe inconnue, il appelle cette fonction avec son nom : à elle de retrouver le fichier et de le <code>require</code>. C’est exactement ce que fait Composer en mappant les namespaces aux dossiers.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php2-c4-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="Ada">
+  <script type="text/plain" data-lab-starter><?php
+// À compléter : trait Salutation, puis class Accueil { use Salutation; }
+
+$nom = trim(fgets(STDIN));
+// À compléter : afficher le message de salutation.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Réutiliser du code avec un trait</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Composer une méthode réutilisable via un trait.</p>
+    <div class="lab__brief"><p>Le programme reçoit un prénom. Écris un <strong>trait</strong> <code>Salutation</code> qui fournit <code>saluer(string $nom): string</code> renvoyant <code>Bonjour nom</code>, puis une classe <code>Accueil</code> qui l’utilise. Affiche le message.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Ada</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Bonjour Ada</pre></div>
+    </div>
+    <p class="lab__note">Le prénom est inséré dans le message.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un trait se déclare comme une classe (trait Salutation { … }) et s’importe avec use à l’intérieur de la classe.</li>
+        <li>Les méthodes du trait se comportent comme des méthodes de la classe.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c4-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="sam">
+  <script type="text/plain" data-lab-starter><?php
+// À compléter : namespace App, puis class Utilisateur.
+
+$nom = trim(fgets(STDIN));
+// À compléter : instancier et afficher "utilisateur : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Ranger ses classes dans un namespace</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déclarer un namespace et instancier la classe qu’il contient.</p>
+    <div class="lab__brief"><p>Le programme reçoit un login. Déclare un <strong>namespace</strong> <code>App</code> contenant une classe <code>Utilisateur</code> (propriété privée <code>$nom</code>, méthode <code>nom()</code>), puis instancie-la et affiche <code>utilisateur : login</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>sam</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>utilisateur : sam</pre></div>
+    </div>
+    <p class="lab__note">Login mis en forme.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La déclaration namespace App; se place tout en haut, juste après &lt;?php.</li>
+        <li>À l’intérieur du namespace, la classe s’instancie directement : new Utilisateur($nom).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c4-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="21">
+  <script type="text/plain" data-lab-starter><?php
+namespace App {
+    // À compléter : class Calcul { public function doubler(int $n): int { ... } }
+}
+
+namespace {
+    // À compléter : use App\Calcul as Calc;
+
+    $n = (int) trim(fgets(STDIN));
+    // À compléter : afficher "double : X".
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Importer une classe avec un alias</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déclarer une classe dans un namespace et l’importer avec use … as.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>. Déclare une classe <code>Calcul</code> dans le namespace <code>App</code> (méthode <code>doubler(int $n): int</code> renvoyant le double), importe-la sous l’alias <code>Calc</code> et affiche <code>double : 2n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>21</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>double : 42</pre></div>
+    </div>
+    <p class="lab__note">Classe importée sous un autre nom.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un import use App\Calcul as Calc; se place en haut du bloc namespace, avant le code.</li>
+        <li>On instancie ensuite via l’alias : (new Calc())-&gt;doubler($n).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un trait ?</p>
+      <div class="opts">
+        <button class="opt">Une classe abstraite</button>
+        <button class="opt" data-correct="1">Un paquet de méthodes réutilisables</button>
+        <button class="opt">Une interface</button>
+      </div>
+      <div class="q__exp">Un trait fournit des méthodes qu’on importer avec use dans une classe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment importer un trait dans une classe ?</p>
+      <div class="opts">
+        <button class="opt">extends Trait</button>
+        <button class="opt">implements Trait</button>
+        <button class="opt" data-correct="1">use Trait;</button>
+      </div>
+      <div class="q__exp">À l’intérieur de la classe : use NomDuTrait;.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait insteadof ?</p>
+      <div class="opts">
+        <button class="opt">Il renomme une méthode</button>
+        <button class="opt" data-correct="1">Il choisit la méthode qui gagne en cas de conflit</button>
+        <button class="opt">Il supprime un trait</button>
+      </div>
+      <div class="q__exp">insteadof désigne le trait dont la méthode l’emporte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un namespace ?</p>
+      <div class="opts">
+        <button class="opt">À accélérer le code</button>
+        <button class="opt" data-correct="1">À éviter les collisions de noms</button>
+        <button class="opt">À hériter</button>
+      </div>
+      <div class="q__exp">Le namespace préfixe les classes pour les distinguer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où se place la déclaration namespace ?</p>
+      <div class="opts">
+        <button class="opt">En fin de fichier</button>
+        <button class="opt" data-correct="1">En haut, après <?php</button>
+        <button class="opt">Dans le constructeur</button>
+      </div>
+      <div class="q__exp">Tout en haut du fichier, avant tout autre code.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait use App\Utilisateur as U; ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Importe et renomme la classe en U</button>
+        <button class="opt">Crée une classe U</button>
+        <button class="opt">Supprime Utilisateur</button>
+      </div>
+      <div class="q__exp">use importe la classe sous l’alias U.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert spl_autoload_register ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À charger une classe à la demande</button>
+        <button class="opt">À créer un namespace</button>
+        <button class="opt">À hériter</button>
+      </div>
+      <div class="q__exp">PHP appelle l’autoloader quand il rencontre une classe non encore chargée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Deux traits définissent la méthode demarrer. Que fait PHP ?</p>
+      <div class="opts">
+        <button class="opt">Il en choisit une</button>
+        <button class="opt" data-correct="1">Il lève une erreur fatale</button>
+        <button class="opt">Il fusionne</button>
+      </div>
+      <div class="q__exp">Le conflit doit être levé explicitement avec insteadof / as.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre trait et interface : le trait contient du code, l’interface seulement des signatures.</li>
+      <li>Laisser un conflit de traits sans <code>insteadof</code> ni <code>as</code>.</li>
+      <li>Placer <code>namespace</code> après du code ou après un affichage.</li>
+      <li>Écrire le nom complet <code>Core\Calcul</code> partout au lieu d’importer une fois.</li>
+      <li>Oublier que le namespace fait partie du nom complet de la classe.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Organiser un projet PHP</div>
+    <ol>
+      <li><strong>Regrouper</strong> en trait les méthodes partagées hors héritage.</li>
+      <li><strong>Lever</strong> les conflits avec insteadof, renommer avec as.</li>
+      <li><strong>Préfixer</strong> chaque domaine par un namespace (App, Core, Auth…).</li>
+      <li><strong>Importer</strong> une seule fois en haut avec use … as.</li>
+      <li><strong>Automatiser</strong> le chargement (autoloader ou Composer) plutôt que des require à la main.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un trait est un paquet de méthodes importé par use à l’intérieur d’une classe.</li>
+      <li>insteadof tranche un conflit de méthodes ; as renomme.</li>
+      <li>Un namespace préfixe les classes et évite les collisions de noms.</li>
+      <li>use importe une classe, éventuellement sous un alias (as).</li>
+      <li>Un autoloader charge une classe au moment où on l’utilise.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déclare un trait et je l’utilise dans une classe.</li>
+      <li>Je résous un conflit de traits avec insteadof/as.</li>
+      <li>Je place et nomme mes classes dans un namespace.</li>
+      <li>J’importe une classe avec use et j’explique l’autoloading.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>trait</li><li>use</li><li>insteadof</li><li>as</li><li>namespace</li><li>nom complet</li><li>import</li><li>autoload</li><li>spl_autoload_register</li><li>Composer</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends la différence entre trait, classe et interface.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à déclarer un namespace et à importer une classe.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu résous un conflit de traits sans hésiter.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux exceptions, chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Erreurs et exceptions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de PHP objet (classes, héritage, namespaces, PDO, projet ToDo List).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

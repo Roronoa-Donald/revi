@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Réseau Avancé Linux : Namespaces, Bridges &amp;amp; Policy Routing | Linux Avancé B3</title>
+<meta name="description" content="Chapitre 5 du cours Linux Avancé B3 : Interfaces virtuelles (veth pairs, Linux bridge, tap/tun), iproute2, routage par règles et politiques multiples (PBR, ip rule), et séquence de résolution NSSwitch. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-linux/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Réseau Avancé Linux : Namespaces, Bridges &amp;amp; Policy Routing | Linux Avancé B3">
+<meta property="og:description" content="Chapitre 5 du cours Linux Avancé B3 : Interfaces virtuelles (veth pairs, Linux bridge, tap/tun), iproute2, routage par règles et politiques multiples (PBR, ip rule), et séquence de résolution NSSwitch. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-linuxnav"><div class="b3-linuxnav__in">
+  <a class="b3-linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-linuxnav__sep" aria-hidden="true">/</span>
+  <a class="b3-linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux Avancé B3</a>
+  <div class="b3-linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-linuxwrap">
+<p class="crumb"><a href="../index.html">Linux Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Réseau Avancé Linux : Namespaces, Bridges &amp; Policy Routing</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les architectures de serveurs modernes, l’environnement réseau dépasse largement une unique carte physique connectée à un switch local. L’hébergement de conteneurs, les passerelles VPN multi-fournisseurs (Multi-WAN) et les réseaux superposés (Overlay Networks VXLAN/Geneve) imposent une virtualisation complète de la pile réseau au cœur du noyau Linux. L’ingénieur de niveau Bachelor 3 doit savoir concevoir des topologies virtuelles complexes combinant ponts logiciels (Linux Bridges) et câbles virtuels (veth pairs), maîtriser la suite d’outils iproute2 (remplaçant les vieux outils obsolètes ifconfig et route), déployer du routage basé sur les politiques (Policy-Based Routing - PBR) via ip rule pour aiguiller le trafic selon la source ou le port applicatif, et comprendre l’ordre de résolution des noms d’hôtes dans /etc/nsswitch.conf.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>concevoir des architectures réseau virtuelles complètes interconnectant des namespaces isolés avec des paires veth et des ponts Linux ;</li>
+      <li>maîtriser la suite d’administration réseau moderne iproute2 (ip link, ip addr, ip route, ip rule) ;</li>
+      <li>comprendre le routage par politiques (Policy-Based Routing) et la gestion de tables de routage alternatives multiples ;</li>
+      <li>configurer des règles d’aiguillage PBR basées sur l’adresse IP source, l’interface d’entrée ou le marquage pare-feu (fwmark) ;</li>
+      <li>analyser la séquence de résolution de noms d’hôtes orchestrée par le commutateur de services de noms (NSSwitch) ;</li>
+      <li>développer en Python 3 des validateurs de topologie réseau, des moteurs d’évaluation PBR et des simulateurs de résolution nsswitch.conf.</li>
+    </ol>
+  </div>
+
+<h2>1. Interfaces Virtuelles &amp; Interconnexion de Namespaces (veth &amp; bridge)</h2>
+
+<p>Dans un environnement virtualisé ou conteneurisé sous Linux, le réseau est bâti avec des briques logicielles émulées par le noyau :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Paires veth (Virtual Ethernet)</h4>
+    <p>Une <strong>paire veth</strong> est un câble réseau virtuel bidirectionnel doté de deux interfaces terminales (ex: <code>veth_host</code> et <code>veth_cnt</code>).</p>
+    <p>Tout paquet injecté par une extrémité émerge instantanément par l’autre. En déplaçant l’une des interfaces dans le namespace réseau d’un conteneur via <code>ip link set veth_cnt netns &lt;PID&gt;</code>, on établit la passerelle de communication avec l’hôte physique.</p>
+  </div>
+  <div class="card">
+    <h4>2. Le Pont Logiciel Linux (Bridge)</h4>
+    <p>Un <strong>pont Linux (bridge)</strong> opère comme un commutateur Ethernet de niveau 2 émulé dans le noyau (similaire à un switch matériel). Il apprend les adresses MAC et commute les trames entre toutes les interfaces esclaves qui lui sont rattachées.</p>
+    <p>La commande de création standard est :<br><code>ip link add name br0 type bridge &amp;&amp; ip link set br0 up</code>.</p>
+  </div>
+</div>
+
+<h2>2. La Suite iproute2 : L’Outillage Moderne du Réseau Linux</h2>
+
+<p>Depuis plus d’une décennie, les commandes historiques <code>ifconfig</code>, <code>route</code> et <code>arp</code> (issues du paquet net-tools) sont officiellement <strong>obsolètes</strong> et incapables de gérer les namespaces ou les tables multiples. La suite <strong>iproute2</strong> dialogue directement avec le noyau via l’interface de socket Netlink :</p>
+<table class="table">
+  <thead>
+    <tr><th>Action Réseau</th><th>Commande Obsolète (À Proscrire)</th><th>Commande Moderne iproute2</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Afficher les interfaces et MAC</td><td><code>ifconfig -a</code></td><td><code>ip link show</code></td></tr>
+    <tr><td>Assigner une adresse IP CIDR</td><td><code>ifconfig eth0 10.0.0.1 netmask 255.255.255.0</code></td><td><code>ip addr add 10.0.0.1/24 dev eth0</code></td></tr>
+    <tr><td>Consulter la table de routage</td><td><code>route -n</code> ou <code>netstat -rn</code></td><td><code>ip route show</code></td></tr>
+    <tr><td>Afficher le cache de voisins ARP</td><td><code>arp -n</code></td><td><code>ip neigh show</code></td></tr>
+    <tr><td>Créer une interface de tunnel veth</td><td>Impossible sans outils tiers</td><td><code>ip link add v0 type veth peer name v1</code></td></tr>
+  </tbody>
+</table>
+
+<h2>3. Routage par Politiques (PBR) &amp; Tables de Routage Multiples</h2>
+
+<p>Le routage IP standard est strictement déterminé par l’adresse de destination (Destination Routing). Dans un serveur hébergeant plusieurs connexions Internet (Multi-WAN) ou des tunnels VPN, on doit acheminer les paquets selon l’<strong>adresse IP source</strong> ou le type de service : c’est le <strong>Policy-Based Routing (PBR)</strong>.</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Architecture de la Routing Policy Database (RPDB)</div>
+<p>Linux consulte la base RPDB gérée via la commande <code>ip rule</code> par ordre de priorité croissante (de 0 à 32767). Dès qu’une règle correspond, le noyau utilise la table de routage indiquée :</p>,<pre><code># 1. Creer une regle aiguillant une IP source vers une table dediee
+ip rule add from 192.168.10.50 table 100 priority 100
+
+# 2. Definir la passerelle par defaut de cette table 100
+ip route add default via 10.0.0.1 dev tun0 table 100
+
+# 3. Rafraichir le cache de routage du noyau
+ip route flush cache</code></pre>,<p>Les tables de routage peuvent être nommées de façon lisible dans le fichier <code>/etc/iproute2/rt_tables</code> (ex: <code>100 vpn_traffic</code>).</p>
+  </div>
+
+<h2>4. Architecture de Résolution de Noms : NSSwitch (/etc/nsswitch.conf)</h2>
+
+<p>Lorsqu’une application appelle <code>getaddrinfo()</code> ou <code>gethostbyname()</code>, la bibliothèque glibc consulte le fichier de configuration <strong><code>/etc/nsswitch.conf</code></strong> pour déterminer l’ordre des sources :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Ordre Standard de Résolution</h4>
+    <pre><code># /etc/nsswitch.conf
+hosts: files dns myhostname</code></pre>
+    <ul>
+      <li><code>files</code> : Lit en priorité le fichier statique local <code>/etc/hosts</code>.</li>
+      <li><code>dns</code> : Interroge les serveurs DNS distants spécifiés dans <code>/etc/resolv.conf</code> (ou systemd-resolved).</li>
+      <li><code>myhostname</code> : Résout automatiquement le nom d’hôte local de la machine.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Critères de Continuité d’Évaluation</h4>
+    <p>Chaque source retourne un statut (<code>SUCCESS</code>, <code>NOTFOUND</code>, <code>UNAVAIL</code>, <code>TRYAGAIN</code>).</p>
+    <p>Par défaut, l’évaluation s’arrête dès le premier <code>SUCCESS</code>. Si une source répond <code>NOTFOUND</code>, glibc passe automatiquement à la source suivante de la liste.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="lx3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="NET_IFACE name=br0 type=bridge master=NONE ip=10.0.0.1/24 state=UP">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c5-e1) — Validateur de topologie réseau virtuelle (veth pairs & Linux Bridge)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Rejet d’une interface éteinte (DOWN)]
+# Données : NET_IFACE name=veth_app type=veth master=br0 ip=NONE state=DOWN
+A_COMPLETER
+
+[Cas 2 — Rejet d’un pont avec master et veth orpheline]
+# Données : NET_IFACE name=br1 type=bridge master=br0 ip=NONE state=UP
+# Données : NET_IFACE name=veth_orphan type=veth master=NONE ip=NONE state=UP
+A_COMPLETER
+
+[Cas 3 — Veth autonome avec IP directe (mode point-à-point)]
+# Données : NET_IFACE name=veth0 type=veth master=NONE ip=192.168.100.2/30 state=UP
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de topologie réseau virtuelle (veth pairs &amp; Linux Bridge)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la cohérence de configuration des interfaces réseau virtuelles (veth) et des ponts sous Linux.</p>
+    <div class="lab__brief"><p>Sous Linux, la communication inter-conteneurs repose sur des paires d'interfaces virtuelles (<strong>veth pairs</strong>, sorte de câble réseau virtuel) connectées à un pont logiciel (<strong>Linux Bridge</strong>).<br><br>
+Règles de validation :<br>
+1. Un pont (<code>type=bridge</code>) ne peut pas être lui-même esclave d'un autre équipement (<code>master</code> doit valoir <code>NONE</code>). Sinon, erreur <code>BRIDGE_CANNOT_HAVE_MASTER</code>.<br>
+2. Une interface doit avoir son état activé (<code>state=UP</code>). Si <code>state=DOWN</code>, erreur <code>INTERFACE_DOWN</code>.<br>
+3. Une interface <code>veth</code> doit soit être rattachée à un pont maître (<code>master != NONE</code>), soit posséder une adresse IP (<code>ip != NONE</code>). Si les deux sont à <code>NONE</code>, erreur <code>VETH_UNATTACHED</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque interface, afficher :<br>
+<code>NET_AUDIT iface={name} valid={OUI|NON} error={OK|motif}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NET_IFACE name=br0 type=bridge master=NONE ip=10.0.0.1/24 state=UP</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NET_AUDIT iface=br0 valid=OUI error=OK</pre></div>
+    </div>
+    <p class="lab__note">Pont logiciel actif avec IP et sans maître : configuration conforme.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester les règles dans l’ordre : état UP, bridge sans master, veth avec master ou IP.</li>
+        <li>Dès qu’une règle échoue, valid=NON avec l’erreur correspondante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RULE prio=100 src=192.168.1.50 dport=ANY table=vpn_tunnel&#10;RULE prio=32766 src=ANY dport=ANY table=main&#10;PACKET id=1 src=192.168.1.50 dport=443">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c5-e2) — Moteur d’évaluation de Policy-Based Routing (ip rule & multi-tables)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Aiguillage selon le port de destination (trafic web vs standard)]
+# Données : RULE prio=200 src=ANY dport=80 table=proxy_table
+# Données : RULE prio=300 src=ANY dport=443 table=proxy_table
+# Données : RULE prio=32766 src=ANY dport=ANY table=main
+# Données : PACKET id=10 src=10.0.0.5 dport=80
+# Données : PACKET id=11 src=10.0.0.5 dport=22
+A_COMPLETER
+
+[Cas 2 — Aiguillage par IP source prioritaire sur la table par défaut]
+# Données : RULE prio=50 src=172.16.0.10 dport=ANY table=admin_gateway
+# Données : RULE prio=32766 src=ANY dport=ANY table=main
+# Données : PACKET id=20 src=172.16.0.10 dport=8080
+# Données : PACKET id=21 src=172.16.0.99 dport=8080
+A_COMPLETER
+
+[Cas 3 — Règle par défaut (catch-all) de priorité maximale]
+# Données : RULE prio=32766 src=ANY dport=ANY table=default_wan
+# Données : PACKET id=99 src=1.2.3.4 dport=53
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur d’évaluation de Policy-Based Routing (ip rule &amp; multi-tables)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Aiguiller les paquets réseau vers la bonne table de routage selon les règles de politique PBR (Policy Routing).</p>
+    <div class="lab__brief"><p>Sous Linux, la commande <code>ip rule</code> permet de router le trafic non seulement d'après l'adresse de destination (routage classique), mais également en fonction de l'adresse source ou du port applicatif vers des tables de routage indépendantes (Policy-Based Routing).<br><br>
+Analysez les données fournies pour chaque cas.<br><br>
+Puis il lit des paquets à router :<br>
+<code>PACKET id=&lt;id&gt; src=&lt;ip&gt; dport=&lt;port&gt;</code>.<br><br>
+Principe First-Match-Wins : le paquet est évalué séquentiellement contre chaque règle dans l'ordre de priorité croissante. Dès qu'une règle correspond (adresse source identique ou ANY, et port identique ou ANY), le routage s'arrête et la table associée est retournée.<br><br>
+Pour chaque paquet, afficher :<br>
+<code>ROUTE_MATCH packet={id} matched_prio={prio} table={nom_table}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE prio=100 src=192.168.1.50 dport=ANY table=vpn_tunnel
+RULE prio=32766 src=ANY dport=ANY table=main
+PACKET id=1 src=192.168.1.50 dport=443</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTE_MATCH packet=1 matched_prio=100 table=vpn_tunnel</pre></div>
+    </div>
+    <p class="lab__note">Le paquet provient de l’IP 192.168.1.50 et correspond à la règle 100 routant vers vpn_tunnel.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les règles ordonnées par leur priorité numérique (prio).</li>
+        <li>Tester chaque paquet contre les règles et stopper dès la première correspondance.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CONF_NSSWITCH order=files,dns&#10;QUERY_HOST name=localhost in_files=OUI in_dns=NON in_mdns=NON">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c5-e3) — Parseur et simulateur de résolution NSSwitch (/etc/nsswitch.conf)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Résolution par DNS distant lorsque le fichier local échoue]
+# Données : CONF_NSSWITCH order=files,dns
+# Données : QUERY_HOST name=api.github.com in_files=NON in_dns=OUI in_mdns=NON
+A_COMPLETER
+
+[Cas 2 — Hôte introuvable dans toutes les sources déclarées]
+# Données : CONF_NSSWITCH order=files,dns,mdns
+# Données : QUERY_HOST name=unknown.corp in_files=NON in_dns=NON in_mdns=NON
+A_COMPLETER
+
+[Cas 3 — Priorité inversée (dns avant files)]
+# Données : CONF_NSSWITCH order=dns,files
+# Données : QUERY_HOST name=internal.test in_files=OUI in_dns=OUI in_mdns=NON
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parseur et simulateur de résolution NSSwitch (/etc/nsswitch.conf)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la séquence de résolution de noms d’hôtes selon la politique déclarative de nsswitch.conf.</p>
+    <div class="lab__brief"><p>Le fichier <code>/etc/nsswitch.conf</code> (Name Service Switch) régit l'ordre dans lequel la bibliothèque C (glibc) consulte les bases de données système (fichiers locaux <code>files</code> comme <code>/etc/hosts</code>, résolveur DNS <code>dns</code>, mDNS <code>mdns4</code>).<br><br>
+Analysez les données fournies pour chaque cas.<br><br>
+Puis il lit des requêtes de résolution :<br>
+<code>QUERY_HOST name=&lt;fqdn&gt; in_files=&lt;OUI|NON&gt; in_dns=&lt;OUI|NON&gt; in_mdns=&lt;OUI|NON&gt;</code>.<br><br>
+Règles :<br>
+- Les sources déclarées dans <code>order</code> sont interrogées successivement de gauche à droite.<br>
+- Dès qu'une source répond <code>OUI</code>, la résolution s'arrête immédiatement : <code>resolved_by={source} status=SUCCESS</code>.<br>
+- Si aucune source ne répond <code>OUI</code> : <code>resolved_by=NONE status=NOT_FOUND</code>.<br><br>
+Pour chaque requête, afficher :<br>
+<code>RESOLV_RESULT host={name} resolved_by={source} status={SUCCESS|NOT_FOUND}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONF_NSSWITCH order=files,dns
+QUERY_HOST name=localhost in_files=OUI in_dns=NON in_mdns=NON</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RESOLV_RESULT host=localhost resolved_by=files status=SUCCESS</pre></div>
+    </div>
+    <p class="lab__note">Présent dans /etc/hosts (files) : résolu en priorité par files.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découper la chaîne order avec split(",") pour obtenir la liste ordonnée des sources.</li>
+        <li>Parcourir les sources dans l’ordre et vérifier si la présence est OUI.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel composant réseau virtuel Linux fonctionne comme un câble Ethernet virtuel reliant deux namespaces ?</p>
+      <div class="opts">
+        <button class="opt">Une interface loopback lo</button>
+        <button class="opt" data-correct="1">Une paire d’interfaces virtuelles veth (veth pair)</button>
+        <button class="opt">Un disque LVM</button>
+        <button class="opt">Un socket Unix</button>
+      </div>
+      <div class="q__exp">Une paire veth est constituée de deux interfaces liées : tout paquet entrant par une extrémité ressort instantanément par l’autre, reliant physiquement deux namespaces distincts.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande moderne de la suite iproute2 remplace la commande obsolète « ifconfig eth0 192.168.1.10 netmask 255.255.255.0 » ?</p>
+      <div class="opts">
+        <button class="opt">ip netmask set 192.168.1.10/24 dev eth0</button>
+        <button class="opt" data-correct="1">ip addr add 192.168.1.10/24 dev eth0</button>
+        <button class="opt">ip link ip 192.168.1.10/24 dev eth0</button>
+        <button class="opt">route add 192.168.1.10/24 dev eth0</button>
+      </div>
+      <div class="q__exp">ip addr add <IP/CIDR> dev <interface> est la syntaxe standard et universelle de la suite iproute2 pour configurer une adresse IP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre le routage IP classique et le Policy-Based Routing (PBR) ?</p>
+      <div class="opts">
+        <button class="opt">Le routage classique utilise le Wi-Fi et PBR utilise la fibre</button>
+        <button class="opt" data-correct="1">Le routage classique ne regarde que l’IP destination, alors que le PBR peut aiguiller les paquets selon l’IP source, le port ou l’interface vers des tables multiples</button>
+        <button class="opt">Le PBR ne fonctionne que sur les conteneurs Docker</button>
+        <button class="opt">Le routage classique nécessite obligatoirement BGP</button>
+      </div>
+      <div class="q__exp">Le Policy-Based Routing (PBR) permet de choisir la table de routage et la passerelle en fonction de critères multiples (adresse source, port, protocole), surpassant le routage traditionnel basé sur la seule destination.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet de consulter les règles de politiques de routage ordonnées par priorité sous Linux ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ip rule show</button>
+        <button class="opt">iptables -L</button>
+        <button class="opt">route print</button>
+        <button class="opt">cat /proc/net/routes</button>
+      </div>
+      <div class="q__exp">ip rule show (ou ip rule list) affiche la table RPDB avec les priorités numériques et les tables de routage associées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel fichier système l’ordre de résolution des noms d’hôtes (files vs dns) est-il formellement déclaré ?</p>
+      <div class="opts">
+        <button class="opt">/etc/resolv.conf</button>
+        <button class="opt">/etc/hosts</button>
+        <button class="opt" data-correct="1">/etc/nsswitch.conf</button>
+        <button class="opt">/etc/network/interfaces</button>
+      </div>
+      <div class="q__exp">/etc/nsswitch.conf (Name Service Switch) spécifie l’ordre dans lequel la glibc consulte les différentes sources (ex: hosts: files dns).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle couche du modèle OSI un pont logiciel Linux (Linux Bridge) opère-t-il ?</p>
+      <div class="opts">
+        <button class="opt">Couche 1 (Physique)</button>
+        <button class="opt" data-correct="1">Couche 2 (Liaison de données / Ethernet)</button>
+        <button class="opt">Couche 3 (Réseau / IP)</button>
+        <button class="opt">Couche 7 (Application)</button>
+      </div>
+      <div class="q__exp">Un pont Linux fonctionne comme un switch Ethernet en couche 2 (Liaison) : il commute les trames d’après leur adresse MAC.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il nécessaire d’exécuter « ip route flush cache » après avoir modifié des règles de routage sous Linux ?</p>
+      <div class="opts">
+        <button class="opt">Pour vider la mémoire tampon du disque dur</button>
+        <button class="opt" data-correct="1">Pour purger le cache de routage du noyau et forcer la réévaluation immédiate des nouvelles politiques</button>
+        <button class="opt">Pour redémarrer le démon DNS</button>
+        <button class="opt">Pour supprimer les adresses IP statiques</button>
+      </div>
+      <div class="q__exp">Le noyau met en cache les décisions de routage pour accélérer le débit. Purger le cache garantit que les nouveaux flux empruntent immédiatement les règles modifiées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment déplacer une interface réseau virtuelle « veth1 » dans le namespace réseau d’un processus ayant le PID 4200 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ip link set veth1 netns 4200</button>
+        <button class="opt">mv /sys/class/net/veth1 /proc/4200/</button>
+        <button class="opt">nsenter -t 4200 move veth1</button>
+        <button class="opt">ip route move veth1 to 4200</button>
+      </div>
+      <div class="q__exp">ip link set <iface> netns <PID> transfère immédiatement l’interface dans le namespace réseau du processus spécifié.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser ifconfig ou route dans des scripts d’automatisation modernes (ils ignorent les tables multiples et namespaces).</li>
+      <li>Oublier d’activer le pont avec ip link set br0 up (les interfaces esclaves ne recevront aucun paquet).</li>
+      <li>Oublier de purger le cache de routage après une modification de politique via ip route flush cache.</li>
+      <li>Créer des règles ip rule de même priorité avec des critères contradictoires (ordre d’évaluation indéterminé).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Mise en Place d’un Réseau Isolé pour Conteneur avec Bridge</div>
+    <ol>
+      <li>Étape 1 : Créer le pont virtuel Linux : ip link add name br0 type bridge && ip link set br0 up.</li>
+      <li>Étape 2 : Assigner une passerelle IP au pont : ip addr add 172.20.0.1/24 dev br0.</li>
+      <li>Étape 3 : Créer la paire d’interfaces veth : ip link add veth_host type veth peer name veth_cnt.</li>
+      <li>Étape 4 : Rapprocher une extrémité sur le pont : ip link set veth_host master br0 && ip link set veth_host up.</li>
+      <li>Étape 5 : Injecter l’autre extrémité dans le namespace du conteneur : ip link set veth_cnt netns <PID_CONTENEUR>.</li>
+      <li>Étape 6 : Dans le conteneur, renommer l’interface en eth0, attribuer l’IP (172.20.0.10/24) et ajouter la route par défaut via 172.20.0.1.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une paire veth agit comme un câble Ethernet virtuel reliant deux espaces ou namespaces distincts.</li>
+      <li>Un pont Linux (bridge) émule un switch de niveau 2 commutant les trames entre interfaces virtuelles esclaves.</li>
+      <li>La suite iproute2 remplace totalement les vieux outils net-tools obsolètes (ifconfig, route, arp).</li>
+      <li>Le routage classique ne tient compte que de la destination ; le Policy-Based Routing (PBR) aiguille selon la source ou le port.</li>
+      <li>ip rule gère la base RPDB par ordre de priorité croissante pour sélectionner des tables de routage indépendantes.</li>
+      <li>/etc/nsswitch.conf orchestre l’ordre de consultation des bases de noms (files /etc/hosts puis serveurs DNS).</li>
+      <li>L’interconnexion de conteneurs sous Linux repose sur l’assemblage élégant de ces primitives noyau fondamentales.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer le fonctionnement d’une paire veth et d’un pont logiciel Linux bridge.</li>
+      <li>Je maîtrise les commandes essentielles de la suite iproute2 (ip link, ip addr, ip route, ip rule).</li>
+      <li>Je comprends l’intérêt du Policy-Based Routing pour les architectures Multi-WAN et VPN.</li>
+      <li>Je sais écrire une règle ip rule avec table alternative et niveau de priorité.</li>
+      <li>Je connais la structure et l’ordre de résolution du fichier /etc/nsswitch.conf.</li>
+      <li>Je sais comment interconnecter un namespace conteneur isolé avec le réseau physique de l’hôte.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Interfaces virtuelles veth pairs</li><li>Pont logiciel Linux (Bridge L2)</li><li>Suite réseau iproute2 & sockets Netlink</li><li>Policy-Based Routing (PBR / Routage par règles)</li><li>Routing Policy Database (RPDB & ip rule)</li><li>Tables de routage alternatives multiples</li><li>Name Service Switch (NSSwitch /etc/nsswitch.conf)</li><li>Interconnexion inter-namespaces réseau</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Utilisation persistante de ifconfig/route ou incompréhension du fonctionnement des paires veth.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de la suite iproute2, création de bridges et configuration de règles PBR simples.</div>
+      <div class="bandrow bandrow--high">Conception experte de topologies réseau de conteneurs, routage multi-tables complexe et maîtrise approfondie des interactions Netlink/NSSwitch.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Sécurité Avancée, Durcissement du Noyau, PAM &amp; Auditing (auditd) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle du noyau Linux (kernel.org), spécifications systemd (Lennart Poettering / Freedesktop), guides de durcissement ANSSI et CIS Benchmarks Linux.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

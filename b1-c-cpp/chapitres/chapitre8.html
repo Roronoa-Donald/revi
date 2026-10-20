@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 8 — Introduction au C++ | Langage C &amp; C++ B1</title>
+<meta name="description" content="Chapitre 8 du cours Langage C & C++ B1 : flux cout/cin, classes et méthodes, conteneurs standards comme vector, allocation new/delete. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="8">
+
+<nav class="cnav"><div class="cnav__in">
+  <a class="cnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cnav__sep" aria-hidden="true">/</span>
+  <a class="cnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C &amp; C++ B1</a>
+  <div class="cnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre7.html">Ch. 7</a>
+    <a href="chapitre8.html" class="is-active">Ch. 8</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="cwrap">
+  <p class="crumb"><a href="../index.html">C &amp; C++ B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 8</p>
+  <h1>Chapitre 8 — Introduction au C++</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 8</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le langage C t'a donné le contrôle de la mémoire et de la performance, au prix d'une écriture parfois
+    verbeuse. Le C++ garde cette performance mais ajoute des outils de haut niveau : flux d'entrées/sorties,
+    classes, conteneurs. Ce chapitre t'en donne les bases, en réutilisant tout ce que tu sais déjà.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Compiler en C++ avec <code>g++</code> ;</li>
+      <li>utiliser <code>cout</code> et <code>cin</code> à la place de <code>printf</code>/<code>scanf</code> ;</li>
+      <li>déclarer une classe avec attributs et méthodes ;</li>
+      <li>utiliser un <code>vector</code> à la place d'un tableau statique ;</li>
+      <li>allouer et libérer de la mémoire dynamique avec <code>new</code>/<code>delete</code>.</li>
+    </ol>
+  </div>
+
+  <h2>1. Passer du C au C++</h2>
+  <p><strong>Définition.</strong> Le C++ est un langage compilé, dérivé du C, qui ajoute la programmation
+  orientée objet et une bibliothèque standard riche. La compilation se fait avec <code>g++</code>.</p>
+  <pre><code>g++ main.cpp -o prog
+./prog</code></pre>
+  <table>
+    <tr><th>Tâche</th><th>En C</th><th>En C++</th></tr>
+    <tr><td>En-tête d'E/S</td><td><code>#include &lt;stdio.h&gt;</code></td><td><code>#include &lt;iostream&gt;</code></td></tr>
+    <tr><td>Afficher</td><td><code>printf("...", x)</code></td><td><code>cout &lt;&lt; "..." &lt;&lt; x</code></td></tr>
+    <tr><td>Lire</td><td><code>scanf("...", &amp;x)</code></td><td><code>cin &gt;&gt; x</code></td></tr>
+    <tr><td>Fin de ligne</td><td><code>"\n"</code></td><td><code>endl</code> ou <code>"\n"</code></td></tr>
+    <tr><td>Tableau dynamique</td><td><code>int *t = malloc(...)</code></td><td><code>vector&lt;int&gt; t(n)</code></td></tr>
+  </table>
+
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>Les flux <code>cout</code> et <code>cin</code> ressemblent à des tubes : les <code>&lt;&lt;</code> et
+    <code>&gt;&gt;</code> indiquent le sens de circulation des données. Plus besoin de préciser le type : le
+    compilateur le déduit de chaque valeur.</p>
+  </div>
+
+  <h2>2. Les flux cout et cin</h2>
+  <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    cout &lt;&lt; "Carre : " &lt;&lt; n * n &lt;&lt; endl;
+    return 0;
+}</code></pre>
+  <p><code>endl</code> insère un retour à la ligne et vide le tampon de sortie. <code>using namespace std;</code>
+  évite d'écrire <code>std::cout</code> à chaque fois.</p>
+
+  <h2>3. Les classes</h2>
+  <p><strong>Définition.</strong> Une classe regroupe des <em>attributs</em> (les données) et des
+  <em>méthodes</em> (les fonctions qui agissent sur ces données). Elle étend l'idée de structure.</p>
+  <pre><code>class Rectangle {
+public:
+    int largeur;
+    int hauteur;
+
+    int aire() const {
+        return largeur * hauteur;
+    }
+};
+
+int main() {
+    Rectangle r;
+    r.largeur = 6;
+    r.hauteur = 7;
+    cout &lt;&lt; "Aire : " &lt;&lt; r.aire() &lt;&lt; endl;   <span class="c">// 42</span>
+    return 0;
+}</code></pre>
+
+  <table>
+    <tr><th>Mot-clé</th><th>Sens</th></tr>
+    <tr><td><code>class</code></td><td>Déclare une classe ; accès privé par défaut.</td></tr>
+    <tr><td><code>public:</code></td><td>Les membres qui suivent sont accessibles de l'extérieur.</td></tr>
+    <tr><td><code>const</code> (méthode)</td><td>La méthode ne modifie pas l'objet.</td></tr>
+  </table>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Différence structure / classe</div>
+    <p>Dans une <code>struct</code>, les membres sont publics par défaut ; dans une <code>class</code>, privés.
+    C'est la seule vraie différence de départ. On écrit <code>public:</code> pour exposer ce qui doit l'être.</p>
+  </div>
+
+  <h2>4. Conteneurs et mémoire dynamique</h2>
+  <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;int&gt; valeurs(5);         <span class="c">// 5 cases, taille connue à l'exécution</span>
+valeurs.push_back(42);          <span class="c">// ajoute une case</span>
+cout &lt;&lt; valeurs.size() &lt;&lt; endl;  <span class="c">// nombre de cases</span>
+
+int *p = new int[10];           <span class="c">// allocation dynamique</span>
+delete[] p;                     <span class="c">// libération obligatoire</span></code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — new sans delete</div>
+    <p>Toute mémoire allouée par <code>new</code> doit être libérée par <code>delete</code> (ou
+    <code>delete[]</code> pour un tableau). L'oublier provoque une fuite mémoire ; libérer deux fois provoque
+    un plantage. Un <code>vector</code> s'en charge tout seul : c'est à préférer.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="c-c8-e1"
+     data-language="cpp"
+     data-height="300"
+     data-stdin="7">
+  <script type="text/plain" data-lab-starter>#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+
+    /* À compléter : afficher « Carre : <n²> ». */
+
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Entrées/sorties C++</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C++</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser les flux cin/cout à la place de scanf/printf.</p>
+    <div class="lab__brief"><p>En C++, l’affichage ne passe plus par une fonction à format mais par un flux. Complétez le programme pour lire un entier et afficher <code>Carre : &lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Carre : 49</pre></div>
+    </div>
+    <p class="lab__note">7² = 49.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’opérateur d’insertion dans un flux s’enchaîne : on peut écrire un texte, puis une valeur, dans le même ordre qu’on veut les voir apparaître.</li>
+        <li>Le passage à la ligne a son propre symbole en C++ : il s’insère dans le flux après la valeur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c8-e2"
+     data-language="cpp"
+     data-height="300"
+     data-stdin="6 7">
+  <script type="text/plain" data-lab-starter>#include <iostream>
+using namespace std;
+
+class Rectangle {
+public:
+    int largeur;
+    int hauteur;
+
+    int aire() const {
+        /* À compléter : renvoyer l'aire. */
+        return 0;
+    }
+};
+
+int main() {
+    Rectangle r;
+    cin >> r.largeur >> r.hauteur;
+    cout << "Aire : " << r.aire() << endl;
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Première classe C++</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C++</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Regrouper des données et un comportement dans une classe.</p>
+    <div class="lab__brief"><p>Complétez la méthode <code>aire</code> de la classe <code>Rectangle</code> pour qu’elle renvoie le produit de ses deux attributs. Le programme lit largeur et hauteur puis affiche <code>Aire : &lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6 7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Aire : 42</pre></div>
+    </div>
+    <p class="lab__note">6 × 7 = 42.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>À l’intérieur d’une méthode, les attributs de l’objet sont accessibles directement par leur nom.</li>
+        <li>La méthode est déclarée const : elle promet de ne pas modifier l’objet, elle ne peut donc que lire les attributs et renvoyer un résultat.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c8-e3"
+     data-language="cpp"
+     data-height="300"
+     data-stdin="5&#10;2 4 6 8 10">
+  <script type="text/plain" data-lab-starter>#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    vector<int> valeurs(n);
+    for (int i = 0; i < n; i++) {
+        cin >> valeurs[i];
+    }
+
+    int somme = 0;
+    /* À compléter : parcourir le vector et accumuler. */
+
+    cout << "Somme : " << somme << endl;
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Conteneur dynamique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C++</span>
+      <span class="badge badge--n5">Niveau 5 — Challenge</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser un conteneur de la bibliothèque standard à la place d’un tableau figé.</p>
+    <div class="lab__brief"><p>Complétez le parcours pour additionner les valeurs d’un <code>vector</code>. Le programme lit un entier n, puis n valeurs, et affiche <code>Somme : &lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+2 4 6 8 10</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Somme : 30</pre></div>
+    </div>
+    <p class="lab__note">2+4+6+8+10 = 30.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un conteneur connaît sa taille : il se parcourt sans avoir à mémoriser n une seconde fois.</li>
+        <li>La forme moderne de parcours donne directement chaque valeur, sans passer par un indice.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle commande compile un fichier C++ ?</p>
+      <div class="opts">
+        <button class="opt"><code>gcc main.cpp</code></button>
+        <button class="opt" data-correct="1"><code>g++ main.cpp -o prog</code></button>
+        <button class="opt"><code>cpp main.cpp</code></button>
+      </div>
+      <div class="q__exp"><code>g++</code> est le compilateur C++.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel flux utilise-t-on pour afficher en C++ ?</p>
+      <div class="opts">
+        <button class="opt"><code>printf</code></button>
+        <button class="opt" data-correct="1"><code>cout</code></button>
+        <button class="opt"><code>print</code></button>
+      </div>
+      <div class="q__exp"><code>cout</code> est le flux de sortie standard.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait le mot-clé <code>public:</code> dans une classe ?</p>
+      <div class="opts">
+        <button class="opt">Il rend la classe privée</button>
+        <button class="opt" data-correct="1">Il expose les membres qui suivent à l'extérieur</button>
+        <button class="opt">Il définit une variable globale</button>
+      </div>
+      <div class="q__exp">Par défaut, les membres d'une classe sont privés ; <code>public:</code> les ouvre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel conteneur remplace un tableau de taille dynamique ?</p>
+      <div class="opts">
+        <button class="opt"><code>char[]</code></button>
+        <button class="opt" data-correct="1"><code>vector</code></button>
+        <button class="opt"><code>FILE</code></button>
+      </div>
+      <div class="q__exp">Le <code>vector</code> connaît sa taille et grandit tout seul.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction libère un tableau alloué par <code>new int[10]</code> ?</p>
+      <div class="opts">
+        <button class="opt"><code>delete p;</code></button>
+        <button class="opt" data-correct="1"><code>delete[] p;</code></button>
+        <button class="opt"><code>free(p);</code></button>
+      </div>
+      <div class="q__exp">Pour un tableau alloué par <code>new[]</code>, la libération se fait par <code>delete[]</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie <code>int aire() const</code> ?</p>
+      <div class="opts">
+        <button class="opt">La méthode renvoie une constante</button>
+        <button class="opt" data-correct="1">La méthode ne modifie pas l'objet</button>
+        <button class="opt">La méthode est privée</button>
+      </div>
+      <div class="q__exp"><code>const</code> en fin de signature promet de ne pas modifier l'objet.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong><code>#include &lt;iostream&gt;</code> oublié</strong> : <code>cout</code> non déclaré.</li>
+      <li><strong><code>; </code> après la classe</strong> : la déclaration <code>class {...}</code> se termine par un point-virgule.</li>
+      <li><strong><code>new</code> sans <code>delete</code></strong> : fuite mémoire.</li>
+      <li><strong><code>delete</code> au lieu de <code>delete[]</code></strong> pour un tableau.</li>
+      <li><strong>Confondre <code>&lt;&lt;</code> (sortie) et <code>&gt;&gt;</code> (entrée)</strong>.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Du C au C++ sans se perdre</div>
+    <ol>
+      <li><strong>Remplacer</strong> <code>#include &lt;stdio.h&gt;</code> par <code>#include &lt;iostream&gt;</code>.</li>
+      <li><strong>Remplacer</strong> <code>printf</code> par <code>cout &lt;&lt; …</code> et <code>scanf</code> par <code>cin &gt;&gt; …</code>.</li>
+      <li><strong>Regrouper</strong> données et fonctions dans une classe.</li>
+      <li><strong>Préférer</strong> <code>vector</code> à un tableau dynamique.</li>
+      <li><strong>Compiler</strong> avec <code>g++</code> et lire les erreurs.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Compilation : <code>g++ main.cpp -o prog</code>.</li>
+      <li>Flux : <code>cout &lt;&lt; …</code>, <code>cin &gt;&gt; …</code>, <code>endl</code>.</li>
+      <li>Classe : attributs + méthodes, <code>public:</code> pour exposer.</li>
+      <li><code>vector</code> : tableau dynamique qui connaît sa taille.</li>
+      <li><code>new</code>/<code>delete</code> : toujours appariés.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je compile et exécute un programme C++.</li>
+      <li>Je traduis un programme C simple en C++.</li>
+      <li>Je déclare une classe avec ses méthodes.</li>
+      <li>J'utilise un <code>vector</code> pour une taille variable.</li>
+      <li>Je libère la mémoire allouée par <code>new</code>.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><code>g++</code></li><li><code>cout</code>/<code>cin</code></li><li><code>endl</code></li>
+      <li><code>class</code> et <code>public:</code></li><li>méthode <code>const</code></li>
+      <li><code>vector</code></li><li><code>new</code>/<code>delete</code></li><li>différence struct/classe</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 4.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible les classes et les conteneurs.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux aborder les examens blancs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre7.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 7</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports de cours B1 (INF-1003) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

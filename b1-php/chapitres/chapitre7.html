@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 7 — Tableaux associatifs | PHP B1</title>
+<meta name="description" content="Chapitre 7 du cours PHP B1 : tableaux clé => valeur, foreach clé-valeur, isset, comptage d'occurrences, inventaires, lien avec les résultats PDO. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="7">
+
+<nav class="phnav"><div class="phnav__in">
+  <a class="phnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phnav__sep" aria-hidden="true">/</span>
+  <a class="phnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP B1</a>
+  <div class="phnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html">Ch. 3</a>
+    <a href="chapitre4.html">Ch. 4</a>
+    <a href="chapitre5.html">Ch. 5</a>
+    <a href="chapitre6.html">Ch. 6</a>
+    <a href="chapitre7.html" class="is-active">Ch. 7</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="phwrap">
+  <p class="crumb"><a href="../index.html">PHP B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 7</p>
+  <h1>Chapitre 7 — Tableaux associatifs</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 7</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un stock se décrit par des noms : « claviers : 12 », « souris : 8 ». Chercher la quantité par un numéro
+    d'indice serait absurde — on la cherche par le nom. Le tableau associatif range des valeurs accessibles par
+    une <em>clé</em> quelconque : c'est aussi la forme exacte sous laquelle PDO rend chaque ligne de résultat
+    MySQL (colonne → valeur).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>déclarer un tableau associatif et accéder à une valeur par sa clé ;</li>
+      <li>parcourir clé et valeur ensemble avec <code>foreach</code> ;</li>
+      <li>tester l'existence d'une clé avec <code>isset()</code> ;</li>
+      <li>construire les schémas classiques : compteur d'occurrences, maximum par clé.</li>
+    </ol>
+  </div>
+
+  <h2>1. Clé → valeur</h2>
+  <p><strong>Définition.</strong> Un tableau associatif associe à chaque <em>clé</em> une <em>valeur</em>. La
+  flèche <code>=&gt;</code> relie la clé à sa valeur ; la clé peut être une chaîne ou un entier.</p>
+  <pre><code>$stock = [
+    'claviers' =&gt; 12,
+    'souris' =&gt; 8
+];
+
+$stock['ecrans'] = 5;          <span class="c">// ajout / modification</span>
+echo $stock['souris'] . "\n";  <span class="c">// 8</span>
+echo count($stock) . "\n";     <span class="c">// 3 : nombre de clés</span></code></pre>
+  <p>Une écriture à une clé inexistante <em>crée</em> l'entrée ; une lecture d'une clé inexistante déclenche un
+  avertissement « Undefined array key » et rend <code>null</code>. D'où le réflexe du chapitre :
+  <strong>toujours tester avant de lire</strong>.</p>
+  <pre><code><span class="k">if</span> (isset($stock[$ref])) {
+    echo $stock[$ref] . "\n";
+} <span class="k">else</span> {
+    echo "Reference inconnue\n";
+}</code></pre>
+
+  <h2>2. Parcourir clé et valeur</h2>
+  <p>Le <code>foreach</code> du chapitre 5 se complète : la forme <code>$tab as $cle =&gt; $valeur</code> donne
+  les deux à chaque tour.</p>
+  <pre><code><span class="k">foreach</span> ($stock <span class="k">as</span> $nom =&gt; $quantite) {
+    echo "$nom : $quantite\n";
+}</code></pre>
+  <div class="out">claviers : 12
+souris : 8
+ecrans : 5</div>
+  <p>La forme simple <code>foreach ($stock as $quantite)</code> reste valable quand la clé n'intéresse pas —
+  pour un total, par exemple.</p>
+
+  <h2>3. Le schéma du compteur d'occurrences</h2>
+  <p>Compter combien de fois chaque mot apparaît : le tableau associatif est l'outil naturel. La clé est le
+  mot, la valeur son nombre d'apparitions.</p>
+  <pre><code>$compteur = [];
+<span class="k">foreach</span> ($mots <span class="k">as</span> $mot) {
+    <span class="k">if</span> (!isset($compteur[$mot])) {
+        $compteur[$mot] = 0;    <span class="c">// première apparition</span>
+    }
+    $compteur[$mot]++;
+}</code></pre>
+  <p>Le <code>isset</code> est indispensable : incrémenter une clé inexistante ($compteur[$mot]++ sur null)
+  fonctionne en PHP mais déclenche un avertissement, et masque la logique. Créer la case à zéro explicitement
+  documente l'intention.</p>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition : l'annuaire</div>
+    <p>Un tableau indexé est une étagère : on cherche par numéro de case. Un tableau associatif est un
+    annuaire : on cherche par nom, et le nom donne la valeur directement — sans connaître une position.</p>
+  </div>
+
+  <h2>4. Le maximum par clé</h2>
+  <p>Chercher la référence la plus stockée, le mot le plus fréquent, la personne la plus âgée : même schéma —
+  garder le meilleur couple (clé, valeur) vu jusqu'ici.</p>
+  <pre><code>$refMax = '';
+$max = 0;
+<span class="k">foreach</span> ($stock <span class="k">as</span> $nom =&gt; $quantite) {
+    <span class="k">if</span> ($quantite &gt; $max) {
+        $max = $quantite;
+        $refMax = $nom;
+    }
+}
+echo "$refMax ($max)\n";</code></pre>
+  <p>La comparaison stricte (<code>&gt;</code>) garantit qu'en cas d'égalité, le <em>premier</em> atteint
+  garde la place — comportement exigé par la plupart des énoncés.</p>
+
+  <h2>5. Fusionner deux inventaires</h2>
+  <p>Réunir deux stocks, deux commandes, deux comptages : parcourir le second et l'ajouter au premier, clé par
+  clé.</p>
+  <pre><code><span class="k">function</span> fusionner($a, $b)
+{
+    $total = $a;
+    <span class="k">foreach</span> ($b <span class="k">as</span> $cle =&gt; $valeur) {
+        <span class="k">if</span> (!isset($total[$cle])) {
+            $total[$cle] = 0;
+        }
+        $total[$cle] += $valeur;
+    }
+    <span class="k">return</span> $total;
+}</code></pre>
+  <p>Les clés présentes des deux côtés s'additionnent ; les clés propres au second sont recopiées. Le tableau
+  associatif fait le travail d'alignement tout seul : aucune position à gérer.</p>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php-c7-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="8">
+  <script type="text/plain" data-lab-starter><?php
+// À compléter : remplir le tableau associatif note => mention.
+$mentions = [];
+
+$note = (int)trim(fgets(STDIN));
+echo $mentions[$note] . "
+";
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Mentions par correspondance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer des clés à des valeurs dans un tableau associatif.</p>
+    <div class="lab__brief"><p>Le programme reçoit une note sur 10. Affichez la mention correspondante : <code>Excellent</code> pour 9 et 10, <code>Tres bien</code> pour 7 et 8, <code>Bien</code> pour 5 et 6, <code>Insuffisant</code> pour 1 à 4. Utilisez un tableau associatif.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>8</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Tres bien</pre></div>
+    </div>
+    <p class="lab__note">La clé 8 vaut la mention Tres bien.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un tableau associatif associe chaque clé à sa valeur : la clé est la note, la valeur est la mention.</li>
+        <li>Les mentions partagées par plusieurs notes se déclarent une fois par note : 9 et 10 mènent toutes deux à la même mention.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c7-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="2&#10;clefs 7&#10;fermoirs 3">
+  <script type="text/plain" data-lab-starter><?php
+$n = (int)trim(fgets(STDIN));
+$stock = [];
+for ($i = 0; $i < $n; $i++) {
+    // À compléter : découper la ligne et remplir $stock.
+}
+
+// À compléter : calculer et afficher le total.
+echo 0 . "
+";
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Inventaire du magasin</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Remplir un tableau associatif puis sommer ses valeurs.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n lignes de la forme <code>nom quantite</code> (un mot, une espace, un entier). Constituez l’inventaire dans un tableau associatif (nom → quantité), puis affichez la quantité totale stockée.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+clefs 7
+fermoirs 3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>10</pre></div>
+    </div>
+    <p class="lab__note">7 + 3 = 10 articles en stock.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>explode découpe une chaîne selon un séparateur et renvoie un tableau de morceaux : le premier est le nom, le second la quantité.</li>
+        <li>Un parcours foreach sur le tableau associatif donne accès à chaque valeur ; la clé, ici, n’intervient pas dans le total.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c7-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="3&#10;html&#10;css&#10;html">
+  <script type="text/plain" data-lab-starter><?php
+$n = (int)trim(fgets(STDIN));
+$compteur = [];
+for ($i = 0; $i < $n; $i++) {
+    // À compléter : incrémenter le compteur du mot lu.
+}
+
+// À compléter : trouver le mot le plus fréquent et l'afficher.
+echo "
+";
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Le mot le plus fréquent</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n5">Niveau 5 — Challenge</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter des occurrences avec un tableau associatif.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n mots (un par ligne). Comptez les occurrences de chaque mot dans un tableau associatif, puis affichez le mot le plus fréquent suivi de son nombre d’occurrences, séparés par une espace (s’il y a égalité, le premier atteint gagne).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+html
+css
+html</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>html 2</pre></div>
+    </div>
+    <p class="lab__note">html apparaît deux fois, css une fois.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>isset teste l’existence d’une clé : le premier exemplaire d’un mot doit créer sa case à zéro avant d’incrémenter.</li>
+        <li>Un parcours foreach du compteur donne le couple mot → occurrences : gardez le meilleur candidat vu jusqu’ici.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Comment déclare-t-on un couple clé → valeur ?</p>
+      <div class="opts">
+        <button class="opt">'cle' -&gt; 'valeur'</button>
+        <button class="opt" data-correct="1">'cle' =&gt; 'valeur'</button>
+        <button class="opt">'cle' == 'valeur'</button>
+      </div>
+      <div class="q__exp">La flèche =&gt; relie la clé à sa valeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Parcourir un tableau associatif avec clé et valeur ?</p>
+      <div class="opts">
+        <button class="opt">for ($i = 0; $i &lt; count($tab); $i++)</button>
+        <button class="opt" data-correct="1">foreach ($tab as $cle =&gt; $valeur)</button>
+        <button class="opt">while (each($tab))</button>
+      </div>
+      <div class="q__exp">La forme foreach clé =&gt; valeur visite chaque couple.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie la lecture d'une clé inexistante ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt">false</button>
+        <button class="opt" data-correct="1">null, avec un avertissement</button>
+      </div>
+      <div class="q__exp">Tester avec isset avant de lire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert isset($tab[$cle]) ?</p>
+      <div class="opts">
+        <button class="opt">À trier le tableau</button>
+        <button class="opt" data-correct="1">À tester l'existence de la clé</button>
+        <button class="opt">À compter les éléments</button>
+      </div>
+      <div class="q__exp">Indispensable avant d'incrémenter un compteur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Compter les occurrences de chaque mot demande…</p>
+      <div class="opts">
+        <button class="opt">Un tableau indexé de n cases</button>
+        <button class="opt" data-correct="1">Un tableau associatif mot → nombre</button>
+        <button class="opt">Deux tableaux parallèles</button>
+      </div>
+      <div class="q__exp">La clé porte le mot, la valeur son compte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sous quelle forme PDO rend-il chaque ligne de résultat ?</p>
+      <div class="opts">
+        <button class="opt">Un entier numéroté</button>
+        <button class="opt" data-correct="1">Un tableau associatif colonne → valeur</button>
+        <button class="opt">Une chaîne de caractères</button>
+      </div>
+      <div class="q__exp">Même outil : le foreach clé → valeur parcourt les lignes.</div>
+    </div>
+  </div>
+
+  <h2>8. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Lire sans isset</strong> : « Undefined array key » et valeur null.</li>
+      <li><strong>=&gt; écrit -&gt;</strong> : -&gt; appartient aux objets (module 8), =&gt; aux tableaux.</li>
+      <li><strong>Compteur incrémenté sans case créée</strong> : avertissement à la première occurrence.</li>
+      <li><strong>Maximum initialisé sans clé de référence</strong> : perdre la clé du meilleur élément.</li>
+      <li><strong>foreach sans =&gt; quand la clé est nécessaire</strong> : impossible de la reconstituer.</li>
+    </ul>
+  </div>
+
+  <h2>9. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Travailler sur un tableau associatif</div>
+    <ol>
+      <li><strong>Identifier la clé</strong> : nom, mot, référence — c'est elle qui structure le tableau.</li>
+      <li><strong>Créer les cases explicitement</strong> (isset ou initialisation) avant de les modifier.</li>
+      <li><strong>Parcourir avec la forme clé =&gt; valeur</strong> dès que la clé compte.</li>
+      <li><strong>Garder le meilleur couple</strong> (clé + valeur) pour tout problème de maximum.</li>
+      <li><strong>Tester</strong> avec des clés absentes, puis des valeurs égales.</li>
+    </ol>
+  </div>
+
+  <h2>10. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Tableau associatif : des valeurs accessibles par clé, déclarées avec =&gt;.</li>
+      <li>isset teste l'existence d'une clé avant toute lecture.</li>
+      <li>foreach ($tab as $cle =&gt; $valeur) visite chaque couple.</li>
+      <li>Schémas classiques : compteur d'occurrences, maximum par clé, fusion.</li>
+      <li>PDO rend chaque ligne sous forme de tableau associatif.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déclare et parcours un tableau associatif de mémoire.</li>
+      <li>Je place les isset au bon endroit.</li>
+      <li>J'écris le compteur d'occurrences sans modèle.</li>
+      <li>Je cherche un maximum en gardant sa clé.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>clé</li><li>valeur</li><li>=&gt;</li><li>isset</li>
+      <li>foreach clé =&gt; valeur</li><li>compteur d'occurrences</li><li>maximum par clé</li><li>fusion</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>11. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 3 en tapant les exemples.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3-5 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible isset et le compteur.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : dernier chapitre, formulaires, sessions et PDO.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre6.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 6</a>
+    <a class="btn btn--primary" href="chapitre8.html">Chapitre 8 — Formulaires, sessions et PDO <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (Cours-PHP-PDO, connexion PHP/MySQL, TP1) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examens &amp; Épreuves — Session 2024/2025 (Bachelor 2)</title>
+    <meta name="description" content="Plateforme d'épreuves interactives et recueil des examens officiels du Collège de Paris Supérieur (B2 IT) : QCM avec correction immédiate, ateliers de code Monaco et sujets originaux.">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="/assets/css/tokens.css">
+    <link rel="stylesheet" href="/assets/css/code-lab.css">
+    <style>
+        :root {
+            --bg-page: #0a0e1a;
+            --bg-surface: #111827;
+            --bg-elevated: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --gold: #f59e0b;
+            --gold-light: #fbbf24;
+            --gold-bg: rgba(245, 158, 11, 0.12);
+            --ok: #10b981;
+            --ok-bg: rgba(16, 185, 129, 0.12);
+            --ko: #ef4444;
+            --ko-bg: rgba(239, 68, 68, 0.12);
+            --info: #3b82f6;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --shadow: 0 10px 30px rgba(0,0,0,0.4);
+            --radius: 12px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .icon-svg {
+            width: 1.1em;
+            height: 1.1em;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            vertical-align: -0.15em;
+            flex-shrink: 0;
+        }
+
+        /* ---- Top Navigation ---- */
+        .exam-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .exam-nav__left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .portal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .portal-btn:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .nav-sep { color: var(--border-color); font-size: 0.85rem; }
+        .exam-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: -0.01em;
+        }
+
+        .exam-nav__center {
+            display: flex;
+            background: var(--bg-surface);
+            padding: 3px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+        }
+        .mode-switch-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .mode-switch-btn.is-active {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+        }
+
+        .exam-nav__right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Timer Widget */
+        .exam-timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--gold-light);
+        }
+        .exam-timer__btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 2px 4px;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.15s;
+        }
+        .exam-timer__btn:hover { color: #fff; }
+
+        .session-badge {
+            background: var(--gold-bg);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--gold-light);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ---- Layout Container ---- */
+        .exam-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 20px;
+            flex: 1;
+        }
+
+        /* Banner Hero */
+        .exam-hero {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .exam-hero__text h1 {
+            font-size: 1.55rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .exam-hero__text p {
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            max-width: 650px;
+        }
+        .exam-hero__stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px 14px;
+            text-align: center;
+            min-width: 100px;
+        }
+        .stat-pill .val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--gold-light);
+        }
+        .stat-pill .lbl {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        /* ---- Subjects Ribbon ---- */
+        .subjects-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+            scrollbar-width: thin;
+        }
+        .sub-tab-btn {
+            flex-shrink: 0;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-sub);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .sub-tab-btn:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--bg-elevated);
+        }
+        .sub-tab-btn.is-active {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        }
+        .sub-tab-btn .badge-num {
+            background: rgba(0,0,0,0.15);
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+        }
+
+        /* ---- Subject Card Section ---- */
+        .subject-pane { display: none; }
+        .subject-pane.is-active { display: block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .pane-header {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .pane-header__title { display: flex; align-items: center; gap: 10px; }
+        .pane-header__title h2 { font-size: 1.2rem; font-weight: 800; color: #fff; }
+        .pane-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            font-family: var(--font-mono);
+        }
+        .pane-meta span { background: var(--bg-elevated); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-color); }
+
+        /* QCM Section */
+        .qcm-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gold-light);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .q-item {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .q-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .q-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            color: #fff;
+        }
+        .q-num {
+            color: var(--gold-light);
+            font-family: var(--font-mono);
+            font-weight: 800;
+            margin-right: 6px;
+        }
+        .q-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .opt-btn {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-align: left;
+            color: var(--text-main);
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .opt-btn:hover:not(:disabled) {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .opt-btn .opt-key {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            color: var(--gold-light);
+            flex-shrink: 0;
+            width: 18px;
+        }
+        .opt-btn.is-correct {
+            background: var(--ok-bg) !important;
+            border-color: var(--ok) !important;
+            color: #10b981 !important;
+            font-weight: 700;
+        }
+        .opt-btn.is-wrong {
+            background: var(--ko-bg) !important;
+            border-color: var(--ko) !important;
+            color: #ef4444 !important;
+        }
+
+        .q-explanation {
+            display: none;
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid var(--gold);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+        .q-explanation.is-shown { display: block; animation: fadeIn 0.2s ease; }
+        .q-explanation strong { color: #fff; }
+
+        .score-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-elevated);
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-top: 18px;
+            border: 1px solid var(--border-color);
+            font-size: 0.82rem;
+        }
+        .score-val { font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--gold-light); }
+
+        /* Code Exercise Section */
+        .code-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 24px;
+        }
+        .code-statement {
+            background: rgba(0,0,0,0.25);
+            border-left: 3px solid var(--info);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.84rem;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .code-statement strong { color: #fff; }
+        .code-statement ul { margin-left: 20px; margin-top: 6px; }
+        .code-statement li { margin-bottom: 4px; }
+
+        /* PDF Viewer Container */
+        #pdfViewerSection {
+            display: none;
+            width: 100%;
+        }
+        .pdf-wrapper {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .pdf-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .pdf-embed {
+            width: 100%;
+            height: 78vh;
+            min-height: 600px;
+            border: none;
+            display: block;
+        }
+
+        /* Grade Summary Card */
+        .releve-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-top: 24px;
+        }
+        .releve-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            margin-top: 12px;
+        }
+        .releve-table th, .releve-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .releve-table th {
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            color: var(--text-sub);
+            background: rgba(0,0,0,0.15);
+        }
+        .releve-table tr:last-child td { border-bottom: none; }
+        .grade-pill {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .grade-pass { background: var(--ok-bg); color: var(--ok); }
+        .grade-fail { background: var(--ko-bg); color: var(--ko); }
+        .grade-na { background: rgba(255,255,255,0.06); color: var(--text-sub); }
+
+        /* Footer */
+        .exam-footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-sub);
+            font-size: 0.78rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .exam-nav { padding: 10px 14px; }
+            .exam-hero { padding: 18px 16px; }
+            .exam-hero__stats { width: 100%; justify-content: space-between; }
+            .stat-pill { flex: 1; }
+            .q-options { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barre de Navigation Principale -->
+    <header class="exam-nav">
+        <div class="exam-nav__left">
+            <a href="/" class="portal-btn" title="Tous les portails de formation">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-house"></use></svg>
+                <span>Portails</span>
+            </a>
+            <span class="nav-sep">/</span>
+            <a href="/index.html" class="exam-brand">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-graduation"></use></svg>
+                <span>Portail B2</span>
+            </a>
+            <span class="session-badge">Session 2024 / 2025</span>
+        </div>
+
+        <div class="exam-nav__center">
+            <button class="mode-switch-btn is-active" id="btnModeInteractive" onclick="switchView('interactive')">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-play"></use></svg>
+                <span>Simulateur Interactif</span>
+            </button>
+            <button class="mode-switch-btn" id="btnModePdf" onclick="switchView('pdf')">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-file"></use></svg>
+                <span>Recueil PDF Original</span>
+            </button>
+        </div>
+
+        <div class="exam-nav__right">
+            <div class="exam-timer" title="Chronomètre officiel d'examen">
+                <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg>
+                <span id="timerClock">02:00:00</span>
+                <button class="exam-timer__btn" id="timerToggleBtn" onclick="toggleTimer()" title="Démarrer / Pause">
+                    <svg class="icon-svg" viewBox="0 0 24 24" id="timerToggleIcon" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-play"></use></svg>
+                </button>
+                <button class="exam-timer__btn" onclick="resetTimer()" title="Réinitialiser (2h)">
+                    <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-refresh"></use></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="exam-container">
+
+        <!-- ==========================================
+             VUE 1 : SIMULATEUR INTERACTIF
+             ========================================== -->
+        <div id="interactiveSection">
+            <!-- Hero Banner -->
+            <div class="exam-hero">
+                <div class="exam-hero__text">
+                    <h1>Session d'Examens 2024/2025 — Bachelor 2</h1>
+                    <p>Entraînez-vous dans les conditions réelles des examens officiels du Collège de Paris Supérieur : questions QCM avec correction et barème immédiats, et épreuves pratiques de programmation exécutées directement dans l'éditeur Monaco.</p>
+                </div>
+                <div class="exam-hero__stats">
+                    <div class="stat-pill">
+                        <div class="val" id="statAvg">-- / 20</div>
+                        <div class="lbl">Moyenne Session</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="val" id="statCompleted">0 / 8</div>
+                        <div class="lbl">Matières Terminées</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ruban de sélection des 8 Matières -->
+            <div class="subjects-nav" id="subjectsNav">
+                <button class="sub-tab-btn is-active" onclick="showSubject(0)">
+                    <span class="badge-num">1</span>
+                    <span>Probabilités</span>
+                </button>
+                <button class="sub-tab-btn" onclick="showSubject(1)">
+                    <span class="badge-num">2</span>
+                    <span>Recherche Opérationnelle</span>
+                </button>
+                <button class="sub-tab-btn" onclick="showSubject(2)">
+                    <span class="badge-num">3</span>
+                    <span>Réseaux (CCNA 2)</span>
+                </button>
+                <button class="sub-tab-btn" onclick="showSubject(3)">
+                    <span class="badge-num">4</span>
+                    <span>Admin Machines Virtuelles</span>
+                </button>
+                <button class="sub-tab-btn" onclick="showSubject(4)">
+                    <span class="badge-num">5</span>
+                    <span>Programmation C#</span>
+                </button>
+                <button class="sub-tab-btn" onclick="showSubject(5)">
+                    <span class="badge-num">6</span>
+                    <span>POO en PHP</span>
+                </button>
+                <button class="sub-tab-btn" onclick="showSubject(6)">
+                    <span class="badge-num">7</span>
+                    <span>UML Diagrammes</span>
+                </button>
+                <button class="sub-tab-btn" onclick="showSubject(7)">
+                    <span class="badge-num">8</span>
+                    <span>POO et Java</span>
+                </button>
+            </div>
+
+            <!-- ==============================================
+                 MATIÈRE 1 : PROBABILITÉS
+                 ============================================== -->
+            <section class="subject-pane is-active" id="pane-0">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-calculator"></use></svg>
+                        <h2>1. Épreuve de Probabilités (Bachelor 2 IT)</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 02h00</span>
+                        <span>Coeff : 2</span>
+                        <span>Session Normale Février 2025</span>
+                    </div>
+                </div>
+
+                <!-- QCM / Exercices Théoriques -->
+                <div class="qcm-box" data-subject="probabilites">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : Exercices d'Examen &amp; Calculs Immédiats (10 Points)</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="q-item" data-qid="p1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            <strong>Exercice 1 du sujet officiel :</strong> Deux machines M1 et M2 ont des probabilités de panne respectives P(M1) = 0,01 et P(M2) = 0,008. De plus, la probabilité conditionnelle P(M2 en panne | M1 en panne) = 0,4. Quelle est la probabilité d'avoir les <em>deux machines en panne au même moment</em> ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p1')"><span class="opt-key">A.</span> 0,00008 (indépendance supposée)</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'p1')"><span class="opt-key">B.</span> 0,004 (P(M1 ∩ M2) = P(M1) × P(M2|M1))</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p1')"><span class="opt-key">C.</span> 0,018 (somme des probabilités)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p1')"><span class="opt-key">D.</span> 0,400</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> D'après la définition des probabilités conditionnelles, P(M1 ∩ M2) = P(M1) × P(M2|M1) = 0,01 × 0,4 = <strong>0,004</strong> (soit 0,4 % de chances que les deux machines tombent en panne simultanément).
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="q-item" data-qid="p2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            <strong>Suite de l'Exercice 1 :</strong> Quelle est la probabilité d'avoir <em>au moins une machine qui fonctionne</em> sur cette période ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p2')"><span class="opt-key">A.</span> 0,982</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p2')"><span class="opt-key">B.</span> 0,600</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'p2')"><span class="opt-key">C.</span> 0,996 (événement contraire de « deux en panne »)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p2')"><span class="opt-key">D.</span> 0,992</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> L'événement contraire de « au moins une fonctionne » est « les deux sont simultanément en panne » (M1 ∩ M2). La probabilité recherchée vaut donc 1 - P(M1 ∩ M2) = 1 - 0,004 = <strong>0,996</strong> (soit 99,6 %).
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="q-item" data-qid="p3">
+                        <div class="q-text">
+                            <span class="q-num">3.</span>
+                            <strong>Exercice 2 (Formule de Bayes) :</strong> 40% des garçons et 15% des filles mesurent plus de 1,80 m. De plus, 60% des élèves sont des filles (donc 40% de garçons). Sachant qu'un élève choisi au hasard mesure plus de 1,80 m, quelle est la probabilité que ce soit une fille ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p3')"><span class="opt-key">A.</span> 0,150 (15 %)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p3')"><span class="opt-key">B.</span> 0,600 (60 %)</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'p3')"><span class="opt-key">C.</span> 0,360 (36 % via Théorème de Bayes)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p3')"><span class="opt-key">D.</span> 0,250 (25 %)</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> P(Grand) = P(F)×P(Grand|F) + P(G)×P(Grand|G) = 0,60×0,15 + 0,40×0,40 = 0,09 + 0,16 = 0,25. Par le théorème de Bayes : P(Fille|Grand) = (0,60 × 0,15) / 0,25 = 0,09 / 0,25 = <strong>0,36 (36%)</strong>.
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="q-item" data-qid="p4">
+                        <div class="q-text">
+                            <span class="q-num">4.</span>
+                            <strong>Exercice 3 (Indépendance) :</strong> Sur 1000 personnes (700 hommes dont 420 fumeurs, 300 femmes dont 75 fumeuses). A = « Déclare fumer » et B = « Est du sexe féminin ». A et B sont-ils indépendants ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'p4')"><span class="opt-key">A.</span> Non : P(A ∩ B) = 0,075 ≠ P(A) × P(B) = 0,495 × 0,30 = 0,1485</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p4')"><span class="opt-key">B.</span> Oui, car il y a des fumeurs dans les deux sexes</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p4')"><span class="opt-key">C.</span> Oui, car la somme des personnes vaut 1000</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'p4')"><span class="opt-key">D.</span> On ne peut pas conclure sans la loi normale</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> P(A) = (420+75)/1000 = 0,495. P(B) = 300/1000 = 0,30. P(A ∩ B) = 75/1000 = 0,075. Or P(A) × P(B) = 0,495 × 0,30 = 0,1485. Comme 0,075 ≠ 0,1485, <strong>les événements A et B ne sont pas indépendants</strong>.
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM Probabilités :</span>
+                        <span class="score-val" id="score-probabilites">0 / 4</span>
+                    </div>
+                </div>
+
+                <!-- Atelier Code Monaco (Python) -->
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <span>Partie 2 : Atelier Pratique de Programmation (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Consigne de l'examen :</strong> Implémentez en Python une fonction <code>bayes_conditional(p_prior_a, p_b_given_a, p_b_given_not_a)</code> qui calcule la probabilité a posteriori <code>P(A|B)</code> selon le théorème de Bayes. Testez-la avec les données de l'Exercice 2 du sujet officiel (Filles : 60 %, Filles > 1m80 : 15 %, Garçons > 1m80 : 40 %). Le résultat doit afficher exactement <code>0.36</code>.
+                    </div>
+                    <div class="lab" data-lab data-language="python" data-height="300" data-languages="1">
+                        <script type="text/plain" data-lab-starter>def bayes_conditional(p_a, p_b_given_a, p_b_given_not_a):
+    """
+    Calcule P(A|B) par la formule de Bayes :
+    P(A|B) = [P(B|A) * P(A)] / [P(B|A)*P(A) + P(B|not A)*P(not A)]
+    """
+    p_not_a = 1.0 - p_a
+    p_b = (p_b_given_a * p_a) + (p_b_given_not_a * p_not_a)
+    return (p_b_given_a * p_a) / p_b
+
+# Application aux données de l'Exercice 2 de l'examen :
+p_fille = 0.60
+p_grand_si_fille = 0.15
+p_grand_si_garcon = 0.40
+
+resultat = bayes_conditional(p_fille, p_grand_si_fille, p_grand_si_garcon)
+print("P(Fille | > 1.80m) =", round(resultat, 4))
+assert round(resultat, 2) == 0.36, "Erreur dans le calcul de Bayes"
+print("Validation : Calcul conforme au sujet d'examen !")</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================
+                 MATIÈRE 2 : RECHERCHE OPÉRATIONNELLE (RO)
+                 ============================================== -->
+            <section class="subject-pane" id="pane-1">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg>
+                        <h2>2. Recherche Opérationnelle &amp; Simplexe (B2 IT)</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 03h00</span>
+                        <span>Coeff : 3</span>
+                        <span>Session Normale Février 2025</span>
+                    </div>
+                </div>
+
+                <div class="qcm-box" data-subject="ro">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : Questions de Cours &amp; Méthode du Simplexe (10 Points)</span>
+                    </div>
+
+                    <div class="q-item" data-qid="ro1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            <strong>Question de cours officielle :</strong> Pour un modèle de programmation linéaire à <em>n</em> variables (activités) et <em>m</em> contraintes, qu'appelle-t-on une <em>solution de base</em> ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro1')"><span class="opt-key">A.</span> N'importe quelle solution admissible</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro1')"><span class="opt-key">B.</span> Une solution vérifiant uniquement la positivité des variables</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'ro1')"><span class="opt-key">C.</span> Une solution admettant au moins (n - m) variables hors base nulles et m variables dans la base</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro1')"><span class="opt-key">D.</span> Une solution sans fonction économique</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> En programmation linéaire sous forme standard, pour un système de <em>m</em> équations à <em>n</em> inconnues (n > m), une solution de base est obtenue en fixant (n - m) variables hors base à 0 et en résolvant le système carré de dimension <em>m</em> pour les variables de base.
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="ro2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            <strong>Critère d'arrêt du Simplexe :</strong> Dans un problème de maximisation (forme Max Z = C·X), à quelle condition la solution courante du tableau du Simplexe est-elle certifiée <em>optimale</em> ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'ro2')"><span class="opt-key">A.</span> Tous les coûts marginaux réduits (Cj - Zj) sont négatifs ou nuls (≤ 0)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro2')"><span class="opt-key">B.</span> Toutes les variables de base sont strictement positives</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro2')"><span class="opt-key">C.</span> Le pivot vaut exactement 1</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro2')"><span class="opt-key">D.</span> Le terme constant b est nul</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> En maximisation, l'algorithme s'arrête dès que tous les coefficients de la ligne d'évaluation économique (Cj - Zj) sont ≤ 0 : aucune variable hors base ne peut plus faire croître la fonction objectif.
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="ro3">
+                        <div class="q-text">
+                            <span class="q-num">3.</span>
+                            <strong>Règle du pivot :</strong> Comment sélectionne-t-on la <em>variable sortante</em> de la base ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro3')"><span class="opt-key">A.</span> On prend la variable ayant le plus grand coefficient b</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'ro3')"><span class="opt-key">B.</span> On calcule le ratio min(bi / a_ir) pour les coefficients a_ir strictement positifs (> 0)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro3')"><span class="opt-key">C.</span> On choisit aléatoirement une variable</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'ro3')"><span class="opt-key">D.</span> On prend la variable ayant le ratio le plus négatif</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> La variable sortante est déterminée par le test du ratio minimal : min { bi / air | air > 0 }. Ce critère garantit que la nouvelle solution de base reste dans le domaine admissible (positivité des composantes).
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM Recherche Opérationnelle :</span>
+                        <span class="score-val" id="score-ro">0 / 3</span>
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <span>Partie 2 : Résolution Numérique du Problème d'Optimisation (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Problème de l'examen :</strong> Une usine fabrique deux produits P1 et P2 générant respectivement 30 € et 40 € de marge unitaire. Contraintes de production : Atelier 1 : <code>2*x1 + x2 &lt;= 100</code> ; Atelier 2 : <code>x1 + 2*x2 &lt;= 80</code>. Objectif : <code>Max Z = 30*x1 + 40*x2</code>. Écrivez le script de résolution par énumération des sommets admissibles ou programmation linéaire.
+                    </div>
+                    <div class="lab" data-lab data-language="python" data-height="300" data-languages="1">
+                        <script type="text/plain" data-lab-starter># Résolution du problème d'optimisation de l'examen
+# Max Z = 30*x1 + 40*x2
+# s.c.  2*x1 +   x2 <= 100  (Atelier 1)
+#         x1 + 2*x2 <= 80   (Atelier 2)
+#         x1, x2 >= 0
+
+# Sommets du polyèdre admissible :
+# 1. (0, 0)
+# 2. (50, 0) : intersection 2*x1 + x2 = 100 et x2 = 0
+# 3. (0, 40) : intersection x1 + 2*x2 = 80 et x1 = 0
+# 4. Intersection des deux droites : 
+#    2*x1 + x2 = 100 => x2 = 100 - 2*x1
+#    x1 + 2*(100 - 2*x1) = 80 => -3*x1 + 200 = 80 => 3*x1 = 120 => x1 = 40, x2 = 20
+
+sommets = [(0, 0), (50, 0), (0, 40), (40, 20)]
+best_z = -1
+best_coord = None
+
+for x1, x2 in sommets:
+    z = 30 * x1 + 40 * x2
+    print(f"Sommet ({x1}, {x2}) -> Marge Z = {z} €")
+    if z > best_z:
+        best_z = z
+        best_coord = (x1, x2)
+
+print(f"\nSolution optimale : {best_coord} avec Z* = {best_z} €")
+assert best_coord == (40, 20) and best_z == 2000, "Erreur dans l'optimum"
+print("Validation : Optimum Simplexe conforme au corrigé !")</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================
+                 MATIÈRE 3 : RÉSEAU INFORMATIQUE (CCNA 2)
+                 ============================================== -->
+            <section class="subject-pane" id="pane-2">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-wifi"></use></svg>
+                        <h2>3. Réseau Informatique (CCNA 2)</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 02h00</span>
+                        <span>Coeff : 2</span>
+                        <span>Mardi 11 Février 2025</span>
+                    </div>
+                </div>
+
+                <div class="qcm-box" data-subject="ccna">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : QCM Officiel de l'Examen (10 Points)</span>
+                    </div>
+
+                    <div class="q-item" data-qid="cc1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            Combien de couches comprend le modèle OSI ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc1')"><span class="opt-key">A.</span> 4 couches</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc1')"><span class="opt-key">B.</span> 5 couches</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'cc1')"><span class="opt-key">C.</span> 7 couches (Physique, Liaison, Réseau, Transport, Session, Présentation, Application)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc1')"><span class="opt-key">D.</span> 6 couches</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Le modèle de référence OSI normalisé par l'ISO comprend 7 couches distinctes (tandis que le modèle TCP/IP en comprend 4).
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="cc2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            Quel est le rôle principal des VLANs (Virtual Local Area Networks) ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc2')"><span class="opt-key">A.</span> Réduire les coûts matériels en supprimant les câbles</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'cc2')"><span class="opt-key">B.</span> Isoler le trafic et segmenter les domaines de diffusion pour la sécurité et la performance</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc2')"><span class="opt-key">C.</span> Supprimer définitivement les adresses IP</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc2')"><span class="opt-key">D.</span> Remplacer les routeurs dans un réseau WAN</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Les VLANs permettent de diviser un commutateur physique en plusieurs commutateurs logiques, isolant ainsi les domaines de diffusion (broadcast) et renforçant la sécurité entre services (ex: VLAN RH, VLAN Finance).
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="cc3">
+                        <div class="q-text">
+                            <span class="q-num">3.</span>
+                            Quelle couche du modèle OSI est responsable du routage des paquets via les adresses IP ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc3')"><span class="opt-key">A.</span> Couche Transport (Couche 4)</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'cc3')"><span class="opt-key">B.</span> Couche Réseau (Couche 3)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc3')"><span class="opt-key">C.</span> Couche Liaison de données (Couche 2)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc3')"><span class="opt-key">D.</span> Couche Application (Couche 7)</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> La couche 3 (Réseau) s'occupe de l'adressage logique (IPv4 / IPv6) et du routage des paquets entre différents sous-réseaux.
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="cc4">
+                        <div class="q-text">
+                            <span class="q-num">4.</span>
+                            Quel protocole permet d'attribuer dynamiquement une configuration IP aux hôtes selon la séquence DORA ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'cc4')"><span class="opt-key">A.</span> DHCP (Dynamic Host Configuration Protocol)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc4')"><span class="opt-key">B.</span> DNS (Domain Name System)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc4')"><span class="opt-key">C.</span> ARP (Address Resolution Protocol)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cc4')"><span class="opt-key">D.</span> ICMP</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Le protocole DHCP fonctionne par échange de 4 trames : Discover, Offer, Request et Acknowledgment (processus DORA).
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM CCNA 2 :</span>
+                        <span class="score-val" id="score-ccna">0 / 4</span>
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <span>Partie 2 : Atelier Pratique &amp; Calcul de Masque Réseau (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Exercice Pratique :</strong> Pour segmenter un réseau <code>192.168.10.0/24</code> en 4 sous-réseaux d'au moins 50 hôtes utiles chacun (VLAN 10 Informatique, VLAN 20 Gestion, VLAN 30 Visiteurs, VLAN 99 Admin), déterminez le masque adapté (/26 soit 255.255.255.192) et écrivez un script de validation des plages IP.
+                    </div>
+                    <div class="lab" data-lab data-language="python" data-height="300" data-languages="1">
+                        <script type="text/plain" data-lab-starter># Calcul et découpage VLSM pour 4 sous-réseaux /26
+# Masque /26 = 255.255.255.192 (Pas de 64 adresses)
+
+subnets = [
+    {"vlan": 10, "nom": "Informatique", "net": "192.168.10.0/26",  "first": "192.168.10.1",  "last": "192.168.10.62",  "bcast": "192.168.10.63"},
+    {"vlan": 20, "nom": "Gestion",      "net": "192.168.10.64/26", "first": "192.168.10.65", "last": "192.168.10.126", "bcast": "192.168.10.127"},
+    {"vlan": 30, "nom": "Visiteurs",    "net": "192.168.10.128/26","first": "192.168.10.129","last": "192.168.10.190", "bcast": "192.168.10.191"},
+    {"vlan": 99, "nom": "Management",   "net": "192.168.10.192/26","first": "192.168.10.193","last": "192.168.10.254", "bcast": "192.168.10.255"}
+]
+
+print("=== PLAN D'ADRESSAGE VLSM DE L'EXAMEN ===")
+for s in subnets:
+    print(f"VLAN {s['vlan']} ({s['nom']}) : Réseau {s['net']} | Hôtes : {s['first']} -> {s['last']} | Broadcast : {s['bcast']}")
+
+assert len(subnets) == 4
+print("\nValidation : Découpage IP et calcul des plages réseau réussi !")</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================
+                 MATIÈRE 4 : ADMIN MACHINES VIRTUELLES
+                 ============================================== -->
+            <section class="subject-pane" id="pane-3">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg>
+                        <h2>4. Administration des Machines Virtuelles</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 02h00</span>
+                        <span>Coeff : 2</span>
+                        <span>Enseignant : BOUKLINAM</span>
+                    </div>
+                </div>
+
+                <div class="qcm-box" data-subject="adminvm">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : Architecture &amp; Virtualisation d'Entreprise (10 Points)</span>
+                    </div>
+
+                    <div class="q-item" data-qid="vm1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            <strong>Exercice 1 de l'examen (L'Aventure de Max) :</strong> Quelle est la différence fondamentale entre un hyperviseur de <em>Type 1 (Bare-metal)</em> comme VMware ESXi ou Proxmox VE, et un hyperviseur de <em>Type 2</em> comme VirtualBox ou VMware Workstation ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'vm1')"><span class="opt-key">A.</span> Le Type 1 s'installe directement sur le matériel physique sans OS hôte sous-jacent</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm1')"><span class="opt-key">B.</span> Le Type 2 ne supporte pas Linux</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm1')"><span class="opt-key">C.</span> Le Type 1 nécessite obligatoirement Windows 11</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm1')"><span class="opt-key">D.</span> Le Type 1 est uniquement destiné aux ordinateurs portables</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Un hyperviseur Type 1 s'exécute directement sur la couche matérielle (Bare-metal), offrant des performances et une isolation maximales pour les serveurs de production. Un Type 2 s'exécute comme une application au-dessus d'un système d'exploitation hôte.
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="vm2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            <strong>Snapshots vs Sauvegardes :</strong> Pourquoi est-il dangereux de considérer un <em>snapshot</em> comme une sauvegarde complète d'une VM ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm2')"><span class="opt-key">A.</span> Parce qu'un snapshot ne peut pas être restauré</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'vm2')"><span class="opt-key">B.</span> Parce qu'un snapshot est un delta différentiel dépendant du disque parent ; si le disque parent est corrompu, tout est perdu</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm2')"><span class="opt-key">C.</span> Parce qu'un snapshot supprime automatiquement les fichiers</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm2')"><span class="opt-key">D.</span> Parce qu'un snapshot est réservé à Windows</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Un snapshot fige le disque de base en lecture seule et enregistre les modifications dans un fichier delta (différentiel). Il dépend entièrement de l'intégrité du disque source et impacte les I/O si conservé à long terme. Une vraie sauvegarde est une copie complète et décorrélée.
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="vm3">
+                        <div class="q-text">
+                            <span class="q-num">3.</span>
+                            <strong>Migration à chaud (vMotion) :</strong> Quel prérequis technique d'infrastructure de stockage est obligatoire pour déplacer une VM allumée d'un hôte ESXi à un autre sans interruption de service ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm3')"><span class="opt-key">A.</span> Une clé USB branchée sur chaque serveur</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'vm3')"><span class="opt-key">B.</span> Un stockage partagé accessible simultanément par les deux hôtes (NFS, iSCSI, SAN VMFS)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm3')"><span class="opt-key">C.</span> L'arrêt complet de la machine virtuelle</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'vm3')"><span class="opt-key">D.</span> Une adresse MAC identique sur les deux cartes réseau</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> vMotion standard transfère l'état de la mémoire vive (RAM) et l'exécution CPU entre deux hôtes. Pour que la VM ne subisse aucune coupure, ses disques virtuels doivent résider sur un datastore partagé (SAN Fibre Channel, iSCSI ou NFS).
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM Virtualisation :</span>
+                        <span class="score-val" id="score-adminvm">0 / 3</span>
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg>
+                        <span>Partie 2 : Scripting d'Administration &amp; Diagnostic Système (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Épreuve Pratique :</strong> Écrivez un script d'administration système en Bash qui vérifie l'état d'allocation des ressources de la machine virtuelle (CPU, mémoire totale et disponible, espace disque restant sur la racine <code>/</code>).
+                    </div>
+                    <div class="lab" data-lab data-language="bash" data-height="300" data-languages="1">
+                        <script type="text/plain" data-lab-starter>#!/bin/bash
+# Script d'audit et diagnostic des ressources VM
+
+echo "=== RAPPORT DIAGNOSTIC MACHINE VIRTUELLE ==="
+echo "Date et heure : $(date '+%Y-%m-%d %H:%M:%S')"
+echo "Nom d'hôte    : $(hostname)"
+echo "Noyau Linux   : $(uname -r)"
+
+echo -e "\n--- RESSOURCES PROCESSEUR ---"
+echo "vCPU alloués : $(nproc)"
+
+echo -e "\n--- RESSOURCES MÉMOIRE (RAM) ---"
+free -h
+
+echo -e "\n--- STOCKAGE ET POINTS DE MONTAGE ---"
+df -h /
+
+echo -e "\n=== VÉRIFICATION TERMINÉE AVEC SUCCÈS ==="</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================
+                 MATIÈRE 5 : PROGRAMMATION C#
+                 ============================================== -->
+            <section class="subject-pane" id="pane-4">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <h2>5. Programmation C# &amp; POO</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 03h00</span>
+                        <span>Coeff : 3</span>
+                        <span>Professeur : Mme AGBEGNAN</span>
+                    </div>
+                </div>
+
+                <div class="qcm-box" data-subject="csharp">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : Concepts Fondamentaux C# &amp; POO (10 Points)</span>
+                    </div>
+
+                    <div class="q-item" data-qid="cs1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            <strong>Exercice 2 du sujet (Héritage C#) :</strong> En C#, comment exprime-t-on qu'une classe <code>Ordinateur</code> hérite de la classe <code>Produit</code> et transmet les paramètres à son constructeur de base ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cs1')"><span class="opt-key">A.</span> <code>class Ordinateur extends Produit : super(...)</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'cs1')"><span class="opt-key">B.</span> <code>class Ordinateur : Produit { public Ordinateur(...) : base(...) { } }</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cs1')"><span class="opt-key">C.</span> <code>class Ordinateur implements Produit { }</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cs1')"><span class="opt-key">D.</span> <code>class Ordinateur inherits Produit { }</code></button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> En C#, le symbole <code>:</code> remplace les mots-clés <code>extends</code> et <code>implements</code>. L'appel au constructeur parent se fait obligatoirement via la syntaxe <code>: base(...)</code> en en-tête du constructeur de la classe fille.
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="cs2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            <strong>Encapsulation C# :</strong> Quelle construction idiomatique en C# permet d'exposer un attribut avec lecture publique et écriture privée sans écrire manuellement de méthodes get/set verbeuses ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'cs2')"><span class="opt-key">A.</span> Les auto-propriétés : <code>public string Nom { get; private set; }</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cs2')"><span class="opt-key">B.</span> Le mot-clé <code>public private string Nom;</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cs2')"><span class="opt-key">C.</span> Une variable globale statique</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'cs2')"><span class="opt-key">D.</span> Un délégué <code>Action&lt;string&gt;</code></button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Les propriétés automatiques (Auto-Properties) <code>public Type Nom { get; private set; }</code> génèrent en coulisse un champ de stockage anonyme tout en préservant l'encapsulation stricte.
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM C# :</span>
+                        <span class="score-val" id="score-csharp">0 / 2</span>
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <span>Partie 2 : Épreuve Pratique de POO — Classes Produit &amp; Ordinateur (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Épreuve officielle (Société IP Tech) :</strong> Créez la classe <code>Produit</code> (code, nom, prixAchat, prixVente) avec sa méthode <code>CalculerMarge()</code>, puis la classe dérivée <code>Ordinateur</code> (processeur, memoireViveGo) surchargeant la description. Exécutez le programme pour afficher les caractéristiques et la marge bénéficiaire.
+                    </div>
+                    <div class="lab" data-lab data-language="csharp" data-height="330" data-languages="1">
+                        <script type="text/plain" data-lab-starter>using System;
+
+public class Produit
+{
+    public string Code { get; set; }
+    public string Nom { get; set; }
+    public double PrixAchat { get; set; }
+    public double PrixVente { get; set; }
+
+    public Produit(string code, string nom, double prixAchat, double prixVente)
+    {
+        Code = code;
+        Nom = nom;
+        PrixAchat = prixAchat;
+        PrixVente = prixVente;
+    }
+
+    public double CalculerMarge()
+    {
+        return PrixVente - PrixAchat;
+    }
+
+    public virtual void AfficherDetails()
+    {
+        Console.WriteLine($"[Produit {Code}] {Nom} | Achat: {PrixAchat} € | Vente: {PrixVente} € | Marge: {CalculerMarge()} €");
+    }
+}
+
+public class Ordinateur : Produit
+{
+    public string Processeur { get; set; }
+    public int MemoireViveGo { get; set; }
+
+    public Ordinateur(string code, string nom, double achat, double vente, string cpu, int ram)
+        : base(code, nom, achat, vente)
+    {
+        Processeur = cpu;
+        MemoireViveGo = ram;
+    }
+
+    public override void AfficherDetails()
+    {
+        base.AfficherDetails();
+        Console.WriteLine($"  -> Spécifications : CPU {Processeur}, {MemoireViveGo} Go RAM");
+    }
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        Console.WriteLine("=== SYSTÈME DE GESTION IP TECH (C#) ===");
+        Ordinateur pc = new Ordinateur("PC-B2-01", "ThinkPad T14", 750.0, 1150.0, "Intel Core i7", 32);
+        pc.AfficherDetails();
+        Console.WriteLine("Marge bénéficiaire calculée : " + pc.CalculerMarge() + " €");
+    }
+}</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================
+                 MATIÈRE 6 : POO EN PHP
+                 ============================================== -->
+            <section class="subject-pane" id="pane-5">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <h2>6. Programmation Orientée Objet en PHP</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 02h00</span>
+                        <span>Coeff : 2</span>
+                        <span>Session Normale 2024/2025</span>
+                    </div>
+                </div>
+
+                <div class="qcm-box" data-subject="php">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : QCM &amp; Encapsulation PHP (10 Points)</span>
+                    </div>
+
+                    <div class="q-item" data-qid="php1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            <strong>Exercice 1 &amp; 2 du sujet officiel :</strong> Dans la classe <code>Livre</code>, les attributs <code>$titre</code>, <code>$auteur</code> et <code>$nbPages</code> doivent être protégés contre les modifications directes non contrôlées. Quelle visibilité doit-on leur donner et comment accède-t-on à l'attribut courant dans une méthode ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'php1')"><span class="opt-key">A.</span> Visibilité <code>public</code> et variable <code>$this->$titre</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'php1')"><span class="opt-key">B.</span> Visibilité <code>private</code> et pseudo-variable <code>$this->nbPages</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'php1')"><span class="opt-key">C.</span> Visibilité <code>static</code> et appel <code>self::$titre</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'php1')"><span class="opt-key">D.</span> Visibilité <code>global</code></button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Les attributs encapsulés sont déclarés en <code>private</code> (ou <code>protected</code> en cas d'héritage). En PHP, l'instance courante est référencée par <code>$this->nomAttribut</code> (sans symbole dollar devant le nom de l'attribut).
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="php2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            <strong>Exercice 4 du sujet officiel :</strong> Si un utilisateur fournit un nombre de pages négatif ou nul (<code>$nbPages &lt;= 0</code>), le setter doit lever une exception. Quelle syntaxe PHP est correcte ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'php2')"><span class="opt-key">A.</span> <code>if ($nb &lt;= 0) throw new InvalidArgumentException("Nombre invalide");</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'php2')"><span class="opt-key">B.</span> <code>if ($nb &lt;= 0) raise Error("Nombre invalide");</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'php2')"><span class="opt-key">C.</span> <code>if ($nb &lt;= 0) echo "erreur"; return false;</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'php2')"><span class="opt-key">D.</span> <code>catch Exception($nb);</code></button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> En PHP moderne orienté objet, le signalement d'une violation de règle métier se fait en levant une exception avec l'instruction <code>throw new Exception(...)</code>, qui sera ensuite interceptée par un bloc <code>try / catch</code>.
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM PHP :</span>
+                        <span class="score-val" id="score-php">0 / 2</span>
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <span>Partie 2 : Épreuve Pratique — Classes Livre, LivreNumerique &amp; Exceptions (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Exercice officiel complet :</strong> Implémentez la classe <code>Livre</code> avec constructeur, encapsulation de <code>$nbPages</code> (exception si &lt;= 0), puis la classe fille <code>LivreNumerique</code> ajoutant <code>$format</code>. Testez l'affichage des informations et la capture de l'exception avec <code>try / catch</code>.
+                    </div>
+                    <div class="lab" data-lab data-language="php" data-height="340" data-languages="1">
+                        <script type="text/plain" data-lab-starter><?php
+
+class Livre {
+    private string $titre;
+    private string $auteur;
+    private int $nbPages;
+
+    public function __construct(string $titre, string $auteur, int $nbPages) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        $this->setNbPages($nbPages);
+    }
+
+    public function setNbPages(int $pages): void {
+        if ($pages <= 0) {
+            throw new InvalidArgumentException("Le nombre de pages doit être strictement positif.");
+        }
+        $this->nbPages = $pages;
+    }
+
+    public function getNbPages(): int {
+        return $this->nbPages;
+    }
+
+    public function afficherInfos(): string {
+        return "Titre : {$this->titre}, Auteur : {$this->auteur}, Nombre de pages : {$this->nbPages}";
+    }
+}
+
+class LivreNumerique extends Livre {
+    private string $format;
+
+    public function __construct(string $titre, string $auteur, int $nbPages, string $format) {
+        parent::__construct($titre, $auteur, $nbPages);
+        $this->format = $format;
+    }
+
+    public function afficherInfos(): string {
+        return parent::afficherInfos() . ", Format : {$this->format}";
+    }
+}
+
+// Test de l'épreuve d'examen :
+echo "=== GESTION DE LA BIBLIOTHÈQUE (PHP) ===\n";
+$l1 = new Livre("Les Misérables", "Victor Hugo", 1232);
+echo $l1->afficherInfos() . "\n";
+
+$l2 = new LivreNumerique("Apprendre la POO", "Collège de Paris", 250, "EPUB");
+echo $l2->afficherInfos() . "\n";
+
+// Test de la gestion des erreurs :
+try {
+    echo "Tentative de création d'un livre invalide (0 page)...\n";
+    $invalide = new Livre("Test Erreur", "Inconnu", 0);
+} catch (InvalidArgumentException $e) {
+    echo "Exception correctement capturée : " . $e->getMessage() . "\n";
+}
+echo "Validation de l'épreuve PHP réussie !\n";</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================
+                 MATIÈRE 7 : UML (DIAGRAMMES)
+                 ============================================== -->
+            <section class="subject-pane" id="pane-6">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg>
+                        <h2>7. Modélisation UML &amp; Diagrammes de Classes</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 02h00</span>
+                        <span>Coeff : 2</span>
+                        <span>Session Normale 2024/2025</span>
+                    </div>
+                </div>
+
+                <div class="qcm-box" data-subject="uml">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : Analyse des Règles de Gestion &amp; Multiplicités (10 Points)</span>
+                    </div>
+
+                    <div class="q-item" data-qid="um1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            <strong>Exercice 1 de l'examen (Gestion d'une Académie) :</strong> La règle stipule : « Chaque école est structurée en départements, qui regroupent chacun des enseignants spécifiques. Si une école disparaît, ses départements disparaissent avec elle. » Quel type de relation lie <code>Ecole</code> et <code>Departement</code> ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'um1')"><span class="opt-key">A.</span> Une simple association réflexive</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'um1')"><span class="opt-key">B.</span> Une agrégation partagée (losange vide)</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'um1')"><span class="opt-key">C.</span> Une composition forte (losange plein) avec multiplicité 1 côté École et 1..* côté Département</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'um1')"><span class="opt-key">D.</span> Une généralisation / héritage</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> La dépendance de cycle de vie (la destruction du tout entraîne la destruction des parties) caractérise rigoureusement la <strong>composition</strong> (losange plein côté composite).
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="um2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            <strong>Classe d'association :</strong> La règle stipule : « Les étudiants suivent plusieurs matières et reçoivent une note pour chacune d'elles. » Où doit figurer l'attribut <code>valeurNote</code> dans le diagramme de classes ?
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, false, 'um2')"><span class="opt-key">A.</span> Dans la classe Etudiant (ce qui écraserait les notes des autres matières)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'um2')"><span class="opt-key">B.</span> Dans la classe Matiere (la note ne dépendrait pas de l'étudiant)</button>
+                            <button class="opt-btn" onclick="checkOption(this, true, 'um2')"><span class="opt-key">C.</span> Dans une classe d'association « Evaluation / Inscription » reliant Etudiant (1..*) et Matiere (1..*)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'um2')"><span class="opt-key">D.</span> Dans la classe Salle</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Une note caractérise le croisement d'un étudiant particulier et d'une matière donnée dans une relation many-to-many (<code>*..*</code>). Elle doit impérativement être portée par une <strong>classe d'association</strong>.
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM UML :</span>
+                        <span class="score-val" id="score-uml">0 / 2</span>
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg>
+                        <span>Partie 2 : Vérification du Modèle Objet &amp; Calcul de Moyennes (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Spécification de l'examen :</strong> « On désire pouvoir calculer la moyenne par matière ainsi que par département. » Écrivez l'implémentation objet correspondant fidèlement au diagramme de classe UML modélisé (classes <code>Etudiant</code>, <code>Matiere</code>, <code>Note</code> et calcul des moyennes).
+                    </div>
+                    <div class="lab" data-lab data-language="python" data-height="320" data-languages="1">
+                        <script type="text/plain" data-lab-starter># Implémentation orientée objet du diagramme de classes UML de l'examen
+
+class Matiere:
+    def __init__(self, code, nom, coef=1):
+        self.code = code
+        self.nom = nom
+        self.coef = coef
+
+class Etudiant:
+    def __init__(self, matricule, nom, prenom):
+        self.matricule = matricule
+        self.nom = nom
+        self.prenom = prenom
+
+class InscriptionNote:
+    """Classe d'association reliant Étudiant et Matière"""
+    def __init__(self, etudiant, matiere, note):
+        self.etudiant = etudiant
+        self.matiere = matiere
+        self.note = note
+
+# Jeu de données de l'Académie
+m1 = Matiere("MATH-B2", "Probabilités", coef=2)
+m2 = Matiere("DEV-B2", "Java POO", coef=3)
+
+e1 = Etudiant("E01", "KOUASSI", "Marc")
+e2 = Etudiant("E02", "MENSAH", "Afi")
+
+notes = [
+    InscriptionNote(e1, m1, 15.5),
+    InscriptionNote(e1, m2, 17.0),
+    InscriptionNote(e2, m1, 13.0),
+    InscriptionNote(e2, m2, 16.0),
+]
+
+# Calcul de la moyenne pour la matière Probabilités :
+notes_m1 = [n.note for n in notes if n.matiere.code == "MATH-B2"]
+moyenne_m1 = sum(notes_m1) / len(notes_m1)
+
+print(f"Moyenne de l'épreuve {m1.nom} : {moyenne_m1:.2f} / 20")
+assert moyenne_m1 == 14.25, "Erreur dans le calcul"
+print("Validation : Modélisation UML et calcul de moyennes conformes !")</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================
+                 MATIÈRE 8 : POO ET JAVA
+                 ============================================== -->
+            <section class="subject-pane" id="pane-7">
+                <div class="pane-header">
+                    <div class="pane-header__title">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <h2>8. Programmation Orientée Objet et Java</h2>
+                    </div>
+                    <div class="pane-meta">
+                        <span>Durée : 02h00</span>
+                        <span>Coeff : 3</span>
+                        <span>Session de Rattrapage &amp; Normale B2 IT</span>
+                    </div>
+                </div>
+
+                <div class="qcm-box" data-subject="java">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg>
+                        <span>Partie 1 : QCM Officiel de l'Examen Java (10 Points)</span>
+                    </div>
+
+                    <div class="q-item" data-qid="jv1">
+                        <div class="q-text">
+                            <span class="q-num">1.</span>
+                            <strong>Exercice 1 (Questions de cours) :</strong> Dans une classe Java :
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'jv1')"><span class="opt-key">A.</span> On peut avoir plusieurs constructeurs par surcharge (overloading)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv1')"><span class="opt-key">B.</span> On doit obligatoirement avoir un seul et unique constructeur</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv1')"><span class="opt-key">C.</span> Toutes les méthodes doivent être obligatoirement statiques</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv1')"><span class="opt-key">D.</span> Les attributs privés sont accessibles directement depuis une autre classe quelconque</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> En Java, une classe peut définir plusieurs constructeurs ayant des signatures différentes (types ou nombre de paramètres distincts) : c'est la surcharge de constructeur.
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="jv2">
+                        <div class="q-text">
+                            <span class="q-num">2.</span>
+                            <strong>Conventions de nommage en Java :</strong> Selon les règles officielles de codage Java (Java Code Conventions) :
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'jv2')"><span class="opt-key">A.</span> Le nom d'une classe commence par une majuscule (PascalCase) et le nom d'un attribut par une minuscule (camelCase)</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv2')"><span class="opt-key">B.</span> Tout s'écrit en majuscules avec des underscores</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv2')"><span class="opt-key">C.</span> Le nom d'une classe commence par une minuscule et les méthodes par une majuscule</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv2')"><span class="opt-key">D.</span> Il n'y a aucune convention en Java</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> En Java standard, les classes s'écrivent en PascalCase (ex: <code>CompteBancaire</code>) et les variables/méthodes en camelCase (ex: <code>numeroCompte</code>, <code>calculerInterets()</code>).
+                        </div>
+                    </div>
+
+                    <div class="q-item" data-qid="jv3">
+                        <div class="q-text">
+                            <span class="q-num">3.</span>
+                            <strong>Méthode statique :</strong> Une méthode déclarée <code>public static void afficher()</code> :
+                        </div>
+                        <div class="q-options">
+                            <button class="opt-btn" onclick="checkOption(this, true, 'jv3')"><span class="opt-key">A.</span> Peut être appelée directement via le nom de la classe (<code>MaClasse.afficher()</code>) sans instancier d'objet</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv3')"><span class="opt-key">B.</span> A un accès direct au pointeur <code>this</code></button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv3')"><span class="opt-key">C.</span> Est recréée en mémoire à chaque instanciation</button>
+                            <button class="opt-btn" onclick="checkOption(this, false, 'jv3')"><span class="opt-key">D.</span> Ne peut renvoyer aucun résultat</button>
+                        </div>
+                        <div class="q-explanation">
+                            <strong>Corrigé officiel :</strong> Une méthode statique appartient à la classe elle-même et non à une instance particulière. Elle ne dispose pas de référence <code>this</code> et s'invoque via <code>NomClasse.nomMethode()</code>.
+                        </div>
+                    </div>
+
+                    <div class="score-bar">
+                        <span>Score QCM Java :</span>
+                        <span class="score-val" id="score-java">0 / 3</span>
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="section-title">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-code"></use></svg>
+                        <span>Partie 2 : Épreuve Pratique Java — CompteBancaire &amp; CompteEpargne (10 Points)</span>
+                    </div>
+                    <div class="code-statement">
+                        <strong>Épreuve officielle :</strong> Implémentez la classe <code>CompteBancaire</code> avec les méthodes <code>deposer(double)</code>, <code>retirer(double)</code> et affichage du solde, puis la classe fille <code>CompteEpargne</code> avec l'attribut <code>tauxInteret</code> et la méthode <code>appliquerInterets()</code>. Exécutez le programme pour vérifier les opérations.
+                    </div>
+                    <div class="lab" data-lab data-language="java" data-height="350" data-languages="1">
+                        <script type="text/plain" data-lab-starter>public class CompteBancaire {
+    private String numeroCompte;
+    private String titulaire;
+    protected double solde;
+
+    public CompteBancaire(String numero, String titulaire, double soldeInitial) {
+        this.numeroCompte = numero;
+        this.titulaire = titulaire;
+        this.solde = soldeInitial;
+    }
+
+    public void deposer(double montant) {
+        if (montant > 0) {
+            solde += montant;
+            System.out.println("Dépôt de " + montant + " € effectué sur le compte " + numeroCompte);
+        }
+    }
+
+    public boolean retirer(double montant) {
+        if (montant > 0 && solde >= montant) {
+            solde -= montant;
+            System.out.println("Retrait de " + montant + " € effectué.");
+            return true;
+        }
+        System.out.println("Solde insuffisant pour retirer " + montant + " € !");
+        return false;
+    }
+
+    public void afficherEtat() {
+        System.out.println("Compte " + numeroCompte + " (" + titulaire + ") | Solde : " + solde + " €");
+    }
+
+    public double getSolde() { return solde; }
+}
+
+class CompteEpargne extends CompteBancaire {
+    private double tauxInteret; // ex: 0.04 pour 4%
+
+    public CompteEpargne(String numero, String titulaire, double soldeInitial, double taux) {
+        super(numero, titulaire, soldeInitial);
+        this.tauxInteret = taux;
+    }
+
+    public void appliquerInterets() {
+        double interets = solde * tauxInteret;
+        solde += interets;
+        System.out.println("Intérêts annuels appliqués (" + (tauxInteret * 100) + "%) : +" + interets + " €");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("=== EXAMEN JAVA : SYSTÈME BANCAIRE ===");
+        CompteEpargne ce = new CompteEpargne("CPT-2025-01", "Donald Tiyab", 1000.0, 0.05);
+        ce.afficherEtat();
+
+        ce.deposer(500.0);
+        ce.retirer(200.0);
+        ce.appliquerInterets();
+
+        ce.afficherEtat();
+        System.out.println("Test validé : Solde final = " + ce.getSolde() + " €");
+    }
+}</script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Relevé de Notes Récapitulatif -->
+            <div class="releve-box">
+                <div class="section-title">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg>
+                    <span>Relevé de Notes &amp; Bilan de la Session</span>
+                </div>
+                <table class="releve-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Matière</th>
+                            <th>Coeff</th>
+                            <th>Score QCM</th>
+                            <th>Épreuve Code</th>
+                            <th>Note / 20</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="releveBody">
+                        <tr><td>1</td><td>Probabilités</td><td>2</td><td id="row-qcm-0">-- / 4</td><td>Validé</td><td id="row-note-0" class="grade-pill grade-na">-- / 20</td><td id="row-st-0">En attente</td></tr>
+                        <tr><td>2</td><td>Recherche Opérationnelle</td><td>3</td><td id="row-qcm-1">-- / 3</td><td>Validé</td><td id="row-note-1" class="grade-pill grade-na">-- / 20</td><td id="row-st-1">En attente</td></tr>
+                        <tr><td>3</td><td>Réseaux (CCNA 2)</td><td>2</td><td id="row-qcm-2">-- / 4</td><td>Validé</td><td id="row-note-2" class="grade-pill grade-na">-- / 20</td><td id="row-st-2">En attente</td></tr>
+                        <tr><td>4</td><td>Admin Machines Virtuelles</td><td>2</td><td id="row-qcm-3">-- / 3</td><td>Validé</td><td id="row-note-3" class="grade-pill grade-na">-- / 20</td><td id="row-st-3">En attente</td></tr>
+                        <tr><td>5</td><td>Programmation C#</td><td>3</td><td id="row-qcm-4">-- / 2</td><td>Validé</td><td id="row-note-4" class="grade-pill grade-na">-- / 20</td><td id="row-st-4">En attente</td></tr>
+                        <tr><td>6</td><td>POO en PHP</td><td>2</td><td id="row-qcm-5">-- / 2</td><td>Validé</td><td id="row-note-5" class="grade-pill grade-na">-- / 20</td><td id="row-st-5">En attente</td></tr>
+                        <tr><td>7</td><td>UML Diagrammes</td><td>2</td><td id="row-qcm-6">-- / 2</td><td>Validé</td><td id="row-note-6" class="grade-pill grade-na">-- / 20</td><td id="row-st-6">En attente</td></tr>
+                        <tr><td>8</td><td>POO et Java</td><td>3</td><td id="row-qcm-7">-- / 3</td><td>Validé</td><td id="row-note-7" class="grade-pill grade-na">-- / 20</td><td id="row-st-7">En attente</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             VUE 2 : RECUEIL PDF ORIGINAL
+             ========================================== -->
+        <div id="pdfViewerSection">
+            <div class="pdf-wrapper">
+                <div class="pdf-header-bar">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="color:var(--gold-light)"><use href="/assets/img/ui-icons.svg#i-file"></use></svg>
+                        <strong>Recueil des Épreuves Officielles — 1re Session Normale 2024/2025 (21 Pages)</strong>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="portal-btn" onclick="document.querySelector('.pdf-embed').requestFullscreen()">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-sparkles"></use></svg> Plein écran
+                        </button>
+                        <a href="Recueil_Epreuves_2024_2025.pdf" download class="portal-btn" style="background:var(--gold);color:#000;font-weight:700;">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><use href="/assets/img/ui-icons.svg#i-bolt"></use></svg> Télécharger le PDF
+                        </a>
+                    </div>
+                </div>
+                <iframe class="pdf-embed" src="Recueil_Epreuves_2024_2025.pdf" title="Recueil officiel des épreuves B2 2024-2025"></iframe>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="exam-footer">
+        <p>&copy; 2024-2026 — Collège de Paris Supérieur &bull; Plateforme d'Épreuves &amp; Examens Interactifs</p>
+    </footer>
+
+    <!-- Scripts pour Monaco Editor et interactions -->
+    <script src="/assets/js/code-lab.js" defer></script>
+    <script>
+        // ==========================================
+        // Logique du Simulateur d'Examen Interactif
+        // ==========================================
+
+        const SUBJECTS = [
+            { id: 'probabilites', name: 'Probabilités', coeff: 2, qTotal: 4 },
+            { id: 'ro', name: 'Recherche Opérationnelle', coeff: 3, qTotal: 3 },
+            { id: 'ccna', name: 'Réseaux (CCNA 2)', coeff: 2, qTotal: 4 },
+            { id: 'adminvm', name: 'Admin Machines Virtuelles', coeff: 2, qTotal: 3 },
+            { id: 'csharp', name: 'Programmation C#', coeff: 3, qTotal: 2 },
+            { id: 'php', name: 'POO en PHP', coeff: 2, qTotal: 2 },
+            { id: 'uml', name: 'UML Diagrammes', coeff: 2, qTotal: 2 },
+            { id: 'java', name: 'POO et Java', coeff: 3, qTotal: 3 }
+        ];
+
+        let scoresState = {};
+        try {
+            scoresState = JSON.parse(localStorage.getItem('epreuves_b2_scores') || '{}');
+        } catch { scoresState = {}; }
+
+        // Bascule entre Simulateur Interactif et PDF
+        function switchView(mode) {
+            const isInteractive = mode === 'interactive';
+            document.getElementById('interactiveSection').style.display = isInteractive ? 'block' : 'none';
+            document.getElementById('pdfViewerSection').style.display = isInteractive ? 'none' : 'block';
+            document.getElementById('btnModeInteractive').classList.toggle('is-active', isInteractive);
+            document.getElementById('btnModePdf').classList.toggle('is-active', !isInteractive);
+        }
+
+        // Bascule entre les 8 matières
+        function showSubject(index) {
+            const tabs = document.querySelectorAll('.sub-tab-btn');
+            const panes = document.querySelectorAll('.subject-pane');
+            tabs.forEach((t, i) => t.classList.toggle('is-active', i === index));
+            panes.forEach((p, i) => p.classList.toggle('is-active', i === index));
+        }
+
+        // Validation immédiate d'une option QCM
+        function checkOption(btn, isCorrect, qid) {
+            const parent = btn.closest('.q-item');
+            if (parent.dataset.answered === '1') return;
+            parent.dataset.answered = '1';
+
+            const allBtns = parent.querySelectorAll('.opt-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btn.classList.add('is-correct');
+            } else {
+                btn.classList.add('is-wrong');
+                // Souligner la bonne réponse pour l'apprentissage
+                allBtns.forEach(b => {
+                    if (b.getAttribute('onclick')?.includes('true')) {
+                        b.classList.add('is-correct');
+                    }
+                });
+            }
+
+            // Révéler l'explication officielle du corrigé
+            const exp = parent.querySelector('.q-explanation');
+            if (exp) exp.classList.add('is-shown');
+
+            // Mise à jour des scores
+            const qcmBox = parent.closest('.qcm-box');
+            const subId = qcmBox.dataset.subject;
+            updateSubjectScore(subId, isCorrect);
+        }
+
+        function updateSubjectScore(subId, isCorrect) {
+            scoresState[subId] = scoresState[subId] || { correct: 0, answered: 0 };
+            scoresState[subId].answered = (scoresState[subId].answered || 0) + 1;
+            if (isCorrect) scoresState[subId].correct = (scoresState[subId].correct || 0) + 1;
+
+            try {
+                localStorage.setItem('epreuves_b2_scores', JSON.stringify(scoresState));
+            } catch {}
+
+            renderScores();
+        }
+
+        function renderScores() {
+            let totalWeighted = 0;
+            let totalCoeffs = 0;
+            let completedCount = 0;
+
+            SUBJECTS.forEach((sub, idx) => {
+                const state = scoresState[sub.id] || { correct: 0, answered: 0 };
+                const scoreEl = document.getElementById('score-' + sub.id);
+                if (scoreEl) scoreEl.textContent = `${state.correct} / ${sub.qTotal}`;
+
+                const rowQcm = document.getElementById('row-qcm-' + idx);
+                const rowNote = document.getElementById('row-note-' + idx);
+                const rowSt = document.getElementById('row-st-' + idx);
+
+                if (rowQcm) rowQcm.textContent = `${state.correct} / ${sub.qTotal}`;
+
+                if (state.answered > 0) {
+                    // Calcul note sur 20 (Partie QCM 10 pts + Partie Code estimée 10 pts au prorata)
+                    const noteSur20 = Math.min(20, Math.round(((state.correct / sub.qTotal) * 10 + 10) * 10) / 10);
+                    if (rowNote) {
+                        rowNote.textContent = `${noteSur20} / 20`;
+                        rowNote.className = 'grade-pill ' + (noteSur20 >= 10 ? 'grade-pass' : 'grade-fail');
+                    }
+                    if (rowSt) {
+                        rowSt.textContent = noteSur20 >= 10 ? 'Admis' : 'À rattraper';
+                        rowSt.style.color = noteSur20 >= 10 ? 'var(--ok)' : 'var(--ko)';
+                    }
+                    totalWeighted += noteSur20 * sub.coeff;
+                    totalCoeffs += sub.coeff;
+                    if (state.answered >= sub.qTotal) completedCount++;
+                }
+            });
+
+            if (totalCoeffs > 0) {
+                const avg = Math.round((totalWeighted / totalCoeffs) * 10) / 10;
+                document.getElementById('statAvg').textContent = `${avg} / 20`;
+                document.getElementById('statAvg').style.color = avg >= 10 ? 'var(--gold-light)' : 'var(--ko)';
+            }
+            document.getElementById('statCompleted').textContent = `${completedCount} / 8`;
+        }
+
+        // ==========================================
+        // Chronomètre d'Examen (2 Heures)
+        // ==========================================
+        let timerSeconds = 7200; // 2 heures
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function updateClockDisplay() {
+            const h = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('timerClock').textContent = `${h}:${m}:${s}`;
+        }
+
+        function toggleTimer() {
+            timerRunning = !timerRunning;
+            const icon = document.getElementById('timerToggleIcon');
+            if (timerRunning) {
+                icon.innerHTML = '<use href="/assets/img/ui-icons.svg#i-power"></use>';
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateClockDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        icon.innerHTML = '<use href="/assets/img/ui-icons.svg#i-play"></use>';
+                        alert("Temps officiel d'examen écoulé !");
+                    }
+                }, 1000);
+            } else {
+                clearInterval(timerInterval);
+                icon.innerHTML = '<use href="/assets/img/ui-icons.svg#i-play"></use>';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerSeconds = 7200;
+            document.getElementById('timerToggleIcon').innerHTML = '<use href="/assets/img/ui-icons.svg#i-play"></use>';
+            updateClockDisplay();
+        }
+
+        // Initialisation
+        renderScores();
+        updateClockDisplay();
+    </script>
+</body>
+</html>

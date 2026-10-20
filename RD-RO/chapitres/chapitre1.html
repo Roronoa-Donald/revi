@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondements, Variables &amp;amp; Modélisation Linéaire | Recherche Opérationnelle B2</title>
+<meta name="description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources, d’égalité et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/RD-RO/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondements, Variables &amp;amp; Modélisation Linéaire | Recherche Opérationnelle B2">
+<meta property="og:description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources, d’égalité et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="RD-ROnav"><div class="RD-ROnav__in">
+  <a class="RD-ROnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="RD-ROnav__sep" aria-hidden="true">/</span>
+  <a class="RD-ROnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Recherche Opérationnelle B2</a>
+  <div class="RD-ROnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="RD-ROnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="RD-ROwrap">
+<p class="crumb"><a href="../index.html">Recherche Opérationnelle B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements, Variables &amp; Modélisation Linéaire</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une menuiserie industrielle fabrique des tables et des chaises à partir de bois de chêne et d’heures d’assemblage limitées. Chaque table rapporte 50 € de marge et consomme 3 m² de bois et 2 heures d’ouvrier. Chaque chaise rapporte 30 € de marge et consomme 1 m² de bois et 2 heures d’ouvrier. L’entreprise dispose de 90 m² de bois et 80 heures par semaine. Faut-il fabriquer uniquement des tables ? Uniquement des chaises ? Un mélange des deux ? L’intuition humaine échoue dès que les contraintes se multiplient : seule la modélisation mathématique rigoureuse permet de prouver scientifiquement quelle décision garantit le profit maximal absolu.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir avec exactitude la discipline de la Recherche Opérationnelle et son rôle stratégique dans l’aide à la décision ;</li>
+      <li>identifier sans ambiguïté les variables de décision et leurs unités physiques en posant impérativement $x_j \ge 0$ ;</li>
+      <li>construire la fonction objectif économique $Z$ (maximisation de profit ou minimisation de coût) en distinguant coefficients et variables ;</li>
+      <li>traduire des contraintes textuelles en inéquations linéaires de ressources ($\le$), d’exigences ($\ge$) et d’engagements contractuels fermes ($=$) ;</li>
+      <li>valider les quatre hypothèses fondamentales de la programmation linéaire (proportionnalité, additivité, divisibilité, certitude) et distinguer PL continue et PLNE (variables binaires/entières).</li>
+    </ol>
+  </div>
+
+<h2>1. Qu’est-ce que la Recherche Opérationnelle ?</h2>
+
+<p>La <strong>Recherche Opérationnelle (RO)</strong> est l’ensemble des méthodes et techniques scientifiques (principalement mathématiques, statistiques et algorithmiques) qui permettent d’optimiser le fonctionnement des systèmes et de prendre les <strong>meilleures décisions possibles</strong> en présence de ressources limitées.</p>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les trois repères historiques fondateurs</div>
+<ul>
+  <li><strong>1913 — Formule du lot économique de Wilson-Harris</strong> : première formalisation mathématique de gestion optimale des stocks industriels, arbitrant entre coût de commande et coût de possession.</li>
+  <li><strong>1940-1945 — La Seconde Guerre mondiale</strong> : des équipes pluridisciplinaires britanniques (Patrick Blackett) et américaines déploient des modèles mathématiques pour optimiser l’implantation des radars, la taille des convois maritimes et l’acheminement logistique.</li>
+  <li><strong>1947 — George Dantzig et le Simplexe</strong> : invention de l’algorithme du simplexe aux États-Unis, qui révolutionne la résolution numérique des programmes linéaires et ouvre l’ère de l’optimisation industrielle assistée par ordinateur.</li>
+</ul>
+  </div>
+<p>Aujourd’hui, la RO pilote les plans de vol des compagnies aériennes, la distribution des colis dans les réseaux logistiques, la planification du personnel hospitalier, l’affectation des fréquences 5G et la gestion des chaînes de production de semi-conducteurs.</p>
+
+<h2>2. Composants fondamentaux d’un Programme Linéaire (PL)</h2>
+
+<p>Tout problème de programmation linéaire repose sur une structure mathématique universelle articulée autour de quatre piliers :</p>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Structure mathématique canonique d’un Programme Linéaire (PL)</div>
+<div class="math-block">
+$$\begin{aligned}
+\text{Optimiser (MAX ou MIN) } & Z = \sum_{j=1}^{n} c_j x_j = c_1 x_1 + c_2 x_2 + \dots + c_n x_n \\[6pt]
+\text{Sous les contraintes de ressources (plafonds) : } & \sum_{j=1}^{n} a_{ij} x_j \le b_i \quad (i \in I_{\le}) \\[6pt]
+\text{Sous les contraintes d’exigences (seuils minimaux) : } & \sum_{j=1}^{n} a_{kj} x_j \ge b_k \quad (k \in I_{\ge}) \\[6pt]
+\text{Sous les contraintes d’équilibre strict (égalités) : } & \sum_{j=1}^{n} a_{lj} x_j = b_l \quad (l \in I_{=}) \\[6pt]
+\text{Contraintes impératives de non-négativité : } & x_j \ge 0 \quad (j = 1, \dots, n)
+\end{aligned}$$
+</div>
+  </div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Analyse détaillée des composantes</div>
+<ul>
+  <li><strong>Les variables de décision ($x_j$)</strong> : ce sont les grandeurs physiques contrôlables dont l’analyste cherche la valeur optimale (ex. nombre de tables produites/semaine, tonnes d’engrais/hectare). Chaque variable doit impérativement avoir une unité physique explicite.</li>
+  <li><strong>Les coefficients économiques ($c_j$)</strong> : grandeurs fixes exogènes représentant la marge contributive unitaire (en MAX) ou le coût marginal d’acquisition (en MIN).</li>
+  <li><strong>La fonction objectif ($Z$)</strong> : critère scalaire mesurant la performance globale du plan. Attention : évaluer la valeur de $Z$ pour un plan candidat donné est un simple calcul arithmétique ; <em>déterminer l’optimum</em> (le meilleur $Z$ réalisable) est un problème algorithmique d’optimisation globale.</li>
+  <li><strong>Les contraintes technologiques</strong> : limitations physiques (disponibilité d’une machine $\le$), engagements minimaux (taux de service contractuel $\ge$) ou obligations fermes d’équilibre ($=$).</li>
+  <li><strong>La non-négativité ($x_j \ge 0$)</strong> : obligation physique universelle (on ne peut fabriquer $-5$ chaises ni rouler $-120$ km). La valeur $x_j = 0$ est parfaitement valide et signifie que l’activité n’est pas mise en œuvre.</li>
+</ul>
+  </div>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les 4 hypothèses fondamentales de Dantzig</div>
+<p>Pour qu’un problème puisse être résolu par les méthodes de la programmation linéaire classique, quatre hypothèses doivent être simultanément vérifiées :</p>
+<table class="table">
+  <thead><tr><th>Hypothèse</th><th>Définition mathématique</th><th>Exemple de violation industrielle</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Proportionnalité</strong></td><td>La contribution de chaque variable est strictement linéaire ($c_j x_j$ et $a_{ij} x_j$). Le coût ou rendement unitaire est constant.</td><td>Remise sur volume accordée par un fournisseur au-delà d’un seuil, ou coût fixe d’allumage d’une machine.</td></tr>
+    <tr><td><strong>2. Additivité</strong></td><td>La valeur globale est la somme exacte des contributions individuelles, sans terme croisé ($x_1 \cdot x_2$ proscrit).</td><td>Synergie marketing entre deux produits ou réaction chimique exothermique conjointe.</td></tr>
+    <tr><td><strong>3. Divisibilité</strong></td><td>Les variables de décision sont continues et peuvent prendre toute valeur réelle positive ($x_j \in \mathbb{R}^+$).</td><td>Production de cargos ou d’avions (unités indivisibles) nécessitant des variables entières.</td></tr>
+    <tr><td><strong>4. Certitude</strong></td><td>Tous les coefficients ($c_j, a_{ij}, b_i$) sont connus avec certitude de façon déterministe.</td><td>Prix d’achat fluctuant selon la météo ou pannes aléatoires de machines (optimisation stochastique).</td></tr>
+  </tbody>
+</table>
+  </div>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Frontière essentielle : PL continue versus PLNE (variables binaires)</div>
+<p>Lorsque l’hypothèse de divisibilité n’est pas respectée, le modèle change de nature mathématique :</p>
+<ul>
+  <li><strong>Programmation Linéaire continue (PL)</strong> : $x_j \in \mathbb{R}^+$. Le domaine réalisable est un polyèdre convexe continu. L’algorithme du simplexe trouve l’optimum en temps polynomial en pratique.</li>
+  <li><strong>Programmation Linéaire en Nombres Entiers (PLNE / MIP)</strong> : $x_j \in \mathbb{N}$ ou variables binaires $x_j \in \{0, 1\}$ (ex. décision d’ouvrir ou non un entrepôt). Le domaine réalisable devient un ensemble discret de points isolés : la convexité est détruite. Le simplexe continu ne peut pas être appliqué directement ; il faut recourir à des algorithmes de séparation et évaluation (<em>Branch &amp; Bound</em>), le problème étant NP-difficile.</li>
+</ul>
+  </div>
+
+<h2>3. Protocole de modélisation pas à pas (Les 4 étapes)</h2>
+
+<p>Pour traduire un énoncé verbal en programme linéaire sans commettre d’erreur de modélisation, l’analyste applique systématiquement une démarche en quatre étapes séquentielles :</p>
+<table class="table">
+  <thead><tr><th>Étape</th><th>Question clé</th><th>Opération mathématique</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Définition des variables</strong></td><td>Quelles sont les décisions quantifiables à prendre ?</td><td>Nommer chaque $x_j$ et préciser son <strong>unité physique exacte</strong> (ex. $x_1$ = nombre de tables produites par semaine).</td></tr>
+    <tr><td><strong>2. Fonction objectif</strong></td><td>Quel est le critère d’évaluation global ?</td><td>Écrire $MAX \ Z = \sum c_j x_j$ (maximisation de profit/marge) ou $MIN \ C = \sum c_j x_j$ (minimisation de coût/perte).</td></tr>
+    <tr><td><strong>3. Recensement des contraintes</strong></td><td>Quelles ressources, normes ou contrats limitent mes choix ?</td><td>Poser une équation ou inéquation par ressource limitée ($\le$), par exigence minimale ($\ge$) et par engagement strict ($=$).</td></tr>
+    <tr><td><strong>4. Contraintes de positivité</strong></td><td>Les grandeurs physiques ont-elles un sens négatif ?</td><td>Poser explicitement $x_j \ge 0$ pour chacune des $n$ variables de décision.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Exemple d’application : l’atelier du menuisier</div>
+<p><strong>Énoncé :</strong> Un atelier fabrique des tables ($x_1$) et des chaises ($x_2$). Chaque table rapporte 50 € de marge et consomme 3 m² de bois et 2 h de main-d’œuvre. Chaque chaise rapporte 30 € de marge et consomme 1 m² de bois et 2 h de main-d’œuvre. Disponibilités hebdomadaires : 90 m² de bois et 80 h d’ouvrier.</p>
+<p><strong>Modèle formel :</strong></p>
+$$\begin{aligned}
+\text{MAX } Z &= 50 x_1 + 30 x_2 \\[4pt]
+\text{sous } & 3 x_1 + 1 x_2 \le 90 \quad (\text{Bois en m}^2) \\[4pt]
+& 2 x_1 + 2 x_2 \le 80 \quad (\text{Main-d’œuvre en heures}) \\[4pt]
+& x_1 \ge 0, \quad x_2 \ge 0
+\end{aligned}$$
+<p>Pour tout plan candidat $(x_1, x_2)$, l’<strong>écart</strong> (slack) sur chaque ressource vaut $s_i = b_i - \text{consommation}_i$. Si $s_i = 0$, la ressource est saturée (pleinement exploitée) ; si $s_i > 0$, il subsiste une marge inemployée ; si $s_i < 0$, la capacité est dépassée (plan irréalisable).</p>
+  </div>
+
+<h2>4. Grandes familles de problèmes linéaires</h2>
+
+<p>La quasi-totalité des applications industrielles de la programmation linéaire se rattache à trois grandes familles canoniques :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les trois grandes familles de modèles industriels</div>
+<div class="box--formula">
+  <span class="formula-label">1. Problème de Mix de Production (Allocation de ressources)</span>
+  <div class="math-block">$$\text{MAX } Z = \sum_{j=1}^{n} c_j x_j \quad \text{sous } \sum_{j=1}^{n} a_{ij} x_j \le b_i \quad (x_j \ge 0)$$</div>
+  <p>Maximiser la marge contributive totale sous contraintes de capacités plafonnées de machines, de stocks de matières premières et d’heures d’atelier.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">2. Problème de Mélange (Blending — Chimie, Alimentation, Métallurgie)</span>
+  <div class="math-block">$$\text{MIN } C = \sum_{j=1}^{n} c_j x_j \quad \text{sous } \sum_{j=1}^{n} a_{ij} x_j \ge b_i \quad (x_j \ge 0)$$</div>
+  <p>Minimiser le coût d’achat d’ingrédients tout en garantissant des apports nutritionnels minimaux ou des seuils de pureté contractuels.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">3. Problème d’Équilibre de Flux et d’Engagement Strict</span>
+  <div class="math-block">$$\text{MIN ou MAX } Z = \sum c_j x_j \quad \text{sous } \sum a_{ij} x_j = b_i \quad (x_j \ge 0)$$</div>
+  <p>Imposer une égalité stricte pour des équilibres matière (entrée = sortie), des quotas contractuels fixes ou des proportions rigides d’assemblage.</p>
+</div>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ex:1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ro2-c1-e1) — Validation de fonction objectif & positivité
+# Complétez la résolution mathématique sous chaque cas ci-dessous :
+
+[Cas 1 — Maximisation valide]
+# Modèle : MAX Z = 25·x1 + 30·x2
+# Plan candidat : x1 = 2, x2 = 3
+A_COMPLETER
+
+[Cas 2 — Minimisation avec variable nulle]
+# Modèle : MIN Z = 10·x1 + 8·x2
+# Plan candidat : x1 = 0, x2 = 7
+A_COMPLETER
+
+[Cas 3 — Violation de non-négativité sur x1]
+# Modèle : MAX Z = 15·x1 + 20·x2
+# Plan candidat : x1 = -2, x2 = 5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Évaluation d'un plan de production : variables, non-négativité &amp; calcul de Z</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer coefficients et variables, vérifier la non-négativité (x_j ≥ 0) et évaluer la fonction objectif Z sur un plan candidat.</p>
+    <div class="lab__brief"><p>En programmation linéaire, il est crucial de distinguer :</p><ul><li>les <strong>coefficients économiques</strong> $c_1, c_2$ (marges unitaires fixes en MAX ou coûts unitaires en MIN) ;</li><li>les <strong>variables de décision</strong> $x_1, x_2$ (quantités physiques choisies par le décideur) ;</li><li>la <strong>valeur de la fonction objectif</strong> $Z = c_1 x_1 + c_2 x_2$ calculée pour un plan candidat donné ;</li><li>l’<strong>optimum</strong> (meilleur $Z$ parmi tous les plans réalisables), dont la recherche constitue une tâche algorithmique distincte.</li></ul><p><strong>Règle de non-négativité :</strong> toute variable de décision physique doit vérifier $x_j \ge 0$. Une variable nulle ($x_j = 0$) est parfaitement valide (l’activité correspondante n’est pas mise en œuvre). En revanche, si une variable est strictement négative ($x_1 < 0$ ou $x_2 < 0$), le plan est irréalisable : indiquez <code>NON_VALIDE VIOLATION_SIGNE</code>.<br>Sinon, calculez $Z$ et indiquez : <code>VALIDE Z=&lt;valeur&gt;</code> (ex : <code>VALIDE Z=140</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ex:1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VALIDE Z=160</pre></div>
+    </div>
+    <p class="lab__note">Pour MAX Z = 15·x1 + 20·x2 avec (x1=4, x2=5) : x1 &gt;= 0 et x2 &gt;= 0 sont valides. Z = 15*4 + 20*5 = 160. Attention : ce calcul évalue la fonction en ce point mais ne prouve pas son optimalité globale.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez d'abord si x1 &gt;= 0 et x2 &gt;= 0. En programmation linéaire, une quantité physique négative est absurde ; en revanche, une variable nulle est tout à fait autorisée.</li>
+        <li>Si les deux variables sont valides, calculez Z = c1*x1 + c2*x2 (l'orientation MAX ou MIN n'altère pas le calcul arithmétique de la fonction, elle indique seulement le sens d'optimisation). Répondez sous la forme VALIDE Z=&lt;valeur&gt; ou NON_VALIDE VIOLATION_SIGNE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ex:1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ro2-c1-e2) — Faisabilité de contraintes de ressources & écarts
+# Complétez l'analyse de faisabilité pour chaque cas ci-dessous :
+
+[Cas 1 — Plan réalisable avec marge inemployée]
+# Contraintes : R1: 3·x1 + 1·x2 <= 12 | R2: 1·x1 + 4·x2 <= 14
+# Plan candidat : x1 = 2, x2 = 2
+A_COMPLETER
+
+[Cas 2 — Saturation exacte des deux ressources]
+# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 8
+# Plan candidat : x1 = 4, x2 = 2
+A_COMPLETER
+
+[Cas 3 — Dépassement de capacité sur la ressource R1]
+# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 12
+# Plan candidat : x1 = 5, x2 = 2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Faisabilité de contraintes de ressources, marges d'écart &amp; saturation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la non-négativité préalable, calculer la consommation et l'écart (slack) pour chaque ressource, et qualifier la saturation ou la violation.</p>
+    <div class="lab__brief"><p>Une contrainte de ressource limite la consommation globale par rapport à une capacité disponible :<br>$$\text{Consommation } a_{i1} x_1 + a_{i2} x_2 \le b_i \quad (\text{Capacité disponible})$$</p><p>Pour chaque plan candidat soumis :</p><ol><li><strong>Vérification préalable de non-négativité :</strong> si $x_1 < 0$ ou $x_2 < 0$, le plan est physiquement impossible : indiquez <code>IRREALISABLE VIOLATION_SIGNE</code>.</li><li><strong>Calcul de l'écart (marge résiduelle / slack) :</strong> $s_i = b_i - (a_{i1} x_1 + a_{i2} x_2)$.<ul><li>Si $s_i > 0$ : la ressource dispose d’une marge inemployée de $s_i$ unités ;</li><li>Si $s_i = 0$ : la ressource est <em>exactement saturée</em> (goulot d'étranglement actif) ;</li><li>Si $s_i < 0$ : la capacité est dépassée.</li></ul></li><li><strong>Conclusion :</strong> si $s_1 \ge 0$ et $s_2 \ge 0$, indiquez : <code>REALISABLE s1=&lt;s1&gt; s2=&lt;s2&gt;</code>.<br>Sinon, mentionnez les contraintes violées : <code>IRREALISABLE VIOLATION_R1</code>, <code>IRREALISABLE VIOLATION_R2</code> ou <code>IRREALISABLE VIOLATION_R1 VIOLATION_R2</code>.</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ex:1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REALISABLE s1=2 s2=1</pre></div>
+    </div>
+    <p class="lab__note">Pour (x1=3, x2=2) avec R1: 2·x1 + 1·x2 &lt;= 10 et R2: 1·x1 + 2·x2 &lt;= 8 : Conso R1 = 8 &lt;= 10 (s1=2). Conso R2 = 7 &lt;= 8 (s2=1). Les deux ressources ont une marge résiduelle positive.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L'écart s_i = b_i - consommation mesure la marge restante. Si s_i &gt;= 0, la contrainte est respectée. Un écart nul (s_i = 0) indique une saturation parfaite.</li>
+        <li>Vérifiez d'abord x1 &gt;= 0 et x2 &gt;= 0. Calculez ensuite s1 = b1 - (a11*x1 + a12*x2) et s2 = b2 - (a21*x1 + a22*x2). Si les deux écarts sont &gt;= 0, répondez REALISABLE s1=&lt;s1&gt; s2=&lt;s2&gt;. Sinon, indiquez quelle contrainte est violée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ex:1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ro2-c1-e3) — Arbitrage de mélange de coût minimal (Blending)
+# Analysez les mélanges candidats et retenez le meilleur plan réalisable :
+
+[Cas 1 — Trois candidats avec un vainqueur économique net]
+# Coûts : c1 = 5 €/kg, c2 = 8 €/kg (MIN C = 5·x1 + 8·x2)
+# Exigences : R1: 1·x1 + 2·x2 >= 20 | R2: 2·x1 + 1·x2 >= 15
+# Candidats soumis : A(10, 6), B(8, 5), C(12, 4)
+A_COMPLETER
+
+[Cas 2 — Candidats dont certains violent les seuils minimaux]
+# Coûts : c1 = 3 €/kg, c2 = 2 €/kg (MIN C = 3·x1 + 2·x2)
+# Exigences : R1: 2·x1 + 1·x2 >= 10 | R2: 1·x1 + 3·x2 >= 12
+# Candidats soumis : A(2, 2), B(4, 3), C(1, 1)
+A_COMPLETER
+
+[Cas 3 — Aucun candidat ne satisfait l'ensemble des exigences]
+# Coûts : c1 = 10 €/kg, c2 = 15 €/kg (MIN C = 10·x1 + 15·x2)
+# Exigences : R1: 2·x1 + 3·x2 >= 50 | R2: 3·x1 + 1·x2 >= 40
+# Candidats soumis : A(5, 5), B(10, 2), C(2, 8)
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Sélection de mélange parmi des plans candidats &amp; arbitrage de coût minimal</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Filtrer les candidats satisfaisant les exigences minimales (≥), justifier le rejet des non conformes et sélectionner le mélange réalisable de coût minimal.</p>
+    <div class="lab__brief"><p>Dans un problème de mélange (<em>blending</em>), on cherche à minimiser le coût sous des exigences nutritionnelles ou qualitatives minimales :<br>$$\text{MIN } C = c_1 x_1 + c_2 x_2 \quad \text{sous } a_{11} x_1 + a_{12} x_2 \ge b_1, \quad a_{21} x_1 + a_{22} x_2 \ge b_2, \quad x_1, x_2 \ge 0$$</p><div class="box box--info"><div class="box__title">Précision méthodologique</div><p>Cet exercice compare un <strong>échantillon fini de mélanges candidats</strong>. Sélectionner le moins cher parmi cette liste ne prouve pas son optimalité continue globale : la recherche de l’optimum universel requiert le Simplexe (chapitre 3).</p></div><p>Pour chaque cas :</p><ol><li>Vérifiez la non-négativité puis les deux exigences minimales ($R_1 \ge b_1$ et $R_2 \ge b_2$) pour chaque candidat. Tout candidat violant au moins une exigence est éliminé.</li><li>Calculez le coût $C = c_1 x_1 + c_2 x_2$ des candidats réalisables.</li><li>Retenez le meilleur candidat : <code>MEILLEUR: x1=&lt;x1&gt; x2=&lt;x2&gt; COUT=&lt;C&gt;</code>.<br>Si aucun candidat n’est réalisable, indiquez : <code>AUCUN_REALISABLE</code>.<br><em>Règle de départage :</em> en cas d'égalité stricte de coût minimal entre candidats réalisables, retenez celui avec le plus petit $x_1$.</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ex:1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MEILLEUR: x1=25 x2=10 COUT=160</pre></div>
+    </div>
+    <p class="lab__note">Pour c1=4, c2=6 avec exigences (0.2x1+0.5x2 &gt;= 10, 0.4x1+0.2x2 &gt;= 12) : (25, 10) est réalisable et coûte 160, plus économique que (20, 15) à 170. Le candidat (10, 20) est irréalisable.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Ne comparez jamais les coûts avant d'avoir validé la faisabilité ! Un candidat très peu coûteux mais qui ne respecte pas les teneurs minimales requises est impérativement disqualifié.</li>
+        <li>Testez chaque point (x1, x2) sur les deux inéquations &gt;=. Dans le cas 1, B est éliminé car 1*8 + 2*5 = 18 &lt; 20. Comparez le coût C = c1*x1 + c2*x2 entre les candidats restants et sélectionnez le minimum.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e4"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ex:1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ro2-c1-e4) — Modélisation guidée & contrainte d'égalité
+# Formalisez chaque composante demandée à partir de l'énoncé :
+
+[Cas 1 — Définition de la fonction objectif]
+# Énoncé : Maximiser la marge totale quotidienne (Standard: 40 €, Premium: 70 €)
+# Format attendu : MAX Z = 40*x1 + 70*x2
+A_COMPLETER
+
+[Cas 2 — Contrainte de ressource en cellules]
+# Énoncé : 4 cellules par Standard, 8 par Premium, stock disponible <= 800 cellules
+# Format attendu : 4*x1 + 8*x2 <= 800
+A_COMPLETER
+
+[Cas 3 — Contrainte d'engagement contractuel strict]
+# Énoncé : Engagement ferme de livrer exactement 50 panneaux Standard chaque jour
+# Format attendu : x1 = 50
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 4 — Modélisation guidée d'un problème concret &amp; contrainte d'égalité</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traduire un énoncé verbal industriel en composantes formelles : fonction objectif, contraintes de ressources, contrainte d'égalité stricte et positivité.</p>
+    <div class="lab__brief"><p>Une usine assemble deux modèles de panneaux solaires : <strong>Standard ($x_1$, unités/jour)</strong> et <strong>Premium ($x_2$, unités/jour)</strong>.</p><ul><li>Marge unitaire nette : <strong>40 €</strong> par Standard et <strong>70 €</strong> par Premium.</li><li>Cellules photovoltaïques : le modèle Standard consomme <strong>4 cellules</strong> et le Premium <strong>8 cellules</strong>, pour un approvisionnement journalier plafonné à <strong>800 cellules</strong>.</li><li>Contrôle qualité : le Standard requiert <strong>2 minutes</strong> de banc de test et le Premium <strong>3 minutes</strong>, avec une capacité maximale d’atelier de <strong>360 minutes/jour</strong>.</li><li><strong>Engagement contractuel strict (contrainte d'égalité) :</strong> un contrat ferme impose de livrer <em>exactement</em> <strong>50 panneaux Standard</strong> par jour ($x_1 = 50$). Une contrainte d’égalité traduit une obligation absolue sans aucune tolérance de sous- ou sur-production.</li></ul><p>Pour chaque cas ci-dessous, écrivez la formule mathématique canonique correspondante.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ex:1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>2*x1 + 3*x2 &lt;= 360</pre></div>
+    </div>
+    <p class="lab__note">Contrainte de banc d'essai : 2 min par Standard et 3 min par Premium, capacité 360 min. Formule : 2*x1 + 3*x2 &lt;= 360.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Identifiez le sens d'optimisation (MAX pour une marge ou profit, MIN pour un coût) et veillez à associer chaque coefficient à la bonne variable de décision.</li>
+        <li>Pour une limitation de stock ou d'heures, utilisez le symbole &lt;=. Pour un quota ou engagement strict sans dépassement ni déficit, utilisez l'égalité pure (=). Écrivez l'expression sans espaces superflus (ex: 4*x1 + 8*x2 &lt;= 800).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e5"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ex:1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ro2-c1-e5) — 4 hypothèses & nature des variables
+# Identifiez la notion ou l'hypothèse mise en jeu pour chaque situation :
+
+[Cas 1 — Remise sur volume chez le fournisseur de bois]
+# Situation : Le fournisseur accorde 20 % de réduction sur le prix du bois au-delà de 100 m² achetés
+# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :
+A_COMPLETER
+
+[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]
+# Situation : Décision binaire « ouvrir (1) ou ne pas ouvrir (0) le site de Lyon »
+# Type de modèle : Programmation continue standard ou Programmation en nombres entiers (PLNE) ?
+A_COMPLETER
+
+[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]
+# Situation : Le tarif du kWh varie chaque heure selon une loi de probabilité météo
+# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 5 — Validation des 4 hypothèses fondamentales &amp; typologie des variables</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier les 4 hypothèses de Dantzig (proportionnalité, additivité, divisibilité, certitude), reconnaître leurs violations et distinguer variables continues et binaires/entières.</p>
+    <div class="lab__brief"><p>Tout programme linéaire continu repose sur <strong>quatre hypothèses fondamentales</strong> établies par George Dantzig :</p><ul><li><strong>1. Proportionnalité :</strong> la contribution de chaque variable est strictement linéaire ($c_j x_j$ et $a_{ij} x_j$), excluant toute remise sur volume ou coût fixe de lancement.</li><li><strong>2. Additivité :</strong> l’effet global est la somme pure des effets individuels, sans synergie ni interaction croisée ($x_1 \cdot x_2$ est proscrit).</li><li><strong>3. Divisibilité :</strong> les variables peuvent prendre n'importe quelle valeur réelle positive ($x_j \in \mathbb{R}^+$).</li><li><strong>4. Certitude :</strong> l'ensemble des coefficients ($c_j, a_{ij}, b_i$) est connu de manière déterministe et exacte.</li></ul><div class="box box--warning"><div class="box__title">Distinction clé : variables binaires et entières</div><p>Lorsque la divisibilité est rompue (choix binaire d’investissement $x_j \in \{0, 1\}$ ou unités indivisibles $x_j \in \mathbb{N}$), le modèle devient un <strong>Programme Linéaire en Nombres Entiers (PLNE / MIP)</strong>. Ce problème est combinatoire et NP-difficile : l’algorithme du simplexe standard continu ne peut pas s'y appliquer directement sans méthode de séparation et évaluation (Branch &amp; Bound).</p></div><p>Pour chaque cas ci-dessous, nommez l’hypothèse violée (PROPORTIONNALITE, ADDITIVITE, DIVISIBILITE, CERTITUDE) ou le type de modèle requis (PLNE).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ex:1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ADDITIVITE</pre></div>
+    </div>
+    <p class="lab__note">Deux produits dont le mélange dégage une réaction thermique égale à 3*x1*x2 : le terme non linéaire croisé viole l'hypothèse d'additivité.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Rappelez-vous les définitions : proportionnalité = coût unitaire constant sans palier ; additivité = pas de produit croisé x1*x2 ; divisibilité = grandeurs fractionnaires autorisées ; certitude = coefficients déterministes non aléatoires.</li>
+        <li>Pour le cas 1, le prix qui diminue avec la quantité viole la proportionnalité. Pour le cas 2, un choix binaire {0, 1} relève de la programmation en nombres entiers (PLNE). Répondez en un mot clé en majuscules.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel mathématicien américain a inventé l’algorithme du simplexe en 1947 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">George Dantzig</button>
+        <button class="opt">John von Neumann</button>
+        <button class="opt">Alan Turing</button>
+        <button class="opt">Claude Shannon</button>
+      </div>
+      <div class="q__exp">George Dantzig a formalisé la programmation linéaire et publié l’algorithme du simplexe en 1947. John von Neumann a prouvé le théorème du minimax en théorie des jeux et formalisé la dualité forte, Alan Turing est le pionnier de l’informatique théorique et du cassage d’Enigma, et Claude Shannon est le père de la théorie de l’information.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un problème de programmation linéaire standard continu, quelle condition impérative doit toujours être posée sur les variables physiques de décision ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">x_j ≥ 0 (non-négativité)</button>
+        <button class="opt">x_j ≤ 1 (normalisation)</button>
+        <button class="opt">x_j ∈ ℤ (variables entières obligatoires)</button>
+        <button class="opt">x_j = 0 (tous les choix à zéro)</button>
+      </div>
+      <div class="q__exp">La règle de non-négativité ($x_j \ge 0$) est une condition universelle : les grandeurs physiques réelles (volumes, durées, unités fabriquées) sont nécessairement positives ou nulles. La contrainte $x_j \le 1$ est spécifique aux variables binaires de choix logique, $x_j \in \mathbb{Z}$ caractérise la programmation en nombres entiers (PLNE), et poser $x_j = 0$ supprimerait toute liberté d’action.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle expression mathématique est NON LINÉAIRE et donc formellement interdite dans un programme linéaire classique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3*x1 + 4*x1*x2</button>
+        <button class="opt">5*x1 - 2*x2</button>
+        <button class="opt">0.5*x1 + 10</button>
+        <button class="opt">x1 + x2 + x3</button>
+      </div>
+      <div class="q__exp">Le produit croisé de deux variables de décision ($x_1 \cdot x_2$) est un terme bilinéaire quadratique qui détruit la propriété de proportionnalité et d’additivité. Les autres expressions sont toutes des combinaisons linéaires d’ordre 1 parfaitement admises.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un problème de mélange (blending) où l’on cherche à satisfaire des teneurs nutritionnelles minimales, quel est le sens naturel des contraintes ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">≥ (supérieur ou égal au seuil minimal requis)</button>
+        <button class="opt">≤ (inférieur ou égal à la capacité maximale)</button>
+        <button class="opt">= (égalité exacte sans tolérance)</button>
+        <button class="opt">≠ (différent de zéro)</button>
+      </div>
+      <div class="q__exp">Un apport nutritionnel ou un seuil de qualité minimale impose d’apporter au moins une quantité spécifiée, ce qui se traduit par l’opérateur $\ge$. L’opérateur $\le$ s’applique aux capacités limitées de ressources, $=$ aux équilibres stricts, et $\ne$ définit un ensemble non convexe interdit en programmation linéaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le problème du menuisier (3*x1 + 1*x2 ≤ 90), si le plan candidat est x1 = 20 tables et x2 = 10 chaises, quelle est la consommation de bois ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">70 m²</button>
+        <button class="opt">90 m²</button>
+        <button class="opt">80 m²</button>
+        <button class="opt">60 m²</button>
+      </div>
+      <div class="q__exp">La consommation vaut 3 * 20 + 1 * 10 = 60 + 10 = 70 m², laissant une marge inemployée (slack) de s1 = 90 - 70 = 20 m². 90 m² correspond à la capacité plafond totale, 80 h à la capacité de main-d’œuvre, et 60 m² à la part consommée par les tables seules.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment qualifie-t-on une solution (x1, x2) qui respecte l’ensemble des contraintes du modèle ainsi que la non-négativité ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une solution réalisable (feasible)</button>
+        <button class="opt">Une solution optimale</button>
+        <button class="opt">Une solution dégénérée</button>
+        <button class="opt">Une solution duale</button>
+      </div>
+      <div class="q__exp">Une solution réalisable se situe à l’intérieur ou sur la frontière du polyèdre des contraintes. Une solution optimale est la solution réalisable qui atteint la meilleure valeur de Z. Une solution dégénérée comporte une variable de base nulle, et une solution duale appartient au problème dual associé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’objectif économique fondamental d’un problème de mix de production industriel ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Maximiser la marge contributive totale (profit sur coûts variables)</button>
+        <button class="opt">Minimiser le nombre de machines mobilisées</button>
+        <button class="opt">Égaliser les temps de travail sur tous les postes</button>
+        <button class="opt">Maximiser le volume des stocks résiduels</button>
+      </div>
+      <div class="q__exp">L’objectif premier du mix de production est d’allouer les ressources disponibles pour maximiser la marge sur coût variable générée par les ventes. Minimiser les machines ou équilibrer les temps relève de l’ordonnancement d’atelier, et accumuler des stocks résiduels est économiquement néfaste.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle hypothèse fondamentale garantit que doubler le niveau d’une activité double exactement sa consommation de ressources et son apport au profit ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’hypothèse de proportionnalité</button>
+        <button class="opt">L’hypothèse de convexité</button>
+        <button class="opt">L’hypothèse de séparabilité</button>
+        <button class="opt">L’hypothèse d’élasticité</button>
+      </div>
+      <div class="q__exp">La proportionnalité stipule que la contribution de chaque variable est strictement linéaire et proportionnelle à sa valeur, sans économie d’échelle ni coût fixe de lancement. La convexité est une propriété géométrique du domaine réalisable, et l’élasticité est un concept microéconomique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel cas doit-on modéliser une contrainte par une égalité stricte (=) plutôt que par une inéquation (≤ ou ≥) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour imposer un quota ferme de livraison contractuelle ou un bilan strict de conservation de flux</button>
+        <button class="opt">Pour forcer la fonction objectif à atteindre son maximum absolu</button>
+        <button class="opt">Lorsque le nombre de variables est supérieur au nombre de contraintes</button>
+        <button class="opt">Pour contraindre les variables de décision à devenir des nombres entiers</button>
+      </div>
+      <div class="q__exp">Une contrainte d’égalité (=) s’impose lorsque la réalité physique ou contractuelle interdit tout excédent et tout déficit (ex. conservation de matière : flux entrant = flux sortant, ou commande ferme imposant exactement 50 unités livrées). Elle ne garantit en rien l’optimalité de Z, n’a aucun rapport avec le ratio variables/contraintes, et ne force nullement les variables à être entières.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’introduction de variables de décision binaires (xj ∈ {0, 1}) empêche-t-elle l’utilisation directe de l’algorithme du simplexe standard ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que le domaine réalisable devient un ensemble fini de points isolés (discret et non convexe), brisant la continuité des arêtes du polyèdre</button>
+        <button class="opt">Parce qu’une variable binaire ne peut jamais être positive ou nulle</button>
+        <button class="opt">Parce que le calcul de la fonction objectif devient obligatoirement non linéaire</button>
+        <button class="opt">Parce que George Dantzig a interdit l’utilisation de nombres entiers dans son théorème de 1947</button>
+      </div>
+      <div class="q__exp">Le simplexe repose sur la convexité du polyèdre continu et parcourt ses arêtes sommet par sommet. Restreindre les variables à {0, 1} détruit la convexité et transforme le problème en optimisation combinatoire discrète (PLNE / MIP), requérant des algorithmes de séparation et évaluation (Branch & Bound).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de poser explicitement les contraintes de non-négativité ($x_j \ge 0$) dans le modèle mathématique.</li>
+      <li>Mélanger les unités physiques dans une même contrainte (par exemple additionner des minutes et des heures).</li>
+      <li>Introduire des non-linéarités en voulant modéliser des coûts fixes par des produits de variables sans variables binaires.</li>
+      <li>Confondre le sens d’une contrainte de ressource (disponibilité $\le$) et d’une contrainte d’engagement (minimum contractuel $\ge$).</li>
+      <li>Considérer une solution réalisable quelconque comme étant la solution optimale.</li>
+      <li>Confondre la programmation linéaire continue standard avec la programmation en nombres entiers (PLNE) lors de choix discrets.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour modéliser tout énoncé de RO</div>
+    <ol>
+      <li>Lire attentivement l’énoncé et repérer les questions finales : chaque décision à quantifier devient une variable $x_j$ avec son unité.</li>
+      <li>Identifier l’objectif économique global : isoler les gains unitaires pour poser $\text{MAX } Z$ ou les coûts unitaires pour poser $\text{MIN } C$.</li>
+      <li>Dresser un tableau des ressources : identifier les plafonds disponibles ($\le$), les exigences minimales ($\ge$) et les équilibres stricts ($=$), puis poser les équations.</li>
+      <li>Vérifier l’homogénéité dimensionnelle de chaque équation (les deux membres doivent avoir la même unité) et conclure par $x_j \ge 0$.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La Recherche Opérationnelle aide à la décision scientifique en optimisant une fonction économique sous contraintes réelles.</li>
+      <li>Un Programme Linéaire comprend : des variables de décision $x_j$ munies d’unités, une fonction objectif $Z$, des contraintes ($\le, \ge, =$) et $x_j \ge 0$.</li>
+      <li>Les 4 hypothèses fondamentales sont la proportionnalité, l’additivité, la divisibilité et la certitude des paramètres.</li>
+      <li>Les contraintes de ressources disponibles utilisent l’opérateur $\le$ ; les exigences de demande minimale utilisent $\ge$ ; les quotas stricts utilisent $=$.</li>
+      <li>Toute modélisation rigoureuse débute par la définition explicite de chaque variable en français avec son unité physique.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer ce qu’est la Recherche Opérationnelle et son origine avec George Dantzig en 1947.</li>
+      <li>Je sais identifier et nommer les variables de décision dans un problème de gestion en précisant leurs unités physiques.</li>
+      <li>Je sais formaliser la fonction objectif et distinguer MAX (profit) et MIN (coût).</li>
+      <li>Je sais traduire des limitations d’heures ou de matières en contraintes $\le$, des besoins en $\ge$, et des quotas stricts en $=$.</li>
+      <li>Je n’oublie jamais les contraintes de positivité $x_j \ge 0$.</li>
+      <li>Je sais vérifier les 4 hypothèses de linéarité et reconnaître quand un problème nécessite des variables entières/binaires (PLNE).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Recherche Opérationnelle</li><li>Variables de décision</li><li>Fonction objectif Z</li><li>Contraintes de ressources</li><li>Contraintes de demande</li><li>Contraintes d’égalité</li><li>Non-négativité</li><li>Programme Linéaire</li><li>George Dantzig</li><li>Proportionnalité</li><li>Région réalisable</li><li>PLNE et variables binaires</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les définitions de variables de décision, la règle de positivité et les 4 étapes de modélisation.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à formaliser les inéquations de ressources, les contraintes d’égalité et le calcul de la fonction objectif.</div>
+      <div class="bandrow bandrow--good">70–94 % — Solide : tu maîtrises les fondamentaux de la modélisation de programmes linéaires et les 4 hypothèses de Dantzig.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait (10/10) : passe aux formes canoniques, standards et à la résolution graphique au chapitre 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Formes Mathématiques &amp; Résolution Graphique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Recherche Opérationnelle B2, les publications historiques de George Dantzig (1947), Ford & Fulkerson (1956) et les manuels de référence en optimisation linéaire.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

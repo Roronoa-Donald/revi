@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Filtrage Applicatif L7, UTM &amp;amp; Pare-feux Nouvelle Génération (NGFW) | Firewall &amp; Sécurité Réseau B3</title>
+<meta name="description" content="Chapitre 5 du cours Firewall &amp; Sécurité Réseau B3 : Limites du filtrage de port L4, identification applicative App-ID, inspection du champ SNI TLS, filtrage web catégoriel, protection anti-DoS par rate limiting et moteur DPI (Deep Packet Inspection). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-firewall/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Filtrage Applicatif L7, UTM &amp;amp; Pare-feux Nouvelle Génération (NGFW) | Firewall &amp; Sécurité Réseau B3">
+<meta property="og:description" content="Chapitre 5 du cours Firewall &amp; Sécurité Réseau B3 : Limites du filtrage de port L4, identification applicative App-ID, inspection du champ SNI TLS, filtrage web catégoriel, protection anti-DoS par rate limiting et moteur DPI (Deep Packet Inspection). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-firewallnav"><div class="b3-firewallnav__in">
+  <a class="b3-firewallnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-firewallnav__sep" aria-hidden="true">/</span>
+  <a class="b3-firewallnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Firewall &amp; Sécurité Réseau B3</a>
+  <div class="b3-firewallnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-firewallnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-firewallwrap">
+<p class="crumb"><a href="../index.html">Firewall & Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Filtrage Applicatif L7, UTM &amp; Pare-feux Nouvelle Génération (NGFW)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>À l’ère du Web moderne où plus de 95% du trafic Internet mondial est chiffré en HTTPS (port 443) et où les applications contournent systématiquement les filtres traditionnels par tunneling HTTP, le filtrage classique par numéro de port (L4) est devenu obsolète. Un pare-feu qui autorise le port 443 laisse passer indistinctement une consultation d’annuaire légitime, un partage de fichiers non autorisé sur un compte cloud personnel, une session de jeu en ligne ou un canal de commande et contrôle (C2) de rançongiciel. Pour contrer cette évasion, les pare-feux nouvelle génération (NGFW) et appliances UTM opèrent en couche 7 (Application) du modèle OSI. Ils inspectent le champ SNI (Server Name Indication) dans le handshake TLS, déchiffrent ou analysent le contenu via Deep Packet Inspection (DPI) pour intercepter les attaques SQLi/XSS, et appliquent du Rate Limiting pour juguler les dénis de service.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’obsolescence du filtrage de port L4 face au chiffrement HTTPS et au tunneling applicatif ;</li>
+      <li>maîtriser le fonctionnement de l’inspection applicative L7 (App-ID) et de l’identification des utilisateurs (User-ID) ;</li>
+      <li>analyser le champ SNI (Server Name Indication) dans le message TLS Client Hello pour le filtrage de domaines sans interception SSL ;</li>
+      <li>mettre en œuvre des politiques de filtrage d’URL et de réputation catégorielle (malware, phishing, réseaux sociaux) ;</li>
+      <li>concevoir un moteur de Deep Packet Inspection (DPI) capable de détecter les signatures d’injections SQL, XSS et traversées de répertoires ;</li>
+      <li>développer en Python 3 des filtres SNI TLS, des limiteurs de débit anti-DoS et un moteur de détection de signatures L7.</li>
+    </ol>
+  </div>
+
+<h2>1. L’Obsolescence du Filtrage de Port L4 &amp; l’Approche App-ID / NGFW</h2>
+
+<p>Historiquement, un pare-feu considérait qu’un paquet TCP à destination du port 80 était du trafic Web HTTP et que le port 443 était du Web sécurisé HTTPS. Cette hypothèse est aujourd’hui caduque :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Failles du Filtrage par Port L4</h4>
+    <ul>
+      <li><strong>Tunneling applicatif :</strong> N’importe quelle application (SSH, VPN Tor, jeux, transferts BitTorrent) peut encapsuler son trafic sur le port 443 pour franchir le pare-feu sans encombre.</li>
+      <li><strong>Ports dynamiques &amp; évasifs :</strong> Les outils de communication modernes (WebRTC, VoIP, messageries instantanées) négocient des ports dynamiquement.</li>
+      <li><strong>Chevauchement de risques :</strong> Autoriser le port 443 autorise aussi bien le portail RH de l’entreprise que des sites de phishing ou des plateformes de partage de données fuitées.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>La Réponse NGFW : App-ID &amp; User-ID</h4>
+    <ul>
+      <li><strong>App-ID :</strong> Le NGFW décode le protocole réel au-delà du numéro de port grâce à des signatures applicatives, des décodeurs protocolaires et des heuristiques comportementales.</li>
+      <li><strong>User-ID :</strong> Les règles ne sont plus liées à de simples adresses IP volatiles mais à des identités issues de l’annuaire d’entreprise (Active Directory, LDAP, SSO).</li>
+      <li><strong>Content-ID :</strong> Analyse continue des flux à la recherche de logiciels malveillants, virus, vulnérabilités et fuites de données sensibles (DLP).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Inspection SNI (Server Name Indication) &amp; Filtrage Web Catégoriel</h2>
+
+<p>Lorsque le trafic est chiffré en TLS/HTTPS, comment le pare-feu peut-il filtrer les sites web sans casser le chiffrement (ce qui pose des défis juridiques et techniques de certificats racines) ?</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mécanique du SNI dans le Handshake TLS</h4>
+    <p>Au tout début de la connexion chiffrée, le navigateur client envoie un message en clair appelé <strong>Client Hello</strong>. Pour permettre au serveur d’héberger plusieurs sites web sur la même adresse IP (hébergement virtuel), le paquet inclut l’extension <strong>SNI (Server Name Indication)</strong> contenant le nom de domaine complet (FQDN) visé (ex: <code>banque-securisee.phishing.evil</code>).</p>
+    <p>Le pare-feu intercepte ce nom de domaine <em>avant</em> que la session ne devienne chiffrée.</p>
+  </div>
+  <div class="card">
+    <h4>Bases de Réputation Catégorielle</h4>
+    <p>Le nom de domaine extrait est confronté en temps réel à une base de réputation catégorielle :</p>
+    <ul>
+      <li><code>MALWARE / PHISHING :</code> Blocage systématique (DROP ou page de blocage de sécurité).</li>
+      <li><code>GAMBLING / ADULT :</code> Interdit selon la politique d’usage des ressources d’entreprise.</li>
+      <li><code>SOCIAL MEDIA / STREAMING :</code> Blocage ou limitation de bande passante (QoS).</li>
+      <li><code>BUSINESS / TECH :</code> Trafic autorisé sans restriction.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Deep Packet Inspection (DPI) &amp; Protection Anti-DoS par Rate Limiting</h2>
+
+<p>L’inspection profonde des paquets (<strong>DPI</strong>) examine le contenu textuel ou binaire de la charge utile de niveau 7 :</p>
+<table class="table">
+  <thead>
+    <tr><th>Catégorie de Menace L7</th><th>Motifs &amp; Signatures Inspectés (DPI)</th><th>Comportement du Pare-feu / WAF</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Injection SQL (SQLi)</code></td><td><code>UNION SELECT</code>, <code>' OR '1'='1</code>, <code>SLEEP(</code>, <code>DROP TABLE</code></td><td>Rejet de la requête HTTP 403 Forbidden et log d’alerte SIEM immédiat.</td></tr>
+    <tr><td><code>Cross-Site Scripting (XSS)</code></td><td><code>&lt;script&gt;</code>, <code>javascript:</code>, <code>onerror=</code>, <code>onload=</code></td><td>Blocage de l’injection de scripts dans les formulaires et URLs.</td></tr>
+    <tr><td><code>Path Traversal</code></td><td><code>../</code>, <code>..%2f</code>, <code>..\</code>, <code>/etc/passwd</code>, <code>win.ini</code></td><td>Interdiction d’accès aux fichiers système sous-jacents du serveur.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Mitigation des Attaques DoS par Rate Limiting en Fenêtre Glissante</div>
+<p>Les attaques par déni de service applicatif ou par force brute saturent les serveurs en générant des centaines de requêtes à la seconde. Le module de <strong>Rate Limiting</strong> applique un filtre par fenêtre glissante : chaque adresse IP source dispose d’un quota maximal de requêtes autorisées sur un intervalle temporel donné (ex: max 3 requêtes par tranche de 5 secondes). Dès que le seuil est franchi, les requêtes excédentaires sont silencieusement supprimées (DROPPED), protégeant l’infrastructure contre les pointes anormales de charge.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="fw3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SNI_EVENT id=1 client_ip=192.168.1.10 host=login-bank.phishing-portal.com&#10;SNI_EVENT id=2 client_ip=192.168.1.10 host=docs.python.org">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c5-e1) — Filtrage de domaines DNS & inspection du Server Name Indication (SNI TLS)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Blocage des réseaux sociaux et sites de jeux]
+# Données : SNI_EVENT id=E1 client_ip=10.0.0.5 host=www.facebook.com
+# Données : SNI_EVENT id=E2 client_ip=10.0.0.5 host=sports.bet365.com
+# Données : SNI_EVENT id=E3 client_ip=10.0.0.5 host=api.github.com
+A_COMPLETER
+
+[Cas 2 — Détection de malware avec extension spéciale]
+# Données : SNI_EVENT id=M1 client_ip=172.16.1.20 host=trojan-downloader.evil
+# Données : SNI_EVENT id=M2 client_ip=172.16.1.20 host=roulette.online.gamble
+A_COMPLETER
+
+[Cas 3 — Trafic légitime professionnel varié]
+# Données : SNI_EVENT id=B1 client_ip=192.168.1.15 host=pypi.org
+# Données : SNI_EVENT id=B2 client_ip=192.168.1.15 host=stackoverflow.com
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Filtrage de domaines DNS &amp; inspection du Server Name Indication (SNI TLS)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les noms d’hôtes extraits de l’extension SNI TLS selon leur catégorie de réputation et appliquer la politique de sécurité.</p>
+    <div class="lab__brief"><p>Un pare-feu nouvelle génération (NGFW) inspecte le champ <strong>SNI (Server Name Indication)</strong> du message TLS <em>Client Hello</em> pour identifier le site web visité sans avoir besoin de déchiffrer tout le trafic.<br><br>
+Base de réputation et politique d'entreprise :<br>
+- Domaines contenant <code>phish</code>, <code>malware</code> ou finissant par <code>.evil</code> : catégorie <code>MALWARE</code> -> Action <code>BLOCK</code>.<br>
+- Domaines contenant <code>casino</code>, <code>bet</code> ou finissant par <code>.gamble</code> : catégorie <code>GAMBLING</code> -> Action <code>BLOCK</code>.<br>
+- Domaines contenant <code>facebook</code>, <code>tiktok</code>, <code>instagram</code> : catégorie <code>SOCIAL_MEDIA</code> -> Action <code>BLOCK</code>.<br>
+- Tous les autres domaines : catégorie <code>BUSINESS_TECH</code> -> Action <code>ALLOW</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>SNI_INSPECT id={id} host={host} category={CAT} action={ALLOW|BLOCK}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNI_EVENT id=1 client_ip=192.168.1.10 host=login-bank.phishing-portal.com
+SNI_EVENT id=2 client_ip=192.168.1.10 host=docs.python.org</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SNI_INSPECT id=1 host=login-bank.phishing-portal.com category=MALWARE action=BLOCK
+SNI_INSPECT id=2 host=docs.python.org category=BUSINESS_TECH action=ALLOW</pre></div>
+    </div>
+    <p class="lab__note">Le domaine de phishing est bloqué, la documentation technique est autorisée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir l’hôte en minuscules avant l’analyse.</li>
+        <li>Tester dans l’ordre : MALWARE, GAMBLING, SOCIAL_MEDIA, puis défaut BUSINESS_TECH.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="REQ ts=10 ip=192.168.1.5&#10;REQ ts=11 ip=192.168.1.5&#10;REQ ts=12 ip=192.168.1.5&#10;REQ ts=13 ip=192.168.1.5">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c5-e2) — Limiteur de débit et protection anti-DoS par fenêtre glissante
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Expiration de fenêtre permettant de nouvelles requêtes]
+# Données : REQ ts=1 ip=10.0.0.1
+# Données : REQ ts=2 ip=10.0.0.1
+# Données : REQ ts=3 ip=10.0.0.1
+# Données : REQ ts=4 ip=10.0.0.1
+# Données : REQ ts=6 ip=10.0.0.1
+A_COMPLETER
+
+[Cas 2 — Deux adresses IP distinctes avec quotas indépendants]
+# Données : REQ ts=10 ip=192.168.1.1
+# Données : REQ ts=10 ip=192.168.1.2
+# Données : REQ ts=11 ip=192.168.1.1
+# Données : REQ ts=11 ip=192.168.1.2
+# Données : REQ ts=12 ip=192.168.1.1
+# Données : REQ ts=12 ip=192.168.1.1
+A_COMPLETER
+
+[Cas 3 — Trafic régulier et espacé sans dépassement]
+# Données : REQ ts=10 ip=10.0.0.8
+# Données : REQ ts=15 ip=10.0.0.8
+# Données : REQ ts=20 ip=10.0.0.8
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Limiteur de débit et protection anti-DoS par fenêtre glissante</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter un limiteur de débit par IP pour contrer les rafales de requêtes et dénis de service.</p>
+    <div class="lab__brief"><p>Pour protéger les serveurs contre les inondations et attaques par force brute, les modules NGFW/UTM intègrent des mécanismes de <strong>Rate Limiting</strong>.<br><br>
+Règles de filtrage par fenêtre glissante :<br>
+- Taille de la fenêtre : <code>5</code> secondes.<br>
+- Quota maximal : <code>3</code> requêtes autorisées dans l'intervalle <code>[ts - 4, ts]</code> (inclusif).<br>
+- Lorsqu'une requête arrive à l'instant <code>ts</code> pour une adresse <code>ip</code> :<br>
+  On compte combien de requêtes antérieures de cette même IP se situent dans <code>[ts - 4, ts]</code>.<br>
+  Si le compte (requête courante comprise) est <code>&lt;= 3</code> : la requête est admise (<code>PASSED</code>).<br>
+  Si le compte dépasse 3 : la requête est rejetée (<code>DROPPED</code>) et n'est pas comptabilisée dans les requêtes acceptées.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque requête, afficher :<br>
+<code>RATE_LIMIT ip={ip} ts={ts} status={PASSED|DROPPED} active_in_window={count}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQ ts=10 ip=192.168.1.5
+REQ ts=11 ip=192.168.1.5
+REQ ts=12 ip=192.168.1.5
+REQ ts=13 ip=192.168.1.5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RATE_LIMIT ip=192.168.1.5 ts=10 status=PASSED active_in_window=1
+RATE_LIMIT ip=192.168.1.5 ts=11 status=PASSED active_in_window=2
+RATE_LIMIT ip=192.168.1.5 ts=12 status=PASSED active_in_window=3
+RATE_LIMIT ip=192.168.1.5 ts=13 status=DROPPED active_in_window=4</pre></div>
+    </div>
+    <p class="lab__note">La 4e requête à ts=13 dépasse le quota de 3 dans la fenêtre [9, 13].</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Maintenez l’historique horodaté des requêtes acceptées pour chaque adresse IP source.</li>
+        <li>Rejetez toute requête excédant le seuil de débit maximal autorisé dans la fenêtre glissante d’observation.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="PAYLOAD id=P1 payload=id=1 UNION SELECT username, password FROM users&#10;PAYLOAD id=P2 payload=q=ordinateur+portable">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c5-e3) — Moteur Deep Packet Inspection (DPI) et détection de signatures L7
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Détection XSS et Path Traversal]
+# Données : PAYLOAD id=X1 payload=name=<script>alert(document.cookie)<\/script>
+# Données : PAYLOAD id=T1 payload=file=../../etc/passwd
+A_COMPLETER
+
+[Cas 2 — Variantes SQL Injection avec apostrophes et sleep]
+# Données : PAYLOAD id=S1 payload=user=' OR '1'='1
+# Données : PAYLOAD id=S2 payload=benchmark(10000000,MD5(1)) OR SLEEP(5)
+A_COMPLETER
+
+[Cas 3 — Payloads légitimes avec du texte complexe]
+# Données : PAYLOAD id=C1 payload=message=Bonjour, voici mon rapport mensuel.
+# Données : PAYLOAD id=C2 payload=path=/var/www/html/index.php
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur Deep Packet Inspection (DPI) et détection de signatures L7</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser le contenu applicatif des requêtes HTTP pour détecter les injections SQL, XSS et traversées de répertoires.</p>
+    <div class="lab__brief"><p>Le moteur <strong>DPI (Deep Packet Inspection)</strong> examine la charge utile (payload) au-delà des en-têtes réseau et transport pour neutraliser les attaques applicatives.<br><br>
+Signatures d'attaques à détecter (insensible à la casse) :<br>
+1. <strong>SQL Injection</strong> : présence de <code>union select</code>, <code>' or '1'='1</code>, <code>sleep(</code> ou <code>drop table</code>.<br>
+   -> Menace : <code>SQL_INJECTION</code>, Action : <code>BLOCK</code>.<br>
+2. <strong>Cross-Site Scripting (XSS)</strong> : présence de <code>&lt;script&gt;</code>, <code>javascript:</code> ou <code>onerror=</code>.<br>
+   -> Menace : <code>XSS_ATTACK</code>, Action : <code>BLOCK</code>.<br>
+3. <strong>Path Traversal</strong> : présence de <code>../</code>, <code>..\</code> ou <code>/etc/passwd</code>.<br>
+   -> Menace : <code>PATH_TRAVERSAL</code>, Action : <code>BLOCK</code>.<br>
+4. Sinon : charge utile saine.<br>
+   -> Menace : <code>CLEAN</code>, Action : <code>ALLOW</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>DPI_ALERT id={id} threat={THREAT} action={BLOCK|ALLOW}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PAYLOAD id=P1 payload=id=1 UNION SELECT username, password FROM users
+PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DPI_ALERT id=P1 threat=SQL_INJECTION action=BLOCK
+DPI_ALERT id=P2 threat=CLEAN action=ALLOW</pre></div>
+    </div>
+    <p class="lab__note">P1 contient une signature SQLi évidente, P2 est une recherche utilisateur standard.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Normaliser la charge utile en minuscules.</li>
+        <li>Tester dans l’ordre de la spécification : SQLi, XSS, Path Traversal, puis CLEAN.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi le filtrage basé uniquement sur les numéros de ports TCP/UDP (L4) est-il devenu insuffisant aujourd’hui ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que la quasi-totalité du trafic web et des applications modernes passe par le port 443 chiffré en HTTPS pour contourner les blocages</button>
+        <button class="opt">Parce que les routeurs ne savent plus lire les en-têtes TCP</button>
+        <button class="opt">Parce que le protocole IPv4 a été totalement désactivé sur Internet</button>
+        <button class="opt">Parce que les câbles Ethernet bloquent les numéros de ports supérieurs à 80</button>
+      </div>
+      <div class="q__exp">Presque toutes les applications utilisent le port 443, rendant impossible la distinction entre un trafic légitime et une menace sur la seule base du port.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel paquet de la négociation TLS le nom de domaine complet du serveur est-il transmis en clair via l’extension SNI ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Dans le message Client Hello envoyé par le navigateur client au tout début du handshake</button>
+        <button class="opt">Dans le message Server Hello envoyé par le serveur à la fin</button>
+        <button class="opt">Uniquement après l’échange complet des clés asymétriques</button>
+        <button class="opt">Dans les paquets de données TCP ACK de fermeture</button>
+      </div>
+      <div class="q__exp">Le champ SNI (Server Name Indication) est transmis en clair dans le Client Hello avant que le chiffrement de la session ne soit activé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’avantage majeur de l’inspection SNI par rapport au déchiffrement SSL Man-in-the-Middle complet ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle ne nécessite aucun déploiement de certificat racine d’autorité sur les postes clients et préserve les performances du pare-feu</button>
+        <button class="opt">Elle permet de modifier le contenu des pages web à la volée</button>
+        <button class="opt">Elle empêche totalement les utilisateurs d’utiliser le protocole DNS</button>
+        <button class="opt">Elle fonctionne même si le câble réseau est débranché</button>
+      </div>
+      <div class="q__exp">L’inspection SNI lit simplement le nom de domaine en clair dans le handshake sans casser la chaîne cryptographique ni poser de contraintes de conformité RGPD.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type d’attaque applicative est caractérisé par la présence de motifs comme "UNION SELECT" ou "' OR '1'='1" dans les requêtes HTTP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une injection SQL (SQLi)</button>
+        <button class="opt">Une attaque par rebond ICMP Smurf</button>
+        <button class="opt">Un empoisonnement de cache DNS</button>
+        <button class="opt">Une attaque de force brute sur le protocole ARP</button>
+      </div>
+      <div class="q__exp">Ces motifs exploitent des formulaires ou paramètres web mal échappés pour manipuler directement la base de données SQL sous-jacente.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme permet de neutraliser les attaques par inondation de requêtes en limitant le nombre d’appels par seconde pour chaque adresse IP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le Rate Limiting par fenêtre glissante (ou algorithme du seau à jetons / Token Bucket)</button>
+        <button class="opt">L’augmentation indéfinie de la mémoire vive du serveur</button>
+        <button class="opt">La réinitialisation quotidienne de la passerelle par défaut</button>
+        <button class="opt">Le passage en mode duplex intégral sur le commutateur</button>
+      </div>
+      <div class="q__exp">Le Rate Limiting plafonne le débit de requêtes autorisé par émetteur sur une période glissante pour contrer les dénis de service et attaques par force brute.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appelle-t-on la technologie NGFW capable d’associer les règles de sécurité à des identités nominatives d’utilisateurs plutôt qu’à des adresses IP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">User-ID</button>
+        <button class="opt">App-ID</button>
+        <button class="opt">MAC-Filtering</button>
+        <button class="opt">Content-ID</button>
+      </div>
+      <div class="q__exp">User-ID (Palo Alto / Fortinet) fait le lien dynamique entre l’adresse IP d’un terminal et le compte utilisateur authentifié dans l’annuaire d’entreprise.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle menace le Deep Packet Inspection (DPI) vise-t-il à neutraliser lorsqu’il détecte des chaînes telles que "../../../etc/passwd" ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une attaque par traversée de répertoires (Path Traversal / Directory Traversal)</button>
+        <button class="opt">Un déni de service distribué volumétrique UDP</button>
+        <button class="opt">Une attaque de l’homme du milieu ARP Poisoning</button>
+        <button class="opt">Une saturation de la bande passante par flux vidéo</button>
+      </div>
+      <div class="q__exp">La présence de séquences "../" indique une tentative d’accès non autorisé à des fichiers système situés hors de la racine du serveur web.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que l’App-ID dans l’architecture d’un pare-feu de nouvelle génération ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La capacité à identifier la nature exacte de l’application logicielle (ex: Facebook, Dropbox, BitTorrent) quel que soit le port utilisé</button>
+        <button class="opt">Un numéro de série gravé sur la carte mère du pare-feu</button>
+        <button class="opt">L’adresse IP publique allouée au serveur de messagerie</button>
+        <button class="opt">Un protocole de routage dynamique propriétaire</button>
+      </div>
+      <div class="q__exp">App-ID classe le flux selon l’application réelle sous-jacente par analyse de signature et décodage protocolaire de couche 7.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Penser que le trafic chiffré HTTPS ne peut faire l’objet d’aucun contrôle sans déchiffrement complet (le champ SNI est en clair).</li>
+      <li>Autoriser le port 443 sans inspection applicative, permettant aux rançongiciels d’exfiltrer des données ou de contacter des serveurs C2.</li>
+      <li>Appliquer un Rate Limiting trop agressif qui bloque légitimement des utilisateurs partageant une même adresse IP de sortie (NAT d’entreprise).</li>
+      <li>Confondre un pare-feu réseau classique L3/L4 et un Web Application Firewall (WAF) ou moteur DPI L7.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche de Déploiement &amp; de Durcissement d’un Pare-feu NGFW</div>
+    <ol>
+      <li>1. Activer le moteur de décodage applicatif L7 (App-ID) pour identifier le trafic réel indépendamment des ports réseau.</li>
+      <li>2. Intégrer l’annuaire d’entreprise (Active Directory, Azure AD/Entra ID) pour fonder les règles sur les groupes d’utilisateurs (User-ID).</li>
+      <li>3. Configurer le filtrage web catégoriel basé sur l’inspection du Server Name Indication (SNI) des requêtes TLS.</li>
+      <li>4. Activer les profils de sécurité anti-menaces : signatures d’attaques applicatives DPI (injections SQL, failles XSS, traversées de répertoires).</li>
+      <li>5. Mettre en œuvre des seuils de Rate Limiting sur les points d’entrée publics pour neutraliser les inondations applicatives DoS.</li>
+      <li>6. Mettre en place un déchiffrement SSL/TLS ciblé (SSL Forward Proxy) sur les flux sensibles après validation de conformité juridique (RGPD).</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le filtrage par port L4 est devenu inefficace face au chiffrement généralisé HTTPS et au contournement par tunneling.</li>
+      <li>Les NGFW s’appuient sur l’identification applicative (App-ID) et l’identité de l’utilisateur (User-ID) pour gouverner les flux.</li>
+      <li>L’inspection du champ SNI TLS permet de catégoriser et de bloquer les domaines malveillants sans déchiffrer la charge utile.</li>
+      <li>Le Deep Packet Inspection (DPI) analyse la charge utile L7 à la recherche de signatures d’attaques web (SQLi, XSS, Path Traversal).</li>
+      <li>Le Rate Limiting par fenêtre glissante protège les serveurs contre les inondations de trafic et les attaques par force brute.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Les limites du filtrage de port L4 et les concepts clés du NGFW (App-ID, User-ID, Content-ID) sont assimilés.</li>
+      <li>Le rôle de l’extension SNI TLS dans le handshake Client Hello est compris.</li>
+      <li>La gestion des politiques de filtrage d’URL catégoriel est maîtrisée.</li>
+      <li>Les signatures d’attaques applicatives L7 majeures (SQLi, XSS, Path Traversal) sont identifiées.</li>
+      <li>Le mécanisme de Rate Limiting par fenêtre glissante est compris et formulé.</li>
+      <li>Les 3 ateliers de programmation interactive en Python 3 (fw3-c5-e1 à fw3-c5-e3) sont validés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Pare-feu Nouvelle Génération (NGFW)</li><li>Identification applicative (App-ID)</li><li>Identité utilisateur (User-ID)</li><li>Inspection SNI TLS</li><li>Filtrage d’URL catégoriel</li><li>Deep Packet Inspection (DPI)</li><li>Signatures d’attaques L7 (SQLi/XSS)</li><li>Rate Limiting &amp; Anti-DoS</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Niveau initial : vous croyez encore que le port 443 garantit un trafic web légitime et ignorez le fonctionnement du SNI.</div>
+      <div class="bandrow bandrow--medium">Niveau opérationnel : vous configurez des règles de filtrage SNI catégoriel et comprenez le principe des signatures DPI.</div>
+      <div class="bandrow bandrow--high">Maîtrise B3 : vous concevez des politiques NGFW complètes articulant App-ID, User-ID, rate limiting anti-DoS et inspection DPI de pointe.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Déploiement Linux Netfilter (iptables / nftables), Logs &amp; Intégration SIEM <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

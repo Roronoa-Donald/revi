@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Créer un dépôt : init, config, status | Git B1</title>
+<meta name="description" content="Chapitre 1 du cours de Git B1 : Qu'est-ce que le versionnage, git init et .git, configurer son identité, lire git status. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Créer un dépôt : init, config, status | Git B1">
+<meta property="og:description" content="Chapitre 1 du cours de Git B1 : Qu'est-ce que le versionnage, git init et .git, configurer son identité, lire git status. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Créer un dépôt : init, config, status</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Tu démarres le projet Python gestion_taches du TP : quatre fichiers, un dossier. Sans Git, chaque erreur se paie en copie manuelle « version_finale_v2 ». Avec Git, chaque état du projet s'archive proprement. Ce chapitre installe le réflexe du TP1 : init, config, status — dans cet ordre, toujours.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>expliquer ce qu'est un système de gestion de versions décentralisé ;</li>
+      <li>créer un dépôt local avec git init et décrire le rôle du dossier .git ;</li>
+      <li>configurer son identité avec git config (globale ou locale) ;</li>
+      <li>lire la sortie de git status et citer les trois espaces de Git.</li>
+    </ol>
+  </div>
+
+<h2>1. Pourquoi versionner</h2>
+
+<p>Git est le <strong>système de gestion de version décentralisé</strong> open source qui facilite les activités GitHub sur votre ordinateur. Décentralisé signifie que chaque machine possède <strong>tout l'historique</strong> : on peut commité, revenir en arrière, brancher, sans réseau. Le réseau ne sert qu'à la synchronisation entre dépôts.</p>
+<p>Les bénéfices concrets du TP : revenir à n'importe quelle version d'un fichier, savoir qui a changé quoi et quand, expérimenter sur une branche sans risquer la version qui marche, collaborer à plusieurs sans s'écraser les fichiers.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « tout l'historique dans la poche »</div>
+    <p>Un dépôt Git complet vit dans un seul dossier .git : cloner un projet, c'est transporter son passé entier. C'est pourquoi un commit accidentel se rattrape toujours en local — tant qu'il n'est pas poussé.</p>
+  </div>
+
+<h2>2. git init : naître au versionnage</h2>
+
+<p>Créer un dépôt local tient en trois lignes, exactement les premières du TP1 :</p>
+<pre><code>mkdir gestion_taches
+cd gestion_taches
+git init</code></pre>
+<p>La commande <code>git init</code> crée un sous-dossier <code>.git</code> qui contient le dépôt local : tout l'historique, les branches, la configuration propre au projet. Supprimer .git revient à désamorcer le versionnage — les fichiers, eux, restent. On peut aussi créer un dépôt à partir d'un projet existant avec <code>git init nom-du-projet</code>.</p>
+<p>L'autre naissance possible : <code>git clone url</code> télécharge un projet et tout son historique de versions, et crée automatiquement le lien vers le dépôt distant.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Deux commandes de création à ne pas confondre</div>
+    <p><code>git init</code> part du vide (ou d'un dossier existant) et crée un dépôt local ; <code>git clone</code> part d'un dépôt distant et reconstruit tout : dossier, historique, lien origin. Cloneer, c'est hériter ; initier, c'est fonder.</p>
+  </div>
+
+<h2>3. Configurer son identité</h2>
+
+<p>Chaque commit porte la signature de son auteur. Sans configuration, Git peut refuser de commiter ou utiliser une identité incorrecte — l'erreur classique du débutant que le TP1 signale en gras. Deux niveaux de configuration :</p>
+<pre><code>git config --global user.name "Votre Nom"
+git config --global user.email "votre@email.com"
+
+# ou, projet par projet (sans --global) :
+git config user.name "Votre Nom"
+git config user.email "votre@email.com"
+
+# vérification :
+git config --list</code></pre>
+<p>La configuration <strong>globale</strong> vaut pour tous les dépôts de la machine (recommandée en poste personnel) ; la <strong>locale</strong> ne vaut que pour le dépôt courant et écrase la globale — utile quand un projet professionnel exige une adresse différente.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le commit sans identité</div>
+    <p>Premier commit sans user.name ni user.email : refus. Git n'invente pas d'auteur. L'exercice « identité et commits refusés » de l'atelier reproduit ce refus et apprend à le lire avant de chercher ailleurs.</p>
+  </div>
+
+<h2>4. git status : les trois espaces</h2>
+
+<p>La copie de travail distingue <strong>trois espaces</strong> : la <strong>copie de travail</strong> contient les fichiers créés et modifiés par le développeur ; l'<strong>index</strong> est une zone de transit stockant les fichiers qui seront poussés vers le dépôt ; le <strong>dépôt local</strong> garde l'historique des versions, repéré par sa tête nommée <code>HEAD</code>.</p>
+<pre><code>copie de travail  ──git add──→     index      ──git commit──→   dépôt local (HEAD)
+                        ←──git reset HEAD──                    ←──git checkout──</code></pre>
+<p>La commande <code>git status</code> liste tous les nouveaux fichiers et les fichiers modifiés à commiter : c'est l'état des lieux permanent. « Untracked » (non suivi) pour un fichier jamais ajouté, « modified » pour un suivi qui a changé depuis l'index, « staged » (indexé) pour un prêt à commiter.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « la table, le plateau, l'armoire »</div>
+    <p>La <strong>table</strong> (copie de travail) accueille tout ce qu'on bricole ; le <strong>plateau</strong> (index) n'embarque que ce qu'on a posé exprès ; l'<strong>armoire</strong> (dépôt) archive pour de bon. add pose sur le plateau, commit range dans l'armoire, reset repose sur la table.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gt-c1-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;init gestion_taches&#10;config user.name Alice&#10;status&#10;config user.email a@x.fr&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op reste
+  # À compléter : tenir le journal du dépôt et répondre aux status.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Journal du dépôt</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Rejouer la séquence git init / config / status d’un TP et rendre compte de l’état du dépôt.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>init nom</code> (crée le dépôt et affiche <code>dépôt nom créé</code>), <code>config cle valeur</code> (enregistre la configuration), <code>status</code>. À chaque <code>status</code> il affiche deux lignes : <code>dépôt : NOM</code> (ou <code>dépôt : aucun</code> si pas encore d’init) et <code>config : ok</code> si user.name ET user.email sont posés, <code>config : manquant</code> sinon.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+init gestion_taches
+config user.name Alice
+status
+config user.email a@x.fr
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>dépôt gestion_taches créé
+dépôt : gestion_taches
+config : manquant</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Couper l’opération et son argument : read -r op reste lit le premier mot puis tout le reste de la ligne.</li>
+        <li>Deux drapeaux suffisent pour la config : un pour user.name, un pour user.email.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c1-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;config user.name Alice&#10;config user.email a@x.fr&#10;commit init&#10;commit second&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op reste
+  # À compléter : refuser les commits sans identité, numéroter les acceptés.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Identité et commits refusés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le refus de commit sans identité : le premier piège du TP1.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>config user.name X</code>, <code>config user.email X</code>, ou <code>commit msg</code>. Un commit est accepté seulement si user.name ET user.email sont posés : il affiche alors <code>[main SHA] msg</code> avec SHA le numéro du commit sur quatre chiffres (0001, 0002…). Sinon il affiche <code>erreur : identité manquante</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+config user.name Alice
+config user.email a@x.fr
+commit init
+commit second
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[main 0001] init
+[main 0002] second</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un compteur de commits acceptés, initialisé avant la boucle, sert de numéro.</li>
+        <li>Le formatage sur quatre chiffres : printf "%04d" $numero.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c1-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;cree main.py&#10;cree README.md&#10;add main.py&#10;modifie main.py&#10;status&#10;add README.md&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+non_suivis=0
+modifies=0
+indexes=0
+for ((i=0; i<n; i++)); do
+  read -r op fichier
+  # À compléter : suivre l'état de chaque fichier et les trois comptes.
+done
+# À compléter : afficher les trois comptes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — git status classé</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les fichiers en non suivis, modifiés ou indexés, comme la sortie de git status.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>cree fichier</code> (fichier non suivi), <code>modifie fichier</code> (valide pour un fichier créé ou indexé ; ignoré sinon), <code>add fichier</code>, ou <code>status</code>. Le status affiche trois lignes : <code>non suivis : K</code>, <code>modifies : K</code>, <code>indexes : K</code> — K étant le nombre de fichiers de chaque catégorie. Un <code>modifie</code> sur un fichier non suivi ou inconnu est ignoré. Un <code>add</code> enlève le fichier des autres catégories et le compte une seule fois.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+cree main.py
+cree README.md
+add main.py
+modifie main.py
+status
+add README.md
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>non suivis : 1
+modifies : 1
+indexes : 0</pre></div>
+    </div>
+    <p class="lab__note">main.py indexé puis modifié repasse en « modifies » ; README.md reste non suivi au status.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois comptes et trois règles de passage : cree → non suivi, modifie → modifié, add → indexé.</li>
+        <li>add depuis une autre catégorie doit décrémenter l’ancienne catégorie, sinon les comptes doublent.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que crée exactement git init ?</p>
+      <div class="opts">
+        <button class="opt">Un dépôt distant</button>
+        <button class="opt" data-correct="1">Un sous-dossier .git contenant le dépôt local</button>
+        <button class="opt">Un fichier de configuration seul</button>
+      </div>
+      <div class="q__exp">git init crée le sous-dossier .git qui abrite tout le dépôt local.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sans user.name ni user.email configurés, un commit…</p>
+      <div class="opts">
+        <button class="opt">est accepté anonymement</button>
+        <button class="opt" data-correct="1">peut être refusé ou signé d'une identité incorrecte</button>
+        <button class="opt">demande le mot de passe</button>
+      </div>
+      <div class="q__exp">C'est l'erreur classique du débutant signalée par le TP1 : configurer avant de commiter.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La configuration --global s'applique…</p>
+      <div class="opts">
+        <button class="opt">au dépôt courant seulement</button>
+        <button class="opt" data-correct="1">à tous les dépôts de la machine</button>
+        <button class="opt">au dépôt distant</button>
+      </div>
+      <div class="q__exp">--global vaut pour tous les dépôts locaux ; sans elle, la configuration ne vaut que pour le dépôt courant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quels sont les trois espaces de Git ?</p>
+      <div class="opts">
+        <button class="opt">RAM, disque, cloud</button>
+        <button class="opt" data-correct="1">Copie de travail, index, dépôt local</button>
+        <button class="opt">main, feature, origin</button>
+      </div>
+      <div class="q__exp">Copie de travail, index (zone de transit) et dépôt local (historique, tête HEAD).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande fait un état des lieux permanent ?</p>
+      <div class="opts">
+        <button class="opt">git add</button>
+        <button class="opt">git log</button>
+        <button class="opt" data-correct="1">git status</button>
+      </div>
+      <div class="q__exp">git status liste nouveaux fichiers et modifications à commiter.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un fichier « untracked » est…</p>
+      <div class="opts">
+        <button class="opt">supprimé</button>
+        <button class="opt" data-correct="1">jamais ajouté au suivi</button>
+        <button class="opt">en conflit</button>
+      </div>
+      <div class="q__exp">Non suivi : présent dans la copie de travail mais jamais passé par git add.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">git clone fait quoi, de plus que copier des fichiers ?</p>
+      <div class="opts">
+        <button class="opt">Rien de plus</button>
+        <button class="opt" data-correct="1">Télécharge le projet et tout son historique, et crée le lien origin</button>
+        <button class="opt">Crée un .gitignore</button>
+      </div>
+      <div class="q__exp">Le clone reconstruit l'historique complet et le lien vers le dépôt distant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande vérifie la configuration posée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">git config --list</button>
+        <button class="opt">git status</button>
+        <button class="opt">git log</button>
+      </div>
+      <div class="q__exp">git config --list liste toutes les valeurs de configuration actives.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Committer avant de configurer</strong> : refus ou identité fausse — le premier réflexe du TP1 est git config.</li>
+      <li><strong>Confondre init et clone</strong> : init fonde, clone hérite d'un historique existant.</li>
+      <li><strong>Supprimer .git pour « nettoyer »</strong> : c'est effacer tout l'historique.</li>
+      <li><strong>Croire que status archive</strong> : status ne déplace rien, il observe.</li>
+      <li><strong>Confondre les trois espaces</strong> : modifier n'est pas indexer, indexer n'est pas commiter.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarrer un dépôt sans faux pas</div>
+    <ol>
+      <li><strong>Créer le dossier et y entrer</strong> : mkdir puis cd, comme au TP1.</li>
+      <li><strong>Initialiser</strong> : git init — et vérifier la présence de .git.</li>
+      <li><strong>Configurer l'identité</strong> : user.name et user.email, globale ou locale.</li>
+      <li><strong>Vérifier</strong> : git config --list puis git status.</li>
+      <li><strong>Se représenter les trois espaces</strong> avant chaque déplacement de fichier.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Git est un gestionnaire de versions décentralisé : chaque machine a tout l'historique.</li>
+      <li>git init crée le sous-dossier .git ; git clone reconstruit dépôt et lien origin.</li>
+      <li>user.name et user.email s'imposent avant tout commit (--global pour la machine, local pour le projet).</li>
+      <li>Trois espaces : copie de travail, index, dépôt local (HEAD) ; status les observe sans rien déplacer.</li>
+      <li>add transite vers l'index, commit archive, reset renvoie vers la copie.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décris ce que crée git init et ce que contient .git.</li>
+      <li>Je configure mon identité globale et je la vérifie.</li>
+      <li>Je classe un fichier dans l'un des trois espaces d'après la sortie de git status.</li>
+      <li>Je distingue init et clone avec un cas d'usage chacun.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>versionnage</li><li>décentralisé</li><li>git init</li><li>.git</li><li>git config</li><li>user.name</li><li>git status</li><li>copie de travail</li><li>index</li><li>HEAD</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le TP1 ligne par ligne, en expliquant chaque commande.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Dessine les trois espaces et les flèches add/commit/reset de mémoire.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : simule un refus de commit sans identité et corrige-le.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, l'index et les commits.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Index et commits : add, reset, commit <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : l'« Aide-mémoire GitHub Git », le vade-mecum « Travailler avec Git au quotidien » (ENSICAEN) et les TP 1 à 5 du module Git.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

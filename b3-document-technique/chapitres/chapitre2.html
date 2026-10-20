@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Spécifications Fonctionnelles (SFD) &amp;amp; Techniques (STD) | Document Technique B3</title>
+<meta name="description" content="Chapitre 2 du cours Document Technique B3 : Formalisation des cas d’utilisation (Use Cases), règles métier, architecture technique détaillée, modélisation de données et matrice de traçabilité (RTM). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-document-technique/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Spécifications Fonctionnelles (SFD) &amp;amp; Techniques (STD) | Document Technique B3">
+<meta property="og:description" content="Chapitre 2 du cours Document Technique B3 : Formalisation des cas d’utilisation (Use Cases), règles métier, architecture technique détaillée, modélisation de données et matrice de traçabilité (RTM). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-document-techniquenav"><div class="b3-document-techniquenav__in">
+  <a class="b3-document-techniquenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-document-techniquenav__sep" aria-hidden="true">/</span>
+  <a class="b3-document-techniquenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Document Technique B3</a>
+  <div class="b3-document-techniquenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-document-techniquenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-document-techniquewrap">
+<p class="crumb"><a href="../index.html">Document Technique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Spécifications Fonctionnelles (SFD) &amp; Techniques (STD)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un projet informatique, l’écart entre ce que le client a exprimé, ce que l’architecte a conçu et ce que le développeur a codé est la source principale des échecs et dépassements budgétaires. Sans spécifications formelles, chaque contributeur interprète les fonctionnalités selon sa propre intuition, aboutissant à des logiciels truffés d’incohérences, à des failles de sécurité dans les flux réseau et à des impasses lors des phases de recette. L’ingénieur de Bachelor 3 doit savoir rédiger avec une rigueur chirurgicale deux documents pivots : les Spécifications Fonctionnelles Détaillées (SFD), décrivant les cas d’utilisation et les règles métier, et les Spécifications Techniques Détaillées (STD), définissant les modèles de données et les matrices de flux, tout en garantissant une traçabilité totale via la matrice RTM.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>traduire les exigences métier en cas d’utilisation (Use Cases) canoniques et scénarios d’exception structurés ;</li>
+      <li>formaliser les règles de gestion et les parcours utilisateurs dans une Spécification Fonctionnelle Détaillée (SFD) ;</li>
+      <li>rédiger une Spécification Technique Détaillée (STD) comprenant modèles de données et matrices de flux pare-feu ;</li>
+      <li>construire et auditer une matrice de traçabilité des exigences (Requirements Traceability Matrix - RTM) ;</li>
+      <li>identifier et neutraliser les règles de flux permissives dangereuses (ports ouverts, adresses ANY) dans une STD ;</li>
+      <li>développer en Python 3 des validateurs de cas d’utilisation, des audits de couverture RTM et des analyseurs de flux réseau.</li>
+    </ol>
+  </div>
+
+<h2>1. Les Spécifications Fonctionnelles Détaillées (SFD) : Exprimer le « Quoi »</h2>
+
+<p>La <strong>Spécification Fonctionnelle Détaillée (SFD)</strong> traduit les besoins métier exprimés par le client ou le Product Owner en une description exhaustive et non ambiguë du comportement attendu du logiciel. Elle constitue le <strong>contrat fonctionnel de référence</strong> pour les équipes de développement et de recette.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Anatomie d’un Cas d’Utilisation (Use Case)</h4>
+    <ul>
+      <li><strong>Identifiant &amp; Titre :</strong> Ex. <code>UC-AUTH-01 : Connexion utilisateur</code>.</li>
+      <li><strong>Acteur Principal :</strong> Le rôle initiateur (ex. <em>Utilisateur authentifié</em>).</li>
+      <li><strong>Déclencheur (Trigger) :</strong> L’action provoquant le lancement (ex. <em>Clic sur le bouton Valider</em>).</li>
+      <li><strong>Préconditions :</strong> État préalable requis (ex. <em>Compte actif, non verrouillé</em>).</li>
+      <li><strong>Scénario Nominal :</strong> Séquence ordonnée des étapes en situation de succès sans accroc.</li>
+      <li><strong>Scénarios Alternatifs &amp; d’Exception :</strong> Gestion explicite des erreurs (ex. <em>Mot de passe erroné, compte suspendu</em>).</li>
+      <li><strong>Postconditions :</strong> État du système après exécution (ex. <em>Session créée, jeton JWT délivré</em>).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Rôle Crucial des Règles de Gestion (RG)</h4>
+    <p>Chaque comportement métier doit être isolé sous la forme d’une règle atomique numérotée et vérifiable :</p>
+    <ul>
+      <li><code>RG-01 :</code> Le mot de passe doit comporter au moins 12 caractères, 1 chiffre et 1 symbole.</li>
+      <li><code>RG-02 :</code> Après 3 échecs consécutifs d’authentification, le compte est temporairement gelé pendant 15 minutes.</li>
+      <li><code>RG-03 :</code> Toute commande excédant 5 000 € HT requiert la double validation du directeur financier.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Les Spécifications Techniques Détaillées (STD) : Définir le « Comment »</h2>
+
+<p>Si la SFD s’adresse au métier, la <strong>Spécification Technique Détaillée (STD)</strong> est rédigée par et pour les ingénieurs. Elle explicite l’implémentation logicielle, les protocoles et les contraintes d’intégration :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Modélisation des Données</h4>
+    <p>Schéma relationnel (MCD/MLD/MPD) ou schéma documentaire NoSQL : typage strict de chaque attribut, clés primaires (PK), clés étrangères (FK), index d’optimisation et contraintes d’intégrité.</p>
+  </div>
+  <div class="card">
+    <h4>2. Interfaces &amp; Protocoles</h4>
+    <p>Définition des flux de communication : API REST/JSON, bus de messages asynchrones (Kafka/RabbitMQ), websockets, files de traitement batch et formats d’échange.</p>
+  </div>
+  <div class="card">
+    <h4>3. Matrice des Flux Réseau</h4>
+    <p>Tableau formel listant chaque ouverture de port pare-feu nécessaire : adresse source (IP/VLAN), destination, port d’écoute et protocole réseau (TCP/UDP).</p>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Règle de Sécurité des Matrices de Flux</div>
+<p>Une STD ne doit <strong>jamais</strong> autoriser de flux universels de type <code>ANY -> ANY</code> ou <code>PORT ALL</code>. Chaque ouverture de flux doit respecter le principe du moindre privilège : adresses IP explicites (ou sous-réseau VLAN strict), port unique dédié et justification technique documentée.</p>
+  </div>
+
+<h2>3. La Matrice de Traçabilité des Exigences (RTM)</h2>
+
+<p>La <strong>Requirements Traceability Matrix (RTM)</strong> est une grille de pilotage garantissant la couverture bidirectionnelle complète entre chaque exigence métier, sa conception technique et sa recette qualité :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width:20%">Exigence (REQ)</th>
+      <th style="width:25%">Spécification (SFD)</th>
+      <th style="width:25%">Conception (STD)</th>
+      <th style="width:30%">Cas de Test (TEST)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>REQ-AUTH-01</code> (Authentification double facteur)</td>
+      <td><code>SFD-UC-01</code> (Parcours saisie code TOTP)</td>
+      <td><code>STD-SRV-AUTH</code> (Service microservice OIDC)</td>
+      <td><code>TEST-E2E-TOTP-01</code> (Validation succès et échec code expiré)</td>
+    </tr>
+    <tr>
+      <td><code>REQ-PAY-03</code> (Remboursement partiel en 1 clic)</td>
+      <td><code>SFD-UC-14</code> (Action admin remboursement)</td>
+      <td><code>STD-API-STRIPE</code> (Appel POST webhook Stripe)</td>
+      <td><code>TEST-UNIT-REFUND</code> (Vérification des calculs de solde)</td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-top:16px">Si une exigence $REQ$ ne pointe vers aucun cas de test, elle constitue un <strong>risque opérationnel majeur</strong> de non-conformité. Inversement, si une brique technique dans la STD ne correspond à aucune exigence métier, il s’agit de <em>Gold Plating</em> (sur-qualité inutile coûteuse).</p>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="dt3-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="USE_CASE_AUDIT id=UC-01 acteur=Client declencheur=ClicConnexion pre=CompteActif nominal=SaisieIdentifiants-&gt;ValidationToken post=SessionOuverte">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c2-e1) — Validateur formel de cas d’utilisation (Use Case) en SFD
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Cas d’utilisation avec scénario trop court et acteur manquant]
+# Données : USE_CASE_AUDIT id=UC-02 acteur=AUCUN declencheur=ClicPaiement pre=PanierValide nominal=PaiementDirect post=FactureGeneree
+A_COMPLETER
+
+[Cas 2 — Préconditions et postconditions absentes]
+# Données : USE_CASE_AUDIT id=UC-03 acteur=Admin declencheur=RequeteReset pre=AUCUN nominal=SelectionUtilisateur->ClicReset->EmailEnvoye post=AUCUN
+A_COMPLETER
+
+[Cas 3 — Tous critères validés avec étapes complexes]
+# Données : USE_CASE_AUDIT id=UC-04 acteur=Gestionnaire declencheur=UploadFichier pre=DroitEcriture nominal=ScanAntivirus->ExtractionDonnees->EnregistrementBDD post=FichierArchive
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur formel de cas d’utilisation (Use Case) en SFD</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la complétude et la rigueur structurelle d’une fiche de cas d’utilisation dans une spécification fonctionnelle détaillée.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>USE_CASE_AUDIT id=&lt;id&gt; acteur=&lt;v&gt; declencheur=&lt;v&gt; pre=&lt;v&gt; nominal=&lt;etapes&gt; post=&lt;v&gt;</code>.<br><br>
+Critères de conformité (5 critères évalués) :<br>
+1. <code>ACTEUR</code> : la valeur n'est ni vide ni <code>AUCUN</code> ni <code>NON_DEFINI</code>.<br>
+2. <code>DECLENCHEUR</code> : la valeur n'est ni vide ni <code>AUCUN</code>.<br>
+3. <code>PRECONDITIONS</code> : la valeur n'est ni vide ni <code>AUCUN</code>.<br>
+4. <code>SCENARIO_NOMINAL</code> : contient au moins 2 étapes séparées par <code>-&gt;</code>.<br>
+5. <code>POSTCONDITIONS</code> : la valeur n'est ni vide ni <code>AUCUN</code>.<br><br>
+Statut :<br>
+- Si 5/5 : <code>STATUT=CONFORME_SFD_VALIDEE</code><br>
+- Sinon : <code>STATUT=NON_CONFORME (ANOMALIES=[&lt;champs_en_erreur&gt;])</code><br>
+(L'ordre des anomalies : <code>ACTEUR</code>, <code>DECLENCHEUR</code>, <code>PRECONDITIONS</code>, <code>SCENARIO_NOMINAL</code>, <code>POSTCONDITIONS</code>).<br><br>
+Afficher :<br>
+<code>USE_CASE: &lt;id&gt; -&gt; SCORE=&lt;N&gt;/5 | STATUT=&lt;STATUT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>USE_CASE_AUDIT id=UC-01 acteur=Client declencheur=ClicConnexion pre=CompteActif nominal=SaisieIdentifiants-&gt;ValidationToken post=SessionOuverte</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>USE_CASE: UC-01 -&gt; SCORE=5/5 | STATUT=CONFORME_SFD_VALIDEE</pre></div>
+    </div>
+    <p class="lab__note">Les 5 critères sont parfaitement remplis.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour le scénario nominal, compter le nombre d’étapes via split("-&gt;").</li>
+        <li>Identifier les champs vides ou valant AUCUN / NON_DEFINI.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RTM_ENTRY req=REQ-101 sfd=SFD-AUTH-01 test=TEST-AUTH-E2E">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c2-e2) — Matrice de traçabilité des exigences (Requirements Traceability Matrix - RTM)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Exigence spécifiée mais sans cas de test associé]
+# Données : RTM_ENTRY req=REQ-102 sfd=SFD-PAY-02 test=AUCUN
+A_COMPLETER
+
+[Cas 2 — Exigence testée sans spécification formelle]
+# Données : RTM_ENTRY req=REQ-103 sfd=NON_COUVERT test=TEST-EXPORT-01
+A_COMPLETER
+
+[Cas 3 — Exigence totalement orpheline critique]
+# Données : RTM_ENTRY req=REQ-104 sfd=AUCUN test=NON_COUVERT
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Matrice de traçabilité des exigences (Requirements Traceability Matrix - RTM)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer la couverture bidirectionnelle entre une exigence métier, sa spécification détaillée et son cas de test de recette.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>RTM_ENTRY req=&lt;REQ_ID&gt; sfd=&lt;SFD_ID&gt; test=&lt;TEST_ID&gt;</code>.<br><br>
+Règles d'évaluation de couverture :<br>
+- <code>sfd</code> est valide si différente de <code>AUCUN</code> et <code>NON_COUVERT</code>.<br>
+- <code>test</code> est valide si différent de <code>AUCUN</code> et <code>NON_COUVERT</code>.<br><br>
+Statut de couverture :<br>
+- Si les deux sont valides :<br>
+  <code>COUVERTURE=COMPLETE (SPEC_ET_TEST)</code><br>
+- Si <code>sfd</code> valide mais <code>test</code> invalide :<br>
+  <code>COUVERTURE=PARTIELLE (TEST_MANQUANT)</code><br>
+- Si <code>sfd</code> invalide mais <code>test</code> valide :<br>
+  <code>COUVERTURE=PARTIELLE (SFD_MANQUANTE)</code><br>
+- Si les deux sont invalides :<br>
+  <code>COUVERTURE=ORPHELINE_NON_COUVERTE (CRITIQUE)</code><br><br>
+Afficher :<br>
+<code>RTM_AUDIT: &lt;req&gt; -&gt; COUVERTURE=&lt;COUVERTURE&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RTM_ENTRY req=REQ-101 sfd=SFD-AUTH-01 test=TEST-AUTH-E2E</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RTM_AUDIT: REQ-101 -&gt; COUVERTURE=COMPLETE (SPEC_ET_TEST)</pre></div>
+    </div>
+    <p class="lab__note">Exigence spécifiée et testée : couverture complète.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester la présence de valeurs invalides AUCUN ou NON_COUVERT.</li>
+        <li>Distinguer les couvertures partielles selon la composante absente.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="FLUX_ENTRY src=10.0.1.10 dst=10.0.2.20 proto=TCP port=443">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c2-e3) — Validateur de matrice de flux réseau pour Spécification Technique Détaillée (STD)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Ouverture de port universelle interdite]
+# Données : FLUX_ENTRY src=10.0.1.10 dst=10.0.2.20 proto=TCP port=ALL
+A_COMPLETER
+
+[Cas 2 — Source ou destination ANY interdite]
+# Données : FLUX_ENTRY src=ANY dst=10.0.2.20 proto=TCP port=22
+A_COMPLETER
+
+[Cas 3 — Protocole inconnu ou invalide]
+# Données : FLUX_ENTRY src=10.0.1.5 dst=10.0.2.5 proto=ICMP port=80
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Validateur de matrice de flux réseau pour Spécification Technique Détaillée (STD)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une matrice de flux d’ouverture de pare-feu et alerter sur les règles permissives dangereuses.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>FLUX_ENTRY src=&lt;src&gt; dst=&lt;dst&gt; proto=&lt;proto&gt; port=&lt;port&gt;</code>.<br><br>
+Règles de validation et de sécurité :<br>
+- Protocole : doit valoir soit <code>TCP</code> soit <code>UDP</code> (insensible à la casse). Si différent :<br>
+  <code>VERDICT=PROTOCOLE_INVALIDE</code><br>
+- Port tout ouvert : si <code>port == ALL</code> ou <code>port == *</code> ou <code>port == 0</code> :<br>
+  <code>VERDICT=ALERTE_SECURITE_PORT_TOUT_OUVERT (PORT_RESTREINT_REQUIS)</code><br>
+- Source ou destination universelle : si <code>src == ANY</code> ou <code>dst == ANY</code> ou <code>0.0.0.0/0</code> :<br>
+  <code>VERDICT=ALERTE_SECURITE_REGLE_TROP_PERMISSIVE (IP_EXPLICITE_REQUISE)</code><br>
+- Port standard valide : le port doit être un entier numérique valide compris entre 1 et 65535.<br>
+- Si tous les contrôles sont sains :<br>
+  <code>VERDICT=REGLE_STD_VALIDE</code><br><br>
+Afficher :<br>
+<code>FLUX_AUDIT: &lt;src&gt; -&gt; &lt;dst&gt; (&lt;PROTO&gt;/&lt;port&gt;) | VERDICT=&lt;VERDICT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLUX_ENTRY src=10.0.1.10 dst=10.0.2.20 proto=TCP port=443</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>FLUX_AUDIT: 10.0.1.10 -&gt; 10.0.2.20 (TCP/443) | VERDICT=REGLE_STD_VALIDE</pre></div>
+    </div>
+    <p class="lab__note">Flux HTTPS restreint entre deux adresses internes : règle valide.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester les alertes de sécurité dans l’ordre de priorité.</li>
+        <li>Valider que le port est un entier compris entre 1 et 65535.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le rôle fondamental d’un scénario d’exception (ou alternatif) dans un cas d’utilisation de SFD ?</p>
+      <div class="opts">
+        <button class="opt">Raconter l’historique des versions du document</button>
+        <button class="opt" data-correct="1">Définir le comportement exact du système lorsque des erreurs, timeouts ou saisies invalides surviennent</button>
+        <button class="opt">Permettre au développeur de ne pas écrire de tests unitaires</button>
+        <button class="opt">Remplacer le scénario nominal en cas de grève</button>
+      </div>
+      <div class="q__exp">En production, la majorité des comportements anormaux proviennent de cas limites non spécifiés. Le scénario d’exception encadre précisément la réaction du logiciel face aux erreurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une Spécification Technique Détaillée (STD), pourquoi la mention « Port = ALL » sur une règle pare-feu est-elle formellement rejetée lors des audits de sécurité ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Car cela viole le principe du moindre privilège en exposant l’ensemble des ports réseau du serveur aux attaques</button>
+        <button class="opt">Car le protocole TCP interdit l’utilisation de plus de 10 ports</button>
+        <button class="opt">Car cela augmente la facture d’électricité du serveur</button>
+        <button class="opt">Car cela empêche les sauvegardes quotidiennes</button>
+      </div>
+      <div class="q__exp">Ouvrir tous les ports (Port ALL) neutralise la protection du pare-feu et expose des services internes non durcis. Une STD doit spécifier le port exact nécessaire (ex. 443 pour HTTPS).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que la matrice de traçabilité des exigences (Requirements Traceability Matrix - RTM) ?</p>
+      <div class="opts">
+        <button class="opt">Un tableau récapitulatif des salaires des développeurs</button>
+        <button class="opt" data-correct="1">Une grille reliant chaque exigence métier à ses spécifications détaillées et à ses cas de test de recette correspondants</button>
+        <button class="opt">Un schéma d’implantation physique des câbles réseau dans la salle des serveurs</button>
+        <button class="opt">Une liste de contacts téléphoniques des fournisseurs</button>
+      </div>
+      <div class="q__exp">La RTM garantit que chaque besoin exprimé par le commanditaire est effectivement pris en compte dans la conception (SFD/STD) et vérifié par un test de validation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment qualifie-t-on le développement d’une fonctionnalité sophistiquée qui ne correspond à aucune exigence métier validée dans la RTM ?</p>
+      <div class="opts">
+        <button class="opt">Le Trunk-Based Development</button>
+        <button class="opt" data-correct="1">La sur-qualité ou « Gold Plating » (développement superflu non requis)</button>
+        <button class="opt">L’intégration continue d’élite</button>
+        <button class="opt">Le test de performance</button>
+      </div>
+      <div class="q__exp">Le Gold Plating consiste à rajouter des fonctionnalités techniques complexes que personne n’a demandées, consommant du budget et augmentant inutilement la surface d’attaque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Parmi les éléments suivants, lequel doit figurer obligatoirement dans une Spécification Fonctionnelle Détaillée (SFD) et NON dans une STD ?</p>
+      <div class="opts">
+        <button class="opt">Le schéma physique des tables PostgreSQL avec types VARCHAR et BIGINT</button>
+        <button class="opt" data-correct="1">Les règles de gestion métier et le parcours utilisateur étape par étape</button>
+        <button class="opt">Les adresses IP virtuelles des répartiteurs de charge NGINX</button>
+        <button class="opt">Le diagramme de classes UML avec visibilité private/public</button>
+      </div>
+      <div class="q__exp">La SFD décrit les exigences métier et l’expérience utilisateur. Les schémas de base de données physique et l’adressage IP relèvent exclusivement de la STD et du DAT.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne une « exigence orpheline » détectée lors d’un audit RTM ?</p>
+      <div class="opts">
+        <button class="opt">Une exigence rédigée par un développeur qui a quitté l’entreprise</button>
+        <button class="opt" data-correct="1">Une exigence exprimée par le métier qui n’a été couverte par aucune spécification ni aucun cas de test dans le projet</button>
+        <button class="opt">Une exigence traduite dans plus de 3 langues</button>
+        <button class="opt">Une exigence dont le numéro d’identification est impair</button>
+      </div>
+      <div class="q__exp">Une exigence orpheline est un angle mort : le besoin métier a été formalisé mais a été oublié lors de la conception ou des phases de test.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un cas d’utilisation, que spécifie la clause de « Précondition » ?</p>
+      <div class="opts">
+        <button class="opt">Le prix de vente du logiciel</button>
+        <button class="opt" data-correct="1">L’état obligatoire dans lequel doit se trouver le système avant que l’utilisateur ne puisse déclencher l’action</button>
+        <button class="opt">Le nom de l’ordinateur de l’utilisateur</button>
+        <button class="opt">L’âge minimum requis pour utiliser le clavier</button>
+      </div>
+      <div class="q__exp">La précondition garantit les prérequis nécessaires : par exemple, pour « Payer une commande », la précondition stipule qu’un panier doit exister et être validé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il préconisé d’attribuer un identifiant unique et pérenne (ex. REQ-SEC-012) à chaque exigence dans un document de spécification ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour pouvoir retrouver et tracer précisément l’exigence à travers tous les livrables, tickets de développement et scénarios de test sans ambiguïté</button>
+        <button class="opt">Pour crypter le document contre le vol industriel</button>
+        <button class="opt">Pour réduire le temps d’impression papier</button>
+        <button class="opt">Pour satisfaire à la législation fiscale</button>
+      </div>
+      <div class="q__exp">Un identifiant stable permet de faire référence à l’exigence dans les outils de ticketing (Jira), les commits Git, les spécifications et les rapports de recette automatisés.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Rédiger un cas d’utilisation en oubliant de spécifier les scénarios d’erreur et d’exception.</li>
+      <li>Mélanger les considérations d’implémentation technique (SQL, Java) dans une SFD destinée au client métier.</li>
+      <li>Autoriser des flux de pare-feu trop permissifs (ex. ANY -> ANY) dans la STD par paresse de spécification.</li>
+      <li>Développer des fonctionnalités sans les relier à une exigence métier dans la matrice RTM (Gold Plating).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Rédaction et de Validation SFD/STD</div>
+    <ol>
+      <li>Extraire et numéroter chaque exigence métier sous un identifiant stable et non ambigu (ex. REQ-xxx).</li>
+      <li>Rédiger les cas d’utilisation (Use Cases) en détaillant acteurs, préconditions, déclencheurs et scénarios alternatifs.</li>
+      <li>Formuler des règles de gestion (RG) mesurables et dénuées de toute interprétation subjective.</li>
+      <li>Traduire les exigences en STD : modèles de données normalisés, architecture logicielle et matrice de flux.</li>
+      <li>Auditer la sécurité de la matrice de flux : proscrire strictement les wildcards ANY et les ports ouverts universels.</li>
+      <li>Construire la matrice RTM pour vérifier que 100% des exigences sont couvertes par une spécification et un test.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La SFD spécifie le comportement fonctionnel du point de vue métier ; la STD spécifie l’architecture d’implémentation technique.</li>
+      <li>Un cas d’utilisation complet comporte acteur, préconditions, déclencheur, scénario nominal, exceptions et postconditions.</li>
+      <li>Les règles de gestion (RG) énoncent les invariants d’affaires sous forme de critères atomiques vérifiables.</li>
+      <li>Les matrices de flux réseau en STD doivent appliquer le moindre privilège et proscrire les règles génériques ANY.</li>
+      <li>La matrice RTM (Requirements Traceability Matrix) relie chaque besoin métier à ses spécifications et cas de tests.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais rédiger un cas d’utilisation SFD complet incluant les scénarios d’exception.</li>
+      <li>Je sais formuler des règles de gestion (RG) claires et non ambiguës.</li>
+      <li>Je sais structurer une matrice de flux réseau sécurisée dans une STD.</li>
+      <li>Je sais expliquer pourquoi les règles ANY ou port ALL sont interdites en STD.</li>
+      <li>Je sais construire et auditer une matrice de traçabilité des exigences (RTM).</li>
+      <li>Je sais détecter les exigences orphelines ou les développements non tracés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Ingénierie des exigences logicielles</li><li>Spécifications Fonctionnelles (SFD)</li><li>Cas d’utilisation (Use Cases) canoniques</li><li>Scénarios nominaux et d’exception</li><li>Spécifications Techniques (STD)</li><li>Matrice de flux réseau sécurisée</li><li>Matrice de traçabilité des exigences (RTM)</li><li>Sur-qualité inutile (Gold Plating)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la structure d’un Use Case, le rôle de la RTM et les différences entre SFD et STD.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez les règles de sécurité des matrices de flux et la gestion des exceptions.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez la formalisation rigoureuse des spécifications et la traçabilité des exigences.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Architecture &amp; Documentation Système (DAT &amp; DEX) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours Support_Elaboration Document Technique.pdf (Yan NYAKU), document_technique.docx, la spécification OpenAPI 3.0, la norme CommonMark et les référentiels Docs-as-Code.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

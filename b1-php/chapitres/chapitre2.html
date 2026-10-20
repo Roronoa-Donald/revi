@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Types, opérateurs et chaînes | PHP B1</title>
+<meta name="description" content="Chapitre 2 du cours PHP B1 : types de base, casts, opérateurs arithmétiques, division entière et modulo, formatage, fonctions de chaîne. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="2">
+
+<nav class="phnav"><div class="phnav__in">
+  <a class="phnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phnav__sep" aria-hidden="true">/</span>
+  <a class="phnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP B1</a>
+  <div class="phnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="phwrap">
+  <p class="crumb"><a href="../index.html">PHP B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+  <h1>Chapitre 2 — Types, opérateurs et chaînes</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un panier contient 3 articles à 19.99 EUR. Le total affiché est « 59 EUR » au lieu de « 59.97 EUR », et
+    une référence tapée « CLAVIER » ne correspond plus au produit « clavier ». Derrière ces deux bugs : des
+    types mal gérés. Ce chapitre fixe les règles de conversion, de calcul et de manipulation du texte.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>citer les quatre types de base et convertir avec les casts ;</li>
+      <li>calculer avec les opérateurs arithmétiques, dont <code>intdiv</code> et <code>%</code> ;</li>
+      <li>formater un nombre à deux décimales avec <code>number_format</code> ;</li>
+      <li>manipuler les chaînes : longueur, casse, découpage, concaténation.</li>
+    </ol>
+  </div>
+
+  <h2>1. Les quatre types de base</h2>
+  <p><strong>Définition.</strong> Le <em>type</em> d'une valeur détermine les opérations qui ont du sens dessus.
+  PHP déduit le type à l'affectation (<em>typage dynamique</em>) : c'est au programmeur de rester cohérent.</p>
+  <table>
+    <tr><th>Type</th><th>Exemples</th><th>Usages typiques</th></tr>
+    <tr><td><code>int</code> (entier)</td><td>42, -7, 0</td><td>Quantités, comptages, indices</td></tr>
+    <tr><td><code>float</code> (flottant)</td><td>19.99, -0.5</td><td>Prix, moyennes, mesures</td></tr>
+    <tr><td><code>string</code> (chaîne)</td><td>"PHP", 'a'</td><td>Noms, messages, saisies</td></tr>
+    <tr><td><code>bool</code> (booléen)</td><td>true, false</td><td>Résultats de tests, drapeaux</td></tr>
+  </table>
+  <p>La conversion se demande explicitement par un <em>cast</em> : <code>(int)"42"</code> vaut 42,
+  <code>(int)"3.9"</code> vaut 3 (troncature), <code>(string)42</code> vaut "42", <code>(float)"2"</code> vaut
+  2.0.</p>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — tout ce qui arrive est une chaîne</div>
+    <p><code>fgets(STDIN)</code> renvoie une <em>chaîne</em>. Calculer dessus sans cast produit des résultats
+    imprévisibles : PHP peut convertir à la volée, mais pas toujours dans le sens attendu. La règle du cours :
+    convertir à la lecture, une fois pour toutes.</p>
+  </div>
+
+  <h2>2. Opérateurs arithmétiques</h2>
+  <table>
+    <tr><th>Opération</th><th>PHP</th><th>Exemple</th><th>Résultat</th></tr>
+    <tr><td>Addition / Soustraction</td><td><code>+</code> / <code>-</code></td><td>10 - 4</td><td>6</td></tr>
+    <tr><td>Multiplication</td><td><code>*</code></td><td>6 * 7</td><td>42</td></tr>
+    <tr><td>Division décimale</td><td><code>/</code></td><td>10 / 4</td><td>2.5</td></tr>
+    <tr><td>Division entière</td><td><code>intdiv(a, b)</code></td><td>intdiv(10, 4)</td><td>2</td></tr>
+    <tr><td>Reste (modulo)</td><td><code>%</code></td><td>10 % 4</td><td>2</td></tr>
+    <tr><td>Puissance</td><td><code>**</code></td><td>2 ** 8</td><td>256</td></tr>
+  </table>
+  <p>La division PHP avec <code>/</code> est <strong>décimale</strong> dès que le résultat n'est pas rond :
+  <code>10 / 2</code> donne l'entier 5, mais <code>10 / 4</code> donne le flottant 2.5. Pour un quotient
+  entier, employer <code>intdiv()</code>. L'identité classique relie les trois :
+  <code>a = b × intdiv(a, b) + a % b</code>.</p>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> À quoi sert le modulo ?</div>
+    <p>Dire si un nombre est pair (<code>$n % 2 == 0</code>), extraire les unités d'un montant, répartir des
+    personnes en groupes de taille fixe, faire tourner un compteur circulaire : le reste de division est
+    partout. En PHP, <code>%</code> sur des entiers se comporte comme en mathématiques pour les valeurs
+    positives.</p>
+  </div>
+
+  <h2>3. Formater un nombre</h2>
+  <p>Les moyennes et les prix exigent un nombre fixé de décimales. <code>number_format($x, 2, '.', '')</code>
+  renvoie une <em>chaîne</em> : deux décimales, point décimal, aucun séparateur de milliers — le format
+  attendu par les sorties de ce cours et par les corrections automatiques.</p>
+  <pre><code>$moyenne = (12 + 15 + 14) / 3;
+echo number_format($moyenne, 2, '.', '') . "\n";   <span class="c">// 13.67</span>
+
+$prix = 2.5;
+echo number_format($prix, 2, '.', '') . "\n";      <span class="c">// 2.50</span></code></pre>
+
+  <h2>4. Les chaînes : l'outil de tous les jours</h2>
+  <p><strong>Définition.</strong> Une chaîne est une suite de caractères. PHP fournit des dizaines de fonctions
+  natives ; le cours en fixe un socle :</p>
+  <table>
+    <tr><th>Fonction</th><th>Rôle</th><th>Exemple</th></tr>
+    <tr><td><code>strlen($s)</code></td><td>Longueur</td><td><code>strlen("PHP")</code> → 3</td></tr>
+    <tr><td><code>strtoupper / strtolower</code></td><td>Mettre en casse</td><td><code>strtoupper("php")</code> → "PHP"</td></tr>
+    <tr><td><code>strrev($s)</code></td><td>Inverser</td><td><code>strrev("php")</code> → "php"</td></tr>
+    <tr><td><code>trim($s)</code></td><td>Nettoyer les bords</td><td><code>trim("  a\n")</code> → "a"</td></tr>
+    <tr><td><code>explode(sep, $s)</code></td><td>Découper en tableau</td><td><code>explode(' ', "a 12")</code></td></tr>
+    <tr><td><code>implode(sep, $tab)</code></td><td>Rejoindre</td><td><code>implode('-', [1, 2])</code> → "1-2"</td></tr>
+    <tr><td><code>str_contains($s, $x)</code></td><td>Contient ?</td><td><code>str_contains($email, '@')</code></td></tr>
+    <tr><td><code>substr($s, $d, $l)</code></td><td>Extraire</td><td><code>substr("PHP", 0, 2)</code> → "PH"</td></tr>
+  </table>
+  <p>La concaténation utilise le <strong>point</strong> : <code>"Bonjour " . $nom</code>. L'interpolation dans
+  les guillemets doubles la remplace quand le texte est simple ; le point reste indispensable autour des
+  appels de fonctions.</p>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Chaîne immuable</div>
+    <p>Aucune fonction de chaîne ne modifie l'original : <code>strtoupper($mot)</code> renvoie une copie. Pour
+    conserver le résultat, le ranger : <code>$mot = strtoupper($mot);</code>.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php-c2-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="12&#10;14&#10;16">
+  <script type="text/plain" data-lab-starter><?php
+$a = (int)trim(fgets(STDIN));
+$b = (int)trim(fgets(STDIN));
+$c = (int)trim(fgets(STDIN));
+
+// À compléter : afficher la moyenne à deux décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moyenne de trois notes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Obtenir un résultat décimal et le formater.</p>
+    <div class="lab__brief"><p>Le programme reçoit trois notes entières, chacune sur une ligne. Affichez leur moyenne avec exactement deux décimales (point décimal), sans autre texte.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>12
+14
+16</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>14.00</pre></div>
+    </div>
+    <p class="lab__note">(12 + 14 + 16) / 3 = 14.00.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En PHP, la division de deux entiers avec / produit déjà un nombre décimal : pas de piège de division entière ici.</li>
+        <li>number_format formate un nombre : ses arguments fixent le nombre de décimales et les séparateurs.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c2-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="Bonjour">
+  <script type="text/plain" data-lab-starter><?php
+$mot = trim(fgets(STDIN));
+
+// À compléter : longueur puis version majuscule.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Inspecter une chaîne</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser les fonctions natives de chaîne.</p>
+    <div class="lab__brief"><p>Le programme reçoit un mot (sans espace). Affichez <code>Longueur : &lt;n&gt;</code> puis <code>Majuscules : &lt;MOT&gt;</code> (le mot converti en majuscules), chacun sur sa ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Bonjour</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Longueur : 7
+Majuscules : BONJOUR</pre></div>
+    </div>
+    <p class="lab__note">Sept caractères, copie en majuscules.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>strlen compte les caractères de la chaîne.</li>
+        <li>strtoupper renvoie une copie en majuscules : la variable d’origine n’est pas modifiée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c2-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="23&#10;6">
+  <script type="text/plain" data-lab-starter><?php
+$visiteurs = (int)trim(fgets(STDIN));
+$capacite = (int)trim(fgets(STDIN));
+
+// À compléter : nombre de trajets pleins et reste.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Remplir la cabine</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Découper une quantité avec division entière et modulo.</p>
+    <div class="lab__brief"><p>Le programme reçoit le nombre de visiteurs (entier), puis la capacité d’une cabine (entier). Affichez <code>Trajets : &lt;cabines pleines&gt;</code> puis <code>Reste : &lt;visiteurs non embarqués&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>23
+6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Trajets : 3
+Reste : 5</pre></div>
+    </div>
+    <p class="lab__note">3 cabines pleines (18 personnes), 5 en attente.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>intdiv donne le quotient entier d’une division : c’est le nombre de cabines remplies.</li>
+        <li>Le modulo % donne le reste : les visiteurs qui attendent le trajet suivant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que vaut <code>(int)"3.9"</code> ?</p>
+      <div class="opts">
+        <button class="opt">4</button>
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">3.9</button>
+      </div>
+      <div class="q__exp">Le cast en int tronque : seule la partie entière reste.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>10 / 4</code> en PHP ?</p>
+      <div class="opts">
+        <button class="opt">2 (division entière)</button>
+        <button class="opt" data-correct="1">2.5 (division décimale)</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">En PHP, / est décimale ; intdiv() fait la division entière.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>17 % 5</code> ?</p>
+      <div class="opts">
+        <button class="opt">3</button>
+        <button class="opt">3.4</button>
+        <button class="opt" data-correct="1">2</button>
+      </div>
+      <div class="q__exp">17 = 3 × 5 + 2 : le reste est 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment afficher une moyenne avec exactement deux décimales ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">number_format($m, 2, '.', '')</button>
+        <button class="opt">(int)$m</button>
+        <button class="opt">strlen($m)</button>
+      </div>
+      <div class="q__exp">Le format fixe le nombre de décimales et les séparateurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment concaténer "Total : " et la valeur de $t ?</p>
+      <div class="opts">
+        <button class="opt">"Total : " + $t</button>
+        <button class="opt" data-correct="1">"Total : " . $t</button>
+        <button class="opt">"Total : " &amp;&amp; $t</button>
+      </div>
+      <div class="q__exp">Le point est l'opérateur de concaténation PHP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie <code>strlen("bonjour")</code> ?</p>
+      <div class="opts">
+        <button class="opt">6</button>
+        <button class="opt" data-correct="1">7</button>
+        <button class="opt">8</button>
+      </div>
+      <div class="q__exp">Sept caractères, de b à r.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Calcul sur chaîne non convertie</strong> : toujours caster à la lecture.</li>
+      <li><strong>Confondre / et intdiv()</strong> : 10 / 4 vaut 2.5, pas 2.</li>
+      <li><strong>Format au mauvais endroit</strong> : number_format s'applique à l'affichage, pas au calcul.</li>
+      <li><strong>Ignorer le retour d'une fonction de chaîne</strong> : strtoupper($mot) seul ne change rien.</li>
+      <li><strong>explode avec le mauvais séparateur</strong> : vérifier l'espace exact de l'énoncé.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Calculer et afficher proprement</div>
+    <ol>
+      <li><strong>Convertir</strong> toutes les entrées numériques dès la lecture : (int) ou (float).</li>
+      <li><strong>Calculer</strong> avec le bon opérateur : intdiv pour partager, % pour le reste, / pour la moyenne.</li>
+      <li><strong>Formater</strong> à l'affichage : number_format pour les décimales.</li>
+      <li><strong>Assembler le message</strong> : interpolation simple, point autour des fonctions.</li>
+      <li><strong>Vérifier</strong> le format attendu caractère par caractère (espaces, points, sauts de ligne).</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Quatre types de base : int, float, string, bool — conversions par cast.</li>
+      <li>/ est décimal ; intdiv() et % donnent quotient entier et reste.</li>
+      <li>number_format fixe décimales et séparateurs au moment d'afficher.</li>
+      <li>Le point concatène ; les fonctions de chaîne renvoient des copies.</li>
+      <li>fgets renvoie une chaîne : convertir avant de calculer.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je convertis mes entrées au bon type sans y penser.</li>
+      <li>Je choisis entre /, intdiv et % selon le besoin.</li>
+      <li>Je formate une moyenne à deux décimales.</li>
+      <li>Je me sers du socle de fonctions de chaîne de mémoire.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>int / float / string / bool</li><li>cast (int)</li><li>intdiv</li><li>modulo %</li>
+      <li>number_format</li><li>concaténation .</li><li>strlen</li><li>explode / implode</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le tableau des opérateurs à la main.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 2-3 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible intdiv vs / et le format.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 3, les conditions.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 1</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Conditions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (Cours-PHP-PDO, CoursPHP, TP1) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

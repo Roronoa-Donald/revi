@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Haute Disponibilité (CARP/pfsync) &amp;amp; Détection d’Intrusion (Snort/Suricata) | pfSense &amp; Routage B3</title>
+<meta name="description" content="Chapitre 6 du cours pfSense &amp; Routage B3 : Cluster actif/passif CARP (VIP, advbase, advskew), synchronisation d’états pfsync, XMLRPC, détection d’intrusion Snort/Suricata et blocage dynamique snort2c. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-pfsense/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Haute Disponibilité (CARP/pfsync) &amp;amp; Détection d’Intrusion (Snort/Suricata) | pfSense &amp; Routage B3">
+<meta property="og:description" content="Chapitre 6 du cours pfSense &amp; Routage B3 : Cluster actif/passif CARP (VIP, advbase, advskew), synchronisation d’états pfsync, XMLRPC, détection d’intrusion Snort/Suricata et blocage dynamique snort2c. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-pfsensenav"><div class="b3-pfsensenav__in">
+  <a class="b3-pfsensenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-pfsensenav__sep" aria-hidden="true">/</span>
+  <a class="b3-pfsensenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> pfSense &amp; Routage B3</a>
+  <div class="b3-pfsensenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-pfsensenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-pfsensewrap">
+<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Haute Disponibilité (CARP/pfsync) &amp; Détection d’Intrusion (Snort/Suricata)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les environnements critiques (hôpitaux, banques, industries, datacenters), la défaillance matérielle d’un pare-feu unique paralyse instantanément l’ensemble de l’activité économique de l’entreprise. Pour garantir un temps de disponibilité de 99,999 % (cinq 9), pfSense met en œuvre un cluster de haute disponibilité (HA) actif/passif s’appuyant sur le protocole CARP (Common Address Redundancy Protocol) et la synchronisation en temps réel de la table d’états par pfsync. Parallèlement, pour faire face aux menaces avancées et aux attaques par déni de service, le pare-feu s’arme de modules IDS/IPS (Snort ou Suricata) capables d’analyser les signatures de paquets en temps réel et de bloquer automatiquement les attaquants via l’injection dynamique dans les tables du noyau.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’architecture de haute disponibilité (HA) et les exigences matérielles d’un cluster pfSense redondant ;</li>
+      <li>analyser le protocole CARP, le rôle des adresses IP virtuelles (VIPs) et l’élection du Master via advbase et advskew ;</li>
+      <li>configurer la synchronisation temps réel de la table d’états avec pfsync sur un lien dédié de heartbeat ;</li>
+      <li>déployer la synchronisation de configuration XMLRPC (config.xml) entre le nœud primaire et secondaire ;</li>
+      <li>installer et administrer les packages de détection et prévention d’intrusion (Snort ou Suricata) ;</li>
+      <li>développer en Python 3 des simulateurs d’élection CARP, des parseurs d’alertes IDS/IPS et des auditeurs de synchronisation pfsync/XMLRPC.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture de Clustering Actif/Passif : Protocole CARP &amp; Élection du Maître</h2>
+
+<p>Le protocole <strong>CARP (Common Address Redundancy Protocol)</strong> est une alternative libre et ouverte à VRRP et HSRP, conçue par l’équipe OpenBSD pour éliminer les brevets restrictifs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Principes de Fonctionnement de CARP</h4>
+    <ul>
+      <li><strong>Adresse IP Virtuelle (VIP CARP) :</strong> Une adresse IP unique et partagée portée par l’interface réseau (ex: <code>192.168.1.254</code>). Les postes clients utilisent cette VIP comme passerelle par défaut.</li>
+      <li><strong>VHID (Virtual Host ID) :</strong> Identifiant numérique de groupe (de 1 à 255) associé à une adresse MAC virtuelle standardisée : <code>00:00:5e:00:01:&lt;VHID_HEX&gt;</code>.</li>
+      <li><strong>Annonces CARP :</strong> Diffusées en multicast (adresse IP <code>224.0.0.18</code>, protocole IP 112) pour signaler l’état de santé des nœuds.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Algorithme d’Élection et Formule advskew</h4>
+    <p>L’intervalle d’émission des annonces de chaque nœud est défini par :</p>
+    <pre><code>Intervalle = advbase + (advskew / 256.0)</code></pre>
+    <ul>
+      <li><code>advbase</code> : base temporelle en secondes (valeur par défaut : <code>1</code>).</li>
+      <li><code>advskew</code> : valeur de décalage comprise entre <code>0</code> et <code>254</code>.</li>
+      <li><strong>Règle d’élection :</strong> Le nœud diffusant au rythme le plus rapide (plus petit <code>advskew</code>, typiquement <code>0</code> sur le Primaire et <code>100</code> sur le Secondaire) devient le <strong>MASTER</strong>.</li>
+      <li>Si le Master disparaît pendant 3 intervalles consécutifs, le Backup prend le relais instantanément et émet un Gratuitous ARP (GARP).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Continuité de Service Sans Coupure : pfsync &amp; Réplication XMLRPC</h2>
+
+<p>Un simple basculement d’adresse IP (CARP) ne suffit pas : dans un pare-feu à état standard, toutes les connexions TCP actives (téléchargements, sessions SSH, flux VoIP) seraient réinitialisées (RST) après le failover car le pare-feu de secours n’en aurait pas connaissance. pfSense résout ce défi grâce à deux modules couplés :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. pfsync : Réplication d’États en Temps Réel</h4>
+    <p>Le protocole <strong>pfsync</strong> (protocole IP 240) transmet immédiatement toute création, modification ou clôture d’état de connexion du pare-feu Primaire vers le Secondaire :</p>
+    <ul>
+      <li><strong>Lien Dédié (Sync Interface) :</strong> Pour des raisons de performance et de sécurité, pfsync doit impérativement transiter sur un câble réseau physique direct ou un VLAN isolé non routable.</li>
+      <li><strong>Bénéfice :</strong> Au moment exact où le Secondaire devient MASTER, sa table d’états locale est déjà parfaitement identique à celle du Primaire. Le basculement est 100 % transparent et indolore pour les utilisateurs finaux (aucune coupure de session).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. XMLRPC Sync : Clonage Automatisé de Configuration</h4>
+    <p>Pour éviter la fastidieuse double saisie des règles :</p>
+    <ul>
+      <li>Toute modification opérée sur le pare-feu Primaire (création d’une règle, d’un alias, d’un tunnel VPN) est transmise au Secondaire par un appel chiffré <strong>XMLRPC</strong> (port 443 sur l’interface Sync).</li>
+      <li>Le Secondaire recharge immédiatement son fichier de règles sans intervention humaine.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Détection &amp; Prévention d’Intrusion Réseau : Snort, Suricata &amp; Table snort2c</h2>
+
+<p>Pour compléter le filtrage réseau de couche 3/4 par une inspection en profondeur des paquets applicatifs (DPI - Deep Packet Inspection de couche 7), pfSense propose l’intégration des moteurs <strong>Snort</strong> ou <strong>Suricata</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Moteurs IDS vs IPS</h4>
+    <ul>
+      <li><strong>Mode IDS (Intrusion Detection System) :</strong> La sonde inspecte les flux en copie miroir et se contente de consigner les alertes dans les journaux système sans bloquer le trafic.</li>
+      <li><strong>Mode IPS (Intrusion Prevention System) :</strong> Lorsque l’option <em>Block offenders</em> est activée, toute violation de signature critique (Priorité 1) provoque le blocage immédiat et temporaire de l’adresse IP de l’attaquant.</li>
+      <li><strong>Flux de règles :</strong> Téléchargement automatisé des jeux de règles Snort VRT, Emerging Threats (ET Open/Pro) et Snort Community.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. La Table pf snort2c &amp; Pass Lists</h4>
+    <p>Lors d’un blocage automatique, le démon IDS injecte directement l’adresse IP incriminée dans une table noyau pf spéciale nommée <code>snort2c</code> (consultable via <code>pfctl -t snort2c -T show</code>).</p>
+    <p><strong>Configuration vitale de la Pass List (Liste Blanche) :</strong> Pour empêcher un déni de service causé par une usurpation d’adresse IP (IP Spoofing), la passerelle par défaut, les serveurs DNS internes et les postes d’administration doivent impérativement être ajoutés à la liste blanche pour ne jamais être insérés dans <code>snort2c</code>.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="pf3-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CARP_NODE name=fw01 vhid=1 advbase=1 advskew=0 alive=YES&#10;CARP_NODE name=fw02 vhid=1 advbase=1 advskew=100 alive=YES&#10;CARP_NODE name=fw01_dmz vhid=2 advbase=1 advskew=0 alive=NO&#10;CARP_NODE name=fw02_dmz vhid=2 advbase=1 advskew=100 alive=YES">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c6-e1) — Simulateur d'élection de maître CARP (Common Address Redundancy Protocol)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cluster à 3 nœuds avec départage alphabétique sur égalité advskew]
+# Données : CARP_NODE name=node-b vhid=10 advbase=1 advskew=50 alive=YES
+# Données : CARP_NODE name=node-a vhid=10 advbase=1 advskew=50 alive=YES
+# Données : CARP_NODE name=node-c vhid=10 advbase=1 advskew=100 alive=YES
+A_COMPLETER
+
+[Cas 2 — Tous les nœuds d'un VHID sont hors service]
+# Données : CARP_NODE name=srv1 vhid=5 advbase=2 advskew=0 alive=NO
+# Données : CARP_NODE name=srv2 vhid=5 advbase=2 advskew=10 alive=NO
+A_COMPLETER
+
+[Cas 3 — Plusieurs groupes VHID distincts]
+# Données : CARP_NODE name=wan_pri vhid=1 advbase=1 advskew=0 alive=YES
+# Données : CARP_NODE name=lan_sec vhid=2 advbase=1 advskew=100 alive=YES
+# Données : CARP_NODE name=lan_pri vhid=2 advbase=1 advskew=0 alive=YES
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur d'élection de maître CARP (Common Address Redundancy Protocol)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'élection du pare-feu MASTER dans un cluster pfSense en comparant les paramètres advskew CARP.</p>
+    <div class="lab__brief"><p>Le protocole <strong>CARP (Common Address Redundancy Protocol)</strong> sous FreeBSD/pfSense permet à deux pare-feux de partager une adresse IP virtuelle (VIP) liée à un identifiant virtuel (VHID). Chaque nœud diffuse des annonces périodiques calculées par :<br>
+<code>intervalle = advbase + (advskew / 256.0)</code> (en secondes).<br>
+Le nœud opérationnel ayant le plus petit <code>advskew</code> transmet ses annonces le plus rapidement et devient le <strong>MASTER</strong>. Les autres deviennent <strong>BACKUP</strong>.<br><br>
+Analysez les paramètres du problème pour chaque cas. Si <code>alive == 'NO'</code> : le nœud est hors service :<br>
+   <code>role=INIT_DOWN</code>.<br>
+2. Parmi les nœuds actifs (<code>alive == 'YES'</code>) pour un VHID donné :<br>
+   - Le nœud ayant la plus petite valeur d'<code>advskew</code> (en cas d'égalité, le premier dans l'ordre alphabétique du nom) est élu <code>role=MASTER</code>.<br>
+   - Tous les autres nœuds actifs de ce VHID prennent le rôle <code>role=BACKUP</code>.<br>
+3. Calcul de l'intervalle d'annonce pour chaque nœud :<br>
+   <code>interval = advbase + (advskew / 256.0)</code> formaté à 3 décimales (ex: <code>1.000s</code>).<br><br>
+Afficher les résultats triés par <code>vhid</code> croissant, puis par <code>name</code> alphabétique :<br>
+<code>CARP_ELECTION vhid={vhid} node={name} role={role} advskew={advskew} interval={interval:.3f}s</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CARP_NODE name=fw01 vhid=1 advbase=1 advskew=0 alive=YES
+CARP_NODE name=fw02 vhid=1 advbase=1 advskew=100 alive=YES
+CARP_NODE name=fw01_dmz vhid=2 advbase=1 advskew=0 alive=NO
+CARP_NODE name=fw02_dmz vhid=2 advbase=1 advskew=100 alive=YES</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CARP_ELECTION vhid=1 node=fw01 role=MASTER advskew=0 interval=1.000s
+CARP_ELECTION vhid=1 node=fw02 role=BACKUP advskew=100 interval=1.391s
+CARP_ELECTION vhid=2 node=fw01_dmz role=INIT_DOWN advskew=0 interval=1.000s
+CARP_ELECTION vhid=2 node=fw02_dmz role=MASTER advskew=100 interval=1.391s</pre></div>
+    </div>
+    <p class="lab__note">Pour VHID 1, fw01 (advskew 0) est MASTER. Pour VHID 2, fw01_dmz est DOWN donc fw02_dmz devient MASTER.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Regrouper les nœuds par vhid dans un dictionnaire.</li>
+        <li>Pour chaque vhid, identifier le nœud actif avec le minimum advskew.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="WHITELIST ips=192.168.1.1,192.168.1.254&#10;SNORT_ALERT sid=2001001 priority=1 src_ip=203.0.113.88 dst_ip=192.168.1.50 msg=ET_EXPLOIT_Buffer_Overflow&#10;SNORT_ALERT sid=2002002 priority=1 src_ip=192.168.1.1 dst_ip=192.168.1.50 msg=ET_DNS_High_Volume&#10;SNORT_ALERT sid=2003003 priority=2 src_ip=198.51.100.12 dst_ip=192.168.1.50 msg=ET_SCAN_Nmap_SYN&#10;SNORT_ALERT sid=2004004 priority=3 src_ip=198.51.100.15 dst_ip=192.168.1.50 msg=ET_INFO_ICMP_Ping">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c6-e2) — Parseur d'alertes IDS/IPS Snort/Suricata et blocage IP dynamique
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Alerte critique bloquée sans whitelist déclarée]
+# Données : WHITELIST ips=NONE
+# Données : SNORT_ALERT sid=2100001 priority=1 src_ip=45.33.32.156 dst_ip=10.0.0.1 msg=MALWARE_CnC_Beacon
+A_COMPLETER
+
+[Cas 2 — Scans répétés de priorité 2 avec journalisation seule]
+# Données : WHITELIST ips=NONE
+# Données : SNORT_ALERT sid=2200001 priority=2 src_ip=185.220.101.5 dst_ip=10.0.0.2 msg=SCAN_PORT_80
+# Données : SNORT_ALERT sid=2200002 priority=2 src_ip=185.220.101.5 dst_ip=10.0.0.2 msg=SCAN_PORT_443
+A_COMPLETER
+
+[Cas 3 — Hôte autorisé en liste blanche déclenchant priorité 2]
+# Données : WHITELIST ips=10.0.0.254
+# Données : SNORT_ALERT sid=2300001 priority=2 src_ip=10.0.0.254 dst_ip=10.0.0.10 msg=POLICY_INTERNAL_SCAN
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Parseur d'alertes IDS/IPS Snort/Suricata et blocage IP dynamique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les alertes remontées par Snort dans pfSense et alimenter la table de blocage snort2c.</p>
+    <div class="lab__brief"><p>Le module IDS/IPS (Snort ou Suricata) sur pfSense inspecte le trafic réseau en temps réel. Lorsque l'option de blocage automatique est activée, les adresses IP sources d'attaques à haute sévérité (Priorité 1) sont insérées dynamiquement dans la table de filtrage pf <code>snort2c</code> (DROP immédiat), sauf si l'adresse figure dans la liste blanche (Pass List / Whitelist).<br><br>
+Analysez les paramètres du problème pour chaque cas.) :<br>
+  <code>WHITELIST ips=&lt;ip1,ip2,...|NONE&gt;</code><br>
+- Les alertes Snort générées :<br>
+  <code>SNORT_ALERT sid=&lt;int&gt; priority=&lt;1|2|3&gt; src_ip=&lt;ip&gt; dst_ip=&lt;ip&gt; msg=&lt;message_sans_espaces&gt;</code><br><br>
+Règles de réaction du moteur IPS :<br>
+1. Si <code>src_ip</code> est présente dans la <code>WHITELIST</code> :<br>
+   <code>action=WHITELIST_PASS action_type=BYPASS detail=PROTECTED_HOST</code>.<br>
+2. Sinon, selon le niveau de priorité de l'alerte :<br>
+   - <strong>Priorité 1 (Critique / Attaque active) :</strong><br>
+     <code>action=BLOCK_IP action_type=PF_SNORT2C detail=DROP_TRAFFIC</code>.<br>
+   - <strong>Priorité 2 (Moyenne / Scan ou violation de politique) :</strong><br>
+     <code>action=LOG_ONLY action_type=SURVEILLANCE detail=ALERT_RECORDED</code>.<br>
+   - <strong>Priorité 3 (Faible / Info réseau) :</strong><br>
+     <code>action=IGNORE action_type=PASS detail=NO_ACTION</code>.<br><br>
+Pour chaque alerte, afficher :<br>
+<code>IPS_REPORT sid={sid} priority={priority} src={src_ip} action={action} type={action_type} detail={detail}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>WHITELIST ips=192.168.1.1,192.168.1.254
+SNORT_ALERT sid=2001001 priority=1 src_ip=203.0.113.88 dst_ip=192.168.1.50 msg=ET_EXPLOIT_Buffer_Overflow
+SNORT_ALERT sid=2002002 priority=1 src_ip=192.168.1.1 dst_ip=192.168.1.50 msg=ET_DNS_High_Volume
+SNORT_ALERT sid=2003003 priority=2 src_ip=198.51.100.12 dst_ip=192.168.1.50 msg=ET_SCAN_Nmap_SYN
+SNORT_ALERT sid=2004004 priority=3 src_ip=198.51.100.15 dst_ip=192.168.1.50 msg=ET_INFO_ICMP_Ping</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IPS_REPORT sid=2001001 priority=1 src=203.0.113.88 action=BLOCK_IP type=PF_SNORT2C detail=DROP_TRAFFIC
+IPS_REPORT sid=2002002 priority=1 src=192.168.1.1 action=WHITELIST_PASS type=BYPASS detail=PROTECTED_HOST
+IPS_REPORT sid=2003003 priority=2 src=198.51.100.12 action=LOG_ONLY type=SURVEILLANCE detail=ALERT_RECORDED
+IPS_REPORT sid=2004004 priority=3 src=198.51.100.15 action=IGNORE type=PASS detail=NO_ACTION</pre></div>
+    </div>
+    <p class="lab__note">L'attaque critique externe est bloquée dans snort2c ; le routeur interne whitelisté est préservé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un set pour la WHITELIST.</li>
+        <li>Vérifier d'abord si src_ip est whitelistée avant d'évaluer la priorité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="STATE_PRI id=S1 proto=tcp endpoints=10.0.0.5:443-&gt;1.1.1.1:443 state=ESTABLISHED&#10;STATE_PRI id=S2 proto=tcp endpoints=10.0.0.6:80-&gt;2.2.2.2:80 state=ESTABLISHED&#10;STATE_PRI id=S3 proto=tcp endpoints=10.0.0.7:22-&gt;3.3.3.3:22 state=FIN_WAIT&#10;STATE_SEC id=S1 proto=tcp endpoints=10.0.0.5:443-&gt;1.1.1.1:443 state=ESTABLISHED&#10;STATE_SEC id=S3 proto=tcp endpoints=10.0.0.7:22-&gt;3.3.3.3:22 state=ESTABLISHED&#10;CONFIG_SECTION name=filter pri_hash=a1b2 sec_hash=a1b2&#10;CONFIG_SECTION name=nat pri_hash=c3d4 sec_hash=e5f6">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c6-e3) — Auditeur de synchronisation d'états pfsync et dérive de configuration XMLRPC
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cluster parfaitement synchronisé sans dérive]
+# Données : STATE_PRI id=S10 proto=udp endpoints=192.168.1.10:53->8.8.8.8:53 state=ESTABLISHED
+# Données : STATE_SEC id=S10 proto=udp endpoints=192.168.1.10:53->8.8.8.8:53 state=ESTABLISHED
+# Données : CONFIG_SECTION name=aliases pri_hash=ff00 sec_hash=ff00
+A_COMPLETER
+
+[Cas 2 — Dérive globale de configuration XMLRPC sur plusieurs sections]
+# Données : CONFIG_SECTION name=system pri_hash=1111 sec_hash=2222
+# Données : CONFIG_SECTION name=openvpn pri_hash=3333 sec_hash=4444
+A_COMPLETER
+
+[Cas 3 — États manquants multiples sur le secondaire]
+# Données : STATE_PRI id=A1 proto=tcp endpoints=1.1.1.1->2.2.2.2 state=ESTABLISHED
+# Données : STATE_PRI id=A2 proto=tcp endpoints=1.1.1.1->3.3.3.3 state=SYN_SENT
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Auditeur de synchronisation d'états pfsync et dérive de configuration XMLRPC</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôler la cohérence de la table d'états pfsync et détecter la dérive de configuration XMLRPC entre nœuds HA.</p>
+    <div class="lab__brief"><p>Dans une architecture de haute disponibilité pfSense (HA), deux mécanismes garantissent la continuité de service sans coupure :<br>
+- <strong>pfsync :</strong> réplique les sessions réseau de la table d'états du pare-feu primaire vers le secondaire.<br>
+- <strong>XMLRPC Sync :</strong> synchronise les sections de configuration (<code>config.xml</code>) du primaire vers le secondaire.<br><br>
+Analysez les paramètres du problème pour chaque cas. <strong>Synchronisation pfsync (pour chaque état présent sur le primaire) :</strong><br>
+   - Si l'ID d'état est absent du secondaire :<br>
+     <code>status=OUT_OF_SYNC issue=MISSING_ON_SECONDARY action=RESYNC_STATE</code><br>
+   - Si l'ID est présent mais avec un <code>state</code> différent :<br>
+     <code>status=OUT_OF_SYNC issue=STATE_MISMATCH action=UPDATE_STATE</code><br>
+   - Si l'ID et l'état sont identiques :<br>
+     <code>status=SYNC_OK issue=NONE action=NONE</code><br>
+   Afficher les états du primaire triés par <code>id</code> :<br>
+   <code>PFSYNC_AUDIT id={id} status={status} issue={issue} action={action}</code><br><br>
+2. <strong>Synchronisation XMLRPC (pour chaque section de configuration) :</strong><br>
+   - Si <code>pri_hash == sec_hash</code> :<br>
+     <code>status=IN_SYNC action=NONE</code><br>
+   - Si <code>pri_hash != sec_hash</code> :<br>
+     <code>status=CONFIG_DRIFT action=TRIGGER_XMLRPC_SYNC</code><br>
+   Afficher les sections triées par <code>name</code> :<br>
+   <code>XMLRPC_AUDIT section={name} status={status} action={action}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STATE_PRI id=S1 proto=tcp endpoints=10.0.0.5:443-&gt;1.1.1.1:443 state=ESTABLISHED
+STATE_PRI id=S2 proto=tcp endpoints=10.0.0.6:80-&gt;2.2.2.2:80 state=ESTABLISHED
+STATE_PRI id=S3 proto=tcp endpoints=10.0.0.7:22-&gt;3.3.3.3:22 state=FIN_WAIT
+STATE_SEC id=S1 proto=tcp endpoints=10.0.0.5:443-&gt;1.1.1.1:443 state=ESTABLISHED
+STATE_SEC id=S3 proto=tcp endpoints=10.0.0.7:22-&gt;3.3.3.3:22 state=ESTABLISHED
+CONFIG_SECTION name=filter pri_hash=a1b2 sec_hash=a1b2
+CONFIG_SECTION name=nat pri_hash=c3d4 sec_hash=e5f6</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PFSYNC_AUDIT id=S1 status=SYNC_OK issue=NONE action=NONE
+PFSYNC_AUDIT id=S2 status=OUT_OF_SYNC issue=MISSING_ON_SECONDARY action=RESYNC_STATE
+PFSYNC_AUDIT id=S3 status=OUT_OF_SYNC issue=STATE_MISMATCH action=UPDATE_STATE
+XMLRPC_AUDIT section=filter status=IN_SYNC action=NONE
+XMLRPC_AUDIT section=nat status=CONFIG_DRIFT action=TRIGGER_XMLRPC_SYNC</pre></div>
+    </div>
+    <p class="lab__note">S1 est synchronisé ; S2 est manquant sur le secours ; S3 a un état désynchronisé (FIN_WAIT vs ESTABLISHED) ; la section nat présente une dérive de configuration.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparer les clés du primaire avec celles du secondaire.</li>
+        <li>Trier les sorties pfsync par id, et XMLRPC par name.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel protocole réseau ouvert est utilisé par pfSense pour partager une adresse IP virtuelle (VIP) en haute disponibilité ?</p>
+      <div class="opts">
+        <button class="opt">HSRP (Hot Standby Router Protocol)</button>
+        <button class="opt" data-correct="1">CARP (Common Address Redundancy Protocol)</button>
+        <button class="opt">VRRP propriétaire</button>
+        <button class="opt">OSPF</button>
+      </div>
+      <div class="q__exp">CARP est le standard libre développé sous BSD pour assurer la redondance d’adresses IP entre pare-feux sans brevets propriétaires.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la formule d’annonce CARP (advbase + advskew / 256), quel nœud est élu MASTER du cluster ?</p>
+      <div class="opts">
+        <button class="opt">Le nœud ayant le plus grand advskew</button>
+        <button class="opt" data-correct="1">Le nœud ayant le plus petit advskew (annonce la plus rapide)</button>
+        <button class="opt">Le nœud ayant la plus grande quantité de mémoire vive</button>
+        <button class="opt">Le nœud désigné aléatoirement par le commutateur</button>
+      </div>
+      <div class="q__exp">Le nœud émettant au rythme le plus rapide (plus petite valeur d’advskew, typiquement 0) s’impose comme Master auprès des autres.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole BSD est responsable de répliquer les sessions de la table d’états entre pare-feux en temps réel ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">pfsync</button>
+        <button class="opt">rsync</button>
+        <button class="opt">syslog</button>
+        <button class="opt">CARP</button>
+      </div>
+      <div class="q__exp">pfsync synchronise les entrées de la State Table du noyau entre les deux pare-feux pour garantir un basculement sans rupture de session.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment la synchronisation des règles et de la configuration s’opère-t-elle entre le nœud primaire et secondaire ?</p>
+      <div class="opts">
+        <button class="opt">Par transfert FTP non chiffré</button>
+        <button class="opt" data-correct="1">Via des appels chiffrés XMLRPC sur l’interface dédiée</button>
+        <button class="opt">Par copier-coller manuel obligatoire</button>
+        <button class="opt">Via une base de données MySQL partagée</button>
+      </div>
+      <div class="q__exp">XMLRPC Sync synchronise le fichier config.xml du pare-feu primaire vers le pare-feu secondaire lors de toute modification.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle table de filtrage du noyau pf les adresses IP bloquées par Snort ou Suricata sont-elles insérées dynamiquement ?</p>
+      <div class="opts">
+        <button class="opt">blocked_ips</button>
+        <button class="opt" data-correct="1">snort2c</button>
+        <button class="opt">bogons</button>
+        <button class="opt">drop_table</button>
+      </div>
+      <div class="q__exp">La table système pf snort2c stocke dynamiquement les adresses IP d’attaquants identifiées par l’IDS/IPS pour appliquer un DROP immédiat.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il indispensable de configurer une Pass List (liste blanche) sur le module IDS/IPS Snort ?</p>
+      <div class="opts">
+        <button class="opt">Pour accélérer la connexion Internet</button>
+        <button class="opt" data-correct="1">Pour empêcher le blocage accidentel des passerelles et serveurs DNS internes en cas d’usurpation d’adresse IP</button>
+        <button class="opt">Pour contourner les limites de licence Snort</button>
+        <button class="opt">Pour autoriser le téléchargement de vidéos</button>
+      </div>
+      <div class="q__exp">Sans Pass List, un pirate pourrait forger des paquets malveillants avec l’adresse IP du routeur ou du DNS interne pour forcer pfSense à bloquer ses propres infrastructures clés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole de transport réseau et quelle adresse multicast sont utilisés par les annonces CARP ?</p>
+      <div class="opts">
+        <button class="opt">TCP sur port 443</button>
+        <button class="opt" data-correct="1">Protocole IP 112 sur l’adresse multicast 224.0.0.18</button>
+        <button class="opt">UDP port 53</button>
+        <button class="opt">ICMP Echo Request</button>
+      </div>
+      <div class="q__exp">CARP utilise le protocole IP numéro 112 et diffuse ses annonces sur l’adresse multicast IPv4 réservée 224.0.0.18.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande CLI permet de vérifier le contenu de la table de blocage snort2c sous pfSense ?</p>
+      <div class="opts">
+        <button class="opt">pfctl -s rules</button>
+        <button class="opt" data-correct="1">pfctl -t snort2c -T show</button>
+        <button class="opt">cat /var/log/snort.log</button>
+        <button class="opt">ifconfig carp0</button>
+      </div>
+      <div class="q__exp">La commande pfctl -t snort2c -T show affiche la liste des adresses IP actuellement verrouillées dans la table noyau snort2c.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Faire transiter le trafic pfsync sur le réseau LAN utilisateur sans chiffrement ni isolation physique.</li>
+      <li>Attribuer le même VHID à deux interfaces différentes sur le même domaine de diffusion.</li>
+      <li>Activer le blocage automatique dans Snort sans avoir configuré au préalable la Pass List.</li>
+      <li>Oublier d’aligner les interfaces réseau physiques ou virtIO entre les deux machines du cluster.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Réserver un lien physique dédié et non routable pour l’interface de synchronisation (Sync Interface) entre les nœuds.</li>
+      <li>Étape 2 : Configurer les adresses IP Virtuelles (VIPs) de type CARP sur chaque interface (WAN, LAN, DMZ) avec un VHID unique.</li>
+      <li>Étape 3 : Ajuster les paramètres advbase=1 et advskew (0 sur le Primaire, 100 sur le Secondaire) pour valider l’élection.</li>
+      <li>Étape 4 : Activer pfsync sur l’interface Sync pour répliquer la table d’états en continu (IP 240).</li>
+      <li>Étape 5 : Activer la synchronisation de configuration XMLRPC sur le Primaire pour répliquer automatiquement config.xml.</li>
+      <li>Étape 6 : Installer Snort ou Suricata, configurer les flux de règles et renseigner rigoureusement la Pass List avant d’activer le blocage.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le protocole CARP partage une IP virtuelle (VIP) et une adresse MAC virtuelle standardisée entre deux nœuds.</li>
+      <li>L’élection CARP repose sur le décalage advskew : le plus petit intervalle (advskew 0) définit le MASTER actif.</li>
+      <li>pfsync réplique instantanément toutes les sessions de la table d’états pour garantir un basculement sans coupure.</li>
+      <li>XMLRPC Sync propage automatiquement toute modification de configuration du pare-feu Primaire vers le Secondaire.</li>
+      <li>Snort/Suricata inspectent les flux en DPI et injectent dynamiquement les IP malveillantes dans la table noyau snort2c.</li>
+      <li>La Pass List est une sécurité vitale protégeant les passerelles et infrastructures clés contre les faux positifs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends le rôle des paramètres advbase et advskew dans l’élection du Master CARP.</li>
+      <li>Je sais expliquer pourquoi pfsync élimine les coupures de téléchargement lors d’un basculement de pare-feu.</li>
+      <li>Je sais configurer la réplication de configuration XMLRPC.</li>
+      <li>Je connais la différence de posture entre un mode IDS (alerte seule) et IPS (blocage actif).</li>
+      <li>Je sais afficher le contenu de la table de blocage avec pfctl -t snort2c -T show.</li>
+      <li>Je comprends le danger d’un déni de service auto-infligé en l’absence de Pass List Snort.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Clustering Actif / Passif Haute Disponibilité</li><li>Protocole CARP & Adresses IP Virtuelles (VIP)</li><li>Identifiant VHID & MAC Virtuelle</li><li>Paramètres advbase & advskew</li><li>Protocole de Synchronisation d’États pfsync</li><li>Clonage de Configuration XMLRPC</li><li>Moteurs IDS / IPS Snort & Suricata</li><li>Table pf snort2c & Pass List (Liste Blanche)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à appréhender le calcul des intervalles advskew ou méconnaissance du rôle conjoint de CARP et pfsync.</div>
+      <div class="bandrow bandrow--medium">Configuration opérationnelle d’un cluster de haute disponibilité CARP, réplication pfsync et surveillance des alertes Snort.</div>
+      <div class="bandrow bandrow--high">Architecture de résilience critique à tolérance de panne totale, tuning fin des seuils CARP/pfsync et orchestration IPS avec Pass Lists.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Netgate pfSense, Architecture FreeBSD Packet Filter (pf), RFC 5798 (CARP/VRRP), RFC 7296 (IKEv2) et Guides de durcissement ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

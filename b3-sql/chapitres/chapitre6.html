@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Partitionnement Déclaratif, Réplication WAL &amp;amp; Haute Disponibilité (HA) | SQL Avancé B3</title>
+<meta name="description" content="Chapitre 6 du cours SQL Avancé B3 : Partitionnement déclaratif horizontal (Range, List, Hash), routage automatique des tuples, élagage de partitions (Partition Pruning statique et à l’exécution), architecture Write-Ahead Logging (WAL) et checkpoints, réplication physique en streaming synchrone et asynchrone, calcul de retard de réplication (LSN lag), et basculement haute disponibilité (Failover Patroni / repmgr). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-sql/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Partitionnement Déclaratif, Réplication WAL &amp;amp; Haute Disponibilité (HA) | SQL Avancé B3">
+<meta property="og:description" content="Chapitre 6 du cours SQL Avancé B3 : Partitionnement déclaratif horizontal (Range, List, Hash), routage automatique des tuples, élagage de partitions (Partition Pruning statique et à l’exécution), architecture Write-Ahead Logging (WAL) et checkpoints, réplication physique en streaming synchrone et asynchrone, calcul de retard de réplication (LSN lag), et basculement haute disponibilité (Failover Patroni / repmgr). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-sqlnav"><div class="b3-sqlnav__in">
+  <a class="b3-sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-sqlnav__sep" aria-hidden="true">/</span>
+  <a class="b3-sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL Avancé B3</a>
+  <div class="b3-sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-sqlwrap">
+<p class="crumb"><a href="../index.html">SQL Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Partitionnement Déclaratif, Réplication WAL &amp; Haute Disponibilité (HA)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lorsqu’une table de base de données dépasse plusieurs dizaines ou centaines de millions de lignes et plusieurs téraoctets de données, les opérations d’indexation, de maintenance VACUUM et les scans séquentiels deviennent prohibitivement lents. En parallèle, les exigences de production imposent une disponibilité continue (99.99 %) et une tolérance totale aux pannes matérielles. Pour relever ce défi, PostgreSQL combine le partitionnement horizontal déclaratif — permettant de découper une table mère logique en partitions physiques autonomes et d’ignorer les segments non pertinents grâce au Partition Pruning — et le mécanisme de réplication physique en streaming basé sur le journal des transactions WAL (Write-Ahead Log). L’ingénieur de données doit maîtriser les stratégies de partitionnement (Range, List, Hash), le monitoring précis du lag LSN entre primaire et standby, et les compromis de consistance ACID en réplication synchrone versus asynchrone.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>concevoir une architecture de partitionnement déclaratif horizontal (RANGE, LIST, HASH) avec table mère et sous-partitions ;</li>
+      <li>comprendre et activer l’élagage de partitions (Partition Pruning) au niveau de l’optimiseur CBO et au runtime ;</li>
+      <li>analyser la mécanique interne du journal des transactions WAL (Write-Ahead Logging) et le rôle des Checkpoints ;</li>
+      <li>différencier la réplication physique en streaming asynchrone (performance) et synchrone (zéro perte RPO=0) ;</li>
+      <li>calculer et auditer le retard de réplication (Replication Lag) à partir des Log Sequence Numbers (LSN en base 16) ;</li>
+      <li>développer en Python 3 des routeurs de partitionnement, des optimiseurs de pruning et des calculateurs de décalage WAL LSN.</li>
+    </ol>
+  </div>
+
+<h2>1. Partitionnement Déclaratif Horizontal & Partition Pruning</h2>
+
+<p>Depuis PostgreSQL 10+, le partitionnement déclaratif permet de diviser une table volumineuse en fragments physiques distincts tout en conservant une interface relationnelle unifiée pour les requêtes applicatives :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Trois Stratégies de Partitionnement</h4>
+    <ul>
+      <li><strong>RANGE (Intervalles) :</strong> Découpage par plages de valeurs continues (ex: par mois ou par an pour des données temporelles horodatées).</li>
+      <li><strong>LIST (Listes discrètes) :</strong> Découpage selon des valeurs discrètes explicites (ex: par pays ou par code devise).</li>
+      <li><strong>HASH (Hachage distribué) :</strong> Répartition pseudo-aléatoire et équilibrée à travers <code>N</code> compartiments selon une clé de hachage.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Syntaxe Déclarative Canonique</h4>
+    <pre><code>-- 1. Table mère partitionnée
+CREATE TABLE mesures_capteurs (
+    id BIGSERIAL,
+    date_mesure TIMESTAMPTZ NOT NULL,
+    valeur DOUBLE PRECISION
+) PARTITION BY RANGE (date_mesure);
+
+-- 2. Partitions filles physiques
+CREATE TABLE mesures_2024_01 PARTITION OF mesures_capteurs
+    FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+CREATE TABLE mesures_2024_02 PARTITION OF mesures_capteurs
+    FOR VALUES FROM ('2024-02-01') TO ('2024-03-01');
+CREATE TABLE mesures_defaut PARTITION OF mesures_capteurs DEFAULT;</code></pre>
+  </div>
+</div>
+<div class="card">
+  <h4>Le Graal de la Performance : Le Partition Pruning</h4>
+  <p>Lorsqu’une requête SQL contient une clause <code>WHERE</code> filtrant sur la clé de partitionnement (ex: <code>WHERE date_mesure >= '2024-02-01' AND date_mesure &lt; '2024-02-15'</code>), le moteur PostgreSQL active le <strong>Partition Pruning</strong>. L’optimiseur élimine immédiatement toutes les partitions non concernées dès la compilation du plan, sans jamais lire leurs index ni leurs blocs sur disque. Cela divise le temps d’I/O par le nombre de partitions ignorées !</p>
+</div>
+
+<h2>2. Architecture Write-Ahead Logging (WAL) & Checkpoints</h2>
+
+<p>Pour garantir la durabilité (le D de ACID) tout en maximisant le débit d’écriture, PostgreSQL utilise le principe fondamental du <strong>Write-Ahead Logging (WAL)</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Principe Fondamental du WAL</h4>
+    <ol>
+      <li>Toute modification physique d’un tuple est d’abord consignée séquentiellement dans le journal WAL avant d’être répercutée dans les pages de données du buffer pool.</li>
+      <li>L’écriture dans le WAL est strictement séquentielle (débit disque maximal, append-only).</li>
+      <li>Lors d’un <code>COMMIT</code>, seul le segment WAL nécessaire est synchronisé sur disque (<code>fsync</code>). Les blocs de données de table restent temporairement en mémoire (pages dites « sales » ou <em>dirty buffers</em>).</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Checkpoints & Reprise sur Panne (Crash Recovery)</h4>
+    <p>À intervalles réguliers (déclenchés par <code>checkpoint_timeout</code> ou <code>max_wal_size</code>), le processus d’arrière-plan <em>Checkpointer</em> synchronise l’intégralité des blocs sales de la RAM vers les fichiers de table sur disque.</p>
+    <p>En cas de coupure de courant ou de crash serveur, le moteur redémarre au dernier <em>checkpoint</em> réussi et rejoue (<em>REDO log</em>) les enregistrements WAL postérieurs pour restaurer une consistance parfaite en quelques secondes.</p>
+  </div>
+</div>
+
+<h2>3. Réplication en Streaming, Décalage LSN & Haute Disponibilité</h2>
+
+<p>La <strong>Streaming Replication</strong> physique permet de maintenir une ou plusieurs répliques miroirs (nœuds <em>Standby</em>) en transférant en continu les segments WAL émis par le nœud primaire :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Réplication Asynchrone vs Synchrone</h4>
+    <ul>
+      <li><strong>Asynchrone :</strong> Le primaire valide le commit dès que le WAL local est écrit. Débit maximal, mais risque de perte de données en cas de crash brutal du primaire (RPO &gt; 0).</li>
+      <li><strong>Synchrone :</strong> Le primaire attend la confirmation qu’au moins une réplique standby a reçu et écrit le WAL (<code>synchronous_commit = on</code>). Zéro perte de données (RPO = 0), mais latence réseau accrue sur chaque commit.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Log Sequence Number (LSN) & Lag de Réplication</h4>
+    <p>Chaque position dans le flux WAL est identifiée de manière unique par un entier 64-bit représenté en hexadécimal, le <strong>LSN</strong> (ex: <code>0/16B3800</code>). Deux métriques clés mesurent la santé du cluster :</p>
+    <ul>
+      <li><strong>Lag d’écriture (Write Lag) :</strong> <code>pg_wal_lsn_diff(pg_current_wal_lsn(), write_lsn)</code> (en octets).</li>
+      <li><strong>Lag d’application (Replay Lag) :</strong> <code>pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn)</code> mesurant les données reçues mais pas encore rejouées par la standby.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Orchestration Haute Disponibilité :</strong> En production, la gestion automatique du basculement (Failover) et de l’élection d’un nouveau primaire est déléguée à des orchestrateurs spécialisés comme <strong>Patroni</strong> (utilisant un consensus distribué Raft/Etcd) ou <strong>repmgr</strong>, garantissant une reprise de service sous 10 à 30 secondes.</div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sql3-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="STRATEGY type=RANGE col=annee&#10;PARTITION name=p_2023 from=2023 to=2024&#10;PARTITION name=p_2024 from=2024 to=2025&#10;PARTITION name=p_2025 from=2025 to=2026&#10;INSERT id=1 annee=2024&#10;INSERT id=2 annee=2025&#10;INSERT id=3 annee=2020">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e1) — Routeur de partitionnement déclaratif de table (Range & List)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Partitionnement par liste (LIST) géographique]
+# Données : STRATEGY type=LIST col=pays
+# Données : PARTITION name=p_europe values=FR,BE,DE,IT
+# Données : PARTITION name=p_amerique values=US,CA,MX
+# Données : INSERT id=10 pays=FR
+# Données : INSERT id=11 pays=JP
+A_COMPLETER
+
+[Cas 2 — Toutes les lignes routées avec succès dans un partitionnement par plage]
+# Données : STRATEGY type=RANGE col=mois
+# Données : PARTITION name=t1 from=1 to=4
+# Données : PARTITION name=t2 from=4 to=7
+# Données : INSERT id=101 mois=2
+# Données : INSERT id=102 mois=4
+# Données : INSERT id=103 mois=6
+A_COMPLETER
+
+[Cas 3 — Test de borne supérieure exclusive (valeur égale à to)]
+# Données : STRATEGY type=RANGE col=valeur
+# Données : PARTITION name=p_basse from=0 to=100
+# Données : INSERT id=1 valeur=100
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Routeur de partitionnement déclaratif de table (Range &amp; List)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Acheminer les insertions de données vers la partition physique appropriée selon la stratégie de partitionnement déclarative.</p>
+    <div class="lab__brief">Dans PostgreSQL (à partir de la version 10), le partitionnement déclaratif horizontal divise une grande table logique en sous-tables physiques indépendantes :
+- `RANGE` : la partition héberge un intervalle semi-ouvert $[\text{from}, \text{to}[$ (valeur $\ge \text{from}$ et $< \text{to}$).
+- `LIST` : la partition accepte un ensemble fini de valeurs littérales (ex: codes régions ou statuts).
+- Si aucune partition ne correspond et qu’aucune partition par défaut n’existe : l’insertion échoue avec `NO_PARTITION_FOUND`.
+
+Entrée :
+- Définition de la stratégie : `STRATEGY type=<RANGE|LIST> col=<col_name>`
+- Déclaration des partitions :
+  Pour RANGE : `PARTITION name=<p_name> from=<val> to=<val>`
+  Pour LIST : `PARTITION name=<p_name> values=<v1,v2,...>`
+- Insertions : `INSERT id=<row_id> <col_name>=<val>`
+
+Sortie :
+- Pour chaque insertion : `ROUTED row_id=<ID> val=<V> partition=<PART_NAME|NONE> status=<SUCCESS|ERROR_NO_PARTITION>`
+- Bilan : `ROUTER_SUMMARY total=<N> routed=<N> unrouted=<N>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STRATEGY type=RANGE col=annee
+PARTITION name=p_2023 from=2023 to=2024
+PARTITION name=p_2024 from=2024 to=2025
+PARTITION name=p_2025 from=2025 to=2026
+INSERT id=1 annee=2024
+INSERT id=2 annee=2025
+INSERT id=3 annee=2020</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTED row_id=1 val=2024 partition=p_2024 status=SUCCESS
+ROUTED row_id=2 val=2025 partition=p_2025 status=SUCCESS
+ROUTED row_id=3 val=2020 partition=NONE status=ERROR_NO_PARTITION
+ROUTER_SUMMARY total=3 routed=2 unrouted=1</pre></div>
+    </div>
+    <p class="lab__note">2024 va dans p_2024 ; 2020 ne correspond à aucune partition déclarée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour RANGE : convertir les bornes et valeurs en entiers pour la comparaison from &lt;= val &lt; to.</li>
+        <li>Pour LIST : vérifier si str(val) est dans la liste values.</li>
+        <li>Afficher ERROR_NO_PARTITION si aucun match n’est trouvé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026&#10;QUERY id=1 op=eq val1=2024&#10;QUERY id=2 op=gte val1=2024">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e2) — Simulateur d’élagage de partitions (Partition Pruning Optimizer)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Filtre BETWEEN couvrant deux partitions consécutives]
+# Données : PARTITIONS list=p_q1:1-4,p_q2:4-7,p_q3:7-10,p_q4:10-13
+# Données : QUERY id=10 op=between val1=3 val2=5
+A_COMPLETER
+
+[Cas 2 — Filtre inférieur ou égal (lte) élaguant les partitions futures]
+# Données : PARTITIONS list=p1:0-10,p2:10-20,p3:20-30
+# Données : QUERY id=20 op=lte val1=9
+A_COMPLETER
+
+[Cas 3 — Requête ne pouvant élaguer aucune partition (scan complet)]
+# Données : PARTITIONS list=p1:1-5,p2:5-10
+# Données : QUERY id=30 op=between val1=1 val2=10
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur d’élagage de partitions (Partition Pruning Optimizer)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer les partitions éliminées (pruned) et le gain d’I/O lors de l’exécution d’une requête filtrée.</p>
+    <div class="lab__brief">L’élagage de partitions (Partition Pruning) permet à l’optimiseur de ne scanner que les partitions physiques dont les bornes chevauchent le filtre WHERE, éliminant totalement les autres tables du plan d’exécution.
+L’efficacité de l’élagage est mesurée par :
+$$\text{Efficacité} = \frac{\text{Partitions Élaguées}}{\text{Total des Partitions}} \times 100$$
+
+Entrée :
+- `PARTITIONS list=<p1:from-to,p2:from-to,...>`
+- `QUERY id=<num> op=<eq|gte|lte|between> val1=<int> [val2=<int>]`
+
+Sortie :
+- Pour chaque requête :
+  `PRUNING_EVAL query_id=<id> scanned=<p_list> pruned=<p_list> efficiency=<PCT.1f>%`
+- Bilan : `PRUNING_REPORT queries=<N> avg_efficiency=<AVG_PCT.1f>%`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026
+QUERY id=1 op=eq val1=2024
+QUERY id=2 op=gte val1=2024</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PRUNING_EVAL query_id=1 scanned=p_2024 pruned=p_2023,p_2025 efficiency=66.7%
+PRUNING_EVAL query_id=2 scanned=p_2024,p_2025 pruned=p_2023 efficiency=33.3%
+PRUNING_REPORT queries=2 avg_efficiency=50.0%</pre></div>
+    </div>
+    <p class="lab__note">La requête 1 élimine 2 partitions sur 3 (66.7% d’efficacité).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour chaque partition [pfrom, pto[, tester l’intersection avec l’intervalle défini par le filtre.</li>
+        <li>Pour eq val1 : tester pfrom &lt;= val1 &lt; pto.</li>
+        <li>Pour gte val1 : tester pto &gt; val1.</li>
+        <li>Pour lte val1 : tester pfrom &lt;= val1.</li>
+        <li>Pour between val1 et val2 : tester (pfrom &lt;= val2 et pto &gt; val1).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000&#10;REPLICA node=standby_2 mode=sync primary_lsn=0/16B3C840 replay_lsn=0/16B3C840">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e3) — Calculateur de lag de réplication WAL (Streaming Replication Lag)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Retard critique dépassant 64 Ko sur un réplica asynchrone]
+# Données : REPLICA node=standby_remote mode=async primary_lsn=0/20000000 replay_lsn=0/1FE00000
+A_COMPLETER
+
+[Cas 2 — Tous les nœuds parfaitement synchronisés]
+# Données : REPLICA node=standby_ha1 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000
+# Données : REPLICA node=standby_ha2 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000
+A_COMPLETER
+
+[Cas 3 — LSN traversant la frontière des 32 bits de poids fort]
+# Données : REPLICA node=standby_cross mode=async primary_lsn=2/00001000 replay_lsn=1/FFFF0000
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calculateur de lag de réplication WAL (Streaming Replication Lag)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le décalage de réplication en octets et en Ko entre le primaire et ses nœuds secondaires à partir de nombres LSN (Log Sequence Number).</p>
+    <div class="lab__brief">Dans la réplication physique PostgreSQL (Streaming Replication), l’avancement des écritures dans le journal WAL est repéré par un `LSN` (Log Sequence Number) hexadécimal à deux composantes (ex: `16/B3C840`).
+Conversion d’un LSN en entier 64 bits d’octets :
+$$\text{LSN\_Bytes} = \text{int}(X, 16) \times 2^{32} + \text{int}(Y, 16)$$
+Le retard de réplication (Lag) est calculé par :
+$$\text{Lag\_Bytes} = \text{Primary\_LSN} - \text{Replica\_LSN}$$
+$$\text{Lag\_Ko} = \frac{\text{Lag\_Bytes}}{1024.0}$$
+Évaluation de la santé :
+- Si `Lag_Bytes == 0` : `SYNCED` (parfaite synchronisation).
+- Si `0 < Lag_Ko <= 64` : `HEALTHY_LAG` (retard opérationnel normal en réplication asynchrone).
+- Si `Lag_Ko > 64` : `CRITICAL_LAG` (danger de perte de données en cas de failover, violation de RPO).
+
+Entrée :
+`REPLICA node=<name> mode=<sync|async> primary_lsn=<HEX/HEX> replay_lsn=<HEX/HEX>`
+
+Sortie :
+`LAG_STATUS node=<name> mode=<mode> lag_bytes=<BYTES> lag_kb=<KB.2f> health=<SYNCED|HEALTHY_LAG|CRITICAL_LAG>`
+`CLUSTER_STATUS total_nodes=<N> max_lag_kb=<MAX.2f>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000
+REPLICA node=standby_2 mode=sync primary_lsn=0/16B3C840 replay_lsn=0/16B3C840</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LAG_STATUS node=standby_1 mode=async lag_bytes=10304 lag_kb=10.06 health=HEALTHY_LAG
+LAG_STATUS node=standby_2 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED
+CLUSTER_STATUS total_nodes=2 max_lag_kb=10.06</pre></div>
+    </div>
+    <p class="lab__note">standby_1 a un léger retard de 10 Ko (sain), standby_2 est parfaitement synchronisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découper le LSN sur le caractère "/" : high, low = lsn.split("/").</li>
+        <li>Calculer lsn_val = int(high, 16) * (2**32) + int(low, 16).</li>
+        <li>Calculer lag_bytes = primary_bytes - replay_bytes.</li>
+        <li>Comparer lag_kb aux seuils 0 et 64 Ko.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle stratégie de partitionnement convient le mieux à une table de transactions bancaires conservant 10 ans d’historique ?</p>
+      <div class="opts">
+        <button class="opt">PARTITION BY HASH sur le montant</button>
+        <button class="opt" data-correct="1">PARTITION BY RANGE sur la date de transaction (ex: mensuel)</button>
+        <button class="opt">PARTITION BY LIST sur le nom du client</button>
+        <button class="opt">Aucun partitionnement n’est possible sur des dates</button>
+      </div>
+      <div class="q__exp">Le partitionnement par intervalle (RANGE) sur la date permet un élagage massif sur les requêtes temporelles et un archivage facile des vieux mois.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que le Partition Pruning dans PostgreSQL ?</p>
+      <div class="opts">
+        <button class="opt">La suppression définitive des anciennes partitions sur disque</button>
+        <button class="opt" data-correct="1">La capacité de l’optimiseur à exclure les partitions physiques hors périmètre lors de l’exécution d’une requête</button>
+        <button class="opt">Le compactage des blocs mémoire dans le buffer pool</button>
+        <button class="opt">La défragmentation automatique des index B-Tree</button>
+      </div>
+      <div class="q__exp">Le Partition Pruning ignore les partitions dont les contraintes contredisent les critères de la clause WHERE de la requête.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi PostgreSQL écrit-il dans le WAL avant d’écrire dans les pages de table sur disque ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le WAL compresse les données</button>
+        <button class="opt" data-correct="1">Pour assurer la durabilité ACID grâce à des écritures séquentielles rapides, tout en différant les écritures aléatoires sur les tables</button>
+        <button class="opt">Parce que les tables n’existent pas sur disque</button>
+        <button class="opt">Pour chiffrer les données à la volée</button>
+      </div>
+      <div class="q__exp">Le WAL garantit la persistance immédiate par écriture séquentielle append-only, permettant de repousser les écritures aléatoires au Checkpoint.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il lors d’un Checkpoint dans PostgreSQL ?</p>
+      <div class="opts">
+        <button class="opt">Toutes les connexions clientes sont déconnectées</button>
+        <button class="opt" data-correct="1">Les pages modifiées en mémoire (dirty buffers) sont écrites sur disque et synchronisées par fsync</button>
+        <button class="opt">La base de données est basculée en lecture seule</button>
+        <button class="opt">Toutes les tables sont vidées</button>
+      </div>
+      <div class="q__exp">Le Checkpoint synchronise toutes les données modifiées en RAM avec les fichiers disque, bornant la durée de récupération en cas de crash.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle fonction PostgreSQL permet de calculer l’écart en octets entre deux Log Sequence Numbers (LSN) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">pg_wal_lsn_diff(lsn1, lsn2)</button>
+        <button class="opt">pg_calculate_bytes(lsn1, lsn2)</button>
+        <button class="opt">DIFF_LSN(lsn1, lsn2)</button>
+        <button class="opt">SUBTRACT_WAL(lsn1, lsn2)</button>
+      </div>
+      <div class="q__exp">pg_wal_lsn_diff() calcule la différence numérique exacte en octets entre deux positions LSN fournies au format hexadécimal.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En réplication en streaming synchrone (synchronous_commit = on), quand le primaire valide-t-il un COMMIT ?</p>
+      <div class="opts">
+        <button class="opt">Immédiatement après le calcul en RAM</button>
+        <button class="opt" data-correct="1">Après confirmation qu’au moins une réplique standby configurée a écrit le WAL sur son propre stockage</button>
+        <button class="opt">Exactement 5 minutes après la requête</button>
+        <button class="opt">Une fois par heure lors du checkpoint</button>
+      </div>
+      <div class="q__exp">Le mode synchrone garantit un RPO de 0 en attendant l’acquittement physique de la réplique avant de confirmer la transaction au client.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel risque majeur présente un physical replication slot laissé actif alors que le serveur standby associé est éteint ?</p>
+      <div class="opts">
+        <button class="opt">Le serveur primaire redémarre en boucle</button>
+        <button class="opt" data-correct="1">Le primaire conserve tous les fichiers WAL sans jamais les recycler, provoquant une saturation critique du disque</button>
+        <button class="opt">Les données de la table deviennent corrompues</button>
+        <button class="opt">Les requêtes SELECT sont refusées</button>
+      </div>
+      <div class="q__exp">Un replication slot orphelin empêche le primaire de nettoyer ses WAL, saturant l’espace disque jusqu’au blocage total de la base.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel outil open source de haute disponibilité utilise un magasin de consensus distribué (comme Etcd) pour orchestrer le basculement automatique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Patroni</button>
+        <button class="opt">PgAdmin</button>
+        <button class="opt">Cron</button>
+        <button class="opt">Webpack</button>
+      </div>
+      <div class="q__exp">Patroni est la solution de référence pour la haute disponibilité PostgreSQL, utilisant Etcd ou Consul pour le consensus et le failover sécurisé.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de créer les partitions futures sur une table partitionnée par RANGE, provoquant l’échec des insertions au changement de mois.</li>
+      <li>Filtrer avec une fonction non-immutable dans le WHERE, ce qui empêche le Partition Pruning à la compilation.</li>
+      <li>Ne pas surveiller l’espace disque du WAL en présence d’un replication slot inactif, menant à la saturation complète du disque primaire.</li>
+      <li>Confondre le lag de réception WAL (write_lsn) et le lag d’application des données (replay_lsn) sur la standby.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>1. Évaluer la volumétrie prévisionnelle : envisager le partitionnement dès qu’une table dépasse 20 à 50 millions de lignes.</li>
+      <li>2. Déterminer la clé de partitionnement : date chronologique pour RANGE, dimension géographique ou statut pour LIST.</li>
+      <li>3. Créer systématiquement une partition DEFAULT pour intercepter et alerter sur les valeurs hors bornes.</li>
+      <li>4. Vérifier avec EXPLAIN que le Partition Pruning élimine bien les partitions physiques sur les requêtes types.</li>
+      <li>5. Configurer la réplication en streaming avec des Replication Slots pour éviter la suppression prématurée des segments WAL.</li>
+      <li>6. Monitorer en continu le décalage LSN (replication lag) via pg_stat_replication et déclencher des alertes au-delà d’un seuil critique.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le partitionnement déclaratif découpe physiquement une table logique en fragments autonomes sans altérer le code SQL.</li>
+      <li>Le Partition Pruning permet à l’optimiseur d’ignorer totalement la lecture des partitions dont les bornes ne satisfont pas la clause WHERE.</li>
+      <li>Le Write-Ahead Log (WAL) garantit la durabilité ACID et la vitesse d’écriture en journalisant séquentiellement chaque mutation.</li>
+      <li>Les Checkpoints vident régulièrement les pages modifiées de la mémoire vers le stockage de données définitif.</li>
+      <li>La réplication physique transmet le flux WAL du primaire vers les standbys en mode asynchrone ou synchrone.</li>
+      <li>Le lag de réplication se mesure par la différence numérique entre le LSN courant du primaire et le LSN rejoué par la standby.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>La table volumineuse est-elle partitionnée par RANGE (temporel) ou LIST (catégoriel) selon son profil d’accès ?</li>
+      <li>La partition DEFAULT est-elle déclarée pour éviter les erreurs d’insertion de clés inattendues ?</li>
+      <li>Le plan d’exécution EXPLAIN confirme-t-il l’activité de Partition Pruning sur les requêtes filtrées ?</li>
+      <li>Le paramètre max_wal_size et checkpoint_timeout sont-ils ajustés pour lisser les I/O du serveur ?</li>
+      <li>Les répliques standby utilisent-elles un physical replication slot pour sécuriser la rétention des WAL ?</li>
+      <li>Le décalage LSN en octets et le replay lag en secondes font-ils l’objet d’un monitoring Prometheus/Grafana dédié ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Partitionnement déclaratif (PARTITION BY RANGE, LIST, HASH)</li><li>Élagage de partitions (Partition Pruning)</li><li>Partition par défaut (DEFAULT)</li><li>Write-Ahead Logging (WAL) & Segments WAL</li><li>Checkpoints & Dirty Buffers</li><li>Streaming Replication synchrone vs asynchrone</li><li>Log Sequence Number (LSN) & pg_wal_lsn_diff()</li><li>Haute Disponibilité (Patroni, repmgr, failover automatique)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à modéliser un partitionnement déclaratif ou confusion sur le fonctionnement du WAL.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de la création de tables partitionnées, vérification du pruning et configuration de réplications basiques.</div>
+      <div class="bandrow bandrow--high">Architecture de production résiliente : partitionnement multi-niveaux optimisé, monitoring fin du lag LSN et cluster HA orchestré.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

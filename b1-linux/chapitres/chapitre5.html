@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Utilisateurs, groupes et fichiers de comptes | Linux B1</title>
+<meta name="description" content="Chapitre 5 du cours de Linux B1 : Le format /etc/passwd, /etc/shadow et /etc/group, créer et modifier des comptes, groupes et appartenances. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-linux/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Utilisateurs, groupes et fichiers de comptes | Linux B1">
+<meta property="og:description" content="Chapitre 5 du cours de Linux B1 : Le format /etc/passwd, /etc/shadow et /etc/group, créer et modifier des comptes, groupes et appartenances. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="lxnav"><div class="lxnav__in">
+  <a class="lxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="lxnav__sep" aria-hidden="true">/</span>
+  <a class="lxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux B1</a>
+  <div class="lxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="lxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="lxwrap">
+<p class="crumb"><a href="../index.html">Linux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Utilisateurs, groupes et fichiers de comptes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur héberge plusieurs personnes et chaque personne n’a pas les mêmes droits. Linux gère cela avec des comptes et des groupes, décrits dans trois fichiers texte lisibles : /etc/passwd, /etc/shadow, /etc/group. Savoir lire ces lignes — et les produire, comme le font les commandes d’administration — est le cœur de ce chapitre.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décomposer une ligne de /etc/passwd champ par champ et interpréter le champ mot-de-passe ;</li>
+      <li>expliquer le rôle de /etc/shadow et /etc/group avec leurs formats ;</li>
+      <li>créer, modifier et supprimer comptes et groupes (useradd, usermod, userdel, groupadd, groupdel) ;</li>
+      <li>gérer les mots de passe avec passwd et distinguer UID système et UID humain.</li>
+    </ol>
+  </div>
+
+<h2>1. Le fichier /etc/passwd</h2>
+
+<p>Le fichier <code>/etc/passwd</code> contient les informations relatives à tous les utilisateurs du système : chaque ligne concerne un utilisateur, les champs sont séparés par le signe deux-points :</p>
+<pre><code>login:mot-de-passe:UID:GID:info-utilisateur:répertoire-principal:shell
+
+alice:x:1000:1000:Alice Diallo:/home/alice:/bin/bash
+  │    │    │    │        │                  │           │
+  │    │    │    │        │                  │           └ interpréteur lancé après connexion
+  │    │    │    │        │                  └ maison de l’utilisateur (généralement /home/toto)
+  │    │    │    │        └ nom complet, numéro de poste… (séparés par des virgules)
+  │    │    │    └ GID : identifiant du groupe principal
+  │    │    └ UID : identifiant numérique unique ; root = 0
+  │    └ mot de passe (voir ci-dessous)
+  └ identifiant de connexion</code></pre>
+<p>Le champ <strong>mot-de-passe</strong> prend plusieurs significations :</p>
+<table>
+    <tr><th>Valeur</th><th>Signification</th></tr>
+    <tr><td><code>*</code></td><td>impossible de s’authentifier avec ce compte</td></tr>
+    <tr><td><code>!!</code></td><td>compte désactivé</td></tr>
+    <tr><td><code>x</code> ou <code>!</code></td><td>le mot de passe est dans /etc/shadow</td></tr>
+    <tr><td>champ vide</td><td>pas de mot de passe pour ce compte</td></tr>
+  </table>
+<p>Les <strong>UID inférieurs à 1000</strong> sont réservés aux comptes système ; root possède l’UID 0. C’est exactement le seuil que l’exercice « squelette de /etc/passwd » de l’atelier fait manier : compter, filtrer, lister selon l’UID.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — pourquoi passwd est lisible par tous</div>
+    <p><code>/etc/passwd</code> est accessible à tout le monde car certaines commandes ont besoin de la liste des utilisateurs ou de la correspondance login/UID. Les mots de passe chiffrés, eux, ont déménagé dans /etc/shadow — c’est le <code>x</code> du champ.</p>
+  </div>
+
+<h2>2. /etc/shadow et /etc/group</h2>
+
+<p>Le fichier <code>/etc/shadow</code> stocke les mots de passe chiffrés ; il ne peut être lu que par l’administrateur. Cette séparation permet à <code>/etc/passwd</code> de rester lisible tout en protégeant les empreintes.</p>
+<p>Le fichier <code>/etc/group</code> décrit les groupes. La syntaxe d’une ligne :</p>
+<pre><code>groupe:*:GID:utilisateurs
+
+dev:*:1010:alice,bob
+  │  │   │      │
+  │  │   │      └ liste des membres, séparés par des virgules
+  │  │   └ identifiant numérique unique du groupe
+  │  └ champ historique, vide ou * ou x
+  └ nom du groupe</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « passwd décrit, shadow protège, group regroupe »</div>
+    <p>Trois fichiers, trois verbes : <strong>décrit</strong> (passwd, lisible par tous), <strong>protège</strong> (shadow, réservé à l’administrateur), <strong>regroupe</strong> (group, la liste des membres par groupe).</p>
+  </div>
+
+<h2>3. Créer, modifier, supprimer des comptes</h2>
+
+<p>Les commandes d’administration (en root) :</p>
+<table>
+    <tr><th>Action</th><th>Commande</th><th>Détail</th></tr>
+    <tr><td>ajouter un utilisateur</td><td><code>useradd options login</code></td><td>ex. <code>useradd toto</code> crée toto</td></tr>
+    <tr><td>supprimer un utilisateur</td><td><code>userdel options login</code></td><td>le répertoire n’est pas supprimé ; ajouter <code>-r</code> pour tout retirer</td></tr>
+    <tr><td>modifier un compte</td><td><code>usermod options login</code></td><td>mêmes options que useradd</td></tr>
+    <tr><td>changer un mot de passe</td><td><code>passwd options login</code></td><td>ex. <code>passwd toto</code> ; sans login, c’est l’utilisateur courant</td></tr>
+  </table>
+<p>Exemples de <code>usermod</code> du cours : <code>usermod -d /home/toto -m tutu</code> change le répertoire personnel de tutu en /home/toto en recopiant le contenu de l’ancien dossier et en ajustant les droits ; <code>usermod -l toto tutu</code> renomme l’utilisateur tutu en toto — ce qui suppose que tutu n’est pas connecté au moment de la commande. Pour être effectives, les modifications imposent à l’utilisateur de se déloguer puis reloguer.</p>
+<p>Côté consultation : <code>whoami</code> affiche l’identité de l’utilisateur courant ; <code>who</code>, <code>users</code> et <code>w</code> listent les utilisateurs connectés sur la machine. L’administrateur peut changer n’importe quel mot de passe ; un utilisateur normal ne peut changer que le sien (l’ancien lui est alors demandé).</p>
+
+<h2>4. Créer et gérer des groupes</h2>
+
+<p>Créer un groupe : <code>groupadd option groupe</code> — ex. <code>groupadd modem</code>. Le supprimer : <code>groupdel groupe</code> (ou <code>groupdel GID</code>), avec une contrainte importante : <strong>on ne peut pas supprimer un groupe qui est le groupe principal</strong> d’un utilisateur.</p>
+<p>Rattacher un utilisateur à un groupe passe par <code>usermod</code>, et le fichier <code>/etc/group</code> montre alors le login dans la liste des membres. L’atelier simule toute cette chaîne : créer des groupes, y rattacher des utilisateurs, répondre aux requêtes d’appartenance dans l’ordre de création des groupes — le même travail que les commandes réelles, sur une arborescence de texte.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le cycle complet en une séance</div>
+    <p><code>useradd tpsysteme</code> puis <code>useradd userVoisin</code>, vérifier dans <code>/etc/passwd</code>, créer le groupe de projet avec <code>groupadd</code>, y rattacher les deux comptes avec <code>usermod</code>, contrôler dans <code>/etc/group</code>. Ce cycle est exactement celui du TP noté.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx-c5-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;useradd alice&#10;useradd bob&#10;ls&#10;userdel alice&#10;ls&#10;useradd carol&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op login
+  # À compléter : maintenir les comptes et répondre aux ls.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — useradd et /etc/passwd simulés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Générer les lignes /etc/passwd à partir d'opérations useradd/userdel, avec UID automatique.</p>
+    <div class="lab__brief"><p>Le script simule la gestion des comptes. Il lit <strong>n opérations</strong> : <code>useradd login</code> (crée le compte avec le prochain UID libre à partir de 1000, GID = UID), <code>userdel login</code> (supprime), ou <code>ls</code>. À chaque <code>ls</code>, il affiche les lignes <code>passwd</code> des comptes courants, dans l'ordre de création : <code>login:x:UID:GID:/home/login:/bin/bash</code>. Un <code>useradd</code> d'un login existant affiche <code>existe</code> ; un <code>userdel</code> d'un login absent affiche <code>inconnu</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+useradd alice
+useradd bob
+ls
+userdel alice
+ls
+useradd carol
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>alice:x:1000:1000:/home/alice:/bin/bash
+bob:x:1001:1001:/home/bob:/bin/bash
+bob:x:1001:1001:/home/bob:/bin/bash
+</pre></div>
+    </div>
+    <p class="lab__note">Après suppression d'alice, seul bob reste ; carol est créée après le dernier ls.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un tableau des logins créés + un compteur d'UID : le prochain UID est 1000 + le nombre de créations réussies.</li>
+        <li>Pour userdel, chercher la position du login dans le tableau et retirer l'élément ; pour ls, rejouer le tableau.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c5-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;groupadd etudiants&#10;groupadd profs&#10;usermod etudiants alice&#10;usermod profs alice&#10;groups alice&#10;groups bob&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op arg1 arg2
+  # À compléter : maintenir les groupes et répondre aux requêtes.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — groupadd et appartenance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Gérer des groupes simulés : créer, ajouter des membres, répondre aux requêtes d'appartenance.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>groupadd groupe</code>, <code>usermod groupe login</code> (ajoute login au groupe), ou <code>groups login</code>. À chaque <code>groups login</code> il affiche, séparés par des virgules, les <strong>groupes dont login est membre</strong>, dans l'ordre de création des groupes — ou <code>aucun</code> si l'utilisateur n'appartient à rien. Un <code>usermod</code> vers un groupe inexistant affiche <code>groupe inconnu</code> ; ajouter deux fois le même membre ne duplique pas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+groupadd etudiants
+groupadd profs
+usermod etudiants alice
+usermod profs alice
+groups alice
+groups bob
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>etudiants,profs
+aucun</pre></div>
+    </div>
+    <p class="lab__note">alice est dans les deux groupes, bob dans aucun.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un tableau associatif groupe → liste de membres (séparés par des espaces) garde l'ordre des groupes.</li>
+        <li>Pour groups, parcourir les groupes dans l'ordre de création et tester la présence du login dans la liste.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c5-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;root:x&#10;sys:*&#10;ancien:!!&#10;vide:&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r ligne
+  # À compléter : classer chaque compte.
+done
+# À compléter : afficher l'audit.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Audit des comptes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Confronter /etc/passwd et /etc/shadow simulés pour signaler les comptes à risque.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>login:champ-mdp</code> représentant la vue passwd/shadow fusionnée. Les valeurs du champ : <code>x</code> (mot de passe géré, compte normal), <code>*</code> (authentification impossible), <code>!!</code> (compte désactivé), vide (aucun mot de passe). Il affiche un audit : <code>total : K</code>, <code>desactives : D</code> (* et !!), <code>risque : R</code> (champ vide), puis les logins à risque, un par ligne, dans l'ordre — ou <code>aucun</code> si R vaut 0.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+root:x
+sys:*
+ancien:!!
+vide:
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>total : 4
+desactives : 2
+risque : 1
+vide</pre></div>
+    </div>
+    <p class="lab__note">Le compte sans mot de passe est le seul signalé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Couper au premier deux-points : login="${ligne%%:*}", champ="${ligne#*:}".</li>
+        <li>Trois catégories se déduisent du champ : * et !! désactivent, le vide est le seul cas à risque.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien de champs dans une ligne /etc/passwd ?</p>
+      <div class="opts">
+        <button class="opt">5</button>
+        <button class="opt" data-correct="1">7</button>
+        <button class="opt">9</button>
+      </div>
+      <div class="q__exp">Sept champs : login, mot-de-passe, UID, GID, info, répertoire principal, shell.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie le champ x dans /etc/passwd ?</p>
+      <div class="opts">
+        <button class="opt">Compte désactivé</button>
+        <button class="opt" data-correct="1">Le mot de passe chiffré est dans /etc/shadow</button>
+        <button class="opt">Pas de mot de passe</button>
+      </div>
+      <div class="q__exp">x ou ! renvoient à /etc/shadow ; !! signifie compte désactivé, * interdit l’authentification.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel UID possède root ?</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">0</button>
+        <button class="opt">1000</button>
+      </div>
+      <div class="q__exp">root = UID 0 ; les UID inférieurs à 1000 sont réservés aux comptes système.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel fichier stocke les mots de passe chiffrés ?</p>
+      <div class="opts">
+        <button class="opt">/etc/passwd</button>
+        <button class="opt" data-correct="1">/etc/shadow</button>
+        <button class="opt">/etc/group</button>
+      </div>
+      <div class="q__exp">/etc/shadow, lisible uniquement par l’administrateur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait usermod -d /home/toto -m tutu ?</p>
+      <div class="opts">
+        <button class="opt">Renomme tutu en toto</button>
+        <button class="opt" data-correct="1">Change la maison de tutu en /home/toto en recopiant le contenu</button>
+        <button class="opt">Supprime tutu</button>
+      </div>
+      <div class="q__exp">-d fixe la nouvelle maison et -m y recopie le contenu de l’ancienne en ajustant les droits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait userdel toto, et que faut-il pour supprimer sa maison ?</p>
+      <div class="opts">
+        <button class="opt">Tout est supprimé</button>
+        <button class="opt" data-correct="1">Le compte est supprimé ; ajouter -r pour retirer aussi le répertoire</button>
+        <button class="opt">Rien, il faut usermod</button>
+      </div>
+      <div class="q__exp">userdel ne supprime pas le répertoire personnel ; l’option -r l’ajoute à la suppression.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande crée un groupe ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">groupadd</button>
+        <button class="opt">usermod</button>
+        <button class="opt">passwd</button>
+      </div>
+      <div class="q__exp">groupadd groupe (ex. groupadd modem) ; suppression avec groupdel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand groupdel échoue-t-il ?</p>
+      <div class="opts">
+        <button class="opt">Si le groupe contient des fichiers</button>
+        <button class="opt" data-correct="1">Si le groupe est le groupe principal d’un utilisateur</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">On ne peut pas supprimer un groupe qui sert de groupe principal à un utilisateur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande affiche l’utilisateur courant ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">whoami</button>
+        <button class="opt">w</button>
+        <button class="opt">users</button>
+      </div>
+      <div class="q__exp">whoami affiche l’identité de l’utilisateur courant ; who, users et w listent les connectés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Format d’une ligne /etc/group ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">groupe:*:GID:utilisateurs</button>
+        <button class="opt">groupe:GID:utilisateurs:*</button>
+        <button class="opt">GID:groupe:*:utilisateurs</button>
+      </div>
+      <div class="q__exp">Nom, champ historique, GID numérique, liste des membres séparés par des virgules.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Sept champs pas huit</strong> : recompter sur une vraie ligne passwd — login, mdp, UID, GID, info, maison, shell.</li>
+      <li><strong>UID 1000 dit système</strong> : c’est la frontière ; les comptes système sont en dessous (root = 0).</li>
+      <li><strong>userdel -r oublié</strong> : sans -r, la maison reste sur le disque.</li>
+      <li><strong>Renommer un utilisateur connecté</strong> : usermod -l exige qu’il soit délogué.</li>
+      <li><strong>Confondre whoami et who</strong> : l’un dit qui je suis, l’autre qui est connecté.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire et manipuler un compte</div>
+    <ol>
+      <li><strong>Découper la ligne passwd</strong> par les deux-points et nommer les sept champs.</li>
+      <li><strong>Interpréter le champ mot-de-passe</strong> : *, !!, x/!, vide.</li>
+      <li><strong>Classer par UID</strong> : système si &lt; 1000, humain sinon, root = 0.</li>
+      <li><strong>Choisir la commande d’administration</strong> : useradd, usermod, userdel, passwd, groupadd, groupdel.</li>
+      <li><strong>Vérifier dans les fichiers</strong> : passwd, shadow, group — après chaque opération.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>/etc/passwd : login:mot-de-passe:UID:GID:info:maison:shell — lisible par tous, car les commandes en ont besoin.</li>
+      <li>Champ mot-de-passe : * (authentification impossible), !! (désactivé), x/! (dans shadow), vide (sans mot de passe).</li>
+      <li>UID &lt; 1000 = comptes système, root = 0 ; /etc/shadow garde les empreintes, /etc/group les membres.</li>
+      <li>useradd/userdel -r/usermod/passwd gèrent les comptes ; les modifications imposent déloguer-reloguer.</li>
+      <li>groupadd/groupdel créent et suppriment ; impossible de supprimer un groupe principal d’un utilisateur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décompose une ligne /etc/passwd et je nomme les sept champs.</li>
+      <li>J’interprète les quatre états du champ mot-de-passe.</li>
+      <li>Je choisis la bonne commande pour créer, modifier, supprimer un compte ou un groupe.</li>
+      <li>Je vérifie le résultat dans /etc/passwd, /etc/shadow et /etc/group.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>compte</li><li>UID</li><li>GID</li><li>compte système</li><li>shadow</li><li>groupe principal</li><li>useradd</li><li>usermod</li><li>userdel</li><li>passwd</li><li>groupadd</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Recopiez une ligne passwd et nommez chaque champ à voix haute.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refaites le tableau des états du champ mot-de-passe.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : déroulez le cycle useradd, groupadd, usermod, userdel de mémoire.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 6, les droits d’accès et les scripts.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Droits d’accès et scripts shell (TP) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Système Linux B1 ITA &amp; ITB » du Dr Abasse KPEGOUNI (système, fichiers, Debian 12, commandes de base, utilisateurs et groupes, TP droits d’accès).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

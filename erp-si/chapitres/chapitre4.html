@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Processus métiers &amp; Cycles ERP | ERP &amp; SI B2</title>
+<meta name="description" content="Chapitre 4 du cours ERP &amp; Systèmes d’Information B2 : Chaîne de valeur de Porter, cycle Procure-to-Pay (P2P), cycle Order-to-Cash (O2C), Record-to-Report (R2R) et calcul des besoins MRP. Théorie, modélisations BPMN, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/erp-si/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Processus métiers &amp; Cycles ERP | ERP &amp; SI B2">
+<meta property="og:description" content="Chapitre 4 du cours ERP &amp; Systèmes d’Information B2 : Chaîne de valeur de Porter, cycle Procure-to-Pay (P2P), cycle Order-to-Cash (O2C), Record-to-Report (R2R) et calcul des besoins MRP. Théorie, modélisations BPMN, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="erp-sinav"><div class="erp-sinav__in">
+  <a class="erp-sinav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="erp-sinav__sep" aria-hidden="true">/</span>
+  <a class="erp-sinav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> ERP &amp; SI B2</a>
+  <div class="erp-sinav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="erp-sinav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="erp-siwrap">
+<p class="crumb"><a href="../index.html">ERP & SI B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Processus métiers & Cycles ERP</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L’entreprise ne fonctionne pas en départements cloisonnés mais en cycles transverses continus. De la réception d’une commande client jusqu’à l’encaissement en banque, ou du besoin de matière première jusqu’au paiement fournisseur, l’ERP synchronise les trois flux vitaux : flux physique, flux d’information et flux financier.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser la chaîne de valeur de Michael Porter et distinguer activités principales et de soutien ;</li>
+      <li>maîtriser le déroulement complet du cycle Procure-to-Pay (P2P / Achats) ;</li>
+      <li>maîtriser le déroulement complet du cycle Order-to-Cash (O2C / Ventes) ;</li>
+      <li>comprendre le rôle du rapprochement à trois voies (Three-Way Matching) ;</li>
+      <li>assimiler la logique de planification de production et le calcul des besoins nets (MRP).</li>
+    </ol>
+  </div>
+
+<h2>1. La chaîne de valeur de l’entreprise et les processus transverses</h2>
+
+<p>Théorisée par <strong>Michael Porter</strong>, la <strong>chaîne de valeur</strong> décompose l’entreprise en un ensemble d’activités interdépendantes créatrices de valeur pour le client :</p>
+<ul>
+  <li><strong>Activités principales</strong> : Logistique entrante &rarr; Production / Opérations &rarr; Logistique sortante &rarr; Commercialisation &amp; Vente &rarr; Services après-vente.</li>
+  <li><strong>Activités de soutien</strong> : Infrastructure de l’entreprise (Direction, Juridique), Gestion des Ressources Humaines (GRH), Développement technologique (R&amp;D, SI) et Approvisionnements (Achats).</li>
+</ul>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Les trois flux synchronisés par l’ERP</div>
+    <p>À chaque étape d’un processus métier, l’ERP réconcilie simultanément :</p>
+    <ol>
+      <li><strong>Le flux physique</strong> : déplacement des palettes, transformation en atelier.</li>
+      <li><strong>Le flux d’information</strong> : création des bons de commande, bordereaux d’expédition.</li>
+      <li><strong>Le flux financier</strong> : écritures comptables, facturation, règlements bancaires.</li>
+    </ol>
+  </div>
+
+<h2>2. Le cycle Procure-to-Pay (P2P / De l’Achat au Paiement)</h2>
+
+<p>Le cycle <strong>P2P</strong> (<em>Procure-to-Pay</em>) couvre l’intégralité des relations avec les fournisseurs :</p>
+<ol>
+  <li><strong>Expression du besoin</strong> : émission d’une Demande d’Achat (DA) interne par un service.</li>
+  <li><strong>Validation &amp; Bon de Commande (Purchase Order - PO)</strong> : après workflow d’approbation, émission du bon envoyé au fournisseur.</li>
+  <li><strong>Réception physique des marchandises (Goods Receipt - GR)</strong> : contrôle à quai et saisie du Bon de Réception dans l’ERP (entrée en stock immédiate).</li>
+  <li><strong>Rapprochement à 3 voies (Three-Way Matching)</strong> : contrôle automatique comparant <em>Quantité/Prix commandés</em>, <em>Quantité reçue</em> et <em>Quantité/Prix facturés</em>.</li>
+  <li><strong>Paiement fournisseur</strong> : émission de l’ordre de virement bancaire et lettrage de la facture en comptabilité.</li>
+</ol>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Importance du Three-Way Matching</div>
+    <p>Ce rapprochement automatisé par l’ERP empêche de payer une facture supérieure au devis validé, ou de régler des articles qui n’ont jamais été livrés en entrepôt.</p>
+  </div>
+
+<h2>3. Le cycle Order-to-Cash (O2C / De la Vente à l’Encaissement)</h2>
+
+<p>Le cycle <strong>O2C</strong> (<em>Order-to-Cash</em>) matérialise la génération de chiffre d’affaires :</p>
+<table class="data-table">
+  <thead>
+    <tr><th>Étape O2C</th><th>Action dans l’ERP</th><th>Impact sur le Système</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1. Devis / Proposition</td><td>Saisie de l’offre commerciale avec prix et remises.</td><td>Aucun impact financier ou physique.</td></tr>
+    <tr><td>2. Commande client (Sales Order)</td><td>Acceptation du devis par le client.</td><td>Réservation du stock physique disponible.</td></tr>
+    <tr><td>3. Préparation &amp; Expédition</td><td>Génération du bon de livraison (Delivery Note).</td><td>Décrémentation physique du stock magasin.</td></tr>
+    <tr><td>4. Facturation client</td><td>Émission de la facture de vente légale.</td><td>Comptabilisation du compte client (débit 411) et de la vente (crédit 707).</td></tr>
+    <tr><td>5. Encaissement &amp; Lettrage</td><td>Rapprochement bancaire du virement ou chèque.</td><td>Solde du compte client et crédit du compte bancaire (512).</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Planification industrielle et Calcul des Besoins (MRP)</h2>
+
+<p>Dans les entreprises de transformation ou de fabrication, la logistique s’appuie sur le <strong>MRP</strong> (<em>Material Requirements Planning</em> / Calcul des Besoins Nets) :</p>
+<ul>
+  <li><strong>MRP I</strong> : calcule les quantités de matières et composants nécessaires à partir des nomenclatures (<em>Bill of Materials - BOM</em>) et du stock disponible.</li>
+  <li><strong>MRP II</strong> (<em>Manufacturing Resource Planning</em>) : étend le calcul aux capacités machines, aux outillages et aux ressources humaines (heures de main d’œuvre requises).</li>
+</ul>
+<pre><code>Besoin Net = max(0, Besoin Brut - Stock Initial - Receptions Prevues + Stock Securite)</code></pre>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Risque : L’effet coup de fouet (Bullwhip Effect)</div>
+    <p>Une petite variation de la demande client en fin de chaîne s’amplifie en remontant la chaîne logistique, créant des surstocks massifs chez les fournisseurs de composants. L’ERP atténue cet effet en partageant les prévisions en temps réel.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="erp2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="100 15.0&#10;100&#10;100 15.0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (erp2-c4-e1) — Rapprochement à trois voies (Three-Way Matching)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Écart de quantité livrée et facturée]
+# Données : 50 20.0
+# Données : 40
+# Données : 50 20.0
+A_COMPLETER
+
+[Cas 2 — Écart de prix unitaire]
+# Données : 200 10.0
+# Données : 200
+# Données : 200 12.5
+A_COMPLETER
+
+[Cas 3 — Double écart quantité et prix]
+# Données : 10 100.0
+# Données : 8
+# Données : 10 110.0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Rapprochement à trois voies (Three-Way Matching)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la concordance entre le bon de commande, le bon de réception et la facture fournisseur dans le cycle P2P.</p>
+    <div class="lab__brief"><p>Le <strong>Three-Way Matching</strong> est le contrôle interne fondamental du cycle Procure-to-Pay (P2P). Avant de payer une facture fournisseur, l’ERP compare trois documents :<br>1. Le <strong>Bon de Commande</strong> (quantité commandée et prix unitaire convenu)<br>2. Le <strong>Bon de Réception</strong> (quantité physiquement reçue en entrepôt)<br>3. La <strong>Facture</strong> (quantité facturée et prix unitaire facturé).</p><p>Lit 3 lignes sur l’entrée standard :<br>Ligne 1 : <code>qte_commandee prix_commande</code> (ex. <code>100 15.0</code>)<br>Ligne 2 : <code>qte_recue</code> (ex. <code>100</code>)<br>Ligne 3 : <code>qte_facturee prix_facture</code> (ex. <code>100 15.0</code>)<br>- Si <code>qte_recue == qte_commandee == qte_facturee</code> ET <code>abs(prix_commande - prix_facture) &lt; 0.01</code> :<br>  affiche <code>Rapprochement valide: Bon a payer</code>.<br>- Sinon, affiche <code>Anomalie rapprochement:</code> suivi des motifs d’anomalie parmi <code>Ecart quantite</code> et/ou <code>Ecart prix</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>100 15.0
+100
+100 15.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Rapprochement valide: Bon a payer</pre></div>
+    </div>
+    <p class="lab__note">Quantités et prix parfaitement concordants.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifie d’abord si les 3 quantités sont strictement égales.</li>
+        <li>Vérifie ensuite si abs(prix_cmd - prix_fac) &lt; 0.01.</li>
+        <li>Si écarts, ajoute "Ecart quantite" et/ou "Ecart prix" à une liste.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="erp2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="50.0&#10;30.0&#10;20">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (erp2-c4-e2) — Remise sur volume et marge commerciale (O2C)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Vente au détail sans remise]
+# Données : 100.0
+# Données : 60.0
+# Données : 5
+A_COMPLETER
+
+[Cas 2 — Gros volume palier 15%]
+# Données : 20.0
+# Données : 10.0
+# Données : 150
+A_COMPLETER
+
+[Cas 3 — Palier 10%]
+# Données : 80.0
+# Données : 50.0
+# Données : 50
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Remise sur volume et marge commerciale (O2C)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le chiffre d’affaires remisé et le taux de marge brute dans le cycle Order-to-Cash.</p>
+    <div class="lab__brief"><p>Dans le module Ventes d’un ERP, la tarification applique automatiquement des remises quantitatives selon le volume d’achat client :</p><ul>
+  <li>Moins de 10 unités : <code>0%</code> de remise</li>
+  <li>De 10 à 49 unités inclus : <code>5%</code> de remise</li>
+  <li>De 50 à 99 unités inclus : <code>10%</code> de remise</li>
+  <li>100 unités ou plus : <code>15%</code> de remise</li>
+</ul><p>Lit 3 lignes sur l’entrée standard :<br>1. Prix unitaire de vente catalogue HT (float, ex. <code>50.0</code>)<br>2. Coût de revient unitaire HT (float, ex. <code>30.0</code>)<br>3. Quantité commandée (int, ex. <code>20</code>)<br>Calcule :<br>- Le pourcentage de remise appliquée (int : 0, 5, 10 ou 15)<br>- Le chiffre d’affaires total HT remisé : <code>round(qte * prix_unitaire * (1 - remise/100), 2)</code><br>- La marge brute totale : <code>round(ca_ht - (qte * cout_revient), 2)</code><br>- Le taux de marge commerciale : <code>round((marge / ca_ht) * 100, 1)</code> en %<br>Affiche : <code>Remise: &lt;r&gt;% | CA HT: &lt;ca&gt; EUR | Marge: &lt;m&gt; EUR | Taux: &lt;t&gt;%</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>50.0
+30.0
+20</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Remise: 5% | CA HT: 950.00 EUR | Marge: 350.00 EUR | Taux: 36.8%</pre></div>
+    </div>
+    <p class="lab__note">20 unités -&gt; 5% de remise sur 50 EUR soit 47.50 EUR/u.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Détermine le taux de remise selon la quantité.</li>
+        <li>ca_ht = round(qte * prix_unit * (1 - remise / 100), 2).</li>
+        <li>cout_total = qte * cout_unit.</li>
+        <li>marge = round(ca_ht - cout_total, 2).</li>
+        <li>taux = round((marge / ca_ht) * 100, 1).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="erp2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="150&#10;50&#10;20&#10;30">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (erp2-c4-e3) — Calcul des Besoins Nets (MRP / CBN)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Stock suffisant sans besoin de réapprovisionnement]
+# Données : 100
+# Données : 10
+# Données : 20
+A_COMPLETER
+
+[Cas 2 — Stock initial nul]
+# Données : 0
+# Données : 50
+# Données : 25
+A_COMPLETER
+
+[Cas 3 — Équilibre parfait avec stock de sécurité atteint]
+# Données : 50
+# Données : 70
+# Données : 20
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calcul des Besoins Nets (MRP / CBN)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le besoin net d’approvisionnement ou de fabrication selon l’équation fondamentale du MRP.</p>
+    <div class="lab__brief"><p>Le <strong>MRP</strong> (<em>Material Requirements Planning</em> / Calcul des Besoins Nets) est l’algorithme central des modules de production et de gestion des stocks de l’ERP.</p><p>Pour une période donnée, la formule canonique est :<br><code>Besoin Net = max(0, Besoin Brut - Stock Initial - Receptions Prevues + Stock Securite)</code>.</p><p>Lit 4 entiers positifs sur l’entrée standard :<br>1. <code>Besoin Brut</code> (commandes clients et besoins de production)<br>2. <code>Stock Initial</code> (quantité actuellement disponible en magasin)<br>3. <code>Receptions Prevues</code> (commandes fournisseurs déjà en cours de livraison)<br>4. <code>Stock Securite</code> (seuil d’alerte minimal requis en magasin)<br>Calcule le <code>Besoin Net</code> :<br>- Si <code>Besoin Net &gt; 0</code> : affiche <code>Besoin net: &lt;valeur&gt; | Ordre de fabrication: OUI</code>.<br>- Si <code>Besoin Net == 0</code> : affiche <code>Besoin net: 0 | Ordre de fabrication: NON</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>150
+50
+20
+30</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Besoin net: 110 | Ordre de fabrication: OUI</pre></div>
+    </div>
+    <p class="lab__note">150 - 50 - 20 + 30 = 110.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Ressources disponibles = stock_initial + receptions_prevues.</li>
+        <li>Demande totale = besoin_brut + stock_securite.</li>
+        <li>besoin_net = max(0, demande_totale - ressources_disponibles).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Qui a théorisé le modèle de la chaîne de valeur en entreprise ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Michael Porter</button>
+        <button class="opt">Peter Drucker</button>
+        <button class="opt">Henry Ford</button>
+      </div>
+      <div class="q__exp">Michael Porter a formalisé la chaîne de valeur dans son ouvrage Competitive Advantage (1985).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie l’acronyme P2P dans le contexte des processus ERP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Procure-to-Pay (De l’achat au paiement)</button>
+        <button class="opt">Peer-to-Peer</button>
+        <button class="opt">Production-to-Plant</button>
+      </div>
+      <div class="q__exp">Procure-to-Pay désigne le cycle complet des approvisionnements fournisseurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que le Three-Way Matching (rapprochement à 3 voies) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La comparaison entre le bon de commande, le bon de réception et la facture</button>
+        <button class="opt">La triple sauvegarde des serveurs</button>
+        <button class="opt">La signature par 3 directeurs</button>
+      </div>
+      <div class="q__exp">Ce contrôle automatique vérifie que ce qui est facturé a bien été commandé et réceptionné.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie l’acronyme O2C ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Order-to-Cash (De la commande à l’encaissement)</button>
+        <button class="opt">Operation-to-Cloud</button>
+        <button class="opt">Online-to-Client</button>
+      </div>
+      <div class="q__exp">Order-to-Cash est le cycle commercial complet de vente aux clients.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle étape du cycle O2C le stock physique est-il décrémenté dans l’ERP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Lors de la validation de l’expédition / bon de livraison</button>
+        <button class="opt">Dès la création du devis</button>
+        <button class="opt">Au moment du paiement en banque</button>
+      </div>
+      <div class="q__exp">La sortie de stock effective s’opère lors de l’expédition physique des produits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que calcule l’algorithme MRP I dans un module de production ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les besoins nets en matières premières et composants selon les nomenclatures</button>
+        <button class="opt">Le salaire des commerciaux</button>
+        <button class="opt">Le taux d’imposition de l’entreprise</button>
+      </div>
+      <div class="q__exp">MRP I détermine les quantités et dates de commande des composants nécessaires.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle formule définit le Besoin Net en gestion de production ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">max(0, Besoin Brut - Stock Initial - Réceptions Prévues + Stock Sécurité)</button>
+        <button class="opt">Besoin Brut * Taux de TVA</button>
+        <button class="opt">Stock Initial / 2</button>
+      </div>
+      <div class="q__exp">L’équation fondamentale déduit les ressources disponibles et intègre le stock tampon.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’une nomenclature produit (BOM - Bill of Materials) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La liste hiérarchique de tous les composants et matières entrant dans la fabrication d’un produit</button>
+        <button class="opt">La liste des clients en retard de paiement</button>
+        <button class="opt">Le barème des congés payés</button>
+      </div>
+      <div class="q__exp">La BOM décrit la composition détaillée (arborescence) d’un article fabriqué.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Valider une facture fournisseur sans avoir vérifié le bon de réception préalable (risque de payer pour du matériel non livré).</li>
+      <li>Décrémenter le stock dès la saisie d’un devis non encore accepté par le client.</li>
+      <li>Négliger le paramétrage du stock de sécurité dans le calcul MRP, aboutissant à des ruptures de chaîne.</li>
+      <li>Ignorer les délais de livraison fournisseurs (Lead Time) lors de la planification des ordres de fabrication.</li>
+      <li>Oublier de lettrer régulièrement les comptes clients et fournisseurs en comptabilité.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Auditer l’exécution d’un cycle O2C ou P2P dans l’ERP</div>
+    <ol>
+      <li><strong>Suivre la chaîne documentaire</strong> : vérifier la liaison numérique continue entre devis, commande, livraison et facture.</li>
+      <li><strong>Contrôler les déclencheurs comptables</strong> : vérifier que chaque mouvement physique a généré son écriture financière exacte.</li>
+      <li><strong>Auditer les délais de cycle (Lead Times)</strong> : mesurer le temps écoulé entre chaque étape pour détecter les goulets d’étranglement.</li>
+      <li><strong>Vérifier les réconciliations</strong> : s’assurer que les rapprochements automatiques (matching) ont fonctionné sans contournement manuel.</li>
+      <li><strong>Analyser les écarts de stock</strong> : confronter l’état de stock théorique de l’ERP aux inventaires physiques tournants.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les processus ERP transcendent les frontières des services pour synchroniser flux physiques, d’information et financiers.</li>
+      <li>Le cycle P2P régit les achats fournisseurs et sécurise les règlements par le Three-Way Matching.</li>
+      <li>Le cycle O2C orchestre les ventes clients depuis le devis jusqu’à l’encaissement et au lettrage comptable.</li>
+      <li>Le calcul MRP dimensionne les approvisionnements et ordres de fabrication selon les nomenclatures (BOM).</li>
+      <li>La fluidité de ces cycles conditionne directement la trésorerie et la rentabilité opérationnelle de l’entreprise.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais la structure de la chaîne de valeur de Michael Porter.</li>
+      <li>Je sais décrire les étapes du cycle Procure-to-Pay (P2P).</li>
+      <li>Je sais expliquer le fonctionnement et l’utilité du Three-Way Matching.</li>
+      <li>Je maîtrise le déroulement du cycle Order-to-Cash (O2C).</li>
+      <li>Je sais appliquer la formule de calcul des besoins nets (MRP).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Chaîne de valeur</li><li>Porter</li><li>P2P</li><li>O2C</li><li>Three-Way Matching</li><li>MRP</li><li>CBN</li><li>BOM</li><li>Stock de sécurité</li><li>Lettrage</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les étapes clés des cycles P2P et O2C.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le Three-Way Matching et la formule du calcul MRP.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les cycles opérationnels et logistiques d’entreprise.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux modules fonctionnels de l’ERP au chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Modules fonctionnels de l’ERP <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel ERP &amp; Systèmes d’Information B2, la spécification BPMN 2.0 (OMG), les normes d’intégration EDI/XML/JSON et les référentiels d’urbanisation du SI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Manipulation des Données (DML), Filtrage &amp;amp; Fonctions Scalaires | SQL B2</title>
+<meta name="description" content="Chapitre 2 du cours SQL B2 : Instructions DML (INSERT multiple, UPDATE calculé, DELETE), logique tri-valuée de SQL et pièges de NULL (COALESCE), prédicats de filtrage WHERE (BETWEEN, IN, LIKE) et fonctions scalaires de manipulation de chaînes. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/sql/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Manipulation des Données (DML), Filtrage &amp;amp; Fonctions Scalaires | SQL B2">
+<meta property="og:description" content="Chapitre 2 du cours SQL B2 : Instructions DML (INSERT multiple, UPDATE calculé, DELETE), logique tri-valuée de SQL et pièges de NULL (COALESCE), prédicats de filtrage WHERE (BETWEEN, IN, LIKE) et fonctions scalaires de manipulation de chaînes. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B2</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Manipulation des Données (DML), Filtrage &amp; Fonctions Scalaires</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un rapport financier mensuel génère des chiffres d’affaires erronés dans une application SaaS. Après inspection, plusieurs clients bénéficient d’une remise de 10 % calculée sur des factures dont le montant est pourtant nul, et des lignes contenant des adresses emails non renseignées sont purement et simplement ignorées par un filtre WHERE email != 'test@domain.com'. Ce comportement inattendu s’explique par la logique tri-valuée de SQL : en présence de la valeur NULL, une comparaison classique ne renvoie ni VRAI ni FAUX, mais INCONNU (UNKNOWN). Comment manipuler rigoureusement les données avec INSERT, UPDATE et DELETE, dompter la valeur NULL avec COALESCE, et filtrer précisément les enregistrements grâce aux fonctions scalaires et aux expressions LIKE ? Ce module approfondit le Data Manipulation Language (DML) et les finesses de l’évaluation conditionnelle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la syntaxe avancée des instructions DML (INSERT multi-lignes, UPDATE avec calculs et jointures, DELETE ciblé) ;</li>
+      <li>expliquer la logique tri-valuée de SQL (TRUE, FALSE, UNKNOWN) et ses conséquences directes sur les clauses WHERE ;</li>
+      <li>gérer sans risque les valeurs manquantes avec les prédicats IS NULL, IS NOT NULL et la fonction COALESCE ;</li>
+      <li>combiner des filtres de sélection multi-critères avec AND, OR, NOT, BETWEEN et IN ;</li>
+      <li>exploiter les fonctions scalaires courantes de manipulation de texte (CONCAT, SUBSTRING, LENGTH, TRIM, UPPER) et l’opérateur LIKE.</li>
+    </ol>
+  </div>
+
+<h2>1. Instructions DML : INSERT Multiple, UPDATE &amp; DELETE</h2>
+
+<p>Le sous-ensemble DML (Data Manipulation Language) de SQL permet d’insérer, modifier et supprimer les données au sein des tables existantes. Chaque opération s’exécute sous le contrôle des contraintes d’intégrité définies lors du DDL.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. INSERT Multiple (Bulk Insert)</h4>
+    <p>Insérer plusieurs enregistrements en une seule requête SQL réduit drastiquement les allers-retours réseau et les coûts de transaction :</p>
+    <div class="code-block">INSERT INTO Produits (ref, nom, prix, stock)
+VALUES
+    ('KB-01', 'Clavier mécanique', 89.90, 45),
+    ('MS-02', 'Souris sans fil', 49.50, 120),
+    ('MN-03', 'Écran 27 pouces', 229.00, 18);    </div>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. UPDATE avec calculs relatifs</h4>
+    <p>Les mises à jour peuvent combiner des valeurs courantes, des opérations arithmétiques et des clauses conditionnelles :</p>
+    <div class="code-block">UPDATE Produits
+SET prix = ROUND(prix * 1.05, 2),
+    mis_a_jour_le = CURRENT_TIMESTAMP
+WHERE stock &lt; 20 AND actif = TRUE;    </div>
+  </div>
+</div>
+
+<h2>2. La Logique Tri-Valuée de SQL &amp; Le Piège de la Valeur NULL</h2>
+
+<p>En SQL, <code>NULL</code> ne représente pas le nombre zéro ni une chaîne vide : il symbolise <strong>l’absence d’information</strong> ou une valeur inconnue. Par conséquent, SQL applique une <em>logique à trois états</em> (Tri-valued Logic) : <code>TRUE</code>, <code>FALSE</code> et <code>UNKNOWN</code>.</p>
+<table class="table-compact">
+  <thead><tr><th>Expression SQL</th><th>Résultat de l’évaluation</th><th>Explication</th></tr></thead>
+  <tbody>
+    <tr><td><code>NULL = NULL</code></td><td><strong>UNKNOWN</strong></td><td>Deux inconnues ne sont pas nécessairement égales.</td></tr>
+    <tr><td><code>prix = 100</code> (si prix est NULL)</td><td><strong>UNKNOWN</strong></td><td>On ne peut pas affirmer que la valeur inconnue vaut 100.</td></tr>
+    <tr><td><code>WHERE commission &gt; 0</code></td><td>Ligne <strong>exclue</strong></td><td>Une clause WHERE ne retient QUE les lignes dont le prédicat s’évalue à <code>TRUE</code> (UNKNOWN est rejeté).</td></tr>
+    <tr><td><code>WHERE commission &le; 0</code></td><td>Ligne <strong>exclue</strong> également !</td><td>L’inconnu n’est ni supérieur, ni inférieur, ni égal.</td></tr>
+    <tr><td><code>WHERE commission IS NULL</code></td><td><strong>TRUE</strong></td><td>Prédicat unitaire correct pour détecter l’absence de valeur.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--La fonction universelle COALESCE">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <p>La fonction standard <code>COALESCE(val1, val2, ..., defaut)</code> évalue ses arguments de gauche à droite et renvoie la première valeur non-NULL rencontrée. C’est l’outil idéal pour sécuriser les calculs arithmétiques et fournir des valeurs de remplacement lisibles :</p><div class="code-block">SELECT nom, COALESCE(telephone_mobile, telephone_fixe, 'Non renseigné') AS contact
+FROM Clients;</div></div>
+
+  </div>
+
+<h2>3. Prédicats de Filtrage &amp; Fonctions Scalaires de Chaînes</h2>
+
+<p>Le filtrage précis des enregistrements dans la clause WHERE s’appuie sur des opérateurs expressifs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Prédicats BETWEEN, IN &amp; LIKE</h4>
+    <ul>
+      <li><strong>BETWEEN min AND max :</strong> Équivaut à <code>col &ge; min AND col &le; max</code> (bornes inclusives).</li>
+      <li><strong>IN (val1, val2, ...) :</strong> Vérifie l’appartenance à un ensemble discret de valeurs ou au résultat d’une sous-requête.</li>
+      <li><strong>LIKE 'motif' :</strong> Recherche textuelle avec jokers : <code>%</code> (0..N caractères) et <code>_</code> (exactement 1 caractère).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Fonctions scalaires courantes</h4>
+    <ul>
+      <li><strong>CONCAT(s1, s2, ...) :</strong> Concatène plusieurs chaînes (gère les NULLs selon le SGBD).</li>
+      <li><strong>UPPER(s) / LOWER(s) :</strong> Conversion de casse pour comparaisons insensibles.</li>
+      <li><strong>SUBSTRING(s FROM start FOR len) :</strong> Extraction d’une sous-chaîne.</li>
+      <li><strong>TRIM(s) / LENGTH(s) :</strong> Suppression des espaces superflus et mesure de la longueur.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sql2-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="dept=IT,salaire&gt;=3000&#10;1:Alice:IT:3200;2:Bob:RH:2500;3:Claire:IT:2800;4:David:IT:4100">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c2-e1) — Moteur d’évaluation de clause WHERE multi-critères
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Filtre sur département uniquement]
+# Données : dept=RH
+# Données : 1:Alice:IT:3200;2:Bob:RH:2500;3:Claire:RH:2900
+A_COMPLETER
+
+[Cas 2 — Filtre avec opérateur inférieur strict]
+# Données : salaire<3000
+# Données : 1:Alice:IT:3200;2:Bob:RH:2500;3:Claire:IT:2800;4:Marc:IT:3000
+A_COMPLETER
+
+[Cas 3 — Aucun enregistrement ne correspond]
+# Données : dept=FINANCE,salaire>=5000
+# Données : 1:Alice:IT:3200;2:Bob:RH:2500
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moteur d’évaluation de clause WHERE multi-critères</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Filtrer un ensemble de données selon des conditions combinées avec AND et comparateurs.</p>
+    <div class="lab__brief"><p>Le script simule l’exécution d’une clause <code>WHERE</code> sur un jeu d’enregistrements d’employés.
+Chaque employé est décrit par : <code>id:nom:departement:salaire</code>.
+
+Entrée :
+- Ligne 1 : Les critères de filtrage séparés par des virgules (ex: <code>dept=IT,salaire&gt;=3000</code>).
+- Ligne 2 : La liste des employés séparés par des points-virgules (ex: <code>1:Alice:IT:3200;2:Bob:RH:2500;3:Claire:IT:2800</code>).
+
+Sortie :
+La liste des noms d’employés correspondants, triés par salaire décroissant sous la forme <code>Nom(Salaire)</code>, séparés par des virgules (ou <code>AUCUN</code> si aucun résultat).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>dept=IT,salaire&gt;=3000
+1:Alice:IT:3200;2:Bob:RH:2500;3:Claire:IT:2800;4:David:IT:4100</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>David(4100),Alice(3200)</pre></div>
+    </div>
+    <p class="lab__note">David et Alice appartiennent au département IT avec un salaire &gt;= 3000.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parse les critères : repère les opérateurs &gt;=, &lt;=, &gt;, &lt;, =, !=.</li>
+        <li>Pour chaque employé, vérifie que TOUTES les conditions (AND implicite) sont satisfaites.</li>
+        <li>Trie les employés retenus par salaire décroissant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="NULL,0611223344,NULL,Non_renseigne&#10;NULL,NULL,NULL,Inconnu&#10;0140000000,0699887766,NULL,Defaut">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c2-e2) — Gestionnaire de logique tri-valuée et fonction COALESCE
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Toutes les valeurs sont nulles sauf le repli]
+# Données : NULL,NULL,NULL,Aucun_numero
+A_COMPLETER
+
+[Cas 2 — Premier champ déjà renseigné]
+# Données : 0102030405,0600000000,0900000000,Defaut
+A_COMPLETER
+
+[Cas 3 — Multiples lignes avec cas variés]
+# Données : NULL,NULL,0955443322,Standard
+# Données : NULL,0788990011,NULL,Standard
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Gestionnaire de logique tri-valuée et fonction COALESCE</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter la logique tri-valuée SQL (TRUE, FALSE, UNKNOWN) et la substitution de valeurs NULL par COALESCE.</p>
+    <div class="lab__brief"><p>En SQL, une comparaison avec <code>NULL</code> (ex: <code>col = NULL</code>) ne renvoie ni TRUE ni FALSE mais <code>UNKNOWN</code>. La fonction <code>COALESCE(v1, v2, ..., defaut)</code> renvoie le premier argument non-NULL rencontré.</p>
+<p>Entrée :
+Chaque ligne contient une séquence de valeurs séparées par des virgules : <code>tel_fixe,tel_mobile,tel_bureau,defaut</code> (la valeur <code>NULL</code> est écrite textuellement <code>NULL</code>).
+
+Sortie :
+Pour chaque ligne : <code>Contact: &lt;Valeur_Retenue&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NULL,0611223344,NULL,Non_renseigne
+NULL,NULL,NULL,Inconnu
+0140000000,0699887766,NULL,Defaut</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Contact: 0611223344
+Contact: Inconnu
+Contact: 0140000000</pre></div>
+    </div>
+    <p class="lab__note">COALESCE retient le premier champ non nul.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traite la chaîne de caractères "NULL" comme une absence de valeur.</li>
+        <li>Itère sur les éléments de gauche à droite et retiens le premier élément distinct de "NULL".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="A%_E&#10;bateau,ANGLE,acte,AUBE,avion">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c2-e3) — Émulateur d’opérateur de recherche SQL LIKE (% et _)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Motif simple se terminant par une chaîne fixe]
+# Données : %tion
+# Données : programmation,sql,fonction,action,table
+A_COMPLETER
+
+[Cas 2 — Motif avec tirets bas stricts (longueur fixe)]
+# Données : ___s
+# Données : des,mots,bras,test,mais
+A_COMPLETER
+
+[Cas 3 — Aucune correspondance]
+# Données : Z%
+# Données : alpha,beta,gamma
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Émulateur d’opérateur de recherche SQL LIKE (% et _)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir un motif SQL LIKE en expression régulière et filtrer un dictionnaire de mots.</p>
+    <div class="lab__brief"><p>En SQL, l’opérateur <code>LIKE</code> utilise deux caractères génériques (jokers) :
+- <code>%</code> représente zéro, un ou plusieurs caractères ;
+- <code>_</code> représente exactement un caractère quelconque.
+La comparaison est insensible à la casse (comme sous MySQL par défaut).
+
+Entrée :
+- Ligne 1 : Le motif SQL LIKE (ex: <code>A%_E</code>).
+- Ligne 2 : La liste de mots candidats séparés par des virgules (ex: <code>arbre,ANGLE,acte,AUBE,avion</code>).
+
+Sortie :
+<code>Correspondances: &lt;mot1,mot2&gt;</code> ou <code>Correspondances: AUCUNE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>A%_E
+bateau,ANGLE,acte,AUBE,avion</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Correspondances: ANGLE,acte,AUBE</pre></div>
+    </div>
+    <p class="lab__note">ANGLE, acte et AUBE commencent par A, ont au moins 1 lettre intermédiaire et finissent par E.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Échappe d abord les caractères spéciaux d expression régulière.</li>
+        <li>Remplace % par .* et _ par . en bornant le tout avec ^ et $.</li>
+        <li>Applique re.IGNORECASE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que renvoie l’évaluation de l’expression booléenne (valeur = NULL) en SQL standard si la colonne valeur contient NULL ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">UNKNOWN</button>
+        <button class="opt">TRUE</button>
+        <button class="opt">FALSE</button>
+        <button class="opt">NULL_POINTER_EXCEPTION</button>
+      </div>
+      <div class="q__exp">En SQL standard, l’égalité avec NULL ne produit jamais TRUE ou FALSE mais UNKNOWN (la valeur inconnue). Pour tester la nullité, il faut impérativement utiliser le prédicat IS NULL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une clause WHERE, que se passe-t-il pour une ligne dont la condition s’évalue à UNKNOWN ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La ligne est exclue du résultat final (car seule une évaluation à TRUE permet la sélection)</button>
+        <button class="opt">La ligne est incluse par précaution</button>
+        <button class="opt">La requête s’interrompt avec une erreur d’exécution</button>
+        <button class="opt">La valeur de la colonne est automatiquement remplacée par zéro</button>
+      </div>
+      <div class="q__exp">La clause WHERE ne retient une ligne que si l’expression conditionnelle s’évalue strictement à TRUE. Tout résultat valant FALSE ou UNKNOWN entraîne l’exclusion immédiate de la ligne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie l’appel à la fonction COALESCE(NULL, NULL, 'contact@domain.com', 'aucun') ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">'contact@domain.com'</button>
+        <button class="opt">NULL</button>
+        <button class="opt">'aucun'</button>
+        <button class="opt">Une liste contenant les 4 éléments</button>
+      </div>
+      <div class="q__exp">COALESCE parcourt les arguments dans l’ordre de gauche à droite et renvoie le premier élément non-NULL rencontré, ici 'contact@domain.com'.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel motif SQL LIKE permet de trouver tous les mots commençant par la lettre 'C', se terminant par 'R', et ayant exactement 3 caractères au total ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">'C_R'</button>
+        <button class="opt">'C%R'</button>
+        <button class="opt">'C__R'</button>
+        <button class="opt">'C?R'</button>
+      </div>
+      <div class="q__exp">Dans l’opérateur LIKE, le tiret bas '_' remplace exactement un caractère unique. Le motif 'C_R' correspond donc à un texte de 3 caractères débutant par C et finissant par R (ex: CAR, COR).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction permet d’insérer plusieurs lignes en une seule opération SQL (Bulk Insert) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">INSERT INTO table (cols) VALUES (ligne1), (ligne2), (ligne3);</button>
+        <button class="opt">INSERT MULTIPLE INTO table VALUES (ligne1), (ligne2);</button>
+        <button class="opt">UPDATE table SET (cols) = (ligne1), (ligne2);</button>
+        <button class="opt">CREATE ROWS (ligne1), (ligne2) IN table;</button>
+      </div>
+      <div class="q__exp">La clause VALUES d’un INSERT INTO standard peut recevoir une liste de tuples séparés par des virgules pour insérer plusieurs enregistrements en un seul appel.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Écrire WHERE colonne = NULL au lieu de WHERE colonne IS NULL, ce qui garantit qu’aucune ligne ne sera jamais renvoyée.</li>
+      <li>Effectuer un UPDATE sans clause WHERE sur une table de production, écrasant d’un coup l’intégralité des données de tous les utilisateurs.</li>
+      <li>Oublier que l’opérateur BETWEEN inclut les bornes (BETWEEN 1 AND 10 comprend 1 et 10).</li>
+      <li>Additionner une colonne nullable avec un nombre (ex: salaire + prime) sans utiliser COALESCE(prime, 0) : si prime vaut NULL, le résultat de l’addition devient NULL !</li>
+      <li>Penser que l’opérateur LIKE est insensible à la casse sur tous les SGBD : PostgreSQL distingue LIKE (sensible) de ILIKE (insensible).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour sécuriser les requêtes DML et les filtres avec NULL</div>
+    <ol>
+      <li>Avant tout UPDATE ou DELETE, exécuter d’abord la requête en SELECT avec la même clause WHERE pour vérifier visuellement le périmètre exact des lignes ciblées.</li>
+      <li>Sécuriser systématiquement les colonnes optionnelles impliquées dans des calculs arithmétiques avec COALESCE(colonne, 0).</li>
+      <li>Tester l’absence ou la présence de valeur exclusivement avec les prédicats dédiés IS NULL et IS NOT NULL.</li>
+      <li>Encadrer les opérations DML sensibles à l’intérieur d’un bloc de transaction explicite (BEGIN / COMMIT) pour pouvoir annuler par ROLLBACK en cas d’imprévu.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le DML manipule le contenu des tables : INSERT (avec forme multi-lignes), UPDATE et DELETE.</li>
+      <li>La logique tri-valuée de SQL gère trois états booléens : TRUE, FALSE et UNKNOWN.</li>
+      <li>Toute comparaison directe avec NULL via les opérateurs =, !=, < ou > s’évalue à UNKNOWN.</li>
+      <li>La fonction standard COALESCE() est la solution de référence pour substituer des valeurs de repli aux valeurs NULL.</li>
+      <li>Les prédicats BETWEEN, IN et LIKE (avec % et _) permettent des sélections granulaires et expressives.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais écrire un INSERT multi-lignes efficace.</li>
+      <li>Je comprends pourquoi WHERE col = NULL ne sélectionne aucune ligne.</li>
+      <li>Je sais utiliser COALESCE pour prévenir la propagation indésirable de valeurs NULL dans les calculs.</li>
+      <li>Je maîtrise l’usage des caractères jokers % et _ dans l’opérateur LIKE.</li>
+      <li>Je sais formuler des clauses WHERE combinant AND, OR et parenthèses sans ambiguïté.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Data Manipulation Language (DML)</li><li>INSERT multi-lignes (Bulk Insert)</li><li>Mises à jour calculées (UPDATE ... SET)</li><li>Suppression ciblée (DELETE FROM ... WHERE)</li><li>Logique tri-valuée (True, False, Unknown)</li><li>Sémantique de la valeur NULL en base relationnelle</li><li>Prédicats IS NULL et IS NOT NULL</li><li>Fonction de substitution COALESCE()</li><li>Opérateur de recherche LIKE et caractères jokers (% et _)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois impérativement le comportement de NULL et la fonction COALESCE.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur l’opérateur LIKE et les filtres combinés dans WHERE.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les subtilités du DML et de l’évaluation booléenne.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe aux jointures multi-tables et sous-requêtes au module 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Jointures Multi-tables, Sous-requêtes &amp; Expressions Conditionnelles <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

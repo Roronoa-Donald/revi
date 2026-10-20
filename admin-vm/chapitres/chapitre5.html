@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Réseau virtualisé et segmentation | Admin VM B2</title>
+<meta name="description" content="Chapitre 5 du cours Admin VM B2 : Bridge, NAT, VLAN, DMZ et pare-feu, diagnostic réseau et scénario type. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/admin-vm/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Réseau virtualisé et segmentation | Admin VM B2">
+<meta property="og:description" content="Chapitre 5 du cours Admin VM B2 : Bridge, NAT, VLAN, DMZ et pare-feu, diagnostic réseau et scénario type. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="admin-vmnav"><div class="admin-vmnav__in">
+  <a class="admin-vmnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="admin-vmnav__sep" aria-hidden="true">/</span>
+  <a class="admin-vmnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Admin VM B2</a>
+  <div class="admin-vmnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="admin-vmnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="admin-vmwrap">
+<p class="crumb"><a href="../index.html">Admin VM B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Réseau virtualisé et segmentation</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Relier des VM entre elles et au monde extérieur ne suffit pas : il faut aussi cloisonner. Le réseau virtualisé repose sur un switch logique (le bridge), une segmentation (les VLAN) et un filtrage (le pare-feu) — comme un bâtiment avec couloirs et portes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire les briques réseau (bridge, NAT, VLAN, pare-feu) ;</li>
+      <li>expliquer le modèle du bridge virtuel ;</li>
+      <li>situer les VLAN et la DMZ ;</li>
+      <li>diagnostiquer un problème réseau par étapes.</li>
+    </ol>
+  </div>
+
+<h2>1. Les briques réseau</h2>
+
+<ul>
+  <li><strong>Bridge (vmbr)</strong> : switch virtuel relié au réseau physique.</li>
+  <li><strong>NAT</strong> : permet aux VM d’accéder à Internet sans IP publique.</li>
+  <li><strong>VLAN</strong> : segmentation logique dans un même switch.</li>
+  <li><strong>Pare-feu virtuel</strong> : filtre le trafic entre zones.</li>
+</ul>
+<p>Un bridge, c’est comme une multiprise : plusieurs VM s’y branchent. Un <strong>bridge principal</strong> porte le LAN de production, un <strong>bridge isolé</strong> sert aux tests ou à la DMZ. Point clé : le bridge <strong>transporte</strong> le trafic, il ne porte pas les politiques de sécurité.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-network"></use></svg> Le bridge ne filtre pas</div>
+    <p>Confondre bridge et pare-feu est une erreur classique : le bridge commute, le pare-feu décide. La sécurité vient du filtrage et de la segmentation, pas du switch.</p>
+  </div>
+
+<h2>2. VLAN et segmentation</h2>
+
+<p>Les VLAN isolent les flux sans multiplier les switchs physiques :</p>
+<ul>
+  <li><strong>VLAN 10</strong> : utilisateurs.</li>
+  <li><strong>VLAN 20</strong> : serveurs.</li>
+  <li><strong>VLAN 30</strong> : DMZ.</li>
+</ul>
+<p>Le tagging VLAN est un mécanisme <strong>logique</strong> : il structure le trafic mais <strong>ne remplace pas le pare-feu</strong>. Deux VLAN séparés restent joignables si un routeur les relie sans filtrage.</p>
+
+<h2>3. DMZ et pare-feu</h2>
+
+<p>Une <strong>DMZ</strong> héberge les services exposés (web, mail) et doit être isolée du LAN.</p>
+<ul>
+  <li>Placer les VM web en DMZ.</li>
+  <li>N’autoriser que les ports nécessaires.</li>
+  <li>Utiliser un pare-feu (pfSense, OPNsense).</li>
+  <li>Ne <strong>jamais</strong> mettre la base de données en DMZ.</li>
+</ul>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La base de données en DMZ</div>
+    <p>Exposer la base de données revient à publier l’actif le plus sensible. La DMZ ne contient que ce qui doit être joignable de l’extérieur ; les données restent dans le LAN.</p>
+  </div>
+
+<h2>4. Diagnostiquer et scénario type</h2>
+
+<p>Diagnostiquer un réseau virtuel suit un ordre : <strong>connectivité</strong> (la VM atteint-elle sa cible ?), <strong>chemin</strong> (par quelles zones passe le trafic ?), <strong>filtrage</strong> (quelles règles bloquent ?), <strong>segmentation</strong> (VLAN et DMZ respectés ?).</p>
+<p>Scénario : une agence veut héberger un site web et un ERP interne.</p>
+<ul>
+  <li>Web en DMZ (VLAN 30), ERP en LAN (VLAN 20), utilisateurs en VLAN 10.</li>
+  <li>Pare-feu : LAN et DMZ uniquement sur le port 443.</li>
+  <li>Résultat : le site est accessible, l’ERP reste protégé.</li>
+</ul>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Cloisonner pour limiter</div>
+    <p>Les VLAN, la DMZ et le filtrage limitent la propagation en cas d’incident : si le web est compromis, le cloisonnement empêche l’attaquant d’atteindre directement le LAN.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vm2-c5-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="bridge">
+  <script type="text/plain" data-lab-starter>$brique = [Console]::In.ReadLine()
+
+# À compléter : avec un switch, afficher le rôle de la brique.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Rôle des briques réseau</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer une brique réseau virtuelle à son usage.</p>
+    <div class="lab__brief"><p>Le script lit une <strong>brique</strong> : <code>bridge</code>, <code>nat</code>, <code>vlan</code> ou <code>firewall</code>. Affichez son rôle : <code>role : switch virtuel</code>, <code>role : acces Internet</code>, <code>role : segmentation logique</code> ou <code>role : filtrage du trafic</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>bridge</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>role : switch virtuel</pre></div>
+    </div>
+    <p class="lab__note">Le bridge relie VM et réseau physique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le bridge est un switch virtuel ; le NAT donne l’accès Internet.</li>
+        <li>Le VLAN segmente logiquement ; le pare-feu filtre le trafic.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c5-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="20">
+  <script type="text/plain" data-lab-starter>$vlan = [int][Console]::In.ReadLine()
+
+# À compléter : avec un switch sur $vlan, afficher la zone.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Zone d’un VLAN</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Situer un identifiant de VLAN dans la topologie de l’entreprise.</p>
+    <div class="lab__brief"><p>Le script lit un identifiant de <strong>VLAN</strong>. Affichez la zone : <code>vlan 10 : utilisateurs</code>, <code>vlan 20 : serveurs</code> ou <code>vlan 30 : DMZ</code>. Pour tout autre identifiant, affichez <code>vlan : inconnu</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>vlan 20 : serveurs</pre></div>
+    </div>
+    <p class="lab__note">Le VLAN des serveurs internes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les utilisateurs sont sur le VLAN 10, les serveurs sur le 20.</li>
+        <li>Les services exposés (web, mail) vont en DMZ, VLAN 30.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c5-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="lan&#10;dmz&#10;443">
+  <script type="text/plain" data-lab-starter>$source = [Console]::In.ReadLine()
+$destination = [Console]::In.ReadLine()
+$port = [int][Console]::In.ReadLine()
+
+# À compléter : appliquer la règle et afficher "flux : autorise" ou "flux : filtre".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Flux autorisé entre zones</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> N’autoriser entre LAN et DMZ que le strict nécessaire (port 443).</p>
+    <div class="lab__brief"><p>Le script lit la <strong>zone source</strong>, la <strong>zone destination</strong> (chacune : <code>lan</code>, <code>dmz</code> ou <code>autre</code>) et le <strong>port</strong>. Un flux est autorisé s’il reste dans la même zone, ou s’il traverse LAN et DMZ sur le port 443. Sinon, affichez <code>flux : filtre</code> ; sinon <code>flux : autorise</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>lan
+dmz
+443</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>flux : autorise</pre></div>
+    </div>
+    <p class="lab__note">Accès HTTPS du LAN vers la DMZ.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Même zone : toujours autorisé.</li>
+        <li>Traversée LAN/DMZ : autorisée seulement sur le port 443.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un bridge ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un switch virtuel</button>
+        <button class="opt">Un pare-feu</button>
+        <button class="opt">Un VLAN</button>
+      </div>
+      <div class="q__exp">Il relie les VM entre elles et au réseau physique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert le NAT ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Accéder à Internet sans IP publique</button>
+        <button class="opt">Filtrer le trafic</button>
+        <button class="opt">Segmenter</button>
+      </div>
+      <div class="q__exp">La VM sort via l’hôte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait un VLAN ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Segmente logiquement</button>
+        <button class="opt">Filtre les paquets</button>
+        <button class="opt">Chiffre</button>
+      </div>
+      <div class="q__exp">Il isole les flux dans un même switch.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le tagging VLAN remplace-t-il un pare-feu ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Non</button>
+        <button class="opt">Oui</button>
+        <button class="opt">Toujours</button>
+      </div>
+      <div class="q__exp">Il structure mais ne filtre pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où placer un serveur web exposé ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En DMZ</button>
+        <button class="opt">Dans le LAN</button>
+        <button class="opt">Sur le contrôleur de domaine</button>
+      </div>
+      <div class="q__exp">La DMZ accueille les services exposés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où ne jamais mettre la base de données ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En DMZ</button>
+        <button class="opt">Dans le LAN</button>
+        <button class="opt">Derrière le pare-feu</button>
+      </div>
+      <div class="q__exp">Elle contient les données les plus sensibles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">VLAN des serveurs ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">20</button>
+        <button class="opt">10</button>
+        <button class="opt">30</button>
+      </div>
+      <div class="q__exp">VLAN 20 pour les serveurs, 10 utilisateurs, 30 DMZ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Premier réflexe de diagnostic ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Tester la connectivité</button>
+        <button class="opt">Réinstaller</button>
+        <button class="opt">Changer de switch</button>
+      </div>
+      <div class="q__exp">On vérifie d’abord si la cible est atteignable.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre bridge (commutation) et pare-feu (filtrage).</li>
+      <li>Croire que des VLAN séparés protègent sans filtrage.</li>
+      <li>Exposer une base de données en DMZ.</li>
+      <li>Ouvrir des ports « au cas où » au lieu du strict nécessaire.</li>
+      <li>Oublier de tester le chemin réel du trafic.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Cloisonner un réseau virtuel</div>
+    <ol>
+      <li><strong>Définir</strong> les zones : utilisateurs, serveurs, DMZ.</li>
+      <li><strong>Relier</strong> avec des bridges (principal et isolé).</li>
+      <li><strong>Segmenter</strong> par VLAN (10, 20, 30).</li>
+      <li><strong>Filtrer</strong> avec un pare-feu (ports stricts).</li>
+      <li><strong>Diagnostiquer</strong> connectivité, chemin, filtrage, segmentation.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Briques : bridge (switch), NAT (Internet), VLAN (segmentation), pare-feu (filtrage).</li>
+      <li>Le bridge commute, il ne filtre pas.</li>
+      <li>VLAN 10 utilisateurs, 20 serveurs, 30 DMZ.</li>
+      <li>DMZ pour les services exposés ; jamais la base de données.</li>
+      <li>Diagnostic : connectivité, chemin, filtrage, segmentation.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décris les briques réseau.</li>
+      <li>J’explique le modèle du bridge.</li>
+      <li>Je situe les VLAN et la DMZ.</li>
+      <li>Je diagnostique un problème réseau par étapes.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>bridge</li><li>vmbr</li><li>NAT</li><li>VLAN</li><li>tagging</li><li>DMZ</li><li>pare-feu</li><li>pfSense</li><li>OPNsense</li><li>segmentation</li><li>filtrage</li><li>diagnostic</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les briques réseau.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur VLAN et DMZ.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu cloisonnes et diagnostiques.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe à l’administration avancée, chapitre 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Administration avancée <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique Admin VM (modules 1 à 7 : introduction, prérequis, architecture, cycle de vie, stockage, réseau, administration avancée).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

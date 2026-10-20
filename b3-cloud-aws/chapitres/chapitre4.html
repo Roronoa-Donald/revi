@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 — Réseau Avancé — Amazon VPC, Sous-réseaux, Routage &amp; Pare-feux (SG / NACL) | Services Cloud AWS B3</title>
+<meta name="description" content="Module 4 du cours Services Cloud AWS B3 : Amazon VPC, sous-réseaux multi-AZ, adresses réservées, tables de routage, Internet &amp; NAT Gateways, Security Groups et Network ACLs. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-aws/chapitres/chapitre4.html">
+<meta property="og:title" content="Module 4 — Réseau Avancé — Amazon VPC, Sous-réseaux, Routage &amp; Pare-feux (SG / NACL) | Services Cloud AWS B3">
+<meta property="og:description" content="Module 4 du cours Services Cloud AWS B3 : Amazon VPC, sous-réseaux multi-AZ, adresses réservées, tables de routage, Internet &amp; NAT Gateways, Security Groups et Network ACLs. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-awsnav"><div class="b3-cloud-awsnav__in">
+  <a class="b3-cloud-awsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-awsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-awsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Services Cloud AWS B3</a>
+  <div class="b3-cloud-awsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-awsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-awswrap">
+<p class="crumb"><a href="../index.html">Services Cloud AWS B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Réseau Avancé — Amazon VPC, Sous-réseaux, Routage & Pare-feux (SG / NACL)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans le cadre du déploiement d'une architecture cloud d'entreprise sécurisée, vous devez concevoir l'infrastructure réseau Amazon Virtual Private Cloud (VPC). Votre mission comprend le découpage d'un bloc CIDR /16 en sous-réseaux publics, applicatifs et bases de données répartis sur plusieurs zones de disponibilité, la configuration des tables de routage avec passerelles Internet et NAT managées, et le durcissement périmétrique en combinant Security Groups avec état et Network ACLs sans état.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Concevoir et découper un plan d'adressage Amazon VPC en sous-réseaux multi-AZ en maîtrisant les 5 adresses IP réservées par sous-réseau.</li>
+      <li>Configurer les tables de routage et différencier l'Internet Gateway (sous-réseaux publics) de la NAT Gateway (sous-réseaux privés).</li>
+      <li>Maîtriser et simuler le filtrage combiné des Security Groups (stateful) et des Network ACLs (stateless, règles numérotées et ports éphémères).</li>
+      <li>Identifier les solutions d'interconnexion réseau avancées : VPC Peering, AWS Transit Gateway, VPC Endpoints et Direct Connect.</li>
+    </ol>
+  </div>
+
+<h2>1. Amazon VPC : Blocs CIDR &amp; Sous-réseaux Multi-AZ</h2>
+
+<p>Amazon Virtual Private Cloud (VPC) est votre réseau virtuel privé isolé au sein du cloud AWS, logiquement équivalent à un réseau d'entreprise traditionnel :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Plages d'Adresses CIDR (RFC 1918)</h4>
+    <ul>
+      <li>Un VPC est associé à un ou plusieurs blocs d'adresses IPv4 privés (ex: <code>10.0.0.0/16</code> offrant 65 536 adresses).</li>
+      <li>Le masque autorisé par AWS est compris strictement entre <code>/16</code> (le plus grand) et <code>/28</code> (le plus petit : 16 adresses).</li>
+      <li>Un VPC est une ressource <strong>régionale</strong> ; les sous-réseaux découpés au sein du VPC sont quant à eux strictement confinés à une <strong>Availability Zone unique</strong>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Les 5 Adresses IP Réservées par Sous-Réseau</h4>
+    <p>Dans chaque sous-réseau AWS, 5 adresses IP ne peuvent JAMAIS être attribuées à des instances :</p>
+    <ul>
+      <li><code>.0</code> : adresse réseau du sous-réseau.</li>
+      <li><code>.1</code> : routeur VPC par défaut (passerelle locale).</li>
+      <li><code>.2</code> : serveur DNS Amazon (Route 53 Resolver / AmazonProvidedDNS).</li>
+      <li><code>.3</code> : réservé par AWS pour extension future.</li>
+      <li>Dernière IP (ex: <code>.255</code> pour /24) : adresse de diffusion (broadcast).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Routage VPC : Internet Gateway, NAT Gateway &amp; Tables de Routage</h2>
+
+<p>Le trafic au sein d'un VPC est guidé par des tables de routage associées à chaque sous-réseau :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Tables de Routage (Route Tables)</h4>
+    <p>Chaque table contient une route locale implicite (ex: <code>10.0.0.0/16 &rarr; local</code>) permettant la communication privée entre tous les sous-réseaux du VPC.</p>
+    <p>Pour joindre l'extérieur, une route par défaut <code>0.0.0.0/0</code> est ajoutée vers une cible réseau spécifique.</p>
+  </div>
+  <div class="card">
+    <h4>Internet Gateway (IGW)</h4>
+    <p>Passerelle redondante et managée hautement disponible attachée au VPC.</p>
+    <p>Un sous-réseau dont la table de routage pointe <code>0.0.0.0/0 &rarr; igw-xxxx</code> est qualifié de <strong>sous-réseau public</strong>. Ses instances ayant une IP publique peuvent échanger directement avec Internet.</p>
+  </div>
+  <div class="card">
+    <h4>NAT Gateway Managée</h4>
+    <p>Déployée obligatoirement dans un sous-réseau public avec une Elastic IP.</p>
+    <p>Permet aux instances de <strong>sous-réseaux privés</strong> (route <code>0.0.0.0/0 &rarr; nat-xxxx</code>) d'initier des connexions sortantes vers Internet (téléchargement de paquets, APIs) tout en bloquant toute intrusion entrante.</p>
+  </div>
+</div>
+
+<h2>3. Sécurité Réseau : Security Groups (Stateful) vs Network ACLs (Stateless)</h2>
+
+<p>La défense en profondeur au sein d'un VPC combine deux lignes de filtrage distinctes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Security Groups (SG) — Première Ligne (Instance)</h4>
+    <ul>
+      <li>Opère au niveau de l'interface réseau élastique (ENI) de l'instance.</li>
+      <li><strong>Avec état (Stateful) :</strong> si une connexion entrante est autorisée, le paquet retour sortant est automatiquement accepté, quel que soit le port éphémère.</li>
+      <li>Par défaut en entrée : <strong>tout est bloqué (Deny implicite)</strong>. On ne peut ajouter que des règles d'autorisation (Allow).</li>
+      <li>Toutes les règles sont évaluées globalement.</li>
+      <li>Supporte le référencement d'autres Security Groups comme source.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Network ACLs (NACL) — Seconde Ligne (Sous-Réseau)</h4>
+    <ul>
+      <li>Opère au niveau de la frontière du sous-réseau (Subnet boundary).</li>
+      <li><strong>Sans état (Stateless) :</strong> chaque paquet entrant et sortant est examiné isolément. Le trafic réponse doit obligatoirement être permis explicitement par les règles sortantes (ports éphémères 1024-65535).</li>
+      <li>Règles numérotées (1 à 32766) évaluées dans l'ordre croissant : la première règle correspondante s'applique immédiatement. Règle finale <code>*</code> par défaut en Deny.</li>
+      <li>Prend en charge les règles <strong>Allow</strong> et <strong>Deny</strong> explicites (idéal pour bloquer une IP attaquante spécifique).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Interconnexion &amp; Passerelles Privées : Peering, Transit Gateway &amp; Endpoints</h2>
+
+<p>Pour interconnecter plusieurs VPCs et raccorder le réseau sur site (On-Premises) :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>VPC Peering</h4>
+    <p>Connexion privée point-à-point entre deux VPCs sans passerelle ni passer par Internet public.</p>
+    <p>Attention : le peering est <strong>strictement non-transitif</strong> (si A est connecté à B et B à C, A ne peut pas communiquer avec C sans lien direct A-C).</p>
+  </div>
+  <div class="card">
+    <h4>AWS Transit Gateway</h4>
+    <p>Hub de routage réseau centralisé en topologie en étoile (Hub-and-Spoke).</p>
+    <p>Permet d'interconnecter des milliers de VPCs et des réseaux sur site avec routage transitif simplifié et tables de routage partagées.</p>
+  </div>
+  <div class="card">
+    <h4>VPC Endpoints (PrivateLink)</h4>
+    <p>Accès privé aux services AWS (S3, DynamoDB, SQS) sans sortir sur Internet ni traverser de NAT Gateway.</p>
+    <p>Deux types : <em>Gateway Endpoints</em> (gratuits, pour S3 et DynamoDB via tables de routage) et <em>Interface Endpoints</em> (cartes ENI privées via AWS PrivateLink).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="aws3-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="VPC_SUBNET CIDR=10.0.1.0/24">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c4-e1) — Calculateur de Sous-réseaux CIDR & Adresses Réservées AWS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Sous-réseau /28 (le plus petit autorisé par AWS VPC)]
+# Données : VPC_SUBNET CIDR=172.16.0.0/28
+A_COMPLETER
+
+[Cas 2 — Sous-réseau étendu /20 (4096 adresses)]
+# Données : VPC_SUBNET CIDR=192.168.16.0/20
+A_COMPLETER
+
+[Cas 3 — Sous-réseau moyen /26 (64 adresses)]
+# Données : VPC_SUBNET CIDR=10.10.5.128/26
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de Sous-réseaux CIDR &amp; Adresses Réservées AWS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la plage d'adresses d'un sous-réseau VPC, les 5 adresses IP réservées par AWS et le nombre d'adresses assignables.</p>
+    <div class="lab__brief"><p>Dans tout sous-réseau d'un <strong>Amazon Virtual Private Cloud (VPC)</strong>, AWS réserve obligatoirement 5 adresses IP :<br><br>
+1. <code>.0</code> : Adresse réseau.<br>
+2. <code>.1</code> : Passerelle du routeur VPC par défaut.<br>
+3. <code>.2</code> : Serveur DNS fourni par Amazon (AmazonProvidedDNS / Route 53 Resolver).<br>
+4. <code>.3</code> : Réservé par AWS pour extension future.<br>
+5. Dernière adresse (ex: <code>.255</code> pour un /24) : Adresse de diffusion (broadcast réseau).<br><br>
+Formule :<br>
+- Total d'adresses brutes : <code>2 ** (32 - masque)</code>.<br>
+- Adresses IP réellement utilisables pour des instances : <code>Total - 5</code>.<br><br>
+Entrée STDIN : <code>VPC_SUBNET CIDR=&lt;ip/masque&gt;</code> (ex: <code>10.0.1.0/24</code>).<br>
+Sortie : <code>SUBNET_CALC: total_ips=&lt;t&gt; usable_ips=&lt;u&gt; net_ip=&lt;net&gt; router_ip=&lt;r&gt; dns_ip=&lt;d&gt; broadcast_ip=&lt;b&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VPC_SUBNET CIDR=10.0.1.0/24</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUBNET_CALC: total_ips=256 usable_ips=251 net_ip=10.0.1.0 router_ip=10.0.1.1 dns_ip=10.0.1.2 broadcast_ip=10.0.1.255</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ROUTE_AUDIT SUBNET=subnet-0a1b2c3d ROUTES=10.0.0.0/16-&gt;local;0.0.0.0/0-&gt;igw-11223344">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c4-e2) — Auditeur de Tables de Routage VPC (Public vs Privé vs Isolé)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Sous-réseau privé avec NAT Gateway]
+# Données : ROUTE_AUDIT SUBNET=subnet-priv-01 ROUTES=10.0.0.0/16->local;0.0.0.0/0->nat-99887766
+A_COMPLETER
+
+[Cas 2 — Sous-réseau base de données isolé (aucune route 0.0.0.0/0)]
+# Données : ROUTE_AUDIT SUBNET=subnet-db-01 ROUTES=10.0.0.0/16->local;10.20.0.0/16->pcx-12345
+A_COMPLETER
+
+[Cas 3 — Sous-réseau isolé avec Endpoint S3 Gateway]
+# Données : ROUTE_AUDIT SUBNET=subnet-s3-only ROUTES=10.0.0.0/16->local;pl-63a5400a->vpce-55667788
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Auditeur de Tables de Routage VPC (Public vs Privé vs Isolé)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Qualifier un sous-réseau VPC selon la destination de sa route par défaut 0.0.0.0/0.</p>
+    <div class="lab__brief"><p>Dans Amazon VPC, la typologie d'un sous-réseau dépend de sa <strong>Route Table</strong> :<br><br>
+1. <strong>PUBLIC</strong> :<br>
+Comporte une route par défaut <code>0.0.0.0/0</code> pointant directement vers une passerelle Internet <code>igw-&lt;id&gt;</code>.<br>
+Les instances avec IP publique peuvent communiquer directement avec Internet.<br><br>
+2. <strong>PRIVATE</strong> :<br>
+Comporte une route par défaut <code>0.0.0.0/0</code> pointant vers une passerelle NAT managée <code>nat-&lt;id&gt;</code> ou une instance NAT.<br>
+Les instances peuvent initier des connexions sortantes (ex: téléchargement de patchs) mais sont inaccessibles depuis l'extérieur.<br><br>
+3. <strong>ISOLATED</strong> :<br>
+Aucune route vers <code>0.0.0.0/0</code>. Le trafic est strictement confiné au VPC local ou à des passerelles d'extrémités privées (VPC Endpoints <code>vpce-&lt;id&gt;</code> ou Peering <code>pcx-&lt;id&gt;</code>).<br><br>
+Entrée STDIN :<br>
+<code>ROUTE_AUDIT SUBNET=&lt;id&gt; ROUTES=&lt;dest1-&gt;target1;dest2-&gt;target2;...&gt;</code>.<br><br>
+Sortie : <code>ROUTE_VERDICT: subnet=&lt;id&gt; type=&lt;PUBLIC|PRIVATE|ISOLATED&gt; default_target=&lt;target|NONE&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROUTE_AUDIT SUBNET=subnet-0a1b2c3d ROUTES=10.0.0.0/16-&gt;local;0.0.0.0/0-&gt;igw-11223344</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTE_VERDICT: subnet=subnet-0a1b2c3d type=PUBLIC default_target=igw-11223344</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="FLOW_CHECK DIRECTION=INBOUND PORT=443 SG_IN=80,443 NACL_RULES=100:Allow:443;200:Deny:All;*:Deny:All">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c4-e3) — Simulateur de Pare-feu : Security Group (Stateful) vs Network ACL (Stateless)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Retour sortant stateful bloqué par NACL stateless (ports éphémères)]
+# Données : FLOW_CHECK DIRECTION=RETURN_OUTBOUND PORT=54321 SG_IN=443 NACL_RULES=100:Deny:54321;*:Deny:All
+A_COMPLETER
+
+[Cas 2 — Retour sortant autorisé à la fois par SG stateful et NACL ports éphémères]
+# Données : FLOW_CHECK DIRECTION=RETURN_OUTBOUND PORT=49152 SG_IN=80 NACL_RULES=100:Allow:1024-65535;*:Deny:All
+A_COMPLETER
+
+[Cas 3 — Flux entrant bloqué par le Security Group (port non listé)]
+# Données : FLOW_CHECK DIRECTION=INBOUND PORT=22 SG_IN=80,443 NACL_RULES=100:Allow:All;*:Deny:All
+A_COMPLETER
+
+[Cas 4 — Flux entrant avec règle NACL prioritaire Deny]
+# Données : FLOW_CHECK DIRECTION=INBOUND PORT=80 SG_IN=80 NACL_RULES=50:Deny:80;100:Allow:80;*:Deny:All
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de Pare-feu : Security Group (Stateful) vs Network ACL (Stateless)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer le filtrage d'un flux entrant ou d'un retour sortant en combinant Security Groups et Network ACLs.</p>
+    <div class="lab__brief"><p>La sécurité réseau AWS repose sur deux couches complémentaires :<br><br>
+1. <strong>Security Group (Avec état / Stateful)</strong> :<br>
+- S'applique au niveau de l'interface réseau élastique (ENI) de l'instance.<br>
+- Tout trafic retour d'un flux entrant autorisé est <strong>automatiquement accepté</strong>, quelles que soient les règles sortantes.<br>
+- Par défaut en entrée : <code>DENY</code>.<br><br>
+2. <strong>Network ACL (Sans état / Stateless)</strong> :<br>
+- S'applique au niveau du sous-réseau.<br>
+- Règles numérotées (1..32766) évaluées par ordre croissant : la première règle correspondante s'applique (ALLOW ou DENY).<br>
+- Règle par défaut <code>*</code> (fin de liste) : <code>DENY</code>.<br>
+- <strong>Sans état</strong> : Pour qu'un paquet retour d'une connexion TCP puisse sortir, la NACL doit comporter une règle sortante autorisant les ports éphémères (ex: <code>1024-65535</code>).<br><br>
+Entrée STDIN :<br>
+<code>FLOW_CHECK DIRECTION=&lt;INBOUND|RETURN_OUTBOUND&gt; PORT=&lt;n&gt; SG_IN=&lt;ports_allow&gt; NACL_RULES=&lt;num:Effect:port_or_range;...&gt;</code>.<br><br>
+Sortie : <code>FLOW_VERDICT: dir=&lt;d&gt; port=&lt;p&gt; sg=&lt;ALLOW|DENY&gt; nacl=&lt;ALLOW|DENY&gt; final=&lt;ALLOW|DENY&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLOW_CHECK DIRECTION=INBOUND PORT=443 SG_IN=80,443 NACL_RULES=100:Allow:443;200:Deny:All;*:Deny:All</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>FLOW_VERDICT: dir=INBOUND port=443 sg=ALLOW nacl=ALLOW final=ALLOW</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien d'adresses IP utilisables pour des instances sont disponibles dans un sous-réseau AWS de masque /24 (256 adresses au total) ?</p>
+      <div class="opts">
+        <button class="opt">256 adresses</button>
+        <button class="opt">254 adresses</button>
+        <button class="opt" data-correct="1">251 adresses</button>
+        <button class="opt">250 adresses</button>
+      </div>
+      <div class="q__exp">AWS réserve obligatoirement 5 adresses IP dans chaque sous-réseau (.0 réseau, .1 routeur VPC, .2 DNS, .3 réservé futur, .255 broadcast). Il reste donc 256 - 5 = 251 adresses utilisables.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel type de sous-réseau une NAT Gateway doit-elle obligatoirement être déployée pour permettre aux serveurs privés de joindre Internet ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Dans un sous-réseau public possédant une route vers une Internet Gateway</button>
+        <button class="opt">Dans un sous-réseau privé isolé</button>
+        <button class="opt">Sur un serveur physique sur site</button>
+        <button class="opt">Dans une Edge Location CloudFront</button>
+      </div>
+      <div class="q__exp">Une NAT Gateway doit obligatoirement résider dans un sous-réseau public associé à une Elastic IP pour pouvoir relayer les flux vers l'Internet Gateway du VPC.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi n'est-il PAS nécessaire d'autoriser explicitement les ports clients en sortie dans un Security Group lorsqu'un flux entrant HTTP (port 80) est accepté ?</p>
+      <div class="opts">
+        <button class="opt">Car le port 80 est gratuit</button>
+        <button class="opt" data-correct="1">Car les Security Groups sont avec état (Stateful) : le trafic retour d'une connexion acceptée est automatiquement autorisé</button>
+        <button class="opt">Car AWS désactive les pare-feux en sortie</button>
+        <button class="opt">Car l'Internet Gateway gère le filtrage sortant</button>
+      </div>
+      <div class="q__exp">Les Security Groups sont Stateful : ils mémorisent l'état des flux établis. Si le flux entrant est autorisé, le paquet retour vers le client est automatiquement permis.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment les règles d'une Network ACL (NACL) sont-elles évaluées par AWS lorsqu'un paquet arrive à la frontière d'un sous-réseau ?</p>
+      <div class="opts">
+        <button class="opt">Toutes les règles sont évaluées ensemble de façon aléatoire</button>
+        <button class="opt" data-correct="1">Par ordre croissant de numéro de règle (1, 100, 200...) : la première règle correspondante s'applique immédiatement</button>
+        <button class="opt">Les règles Deny sont toujours prioritaires quel que soit leur numéro</button>
+        <button class="opt">Par ordre alphabétique de protocole</button>
+      </div>
+      <div class="q__exp">Les NACLs évaluent les règles dans l'ordre strictement croissant de leur numéro. Dès qu'une règle correspond au trafic (Allow ou Deny), la décision est prise et l'évaluation s'arrête.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi le VPC Peering classique entre VPC A, VPC B et VPC C ne permet-il pas à A de communiquer avec C si seuls les peerings A-B et B-C sont configurés ?</p>
+      <div class="opts">
+        <button class="opt">Car le VPC Peering n'est pas compatible avec IPv4</button>
+        <button class="opt" data-correct="1">Car le routage par VPC Peering est strictement non-transitif : il n'y a pas de routage par rebond via un VPC intermédiaire</button>
+        <button class="opt">Car B bloque le trafic par défaut</button>
+        <button class="opt">Car il faut redémarrer les VPCs</button>
+      </div>
+      <div class="q__exp">Le peering VPC ne supporte pas le routage transitif. Pour que A et C communiquent, il faut soit créer un peering direct A-C, soit utiliser une AWS Transit Gateway.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle adresse IP est automatiquement affectée au résolveur DNS AmazonProvidedDNS dans le sous-réseau 10.0.5.0/24 ?</p>
+      <div class="opts">
+        <button class="opt">10.0.5.1</button>
+        <button class="opt" data-correct="1">10.0.5.2</button>
+        <button class="opt">10.0.5.254</button>
+        <button class="opt">169.254.169.254</button>
+      </div>
+      <div class="q__exp">Dans tout sous-réseau AWS, l'adresse réseau + 2 (.2) est systématiquement réservée pour le serveur DNS interne fourni par Amazon (Route 53 Resolver).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel service d'interconnexion physique dédiée permet de relier un centre de données sur site à un VPC AWS avec une bande passante garantie de 1 à 100 Gbps ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">AWS Direct Connect</button>
+        <button class="opt">VPC Peering</button>
+        <button class="opt">AWS Storage Gateway</button>
+        <button class="opt">Internet Gateway</button>
+      </div>
+      <div class="q__exp">AWS Direct Connect établit une liaison réseau en fibre dédiée privée entre les locaux d'une entreprise et AWS, contournant entièrement l'Internet public pour garantir performance et sécurité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la taille minimale (le plus petit sous-réseau) autorisée par AWS lors de la création d'un sous-réseau VPC ?</p>
+      <div class="opts">
+        <button class="opt">/32 (1 adresse)</button>
+        <button class="opt">/30 (4 adresses)</button>
+        <button class="opt" data-correct="1">/28 (16 adresses)</button>
+        <button class="opt">/24 (256 adresses)</button>
+      </div>
+      <div class="q__exp">Le plus petit bloc CIDR autorisé par AWS pour un sous-réseau est /28 (16 adresses au total, dont 11 assignables à des interfaces après déduction des 5 IPs réservées).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de soustraire les 5 adresses IP réservées lors du calcul de dimensionnement des sous-réseaux VPC.</li>
+      <li>Déployer une NAT Gateway dans un sous-réseau privé : elle ne pourra jamais communiquer avec l'Internet public sans Internet Gateway dans son sous-réseau.</li>
+      <li>Bloquer les ports éphémères sortants (1024-65535) dans une Network ACL, provoquant le blocage complet des réponses aux requêtes web des clients.</li>
+      <li>Tenter d'utiliser un VPC Peering pour faire du routage transitif entre trois VPCs sans établir de liens de peering directs pour chaque paire.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Conception d'un VPC d'Entreprise</div>
+    <ol>
+      <li>Dimensionnement du bloc CIDR : sélectionner une plage privée RFC 1918 (ex: 10.0.0.0/16) qui ne chevauche pas les réseaux sur site de l'entreprise.</li>
+      <li>Architecture 3-tiers multi-AZ : découper le VPC en sous-réseaux Publics (ALB), Privés Applicatifs (instances EC2) et Privés Données (bases de données RDS) répartis sur au moins 2 AZs distinctes.</li>
+      <li>Isolation du routage : déployer des passerelles NAT Gateway redondées dans les sous-réseaux publics et n'associer de passerelle Internet qu'aux sous-réseaux hébergeant des répartiteurs publics.</li>
+      <li>Chaining des Security Groups : autoriser le trafic HTTP sur l'ALB depuis Internet (0.0.0.0/0), autoriser le trafic sur les instances uniquement depuis le groupe de l'ALB, et autoriser la base de données uniquement depuis le groupe applicatif.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Amazon VPC fournit un réseau virtuel isolé au sein d'une région AWS, découpé en sous-réseaux confinés à une Availability Zone unique.</li>
+      <li>AWS réserve obligatoirement 5 adresses IP dans chaque sous-réseau (.0 réseau, .1 routeur, .2 DNS AWS, .3 futur, .255 broadcast).</li>
+      <li>Un sous-réseau public achemine son trafic 0.0.0.0/0 vers une Internet Gateway, tandis qu'un sous-réseau privé utilise une NAT Gateway pour ses flux sortants.</li>
+      <li>Les Security Groups sont avec état (stateful) au niveau de l'instance ; les Network ACLs sont sans état (stateless) avec règles numérotées au niveau du sous-réseau.</li>
+      <li>AWS Transit Gateway simplifie l'interconnexion complexe de multiples VPCs et sites distants en surmontant la non-transitivité du VPC Peering classique.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous calculer le nombre exact d'adresses assignables dans un sous-réseau /24 ou /28 en tenant compte des 5 IPs réservées AWS ?</li>
+      <li>Comprenez-vous pourquoi une NAT Gateway doit obligatoirement être déployée dans un sous-réseau public pour fonctionner ?</li>
+      <li>Savez-vous expliquer la différence de comportement entre un Security Group stateful et une Network ACL stateless sur le trafic retour ?</li>
+      <li>Pouvez-vous justifier l'intérêt du chaining de Security Groups par rapport à l'utilisation d'adresses IP statiques ?</li>
+      <li>Connaissez-vous la distinction entre un Gateway Endpoint (S3/DynamoDB) et un Interface Endpoint PrivateLink ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Amazon VPC :</strong> Virtual Private Cloud : réseau virtuel isolé régional personnalisable dans le cloud AWS.</li><li><strong>Adresses Réservées AWS :</strong> Les 5 premières et dernière adresses de tout sous-réseau (.0, .1, .2, .3, .255) réservées pour l'infrastructure interne.</li><li><strong>Internet Gateway (IGW) :</strong> Composant managé hautement disponible permettant la communication directe entre un VPC et l'Internet public.</li><li><strong>NAT Gateway :</strong> Passerelle de translation d'adresses permettant aux instances privées d'accéder à Internet sans être joignables de l'extérieur.</li><li><strong>Security Group :</strong> Pare-feu virtuel avec état (stateful) filtrant le trafic au niveau des interfaces réseau élastiques des instances.</li><li><strong>Network ACL (NACL) :</strong> Pare-feu sans état (stateless) évaluant des règles numérotées par ordre croissant à la frontière du sous-réseau.</li><li><strong>Ports Éphémères :</strong> Plage de ports clients (1024-65535) obligatoirement autorisée en sortie dans les NACLs pour recevoir les réponses TCP.</li><li><strong>Transit Gateway :</strong> Hub de routage réseau centralisé en étoile reliant des milliers de VPCs et des réseaux sur site avec transitivité.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Adressage VPC et rôles des passerelles à revoir. Relisez la section sur les 5 adresses réservées et la NAT Gateway.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Bases du réseau acquises. Approfondissez le fonctionnement stateless des Network ACLs.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à simuler le filtrage SG et NACL dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez l'architecture 3-tiers et les interconnexions Transit Gateway.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte réseau AWS. Prêt pour le stockage S3 et les bases RDS/DynamoDB du Module 5 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Module 5 — Stockage & Données — Amazon S3, EFS, RDS & NoSQL DynamoDB <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AWS L3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja, 2025/2026), Documentation officielle Amazon Web Services (AWS Architecture Center), Référentiels des certifications AWS Certified Cloud Practitioner (CLF-C02) et Solutions Architect - Associate (SAA-C03).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Arborescence et système de fichiers | Linux B1</title>
+<meta name="description" content="Chapitre 2 du cours de Linux B1 : La racine et les répertoires standard, tout est fichier, systèmes de fichiers, partitions et montage. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-linux/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Arborescence et système de fichiers | Linux B1">
+<meta property="og:description" content="Chapitre 2 du cours de Linux B1 : La racine et les répertoires standard, tout est fichier, systèmes de fichiers, partitions et montage. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="lxnav"><div class="lxnav__in">
+  <a class="lxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="lxnav__sep" aria-hidden="true">/</span>
+  <a class="lxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux B1</a>
+  <div class="lxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="lxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="lxwrap">
+<p class="crumb"><a href="../index.html">Linux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Arborescence et système de fichiers</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sous Windows, chaque disque a sa lettre : C:, D:. Sous Linux, il n’y a qu’un seul arbre qui part de une racine unique, et tout — documents, périphériques, processus — y prend place comme fichier. Avant de taper la moindre commande, il faut savoir lire cette carte : où vivent les configurations, les répertoires personnels, les fichiers temporaires, les journaux.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire l’arborescence hiérarchique issue de la racine ;</li>
+      <li>associer chaque répertoire standard (/etc, /home, /var, /tmp…) à son rôle ;</li>
+      <li>expliquer « tout est fichier » et le rôle des inodes et métadonnées ;</li>
+      <li>distinguer partition principale, étendue et logique, et monter un système de fichiers.</li>
+    </ol>
+  </div>
+
+<h2>1. Un arbre unique, une racine</h2>
+
+<p>Le système de fichiers de Linux est <strong>hiérarchique</strong> : une arborescence de répertoires et de sous-répertoires qui part d’un élément de base noté <code>/</code> — la <strong>racine</strong> (root directory). Tout chemin absolu commence par ce slash : <code>/etc/passwd</code>, <code>/home/alice/notes.txt</code>.</p>
+<pre><code>/                      la racine : origine de tout
+├── boot               noyau et ressources de démarrage
+├── dev                fichiers des périphériques (devices)
+├── etc                fichiers de configuration du système et des démons
+├── home               répertoires personnels des utilisateurs
+├── proc               arborescence virtuelle du noyau (lecture seule, sauf /proc/sys)
+├── root               répertoire personnel du super-utilisateur
+├── tmp                fichiers temporaires, effacés à chaque redémarrage
+├── usr                applications, documentation, manuels, librairies
+│   └── local          installation des logiciels supplémentaires
+├── var                fichiers variables : journaux des démons, spools (mail, impression, cron)
+├── bin   et   sbin    binaires indispensables au démarrage et commandes d’administration
+└── lib   et   usr/lib librairies nécessaires à ces commandes</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « etc = étagère de config »</div>
+    <p>Retiens par contrastes : <code>/etc</code> est <strong>l’étagère de configuration</strong> (celle qu’on sauvegarde pour restaurer une machine), <code>/home</code> <strong>les maisons</strong> des utilisateurs, <code>/tmp</code> <strong>la table qui se débarrasse</strong> au redémarrage, <code>/var</code> <strong>les journaux qui varient</strong>, <code>/root</code> la maison de root — qui n’est pas dans /home.</p>
+  </div>
+
+<h2>2. Tout est fichier</h2>
+
+<p>Dans les systèmes Linux, <strong>tout est fichier</strong> : contrairement à Windows, un fichier Linux peut être un fichier de données, un périphérique, une partition, un programme en cours d’exécution ou un répertoire. C’est pourquoi les disques vivent dans <code>/dev</code> (devices) : <code>sda</code> pour un disque SCSI, <code>hda</code> pour un disque IDE.</p>
+<p>Un fichier est décrit par des propriétés appelées <strong>métadonnées</strong> : sous Linux, l’<strong>inode</strong>. Les données, elles, sont placées dans d’autres blocs du support de stockage. Nom, droits, propriétaire, taille : tout cela vit dans l’inode, pas dans le contenu.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — /root n’est pas /</div>
+    <p>La racine de l’arbre est <code>/</code> ; <code>/root</code> est le répertoire personnel du super-utilisateur. Les deux se prononcent presque pareil et se confondent en examen : la racine n’a pas de nom, /root a un habitant.</p>
+  </div>
+
+<h2>3. Systèmes de fichiers : ext et compagnie</h2>
+
+<p>Un <strong>système de fichiers</strong> (File System, FS) définit l’organisation des données sur un support de stockage : comment sont gérés et organisés les fichiers par l’OS. Les principaux sous Linux :</p>
+<table>
+    <tr><th>FS</th><th>À retenir</th></tr>
+    <tr><td><code>ext2</code></td><td>le FS historique de Linux, aux normes Unix, non journalisé</td></tr>
+    <tr><td><code>ext3</code></td><td>successeur d’ext2 (1999), journalisé, convertible depuis ext2 en quelques secondes</td></tr>
+    <tr><td><code>ext4</code></td><td>évolution d’ext3, optimisations et rétrocompatibilité</td></tr>
+    <tr><td><code>reiserfs</code></td><td>premier FS intégré à Linux, indexation des répertoires, petits fichiers</td></tr>
+    <tr><td><code>xfs</code></td><td>journalisation performante, snapshots, défragmentation en ligne (1993)</td></tr>
+    <tr><td><code>vfat</code></td><td>FAT de Windows avec noms longs (255 caractères) ; clefs USB et supports amovibles</td></tr>
+  </table>
+<p>La <strong>journalisation</strong> est le critère qui revient toujours : avant d’écrire, le FS note ce qu’il va faire dans un journal ; après une coupure de courant, il reprend proprement. ext2 ne l’a pas, ext3/ext4/xfs l’ont.</p>
+
+<h2>4. Partitions, montage et occupation</h2>
+
+<p>À l’installation, un disque n’est ni <strong>partitionné</strong> ni <strong>formaté</strong> : partitionner, c’est définir un ou plusieurs espaces sur le disque ; formater, c’est préparer une partition à recevoir des données avec un système de fichiers défini.</p>
+<p>Il existe trois sortes de partitions :</p>
+<table>
+    <tr><th>Type</th><th>Règle</th></tr>
+    <tr><td>principale</td><td>au nombre de quatre maximum ; supporte tous types de FS</td></tr>
+    <tr><td>étendue</td><td>ne contient que des partitions logiques ; ne reçoit pas de FS ; suppose une principale</td></tr>
+    <tr><td>logique</td><td>contenue dans l’étendue ; sans limite en nombre ; tous types de FS</td></tr>
+  </table>
+<p>La commande <code>fdisk</code> configure une partition (ex. <code>fdisk /dev/hda</code> pour le premier disque IDE). Pour être utilisé, un système de fichiers doit être <strong>monté</strong> sur un point de l’arborescence : <code>mount /dev/sda1 /mnt/flashdisk</code>, démonter avec <code>umount</code>. Enfin <code>df -h</code> affiche l’occupation des partitions montées et <code>du -ks /usr/local</code> l’espace occupé par une arborescence.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les descripteurs de disques</div>
+    <p>Dans <code>/dev</code>, les disques se nomment <code>hdX</code> (IDE) ou <code>sdX</code> (SCSI), X étant une lettre pour le périphérique : hda = maître du contrôleur primaire, hdd = esclave du secondaire. Un chiffre suit pour la partition : sda1 est la première partition de sda.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx-c2-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;-rw-r--r-- notes.txt&#10;drwxr-x--- dossier&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r droits nom
+  # À compléter : découper les neuf caractères en trois triplets.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Lire une ligne ls -l</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décoder les neuf caractères de droits d'une ligne ls -l en classes utilisateur/groupe/autres.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> au format ls -l réduit : <code>DROITS NOM</code> (ex. <code>-rw-r--r-- notes.txt</code>). Le premier caractère est le type (<code>-</code> fichier, <code>d</code> répertoire) ; les neuf suivants sont les droits. Pour chaque ligne il affiche : <code>NOM : TYPE, u=DROITSu, g=DROITSg, o=DROITSo</code> où DROITSu/g/o sont les triplets (ex. <code>rw-</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+-rw-r--r-- notes.txt
+drwxr-x--- dossier
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>notes.txt : fichier, u=rw-, g=r--, o=r--
+dossier : repertoire, u=rwx, g=r-x, o=---</pre></div>
+    </div>
+    <p class="lab__note">Un fichier et un répertoire classiques.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les triplets se découpent par positions : ${droits:1:3}, ${droits:4:3}, ${droits:7:3}.</li>
+        <li>Le type est ${droits:0:1} : traduire - en « fichier » et d en « repertoire ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c2-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;-rw-rw-r-- liste&#10;drwx------ prive&#10;-r-xr-x--- vue&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r droits nom
+  # À compléter : convertir chaque triplet en un chiffre octal.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Compter les permissions</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir chaque triplet symbolique en valeur octale et produire les trois chiffres de chmod.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>DROITS NOM</code> comme au format ls -l (<code>-rw-r--r-- notes.txt</code>). Pour chacune il calcule la <strong>valeur octale</strong> des droits (r = 4, w = 2, x = 1, par triplet) et affiche <code>NOM : octal</code> — par exemple <code>rw-r--r--</code> donne <code>644</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+-rw-rw-r-- liste
+drwx------ prive
+-r-xr-x--- vue
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>liste : 664
+prive : 700
+vue : 550</pre></div>
+    </div>
+    <p class="lab__note">rw- = 6, rw- = 6, r-- = 4 ; rwx = 7 ; r-x = 5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour un triplet, additionner : 4 si le premier caractère est r, 2 si le second est w, 1 si le troisième est x.</li>
+        <li>Boucler sur les trois positions du triplet avec une coupe ${triplet:i:1}, et construire la chaîne octale chiffre par chiffre.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c2-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;texte texte.txt&#10;texte.txt fichier&#10;doc texte&#10;doc&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+declare -A liens
+for ((i=0; i<n; i++)); do
+  read -r cible source
+  liens[$cible]="$source"
+done
+read -r depart
+# À compléter : suivre la chaîne jusqu'au fichier final.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Liens symboliques simulés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre une chaîne de liens symboliques jusqu'au fichier réel, ou conclure à un lien cassé.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>cible source</code> décrivant des liens : <code>ln -s source cible</code> revient à « cible pointe vers source ». Puis il lit une dernière ligne : un <strong>point de départ</strong>. Il suit les liens (au plus 100 sauts) et affiche le <strong>fichier final</strong> — l'entrée qui n'est cible d'aucun lien. Si l'entrée finale n'est pas dans la table et n'est cible d'aucun lien, c'est déjà le fichier final ; si la chaîne boucle (dépassement des 100 sauts), il affiche <code>boucle</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+texte texte.txt
+texte.txt fichier
+doc texte
+doc
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>fichier</pre></div>
+    </div>
+    <p class="lab__note">doc → texte → texte.txt → fichier ; fichier n'est cible d'aucun lien.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tant que l'entrée courante est une clé de liens[${entree}], avancer vers la source, en comptant les sauts.</li>
+        <li>Au-delà de 100 sauts : boucle. Sinon, la première entrée qui n'est pas clé est le fichier final.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Comment note-t-on la racine de l’arborescence Linux ?</p>
+      <div class="opts">
+        <button class="opt">C:\</button>
+        <button class="opt" data-correct="1">/</button>
+        <button class="opt">/root</button>
+      </div>
+      <div class="q__exp">Un seul arbre part de la racine notée / ; C:\ est la convention Windows.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel répertoire contient les fichiers de configuration du système ?</p>
+      <div class="opts">
+        <button class="opt">/var</button>
+        <button class="opt" data-correct="1">/etc</button>
+        <button class="opt">/usr</button>
+      </div>
+      <div class="q__exp">/etc concentre les configurations système et des démons : c’est le répertoire à sauvegarder.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que contient /tmp, et quelle est sa particularité ?</p>
+      <div class="opts">
+        <button class="opt">Les comptes utilisateurs ; il est chiffré</button>
+        <button class="opt" data-correct="1">Les fichiers temporaires ; il est effacé au redémarrage</button>
+        <button class="opt">Les journaux ; il grandit sans limite</button>
+      </div>
+      <div class="q__exp">Espace d’échange temporaire, vidé à chaque reboot.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où se trouve le répertoire personnel de root ?</p>
+      <div class="opts">
+        <button class="opt">/home/root</button>
+        <button class="opt" data-correct="1">/root</button>
+        <button class="opt">/</button>
+      </div>
+      <div class="q__exp">/root est la maison du super-utilisateur, hors de /home.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie « tout est fichier » sous Linux ?</p>
+      <div class="opts">
+        <button class="opt">Une formule sans portée</button>
+        <button class="opt" data-correct="1">Périphériques, partitions, processus sont représentés par des fichiers</button>
+        <button class="opt">Les dossiers sont des fichiers texte</button>
+      </div>
+      <div class="q__exp">Fichiers, périphériques, partitions, programmes en cours, répertoires : tout prend la forme d’un fichier.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle de l’inode ?</p>
+      <div class="opts">
+        <button class="opt">Stocker les données du fichier</button>
+        <button class="opt" data-correct="1">Décrire les métadonnées du fichier</button>
+        <button class="opt">Journaliser les écritures</button>
+      </div>
+      <div class="q__exp">L’inode porte les métadonnées (droits, propriétaire, taille…) ; les données vivent dans d’autres blocs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la principale différence entre ext2 et ext3 ?</p>
+      <div class="opts">
+        <button class="opt">La vitesse</button>
+        <button class="opt" data-correct="1">La journalisation</button>
+        <button class="opt">Le support des clefs USB</button>
+      </div>
+      <div class="q__exp">ext3 est la version journalisée d’ext2 ; les deux partagent commandes et manipulations.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de partitions principales au maximum ?</p>
+      <div class="opts">
+        <button class="opt">Deux</button>
+        <button class="opt" data-correct="1">Quatre</button>
+        <button class="opt">Seize</button>
+      </div>
+      <div class="q__exp">Quatre principales ; au-delà, il faut une partition étendue contenant des logiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait mount /dev/sda1 /mnt/flashdisk ?</p>
+      <div class="opts">
+        <button class="opt">Formate la partition</button>
+        <button class="opt" data-correct="1">Monte le FS de sda1 sur le point /mnt/flashdisk</button>
+        <button class="opt">Copie sda1 dans /mnt</button>
+      </div>
+      <div class="q__exp">Monter rend le contenu accessible comme un simple répertoire de l’arborescence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande affiche l’espace occupé par une arborescence ?</p>
+      <div class="opts">
+        <button class="opt">df -h</button>
+        <button class="opt" data-correct="1">du -ks</button>
+        <button class="opt">mount</button>
+      </div>
+      <div class="q__exp">du (disk usage) avec -k (kilo-octets) et -s (total) ; df liste, elle, les partitions montées.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre / et /root</strong> : la racine n’a pas de nom ; /root est la maison de root.</li>
+      <li><strong>Mettre les journaux dans /etc</strong> : les journaux variables vivent dans /var ; /etc est la configuration.</li>
+      <li><strong>Oublier que /tmp se vide</strong> : rien de persistant ne doit y dormir.</li>
+      <li><strong>Ext2 dit journalisé</strong> : c’est ext3 qui apporte le journal ; ext2 est le FS historique.</li>
+      <li><strong>Cinq partitions principales</strong> : le plafond est quatre ; ensuite, étendue et logiques.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire une arborescence sans se perdre</div>
+    <ol>
+      <li><strong>Partir de la racine</strong> et demander pour chaque répertoire : qui y vit et pourquoi.</li>
+      <li><strong>Classer par nature</strong> : config (/etc), personnel (/home), variable (/var), éphémère (/tmp).</li>
+      <li><strong>Vérifier un chemin absolu</strong> : il commence toujours par /.</li>
+      <li><strong>Associer disque et descripteur</strong> : sdX/hdX pour le disque, chiffre pour la partition.</li>
+      <li><strong>Se représenter le montage</strong> : un FS se greffe sur un répertoire, comme un volume sur un point.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un seul arbre part de / ; chaque répertoire standard a un rôle précis et opposable en examen.</li>
+      <li>/etc : configuration (à sauvegarder) ; /home : utilisateurs ; /tmp : temporaire vidé au reboot ; /var : journaux et spools.</li>
+      <li>Tout est fichier : périphériques et partitions vivent dans /dev sous les noms hdX/sdX.</li>
+      <li>L’inode porte les métadonnées ; ext2 non journalisé, ext3 journalisé, ext4 optimisé ; vfat pour les clefs USB.</li>
+      <li>Quatre partitions principales max, étendue + logiques pour aller plus loin ; mount/umount pour greffer un FS, df/du pour l’occupation.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je dessine l’arborescence de mémoire et place boot, dev, etc, home, proc, root, tmp, usr, var, bin, lib.</li>
+      <li>Je justifie le rôle de chaque répertoire standard en une phrase.</li>
+      <li>Je distingue ext2, ext3, ext4 et vfat par leurs propriétés.</li>
+      <li>Je compte les partitions et j’explique montage et démontage avec mount et umount.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>racine</li><li>arborescence</li><li>chemin absolu</li><li>inode</li><li>métadonnées</li><li>journalisation</li><li>partition</li><li>montage</li><li>df</li><li>du</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Recopie l’arborescence puis reproduis-la de mémoire trois fois.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais le tableau des répertoires standard avec une phrase par rôle.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : explique la journalisation et le trio principal/étendue/logique.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 3, l’installation de Debian 12.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Commandes de base : trouver, manipuler, chercher <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Système Linux B1 ITA &amp; ITB » du Dr Abasse KPEGOUNI (système, fichiers, Debian 12, commandes de base, utilisateurs et groupes, TP droits d’accès).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

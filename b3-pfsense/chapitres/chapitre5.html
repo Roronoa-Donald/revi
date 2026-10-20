@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Tunnels VPN Sécurisés : OpenVPN (SSL/TLS) &amp;amp; IPsec Site-à-Site | pfSense &amp; Routage B3</title>
+<meta name="description" content="Chapitre 5 du cours pfSense &amp; Routage B3 : PKI interne pfSense, OpenVPN nomade SSL/TLS, révocation CRL, IPsec IKEv2 site-à-site, conformité cryptographique ANSSI et Split vs Full Tunneling. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-pfsense/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Tunnels VPN Sécurisés : OpenVPN (SSL/TLS) &amp;amp; IPsec Site-à-Site | pfSense &amp; Routage B3">
+<meta property="og:description" content="Chapitre 5 du cours pfSense &amp; Routage B3 : PKI interne pfSense, OpenVPN nomade SSL/TLS, révocation CRL, IPsec IKEv2 site-à-site, conformité cryptographique ANSSI et Split vs Full Tunneling. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-pfsensenav"><div class="b3-pfsensenav__in">
+  <a class="b3-pfsensenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-pfsensenav__sep" aria-hidden="true">/</span>
+  <a class="b3-pfsensenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> pfSense &amp; Routage B3</a>
+  <div class="b3-pfsensenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-pfsensenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-pfsensewrap">
+<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Tunnels VPN Sécurisés : OpenVPN (SSL/TLS) &amp; IPsec Site-à-Site</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Avec la généralisation du télétravail et l’interconnexion de sites géographiquement distants (siège social, filiales, datacenters), le réseau étendu de l’entreprise repose sur des tunnels chiffrés traversant l’Internet non sécurisé. pfSense intègre une infrastructure à clés publiques (PKI X.509) native ainsi que les deux piliers industriels du VPN : OpenVPN (SSL/TLS) pour les accès nomades flexibles et IPsec IKEv2 pour les liaisons site-à-site haute performance. L’ingénieur sécurité doit maîtriser la gestion de la chaîne de confiance et des listes de révocation (CRL), proscrire les suites cryptographiques obsolètes (DES, 3DES, MD5) au profit des recommandations de l’ANSSI (AES-GCM, SHA-384, courbes elliptiques), et arbitrer rigoureusement entre les politiques de Split Tunneling et de Full Tunneling.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>déployer et administrer une Infrastructure à Clés Publiques (PKI X.509) complète dans le Certificate Manager de pfSense ;</li>
+      <li>gérer le cycle de vie des certificats numériques clients et révoquer les accès compromis via la CRL ;</li>
+      <li>configurer un serveur OpenVPN nomade sécurisé en mode SSL/TLS + User Auth (double authentification) ;</li>
+      <li>interconnecter deux infrastructures d’entreprise via un tunnel IPsec IKEv2 site-à-site avec négociation Phase 1 et Phase 2 ;</li>
+      <li>auditer et conformer les propositions cryptographiques aux directives de sécurité de l’ANSSI et du NIST ;</li>
+      <li>développer en Python 3 des validateurs de certificats PKI, des auditeurs de propositions IPsec et des calculateurs de routage VPN.</li>
+    </ol>
+  </div>
+
+<h2>1. Infrastructure à Clés Publiques (PKI X.509) Interne sous pfSense</h2>
+
+<p>Pour authentifier de manière irréfutable les serveurs et les postes clients distants, pfSense intègre un gestionnaire complet de certificats numériques (<em>System &gt; Cert. Manager</em>) permettant d’opérer en tant qu’<strong>Autorité de Certification (CA) racine</strong> d’entreprise.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. La Chaîne de Confiance X.509</h4>
+    <p>Le modèle hiérarchique de certification repose sur trois entités fondamentales :</p>
+    <ul>
+      <li><strong>L’Autorité de Certification (Certificate Authority - CA) :</strong> Clé maîtresse auto-signée (typiquement RSA 4096 bits ou ECDSA P-384) qui signe les certificats dépendants.</li>
+      <li><strong>Le Certificat Serveur (Server Certificate) :</strong> Certificat délivré au service OpenVPN de pfSense pour attester de son identité auprès des clients.</li>
+      <li><strong>Les Certificats Utilisateurs (User Certificates) :</strong> Certificats individuels émis pour chaque collaborateur ou machine distante.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Révocation et Liste de Révocation (CRL)</h4>
+    <p>Lorsqu’un ordinateur portable d’employé est volé ou qu’un contrat prend fin, la clé privée du certificat est considérée comme compromise :</p>
+    <ul>
+      <li><strong>Certificate Revocation List (CRL) :</strong> Fichier signé par la CA recensant les numéros de série (Serial Numbers) des certificats invalidés avant leur date d’expiration.</li>
+      <li>À chaque tentative de négociation VPN, pfSense consulte la CRL : si le certificat présenté y figure, la connexion est immédiatement rejetée.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Passerelle OpenVPN Nomade : SSL/TLS, Client Export &amp; Routage</h2>
+
+<p>Le protocole <strong>OpenVPN</strong> fonctionne dans l’espace utilisateur en encapsulant les flux chiffrés dans des paquets UDP (port standard 1194) ou TCP au-dessus d’interfaces virtuelles <code>tun</code> (niveau 3 IP) ou <code>tap</code> (niveau 2 Ethernet) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Mode d’Authentification Recommandé</h4>
+    <p>Le mode industriel standard est <strong>SSL/TLS + User Auth</strong> (authentification à deux facteurs logique) :</p>
+    <ul>
+      <li><strong>Facteur 1 (Ce que je possède) :</strong> Certificat X.509 valide signé par la CA interne et clé privée.</li>
+      <li><strong>Facteur 2 (Ce que je sais) :</strong> Identifiant et mot de passe utilisateur (validés localement ou relayés vers un annuaire Active Directory LDAP/RADIUS).</li>
+      <li><strong>Clé TLS-Auth / TLS-Crypt :</strong> Clé pré-partagée symétrique signant ou chiffrant le canal de contrôle pour éliminer les attaques DoS et l’identification de port par scan.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Arbitrage : Full Tunneling vs Split Tunneling</h4>
+    <ul>
+      <li><strong>Full Tunneling (Redirect Gateway) :</strong> <em>Tout le trafic</em> du poste client (y compris la navigation Internet personnelle) est forcé à travers le tunnel vers pfSense. Sécurité maximale (filtrage proxy et inspection IDS centralisés), mais forte consommation de bande passante sur le WAN du siège.</li>
+      <li><strong>Split Tunneling :</strong> Seuls les sous-réseaux internes déclarés dans <em>IPv4 Local network(s)</em> sont injectés dans la table de routage du client. La navigation Internet courante sort directement par la box de l’employé.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Tunnels IPsec IKEv2 Site-à-Site &amp; Durcissement Cryptographique</h2>
+
+<p>Pour relier de manière permanente deux sites d’entreprise (Site-to-Site), le protocole <strong>IPsec (Internet Protocol Security)</strong> est la référence absolue grâce à son exécution directe dans le noyau et à l’accélération matérielle AES-NI :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Deux Phases de Négociation IKEv2</h4>
+    <ul>
+      <li><strong>Phase 1 (IKE SA - Security Association) :</strong> Authentification mutuelle des deux pare-feux (via clé pré-partagée PSK ou certificats RSA/ECDSA) et établissement d’un canal de gestion sécurisé bidirectionnel (échange Diffie-Hellman sur le port UDP 500/4500).</li>
+      <li><strong>Phase 2 (Child SA / ESP) :</strong> Négociation des paramètres de chiffrement du flux de données réel (protocole <code>ESP - Encapsulating Security Payload</code>, numéro de protocole IP 50) et définition des sélecteurs de trafic (sous-réseaux locaux et distants).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Exigences Cryptographiques ANSSI</h4>
+    <p>Pour être conforme aux référentiels de sécurité actuels :</p>
+    <ul>
+      <li><strong>Proscrire formellement :</strong> DES, 3DES, Blowfish, MD5, SHA-1 et les groupes DH inférieurs à 14 (DH 1, 2, 5 cassés ou vulnérables).</li>
+      <li><strong>Chiffrement recommandé :</strong> AES-GCM (128 ou 256 bits) qui combine chiffrement et authentification en une seule opération (AEAD), ou AES-CBC avec HMAC-SHA256.</li>
+      <li><strong>Échange de clés :</strong> Groupe Diffie-Hellman 14 (MODP 2048 bits), Groupe 19 (Courbe elliptique NIST P-256) ou Groupe 20 (P-384).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="pf3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CA cn=PFSENSE_INTERNAL_CA&#10;CRL revoked=104,109&#10;TIMESTAMP current=1700000000&#10;CERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e1) — Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Certificat expiré ou pas encore valide]
+# Données : CA cn=ROOT_CA
+# Données : CRL revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=EXP cn=charlie issuer=ROOT_CA serial=110 algo=RSA key_len=2048 valid_from=1600000000 valid_to=1650000000
+# Données : CERT id=FUT cn=david issuer=ROOT_CA serial=111 algo=RSA key_len=2048 valid_from=1750000000 valid_to=1800000000
+A_COMPLETER
+
+[Cas 2 — Clé RSA faible ou algorithme DSA obsolète]
+# Données : CA cn=COMPANY_CA
+# Données : CRL revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=WEAK cn=legit issuer=COMPANY_CA serial=120 algo=RSA key_len=1024 valid_from=1690000000 valid_to=1710000000
+# Données : CERT id=DSA_LEGACY cn=oldgw issuer=COMPANY_CA serial=121 algo=DSA key_len=1024 valid_from=1690000000 valid_to=1710000000
+# Données : CERT id=ECDSA_OK cn=modern issuer=COMPANY_CA serial=122 algo=ECDSA key_len=256 valid_from=1690000000 valid_to=1710000000
+A_COMPLETER
+
+[Cas 3 — CRL vide avec certificat valide]
+# Données : CA cn=TEST_CA
+# Données : CRL revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=TEST cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité cryptographique et l'état de révocation des certificats clients pour le serveur OpenVPN.</p>
+    <div class="lab__brief"><p>Dans pfSense (<em>System &gt; Cert. Manager</em>), l'authentification des clients <strong>OpenVPN</strong> repose sur une Autorité de Certification (CA) interne et une liste de révocation (CRL). Un certificat n'est accepté que s'il est valide temporellement, signé par la CA racine, non révoqué et basé sur une cryptographie robuste.<br><br>
+Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>
+- L'horodatage courant d'audit :<br>
+  <code>TIMESTAMP current=&lt;int&gt;</code><br>
+- Les certificats présentés par les clients VPN :<br>
+  <code>CERT id=&lt;nom&gt; cn=&lt;nom_client&gt; issuer=&lt;nom_ca&gt; serial=&lt;int&gt; algo=&lt;RSA|ECDSA|DSA&gt; key_len=&lt;int&gt; valid_from=&lt;int&gt; valid_to=&lt;int&gt;</code><br><br>
+Règles de validation (ordre de priorité des rejets) :<br>
+1. Si <code>issuer != CA.cn</code> : <code>status=REJECTED reason=UNTRUSTED_ISSUER</code>.<br>
+2. Si <code>serial</code> est dans la liste <code>revoked</code> : <code>status=REJECTED reason=REVOKED_CERTIFICATE</code>.<br>
+3. Si <code>current &lt; valid_from</code> : <code>status=REJECTED reason=NOT_YET_VALID</code>.<br>
+4. Si <code>current &gt; valid_to</code> : <code>status=REJECTED reason=EXPIRED_CERTIFICATE</code>.<br>
+5. Si <code>algo == 'DSA'</code> : <code>status=REJECTED reason=INSECURE_ALGORITHM</code>.<br>
+6. Si <code>algo == 'RSA' et key_len &lt; 2048</code> : <code>status=REJECTED reason=WEAK_KEY_LENGTH</code>.<br>
+7. Sinon : <code>status=ACCEPTED reason=VALID_CREDENTIALS</code>.<br><br>
+Pour chaque certificat, afficher :<br>
+<code>OPENVPN_PKI id={id} status={status} reason={reason} client={cn} serial={serial}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CA cn=PFSENSE_INTERNAL_CA
+CRL revoked=104,109
+TIMESTAMP current=1700000000
+CERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000
+CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000
+CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OPENVPN_PKI id=C1 status=ACCEPTED reason=VALID_CREDENTIALS client=alice serial=101
+OPENVPN_PKI id=C2 status=REJECTED reason=REVOKED_CERTIFICATE client=bob serial=104
+OPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200</pre></div>
+    </div>
+    <p class="lab__note">C1 est accepté, C2 est révoqué dans la CRL, C3 est signé par une autorité non reconnue.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les numéros de série révoqués dans un set.</li>
+        <li>Suivre précisément l'ordre des vérifications de sécurité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19&#10;IKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14&#10;IKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14&#10;IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e2) — Validateur de proposition cryptographique IPsec (IKEv2 & ESP)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Rejet du groupe DH 2 obsolète]
+# Données : IKE_PROPOSAL id=WEAK_DH phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=2
+A_COMPLETER
+
+[Cas 2 — Rejet de clé AES trop courte (< 128)]
+# Données : IKE_PROPOSAL id=SHORT_KEY phase=2 enc=AES-CBC key_len=64 hash=SHA256 dh_group=14
+A_COMPLETER
+
+[Cas 3 — Validation proposition Phase 2 moderne ChaCha20]
+# Données : IKE_PROPOSAL id=CHACHA_MODERN phase=2 enc=CHACHA20-POLY1305 key_len=256 hash=SHA512 dh_group=20
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de proposition cryptographique IPsec (IKEv2 &amp; ESP)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer la conformité ANSSI/NIST des propositions IKEv2 Phase 1 et Phase 2 dans pfSense.</p>
+    <div class="lab__brief"><p>Lors de l'établissement d'un tunnel VPN <strong>IPsec Site-à-Site</strong>, pfSense négocie les paramètres de chiffrement (IKE Phase 1 et ESP Phase 2). Les algorithmes obsolètes ou cassés (DES, 3DES, MD5, groupes Diffie-Hellman faibles) doivent impérativement être rejetés.<br><br>
+Analysez les paramètres du problème pour chaque cas. Si <code>enc</code> figure parmi <code>DES, 3DES, RC4</code> :<br>
+   <code>status=REJECTED reason=INSECURE_CIPHER level=NONE</code>.<br>
+2. Si <code>hash</code> figure parmi <code>MD5, SHA1</code> :<br>
+   <code>status=REJECTED reason=WEAK_HASH level=NONE</code>.<br>
+3. Si <code>dh_group &lt; 14</code> (groupes 1, 2, 5 modp obsolètes) :<br>
+   <code>status=REJECTED reason=WEAK_DH_GROUP level=NONE</code>.<br>
+4. Si <code>enc in ['AES-CBC', 'AES-GCM'] et key_len &lt; 128</code> :<br>
+   <code>status=REJECTED reason=WEAK_KEY_LENGTH level=NONE</code>.<br>
+5. Si tous les critères sont satisfaits :<br>
+   <code>status=APPROVED reason=NONE</code>.<br>
+   Le niveau de sécurité est évalué :<br>
+   - Si <code>dh_group &gt;= 19</code> (courbes elliptiques NIST P-256 ou plus) et <code>key_len &gt;= 256</code> : <code>level=HIGH</code>.<br>
+   - Sinon : <code>level=STANDARD</code>.<br><br>
+Pour chaque proposition, afficher :<br>
+<code>IPSEC_AUDIT id={id} phase={phase} status={status} reason={reason} level={level}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19
+IKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14
+IKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14
+IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH
+IPSEC_AUDIT id=PROP2 phase=1 status=REJECTED reason=INSECURE_CIPHER level=NONE
+IPSEC_AUDIT id=PROP3 phase=2 status=REJECTED reason=WEAK_HASH level=NONE
+IPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD</pre></div>
+    </div>
+    <p class="lab__note">PROP1 est approuvé en niveau HIGH (ECDH 19 + AES 256) ; PROP2 rejette 3DES ; PROP3 rejette MD5 ; PROP4 est standard.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Rejeter en priorité les chiffrements cassés (DES, 3DES, RC4).</li>
+        <li>Vérifier le groupe DH &gt;= 14 (DH 14 = 2048-bit MODP).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1&#10;ROUTE subnet=10.0.0.0/8&#10;ROUTE subnet=172.16.50.0/24&#10;PACKET id=P1 dst_ip=10.5.20.1&#10;PACKET id=P2 dst_ip=8.8.8.8&#10;PACKET id=P3 dst_ip=172.16.50.10">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e3) — Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Mode FULL Tunneling envoyant tout vers la passerelle VPN]
+# Données : VPN_MODE type=FULL tunnel_gw=10.200.0.1 local_gw=192.168.0.254
+# Données : ROUTE subnet=192.168.10.0/24
+# Données : PACKET id=P_INT dst_ip=192.168.10.5
+# Données : PACKET id=P_WEB dst_ip=142.250.200.46
+A_COMPLETER
+
+[Cas 2 — Mode SPLIT sans aucun réseau correspondant]
+# Données : VPN_MODE type=SPLIT tunnel_gw=10.0.0.1 local_gw=192.168.1.254
+# Données : ROUTE subnet=172.20.0.0/16
+# Données : PACKET id=EXT1 dst_ip=1.1.1.1
+# Données : PACKET id=EXT2 dst_ip=9.9.9.9
+A_COMPLETER
+
+[Cas 3 — Sous-réseau CIDR /32 spécifique]
+# Données : VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1
+# Données : ROUTE subnet=198.51.100.50/32
+# Données : PACKET id=TARGET dst_ip=198.51.100.50
+# Données : PACKET id=NEIGHBOR dst_ip=198.51.100.51
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer la passerelle de sortie pour le trafic client selon la configuration VPN Full ou Split Tunnel.</p>
+    <div class="lab__brief"><p>Dans un déploiement client-à-passerelle (OpenVPN ou IPsec IKEv2 Mobile), le mode de routage détermine le chemin emprunté par les flux du télétravailleur :<br>
+- <strong>Full Tunneling (Redirect Gateway) :</strong> <em>tout</em> le trafic (y compris la navigation Internet personnelle) est encapsulé dans le VPN vers le pare-feu central.<br>
+- <strong>Split Tunneling :</strong> seuls les sous-réseaux d'entreprise spécifiés passent par le tunnel VPN ; le reste sort directement via la box Internet locale.<br><br>
+Analysez les paramètres du problème pour chaque cas. Si <code>type == 'FULL'</code> :<br>
+   Tous les paquets sont encapsulés vers le tunnel :<br>
+   <code>tunnel=YES gw={tunnel_gw} path=TUNNEL_DEFAULT</code><br>
+2. Si <code>type == 'SPLIT'</code> :<br>
+   Vérifier si <code>dst_ip</code> appartient à au moins un sous-réseau d'entreprise déclaré dans <code>ROUTE</code> (à tester avec le module Python <code>ipaddress</code>) :<br>
+   - Si oui :<br>
+     <code>tunnel=YES gw={tunnel_gw} path=CORPORATE_ROUTE subnet={matched_subnet}</code><br>
+     (en cas d'appartenance à plusieurs sous-réseaux, retenir le premier sous-réseau correspondant dans l'ordre de déclaration).<br>
+   - Si non :<br>
+     <code>tunnel=NO gw={local_gw} path=DIRECT_INTERNET</code><br><br>
+Pour chaque paquet, afficher :<br>
+<code>VPN_ROUTE id={id} dst={dst_ip} tunnel={tunnel} gw={gw} path={path}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1
+ROUTE subnet=10.0.0.0/8
+ROUTE subnet=172.16.50.0/24
+PACKET id=P1 dst_ip=10.5.20.1
+PACKET id=P2 dst_ip=8.8.8.8
+PACKET id=P3 dst_ip=172.16.50.10</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VPN_ROUTE id=P1 dst=10.5.20.1 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=10.0.0.0/8
+VPN_ROUTE id=P2 dst=8.8.8.8 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET
+VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=172.16.50.0/24</pre></div>
+    </div>
+    <p class="lab__note">P1 et P3 sont routés dans le tunnel VPN d'entreprise ; P2 (Google DNS) sort directement par la passerelle locale.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser ipaddress.ip_network(subnet) et ipaddress.ip_address(dst_ip).</li>
+        <li>Vérifier `ip in net` pour tester l'appartenance au sous-réseau.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Où sont centralisées la création d’Autorités de Certification et l’émission de certificats sous pfSense ?</p>
+      <div class="opts">
+        <button class="opt">Firewall > Rules</button>
+        <button class="opt" data-correct="1">System > Cert. Manager</button>
+        <button class="opt">VPN > OpenVPN > Clients</button>
+        <button class="opt">Status > Services</button>
+      </div>
+      <div class="q__exp">Le menu System > Cert. Manager gère les CAs racines, les certificats serveurs/clients et les listes de révocation (CRL).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle d’une Certificate Revocation List (CRL) dans une PKI OpenVPN ?</p>
+      <div class="opts">
+        <button class="opt">Accélérer la vitesse de téléchargement des fichiers</button>
+        <button class="opt" data-correct="1">Lister les numéros de série des certificats révoqués avant terme pour bloquer l’accès des postes compromis</button>
+        <button class="opt">Chiffrer les mots de passe des administrateurs</button>
+        <button class="opt">Générer automatiquement des clés SSH</button>
+      </div>
+      <div class="q__exp">La CRL recense les certificats révoqués : pfSense vérifie cette liste pour interdire l’accès aux certificats compromis ou d’anciens collaborateurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel port et protocole de transport sont utilisés par défaut pour les tunnels OpenVPN ?</p>
+      <div class="opts">
+        <button class="opt">TCP port 80</button>
+        <button class="opt" data-correct="1">UDP port 1194</button>
+        <button class="opt">TCP port 443 obligatoire</button>
+        <button class="opt">UDP port 53</button>
+      </div>
+      <div class="q__exp">OpenVPN utilise par défaut le port UDP 1194 pour minimiser la latence et éviter l’effet d’avalanche TCP-over-TCP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la caractéristique principale d’une politique de Split Tunneling pour un client VPN ?</p>
+      <div class="opts">
+        <button class="opt">Tout le trafic Internet personnel passe obligatoirement par le pare-feu de l’entreprise</button>
+        <button class="opt" data-correct="1">Seuls les flux destinés aux sous-réseaux d’entreprise déclarés transitent par le tunnel VPN</button>
+        <button class="opt">Le client est déconnecté toutes les 15 minutes</button>
+        <button class="opt">Le tunnel chiffre uniquement les requêtes DNS</button>
+      </div>
+      <div class="q__exp">En Split Tunneling, seuls les réseaux internes de l’entreprise sont acheminés dans le VPN ; la navigation Web grand public sort localement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un tunnel IPsec, quelle phase est responsable de négocier le chiffrement effectif des données (ESP) ?</p>
+      <div class="opts">
+        <button class="opt">Phase 1 (IKE SA)</button>
+        <button class="opt" data-correct="1">Phase 2 (Child SA / ESP)</button>
+        <button class="opt">Phase 3 (NTP Sync)</button>
+        <button class="opt">Phase 0 (DHCP Discovery)</button>
+      </div>
+      <div class="q__exp">La Phase 1 établit le canal sécurisé de gestion administrative ; la Phase 2 négocie le chiffrement ESP des paquets de données métiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon les recommandations de durcissement de l’ANSSI, quel algorithme de hachage doit être formellement rejeté ?</p>
+      <div class="opts">
+        <button class="opt">SHA-256</button>
+        <button class="opt">SHA-384</button>
+        <button class="opt" data-correct="1">MD5</button>
+        <button class="opt">SHA-512</button>
+      </div>
+      <div class="q__exp">MD5 (tout comme SHA-1) présente des collisions cryptographiques prouvées et doit impérativement être banni des propositions IPsec et certificats.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel groupe Diffie-Hellman représente la taille minimale requise (MODP 2048 bits) en environnement moderne ?</p>
+      <div class="opts">
+        <button class="opt">Groupe 1 (768 bits)</button>
+        <button class="opt">Groupe 2 (1024 bits)</button>
+        <button class="opt" data-correct="1">Groupe 14 (2048 bits)</button>
+        <button class="opt">Groupe 5 (1536 bits)</button>
+      </div>
+      <div class="q__exp">Le groupe Diffie-Hellman 14 (MODP 2048 bits) est le standard minimal contemporain : les groupes 1, 2 et 5 sont obsolètes et vulnérables.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’avantage majeur du chiffrement AES-GCM par rapport à AES-CBC dans IPsec ?</p>
+      <div class="opts">
+        <button class="opt">Il fonctionne sans processeur</button>
+        <button class="opt" data-correct="1">Il intègre nativement l’authentification et l’intégrité du message (AEAD) tout en étant très rapide</button>
+        <button class="opt">Il ne nécessite pas de clés secrètes</button>
+        <button class="opt">Il ne fonctionne que sur le port 80</button>
+      </div>
+      <div class="q__exp">AES-GCM est un mode AEAD (Authenticated Encryption with Associated Data) combinant confidentialité et intégrité avec une excellente efficacité matérielle.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier d’associer la liste CRL dans la configuration du serveur OpenVPN, rendant la révocation inefficace.</li>
+      <li>Utiliser le mode OpenVPN en clé partagée statique (Shared Key) pour des déploiements multi-utilisateurs.</li>
+      <li>Conserver des groupes Diffie-Hellman obsolètes (DH 2 ou DH 5) par habitude sur des liaisons IPsec.</li>
+      <li>Configurer le Full Tunneling sans anticiper la saturation de la bande passante descendante du WAN d’entreprise.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Créer l’Autorité de Certification racine (CA) interne dans System > Cert. Manager.</li>
+      <li>Étape 2 : Émettre le certificat du serveur OpenVPN et générer les certificats utilisateurs individuels.</li>
+      <li>Étape 3 : Créer la liste de révocation (CRL) et l’associer au serveur OpenVPN pour la gestion des départs.</li>
+      <li>Étape 4 : Déployer le serveur OpenVPN en mode SSL/TLS + User Auth et configurer le réseau de tunnel (IPv4 Tunnel Network).</li>
+      <li>Étape 5 : Pour les liaisons inter-sites, configurer IPsec IKEv2 Phase 1 (DH 14+, AES-GCM) et Phase 2 (ESP).</li>
+      <li>Étape 6 : Installer le package OpenVPN Client Export pour distribuer les profils .ovpn pré-configurés aux collaborateurs.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>pfSense gère une PKI X.509 complète comprenant CA racine, certificats serveurs, certificats clients et listes CRL.</li>
+      <li>La CRL est contrôlée à chaque connexion VPN pour révoquer instantanément les certificats volés ou révoqués.</li>
+      <li>OpenVPN en mode SSL/TLS + User Auth combine certificat cryptographique et identifiants utilisateur (2FA logique).</li>
+      <li>Full Tunneling achemine 100% des flux par pfSense ; Split Tunneling cible uniquement les réseaux d’entreprise.</li>
+      <li>IPsec IKEv2 négocie la gestion en Phase 1 (IKE SA) et le chiffrement des données métiers en Phase 2 (ESP).</li>
+      <li>L’ANSSI exige l’abandon de DES/3DES/MD5 au profit d’AES-GCM, SHA-256/384 et de groupes DH supérieurs ou égaux à 14.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais créer une Autorité de Certification (CA) interne et émettre un certificat utilisateur.</li>
+      <li>Je comprends le fonctionnement d’une CRL et son rôle lors de la compromission d’un certificat client.</li>
+      <li>Je sais différencier les impacts techniques et sécuritaires du Split Tunneling et du Full Tunneling.</li>
+      <li>Je connais la différence entre la Phase 1 (IKE SA) et la Phase 2 (Child SA / ESP) d’un tunnel IPsec.</li>
+      <li>Je sais identifier les suites cryptographiques interdites (DES, 3DES, MD5, SHA-1, DH < 14).</li>
+      <li>Je sais pourquoi le protocole ESP (IP 50) est préféré pour le transport sécurisé inter-sites.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>PKI X.509 & Autorité de Certification (CA)</li><li>Certificats Serveur & Certificats Clients</li><li>Certificate Revocation List (CRL)</li><li>OpenVPN (SSL/TLS + User Auth)</li><li>Split Tunneling vs Full Tunneling</li><li>IPsec IKEv2 Phase 1 & Phase 2</li><li>Protocole ESP (IP 50) & Chiffrement AES-GCM</li><li>Recommandations Cryptographiques ANSSI/NIST</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à articuler la chaîne de confiance X.509 ou confusion entre la Phase 1 et la Phase 2 IPsec.</div>
+      <div class="bandrow bandrow--medium">Déploiement complet d’un serveur OpenVPN nomade avec CRL et configuration d’un tunnel IPsec site-à-site standard.</div>
+      <div class="bandrow bandrow--high">Conception d’architectures VPN d’entreprise résilientes, durcissement cryptographique de pointe (ANSSI/NIST) et gestion avancée de la PKI.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Haute Disponibilité (CARP/pfsync) &amp; Détection d’Intrusion (Snort/Suricata) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Netgate pfSense, Architecture FreeBSD Packet Filter (pf), RFC 5798 (CARP/VRRP), RFC 7296 (IKEv2) et Guides de durcissement ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

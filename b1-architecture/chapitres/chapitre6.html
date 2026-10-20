@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Architecture d'un PC et périphériques | Architecture B1</title>
+<meta name="description" content="Chapitre 6 du cours B1 : Modèle de von Neumann (UAL, unité de contrôle, mémoire, E/S) ; familles de machines ; éléments constitutifs du PC (alimentation, carte mère, processeur, RAM, disque, cartes) ; types de périphériques ; critères de choix d'un processeur. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-architecture/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Architecture d'un PC et périphériques | Architecture B1">
+<meta property="og:description" content="Chapitre 6 du cours B1 : Modèle de von Neumann (UAL, unité de contrôle, mémoire, E/S) ; familles de machines ; éléments constitutifs du PC (alimentation, carte mère, processeur, RAM, disque, cartes) ; types de périphériques ; critères de choix d'un processeur. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="arnav"><div class="arnav__in">
+  <a class="arnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="arnav__sep" aria-hidden="true">/</span>
+  <a class="arnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Architecture B1</a>
+  <div class="arnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="arnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="arwrap">
+<p class="crumb"><a href="../index.html">Architecture B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Architecture d'un PC et périphériques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le schéma de von Neumann (1945) structure encore chaque ordinateur : une unité arithmétique et logique calcule, une unité de contrôle orchestre, la mémoire conserve programmes et données, les entrées-sorties dialoguent avec le monde. Ce chapitre relie ce modèle aux composants que l'on achète — et aux critères qui font un bon poste.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire les quatre parties du modèle de von Neumann ;</li>
+      <li>placer chaque composant dans son bloc fonctionnel ;</li>
+      <li>citer les éléments constitutifs d'un PC et le rôle de chacun ;</li>
+      <li>classer les périphériques : entrée, sortie, entrée-sortie ;</li>
+      <li>choisir un processeur : fréquence, cœurs, cache, compatibilité socket.</li>
+    </ol>
+  </div>
+
+<h2>1. Le modèle de von Neumann</h2>
+
+<p>Quatre parties : l'<strong>UAL</strong> (unité arithmétique et logique) exécute calculs et comparaisons ; l'<strong>unité de contrôle</strong> (ou de commande) décode les instructions et synchronise le tout ; la <strong>mémoire</strong> — volatile (RAM) ou permanente (ROM, disque) — conserve programmes et données ; les <strong>entrées-sorties</strong> relient la machine au monde extérieur. L'idée fondatrice : le programme est stocké dans la même mémoire que les données, d'où la souplesse de l'ordinateur moderne.</p>
+<p>Les <strong>familles</strong> de machines suivent l'échelle : <strong>mainframe</strong> (centres de calcul, milliers d'utilisateurs), serveurs, <strong>desktop</strong> (tour fixe, évolutive), <strong>laptop</strong> (portable, énergie limitée), sans oublier tablettes et systèmes embarqués. L'architecture reste la même ; la taille et la puissance changent.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « l'UAL calcule, le contrôle commande, la mémoire se souvient, les E/S parlent »</div>
+    <p>Quatre verbes, quatre blocs : calculer, commander, se souvenir, communiquer.</p>
+  </div>
+
+<h2>2. Les éléments constitutifs du PC</h2>
+
+<p>Le <strong>bloc d'alimentation</strong> convertit le courant du secteur en tensions adaptées (12 V, 5 V, 3,3 V). La <strong>carte mère</strong> connecte tout : socket du processeur, slots DIMM de la RAM, ports SATA pour les disques, PCIe pour les cartes d'extension, chipset qui orchestre les communications, BIOS/UEFI qui initialise au démarrage, pile CMOS qui garde l'heure et les réglages hors tension.</p>
+<p>Le <strong>processeur</strong> (CPU) — unité de contrôle + UAL + registres + caches — exécute les instructions ; sa <strong>fréquence</strong> (GHz), son <strong>nombre de cœurs</strong>, la taille de son <strong>cache</strong> et sa <strong>compatibilité socket</strong> sont les quatre critères de choix du support. La <strong>RAM</strong> stocke les données en cours (volatile) ; le <strong>disque</strong> dur ou SSD conserve durablement (le SSD, sans partie mécanique, est beaucoup plus rapide) ; les <strong>cartes</strong> (graphique, réseau, son) ajoutent des fonctions spécialisées.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>La RAM est volatile : coupure de courant = perte ; ROM et disque sont permanents.</li>
+      <li>Le BIOS/UEFI initialise, il n'exécute pas vos applications.</li>
+      <li>Le SSD n'a pas de plateau mécanique : vitesse et silence, pas seulement de la capacité.</li>
+      <li>Un écran tactile est un périphérique entrée ET sortie, pas seulement sortie.</li>
+    </ul>
+  </div>
+
+<h2>3. Périphériques et qualification d'un poste</h2>
+
+<p>Trois familles : en <strong>entrée</strong> (clavier, souris, scanner, micro, caméra — vers l'unité centrale), en <strong>sortie</strong> (écran, imprimante, haut-parleurs — depuis l'unité centrale), et <strong>entrée-sortie</strong> (écran tactile, modem, clé USB, disque externe, carte réseau). Les <strong>ports</strong> — USB, HDMI, VGA, DVI, DisplayPort, SATA, PCIe, M.2 — relient ces périphériques à la carte mère.</p>
+<p><strong>Qualifier un poste</strong> croise deux axes du support : les quatre critères du processeur (fréquence, cœurs, cache, socket) et la RAM. Un poste <strong>multimédia</strong> exige une fréquence élevée et beaucoup de RAM (≥ 2000 MHz et ≥ 4096 Mo dans l'atelier) ; la <strong>bureautique</strong> se contente d'un niveau intermédiaire (≥ 1000 MHz et ≥ 2048 Mo) ; en dessous, le poste est <strong>basique</strong>. Connecteurs vidéo à connaître : HDMI, VGA, DVI, DisplayPort.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <ul>
+      <li>Le classeur de périphériques de l'atelier : un case par famille (entree/sortie/double).</li>
+      <li>Le classeur von Neumann : ual → calcul, ucc → controle, ram/rom/disque → memoire, clavier/ecran → es.</li>
+      <li>La qualification : deux seuils avec -ge, test du profil le plus exigeant d'abord.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ar-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;clavier entree&#10;ecran sortie&#10;tactile sortie&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c6-e1) — Peripheriques : entree, sortie ou les deux
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les huit peripheriques]
+# Données : 8
+# Données : clavier entree
+# Données : souris entree
+# Données : scanner entree
+# Données : ecran sortie
+# Données : imprimante sortie
+# Données : hautparleur sortie
+# Données : tactile double
+# Données : modem double
+A_COMPLETER
+
+[Cas 2 — Deux confusions]
+# Données : 4
+# Données : souris sortie
+# Données : modem entree
+# Données : scanner entree
+# Données : imprimante sortie
+A_COMPLETER
+
+[Cas 3 — Bureau equipe]
+# Données : 5
+# Données : clavier entree
+# Données : ecran sortie
+# Données : imprimante sortie
+# Données : tactile double
+# Données : souris entree
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Peripheriques : entree, sortie ou les deux</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les périphériques entre entrée, sortie et entrée-sortie.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « peripherique typeannonce » : typeannonce est un code parmi <code>entree</code>, <code>sortie</code> ou <code>double</code>. Rappel du support : clavier, souris et scanner envoient des données vers l'unité centrale (entrée) ; écran, imprimante et haut-parleur en reçoivent (sortie) ; écran tactile et modem font les deux. Pour chaque ligne il Indiquez <code>peripherique : OK</code> ou <code>peripherique : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+clavier entree
+ecran sortie
+tactile sortie
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>clavier : OK
+ecran : OK
+tactile : ERREUR
+correctes : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le périphérique donne le type attendu ; compare-le au type annoncé.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;ual calcul&#10;ucc calcul&#10;ram memoire&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c6-e2) — Les blocs de von Neumann
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les huit blocs]
+# Données : 8
+# Données : ual calcul
+# Données : ucc controle
+# Données : ram memoire
+# Données : rom memoire
+# Données : disque memoire
+# Données : clavier es
+# Données : ecran es
+# Données : imprimante es
+A_COMPLETER
+
+[Cas 2 — Deux erreurs ciblees]
+# Données : 4
+# Données : disque es
+# Données : ucc memoire
+# Données : rom memoire
+# Données : ual calcul
+A_COMPLETER
+
+[Cas 3 — Machine complete]
+# Données : 6
+# Données : ucc controle
+# Données : ram memoire
+# Données : clavier es
+# Données : ual calcul
+# Données : ecran es
+# Données : disque memoire
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Les blocs de von Neumann</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Ranger chaque composant dans le bloc du modèle de von Neumann : calcul, contrôle, mémoire, E/S.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « bloc famille » : famille est un code parmi <code>calcul</code> (UAL), <code>controle</code> (unité de commande), <code>memoire</code> ou <code>es</code> (entrées-sorties). Rappel du support : l'UAL fait les calculs, l'unité de commande orchestre, la mémoire conserve (RAM, ROM, disque) et les E/S communiquent avec l'extérieur (clavier, écran, imprimante). Pour chaque ligne il Indiquez <code>bloc : OK</code> ou <code>bloc : ERREUR</code>, puis <code>corrects : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+ual calcul
+ucc calcul
+ram memoire
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ual : OK
+ucc : ERREUR
+ram : OK
+corrects : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le bloc : ual va en calcul, ucc en contrôle, ram et rom et disque en mémoire, clavier et ecran et imprimante en E/S.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;2400 8192&#10;1500 2048&#10;800 1024&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c6-e3) — Qualifier un poste de travail
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Aux frontieres des seuils]
+# Données : 4
+# Données : 2200 4096
+# Données : 2000 2048
+# Données : 999 2048
+# Données : 3000 512
+A_COMPLETER
+
+[Cas 2 — Salles machine]
+# Données : 3
+# Données : 1000 2048
+# Données : 2600 16384
+# Données : 500 512
+A_COMPLETER
+
+[Cas 3 — Petit parc]
+# Données : 2
+# Données : 2100 8192
+# Données : 1200 1024
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Qualifier un poste de travail</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer des postes selon la fréquence du processeur et la RAM, critères de choix du support.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « frequence memoire » : frequence est la cadence du processeur en MHz et memoire la RAM en Mo. Règle du support adaptée : un poste est <code>multimedia</code> si la fréquence atteint 2000 MHz et la RAM 4096 Mo, <code>bureautique</code> si la fréquence atteint 1000 MHz et la RAM 2048 Mo, sinon <code>basique</code>. Pour chaque ligne il Indiquez <code>frequence memoire : profil</code>, puis le bilan <code>postes : n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+2400 8192
+1500 2048
+800 1024
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>2400 8192 : multimedia
+1500 2048 : bureautique
+800 1024 : basique
+postes : 3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Teste d'abord le profil le plus exigeant : -ge 2000 et -ge 4096, puis le profil intermédiaire.</li>
+        <li>Sinon le poste est basique.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">L'UAL exécute…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">les calculs et comparaisons</button>
+        <button class="opt">le décodage des instructions</button>
+        <button class="opt">le stockage permanent</button>
+      </div>
+      <div class="q__exp">Unité arithmétique et logique : calculs et comparaisons.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'idée fondatrice de von Neumann :</p>
+      <div class="opts">
+        <button class="opt">plusieurs processeurs</button>
+        <button class="opt" data-correct="1">programme stocké dans la même mémoire que les données</button>
+        <button class="opt">mémoire infinie</button>
+      </div>
+      <div class="q__exp">Programme et données partagent la mémoire : machine universelle et programmable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La RAM est une mémoire…</p>
+      <div class="opts">
+        <button class="opt">permanente</button>
+        <button class="opt" data-correct="1">volatile</button>
+        <button class="opt">de masse</button>
+      </div>
+      <div class="q__exp">Volatile : son contenu disparaît hors tension.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le composant qui initialise la machine au démarrage :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">BIOS/UEFI</button>
+        <button class="opt">chipset</button>
+        <button class="opt">SSD</button>
+      </div>
+      <div class="q__exp">BIOS/UEFI : microprogramme de démarrage sur la carte mère.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le slot d'une carte graphique dédiée :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">PCIe x16</button>
+        <button class="opt">DIMM</button>
+        <button class="opt">SATA</button>
+      </div>
+      <div class="q__exp">PCIe x16 : haut débit pour la carte graphique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un écran tactile est un périphérique…</p>
+      <div class="opts">
+        <button class="opt">d'entrée</button>
+        <button class="opt">de sortie</button>
+        <button class="opt" data-correct="1">d'entrée-sortie</button>
+      </div>
+      <div class="q__exp">Il affiche (sortie) et reçoit le toucher (entrée).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quatre critères de choix d'un processeur :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">fréquence, cœurs, cache, socket</button>
+        <button class="opt">couleur, poids, prix, taille</button>
+        <button class="opt">RAM, disque, écran, clavier</button>
+      </div>
+      <div class="q__exp">Les quatre critères du support.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">M.2 est le slot d'un…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">SSD NVMe</button>
+        <button class="opt">processeur</button>
+        <button class="opt">écran</button>
+      </div>
+      <div class="q__exp">M.2 accueille les SSD NVMe ; le CPU va au socket.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer le disque dur dans la mémoire volatile : il est permanent.</li>
+      <li>Confondre socket (processeur) et DIMM (RAM) sur la carte mère.</li>
+      <li>Citer l'écran comme périphérique d'entrée : il est de sortie (sauf tactile).</li>
+      <li>Choisir un CPU sans vérifier la compatibilité socket de la carte mère.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — qualifier un poste en trois gestes</div>
+    <ol>
+      <li>Classer chaque composant : calcul (UAL), contrôle, mémoire, E/S.</li>
+      <li>Vérifier les quatre critères CPU : fréquence, cœurs, cache, socket.</li>
+      <li>Comparer aux seuils : multimédia (2000 MHz / 4096 Mo), bureautique (1000 MHz / 2048 Mo), sinon basique.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Von Neumann : UAL, unité de contrôle, mémoire (volatile + permanente), E/S.</li>
+      <li>Familles : mainframe, serveur, desktop, laptop, embarqué.</li>
+      <li>Carte mère : socket, DIMM, SATA, PCIe, chipset, BIOS/UEFI, pile CMOS.</li>
+      <li>Périphériques entrée / sortie / entrée-sortie ; CPU : fréquence, cœurs, cache, socket.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décris les quatre blocs de von Neumann.</li>
+      <li>Je place chaque composant du PC dans son bloc.</li>
+      <li>Je classe un périphérique en entrée, sortie ou entrée-sortie.</li>
+      <li>Je qualifie un poste à partir de la fréquence et de la RAM.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Von Neumann</strong> : modèle à quatre parties, programme stocké en mémoire.</li><li><strong>UAL</strong> : unité arithmétique et logique — calculs et comparaisons.</li><li><strong>Carte mère</strong> : carte qui connecte tous les composants.</li><li><strong>BIOS/UEFI</strong> : microprogramme qui initialise la machine au démarrage.</li><li><strong>RAM / ROM</strong> : mémoire volatile / permanente.</li><li><strong>SSD</strong> : stockage permanent sans partie mécanique, plus rapide que le HDD.</li><li><strong>Périphérique E/S</strong> : à la fois entrée et sortie (écran tactile, modem).</li><li><strong>Socket</strong> : support du processeur — critère de compatibilité.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les quatre blocs de von Neumann.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais le classement des composants et périphériques.</div>
+      <div class="bandrow bandrow--good">70–89 % — cible les slots et connecteurs de la carte mère.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Circuit logique & architecture des ordinateurs » (Georges AYIVI-TOGBASSA, Novembre 2024, code B1COM0401).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

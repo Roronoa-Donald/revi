@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Validation, Gestion du Changement &amp;amp; Audit | Ingénierie du besoin B2</title>
+<meta name="description" content="Chapitre 6 du cours Ingénierie du besoin B2 : Grille de revue INVEST, inspections formelles Fagan, Change Requests (CR), comité CCB, analyse d’impact et baselines. Théorie, démarches méthodologiques, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/ingenierie-besoin/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Validation, Gestion du Changement &amp;amp; Audit | Ingénierie du besoin B2">
+<meta property="og:description" content="Chapitre 6 du cours Ingénierie du besoin B2 : Grille de revue INVEST, inspections formelles Fagan, Change Requests (CR), comité CCB, analyse d’impact et baselines. Théorie, démarches méthodologiques, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ingenierie-besoinnav"><div class="ingenierie-besoinnav__in">
+  <a class="ingenierie-besoinnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ingenierie-besoinnav__sep" aria-hidden="true">/</span>
+  <a class="ingenierie-besoinnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg> Ingénierie du besoin B2</a>
+  <div class="ingenierie-besoinnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ingenierie-besoinnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ingenierie-besoinwrap">
+<p class="crumb"><a href="../index.html">Ingénierie du besoin B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Validation, Gestion du Changement &amp; Audit</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Même avec la meilleure élicitation du monde, les besoins d’une entreprise évoluent en permanence. Les changements incontrôlés mènent tout droit au phénomène destructeur du « Scope Creep » (dérive des objectifs). L’ingénieur des exigences doit mettre en place des revues formelles d’inspection, un processus rigoureux de Change Request (CR) et gérer des versions de référence (Baselines) auditables.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>évaluer et améliorer des User Stories selon les 6 critères de la grille INVEST de Bill Wake ;</li>
+      <li>conduire des revues formelles d’exigences selon la méthode d’inspection Fagan ;</li>
+      <li>maîtriser le cycle de vie d’une demande de changement (Change Request - CR) ;</li>
+      <li>animer un comité de pilotage des changements (Change Control Board - CCB) ;</li>
+      <li>chiffrer l’analyse d’impact globale (technique, calendaire, budgétaire) et figer des Baselines.</li>
+    </ol>
+  </div>
+
+<h2>1. La grille qualité INVEST pour les exigences agiles</h2>
+
+<p>Créée par Bill Wake, la grille <strong>INVEST</strong> est la référence internationale pour auditer la qualité d’une User Story avant son engagement en développement :</p>
+<ul>
+  <li><strong>I (Independent)</strong> : la story est autonome. Elle peut être développée, testée et livrée sans dépendance bloquante avec une autre story.</li>
+  <li><strong>N (Negotiable)</strong> : l’exigence n’est pas un contrat figé. Les détails restent ouverts à la discussion entre l’équipe et le Product Owner.</li>
+  <li><strong>V (Valuable)</strong> : elle apporte une valeur métier perceptible et directe aux utilisateurs finaux ou au sponsor.</li>
+  <li><strong>E (Estimable)</strong> : sa complexité et son effort peuvent être évalués par l’équipe technique (pas de zone d’ombre majeure).</li>
+  <li><strong>S (Small)</strong> : sa taille est réduite, calibrée pour tenir facilement dans une fraction d’itération (sprint).</li>
+  <li><strong>T (Testable)</strong> : elle dispose de critères d’acceptation concrets permettant de valider son succès sans contestation.</li>
+</ul>
+  <div class="box box--astuce">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Découper les « Epics » qui échouent au critère Small</div>
+    <p>Si une story est trop volumineuse pour être estimée ou développée en un sprint, découpez-la selon les chemins opérationnels (cas nominal vs cas d’erreur), les types de données (fichiers légers vs volumineux) ou les interfaces (web vs mobile).</p>
+  </div>
+
+<h2>2. Les revues d’exigences et inspections formelles de Fagan</h2>
+
+<p>Développée chez IBM par Michael Fagan, l’<strong>inspection formelle</strong> est l’activité d’ingénierie qui offre le plus fort retour sur investissement dans un projet logiciel en éliminant les défauts dès la phase amont :</p>
+<ol>
+  <li><strong>Planification</strong> : désignation de l’équipe de revue (Modérateur, Rédacteur/Auteur, Lecteur, Inspecteur).</li>
+  <li><strong>Vue d’ensemble (Overview)</strong> : présentation du contexte et des objectifs du document par l’auteur.</li>
+  <li><strong>Préparation individuelle</strong> : chaque inspecteur analyse le document en amont à l’aide d’une checklist normative.</li>
+  <li><strong>Réunion d’inspection</strong> : le lecteur récite le texte paragraphe par paragraphe ; les inspecteurs signalent les anomalies détectées (sans débattre des solutions).</li>
+  <li><strong>Correction (Rework)</strong> : l’auteur corrige les défauts consignés dans le journal d’inspection.</li>
+  <li><strong>Suivi (Follow-up)</strong> : le modérateur vérifie que 100 % des anomalies ont été résolues avant de signer l’acceptation.</li>
+</ol>
+
+<h2>3. Gestion du changement : Change Request (CR) et Change Control Board (CCB)</h2>
+
+<p>Tout projet vit avec l’apparition de nouvelles demandes ou modifications en cours de route. Pour éviter le <strong>Scope Creep</strong> (dérive invisible du périmètre), chaque modification doit suivre une procédure formelle de <strong>Change Request (CR)</strong> :</p>
+<p style="text-align:center;"><code>Soumission CR &rarr; Analyse d’impact &rarr; Arbitrage CCB &rarr; Mise à jour Référentiel &amp; Tests</code></p>
+<ul>
+  <li><strong>Le Change Control Board (CCB)</strong> : comité pluridisciplinaire (Chef de projet, Product Owner, Architecte technique, Représentant client) qui statue souverainement sur chaque demande : <em>Approuvée</em>, <em>Rejetée</em> ou <em>Ajournée</em>.</li>
+  <li><strong>La règle du triangle de fer</strong> : si une nouvelle exigence est approuvée sans rallonge budgétaire ni report de délai, une autre exigence de rang équivalent doit obligatoirement être retirée du lot courant.</li>
+</ul>
+  <div class="box box--danger">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-alert"></use></svg> L’accord informel par email ou en couloir</div>
+    <p>Accepter une modification demandée au détour d’un couloir sans déposer de Change Request formelle est la cause numéro 1 des dépassements budgétaires non indemnisés. Tout changement validé doit faire l’objet d’un avenant contractuel ou d’un ajustement de backlog.</p>
+  </div>
+
+<h2>4. Analyse d’impact et gestion des versions de référence (Baselines)</h2>
+
+<p>Avant de soumettre une CR au comité CCB, l’analyste réalise une <strong>analyse d’impact</strong> rigoureuse en s’appuyant sur la matrice RTM :</p>
+<ul>
+  <li><strong>Impact fonctionnel</strong> : liste des modules et exigences connexes affectés par le changement.</li>
+  <li><strong>Impact technique</strong> : modifications requises sur le schéma de base de données, les API, le front-end.</li>
+  <li><strong>Impact de régression</strong> : volume de cas de test à réécrire ou ré-exécuter.</li>
+  <li><strong>Impact financier et calendaire</strong> : chiffrage en jours-hommes (JH) et décalage éventuel du jalon de livraison.</li>
+</ul>
+<p>Une <strong>Baseline</strong> est une version figée et officiellement approuvée du référentiel des exigences (ex. <em>Baseline v1.0</em> pour la signature du cahier des charges, <em>Baseline v1.1</em> après validation de la CR-007). Aucune modification ne peut être apportée à une Baseline sans l’aval préalable du CCB.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ib2-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="US-42;1;1;1;1;1;1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ib2-c6-e1) — Audit qualité INVEST d’une User Story
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Test 1]
+# Données : US-10;1;0;1;1;0;1
+A_COMPLETER
+
+[Cas 2 — Test 2]
+# Données : US-11;1;1;1;1;1;0
+A_COMPLETER
+
+[Cas 3 — Test 3]
+# Données : US-12;1;1;1;1;1;1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Audit qualité INVEST d’une User Story</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité d’une User Story aux 6 critères INVEST (Indépendante, Négociable, Valeur, Estimable, Small, Testable).</p>
+    <div class="lab__brief"><p>Le modèle <strong>INVEST</strong> évalue la qualité d’une exigence agile selon 6 critères booléens (1 pour conforme, 0 pour non conforme) :<br><code>I</code> (Indépendante), <code>N</code> (Négociable), <code>V</code> (Valeur), <code>E</code> (Estimable), <code>S</code> (Small / Suffisamment petite), <code>T</code> (Testable).</p><p>Lit une ligne au format <code>ID;I;N;V;E;S;T</code> sur l’entrée standard.<br>- Si les 6 critères valent 1 : affiche <code>&lt;ID&gt;: CONFORME_INVEST (6/6)</code>.<br>- Sinon : affiche <code>&lt;ID&gt;: NON_CONFORME (&lt;Score&gt;/6) - Criteres_manquants: &lt;liste des noms manquants séparés par une virgule&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>US-42;1;1;1;1;1;1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>US-42: CONFORME_INVEST (6/6)</pre></div>
+    </div>
+    <p class="lab__note">Tous les critères INVEST sont satisfaits, la User Story est prête pour l’engagement en sprint.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Associe les colonnes aux critères : ["Independante", "Negociable", "Valeur", "Estimable", "Small", "Testable"].</li>
+        <li>Filtre les critères dont la valeur est "0" et compte les "1".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ib2-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="REQ-1&#10;REQ-1-&gt;REQ-2,REQ-2-&gt;REQ-3,REQ-4-&gt;REQ-5">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ib2-c6-e2) — Analyse d’impact d’une demande de changement (Change Request)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Test 1]
+# Données : AUTH-1
+# Données : AUTH-1->DASH-1,AUTH-1->API-1,API-1->BILL-1
+A_COMPLETER
+
+[Cas 2 — Test 2]
+# Données : ISOL-1
+# Données : REQ-A->REQ-B,REQ-B->REQ-C
+A_COMPLETER
+
+[Cas 3 — Test 3]
+# Données : CORE-0
+# Données : CORE-0->MOD-1,MOD-1->MOD-2,CORE-0->MOD-3
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyse d’impact d’une demande de changement (Change Request)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la propagation des dépendances pour identifier toutes les exigences impactées par une modification.</p>
+    <div class="lab__brief"><p>Lorsqu’une exigence est modifiée, toutes les exigences qui en dépendent (directement ou transitivement) doivent être réévaluées.</p><p>Lit sur l’entrée standard :<br>- Ligne 1 : l’identifiant de l’exigence initiale modifiée (ex. <code>REQ-1</code>).<br>- Ligne 2 : la liste des dépendances séparées par des virgules au format <code>Source-&gt;Cible</code> (signifiant que <em>Cible dépend de Source</em>).<br>Affiche la liste de toutes les exigences impactées (l’exigence initiale incluse), dédupliquées et triées alphabétiquement :<br><code>EXIGENCES_IMPACTEES: &lt;REQ_A, REQ_B, ...&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQ-1
+REQ-1-&gt;REQ-2,REQ-2-&gt;REQ-3,REQ-4-&gt;REQ-5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EXIGENCES_IMPACTEES: REQ-1, REQ-2, REQ-3</pre></div>
+    </div>
+    <p class="lab__note">REQ-1 impacte directement REQ-2, qui impacte REQ-3. REQ-4 et REQ-5 ne sont pas touchées.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Construis un graphe de dépendances (dictionnaire d’adjacence : source -&gt; ensemble des cibles).</li>
+        <li>Utilise un parcours en largeur (BFS) ou profondeur (DFS) à partir du nœud initial.</li>
+        <li>Trie l’ensemble des nœuds visités.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ib2-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="REQ-1:a1,REQ-2:b2,REQ-3:c3&#10;REQ-1:a1,REQ-2:mod,REQ-4:d4">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ib2-c6-e3) — Audit de versionnement d’une Baseline d’exigences
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Test 1]
+# Données : A:1,B:2
+# Données : A:1,B:2
+A_COMPLETER
+
+[Cas 2 — Test 2]
+# Données : A:1,B:2,C:3
+# Données : A:1,B:22,D:4,E:5
+A_COMPLETER
+
+[Cas 3 — Test 3]
+# Données : X:10
+# Données : Y:20
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Audit de versionnement d’une Baseline d’exigences</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer deux états figés (Baselines) d’un référentiel pour chiffrer les ajouts, modifications et suppressions.</p>
+    <div class="lab__brief"><p>Une <strong>Baseline</strong> fige l’ensemble des exigences validées à un jalon clé du projet. Chaque exigence est identifiée par <code>ID:Empreinte</code> (où l’empreinte résume son contenu textuel).<br>Ligne 1 : Baseline V1 (ex. <code>REQ-1:a1,REQ-2:b2,REQ-3:c3</code>)<br>Ligne 2 : Baseline V2 (ex. <code>REQ-1:a1,REQ-2:mod,REQ-4:d4</code>)</p><p>Affiche le bilan du comparatif selon le format strict :<br><code>AJOUTS: &lt;A&gt; | MODIFICATIONS: &lt;M&gt; | SUPPRESSIONS: &lt;S&gt; | INCHANGEES: &lt;I&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQ-1:a1,REQ-2:b2,REQ-3:c3
+REQ-1:a1,REQ-2:mod,REQ-4:d4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AJOUTS: 1 | MODIFICATIONS: 1 | SUPPRESSIONS: 1 | INCHANGEES: 1</pre></div>
+    </div>
+    <p class="lab__note">REQ-4 est ajoutée, REQ-2 est modifiée (empreinte différente), REQ-3 est supprimée, REQ-1 est inchangée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parse chaque ligne dans un dictionnaire {ID: Empreinte}.</li>
+        <li>Compare les ensembles d’identifiants pour trouver les ajouts (présents dans V2, absents de V1) et les suppressions (présents dans V1, absents de V2).</li>
+        <li>Pour les ID communs, compare les empreintes pour distinguer modifications et inchangées.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans la grille qualité INVEST de Bill Wake, que représente la lettre « I » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Independent (Autonome et découplée des autres stories)</button>
+        <button class="opt">Informative (Riche en détails techniques)</button>
+        <button class="opt">Iterative (Répétée à chaque sprint)</button>
+      </div>
+      <div class="q__exp">Independent garantit qu’une story peut être planifiée et développée sans bloquer ni être bloquée par une autre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’objectif premier de la réunion d’inspection formelle selon la méthode de Fagan ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Détecter et consigner les anomalies sans chercher à débattre des solutions en séance</button>
+        <button class="opt">Réécrire l’ensemble du code en direct</button>
+        <button class="opt">Négocier les augmentations de salaire</button>
+      </div>
+      <div class="q__exp">L’inspection Fagan sépare strictement la détection des anomalies de leur résolution pour maximiser l’efficacité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qui est l’instance souveraine chargée d’approuver ou de rejeter les demandes de changement (CR) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le Change Control Board (CCB)</button>
+        <button class="opt">Le développeur stagiaire</button>
+        <button class="opt">Le fournisseur cloud</button>
+      </div>
+      <div class="q__exp">Le CCB réunit l’ensemble des décideurs (métier, projet, technique) pour arbitrer objectivement sur les demandes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne le phénomène de « Scope Creep » dans un projet logiciel ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’élargissement incontrôlé et insidieux du périmètre du projet sans ajustement de budget ni de délai</button>
+        <button class="opt">Une défaillance d’un disque dur en cluster</button>
+        <button class="opt">L’augmentation de la vitesse de connexion réseau</button>
+      </div>
+      <div class="q__exp">Le Scope Creep correspond à l’accumulation de petites demandes non tracées qui font dériver le projet vers l’échec.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’une Baseline dans la gestion des exigences ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une version formellement figée et approuvée du référentiel servant de base de comparaison</button>
+        <button class="opt">Un langage de programmation obsolète</button>
+        <button class="opt">Le câble principal de connexion au réseau</button>
+      </div>
+      <div class="q__exp">Une Baseline fige un état contractuel validé des exigences que seul un processus formel de changement peut faire évoluer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la grille INVEST, que signifie le critère « Negotiable » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La story n’est pas un contrat figé ; ses détails techniques et d’implémentation restent discutables</button>
+        <button class="opt">Le prix du logiciel peut être marchandé au centime</button>
+        <button class="opt">L’équipe de dev peut annuler le projet</button>
+      </div>
+      <div class="q__exp">Negotiable rappelle que la story est une invitation à la conversation continue entre le métier et les développeurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur quel document l’ingénieur des exigences s’appuie-t-il pour mesurer l’impact transversal d’un changement ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La matrice de traçabilité des exigences (RTM)</button>
+        <button class="opt">La facture de connexion Internet</button>
+        <button class="opt">Le CV des membres de l’équipe</button>
+      </div>
+      <div class="q__exp">La RTM cartographie les dépendances entre besoins, exigences, code et tests, permettant d’isoler immédiatement les éléments touchés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon la règle du « Triangle de Fer » (Qualité, Coût, Délai, Périmètre), que doit-on faire si un nouveau lot d’exigences est ajouté à date et budget constants ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Dé-scoper (retirer) des exigences existantes de priorité moindre</button>
+        <button class="opt">Travailler la nuit sans le dire à personne</button>
+        <button class="opt">Ignorer les tests de sécurité</button>
+      </div>
+      <div class="q__exp">À budget et délai constants, l’intégration d’une nouvelle exigence impose mécaniquement le retrait d’une autre (dé-scoping).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Accepter des changements oraux ou informels sans les faire enregistrer dans une Change Request formelle.</li>
+      <li>Considérer la grille INVEST comme une contrainte bureaucratique et embarquer des Epics géantes en plein sprint.</li>
+      <li>Organiser des réunions d’inspection Fagan où l’on débat pendant des heures de solutions au lieu de simplement consigner les anomalies.</li>
+      <li>Modifier le référentiel des exigences en direct sans incrémenter le numéro de version de la Baseline.</li>
+      <li>Négliger l’analyse d’impact sur les suites de tests existantes lors de la modification d’une règle métier fondamentale.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Gérer une demande de changement (CR) avec rigueur</div>
+    <ol>
+      <li><strong>Réceptionner et enregistrer la CR</strong> : formaliser le besoin nouveau avec motif métier et demandeur.</li>
+      <li><strong>Conduire l’analyse d’impact</strong> : inspecter la matrice RTM pour chiffrer l’effort technique, financier et calendaire.</li>
+      <li><strong>Présenter le dossier au CCB</strong> : soumettre l’arbitrage au comité avec recommandation technique et contreparties.</li>
+      <li><strong>Notifier la décision</strong> : en cas d’approbation, signer l’avenant contractuel ou arbitrer le backlog (dé-scoping).</li>
+      <li><strong>Figer une nouvelle Baseline</strong> : mettre à jour le référentiel, incrémenter la version et notifier les équipes de test et de dev.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La grille INVEST garantit des User Stories Indépendantes, Négociables, à Valeur ajoutée, Estimables, Petites et Testables.</li>
+      <li>L’inspection Fagan offre le meilleur ratio coût/détection d’anomalies en formalisant la revue par les pairs.</li>
+      <li>Le Change Control Board (CCB) arbitre souverainement sur chaque Change Request (CR) pour endiguer le Scope Creep.</li>
+      <li>L’analyse d’impact s’appuie sur la matrice RTM pour quantifier les répercussions techniques, calendaires et financières.</li>
+      <li>Les Baselines formalisent des jalons immuables du référentiel d’exigences.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais auditer une User Story selon chacun des 6 critères de la grille INVEST.</li>
+      <li>Je comprends les rôles et étapes d’une réunion d’inspection formelle Fagan.</li>
+      <li>Je maîtrise le cycle de validation d’une Change Request (CR) par le CCB.</li>
+      <li>Je sais mener une analyse d’impact transversale à l’aide de la matrice RTM.</li>
+      <li>Je comprends l’intérêt d’une Baseline pour sécuriser la relation contractuelle.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>INVEST</li><li>Fagan</li><li>Inspection</li><li>Change Request</li><li>CCB</li><li>Scope Creep</li><li>Triangle de Fer</li><li>Baseline</li><li>Analyse d’impact</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les critères de la grille INVEST et le rôle du comité CCB.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur l’analyse d’impact d’une CR et le concept de Baseline.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises le pilotage et le contrôle des exigences.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : tu possèdes une maîtrise experte de l’ingénierie des exigences B2 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel Ingénierie du besoin B2, la norme ISO/IEC/IEEE 29148, le modèle FURPS+, les standards IREB et les pratiques agiles de modélisation.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

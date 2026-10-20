@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Configuration des Équipements sous Cisco IOS &amp;amp; Sécurisation | CCNA Réseau B2</title>
+<meta name="description" content="Chapitre 4 du cours CCNA Réseau B2 : Navigation dans l’interface CLI Cisco IOS (modes User, Privilégié, Configuration globale, Interface), configuration de base (hostname, bannières, mots de passe), durcissement de sécurité (enable secret, service password-encryption, SSH v2, login local) et diagnostic d’état des interfaces. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/ccna/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Configuration des Équipements sous Cisco IOS &amp;amp; Sécurisation | CCNA Réseau B2">
+<meta property="og:description" content="Chapitre 4 du cours CCNA Réseau B2 : Navigation dans l’interface CLI Cisco IOS (modes User, Privilégié, Configuration globale, Interface), configuration de base (hostname, bannières, mots de passe), durcissement de sécurité (enable secret, service password-encryption, SSH v2, login local) et diagnostic d’état des interfaces. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnanav"><div class="ccnanav__in">
+  <a class="ccnanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnanav__sep" aria-hidden="true">/</span>
+  <a class="ccnanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA Réseau B2</a>
+  <div class="ccnanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccnawrap">
+<p class="crumb"><a href="../index.html">CCNA Réseau B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Configuration des Équipements sous Cisco IOS &amp; Sécurisation</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un audit de cybersécurité externe classe au niveau « Critique » le parc de commutateurs et routeurs d’une banque régionale. Des mots de passe circulent en clair sur le réseau via Telnet, les bannières d’avertissement légales sont absentes et les accès d’administration par console ne sont pas verrouillés. Les ingénieurs réseau doivent reprendre le contrôle de la flotte d’équipements sous Cisco IOS, maîtriser la hiérarchie des modes d’accès de la CLI, appliquer les 5 règles d’or du durcissement Cisco (chiffrement des mots de passe locaux, secret privilégié haché, SSH version 2 exclusif sur les lignes VTY) et interpréter instantanément les sorties de commandes show pour diagnostiquer les incidents matériels et logiques. Ce quatrième module forme à la pratique opérationnelle quotidienne de l’administration réseau Cisco.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>naviguer avec aisance entre les différents modes d’exécution de la CLI Cisco IOS (User EXEC, Privileged EXEC, Global Config, Interface Config) ;</li>
+      <li>appliquer la configuration de base d’un équipement (hostname, description d’interfaces, bannières MOTD) ;</li>
+      <li>distinguer et manipuler la mémoire vive running-config (RAM) et la mémoire non volatile startup-config (NVRAM) ;</li>
+      <li>sécuriser l’accès privilégié avec enable secret (hachage MD5/SHA-256) et chiffrer les mots de passe locaux avec service password-encryption ;</li>
+      <li>configurer l’accès à distance sécurisé SSH v2 (nom de domaine, clés RSA 2048 bits, désactivation de Telnet sur les lignes VTY) ;</li>
+      <li>analyser la commande de diagnostic clé « show ip interface brief » pour distinguer les pannes L1 des erreurs d’encapsulation L2.</li>
+    </ol>
+  </div>
+
+<h2>1. Hiérarchie des Modes d’Exécution Cisco IOS</h2>
+
+<p>L’interface en ligne de commande (CLI) des routeurs et commutateurs Cisco IOS est structurée selon une arborescence stricte de modes de commande, chacun reconnaissable à son invite (prompt) spécifique :</p>
+<table class="table">
+  <thead>
+    <tr><th>Mode d’Exécution</th><th>Invite (Prompt)</th><th>Commande de Transition</th><th>Privilèges &amp; Usages</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Mode Utilisateur (User EXEC)</strong></td>
+      <td><code>Router&gt;</code> ou <code>Switch&gt;</code></td>
+      <td>Connexion initiale</td>
+      <td>Consultation basique (ping, traceroute simple). Aucune modification de configuration permise.</td>
+    </tr>
+    <tr>
+      <td><strong>Mode Privilégié (Privileged EXEC)</strong></td>
+      <td><code>Router#</code> ou <code>Switch#</code></td>
+      <td><code>enable</code></td>
+      <td>Toutes les commandes de supervision approfondie (<code>show</code>, <code>debug</code>, sauvegarde, redémarrage).</td>
+    </tr>
+    <tr>
+      <td><strong>Mode Configuration Globale</strong></td>
+      <td><code>Router(config)#</code></td>
+      <td><code>configure terminal</code> (depuis Privilégié)</td>
+      <td>Paramètres affectant l’équipement dans son ensemble (hostname, bannières, services globaux, routage).</td>
+    </tr>
+    <tr>
+      <td><strong>Sous-mode Interface / Ligne</strong></td>
+      <td><code>Router(config-if)#</code> ou <code>(config-line)#</code></td>
+      <td><code>interface g0/0</code> ou <code>line vty 0 4</code></td>
+      <td>Paramétrage spécifique à un port physique, une sous-interface ou une ligne de console/terminal virtuel.</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Commandes de navigation :</strong></p>
+<ul>
+  <li><code>exit</code> : remonte d’un cran dans l’arborescence (ex: de <code>(config-if)#</code> vers <code>(config)#</code>).</li>
+  <li><code>end</code> ou <code>Ctrl + Z</code> : quitte immédiatement tous les sous-modes pour revenir directement au mode Privilégié <code>Router#</code>.</li>
+  <li><code>disable</code> : repasse du mode Privilégié au mode Utilisateur <code>Router&gt;</code>.</li>
+</ul>
+
+<h2>2. Gestion des Fichiers de Configuration : RAM vs NVRAM</h2>
+
+<p>Un équipement Cisco gère deux fichiers de configuration distincts :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. running-config (Mémoire RAM)</h4>
+    <p>La configuration actuellement en cours d’exécution par le système. Toute commande tapée dans la CLI s’applique <strong>instantanément</strong> dans la running-config. En contrepartie, la RAM étant volatile, toute modification non sauvegardée est définitivement perdue en cas de coupure de courant ou de redémarrage.</p>
+    <p>Commande : <code>show running-config</code></p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. startup-config (Mémoire NVRAM)</h4>
+    <p>Le fichier de configuration de démarrage, stocké en mémoire non volatile (NVRAM). Il est chargé en RAM lors du boot de l’équipement. Il conserve les réglages de manière permanente.</p>
+    <p>Sauvegarde : <code>copy running-config startup-config</code> (ou <code>write memory</code>).</p>
+    <p>Suppression : <code>erase startup-config</code>.</p>
+  </div>
+</div>
+
+<h2>3. Les 5 Règles d’Or du Durcissement de Sécurité Cisco IOS</h2>
+
+<p>Tout équipement déployé en production doit impérativement respecter les règles de durcissement recommandées par Cisco et l’ANSSI :</p>
+<ol>
+  <li><strong>Chiffrement des mots de passe en mémoire :</strong><br>
+    <code>Router(config)# service password-encryption</code><br>
+    Chiffre automatiquement les mots de passe affichés en clair dans la configuration (algorithme type 7).</li>
+  <li><strong>Protection du mode Privilégié avec enable secret :</strong><br>
+    <code>Router(config)# enable secret &lt;MotDePasseRobuste&gt;</code><br>
+    Utilise un hachage cryptographique fort (MD5 type 5 ou SHA-256 type 8/9). La commande obsolète <code>enable password</code> (en clair) ne doit jamais être utilisée.</li>
+  <li><strong>Configuration d’une bannière légale d’avertissement :</strong><br>
+    <code>Router(config)# banner motd #ACCES INTERDIT AU PERSONNEL NON AUTORISE#</code><br>
+    Exigence légale pour établir l’accès non autorisé lors de poursuites judiciaires. Ne jamais afficher de message de bienvenue du type « Bienvenue sur notre routeur » !</li>
+  <li><strong>Authentification locale sur console physique :</strong><br>
+    <code>Router(config)# line console 0<br>
+    Router(config-line)# login local<br>
+    Router(config-line)# logging synchronous</code> (évite que les messages système ne tronquent la ligne de commande).</li>
+  <li><strong>Accès distant sécurisé SSH v2 exclusif :</strong><br>
+    Telnet transmet les identifiants et commandes en clair sur le réseau. Il doit être banni au profit de SSH version 2 chiffré.</li>
+</ol>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Procédure complète de déploiement de SSH v2 sur Cisco IOS</div>
+<pre><code>Router(config)# hostname R1
+R1(config)# ip domain-name entreprise.local
+R1(config)# crypto key generate rsa modulus 2048
+R1(config)# ip ssh version 2
+R1(config)# username admin privilege 15 secret AdminPass2026!
+R1(config)# line vty 0 4
+R1(config-line)# transport input ssh
+R1(config-line)# login local
+R1(config-line)# exit</code></pre>
+  </div>
+
+<h2>4. Diagnostic d’État des Interfaces (show ip interface brief)</h2>
+
+<p>La commande <code>show ip interface brief</code> est l’outil de diagnostic le plus puissant de la CLI Cisco. Elle affiche une ligne synthétique par interface avec deux colonnes d’état capitales : <strong>Status</strong> (couche 1) et <strong>Protocol</strong> (couche 2) :</p>
+<table class="table">
+  <thead>
+    <tr><th>Status (L1)</th><th>Protocol (L2)</th><th>Diagnostic Opérationnel</th><th>Action Corrective</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="badge" style="background:#16a34a;color:#fff">up</span></td>
+      <td><span class="badge" style="background:#16a34a;color:#fff">up</span></td>
+      <td><strong>Opérationnel</strong> : signal physique présent et protocole de liaison synchronisé.</td>
+      <td>Interface fonctionnelle pour le trafic IP.</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="background:#dc2626;color:#fff">administratively down</span></td>
+      <td><span class="badge" style="background:#dc2626;color:#fff">down</span></td>
+      <td><strong>Désactivée administrativement</strong> : l’interface est verrouillée par commande.</td>
+      <td>Taper <code>no shutdown</code> dans le sous-mode <code>interface</code>.</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="background:#dc2626;color:#fff">down</span></td>
+      <td><span class="badge" style="background:#dc2626;color:#fff">down</span></td>
+      <td><strong>Panne physique (L1)</strong> : aucun signal détecté. Câble débranché ou équipement distant éteint.</td>
+      <td>Contrôler le cordon RJ45/SFP, vérifier que l’équipement en vis-à-vis est allumé.</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="background:#16a34a;color:#fff">up</span></td>
+      <td><span class="badge" style="background:#dc2626;color:#fff">down</span></td>
+      <td><strong>Panne de liaison (L2)</strong> : câble branché mais problème d’encapsulation ou d’horloge.</td>
+      <td>Vérifier l’encapsulation (ex: mismatch HDLC/PPP) ou l’attribution de la vitesse/duplex.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="na2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="enable&#10;configure terminal&#10;interface g0/0&#10;exit&#10;end&#10;disable">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c4-e1) — Parseur et validateur de hiérarchie de modes Cisco IOS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Tentative de config terminal depuis mode utilisateur]
+# Données : configure terminal
+# Données : enable
+# Données : configure terminal
+A_COMPLETER
+
+[Cas 2 — Exécution de commandes show et ip address]
+# Données : enable
+# Données : show version
+# Données : configure terminal
+# Données : hostname R1
+A_COMPLETER
+
+[Cas 3 — Saut direct avec end depuis sous-interface]
+# Données : enable
+# Données : configure terminal
+# Données : interface fa0/1
+# Données : end
+A_COMPLETER
+
+[Cas 4 — Refus de commande interface hors mode config]
+# Données : interface g0/1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur et validateur de hiérarchie de modes Cisco IOS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la navigation entre les modes CLI Cisco IOS (User EXEC, Privileged EXEC, Global Config, Interface Config) et vérifier la validité des commandes.</p>
+    <div class="lab__brief"><p>Le script simule une session interactive Cisco IOS sur un équipement nommé <code>Router</code>.<br>
+Modes possibles et leurs invites :<br>
+- <code>USER</code> : <code>Router&gt;</code><br>
+- <code>PRIVILEGED</code> : <code>Router#</code><br>
+- <code>CONFIG</code> : <code>Router(config)#</code><br>
+- <code>CONFIG_IF</code> : <code>Router(config-if)#</code><br>
+Transitions valides :<br>
+- Depuis <code>USER</code> : <code>enable</code> -&gt; <code>PRIVILEGED</code><br>
+- Depuis <code>PRIVILEGED</code> : <code>disable</code> -&gt; <code>USER</code>, <code>configure terminal</code> -&gt; <code>CONFIG</code><br>
+- Depuis <code>CONFIG</code> : <code>interface &lt;nom&gt;</code> -&gt; <code>CONFIG_IF</code>, <code>exit</code> -&gt; <code>PRIVILEGED</code>, <code>end</code> -&gt; <code>PRIVILEGED</code><br>
+- Depuis <code>CONFIG_IF</code> : <code>exit</code> -&gt; <code>CONFIG</code>, <code>end</code> -&gt; <code>PRIVILEGED</code><br>
+Toute autre commande est considérée comme exécutée dans le mode courant (afficher <code>OK: &lt;cmd&gt;</code>), sauf si une commande de mode restreint est appelée dans un mode insuffisant (ex: <code>configure terminal</code> appelé en mode <code>USER</code> -&gt; afficher <code>ERREUR: Commande non autorisee en mode USER</code>).<br>
+Pour chaque commande de l'entrée standard, afficher l'invite courante suivie de la commande, puis le résultat ou l'erreur, et enfin la nouvelle invite.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>enable
+configure terminal
+interface g0/0
+exit
+end
+disable</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Router&gt; enable
+Router# configure terminal
+Router(config)# interface g0/0
+Router(config-if)# exit
+Router(config)# end
+Router# disable
+Router&gt;</pre></div>
+    </div>
+    <p class="lab__note">Parcours complet de descente et remontée dans l'arborescence de configuration.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser une variable mode ("USER", "PRIV", "CONF", "IF") et mettre à jour l'invite après chaque transition.</li>
+        <li>Les commandes "exit" et "end" permettent de remonter dans la hiérarchie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="service password-encryption&#10;enable secret Cisc0$ecr3t&#10;banner motd #ACCES INTERDIT#&#10;line con 0&#10; login local&#10;line vty 0 4&#10; transport input ssh&#10; login local">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c4-e2) — Audit et durcissement de configuration Cisco IOS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Configuration non sécurisée avec Telnet et mot de passe en clair]
+# Données : enable password cisco
+# Données : line vty 0 4
+# Données :  transport input telnet
+# Données :  login
+A_COMPLETER
+
+[Cas 2 — Durcissement partiel avec mot de passe secret et chiffrement mais sans SSH]
+# Données : service password-encryption
+# Données : enable secret Secr3tKey
+# Données : banner motd #Avertissement#
+# Données : line con 0
+# Données :  login local
+A_COMPLETER
+
+[Cas 3 — Enable password en clair en doublon avec secret]
+# Données : service password-encryption
+# Données : enable secret SuperSec
+# Données : enable password Faible123
+# Données : banner motd *Stop*
+# Données : line vty 0 4
+# Données :  transport input ssh
+# Données :  login local
+A_COMPLETER
+
+[Cas 4 — SSH configuré avec transport input all]
+# Données : service password-encryption
+# Données : enable secret Cl3
+# Données : line vty 0 4
+# Données :  transport input all
+# Données : banner motd #Warning#
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Audit et durcissement de configuration Cisco IOS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser un fichier de configuration running-config pour valider les 5 règles fondamentales de sécurisation.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Il contrôle 5 critères de sécurité essentiels :<br>
+1. <code>PASSWORD_ENCRYPTION</code> : présence de la commande <code>service password-encryption</code>.<br>
+2. <code>ENABLE_SECRET</code> : présence de <code>enable secret &lt;mot_de_passe&gt;</code> (et NON <code>enable password</code> en clair).<br>
+3. <code>SSH_ONLY</code> : dans le bloc <code>line vty</code>, présence de <code>transport input ssh</code>.<br>
+4. <code>BANNER_MOTD</code> : présence d'une bannière d'avertissement <code>banner motd</code>.<br>
+5. <code>LOGIN_LOCAL</code> : présence de <code>login local</code> sur la console ou les lignes VTY.<br>
+Indiquez pour chaque règle :<br>
+<code>[VALIDE|ECHEC] &lt;NOM_REGLE&gt; : &lt;detail&gt;</code><br>
+Puis la conclusion : <code>SCORE DE DURCISSEMENT: &lt;X&gt;/5</code> (CONFORME si 5/5, VULNERABLE sinon).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>service password-encryption
+enable secret Cisc0$ecr3t
+banner motd #ACCES INTERDIT#
+line con 0
+ login local
+line vty 0 4
+ transport input ssh
+ login local</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[VALIDE] PASSWORD_ENCRYPTION : Chiffrement global active
+[VALIDE] ENABLE_SECRET : Mot de passe privilegie hache
+[VALIDE] SSH_ONLY : Transport SSH exclusif sur VTY
+[VALIDE] BANNER_MOTD : Banniere legale declaree
+[VALIDE] LOGIN_LOCAL : Authentification sur base locale
+SCORE DE DURCISSEMENT: 5/5 -&gt; CONFORME</pre></div>
+    </div>
+    <p class="lab__note">Configuration totalement conforme aux bonnes pratiques de sécurité.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>enable secret utilise un hachage MD5/SHA-256 alors qu'enable password stocke en clair ou réversible.</li>
+        <li>Analyser le contexte de bloc "line vty 0 4" pour vérifier le transport SSH.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Interface IP-Address OK? Method Status Protocol&#10;GigabitEthernet0/0 192.168.1.1 YES manual up up&#10;GigabitEthernet0/1 unassigned YES unset administratively down down">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c4-e3) — Parseur d'état d'interfaces Cisco (show ip interface brief)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Problème de couche 2 avec protocole down]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : Serial0/0/0 10.0.0.1 YES manual up down
+A_COMPLETER
+
+[Cas 2 — Câble déconnecté]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : FastEthernet0/24 172.16.10.1 YES manual down down
+A_COMPLETER
+
+[Cas 3 — Mix complet sur un commutateur 4 ports]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : Fa0/1 192.168.0.254 YES manual up up
+# Données : Fa0/2 unassigned YES unset down down
+# Données : Fa0/3 unassigned YES unset administratively down down
+# Données : Fa0/4 192.168.0.253 YES manual up down
+A_COMPLETER
+
+[Cas 4 — Interface Loopback toujours up]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : Loopback0 1.1.1.1 YES manual up up
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parseur d'état d'interfaces Cisco (show ip interface brief)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser la sortie de la commande Cisco « show ip interface brief » pour diagnostiquer les incidents de couche 1 et couche 2.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Chaque ligne comporte les colonnes :<br>
+<code>Interface | IP-Address | OK? | Method | Status | Protocol</code><br>
+Pour chaque interface active ou inactive, le script détermine le diagnostic :<br>
+- Si <code>Status == "up"</code> et <code>Protocol == "up"</code> : <code>OPERATIONNEL (L1 Up / L2 Up)</code><br>
+- Si <code>Status == "up"</code> et <code>Protocol == "down"</code> : <code>ERREUR_LIAISON (L1 Up / L2 Down - Probleme encapsulation ou clock-rate)</code><br>
+- Si <code>Status == "down"</code> et <code>Protocol == "down"</code> : <code>NON_CONNECTE (L1 Down / L2 Down - Cable debranche)</code><br>
+- Si <code>Status == "administratively down"</code> : <code>DESACTIVE_ADMIN (Interface sous shutdown)</code><br>
+Format de sortie :<br>
+<code>&lt;INTERFACE&gt; (&lt;IP&gt;) -&gt; &lt;DIAGNOSTIC&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Interface IP-Address OK? Method Status Protocol
+GigabitEthernet0/0 192.168.1.1 YES manual up up
+GigabitEthernet0/1 unassigned YES unset administratively down down</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>GigabitEthernet0/0 (192.168.1.1) -&gt; OPERATIONNEL (L1 Up / L2 Up)
+GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)</pre></div>
+    </div>
+    <p class="lab__note">Une interface opérationnelle et une interface coupée administrativement.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Ignorer la ligne d'en-tête contenant "Interface IP-Address OK? Method Status Protocol".</li>
+        <li>Le statut "administratively down" compte pour deux mots lors du découpage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle commande permet de passer du mode Utilisateur (Router>) au mode Privilégié (Router#) ?</p>
+      <div class="opts">
+        <button class="opt">configure terminal</button>
+        <button class="opt" data-correct="1">enable</button>
+        <button class="opt">login</button>
+        <button class="opt">super-user</button>
+      </div>
+      <div class="q__exp">La commande enable permet d’accéder au mode Privilégié (Privileged EXEC mode). Elle est généralement protégée par le mot de passe configuré via enable secret.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle mémoire réside le fichier de configuration actuellement actif et en cours d’exécution par le processeur ?</p>
+      <div class="opts">
+        <button class="opt">La mémoire NVRAM</button>
+        <button class="opt">La mémoire flash</button>
+        <button class="opt" data-correct="1">La mémoire vive (RAM)</button>
+        <button class="opt">La mémoire morte (ROM)</button>
+      </div>
+      <div class="q__exp">La running-config est chargée et exécutée en mémoire vive (RAM). Elle est volatile et sera effacée en cas de coupure de courant si elle n’est pas copiée en NVRAM (startup-config).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande Cisco IOS enregistre de manière permanente les modifications de configuration pour le prochain démarrage ?</p>
+      <div class="opts">
+        <button class="opt">save running-config</button>
+        <button class="opt" data-correct="1">copy running-config startup-config</button>
+        <button class="opt">commit configuration</button>
+        <button class="opt">write startup-config</button>
+      </div>
+      <div class="q__exp">La commande officielle est « copy running-config startup-config » (ou la commande historique équivalente « write memory »).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impératif d’utiliser « enable secret » plutôt que « enable password » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">enable secret utilise un hachage cryptographique fort à sens unique (MD5/SHA), tandis qu’enable password stocke le mot de passe en clair ou faiblement réversible</button>
+        <button class="opt">enable secret est la seule commande compatible avec IPv6</button>
+        <button class="opt">enable secret permet de définir plusieurs mots de passe simultanément</button>
+        <button class="opt">enable password est réservé aux commutateurs de niveau 3</button>
+      </div>
+      <div class="q__exp">enable secret chiffre le mot de passe avec un algorithme de hachage fort (type 5 ou 8/9). enable password le stocke en clair ou avec un chiffrement trivial type 7 facilement cassé en quelques secondes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction interdit formellement les connexions Telnet non chiffrées sur les terminaux virtuels (lignes VTY) ?</p>
+      <div class="opts">
+        <button class="opt">no telnet server</button>
+        <button class="opt" data-correct="1">transport input ssh</button>
+        <button class="opt">access-class ssh only</button>
+        <button class="opt">crypto line vty force</button>
+      </div>
+      <div class="q__exp">Dans le sous-mode line vty 0 4, la commande « transport input ssh » n’autorise que les sessions SSH chiffrées et rejette automatiquement toutes les tentatives de connexion Telnet en clair.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle taille de clé minimale est préconisée par Cisco pour la génération des clés RSA destinées à SSH version 2 ?</p>
+      <div class="opts">
+        <button class="opt">512 bits</button>
+        <button class="opt">1024 bits</button>
+        <button class="opt" data-correct="1">2048 bits</button>
+        <button class="opt">4096 bits obligatoire</button>
+      </div>
+      <div class="q__exp">Une clé RSA de 2048 bits est le standard recommandé moderne. Une clé inférieure à 768 bits interdit le passage en SSH v2 sous Cisco IOS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la sortie de « show ip interface brief », que signifie l’état « Status: administratively down / Protocol: down » ?</p>
+      <div class="opts">
+        <button class="opt">Le câble réseau est débranché ou coupé</button>
+        <button class="opt" data-correct="1">L’interface a été désactivée manuellement par un administrateur et nécessite la commande no shutdown</button>
+        <button class="opt">L’adresse IP configurée est en conflit avec une autre machine</button>
+        <button class="opt">L’horloge de synchronisation série est mal réglée</button>
+      </div>
+      <div class="q__exp">Status « administratively down » indique que la commande shutdown est active sur l’interface. Pour la rendre opérationnelle, l’administrateur doit entrer dans l’interface et taper « no shutdown ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que réalise la commande globale « service password-encryption » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle chiffre les mots de passe visibles en clair dans le fichier de configuration pour masquer leur lecture à l’écran</button>
+        <button class="opt">Elle active le protocole IPsec sur toutes les interfaces</button>
+        <button class="opt">Elle génère les clés SSH publiques et privées</button>
+        <button class="opt">Elle empêche toute modification de configuration par console</button>
+      </div>
+      <div class="q__exp">Elle applique un chiffrement réversible (type 7) sur les mots de passe affichés en clair dans la configuration (mots de passe de console, vty, etc.) pour éviter qu’une personne regardant par-dessus l’épaule de l’administrateur ne les lise.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de taper « no shutdown » sur une interface de routeur Cisco (les ports de routeur sont désactivés par défaut).</li>
+      <li>Redémarrer un équipement sans avoir exécuté « copy running-config startup-config », perdant ainsi tout le travail effectué.</li>
+      <li>Utiliser la commande obsolète « enable password » à la place de « enable secret » (vulnérabilité critique).</li>
+      <li>Oublier de configurer « ip domain-name » avant de lancer « crypto key generate rsa », ce qui provoque une erreur de commande.</li>
+      <li>Laisser Telnet activé sur les lignes VTY (« transport input all » ou « transport input telnet »), exposant les mots de passe sur le réseau.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Configuration &amp; Recette d’un Équipement Cisco</div>
+    <ol>
+      <li>Étape 1 — Nommage &amp; Accès : Se connecter sur console, attribuer un hostname explicite et configurer logging synchronous.</li>
+      <li>Étape 2 — Sécurisation : Déclarer service password-encryption, enable secret et banner motd.</li>
+      <li>Étape 3 — Accès distant : Déclarer le nom de domaine, générer la clé RSA 2048 bits, créer un utilisateur local et forcer transport input ssh sur VTY.</li>
+      <li>Étape 4 — Adressage d’interfaces : Configurer l’IP et le masque sur les ports requis, ajouter une description explicite et activer avec no shutdown.</li>
+      <li>Étape 5 — Recette : Exécuter show ip interface brief et sauvegarder la configuration avec copy running-config startup-config.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La CLI Cisco IOS s’organise en 4 modes principaux : User EXEC (>), Privileged EXEC (#), Global Config (config)# et Interface (config-if)#.</li>
+      <li>La running-config vit en mémoire vive RAM (volatile) ; la startup-config est sauvegardée en NVRAM permanente.</li>
+      <li>La commande copy running-config startup-config sauvegarde les modifications de manière persistante.</li>
+      <li>Le durcissement exige enable secret (hachage fort), service password-encryption, banner motd et SSH v2 sur les lignes VTY.</li>
+      <li>Telnet transmettant les données en clair, il doit être formellement banni en production via transport input ssh.</li>
+      <li>show ip interface brief permet de diagnostiquer en un coup d’œil l’état physique L1 (Status) et protocolaire L2 (Protocol) de chaque port.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais la syntaxe de transition entre les 4 modes de la CLI Cisco IOS.</li>
+      <li>Je comprends la différence fondamentale entre la running-config et la startup-config.</li>
+      <li>Je sais appliquer les 5 commandes de durcissement de sécurité recommandées par Cisco.</li>
+      <li>Je maîtrise l’ensemble de la procédure pour activer SSH v2 sur les lignes VTY.</li>
+      <li>Je sais interpréter un statut « administratively down », « down/down » ou « up/down » dans show ip interface brief.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Modes d’exécution CLI Cisco IOS</li><li>Mémoire RAM (running-config) vs NVRAM (startup-config)</li><li>Sauvegarde (copy running-config startup-config)</li><li>Chiffrement (service password-encryption)</li><li>Mot de passe privilégié (enable secret)</li><li>Bannière d’avertissement (banner motd)</li><li>Configuration SSH v2 et clés RSA 2048 bits</li><li>Diagnostic L1/L2 avec show ip interface brief</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la hiérarchie des modes d’invite Cisco et la différence entre RAM et NVRAM.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes connaissances de base. Approfondissez la configuration de SSH v2 et l’analyse des interfaces.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise des commandes Cisco IOS et des principes de durcissement opérationnel.</div>
+      <div class="bandrow bandrow--top">8/8 : Administrateur Cisco chevronné ! Vous êtes fin prêt pour le routage IPv4 et les tables de routage.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Routage IPv4, Tables de Routage &amp; Routes Statiques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les guides officiels Cisco Press CCNA 200-301 (Wendell Odom), les RFC de l’IETF (RFC 791, RFC 1918, RFC 3021) et les standards IEEE 802.1D, 802.1w et 802.1Q.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

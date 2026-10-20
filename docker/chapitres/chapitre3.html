@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Dockerfile, Directives &amp;amp; Optimisation Multi-Stage | Docker B2</title>
+<meta name="description" content="Chapitre 3 du cours Docker B2 : Syntaxe et directives fondamentales du Dockerfile, gestion fine du cache de construction (Build Cache), fichier .dockerignore, comparaison formelle CMD vs ENTRYPOINT (exec form vs shell form), et réduction drastique de surface d’attaque par les builds multi-étapes (Multi-Stage Builds). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/docker/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Dockerfile, Directives &amp;amp; Optimisation Multi-Stage | Docker B2">
+<meta property="og:description" content="Chapitre 3 du cours Docker B2 : Syntaxe et directives fondamentales du Dockerfile, gestion fine du cache de construction (Build Cache), fichier .dockerignore, comparaison formelle CMD vs ENTRYPOINT (exec form vs shell form), et réduction drastique de surface d’attaque par les builds multi-étapes (Multi-Stage Builds). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="dockernav"><div class="dockernav__in">
+  <a class="dockernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="dockernav__sep" aria-hidden="true">/</span>
+  <a class="dockernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Docker B2</a>
+  <div class="dockernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="dockernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="dockerwrap">
+<p class="crumb"><a href="../index.html">Docker B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Dockerfile, Directives &amp; Optimisation Multi-Stage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une équipe de développeurs livre une image Docker pour une application écrite en Go. L’image pèse 1,4 Go en production et intègre le compilateur Go complet, l’historique git, les outils de build gcc et les codes sources complets. Un audit de sécurité automatisé (scanner Trivy) relève plus de 180 vulnérabilités critiques liées aux utilitaires système embarqués inutilement dans l’image de production. De plus, chaque modification d’une seule ligne de code oblige Docker à réinstaller l’intégralité des dépendances pendant 15 minutes faute d’un ordre de couches réfléchi. Ce module forme les étudiants à écrire des Dockerfiles professionnels, ultra-rapides à compiler grâce au cache, et à diviser par cinquante la taille et la surface de vulnérabilité de leurs images grâce au pattern Multi-Stage Build.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la syntaxe et les directives fondamentales du Dockerfile (FROM, WORKDIR, COPY, RUN, ENV, ARG, EXPOSE, USER) ;</li>
+      <li>comprendre l’invalidation du cache de build et ordonner les couches du moins changeant au plus changeant ;</li>
+      <li>filtrer rigoureusement les fichiers sensibles et temporaires grâce au fichier .dockerignore ;</li>
+      <li>distinguer rigoureusement la forme exec (JSON) de la forme shell pour CMD et ENTRYPOINT ;</li>
+      <li>garantir la bonne transmission des signaux d’arrêt UNIX (SIGTERM) au processus conteneurisé ;</li>
+      <li>concevoir une architecture de build Multi-Stage séparant l’environnement de compilation du runtime de production.</li>
+    </ol>
+  </div>
+
+<h2>1. Directives Clés du Dockerfile et Bonnes Pratiques</h2>
+
+<p>Le <strong>Dockerfile</strong> est la recette déclarative d’assemblage d’une image Docker. Chaque directive doit être choisie avec rigueur technique :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Directive</th>
+      <th>Rôle</th>
+      <th>Bonne pratique recommandée</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>FROM</strong></td>
+      <td>Définit l’image de départ (Base Image).</td>
+      <td>Toujours spécifier une version explicite (ex: <code>node:20-alpine</code>) plutôt qu’un tag flottant.</td>
+    </tr>
+    <tr>
+      <td><strong>WORKDIR</strong></td>
+      <td>Définit le répertoire de travail pour les commandes suivantes.</td>
+      <td>Toujours utiliser un chemin absolu (ex: <code>WORKDIR /app</code>). Ne jamais enchaîner de <code>cd</code> manuels.</td>
+    </tr>
+    <tr>
+      <td><strong>COPY</strong></td>
+      <td>Copie des fichiers ou dossiers depuis la machine hôte vers l’image.</td>
+      <td>Préférer <code>COPY</code> à <code>ADD</code> pour les fichiers locaux afin d’éviter les effets de bord d’extraction automatique.</td>
+    </tr>
+    <tr>
+      <td><strong>ADD</strong></td>
+      <td>Copie avec décompression automatique d’archives tar locales ou téléchargement d’URL.</td>
+      <td>À réserver exclusivement pour décompresser une archive tar locale directement dans l’image.</td>
+    </tr>
+    <tr>
+      <td><strong>RUN</strong></td>
+      <td>Exécute une commande shell lors de la construction et scelle une couche.</td>
+      <td>Chaîner les commandes avec <code>&amp;&amp;</code> et nettoyer les caches de paquets dans la même instruction.</td>
+    </tr>
+    <tr>
+      <td><strong>ENV vs ARG</strong></td>
+      <td>Variables de configuration.</td>
+      <td><code>ARG</code> existe uniquement pendant le build ; <code>ENV</code> persiste dans l’image et au runtime du conteneur.</td>
+    </tr>
+    <tr>
+      <td><strong>EXPOSE</strong></td>
+      <td>Documentation du port d’écoute.</td>
+      <td>Purement informatif pour les développeurs, ne publie aucun port sur l’hôte (contrairement à <code>-p</code>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. Optimisation du Build Cache et Fichier .dockerignore</h2>
+
+<p>Lors de l’exécution de <code>docker build</code>, Docker réutilise les couches déjà compilées si aucun fichier ni paramètre n’a changé en amont. Dès qu’une couche est invalidée, <strong>toutes les couches suivantes doivent être entièrement recalculées</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Anti-pattern : Invalidation Permanente du Cache</h4>
+    <pre><code>FROM node:18-alpine
+WORKDIR /app
+COPY . .  # &lt;-- Erreur ! Modifie a chaque commit
+RUN npm install # Se relance a chaque modification du code !</code></pre>
+    <p>Le développeur modifie une ligne de commentaire dans son code source : <code>COPY . .</code> change,     le cache est brisé, et <code>npm install</code> doit retélécharger 800 Mo de dépendances à chaque fois.</p>
+  </div>
+  <div class="card">
+    <h4>Pattern Optimal : Isolation des Dépendances</h4>
+    <pre><code>FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production  # En cache si package.json inchange
+COPY . .
+CMD ["node", "server.js"]</code></pre>
+    <p><code>npm ci</code> reste parfaitement en cache tant que les dépendances n’ont pas été modifiées.     Le build ne prend alors que 2 secondes !</p>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le Fichier .dockerignore</div>
+<p>Tout comme <code>.gitignore</code>, le fichier <code>.dockerignore</code> empêche l’envoi de fichiers indésirables dans le contexte de build envoyé au démon Docker : excluez systématiquement les dossiers <code>.git</code>, les dépendances locales <code>node_modules</code> ou <code>venv</code>, les fichiers secrets <code>.env</code> et les journaux de logs.</p>
+  </div>
+
+<h2>3. CMD vs ENTRYPOINT : Forme Exec (JSON) vs Forme Shell</h2>
+
+<p>L’une des erreurs les plus fréquentes concerne le lancement du processus conteneurisé. Deux formes de syntaxe coexistent :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Syntaxe</th>
+      <th>Exemple</th>
+      <th>Comportement du Système</th>
+      <th>Transmission des Signaux UNIX</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Forme Exec (Recommandée)</strong></td>
+      <td><code>CMD ["node", "app.js"]</code></td>
+      <td>Exécute directement le binaire <code>node</code> qui devient le <strong>PID 1</strong> du conteneur.</td>
+      <td><strong>Parfaite :</strong> Reçoit directement les signaux <code>SIGTERM</code> émis par <code>docker stop</code> pour s’arrêter proprement.</td>
+    </tr>
+    <tr>
+      <td><strong>Forme Shell (Anti-pattern)</strong></td>
+      <td><code>CMD node app.js</code></td>
+      <td>Enveloppe la commande dans un sous-shell : <code>/bin/sh -c "node app.js"</code>.</td>
+      <td><strong>Défaillante :</strong> Le shell est PID 1 et ne transmet pas <code>SIGTERM</code> au processus fils. Le conteneur se fige pendant 10s avant d’être tué brutalement par <code>SIGKILL</code>.</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Combinaison ENTRYPOINT + CMD :</strong></p>
+<pre><code># ENTRYPOINT fixe le binaire de base inaltérable :
+ENTRYPOINT ["python", "main.py"]
+# CMD fournit les arguments par défaut substituables :
+CMD ["--port", "8080"]
+
+# Un "docker run monapp" executera : python main.py --port 8080
+# Un "docker run monapp --debug" executera : python main.py --debug</code></pre>
+
+<h2>4. Le Pattern Révolutionnaire du Multi-Stage Build</h2>
+
+<p>Introduit dans Docker 17.05, le <strong>Multi-Stage Build</strong> permet d’utiliser plusieurs instructions <code>FROM</code> dans un même Dockerfile afin d’isoler hermétiquement l’environnement de compilation de l’image finale de production :</p>
+<pre><code># --- Étape 1 : Environnement de compilation lourd (Build Stage) ---
+FROM golang:1.21-alpine AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/monapp .
+
+# --- Étape 2 : Image minimale de production (Final Stage) ---
+FROM alpine:3.18
+RUN adduser -D -u 10001 appuser
+WORKDIR /app
+# On copie UNIQUEMENT le binaire final depuis l'étape builder :
+COPY --from=builder /bin/monapp /app/monapp
+USER appuser
+EXPOSE 8080
+CMD ["/app/monapp"]</code></pre>
+  <div class="box box--important">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Bénéfice Stratégique du Multi-Stage</div>
+<p>Le compilateur Go, le code source brut, les outils git et les fichiers intermédiaires sont tous abandonnés dans l’étape 1. L’image finale ne contient que le binaire statique de 15 Mo sur une base Alpine de 7 Mo, soit <strong>22 Mo au lieu de 900 Mo</strong>. Les pirates ne trouvent ni compilateur ni outils de débogage dans le conteneur en cas d’intrusion.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="dk2-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="# Mon Dockerfile de production&#10;FROM node:18-alpine&#10;ADD package.json .&#10;RUN npm install&#10;COPY . .&#10;CMD [&quot;node&quot;, &quot;server.js&quot;]">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c3-e1) — Validateur et linter de bonnes pratiques Dockerfile
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Dockerfile parfaitement conforme]
+# Données : FROM python:3.11-slim
+# Données : WORKDIR /app
+# Données : COPY requirements.txt .
+# Données : RUN pip install --no-cache-dir -r requirements.txt
+# Données : COPY . .
+# Données : USER 1001
+# Données : CMD ["python", "app.py"]
+A_COMPLETER
+
+[Cas 2 — Anti-pattern apt-get update isolé]
+# Données : FROM debian:bullseye
+# Données : RUN apt-get update
+# Données : RUN apt-get install -y curl
+# Données : CMD ["bash"]
+A_COMPLETER
+
+[Cas 3 — Erreur critique absence de FROM initial]
+# Données : WORKDIR /app
+# Données : COPY . .
+# Données : CMD ["sh"]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur et linter de bonnes pratiques Dockerfile</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser statiquement les instructions d’un Dockerfile et détecter les anti-patterns courants.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Règles d'audit et de conformité :<br>
+1. Première instruction non-commentaire : DOIT être <code>FROM</code> (ou <code>ARG</code>). Si absent : <code>ERREUR_CRITIQUE: Dockerfile doit debuter par FROM</code>.<br>
+2. <strong>Anti-pattern ADD</strong> : si une ligne commence par <code>ADD</code> avec un fichier local simple (.txt, .js, .py, etc. sans .tar/.gz/.zip ni URL http) : afficher <code>AVERTISSEMENT [Ligne N]: Preferer COPY a ADD pour les fichiers locaux</code>.<br>
+3. <strong>Anti-pattern Cache Apt</strong> : si <code>RUN apt-get update</code> est présent seul sans <code>apt-get install</code> sur la même instruction chaînée : afficher <code>AVERTISSEMENT [Ligne N]: RUN apt-get update isole (fusionner avec install et rm -rf /var/lib/apt/lists/*)</code>.<br>
+4. Si aucun problème n'est détecté : afficher <code>AUDIT_DOCKERFILE: CONFORME (Aucun anti-pattern detecte)</code>.<br>
+Sinon, afficher <code>AUDIT_DOCKERFILE: NON_CONFORME (&lt;K&gt; avertissement(s))</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre># Mon Dockerfile de production
+FROM node:18-alpine
+ADD package.json .
+RUN npm install
+COPY . .
+CMD ["node", "server.js"]</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AVERTISSEMENT [Ligne 3]: Preferer COPY a ADD pour les fichiers locaux
+AUDIT_DOCKERFILE: NON_CONFORME (1 avertissement(s))</pre></div>
+    </div>
+    <p class="lab__note">ADD est déconseillé pour copier de simples fichiers locaux.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Ignorer les lignes commençant par # (commentaires).</li>
+        <li>Identifier les chaînes locales dans ADD (absence de http/tar/gz).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ENTRYPOINT: python, app.py&#10;CMD: --port, 8080&#10;CLI_ARGS: NONE">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c3-e2) — Distributeur de commandes CMD vs ENTRYPOINT
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — CMD seul sans ENTRYPOINT]
+# Données : ENTRYPOINT: NONE
+# Données : CMD: nginx, -g, daemon off;
+# Données : CLI_ARGS: NONE
+A_COMPLETER
+
+[Cas 2 — CMD seul écrasé par commande CLI (ex: docker run ... bash)]
+# Données : ENTRYPOINT: NONE
+# Données : CMD: node, index.js
+# Données : CLI_ARGS: bash
+A_COMPLETER
+
+[Cas 3 — ENTRYPOINT seul sans CMD]
+# Données : ENTRYPOINT: /entrypoint.sh
+# Données : CMD: NONE
+# Données : CLI_ARGS: NONE
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Distributeur de commandes CMD vs ENTRYPOINT</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la ligne de commande finale exacte exécutée dans le conteneur selon la présence de ENTRYPOINT, CMD et arguments CLI.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas. <code>ENTRYPOINT: &lt;liste d'arguments séparés par des virgules ou NONE&gt;</code><br>
+2. <code>CMD: &lt;liste d'arguments séparés par des virgules ou NONE&gt;</code><br>
+3. <code>CLI_ARGS: &lt;arguments passés à docker run séparés par des virgules ou NONE&gt;</code><br>
+Règles d'évaluation du runtime Docker :<br>
+- Si <code>CLI_ARGS</code> n'est pas <code>NONE</code>, il écrase complètement <code>CMD</code>.<br>
+- Si <code>ENTRYPOINT</code> n'est pas <code>NONE</code> : la commande finale est la concaténation de <code>ENTRYPOINT</code> + (<code>CLI_ARGS</code> s'il existe, sinon <code>CMD</code> si présent).<br>
+- Si <code>ENTRYPOINT</code> est <code>NONE</code> : la commande finale est <code>CLI_ARGS</code> (s'il existe) sinon <code>CMD</code>.<br>
+Afficher la commande résultante (arguments joints par des espaces) :<br>
+<code>COMMANDE_FINALE: &lt;cmd1&gt; &lt;cmd2&gt; ...</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ENTRYPOINT: python, app.py
+CMD: --port, 8080
+CLI_ARGS: NONE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>COMMANDE_FINALE: python app.py --port 8080</pre></div>
+    </div>
+    <p class="lab__note">ENTRYPOINT et CMD sont combinés par défaut.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traiter la valeur spéciale NONE comme une liste vide.</li>
+        <li>Les arguments passés en ligne de commande remplacent systématiquement l’instruction CMD.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="MONOLITHIC: golang:1.21 800 + 150 + 10 + 20&#10;STAGE_BUILD: golang:1.21 980 -&gt; EXPORT: 20&#10;STAGE_FINAL: alpine:3.18 7 + IMPORT: 20">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c3-e3) — Optimiseur de cache et build Multi-Stage
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Application Java Quarkus / GraalVM vers distroless]
+# Données : MONOLITHIC: graalvm:jdk17 1200 + 300 + 50 + 40
+# Données : STAGE_BUILD: graalvm:jdk17 1590 -> EXPORT: 40
+# Données : STAGE_FINAL: gcr.io/distroless/static 2 + IMPORT: 40
+A_COMPLETER
+
+[Cas 2 — Application Node.js avec bundle frontend]
+# Données : MONOLITHIC: node:20 1000 + 250 + 30 + 10
+# Données : STAGE_BUILD: node:20 1290 -> EXPORT: 10
+# Données : STAGE_FINAL: nginx:alpine 25 + IMPORT: 10
+A_COMPLETER
+
+[Cas 3 — Build léger C Rust vers scratch]
+# Données : MONOLITHIC: rust:1.75 1400 + 200 + 20 + 8
+# Données : STAGE_BUILD: rust:1.75 1628 -> EXPORT: 8
+# Données : STAGE_FINAL: scratch 0 + IMPORT: 8
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Optimiseur de cache et build Multi-Stage</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Quantifier l’allègement drastique d’image obtenu par le pattern Multi-Stage Build face à une construction monolithique.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+- Ligne 2 : <code>STAGE_BUILD: &lt;NomBaseBuild&gt; &lt;TailleTotalBuildMo&gt; -&gt; EXPORT: &lt;BinaireProduitMo&gt;</code>.<br>
+- Ligne 3 : <code>STAGE_FINAL: &lt;NomBaseLegere&gt; &lt;TailleBaseLegereMo&gt; + IMPORT: &lt;BinaireProduitMo&gt;</code>.<br>
+Calculer :<br>
+1. Taille totale de l'image monolithique = <code>TailleBaseMo + OutilsDevMo + CodeMo + BinaireProduitMo</code>.<br>
+2. Taille de l'image finale issue du multi-stage = <code>TailleBaseLegereMo + BinaireProduitMo</code>.<br>
+3. Réduction brute = <code>TailleMono - TailleMulti</code> (en Mo).<br>
+4. Pourcentage d'économie = <code>(Reduction / TailleMono) * 100</code> (arrondi à 1 décimale).<br>
+Afficher :<br>
+<code>IMAGE_MONOLITHIQUE: &lt;Tmono&gt; Mo</code><br>
+<code>IMAGE_MULTI_STAGE: &lt;Tmulti&gt; Mo</code><br>
+<code>GAIN_SECURITE_ET_TAILLE: -&lt;Red&gt; Mo (&lt;Pct:.1f&gt;% economises)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MONOLITHIC: golang:1.21 800 + 150 + 10 + 20
+STAGE_BUILD: golang:1.21 980 -&gt; EXPORT: 20
+STAGE_FINAL: alpine:3.18 7 + IMPORT: 20</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IMAGE_MONOLITHIQUE: 980 Mo
+IMAGE_MULTI_STAGE: 27 Mo
+GAIN_SECURITE_ET_TAILLE: -953 Mo (97.2% economises)</pre></div>
+    </div>
+    <p class="lab__note">Une application Go compilée passe de près de 1 Go à 27 Mo.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Seule la dernière étape (STAGE_FINAL) est embarquée dans l’image finale distribuée.</li>
+        <li>Les compilateurs et codes sources de build sont jetés.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il crucial de copier le fichier « package.json » et de lancer « npm install » AVANT de copier le reste du code source applicatif ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le langage JavaScript l’exige obligatoirement</button>
+        <button class="opt" data-correct="1">Pour bénéficier du cache de build Docker : les dépendances ne seront pas réinstallées tant que package.json ne change pas, même si le code source change</button>
+        <button class="opt">Pour empêcher les autres développeurs de lire le code</button>
+        <button class="opt">Parce que npm refuse de fonctionner dans un répertoire contenant du code</button>
+      </div>
+      <div class="q__exp">Si vous copiez tout le code en premier, la moindre retouche de code invalide le cache et force une réinstallation lente des paquets npm à chaque build.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la conséquence critique de l’utilisation de la forme shell « CMD node server.js » par rapport à la forme exec « CMD ["node", "server.js"] » ?</p>
+      <div class="opts">
+        <button class="opt">Le serveur démarre deux fois plus vite</button>
+        <button class="opt" data-correct="1">Le processus est encapsulé dans /bin/sh -c et ne reçoit pas le signal d’arrêt SIGTERM lors d’un « docker stop », entraînant un arrêt brutal après 10 secondes par SIGKILL</button>
+        <button class="opt">La mémoire vive est automatiquement doublée</button>
+        <button class="opt">La directive est ignorée par le démon Docker</button>
+      </div>
+      <div class="q__exp">En forme shell, /bin/sh est le PID 1 et n’achemine pas les signaux système à ses processus fils, empêchant l’application de fermer proprement ses connexions et fichiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert le pattern du Multi-Stage Build dans un Dockerfile moderne ?</p>
+      <div class="opts">
+        <button class="opt">À compiler du code sur plusieurs serveurs physiques en réseau</button>
+        <button class="opt" data-correct="1">À utiliser une première étape lourde pour compiler les sources, puis à copier uniquement le binaire produit dans une image finale minimale et épurée</button>
+        <button class="opt">À faire tourner plusieurs systèmes d’exploitation simultanément dans un même conteneur</button>
+        <button class="opt">À crypter le Dockerfile pour le rendre illisible</button>
+      </div>
+      <div class="q__exp">Le Multi-Stage Build isole les outils de build volumineux (compilateurs, SDK) dans un stage temporaire et ne conserve que le résultat compilé dans l’image finale de production.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle directive Dockerfile doit-on privilégier pour copier un fichier simple du disque hôte vers le conteneur sans comportement magique inattendu ?</p>
+      <div class="opts">
+        <button class="opt">ADD</button>
+        <button class="opt" data-correct="1">COPY</button>
+        <button class="opt">IMPORT</button>
+        <button class="opt">FETCH</button>
+      </div>
+      <div class="q__exp">COPY est explicite, transparente et sans surprise. ADD réalise des décompressions automatiques d’archives tar et accepte des URL distantes, ce qui est souvent source d’erreurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction permet de définir l’utilisateur sous lequel toutes les commandes suivantes du Dockerfile et le conteneur lui-même s’exécuteront ?</p>
+      <div class="opts">
+        <button class="opt">AUTH</button>
+        <button class="opt" data-correct="1">USER</button>
+        <button class="opt">GROUP</button>
+        <button class="opt">ACCOUNT</button>
+      </div>
+      <div class="q__exp">L’instruction USER spécifie le nom d’utilisateur (ou l’UID) pour l’exécution des instructions RUN, CMD et ENTRYPOINT restantes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre les instructions ARG et ENV dans un Dockerfile ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ARG n’est disponible que lors de la phase de construction (docker build), alors que ENV persiste dans l’image finale et au runtime du conteneur</button>
+        <button class="opt">ARG est réservé aux chiffres et ENV aux chaînes de caractères</button>
+        <button class="opt">ENV ne fonctionne que sous Windows</button>
+        <button class="opt">Il n’y a aucune différence technique</button>
+      </div>
+      <div class="q__exp">ARG définit des variables d’étape de build non transmises au conteneur au runtime. ENV inscrit des variables d’environnement persistantes dans l’image.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel fichier permet d’exclure le dossier « .git » et les fichiers secrets de l’envoi au contexte de build du démon Docker ?</p>
+      <div class="opts">
+        <button class="opt">.gitignore</button>
+        <button class="opt" data-correct="1">.dockerignore</button>
+        <button class="opt">docker.config</button>
+        <button class="opt">.env.hide</button>
+      </div>
+      <div class="q__exp">Le fichier .dockerignore à la racine du projet fonctionne comme .gitignore et évite d’envoyer des fichiers volumineux ou sensibles au démon lors du build.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un Dockerfile définit ENTRYPOINT ["nginx"] et CMD ["-g", "daemon off;"], que se passe-t-il si l’utilisateur exécute « docker run mon-nginx -v » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le conteneur exécute la commande « nginx -v » car l’argument CLI « -v » a écrasé l’instruction CMD par défaut</button>
+        <button class="opt">Le conteneur refuse de démarrer</button>
+        <button class="opt">Le conteneur exécute « -v nginx -g daemon off; »</button>
+        <button class="opt">L’argument « -v » est totalement ignoré</button>
+      </div>
+      <div class="q__exp">ENTRYPOINT reste le préfixe fixe de la commande, et tout argument fourni en CLI vient écraser les arguments de CMD.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Copier l’intégralité des sources avant d’installer les dépendances (ex: COPY . . avant npm install), brisant le cache à chaque modification.</li>
+      <li>Utiliser la forme shell pour CMD (ex: CMD python app.py) : le conteneur ne répond pas au signal SIGTERM de docker stop.</li>
+      <li>Laisser traîner des clés SSH, des jetons API ou des fichiers .env dans les couches de l’image.</li>
+      <li>Oublier de nettoyer les caches de paquets apt ou pip dans la même instruction RUN que l’installation.</li>
+      <li>Livrer un compilateur lourd (Go, JDK, Rust) dans l’image de production au lieu d’utiliser un Multi-Stage Build.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Conception d’un Dockerfile Optimisé et Sécurisé</div>
+    <ol>
+      <li>Étape 1 — Créer le fichier .dockerignore : Écarter immédiatement les répertoires .git, tests, .env et caches locaux.</li>
+      <li>Étape 2 — Choisir une image de base minimale : Opter pour une variante Alpine Linux (musl) ou Debian-Slim selon les contraintes de glibc.</li>
+      <li>Étape 3 — Structurer l’ordre des couches de dépendances : Copier les manifestes de paquets (package.json, requirements.txt, go.mod) et installer les dépendances avant de copier le reste du code.</li>
+      <li>Étape 4 — Chaîner et nettoyer les commandes RUN : Fusionner les étapes d’installation système avec la purge immédiate des listes de paquets temporaires.</li>
+      <li>Étape 5 — Créer et basculer sur un utilisateur non-root : Déclarer un utilisateur dédié avec l’instruction « USER » pour abandonner les privilèges d’administration.</li>
+      <li>Étape 6 — Adopter la forme JSON exec pour le point d’entrée : Spécifier la commande de lancement sous forme de tableau JSON strict pour intercepter les signaux SIGTERM.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Dockerfile assemble une image de façon déclarative à travers une suite d’instructions ordonnées.</li>
+      <li>Les couches doivent être ordonnées du moins changeant au plus changeant pour maximiser l’efficacité du Build Cache.</li>
+      <li>Le fichier .dockerignore préserve le contexte de build en filtrant les fichiers secrets, volumineux ou inutiles.</li>
+      <li>Toujours utiliser la forme Exec (JSON) pour CMD et ENTRYPOINT pour que le processus reçoive les signaux UNIX (SIGTERM).</li>
+      <li>La directive ADD ne doit être utilisée que pour l’extraction automatique d’archives tar locales ; préférer COPY dans tous les autres cas.</li>
+      <li>Le Multi-Stage Build isole les compilateurs dans une étape transitoire et garantit une image finale ultralégère et sécurisée.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la différence fondamentale entre la directive COPY et la directive ADD.</li>
+      <li>Je sais pourquoi le cache est invalidé dès qu’un fichier copié est modifié.</li>
+      <li>J’ai configuré un fichier .dockerignore pour exclure .git et les dépendances locales.</li>
+      <li>Je sais pourquoi CMD ["node", "app.js"] est infiniment supérieur à CMD node app.js.</li>
+      <li>Je sais combiner ENTRYPOINT pour fixer l’exécutable et CMD pour fournir des arguments modifiables.</li>
+      <li>Je maîtrise l’instruction COPY --from=builder pour extraire des binaires compilés dans une étape finale légère.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Directives Dockerfile fondamentales</li><li>Build Cache et ordre d’invalidation</li><li>Fichier de filtrage .dockerignore</li><li>Forme Exec (JSON) vs Forme Shell</li><li>Gestion du PID 1 et signaux SIGTERM</li><li>Combinaison ENTRYPOINT et CMD</li><li>Pattern Multi-Stage Build (AS builder)</li><li>Directive COPY --from=stage</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la forme exec de CMD, l’ordonnancement des couches et le rôle de .dockerignore.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes notions de Dockerfile. Approfondissez le Multi-Stage Build et l’optimisation du cache.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise de la construction d’images industrielles légères et véloces.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous architectez des Dockerfiles conformes aux plus hauts standards DevOps du marché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Cycle de Vie des Conteneurs, Réseau &amp; Stockage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

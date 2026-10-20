@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 — Fondements de la Supervision, Périmètres &amp; Indicateurs de Fiabilité (SLA, MTBF, MTTR) | Supervision &amp;amp; Observabilité B3</title>
+<meta name="description" content="Module 1 du cours Supervision &amp; Observabilité B3 : Distinctions supervision, monitoring, métrologie et audit, périmètres d'infrastructure, calculs MTBF/MTTR, engagements SLA et Error Budget SRE. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-supervision/chapitres/chapitre1.html">
+<meta property="og:title" content="Module 1 — Fondements de la Supervision, Périmètres &amp; Indicateurs de Fiabilité (SLA, MTBF, MTTR) | Supervision &amp;amp; Observabilité B3">
+<meta property="og:description" content="Module 1 du cours Supervision &amp; Observabilité B3 : Distinctions supervision, monitoring, métrologie et audit, périmètres d'infrastructure, calculs MTBF/MTTR, engagements SLA et Error Budget SRE. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-supervisionnav"><div class="b3-supervisionnav__in">
+  <a class="b3-supervisionnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-supervisionnav__sep" aria-hidden="true">/</span>
+  <a class="b3-supervisionnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Supervision &amp;amp; Observabilité B3</a>
+  <div class="b3-supervisionnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-supervisionnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-supervisionwrap">
+<p class="crumb"><a href="../index.html">Supervision &amp; Observabilité B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements de la Supervision, Périmètres & Indicateurs de Fiabilité (SLA, MTBF, MTTR)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Vous intégrez le centre d'exploitation réseau et système (NOC) d'une entreprise de services numériques opérant des infrastructures critiques pour le secteur bancaire et hospitalier. Votre première mission consiste à poser le cadre méthodologique de la surveillance : clarifier les rôles entre supervision temps réel, métrologie et audit, cartographier les périmètres matériels et logiciels à surveiller, et mettre en place les tableaux de bord des indicateurs contractuels de fiabilité (MTBF, MTTR, taux de disponibilité et consommation du budget d'erreur).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Distinguer avec rigueur les concepts de supervision, monitoring, métrologie et audit informatique.</li>
+      <li>Délimiter le périmètre de supervision sur les quatre couches : serveurs physiques/virtuels, équipements réseaux, services protocolaires et applications métiers.</li>
+      <li>Calculer et interpréter les indicateurs de fiabilité et de maintenabilité opérationnelle : MTBF, MTTR et taux de disponibilité globale.</li>
+      <li>Implémenter le concept moderne de budget d'erreur (Error Budget) issu des pratiques SRE pour piloter la conformité aux engagements de niveau de service (SLO/SLA).</li>
+    </ol>
+  </div>
+
+<h2>1. Définitions & Distinctions : Supervision, Monitoring, Métrologie & Audit</h2>
+
+<p>Dans un environnement informatique d'entreprise, la disponibilité, la performance et la sécurité des infrastructures sont des exigences absolues. Pour piloter efficacement les systèmes, il est fondamental de ne pas confondre les démarches opérationnelles :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Supervision vs Monitoring</h4>
+    <ul>
+      <li><strong>Supervision (Temps Réel) :</strong> Surveillance continue et proactive de l'état de santé global du système d'information dans le but de détecter immédiatement les défaillances, d'alerter les exploitants et de rétablir le service au plus vite (vision macroscopique et opérationnelle).</li>
+      <li><strong>Monitoring (Observation Ciblée) :</strong> Terme général désignant la collecte continue de données sur des composants précis (processus, états de ports, mémoire, temps de réponse) pour suivre leur comportement sans nécessairement générer d'alerte immédiate.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Métrologie vs Audit</h4>
+    <ul>
+      <li><strong>Métrologie (Mesure &amp; Tendance) :</strong> Collecte, historisation et analyse statistique de métriques quantitatives (charge CPU, occupation disque, débit réseau en octets/s). Son objectif est la modélisation des tendances et la planification de capacité (<em>Capacity Planning</em>).</li>
+      <li><strong>Audit (Évaluation Ponctuelle) :</strong> Examen rétrospectif et méthodique, souvent manuel ou semi-automatisé, visant à vérifier la conformité d'une architecture aux normes de sécurité (ISO 27001), aux règles de durcissement ou aux critères contractuels à un instant T.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Périmètre Global de la Supervision en Entreprise</h2>
+
+<p>La supervision moderne couvre l'ensemble des couches techniques du système d'information pour garantir une observabilité de bout en bout :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Supervision des Serveurs &amp; Matériels</h4>
+    <ul>
+      <li><strong>Serveurs physiques :</strong> Température des châssis, état des blocs d'alimentation redondants, vitesse des ventilateurs, santé des contrôleurs RAID et disques durs via IPMI / iLO / iDRAC.</li>
+      <li><strong>Hyperviseurs &amp; VMs :</strong> Charge des hôtes ESXi / Proxmox, état des machines virtuelles, allocations dynamiques vCPU / vRAM et congestion de stockage (I/O wait).</li>
+      <li><strong>Systèmes d'exploitation :</strong> Utilisation CPU, charge moyenne (Load Average 1m/5m/15m), occupation RAM et swap, remplissage des volumes disques et seuils d'inodes.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Supervision Réseau &amp; Périphériques</h4>
+    <ul>
+      <li><strong>Équipements actifs :</strong> Routeurs, commutateurs de cœur et de distribution, pare-feux, répartiteurs de charge (load balancers).</li>
+      <li><strong>Métriques réseau :</strong> État opérationnel des ports (up/down), débit entrant/sortant (ifInOctets, ifOutOctets), paquets rejetés (discards) et erreurs CRC sur les trames.</li>
+      <li><strong>Infrastructures sans fil :</strong> Contrôleurs Wi-Fi, bornes d'accès (AP), densité de clients associés et interférences radio.</li>
+    </ul>
+  </div>
+</div>
+<div class="grid grid-2" style="margin-top: 1rem;">
+  <div class="card">
+    <h4>3. Supervision des Services Protocolaires</h4>
+    <ul>
+      <li><strong>Services d'infrastructure :</strong> Disponibilité et temps de résolution DNS, baux DHCP, synchronisation temporelle NTP, services d'annuaire LDAP / Active Directory.</li>
+      <li><strong>Services de communication :</strong> Serveurs de messagerie (SMTP, IMAP, POP3), passerelles VoIP / SIP, transferts de fichiers (SFTP, FTPS).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>4. Supervision Applicative &amp; Métier</h4>
+    <ul>
+      <li><strong>Serveurs Web &amp; APIs :</strong> Codes de retour HTTP (taux de 5xx), latence de réponse moyenne et p99, connexions actives (Keep-Alive).</li>
+      <li><strong>Bases de données :</strong> Nombre de connexions au pool, requêtes lentes (slow queries), taux de cache hit mémoire et verrous bloquants (locks).</li>
+      <li><strong>Parcours utilisateur :</strong> Sondes synthétiques simulant un achat, une authentification ou un virement bancaire pour mesurer la qualité d'expérience réelle.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Indicateurs de Fiabilité Opérationnelle : SLA, MTBF, MTTR &amp; Error Budget</h2>
+
+<p>Le pilotage d'un centre d'exploitation repose sur des indicateurs mathématiques normalisés :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>MTTR (Maintenabilité)</h4>
+    <p><em>Mean Time To Repair</em> : Durée moyenne nécessaire pour diagnostiquer, réparer et restaurer un composant après défaillance :</p>
+    <p><code>MTTR = Indisponibilité_totale / Nombre_pannes</code></p>
+    <p>Un MTTR faible témoigne d'une excellente automatisation, d'outils d'alerte réactifs et de runbooks efficaces.</p>
+  </div>
+  <div class="card">
+    <h4>MTBF (Fiabilité)</h4>
+    <p><em>Mean Time Between Failures</em> : Temps moyen écoulé entre deux pannes consécutives pendant lequel le système fonctionne normalement :</p>
+    <p><code>MTBF = Temps_fonctionnement / Nombre_pannes</code></p>
+    <p>Un MTBF élevé reflète la robustesse matérielle et la qualité du dimensionnement de l'infrastructure.</p>
+  </div>
+  <div class="card">
+    <h4>Disponibilité Globale</h4>
+    <p>Taux contractuel de disponibilité opérationnelle rapporté à la période totale d'observation (ex: 720h sur un mois) :</p>
+    <p><code>A = (Uptime / Total_heures) * 100</code></p>
+    <p>99.9% ("trois neufs") équivaut à 43.2 minutes d'indisponibilité max par mois ; 99.99% ("quatre neufs") à seulement 4.32 minutes.</p>
+  </div>
+</div>
+<p style="margin-top: 1rem;">Dans les démarches SRE (*Site Reliability Engineering*), le <strong>Budget d'Erreur (Error Budget)</strong> formalise l'indisponibilité tolérée : <code>Budget = Période_minutes * (1 - SLO / 100)</code>. Si le budget est consommé prématurément, les déploiements de nouvelles fonctionnalités sont gelés au profit de la stabilisation de l'infrastructure.</p>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sup3-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SLA_CALC TOTAL_HOURS=720 OUTAGES=45,15">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c1-e1) — Calculateur de Disponibilité SLA, MTBF et MTTR
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Mois parfait sans aucune panne]
+# Données : SLA_CALC TOTAL_HOURS=720 OUTAGES=NONE
+A_COMPLETER
+
+[Cas 2 — Trois pannes cumulées sur une semaine de 168h]
+# Données : SLA_CALC TOTAL_HOURS=168 OUTAGES=120,60,180
+A_COMPLETER
+
+[Cas 3 — Une seule coupure de 26 minutes sur une année complète (8760h)]
+# Données : SLA_CALC TOTAL_HOURS=8760 OUTAGES=26
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de Disponibilité SLA, MTBF et MTTR</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer les indicateurs fondamentaux de fiabilité et de maintenabilité opérationnelle : MTBF, MTTR et taux de disponibilité globale.</p>
+    <div class="lab__brief"><p>Dans un centre de supervision (NOC), les indicateurs clés de performance (KPI) permettent de mesurer la qualité de service :<br><br>
+1. <strong>MTTR (Mean Time To Repair)</strong> : Temps moyen nécessaire pour rétablir le service après une panne :<br>
+<code>MTTR = Indisponibilité_totale_heures / Nombre_de_pannes</code> (0.00 si aucune panne).<br><br>
+2. <strong>MTBF (Mean Time Between Failures)</strong> : Temps moyen écoulé entre deux pannes consécutives (temps effectif de fonctionnement) :<br>
+<code>MTBF = Temps_de_fonctionnement_heures / Nombre_de_pannes</code> (ou total des heures si aucune panne).<br><br>
+3. <strong>Disponibilité globale (%)</strong> :<br>
+<code>Disponibilité = (Temps_de_fonctionnement_heures / Total_heures) * 100</code>.<br><br>
+Entrée STDIN : <code>SLA_CALC TOTAL_HOURS=&lt;h&gt; OUTAGES=&lt;m1,m2,...|NONE&gt;</code> (les durées de coupures sont données en minutes).<br>
+Sortie : <code>SLA: uptime_hours=&lt;up:.2f&gt; downtime_hours=&lt;down:.2f&gt; failures=&lt;n&gt; mttr_hours=&lt;mttr:.2f&gt; mtbf_hours=&lt;mtbf:.2f&gt; availability=&lt;pct:.4f&gt;%</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SLA_CALC TOTAL_HOURS=720 OUTAGES=45,15</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SLA: uptime_hours=719.00 downtime_hours=1.00 failures=2 mttr_hours=0.50 mtbf_hours=359.50 availability=99.8611%</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal avec 2 pannes sur un mois de 720h.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertissez les minutes de coupure en heures en divisant par 60.0.</li>
+        <li>Gérez le cas OUTAGES=NONE où le nombre de pannes est égal à zéro.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="INCIDENT SERVICE=Switch-Core-01 LAYER=network USERS=250 REDUNDANT=NO">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c1-e2) — Matrice de Criticité & Priorisation d’Incidents de Supervision
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Base de données principale sans redondance 80 utilisateurs]
+# Données : INCIDENT SERVICE=Postgres-Primary LAYER=database USERS=80 REDUNDANT=NO
+A_COMPLETER
+
+[Cas 2 — Serveur DHCP sans redondance avec 5 utilisateurs]
+# Données : INCIDENT SERVICE=DHCP-Primary LAYER=server USERS=5 REDUNDANT=NO
+A_COMPLETER
+
+[Cas 3 — Serveur Web Nginx redondant avec 30 utilisateurs]
+# Données : INCIDENT SERVICE=Nginx-Web-Front LAYER=application USERS=30 REDUNDANT=YES
+A_COMPLETER
+
+[Cas 4 — Service NTP interne redondant avec 0 utilisateur direct]
+# Données : INCIDENT SERVICE=NTP-Internal LAYER=server USERS=0 REDUNDANT=YES
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Matrice de Criticité &amp; Priorisation d’Incidents de Supervision</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Qualifier et classifier le niveau de gravité d'une alerte selon la couche réseau/système, le nombre d'utilisateurs et la redondance.</p>
+    <div class="lab__brief"><p>Pour prioriser l'action des équipes d'exploitation sans provoquer de fatigue d'alerte, chaque événement doit être qualifié :<br><br>
+Règles de classification :<br>
+1. <strong>P1-CRITICAL</strong> : Si (<code>USERS &gt;= 100</code> ET <code>REDUNDANT=NO</code>) OU (<code>LAYER=database</code> ET <code>USERS &gt;= 50</code>).<br>
+2. <strong>P2-HIGH</strong> : Sinon, si <code>USERS &gt;= 50</code> OU (<code>REDUNDANT=NO</code> ET <code>LAYER in [network, server]</code>).<br>
+3. <strong>P3-MEDIUM</strong> : Sinon, si <code>USERS &gt;= 10</code>.<br>
+4. <strong>P4-LOW</strong> : Tous les autres cas.<br><br>
+Entrée STDIN : <code>INCIDENT SERVICE=&lt;nom&gt; LAYER=&lt;network|server|database|application&gt; USERS=&lt;n&gt; REDUNDANT=&lt;YES|NO&gt;</code>.<br>
+Sortie : <code>INCIDENT_PRIORITY: service=&lt;nom&gt; layer=&lt;layer&gt; users=&lt;n&gt; priority=&lt;P1-CRITICAL|P2-HIGH|P3-MEDIUM|P4-LOW&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INCIDENT SERVICE=Switch-Core-01 LAYER=network USERS=250 REDUNDANT=NO</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INCIDENT_PRIORITY: service=Switch-Core-01 layer=network users=250 priority=P1-CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">Coupure réseau sans redondance avec 250 utilisateurs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extrayez les paramètres clé=valeur de chaque ligne INCIDENT.</li>
+        <li>Vérifiez les conditions dans l'ordre de priorité décroissant (P1 puis P2 puis P3 puis P4).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ERROR_BUDGET SLO=99.9 PERIOD_DAYS=30 OUTAGES=12,18,5">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c1-e3) — Auditeur de Respect SLO et Budget d’Erreur (Error Budget)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Dépassement du budget sur un mois à 99.95%]
+# Données : ERROR_BUDGET SLO=99.95 PERIOD_DAYS=30 OUTAGES=15,10
+A_COMPLETER
+
+[Cas 2 — Semaine parfaite sans coupure à 99.0%]
+# Données : ERROR_BUDGET SLO=99.0 PERIOD_DAYS=7 OUTAGES=NONE
+A_COMPLETER
+
+[Cas 3 — Budget exactement consommé à 100%]
+# Données : ERROR_BUDGET SLO=99.9 PERIOD_DAYS=10 OUTAGES=14.4
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Auditeur de Respect SLO et Budget d’Erreur (Error Budget)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la consommation du budget d'indisponibilité alloué par un objectif de niveau de service (SLO).</p>
+    <div class="lab__brief"><p>Dans la démarche SRE / DevOps, le budget d'erreur quantifie la marge d'indisponibilité permise avant de violer le contrat de service :<br><br>
+1. <code>Minutes_totales = PERIOD_DAYS * 24 * 60</code>.<br>
+2. <code>Budget_autorisé_minutes = Minutes_totales * (1.0 - (SLO / 100.0))</code>.<br>
+3. <code>Budget_consommé_minutes = Somme(durées_coupures_minutes)</code>.<br>
+4. <code>Budget_restant_minutes = Budget_autorisé - Budget_consommé</code>.<br>
+5. <code>Pourcentage_consommé = (Budget_consommé / Budget_autorisé) * 100.0</code> (ou 0.0% si autorisé est nul).<br>
+6. Statut : <code>COMPLIANT</code> si consommé &lt;= autorisé, sinon <code>BREACHED</code>.<br><br>
+Entrée STDIN : <code>ERROR_BUDGET SLO=&lt;pct&gt; PERIOD_DAYS=&lt;j&gt; OUTAGES=&lt;m1,m2,...|NONE&gt;</code>.<br>
+Sortie : <code>BUDGET: period_days=&lt;j&gt; allowed_min=&lt;all:.1f&gt; consumed_min=&lt;cons:.1f&gt; remaining_min=&lt;rem:.1f&gt; consumed_pct=&lt;pct:.2f&gt;% status=&lt;COMPLIANT|BREACHED&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ERROR_BUDGET SLO=99.9 PERIOD_DAYS=30 OUTAGES=12,18,5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BUDGET: period_days=30 allowed_min=43.2 consumed_min=35.0 remaining_min=8.2 consumed_pct=81.02% status=COMPLIANT</pre></div>
+    </div>
+    <p class="lab__note">35 minutes consommées sur 43.2 minutes autorisées : conforme.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculez le nombre total de minutes sur la période.</li>
+        <li>Arrondissez allowed_min, consumed_min et remaining_min à 1 décimale, consumed_pct à 2 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle démarche informatique a pour objet principal la mesure et l'historisation de données quantitatives en vue du Capacity Planning ?</p>
+      <div class="opts">
+        <button class="opt">L'audit de conformité</button>
+        <button class="opt" data-correct="1">La métrologie</button>
+        <button class="opt">La supervision réactive</button>
+        <button class="opt">Le pentest offensif</button>
+      </div>
+      <div class="q__exp">La métrologie collecte et conserve les séries temporelles de performance (CPU, disque, trafic) pour analyser les tendances et dimensionner les évolutions matérielles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un mois de 720 heures, un serveur subit 2 pannes de 30 minutes chacune. Quel est son MTTR (Mean Time To Repair) ?</p>
+      <div class="opts">
+        <button class="opt">1.0 heure</button>
+        <button class="opt" data-correct="1">0.5 heure</button>
+        <button class="opt">359.5 heures</button>
+        <button class="opt">719.0 heures</button>
+      </div>
+      <div class="q__exp">La durée totale d'indisponibilité est de 60 minutes (1.0 heure). Le MTTR est l'indisponibilité divisée par le nombre de pannes : 1.0 h / 2 = 0.5 heure (soit 30 minutes).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le scénario précédent (720 heures totales, 2 pannes totalisant 1 heure), quel est le MTBF (Mean Time Between Failures) ?</p>
+      <div class="opts">
+        <button class="opt">0.5 heure</button>
+        <button class="opt" data-correct="1">359.5 heures</button>
+        <button class="opt">719.0 heures</button>
+        <button class="opt">720.0 heures</button>
+      </div>
+      <div class="q__exp">Le temps de fonctionnement effectif (uptime) est 720 - 1 = 719 heures. Le MTBF est le temps d'uptime divisé par le nombre de pannes : 719 / 2 = 359.5 heures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour une période de 30 jours (43 200 minutes) et un engagement SLA de 99.9%, quel est le budget d'indisponibilité maximal autorisé (Error Budget) ?</p>
+      <div class="opts">
+        <button class="opt">4.32 minutes</button>
+        <button class="opt" data-correct="1">43.2 minutes</button>
+        <button class="opt">432 minutes</button>
+        <button class="opt">14.4 minutes</button>
+      </div>
+      <div class="q__exp">Error Budget = 43 200 * (1 - 0.999) = 43 200 * 0.001 = 43.2 minutes sur le mois.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Parmi les composants suivants, lequel relève typiquement de la supervision des équipements réseaux ?</p>
+      <div class="opts">
+        <button class="opt">Taux d'inodes occupés sur /var</button>
+        <button class="opt" data-correct="1">Erreurs de trames CRC et ifOperStatus sur un commutateur</button>
+        <button class="opt">Latence de requête SQL sur MySQL</button>
+        <button class="opt">Nombre de baux DHCP expirés</button>
+      </div>
+      <div class="q__exp">L'état opérationnel des interfaces (ifOperStatus) et les erreurs CRC sur les paquets sont des métriques fondamentales de la couche réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la terminologie SRE, quelle action est recommandée lorsque le budget d'erreur (Error Budget) d'un service est entièrement consommé avant la fin du mois ?</p>
+      <div class="opts">
+        <button class="opt">Augmenter immédiatement le prix du contrat client</button>
+        <button class="opt" data-correct="1">Geler temporairement les déploiements de nouvelles fonctionnalités au profit de la fiabilisation</button>
+        <button class="opt">Arrêter définitivement le serveur de production</button>
+        <button class="opt">Supprimer les sondes de supervision pour masquer les pannes</button>
+      </div>
+      <div class="q__exp">Lorsque le budget d'erreur est épuisé, les équipes gèlent les livraisons applicatives à risque pour concentrer leurs efforts sur la résilience et la correction des bugs d'infrastructure.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que mesure l'indicateur IPMI / iLO / iDRAC sur un serveur physique ?</p>
+      <div class="opts">
+        <button class="opt">Les requêtes HTTP entrantes</button>
+        <button class="opt" data-correct="1">L'état matériel hors-bande (température, alimentations, ventilateurs, disques)</button>
+        <button class="opt">Le temps de parsing des requêtes DNS</button>
+        <button class="opt">Le nombre de lignes de logs générées par minute</button>
+      </div>
+      <div class="q__exp">Ces interfaces d'administration hors-bande (out-of-band) surveillent directement les composants physiques du serveur, même lorsque le système d'exploitation est éteint ou planté.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre un audit et une opération de supervision ?</p>
+      <div class="opts">
+        <button class="opt">L'audit est permanent alors que la supervision est annuelle</button>
+        <button class="opt" data-correct="1">La supervision est continue en temps réel pour détecter les pannes, alors que l'audit est ponctuel pour évaluer la conformité</button>
+        <button class="opt">La supervision ne concerne que les logiciels libres</button>
+        <button class="opt">L'audit ne s'applique qu'au matériel réseau</button>
+      </div>
+      <div class="q__exp">La supervision opère en continu 24/7 pour réagir immédiatement aux incidents, tandis que l'audit est une évaluation planifiée et ponctuelle de conformité.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre supervision temps réel et métrologie : la supervision exige une alerte immédiate lors d'une panne, la métrologie analyse l'évolution des tendances sur plusieurs semaines.</li>
+      <li>Calculer le MTBF en divisant par le temps total incluant les pannes au lieu de diviser par le temps effectif de bon fonctionnement (uptime).</li>
+      <li>Définir des seuils d'alerte trop bas entraînant des vagues de faux positifs et provoquant une fatigue d'alerte mortifère pour les équipes d'astreinte.</li>
+      <li>Oublier de modéliser les fenêtres de maintenance planifiée dans le calcul contractuel du SLA et du budget d'erreur.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie & Cadrage de la Supervision</div>
+    <ol>
+      <li>Cartographier l'inventaire des actifs : recenser les équipements physiques, hyperviseurs, conteneurs, services protocolaires et applications métiers.</li>
+      <li>Qualifier les exigences de disponibilité (SLA) : définir les objectifs SLO par composant et calculer les budgets d'indisponibilité mensuels (Error Budget).</li>
+      <li>Déterminer la criticité et l'impact utilisateur : catégoriser chaque service (P1 à P4) pour adapter les canaux d'alerte et éviter la submersion du NOC.</li>
+      <li>Automatiser le suivi des KPI de fiabilité : instrumenter le calcul continu du MTBF et du MTTR pour mesurer l'efficacité opérationnelle des interventions.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La supervision assure la surveillance proactive temps réel du SI, tandis que la métrologie historise les tendances quantitatives pour le Capacity Planning.</li>
+      <li>Le périmètre couvre 4 couches complémentaires : matériel/serveurs, équipements réseaux, services d'infrastructure et applications métiers.</li>
+      <li>Le MTTR (Mean Time To Repair) mesure la maintenabilité et la rapidité de rétablissement (Indisponibilité totale / Nombre de pannes).</li>
+      <li>Le MTBF (Mean Time Between Failures) mesure la fiabilité et le temps moyen de bon fonctionnement continu entre deux pannes (Uptime / Nombre de pannes).</li>
+      <li>L'Error Budget quantifie la marge d'indisponibilité permise par le SLO, servant de régulateur entre rythme de livraison logicielle et stabilité opérationnelle.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous distinguer avec rigueur supervision, monitoring, métrologie et audit informatique ?</li>
+      <li>Pouvez-vous calculer le MTTR et le MTBF à partir d'un journal d'incidents mensuel ?</li>
+      <li>Savez-vous convertir un engagement SLA de 99.9% en budget d'indisponibilité maximal (Error Budget) sur 30 jours ?</li>
+      <li>Savez-vous prioriser un incident selon la couche technique, la redondance et le nombre d'utilisateurs impactés ?</li>
+      <li>Comprenez-vous la règle SRE de gel des déploiements lors de l'épuisement de l'Error Budget ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Supervision :</strong> Surveillance proactive en temps réel de l'état de santé global du SI avec déclenchement d'alertes immédiates.</li><li><strong>Métrologie :</strong> Mesure, historisation et analyse quantitative des métriques de performance sur le moyen et long terme.</li><li><strong>MTTR :</strong> Mean Time To Repair : temps moyen nécessaire pour réparer et remettre en service un composant défaillant.</li><li><strong>MTBF :</strong> Mean Time Between Failures : temps moyen de fonctionnement effectif entre deux pannes consécutives.</li><li><strong>SLA :</strong> Service Level Agreement : engagement contractuel définissant le niveau minimal de disponibilité garanti au client.</li><li><strong>Error Budget :</strong> Marge d'indisponibilité acceptable allouée par le SLO pour concilier vélocité de déploiement et stabilité.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions de MTBF/MTTR et distinctions de base incertaines. Relisez les définitions et refaites le QCM.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Principes assimilés. Approfondissez les calculs d'Error Budget et les périmètres d'infrastructure.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à calculer MTTR et MTBF dans les ateliers de code.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez les KPI de disponibilité et les règles de qualification d'incidents.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte. Prêt pour l'étude des protocoles SNMP et Syslog du Module 2 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Module 2 — Architecture des Systèmes de Supervision & Protocoles de Collecte (SNMP & Syslog) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Supervision Système et Réseaux (Enseignant : Essowaba AHOULOUMI, Ingénieur en Informatique et Réseaux, 2024/2025), Référentiels RFC 1157/1213/3414 (SNMP), RFC 5424 (Syslog), Documentations officielles Prometheus, Grafana, Zabbix et Elastic.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

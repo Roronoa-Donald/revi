@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Active Directory : domaine, arbre, forêt | Administration Windows B1</title>
+<meta name="description" content="Chapitre 4 du cours B1 : Notion d’AD DS, hiérarchie des domaines, arbres et forêts, sous-domaines des succursales. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-admin-windows/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Active Directory : domaine, arbre, forêt | Administration Windows B1">
+<meta property="og:description" content="Chapitre 4 du cours B1 : Notion d’AD DS, hiérarchie des domaines, arbres et forêts, sous-domaines des succursales. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="awnav"><div class="awnav__in">
+  <a class="awnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="awnav__sep" aria-hidden="true">/</span>
+  <a class="awnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Administration Windows B1</a>
+  <div class="awnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="awnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="awwrap">
+<p class="crumb"><a href="../index.html">Administration Windows B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Active Directory : domaine, arbre, forêt</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L’entreprise grandit : des comptes éparpillés sur chaque machine ne suffisent plus. Il faut un annuaire central qui connaisse utilisateurs, ordinateurs et droits — et qui tienne dans une hiérarchie claire quand il y a plusieurs sites. Ce chapitre construit le vocabulaire exact de cet annuaire : domaine, arbre, forêt, sous-domaine.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir Active Directory (AD DS) et son organisation hiérarchique ;</li>
+      <li>décrire le domaine : entité logique qui héberge objets et stratégies ;</li>
+      <li>construire un arbre (espace de nom contigu) et une forêt (regroupement d’arbres) ;</li>
+      <li>nommer des sous-domaines de succursales (domaines enfants).</li>
+    </ol>
+  </div>
+
+<h2>1. La notion d’Active Directory</h2>
+
+<p>Une infrastructure <strong>Active Directory</strong> fonctionne selon une hiérarchie : cette hiérarchie forme une arborescence composée de <strong>domaines</strong>, d’<strong>arbres</strong> et de <strong>forêt</strong>.</p>
+<p>Un <strong>domaine</strong> est une entité logique (administrative) Active Directory au sein de laquelle des fonctionnalités et caractéristiques sont partagées. Un domaine héberge des <strong>utilisateurs</strong>, des <strong>ordinateurs</strong>, dans lequel des paramètres de <strong>stratégies</strong> sont définis.</p>
+<p>Au sein du domaine, on retrouve un ensemble d’<strong>unités d’organisation</strong> (UO) remplies d’objets de différentes classes : utilisateurs, ordinateurs, groupes, contrôleurs de domaine…</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> L’annuaire de l’entreprise</div>
+    <p>Active Directory est l’annuaire central : un seul endroit où sont décrits les comptes, les machines et les droits. Un utilisateur change de poste ? Son compte suit, il ne se recrée pas machine par machine.</p>
+  </div>
+
+<h2>2. Succursales et sous-domaines</h2>
+
+<p>De nombreuses entreprises ont plusieurs succursales — donc plusieurs sites sur différents emplacements géographiques. Selon l’importance de ces sites, on pourra créer un <strong>sous-domaine</strong> au domaine principal, voire plusieurs sous-domaines.</p>
+<p>Exemple du support : on part du domaine de base <code>cdp.org</code>, auquel on ajoute deux sous-domaines — <code>paris.cdp.org</code> et <code>lome.cdp.org</code> — pour les deux succursales de Paris et de Lomé. Ces domaines sont les <strong>domaines enfants</strong> du domaine racine <code>cdp.org</code>.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — renommer un domaine après coup</div>
+    <p>Le support insiste : le nom du domaine est très important, il faut saisir un nom de domaine réel. Le renommage d’un domaine AD DS est possible, mais l’impact technique est très conséquent — pour les PC, les utilisateurs, les services et les logiciels.</p>
+  </div>
+
+<h2>3. Arbre et forêt</h2>
+
+<p>Lorsqu’un domaine principal contient plusieurs sous-domaines, on parle d’<strong>arbre</strong> : chaque sous-domaine représente une branche. Un arbre est un regroupement hiérarchique de plusieurs domaines ; les domaines d’un même arbre partagent un <strong>espace de nom contigu</strong> et hiérarchique — comme <code>cdp.org</code>, <code>paris.cdp.org</code>, <code>lome.cdp.org</code>.</p>
+<p>Si une forêt est un ensemble d’arbres, alors la forêt est un regroupement d’une ou de plusieurs arborescences de domaine. Ces arborescences sont <strong>indépendantes et distinctes</strong> bien qu’elles soient dans la même forêt.</p>
+<p>Le support l’illustre : si l’on rachète « college-paris » et que l’on crée un domaine racine <code>college-paris.local</code> avec ses sous-domaines <code>paris.college-paris.local</code>, <code>cameroun.college-paris.local</code> et <code>dev.cameroun.college-paris.local</code>, on obtient un second arbre — racine <code>college-paris.local</code> — dans la même forêt qui en contenait déjà un (<code>cdp.org</code>).</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — trois mots, trois tailles</div>
+    <p><strong>Domaine</strong> = l’entité (objets + stratégies). <strong>Arbre</strong> = des domaines à nom contigu (cdp.org et ses enfants). <strong>Forêt</strong> = des arbres indépendants réunis. Du plus petit au plus grand : domaine ⊂ arbre ⊂ forêt.</p>
+  </div>
+
+<h2>4. Ce qu’il faut retenir avant d’installer</h2>
+
+<p>Ce vocabulaire n’est pas décoratif : chaque choix d’installation du chapitre suivant s’exprime en ses termes. « Ajouter une nouvelle forêt » = créer un domaine racine ; choisir le niveau fonctionnel = les services disponibles pour le domaine ; le nom NetBIOS = le préfixe du domaine saisi.</p>
+<table>
+    <tr><th>Terme</th><th>Définition</th></tr>
+    <tr><td>Domaine</td><td>entité logique (administrative) hébergeant objets et stratégies</td></tr>
+    <tr><td>Domaine enfant</td><td>sous-domaine dépendant d’un domaine racine</td></tr>
+    <tr><td>Arbre</td><td>domaines partageant un espace de nom contigu et hiérarchique</td></tr>
+    <tr><td>Forêt</td><td>regroupement d’un ou plusieurs arbres, indépendants entre eux</td></tr>
+  </table>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vers le chapitre suivant</div>
+    <p>Le chapitre 5 installe le rôle AD DS et configure une nouvelle forêt : nom DNS, nom NetBIOS, niveaux fonctionnels, mot de passe de restauration, dossiers NTDS.DIT et SYSVOL.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="aw-c4-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;domaine entite&#10;arbre contigu&#10;foret arbres&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r notion definition
+  # À compléter : la définition attendue, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Domaine, arbre, forêt : le vocabulaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque notion AD DS à sa définition du support.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « notion definition » : definition est un code parmi <code>entite</code>, <code>contigu</code>, <code>arbres</code> ou <code>enfant</code>. Notions du support : le <strong>domaine</strong> est l’entité logique (administrative) qui héberge utilisateurs, ordinateurs et stratégies → <code>entite</code> ; un <strong>arbre</strong> regroupe des domaines partageant un espace de nom contigu → <code>contigu</code> ; une <strong>forêt</strong> est un regroupement d’arbres → <code>arbres</code> ; un <strong>sous-domaine</strong> dépend du domaine racine (domaine enfant) → <code>enfant</code>. Pour chaque ligne il affiche <code>notion : OK</code> ou <code>notion : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+domaine entite
+arbre contigu
+foret arbres
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>domaine : OK
+arbre : OK
+foret : OK
+correctes : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur la notion : domaine → entite, arbre → contigu, foret → arbres, sousdomaine → enfant.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c4-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;cdp.org -&#10;paris.cdp.org cdp.org&#10;lome.cdp.org cdp.org&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+r=0
+e=0
+for ((i=0; i<n; i++)); do
+  read -r domaine parent
+  # À compléter : racine ou enfant, les deux compteurs.
+done
+# À compléter : les deux bilans.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — L’arborescence des succursales</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer racine et domaines enfants dans l’arborescence d’entreprise.</p>
+    <div class="lab__brief"><p>Le support construit cdp.org avec les sous-domaines paris.cdp.org et lome.cdp.org. Le script lit <strong>n lignes</strong> « domaine parent » : parent vaut <code>-</code> si le domaine est racine, sinon le nom de son parent. Pour chaque domaine il affiche <code>domaine : racine</code> ou <code>domaine : enfant de parent</code>, puis <code>racines : X</code> et <code>enfants : Y</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+cdp.org -
+paris.cdp.org cdp.org
+lome.cdp.org cdp.org
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>cdp.org : racine
+paris.cdp.org : enfant de cdp.org
+lome.cdp.org : enfant de cdp.org
+racines : 1
+enfants : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>parent = "-" → racine (r incrémenté) ; sinon « enfant de $parent » (e incrémenté).</li>
+        <li>Les deux bilans sortent une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c4-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;iziti TRI&#10;poste1 TRI&#10;groupe-ventes VENTES&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+declare -A compte
+declare -A ordre
+g=0
+for ((i=0; i<n; i++)); do
+  read -r objet uo
+  echo "$objet : $uo"
+  # À compléter : nouvelle UO → enregistrer l'ordre ; compteur incrémenté.
+done
+# À compléter : bilans par UO dans l'ordre, puis nombre d'UO.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Les objets par unité d’organisation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter les objets AD DS logés dans chaque unité d’organisation.</p>
+    <div class="lab__brief"><p>Le support décrit des unités d’organisation « remplies d’objets de différentes classes : utilisateurs, ordinateurs, groupes, contrôleurs de domaine ». Le script lit <strong>n lignes</strong> « objet uo » et affiche d’abord chaque ligne <code>objet : uo</code>, puis pour chaque unité d’organisation, <strong>dans l’ordre de première apparition</strong>, <code>uo : X objets</code>, et enfin <code>uos : Y</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+iziti TRI
+poste1 TRI
+groupe-ventes VENTES
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>iziti : TRI
+poste1 : TRI
+groupe-ventes : VENTES
+TRI : 2 objets
+VENTES : 1 objets
+uos : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Nouvelle UO : [ -z "${compte[$uo]+x}" ] → ordre[$g]=$uo et g=$((g+1)).</li>
+        <li>Les bilans sortent après la boucle : UO dans l’ordre du tableau ordre, puis g.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">AD DS s’organise en…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">domaines, arbres et forêt</button>
+        <button class="opt">postes et serveurs</button>
+        <button class="opt">rôles et fonctionnalités</button>
+      </div>
+      <div class="q__exp">La hiérarchie forme une arborescence composée de domaines, arbres et forêt.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un domaine est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une entité logique (administrative) qui héberge objets et stratégies</button>
+        <button class="opt">un disque dur réseau</button>
+        <button class="opt">une licence Microsoft</button>
+      </div>
+      <div class="q__exp">Il héberge utilisateurs, ordinateurs, et des paramètres de stratégies.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">paris.cdp.org est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un domaine enfant de cdp.org</button>
+        <button class="opt">une forêt</button>
+        <button class="opt">un groupe de sécurité</button>
+      </div>
+      <div class="q__exp">C’est un sous-domaine (domaine enfant) du domaine racine cdp.org.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un arbre partage…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un espace de nom contigu et hiérarchique</button>
+        <button class="opt">le même mot de passe</button>
+        <button class="opt">une seule UO</button>
+      </div>
+      <div class="q__exp">Les domaines d’un même arbre partagent un espace de nom contigu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une forêt regroupe…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un ou plusieurs arbres indépendants</button>
+        <button class="opt">tous les domaines du monde</button>
+        <button class="opt">un seul domaine obligatoirement</button>
+      </div>
+      <div class="q__exp">Une forêt est un regroupement d’une ou plusieurs arborescences, indépendantes et distinctes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les objets du domaine sont rangés dans…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">des unités d’organisation</button>
+        <button class="opt">des fichiers .txt</button>
+        <button class="opt">des partitions système</button>
+      </div>
+      <div class="q__exp">Les UO remplissent le domaine d’objets : utilisateurs, ordinateurs, groupes, contrôleurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le renommage d’un domaine AD DS…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">a un impact technique très conséquent</button>
+        <button class="opt">se fait en un clic sans effet</button>
+        <button class="opt">est impossible</button>
+      </div>
+      <div class="q__exp">Possible mais lourd : PC, utilisateurs, services et logiciels sont touchés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le nom NetBIOS correspond…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">au préfixe du domaine saisi</button>
+        <button class="opt">au nom du serveur</button>
+        <button class="opt">à la marque de la carte réseau</button>
+      </div>
+      <div class="q__exp">Lors de la configuration, le nom NetBIOS est dérivé du nom du domaine.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre arbre et forêt : l’arbre exige un nom contigu, la forêt réunit des arbres indépendants.</li>
+      <li>Choisir un nom de domaine à la légère : son renommage coûte très cher techniquement.</li>
+      <li>Placer les objets directement à la racine du domaine sans structure d’UO.</li>
+      <li>Croire qu’une forêt ne peut contenir qu’un arbre : le support montre le cas du rachat avec deux arbres.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Dessiner une arborescence AD</div>
+    <ol>
+      <li>Partir du métier : un site ou plusieurs ? une filiale rachetée ?</li>
+      <li>Nommer le domaine racine (nom réel, réfléchi), puis les enfants par succursale.</li>
+      <li>Vérifier la contiguïté : si les noms sont contigus, c’est un arbre ; sinon, une forêt à plusieurs arbres.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Active Directory est un annuaire hiérarchique : domaine, arbre, forêt.</li>
+      <li>Le domaine héberge les objets (utilisateurs, ordinateurs, groupes) et les stratégies.</li>
+      <li>Les sous-domaines servent les succursales : paris.cdp.org, lome.cdp.org.</li>
+      <li>Un arbre = noms contigus ; une forêt = arbres indépendants réunis.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je définis domaine, arbre et forêt en une phrase chacun.</li>
+      <li>Je construis l’arborescence d’une entreprise à deux succursales.</li>
+      <li>Je sais expliquer le risque du renommage d’un domaine.</li>
+      <li>Je range les objets par classes dans des unités d’organisation.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Active Directory (AD DS)</li><li>domaine</li><li>domaine enfant</li><li>arbre</li><li>forêt</li><li>espace de nom contigu</li><li>unité d’organisation (UO)</li><li>classes d’objets</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — redessine l’exemple cdp.org du support à la main.</div>
+      <div class="bandrow bandrow--mid">50–69 % — rejoue le classement domaine/arbre/forêt sur des cas nouveaux.</div>
+      <div class="bandrow bandrow--good">70–89 % — solide : construis l’arborescence d’une entreprise fictive.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : passe à l’installation du contrôleur de domaine.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Installer un contrôleur de domaine <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les supports B1 « Base de l’Administration Windows » (IT_B1A et IT_B1B) du Dr Abasse KPEGOUNI : introduction à l’administration Windows, installation du serveur Active Directory AD DS, gestion des objets AD DS (unités d’organisation, utilisateurs, groupes).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

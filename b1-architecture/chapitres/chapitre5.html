@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Circuits séquentiels : bascules, registres et compteurs | Architecture B1</title>
+<meta name="description" content="Chapitre 5 du cours B1 : Sortie dépendant de l'histoire ; bascules RS, D et JK (front montant/descendant, set/reset asynchrones) ; registre à décalage ; compteur et décompteur. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-architecture/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Circuits séquentiels : bascules, registres et compteurs | Architecture B1">
+<meta property="og:description" content="Chapitre 5 du cours B1 : Sortie dépendant de l'histoire ; bascules RS, D et JK (front montant/descendant, set/reset asynchrones) ; registre à décalage ; compteur et décompteur. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="arnav"><div class="arnav__in">
+  <a class="arnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="arnav__sep" aria-hidden="true">/</span>
+  <a class="arnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Architecture B1</a>
+  <div class="arnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="arnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="arwrap">
+<p class="crumb"><a href="../index.html">Architecture B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Circuits séquentiels : bascules, registres et compteurs</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un circuit combinatoire oublie tout : ses sorties ne dépendent que de ses entrées présentes. Or une machine doit mémoriser — un bit, un mot, un compteur d'instructions. Les circuits séquentiels ajoutent l'horloge et la mémoire : la sortie dépend des entrées ET de l'état antérieur.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer circuit combinatoire et séquentiel ;</li>
+      <li>décrire la bascule RS et son cas interdit ;</li>
+      <li>expliquer la bascule D (recopie au front d'horloge) ;</li>
+      <li>maîtriser les quatre modes de la bascule JK ;</li>
+      <li>décrire registre à décalage, compteur et décompteur.</li>
+    </ol>
+  </div>
+
+<h2>1. Les bascules RS et D</h2>
+
+Un circuit est <strong>séquentiel</strong> quand sa sortie dépend des entrées présentes et de l'état mémorisé, synchronisé par une <strong>horloge</strong> (front montant ou descendant). La <strong>bascule RS</strong> : R (reset) met Q à 0, S (set) met Q à 1, R=S=0 mémorise — et <strong>R=S=1 est interdit</strong> : les deux sorties deviennent identiques, ce que la logique prohibe. Les entrées <strong>set/reset asynchrones</strong> agissent immédiatement, hors horloge.</p>
+<p>La <strong>bascule D</strong> élimine le cas interdit : une seule entrée D, recopiée sur Q à chaque front d'horloge actif — « D comme Data ». Entre deux fronts, l'état se fige : c'est le constituant de base des registres et des mémoires.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « RS obéit et se dispute, D recopie, JK sait tout faire »</div>
+    <p>Trois bascules, trois caractères : RS (deux ordres qui peuvent se contredire), D (miroir de son entrée), JK (mémoriser, set, reset, basculer).</p>
+  </div>
+
+<h2>2. La bascule JK</h2>
+
+<p>La <strong>JK</strong> généralise la RS sans cas interdit : <strong>J=0, K=0</strong> → mémorisation (Q ne change pas) ; <strong>J=1, K=0</strong> → set (Q=1) ; <strong>J=0, K=1</strong> → reset (Q=0) ; <strong>J=1, K=1</strong> → <strong>bascule</strong> (toggle : Q prend son complément). Ce dernier mode, interdit chez RS, fait de la JK le cœur des compteurs : un étage câblé en J=K=1 divise la fréquence par 2.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>R=S=1 reste interdit pour RS ; J=K=1 est au contraire le mode bascule de la JK.</li>
+      <li>Front montant ≠ descendant : le moment d'échantillonnage change, pas la table.</li>
+      <li>Asynchrone = hors horloge (set/reset immédiats), pas « sans ordre ».</li>
+      <li>La bascule D ne change pas d'état entre deux fronts : elle recopie au front.</li>
+    </ul>
+  </div>
+
+<h2>3. Registres et compteurs</h2>
+
+<p>Un <strong>registre à décalage</strong> enchaîne n bascules D : à chaque front, chaque bit passe à la bascule voisine — entrée série, sortie série ou parallèle. Il sert aux conversions série/parallèle et aux décalages matériels (multiplication et division par 2^k du chapitre 3).</p>
+<p>Un <strong>compteur</strong> compte les fronts d'horloge de 0 à 2^n-1 (modulo 2^n) puis recommence — un compteur modulo 8 sur 3 bits parcourt 000, 001 … 111 puis revient à 000. Le <strong>décompteur</strong> fait le chemin inverse. Réalisation typique : bascules JK câblées en bascule (J=K=1), chaque étage cadencé par la sortie du précédent. En Bash, l'atelier simule le modulo : valeur = (départ + front) mod 8.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <ul>
+      <li>La bascule D de l'atelier : Q prend D à chaque front, l'état final se lit après la boucle.</li>
+      <li>La JK : if imbriqué 00/10/01/11 — le mode 11 inverse l'état.</li>
+      <li>Le compteur modulo 8 : (depart + i) mod 8, retours comptés par la division entière.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ar-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;1&#10;0&#10;1&#10;1&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c5-e1) — Bascule D
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cinq fronts]
+# Données : 5
+# Données : 0
+# Données : 0
+# Données : 1
+# Données : 0
+# Données : 1
+A_COMPLETER
+
+[Cas 2 — Reste a un]
+# Données : 3
+# Données : 1
+# Données : 1
+# Données : 1
+A_COMPLETER
+
+[Cas 3 — Retour a zero]
+# Données : 4
+# Données : 0
+# Données : 1
+# Données : 0
+# Données : 0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Bascule D</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre l'état d'une bascule D : la sortie recopie l'entrée à chaque front d'horloge.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Rappel du support : à chaque front d'horloge, la bascule D recopie son entrée sur sa sortie Q. Pour chaque front il Indiquez <code>front i : Q=X</code>, puis <code>etat final : Q=X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+1
+0
+1
+1
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>front 1 : Q=1
+front 2 : Q=0
+front 3 : Q=1
+front 4 : Q=1
+etat final : Q=1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>À chaque front, Q prend simplement la valeur de D.</li>
+        <li>L'état final s'affiche une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;1 0&#10;0 0&#10;1 1&#10;0 1&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c5-e2) — Bascule JK
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Basculements en serie]
+# Données : 5
+# Données : 1 1
+# Données : 1 1
+# Données : 1 1
+# Données : 0 0
+# Données : 0 1
+A_COMPLETER
+
+[Cas 2 — Set puis toggle]
+# Données : 3
+# Données : 0 1
+# Données : 1 0
+# Données : 1 1
+A_COMPLETER
+
+[Cas 3 — Memoire puis set]
+# Données : 4
+# Données : 1 1
+# Données : 0 0
+# Données : 0 0
+# Données : 1 0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Bascule JK</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les quatre modes de la bascule JK : mémoriser, mettre à 1, mettre à 0, basculer.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Rappel du support : J=0 et K=0 mémorise l'état, J=1 et K=0 met Q à 1 (set), J=0 et K=1 met Q à 0 (reset), J=1 et K=1 fait <strong>basculer</strong> Q (toggle). Pour chaque front il Indiquez <code>front i : Q=X</code>, puis <code>etat final : Q=X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+1 0
+0 0
+1 1
+0 1
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>front 1 : Q=1
+front 2 : Q=1
+front 3 : Q=0
+front 4 : Q=0
+etat final : Q=0</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un if imbrique sur j et k : 00 garde, 10 met à 1, 01 met à 0, 11 inverse.</li>
+        <li>Pour le mode toggle : si Q vaut 0 il devient 1, sinon il devient 0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="10&#10;6&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c5-e3) — Compteur modulo 8
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cinq fronts depuis trois]
+# Données : 5
+# Données : 3
+A_COMPLETER
+
+[Cas 2 — Sans retour]
+# Données : 4
+# Données : 0
+A_COMPLETER
+
+[Cas 3 — Deux cycles complets]
+# Données : 16
+# Données : 7
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Compteur modulo 8</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler un compteur binaire qui revient à zéro après 8 fronts et compter ses retours à zéro.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Le compteur avance de 1 à chaque front et revient à 0 après 7 (comptage modulo 8). Pour chaque front il Indiquez <code>front i : compteur=X</code>, puis <code>retours : k</code> où k est le nombre de fois où le compteur est repassé par 0 pendant la simulation.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10
+6
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>front 1 : compteur=7
+front 2 : compteur=0
+front 3 : compteur=1
+front 4 : compteur=2
+front 5 : compteur=3
+front 6 : compteur=4
+front 7 : compteur=5
+front 8 : compteur=6
+front 9 : compteur=7
+front 10 : compteur=0
+retours : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La valeur au front i vaut (depart + i) modulo 8.</li>
+        <li>Le nombre de retours vaut (depart + n) divisé par 8, en division entière.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Un circuit séquentiel dépend…</p>
+      <div class="opts">
+        <button class="opt">des entrées présentes seulement</button>
+        <button class="opt" data-correct="1">des entrées ET de l'état antérieur</button>
+        <button class="opt">de l'horloge seulement</button>
+      </div>
+      <div class="q__exp">Il mémorise : l'histoire compte, l'horloge cadence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La combinaison R=S=1 est…</p>
+      <div class="opts">
+        <button class="opt">le mode bascule</button>
+        <button class="opt" data-correct="1">interdite</button>
+        <button class="opt">la mémorisation</button>
+      </div>
+      <div class="q__exp">Sorties identiques Q=Q&#772; : interdit pour RS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">J=K=1 fait…</p>
+      <div class="opts">
+        <button class="opt">mémoriser</button>
+        <button class="opt" data-correct="1">basculer Q</button>
+        <button class="opt">interdire</button>
+      </div>
+      <div class="q__exp">Mode toggle : Q prend son complément — cœur des compteurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La bascule D recopie D sur Q…</p>
+      <div class="opts">
+        <button class="opt">en continu</button>
+        <button class="opt" data-correct="1">au front d'horloge actif</button>
+        <button class="opt">quand R est actif</button>
+      </div>
+      <div class="q__exp">Échantillonnage au front ; entre deux fronts, état figé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un compteur modulo 8 sur 3 bits revient à 000 après…</p>
+      <div class="opts">
+        <button class="opt">7 fronts</button>
+        <button class="opt" data-correct="1">8 fronts</button>
+        <button class="opt">16 fronts</button>
+      </div>
+      <div class="q__exp">Il parcourt 0 à 7 : huit valeurs, retour au front suivant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un registre à décalage sert à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">convertir série en parallèle (et inversement)</button>
+        <button class="opt">comparer deux bits</button>
+        <button class="opt">décoder une adresse</button>
+      </div>
+      <div class="q__exp">Les bits glissent de bascule en bascule à chaque front.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un étage JK en J=K=1 divisé par 2 sert de…</p>
+      <div class="opts">
+        <button class="opt">additionneur</button>
+        <button class="opt" data-correct="1">diviseur de fréquence</button>
+        <button class="opt">multiplexeur</button>
+      </div>
+      <div class="q__exp">Un front sur deux change Q : fréquence divisée par 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les entrées set/reset asynchrones agissent…</p>
+      <div class="opts">
+        <button class="opt">au front montant</button>
+        <button class="opt" data-correct="1">immédiatement, hors horloge</button>
+        <button class="opt">au front descendant</button>
+      </div>
+      <div class="q__exp">Asynchrone = hors horloge, effet immédiat.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que J=K=1 est interdit comme R=S=1 : chez JK c'est le mode bascule.</li>
+      <li>Oublier l'horloge : sans front, la bascule D garde son état.</li>
+      <li>Confondre compteur (0 → 2^n-1) et décompteur (2^n-1 → 0).</li>
+      <li>Négliger l'état initial d'un compteur : le modulo part du départ donné.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — simuler une bascule en trois gestes</div>
+    <ol>
+      <li>Initialiser Q à son état de départ avant la boucle des fronts.</li>
+      <li>Appliquer la table au front : RS (set/reset/mémoire), D (recopie), JK (00/10/01/11).</li>
+      <li>Afficher au fil des fronts puis l'état final après la boucle.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Séquentiel = entrées + état mémorisé, cadencé par l'horloge (front montant ou descendant).</li>
+      <li>RS : set, reset, mémoire — R=S=1 interdit ; set/reset asynchrones hors horloge.</li>
+      <li>D : recopie au front ; JK : mémoriser, set, reset, basculer.</li>
+      <li>Registre à décalage pour série/parallèle ; compteur modulo 2^n et décompteur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je distingue combinatoire et séquentiel.</li>
+      <li>Je connais les tables RS et JK et le cas interdit.</li>
+      <li>Je déroule une bascule D front par front.</li>
+      <li>Je simule un compteur modulo n et je compte ses retours à zéro.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Circuit séquentiel</strong> : sortie dépendant des entrées et de l'état mémorisé.</li><li><strong>Horloge</strong> : signal qui cadence les changements (fronts montant/descendant).</li><li><strong>Bascule RS</strong> : set, reset, mémoire ; R=S=1 interdit.</li><li><strong>Bascule D</strong> : recopie D sur Q au front d'horloge.</li><li><strong>Bascule JK</strong> : 00 mémoire, 10 set, 01 reset, 11 bascule.</li><li><strong>Asynchrone</strong> : agit hors horloge (set/reset immédiats).</li><li><strong>Registre à décalage</strong> : n bascules enchaînées, décalage à chaque front.</li><li><strong>Compteur modulo 2^n</strong> : compte de 0 à 2^n-1 puis repart à 0.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les tables RS et JK.</div>
+      <div class="bandrow bandrow--mid">50–69 % — déroule une bascule D et une JK pas à pas.</div>
+      <div class="bandrow bandrow--good">70–89 % — cible registre à décalage et compteurs.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Architecture d'un PC et périphériques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Circuit logique & architecture des ordinateurs » (Georges AYIVI-TOGBASSA, Novembre 2024, code B1COM0401).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

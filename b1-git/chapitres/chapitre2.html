@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Index et commits : add, reset, commit | Git B1</title>
+<meta name="description" content="Chapitre 2 du cours de Git B1 : git add et ses options, exclure avec .gitignore, retirer de l'index, écrire des messages de commit. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Index et commits : add, reset, commit | Git B1">
+<meta property="og:description" content="Chapitre 2 du cours de Git B1 : git add et ses options, exclure avec .gitignore, retirer de l'index, écrire des messages de commit. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Index et commits : add, reset, commit</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le projet avance : main.py a changé, utils.py est nouveau, un cache __pycache__ pollue le dossier. Tout n'a pas vocation à partir dans l'historique. Ce chapitre apprend à sélectionner exactement ce qu'on archive — et à écrire des messages de commit qui se relisent.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>ajouter au sélectif avec git add et connaître ses options (-A, ., -u) ;</li>
+      <li>exclure du suivi avec .gitignore et comprendre sa limite ;</li>
+      <li>retirer un fichier de l'index avec git reset HEAD et git rm --cached ;</li>
+      <li>écrire des messages de commit nets et comprendre l'option --amend.</li>
+    </ol>
+  </div>
+
+<h2>1. git add : sélectionner</h2>
+
+<p><code>git add</code> dépose les fichiers dans l'index. Trois façons de cibler :</p>
+<pre><code>git add /chemin/vers/fichier.ext   un fichier précis
+git add /chemin/vers/dossier      tout un dossier
+git add .                         le dossier courant</code></pre>
+<p>Les options sélectionnent selon l'état des fichiers :</p>
+<table>
+    <tr><th>Option</th><th>Nouveaux</th><th>Modifiés</th><th>Détruits</th></tr>
+    <tr><td><code>git add -A</code></td><td>oui</td><td>oui</td><td>oui</td></tr>
+    <tr><td><code>git add .</code></td><td>oui</td><td>oui</td><td>oui</td></tr>
+    <tr><td><code>git add -u</code></td><td>non</td><td>oui</td><td>oui</td></tr>
+  </table>
+<p>Règle d'or du vade-mecum : git add ajoute les fichiers <strong>tels qu'ils sont au moment de la commande</strong>. Une modification ultérieure ne sera pas prise dans l'index sans un nouveau add. En cas de doute, un <code>git status</code> fait l'état des lieux.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « -u = déjà suivis seulement »</div>
+    <p>L'option -u (update) ne voit que ce que Git connaît déjà : ni nouveaux fichiers, ni dossiers entiers débarqués. Pratique pour indexer proprement des modifications sans ramasser les fichiers de travail en cours.</p>
+  </div>
+
+<h2>2. Exclure : .gitignore et sa limite</h2>
+
+<p>Le fichier <code>.gitignore</code> contient la liste des fichiers ou dossiers à ne pas inclure lors des git add. La syntaxe utilise des motifs standards :</p>
+<pre><code>fichier     # exclure un fichier exact
+dossier/    # exclure un dossier
+*.pyc       # exclure tous les fichiers finissant par .pyc
+*~          # exclure tous les fichiers se terminant par ~</code></pre>
+<p>Le TP1 ajoute un .gitignore Python : <code>__pycache__/</code>, <code>*.pyc</code>, <code>venv/</code>. Et une limite essentielle : <strong>si un fichier est déjà suivi, l'ajouter au .gitignore ne le retire pas du suivi</strong>. La solution est <code>git rm --cached fichier</code> : le fichier sort de l'index et de la liste des suivis, mais reste physiquement sur le disque.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le .gitignore rétrospectif</div>
+    <p>Un fichier déjà commité ne disparaît pas de l'historique parce qu'on l'a écrit dans .gitignore. Il faut d'abord git rm --cached (puis commiter) : le .gitignore ne s'applique qu'aux fichiers pas encore suivis. L'exercice « gitignore » de l'atelier fait tester ce filtre sur des adds réels.</p>
+  </div>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Trois rm à distinguer</div>
+    <p><code>git rm fichier</code> supprime de la copie de travail ET de l'index ; <code>git rm --cached fichier</code> de l'index seulement (le fichier reste sur disque et devient non suivi) ; <code>/bin/rm fichier</code> de la copie de travail seulement. Et <code>git mv ancien nouveau</code> renomme en préparant le changement pour le commit.</p>
+  </div>
+
+<h2>3. Retirer de l'index : reset HEAD</h2>
+
+<p><code>git reset HEAD</code> est l'inverse de git add : il vide l'index. Pour un seul fichier : <code>git reset HEAD /chemin/vers/fichier.ext</code>. Ainsi, pour indexer tout un dossier sauf un fichier :</p>
+<pre><code>git add /chemin/vers/dossier
+git reset /chemin/vers/dossier/fichier.ext</code></pre>
+<p>Différence avec rm --cached : après un reset, le fichier reste <strong>suivi</strong> — simplement, ses dernières modifications repartent dans la copie de travail. Après un rm --cached, il n'est plus suivi du tout.</p>
+
+<h2>4. Committer et renommer l'archive</h2>
+
+<p><code>git commit -m "message"</code> déplace les fichiers de l'index vers le dépôt : une nouvelle ligne dans l'historique, indexée par un <strong>SHA-1</strong> et décrite par le message. Le commit archive <strong>l'état de l'index</strong>, pas la copie de travail.</p>
+<p><code>git log</code> montre l'historique des archivages, avec beaucoup d'options d'affichage. Et pour corriger le dernier commit — changer le message, ou ajouter/retirer des fichiers oubliés :</p>
+<pre><code>git commit --amend -m "Mon nouveau message"</code></pre>
+<p>Amend crée un <strong>nouveau SHA-1</strong> : à ne faire que si le commit n'a pas encore été poussé, sinon les autres collaborateurs subissent le changement d'identifiant.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le message qui ne raconte rien</div>
+    <p>« modifications », « fix », « mise à jour » : un message sans verbe ni objet ne sert qu'à polluer git log. La convention de l'atelier : commence par une majuscule, 50 caractères au plus, pas de point final — « Ajout du fichier gitignore pour les caches ».</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gt-c2-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;add a&#10;add b&#10;commit&#10;add c&#10;compte&#10;commit&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op fichier
+  # À compléter : index, dépôt, comptes.
+done
+# À compléter : afficher les comptes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Cycle add / commit</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Reproduire le trajet copie de travail → index → dépôt local des fichiers.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>add fichier</code> (met en index), <code>commit</code> (archève tout l’index : chaque fichier indexé devient « commité » et l’index se vide), ou <code>compte</code>. Le compte affiche <code>index : K</code> et <code>commits : K</code> (nombre total de fichiers passés au dépôt, tous commits confondus).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+add a
+add b
+commit
+add c
+compte
+commit
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>index : 1
+commits : 2</pre></div>
+    </div>
+    <p class="lab__note">Le compte se lit après le premier commit ; le second commit archève c.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un commit ne crée pas une pile : il vide l’index vers le dépôt.</li>
+        <li>Deux compteurs : taille courante de l’index et cumul des fichiers commités.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c2-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;add a&#10;add b&#10;reset a&#10;index&#10;add c&#10;index&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op fichier
+  # À compléter : maintenir l'index comme une file avec retraits.
+done
+# À compléter : afficher l'index.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — reset HEAD sélectif</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Retirer des fichiers de l’index avec git reset HEAD, fichier par fichier.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>add fichier</code>, <code>reset fichier</code> (retire du index ; si le fichier n’y est pas, affiche <code>non indexé</code>), ou <code>index</code> (affiche le contenu courant de l’index, un fichier par ligne, dans l’ordre des add encore présents ; rien si l’index est vide).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+add a
+add b
+reset a
+index
+add c
+index
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>b
+b
+c</pre></div>
+    </div>
+    <p class="lab__note">Le premier index ne montre plus a ; le second montre b puis c.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Deux tableaux parallèles (noms et drapeau présent) permettent de retirer sans réordonner.</li>
+        <li>Pour retirer : marquer présent=0 ; pour afficher : ne lister que les présents.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c2-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;Initialisation du projet&#10;ajout du point d entrée&#10;Ajout du point d entrée.&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r ligne
+  # À compléter : trois règles, la première vraie gagne.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Messages de commit disciplinés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider les messages de commit selon la convention du TP : verbosité et longueur.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> de messages de commit (une par ligne). Pour chacune il affiche <code>ok</code> si : le message commence par une majuscule <em>et</em> fait au plus 50 caractères <em>et</em> ne contient pas de point final. Sinon il affiche le motif exact : <code>majuscule</code>, <code>longueur</code>, <code>point final</code> — dans cet ordre de priorité, un seul motif par message.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+Initialisation du projet
+ajout du point d entrée
+Ajout du point d entrée.
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ok
+majuscule
+point final</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Premier caractère : ${ligne:0:1} ; le comparer à sa version majuscule couvre lettres et accents.</li>
+        <li>Longueur : ${#ligne} ; point final : vérifier que le dernier caractère est un point.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">git add . et git add -A ont en commun de…</p>
+      <div class="opts">
+        <button class="opt">ignorer les fichiers détruits</button>
+        <button class="opt" data-correct="1">prendre nouveaux, modifiés et détruits</button>
+        <button class="opt">ne prendre que les modifiés</button>
+      </div>
+      <div class="q__exp">Les deux couvrent les trois états ; -u, lui, ignore les nouveaux fichiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait git add -u ?</p>
+      <div class="opts">
+        <button class="opt">Indexe les nouveaux fichiers</button>
+        <button class="opt" data-correct="1">Indexe modifications et destructions des fichiers suivis</button>
+        <button class="opt">Met à jour le dépôt distant</button>
+      </div>
+      <div class="q__exp">-u (update) ne voit que les fichiers déjà suivis : modifiés et détruits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un fichier déjà suivi est ajouté au .gitignore : que se passe-t-il ?</p>
+      <div class="opts">
+        <button class="opt">Il sort du suivi</button>
+        <button class="opt" data-correct="1">Il reste suivi — il faut git rm --cached</button>
+        <button class="opt">Il est supprimé</button>
+      </div>
+      <div class="q__exp">Le .gitignore ne s'applique qu'aux fichiers pas encore suivis.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait git rm --cached fichier ?</p>
+      <div class="opts">
+        <button class="opt">Supprime le fichier du disque</button>
+        <button class="opt" data-correct="1">Retire l'index et le suivi, le fichier reste sur disque</button>
+        <button class="opt">Ne fait rien</button>
+      </div>
+      <div class="q__exp">--cached sort de l'index et du suivi sans détruire physiquement le fichier.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">git reset HEAD fichier fait quoi ?</p>
+      <div class="opts">
+        <button class="opt">Efface le fichier</button>
+        <button class="opt" data-correct="1">Retire ses modifications de l'index, qui repartent dans la copie</button>
+        <button class="opt">Crée un commit</button>
+      </div>
+      <div class="q__exp">reset HEAD est l'inverse de git add : le fichier reste suivi.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que contient un commit ?</p>
+      <div class="opts">
+        <button class="opt">La copie de travail entière</button>
+        <button class="opt" data-correct="1">L'état de l'index, décrit par le message, identifié par un SHA-1</button>
+        <button class="opt">Les fichiers du dépôt distant</button>
+      </div>
+      <div class="q__exp">Le commit archive ce que l'index contient au moment de la commande.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand peut-on commit --amend sans risque ?</p>
+      <div class="opts">
+        <button class="opt">Toujours</button>
+        <button class="opt" data-correct="1">Si le commit n'a pas encore été poussé</button>
+        <button class="opt">Après un push</button>
+      </div>
+      <div class="q__exp">Amend change le SHA-1 : les autres collaborateurs subiraient le déplacement d'historique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après un commit, l'index est…</p>
+      <div class="opts">
+        <button class="opt">plein</button>
+        <button class="opt" data-correct="1">vide</button>
+        <button class="opt">inversé</button>
+      </div>
+      <div class="q__exp">Le commit a transféré tout l'index vers le dépôt : l'index se vide.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Add oublié après modification</strong> : le commit n'embarque que l'état indexé au moment du add.</li>
+      <li><strong>-u attendu pour les nouveaux fichiers</strong> : -u ignore tout ce qui n'est pas déjà suivi.</li>
+      <li><strong>.gitignore rétrospectif</strong> : sans git rm --cached, le fichier suivi reste suivi.</li>
+      <li><strong>rm --cached et rm confondus</strong> : l'un garde le fichier sur disque, l'autre le détruit.</li>
+      <li><strong>Amend après push</strong> : le SHA change, l'historique partagé se casse.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Composer un commit propre</div>
+    <ol>
+      <li><strong>Faire l'état des lieux</strong> : git status avant toute sélection.</li>
+      <li><strong>Sélectionner précisément</strong> : add fichier par fichier, ou add -u pour les suivis.</li>
+      <li><strong>Filtrer le bruit</strong> : .gitignore pour les caches, venv, fichiers temporaires.</li>
+      <li><strong>Vérifier l'index</strong> : git status — seul ce qui est indexé partira.</li>
+      <li><strong>Committer avec un message utile</strong> : majuscule, concis, sans point final.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>git add dépose dans l'index : fichier, dossier, . (tout) ; -A prend tout, -u seulement les suivis.</li>
+      <li>L'index reflète l'état au moment du add : toute modification ultérieure demande un nouvel add.</li>
+      <li>.gitignore filtre les adds des fichiers non suivis ; pour un suivi, git rm --cached d'abord.</li>
+      <li>reset HEAD renvoie les modifications de l'index vers la copie de travail, sans dé-suivre.</li>
+      <li>Le commit archive l'index avec un SHA-1 ; amend le réécrit — avant tout push.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis la bonne option de add selon ce que je veux indexer.</li>
+      <li>J'écris un .gitignore correct pour un projet Python.</li>
+      <li>Je retire proprement un fichier de l'index (reset) ou du suivi (rm --cached).</li>
+      <li>Je formule des messages de commit lisibles et je sais quand utiliser amend.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>git add</li><li>index</li><li>-A</li><li>-u</li><li>.gitignore</li><li>git rm</li><li>--cached</li><li>git reset HEAD</li><li>commit</li><li>SHA-1</li><li>amend</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le tableau des options de git add avec un cas chacune.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Simule un fichier suivi qu'on veut ignorer : la séquence exacte.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : explique la différence rm / rm --cached / reset HEAD.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 3, l'historique et les annulations.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Historique et annulations : log, reset, revert <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : l'« Aide-mémoire GitHub Git », le vade-mecum « Travailler avec Git au quotidien » (ENSICAEN) et les TP 1 à 5 du module Git.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

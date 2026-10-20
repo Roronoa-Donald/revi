@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Premiers pas en PHP | PHP B1</title>
+<meta name="description" content="Chapitre 1 du cours PHP B1 : où tourne PHP, balise d'ouverture, echo, variables, lecture de l'entrée standard. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="1">
+
+<nav class="phnav"><div class="phnav__in">
+  <a class="phnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phnav__sep" aria-hidden="true">/</span>
+  <a class="phnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP B1</a>
+  <div class="phnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="phwrap">
+  <p class="crumb"><a href="../index.html">PHP B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+  <h1>Chapitre 1 — Premiers pas en PHP</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un visiteur remplit un formulaire d'inscription : quelqu'un doit recevoir ses données, les vérifier et
+    enregistrer son compte. Ce « quelqu'un », c'est un script PHP qui tourne sur le serveur. Avant les
+    formulaires et les bases de données, il faut savoir écrire ce script — même minimal — et comprendre où il
+    s'exécute.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>expliquer où s'exécute PHP et à quoi sert le mode CLI ;</li>
+      <li>écrire le squelette d'un script avec sa balise d'ouverture ;</li>
+      <li>déclarer des variables, afficher avec <code>echo</code> ;</li>
+      <li>lire l'entrée standard avec <code>fgets(STDIN)</code> et <code>trim()</code>.</li>
+    </ol>
+  </div>
+
+  <h2>1. PHP, où et comment il tourne</h2>
+  <p><strong>Définition.</strong> PHP (PHP: Hypertext Preprocessor) est un langage interprété conçu pour générer
+  des pages Web côté serveur. Le navigateur ne reçoit jamais le code PHP : il en reçoit le <em>résultat</em>
+  (du HTML), calculé sur le serveur.</p>
+  <table>
+    <tr><th>Mode</th><th>Rôle</th><th>Exemple</th></tr>
+    <tr><td>Serveur Web (module / FPM)</td><td>Répondre aux requêtes HTTP, générer des pages</td><td>Un site de boutique en ligne</td></tr>
+    <tr><td>CLI (ligne de commande)</td><td>Exécuter un script dans le terminal</td><td>Un script de maintenance, les TP du cours</td></tr>
+  </table>
+  <p>Dans ce cours, les exercices tournent en <strong>CLI</strong> : le script lit ses données sur l'entrée
+  standard et affiche son résultat dans la console. La logique est identique au mode Web — seuls l'entrée et la
+  sortie changent de canal.</p>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Le même PHP partout</div>
+    <p>Le fichier du script porte l'extension <code>.php</code> et l'interpréteur est invoqué avec
+    <code>php monscript.php</code>. Les fonctions que tu apprends ici — variables, conditions, tableaux,
+    fonctions — sont exactement celles d'un site en production.</p>
+  </div>
+
+  <h2>2. Le squelette d'un script</h2>
+  <p>Tout script PHP commence par la balise d'ouverture <code>&lt;?php</code>. Le code qui suit est interprété ;
+  le reste du fichier (hors balise) serait renvoyé tel quel. Un script purement PHP se termine sans balise de
+  fermeture.</p>
+  <pre><code><span class="k">&lt;?php</span>
+
+<span class="c">// ceci est du code PHP</span>
+echo "Premier script\n";</code></pre>
+  <div class="out">Premier script</div>
+  <p><code>echo</code> envoie du texte vers la sortie. La séquence <code>\n</code> (dans des guillemets
+  doubles) produit un saut de ligne : sans elle, tout s'empile sur une même ligne.</p>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — guillemets doubles ou simples</div>
+    <p>Dans des guillemets <strong>doubles</strong>, une variable est remplacée par sa valeur :
+    <code>echo "Bonjour $nom"</code> affiche le nom. Dans des guillemets <strong>simples</strong>, rien n'est
+    interpolé : <code>echo 'Bonjour $nom'</code> affiche littéralement « Bonjour $nom ».</p>
+  </div>
+
+  <h2>3. Variables : le dollar obligatoire</h2>
+  <p><strong>Définition.</strong> Une variable est un nom qui désigne une valeur en mémoire. En PHP, tout nom de
+  variable commence par <code>$</code>, on ne la déclare pas à l'avance : sa première affectation la crée.</p>
+  <pre><code>$article = "Clavier";
+$prix = 29;
+$total = $prix * 3;
+
+echo "$article : $total EUR\n";</code></pre>
+  <div class="out">Clavier : 87 EUR</div>
+  <p>À droite du <code>=</code>, une expression est calculée ; le résultat est rangé dans la variable à gauche.
+  Le point-virgule termine chaque instruction — l'oublier est l'erreur de syntaxe la plus fréquente.</p>
+
+  <h2>4. Lire l'entrée standard</h2>
+  <p>En CLI, le script reçoit ses données sur l'entrée standard (STDIN). La fonction <code>fgets(STDIN)</code>
+  lit <strong>une ligne</strong>, saut de ligne compris : on la nettoie avec <code>trim()</code>, puis on la
+  convertit en entier avec <code>(int)</code> quand on attend un nombre.</p>
+  <div class="pseudo"><b>Trame de lecture</b><br>$texte = trim(fgets(STDIN));&nbsp;&nbsp;<span class="c">// une ligne, sans \n</span><br>$nombre = (int)trim(fgets(STDIN));&nbsp;&nbsp;<span class="c">// converti en entier</span></div>
+  <pre><code>$nom = trim(fgets(STDIN));
+$age = (int)trim(fgets(STDIN));
+
+echo "$nom a $age ans\n";</code></pre>
+  <p>Chaque appel à <code>fgets</code> lit la ligne suivante : l'ordre des lectures doit suivre l'ordre des
+  données. Dans les exercices de ce cours, <strong>une valeur = une ligne</strong>.</p>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition</div>
+    <p>Un script en trois temps : <strong>lire</strong> les données, <strong>calculer</strong>, puis
+    <strong>afficher</strong>. Toute la suite du cours approfondit l'un de ces trois temps, jamais autre chose.</p>
+  </div>
+
+  <h2>5. Premier programme complet</h2>
+  <p>Un client achète 3 articles à 12 EUR. Le programme lit le prix unitaire et la quantité, puis affiche le
+  total :</p>
+  <pre><code><span class="k">&lt;?php</span>
+$prix = (int)trim(fgets(STDIN));
+$quantite = (int)trim(fgets(STDIN));
+
+$total = $prix * $quantite;
+echo "Total : $total EUR\n";</code></pre>
+  <div class="out">Total : 36 EUR</div>
+  <table>
+    <tr><th>Étape</th><th>Instruction</th><th>État après</th></tr>
+    <tr><td>1</td><td>$prix = 12</td><td>$prix vaut 12</td></tr>
+    <tr><td>2</td><td>$quantite = 3</td><td>$quantite vaut 3</td></tr>
+    <tr><td>3</td><td>$total = $prix * $quantite</td><td>$total vaut 36</td></tr>
+    <tr><td>4</td><td>echo</td><td>« Total : 36 EUR » est affiché</td></tr>
+  </table>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php-c1-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="Alice">
+  <script type="text/plain" data-lab-starter><?php
+$nom = trim(fgets(STDIN));
+
+// À compléter : afficher "Bonjour <nom> !"
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Bonjour la promotion</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une entrée sur STDIN et afficher avec echo.</p>
+    <div class="lab__brief"><p>Le programme reçoit un prénom (sans espace) sur l’entrée standard. Affichez <code>Bonjour &lt;prénom&gt; !</code> suivi d’un saut de ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Alice</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Bonjour Alice !</pre></div>
+    </div>
+    <p class="lab__note">Le prénom est inséré dans le message.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>fgets(STDIN) lit une ligne du clavier ou du tube d’entrée ; trim retire le saut de ligne qui l’accompagne.</li>
+        <li>Entre guillemets doubles, une variable est remplacée par sa valeur : c’est l’interpolation.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c1-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="Clavier&#10;29">
+  <script type="text/plain" data-lab-starter><?php
+$article = trim(fgets(STDIN));
+$prix = (int)trim(fgets(STDIN));
+
+// À compléter : afficher la fiche sur deux lignes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Fiche produit</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Lire plusieurs valeurs et enchaîner les affichages.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux lignes : le nom d’un article (sans espace), puis son prix (entier). Affichez <code>Article : &lt;nom&gt;</code> puis <code>Prix : &lt;prix&gt; EUR</code>, chacun sur sa ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Clavier
+29</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Article : Clavier
+Prix : 29 EUR</pre></div>
+    </div>
+    <p class="lab__note">Deux affichages dans l’ordre de l’énoncé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le cast (int) transforme la ligne lue en entier : indispensable pour calculer ensuite.</li>
+        <li>Deux echo, chacun terminé par le saut de ligne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c1-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="12&#10;5">
+  <script type="text/plain" data-lab-starter><?php
+$prix = (int)trim(fgets(STDIN));
+$quantite = (int)trim(fgets(STDIN));
+
+// À compléter : calculer et afficher le total.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Total de commande</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer à partir des entrées puis afficher le résultat.</p>
+    <div class="lab__brief"><p>Le programme reçoit le prix unitaire d’un article (entier), puis la quantité commandée (entier). Affichez <code>Total : &lt;prix × quantité&gt; EUR</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>12
+5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Total : 60 EUR</pre></div>
+    </div>
+    <p class="lab__note">12 × 5 = 60.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le total d’une commande est le produit du prix par la quantité.</li>
+        <li>L’interpolation évalue aussi les expressions simples mises dans des variables : calculez d’abord, affichez ensuite.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle balise ouvre un bloc de code PHP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">&lt;?php</button>
+        <button class="opt">&lt;script&gt;</button>
+        <button class="opt">&lt;php&gt;</button>
+      </div>
+      <div class="q__exp">Tout code PHP suit la balise &lt;?php.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment reconnaît-on une variable en PHP ?</p>
+      <div class="opts">
+        <button class="opt">Elle commence par une majuscule</button>
+        <button class="opt" data-correct="1">Elle commence par $</button>
+        <button class="opt">Elle est déclarée avec var</button>
+      </div>
+      <div class="q__exp">$nom, $total : le dollar préfixe toute variable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que lit <code>fgets(STDIN)</code> ?</p>
+      <div class="opts">
+        <button class="opt">Un seul caractère</button>
+        <button class="opt" data-correct="1">Une ligne entière, saut de ligne compris</button>
+        <button class="opt">Tout le fichier d'un coup</button>
+      </div>
+      <div class="q__exp">Une ligne par appel : d'où le trim qui suit.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi <code>trim()</code> après <code>fgets</code> ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour retirer le saut de ligne final</button>
+        <button class="opt">Pour convertir en nombre</button>
+        <button class="opt">Pour tout mettre en majuscules</button>
+      </div>
+      <div class="q__exp">Le \n final ferait échouer les comparaisons.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait <code>(int)</code> devant une expression ?</p>
+      <div class="opts">
+        <button class="opt">Il arrondit à la dizaine</button>
+        <button class="opt" data-correct="1">Il convertit la valeur en entier</button>
+        <button class="opt">Il multiplie par un</button>
+      </div>
+      <div class="q__exp">C'est un cast : (int)"42" vaut l'entier 42.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit <code>echo 'Total : $total'</code> (guillemets simples) ?</p>
+      <div class="opts">
+        <button class="opt">Le total calculé</button>
+        <button class="opt" data-correct="1">Le texte littéral « Total : $total »</button>
+        <button class="opt">Une erreur de syntaxe</button>
+      </div>
+      <div class="q__exp">Pas d'interpolation entre guillemets simples.</div>
+    </div>
+  </div>
+
+  <h2>8. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Point-virgule oublié</strong> : l'erreur est signalée à la ligne suivante, pas à la fautive.</li>
+      <li><strong>$ oublié</strong> : <code>nom = "A"</code> n'est pas une affectation PHP.</li>
+      <li><strong>trim oublié</strong> : la comparaison de la valeur lue échoue sans bruit.</li>
+      <li><strong>Ordre des lectures inversé</strong> : chaque fgets consomme la ligne suivante.</li>
+      <li><strong>\n manquant</strong> : les affichages s'empilent sur une seule ligne.</li>
+    </ul>
+  </div>
+
+  <h2>9. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire un premier script</div>
+    <ol>
+      <li><strong>Lister les données d'entrée</strong> : une ligne par valeur, dans l'ordre de l'énoncé.</li>
+      <li><strong>Choisir les variables</strong> : noms explicites ($prix, pas $x).</li>
+      <li><strong>Écrire le calcul</strong> dans une variable intermédiaire si besoin.</li>
+      <li><strong>Afficher</strong> exactement le format demandé (texte, espaces, sauts de ligne).</li>
+      <li><strong>Tester</strong> avec l'exemple de l'énoncé, puis une valeur limite.</li>
+    </ol>
+  </div>
+
+  <h2>10. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>PHP tourne côté serveur ; en CLI, le script lit STDIN et écrit dans la console.</li>
+      <li>Tout script commence par <code>&lt;?php</code> ; chaque instruction finit par <code>;</code>.</li>
+      <li>Une variable commence par <code>$</code> et naît de sa première affectation.</li>
+      <li><code>echo</code> affiche ; l'interpolation n'a lieu qu'entre guillemets doubles.</li>
+      <li>Lire une entrée : <code>trim(fgets(STDIN))</code>, avec <code>(int)</code> si c'est un nombre.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J'écris le squelette d'un script sans modèle.</li>
+      <li>Je lis une entrée proprement (trim, cast).</li>
+      <li>Je choisis guillemets doubles ou simples en connaissance de cause.</li>
+      <li>Je trace un petit programme instruction par instruction.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>&lt;?php</li><li>echo</li><li>variable ($)</li><li>affectation</li>
+      <li>fgets(STDIN)</li><li>trim()</li><li>cast (int)</li><li>interpolation</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>11. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 2 et 4 en tapant les exemples.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 1-2 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible guillemets et trim.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, les types et opérateurs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Types, opérateurs et chaînes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (Cours-PHP-PDO, CoursPHP, TP1) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

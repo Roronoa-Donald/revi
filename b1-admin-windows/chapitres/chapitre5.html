@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Installer un contrôleur de domaine | Administration Windows B1</title>
+<meta name="description" content="Chapitre 5 du cours B1 : Ajout du rôle AD DS, promotion en contrôleur de domaine, nouvelle forêt, niveaux fonctionnels, NTDS et SYSVOL, PowerShell. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-admin-windows/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Installer un contrôleur de domaine | Administration Windows B1">
+<meta property="og:description" content="Chapitre 5 du cours B1 : Ajout du rôle AD DS, promotion en contrôleur de domaine, nouvelle forêt, niveaux fonctionnels, NTDS et SYSVOL, PowerShell. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="awnav"><div class="awnav__in">
+  <a class="awnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="awnav__sep" aria-hidden="true">/</span>
+  <a class="awnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Administration Windows B1</a>
+  <div class="awnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="awnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="awwrap">
+<p class="crumb"><a href="../index.html">Administration Windows B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Installer un contrôleur de domaine</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le serveur est configuré (chapitre 3) : il ne manque que le cœur du réseau d’entreprise. Installer AD DS se fait en deux temps — le rôle, puis la promotion en contrôleur de domaine — et demande cinq informations exactes. Ce chapitre suit l’assistant pas à pas, puis rejoue l’installation en PowerShell.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>installer le rôle AD DS et ses fonctionnalités associées ;</li>
+      <li>promouvoir le serveur en contrôleur de domaine (nouvelle forêt) ;</li>
+      <li>fixer nom DNS, nom NetBIOS, niveaux fonctionnels et mot de passe de restauration ;</li>
+      <li>situer les dossiers de la base (NTDS.DIT), des journaux et de SYSVOL.</li>
+    </ol>
+  </div>
+
+<h2>1. Installer le rôle AD DS</h2>
+
+<p>Pour ajouter le rôle : <strong>Gestionnaire de serveur → Gérer → Ajouter des rôles et des fonctionnalités</strong>. On choisit « Installation basée sur un rôle ou une fonctionnalité » (un nouveau rôle, pas une fonctionnalité complémentaire), puis le serveur cible — ici le seul serveur du TP.</p>
+<p>Pour un réseau d’entreprise simple, on sélectionne uniquement <strong>Services AD DS</strong> (AD DS). Quand la case est cochée, des fonctionnalités complémentaires sont automatiquement sélectionnées : il est impératif de les avoir toutes pour gérer efficacement le serveur AD.</p>
+<p>À la fin de l’installation initiale, les <strong>binaires</strong> AD DS sont installés — mais AD DS n’est <strong>pas encore configuré</strong>. Un message du Gestionnaire de serveur propose le lien « <strong>Promouvoir ce serveur en contrôleur de domaine</strong> » : c’est l’assistant de configuration, passage obligatoire.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — s’arrêter après l’installation du rôle</div>
+    <p>Installer les binaires ne configure rien : sans la promotion, il n’y a ni domaine ni contrôleur. Le bandeau jaune du Gestionnaire de serveur le rappelle tant que la configuration est incomplète.</p>
+  </div>
+
+<h2>2. Les informations à réunir avant la configuration</h2>
+
+<p>Il existe différents types de configuration selon le besoin de l’entreprise. Avant d’exécuter la configuration de l’AD DS, vous devez disposer de :</p>
+<ul>
+    <li>le <strong>nom DNS</strong> pour le domaine AD DS ;</li>
+    <li>le <strong>nom NetBIOS</strong> ;</li>
+    <li>le fait que le contrôleur de domaine doit (ou non) prendre en charge les versions antérieures ;</li>
+    <li>le fait que le contrôleur de domaine sera également <strong>DNS</strong> ;</li>
+    <li>l’emplacement de la base de données <strong>NTDS.DIT</strong> et de <strong>SYSVOL</strong> (+ le mot de passe de restauration).</li>
+  </ul>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Cinq questions avant de cliquer</div>
+    <p>Nom DNS du domaine ? Nom NetBIOS (préfixe du domaine) ? Compatibilité ancienne ? DNS sur le même serveur ? Où stocker la base ? Cinq réponses écrites à l’avance = une installation sans retour en arrière.</p>
+  </div>
+
+<h2>3. Ajouter une nouvelle forêt</h2>
+
+<p>La procédure actuelle étant la création d’un nouveau domaine, on sélectionne « <strong>Ajouter une nouvelle forêt</strong> » et on entre le nom du domaine — un nom réel et réfléchi (chapitre 4).</p>
+<p>Le <strong>niveau fonctionnel</strong> d’un domaine correspond aux services disponibles pour ce domaine : plus il est élevé, plus les fonctionnalités sont nombreuses. Le support conseille d’utiliser le niveau le plus haut — Windows Server 2012 R2.</p>
+<p>Seconde étape obligatoire : le <strong>mot de passe de restauration</strong> (DSRM). Il sera utilisé uniquement si l’AD DS se retrouve corrompu et inaccessible : c’est le sésame de la restauration. Il doit donc être solide et… mémorisé.</p>
+<p>Un message d’avertissement apparaît ensuite : <strong>le rôle AD DS nécessite le rôle DNS</strong>. Si vous installez le DNS en même temps que l’AD DS (ou sans configuration spécifique), la configuration se fera quasi-automatiquement ; sinon (serveur DNS séparé, par exemple Linux), vous devrez créer les zones DNS vous-même.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pourquoi DNS est inseparable d’AD</div>
+    <p>Les clients localisent le domaine par son nom DNS : sans zone DNS correcte, personne ne trouve le contrôleur de domaine. C’est pourquoi l’assistant propose de l’installer en même temps.</p>
+  </div>
+
+<h2>4. Emplacements des données et vérification</h2>
+
+<p>L’étape « emplacement des données » propose trois dossiers :</p>
+<ul>
+    <li><strong>Base de données</strong> : tous les fichiers du fonctionnement interne de l’Active Directory — fichiers temporaires, fichiers d’échanges, la base NTDS.DIT ;</li>
+    <li><strong>Fichiers journaux</strong> : les logs, lus par l’Observateur d’événements ;</li>
+    <li><strong>SYSVOL</strong> : les scripts de connexion des utilisateurs, les GPO (stratégies de groupe) et les fichiers nécessaires à la réplication AD et aux partages publics.</li>
+  </ul>
+<p>Par défaut ces dossiers vivent sous <code>C:\Windows</code> ; on peut les déplacer — simple question d’organisation interne. Un <strong>récapitulatif</strong> complet s’affiche, puis vient la vérification : Windows Server dit si les paramètres sont corrects pour un domaine AD. Quand tous les prérequis sont validés, le serveur doit être <strong>obligatoirement redémarré</strong>.</p>
+<p>En PowerShell, le même résultat : récupérer le nom du serveur, installer le rôle (<code>Install-WindowsFeature</code>), puis configurer la nouvelle forêt avec <code>Install-ADDSForest</code> — nom de domaine, niveaux fonctionnels et options incluant la création du DNS.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Trois dossiers à retenir</div>
+    <p>NTDS.DIT = la base AD. Journaux = les logs. SYSVOL = scripts de connexion, GPO, réplication. Une question d’examen classique : « où sont stockés les GPO ? » → SYSVOL.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="aw-c5-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;role installation&#10;promotion configuration&#10;redemarrage finalisation&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r jalon phase
+  # À compléter : la phase attendue, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Le chemin d’un contrôleur de domaine</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Rattacher chaque jalon à sa phase : installation, configuration, vérification.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « jalon phase » : phase est un code parmi <code>installation</code>, <code>configuration</code>, <code>verification</code> ou <code>finalisation</code>. Jalons du support : rôle AD DS et fonctionnalités ajoutés → <code>installation</code> ; promotion en contrôleur de domaine (nouvelle forêt, niveaux, mots de passe) → <code>configuration</code> ; vérification des prérequis → <code>verification</code> ; redémarrage obligatoire du serveur → <code>finalisation</code>. Pour chaque ligne il affiche <code>jalon : OK</code> ou <code>jalon : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+role installation
+promotion configuration
+redemarrage finalisation
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>role : OK
+promotion : OK
+redemarrage : OK
+correctes : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le jalon : role → installation, promotion → configuration, prerequis → verification, redemarrage → finalisation.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c5-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;dns fourni&#10;netbios manquant&#10;fondEcran fourni&#10;ntds fourni&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+bloquantes=0
+for ((i=0; i<n; i++)); do
+  read -r info statut
+  # À compléter : requise ? fournie ? verdict, compteur des bloquantes.
+done
+# À compléter : bilans.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Les informations à réunir avant la configuration</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer les informations requises de celles qu’on ignore.</p>
+    <div class="lab__brief"><p>Avant de configurer AD DS, le support exige : le <strong>nom DNS</strong> du domaine, le <strong>nom NetBIOS</strong>, le niveau fonctionnel, le fait que le contrôleur sera aussi <strong>DNS</strong>, et l’emplacement de la base <strong>NTDS.DIT</strong> et de <strong>SYSVOL</strong> (+ le mot de passe de restauration). Le script lit <strong>n lignes</strong> « info statut » où statut vaut <code>fourni</code> ou <code>manquant</code>. Pour chaque info requise manquante il affiche <code>info : bloquante</code>, pour chaque info requise fournie <code>info : prete</code>, et pour toute autre ligne <code>info : ignoree</code> — puis <code>bloquantes : X</code> et, si X vaut 0, <code>configuration possible</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+dns fourni
+netbios manquant
+fondEcran fourni
+ntds fourni
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>dns : prete
+netbios : bloquante
+fondEcran : ignoree
+ntds : prete
+bloquantes : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Infos requises : dns, netbios, niveau, dnsrole, ntds, sysvol, restauration — tout le reste est ignoré.</li>
+        <li>Requise + manquante → bloquante (compteur) ; requise + fournie → prete ; verdict final si 0 bloquante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c5-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;cdp.org 2012R2 16&#10;filiere 2008 20&#10;stage 2012R2 8&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r domaine niveau longueur
+  # À compléter : les deux contrôles, les trois motifs, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Niveau fonctionnel et mot de passe de restauration</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôler le niveau fonctionnel choisi et la robustesse du mot de passe DSRM.</p>
+    <div class="lab__brief"><p>Le support conseille « le niveau fonctionnel le plus haut » (2012 R2) et un mot de passe de restauration solide, utilisé seulement si l’AD DS devient inaccessible. Le script lit <strong>n lignes</strong> « domaine niveau longueur » : niveau est le niveau fonctionnel choisi, longueur la taille du mot de passe de restauration. Le domaine est conforme si le niveau vaut <code>2012R2</code> ET la longueur est au moins 12. Pour chaque ligne il affiche <code>domaine : conforme</code> ou <code>domaine : a revoir (motif)</code> avec motif = <code>niveau</code>, <code>mdp</code> ou <code>les-deux</code> (dans cet ordre de priorité), puis <code>conformes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+cdp.org 2012R2 16
+filiere 2008 20
+stage 2012R2 8
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>cdp.org : conforme
+filiere : a revoir (niveau)
+stage : a revoir (mdp)
+conformes : 1/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Niveau d’abord : niveau != 2012R2 → a revoir (niveau) ou (les-deux) selon la longueur.</li>
+        <li>Puis longueur : longueur -lt 12 → a revoir (mdp) ; sinon conforme, compteur incrémenté.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Après l’installation initiale du rôle AD DS…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">les binaires sont là, la configuration reste à faire</button>
+        <button class="opt">le domaine est prêt</button>
+        <button class="opt">il faut réinstaller Windows</button>
+      </div>
+      <div class="q__exp">AD DS n’est pas encore configuré : il faut promouvoir le serveur en contrôleur de domaine.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour créer un domaine racine, l’assistant propose…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Ajouter une nouvelle forêt</button>
+        <button class="opt">Ajouter un domaine enfant</button>
+        <button class="opt">Joindre un domaine existant</button>
+      </div>
+      <div class="q__exp">La création d’un nouveau domaine racine passe par « Ajouter une nouvelle forêt ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le niveau fonctionnel du domaine définit…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">les services disponibles pour ce domaine</button>
+        <button class="opt">le prix de la licence</button>
+        <button class="opt">le nom du serveur</button>
+      </div>
+      <div class="q__exp">Plus le niveau est élevé, plus les fonctionnalités sont nombreuses : viser 2012 R2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le mot de passe de restauration sert…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">à restaurer un AD DS corrompu et inaccessible</button>
+        <button class="opt">à se connecter en utilisateur</button>
+        <button class="opt">à installer le DNS</button>
+      </div>
+      <div class="q__exp">DSRM : utilisé uniquement si l’AD devient inaccessible — d’où sa solidité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L’avertissement à l’installation d’AD DS concerne…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">le rôle DNS, nécessaire au domaine</button>
+        <button class="opt">l’activation de Windows</button>
+        <button class="opt">le pare-feu</button>
+      </div>
+      <div class="q__exp">AD DS nécessite un serveur DNS ; installé en même temps, il se configure quasi-automatiquement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La base de l’Active Directory s’appelle…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">NTDS.DIT</button>
+        <button class="opt">SYSVOL</button>
+        <button class="opt">install.wim</button>
+      </div>
+      <div class="q__exp">NTDS.DIT dans le dossier « base de données » ; SYSVOL porte scripts et GPO.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le dossier SYSVOL contient…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">scripts de connexion, GPO et fichiers de réplication</button>
+        <button class="opt">les logs système</button>
+        <button class="opt">les profils utilisateurs</button>
+      </div>
+      <div class="q__exp">Les fichiers journaux sont dans le second dossier ; SYSVOL est le dossier des stratégies.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand la vérification des prérequis est passée…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">le serveur doit obligatoirement redémarrer</button>
+        <button class="opt">rien d’autre à faire</button>
+        <button class="opt">le domaine est supprimé</button>
+      </div>
+      <div class="q__exp">Le redémarrage est obligatoire pour finaliser la promotion.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>S’arrêter après l’installation du rôle : sans promotion, pas de contrôleur de domaine.</li>
+      <li>Saisir un nom de domaine irréel : son renommage ultérieur est très coûteux (chapitre 4).</li>
+      <li>Bâcler le mot de passe de restauration : c’est la seule clé de secours d’un AD inaccessible.</li>
+      <li>Oublier le redémarrage final : la promotion ne s’achève pas sans lui.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Installer AD DS sans faux pas</div>
+    <ol>
+      <li>Écrire les cinq informations avant l’assistant : DNS, NetBIOS, anciennes versions, DNS local, emplacements.</li>
+      <li>Suivre l’ordre : rôle → promotion (nouvelle forêt) → niveaux → DSRM → DNS → dossiers.</li>
+      <li>Lire le récapitulatif, attendre la vérification des prérequis, redémarrer, puis vérifier le domaine.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Deux temps : installer le rôle AD DS, puis promouvoir le serveur en contrôleur de domaine.</li>
+      <li>« Ajouter une nouvelle forêt » crée le domaine racine ; le nom doit être réel et réfléchi.</li>
+      <li>Niveau fonctionnel le plus haut conseillé (2012 R2) ; mot de passe DSRM solide obligatoire.</li>
+      <li>AD DS exige le DNS ; la base NTDS.DIT, les journaux et SYSVOL ont chacun leur dossier ; redémarrage final.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais dérouler l’assistant de bout en bout dans l’ordre.</li>
+      <li>Je liste les cinq informations à préparer sans regarder le cours.</li>
+      <li>Je distingue NTDS.DIT, journaux et SYSVOL.</li>
+      <li>Je connais l’équivalent PowerShell (Install-WindowsFeature, Install-ADDSForest).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>rôle AD DS</li><li>promotion en contrôleur de domaine</li><li>nouvelle forêt</li><li>niveau fonctionnel</li><li>mot de passe DSRM</li><li>NTDS.DIT</li><li>SYSVOL</li><li>Install-ADDSForest</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis la section « nouvelle forêt », c’est le cœur de l’épreuve.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais l’exercice des informations requises jusqu’au sans-faute.</div>
+      <div class="bandrow bandrow--good">70–89 % — solide : déroule l’installation sur une VM de TP.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : passe à la gestion des objets.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Gérer les objets AD DS <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les supports B1 « Base de l’Administration Windows » (IT_B1A et IT_B1B) du Dr Abasse KPEGOUNI : introduction à l’administration Windows, installation du serveur Active Directory AD DS, gestion des objets AD DS (unités d’organisation, utilisateurs, groupes).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Machines à États, Composants &amp;amp; Déploiement Physique | UML B2</title>
+<meta name="description" content="Chapitre 6 du cours UML B2 : Cycle de vie événementiel (Statecharts de Harel), actions internes (entry, exit, do), pseudo-états et historique, architecture logicielle modulaire en diagramme de composants, interfaces requises/fournies (Lollipop &amp;amp; Socket), et topologie d’infrastructure physique en diagramme de déploiement. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/uml/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Machines à États, Composants &amp;amp; Déploiement Physique | UML B2">
+<meta property="og:description" content="Chapitre 6 du cours UML B2 : Cycle de vie événementiel (Statecharts de Harel), actions internes (entry, exit, do), pseudo-états et historique, architecture logicielle modulaire en diagramme de composants, interfaces requises/fournies (Lollipop &amp;amp; Socket), et topologie d’infrastructure physique en diagramme de déploiement. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="umlnav"><div class="umlnav__in">
+  <a class="umlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="umlnav__sep" aria-hidden="true">/</span>
+  <a class="umlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> UML B2</a>
+  <div class="umlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="umlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="umlwrap">
+<p class="crumb"><a href="../index.html">UML B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Machines à États, Composants &amp; Déploiement Physique</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lors de la mise en pré-production d’une solution IoT et bancaire critique, des régressions majeures éclatent : des terminaux de paiement restent bloqués dans des états incohérents lors de déconnexions réseau inopinées, et les équipes d’exploitation Cloud ne parviennent pas à déployer les microservices faute de spécification claire des dépendances entre composants logiciels et serveurs physiques. Pour maîtriser le cycle de vie réactif des objets et sécuriser l’architecture d’exécution de bout en bout, l’architecte formalise les machines à états-transitions, les contrats de composants et le plan de déploiement physique. Ce dernier module parachève la maîtrise d’UML 2.5 en reliant la dynamique fine des objets à l’architecture logicielle modulaire et à l’infrastructure matérielle réelle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>concevoir une machine à états finis (Statechart) pour modéliser le comportement réactif d’un objet ;</li>
+      <li>distinguer avec rigueur la syntaxe d’une transition : événement [garde] / action ;</li>
+      <li>différencier les actions internes atomiques (entry /, exit /) des activités continues interruptibles (do /) ;</li>
+      <li>manipuler les pseudo-états (initial, choix, jonction, historique superficiel H et profond H*) ;</li>
+      <li>modéliser des composants logiciels autonomes avec leurs ports et interfaces requises/fournies (notation Lollipop &amp; Socket) ;</li>
+      <li>élaborer un diagramme de déploiement physique distinguant les nœuds matériels (&laquo;device&raquo;), les environnements d’exécution (&laquo;executionEnvironment&raquo;) et les artefacts logiciels (&laquo;artifact&raquo;).</li>
+    </ol>
+  </div>
+
+<h2>1. Machines à États-Transitions : Le Cycle de Vie Réactif</h2>
+
+<p>Inspiré des <em>Statecharts</em> de David Harel, le <strong>diagramme d’états-transitions</strong> décrit comment un objet réactif change d’état en réponse à des stimuli (événements extérieurs) :</p>
+<ul>
+  <li><strong>État (State) :</strong> Rectangle à coins arrondis représentant une situation stable de l’objet pendant une durée mesurable (ex: <em>EnAttentePaiement</em>, <em>Connecté</em>).</li>
+  <li><strong>Syntaxe complète d’une transition :</strong><br>
+    <code>événement (paramètres) [gardeBooléenne] / actionExécutée</code><br>
+    La transition n’est franchie que si l’événement survient <strong>ET</strong> que la garde s’évalue à vrai.</li>
+  <li><strong>Compartiment interne d’actions :</strong><br>
+    - <code>entry / action</code> : action atomique exécutée immédiatement à l’entrée dans l’état.<br>
+    - <code>exit / action</code> : action atomique exécutée immédiatement avant de quitter l’état.<br>
+    - <code>do / activité</code> : travail continu en arrière-plan qui s’exécute tant qu’on réside dans l’état (interrompu si une transition sortante est tirée).</li>
+</ul>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Pseudo-États de Choix et Jonction</h4>
+    <ul>
+      <li><strong>Choix dynamique (Losange) :</strong> Évalue les gardes dynamiquement au moment de l’atteinte du pseudo-état.</li>
+      <li><strong>Jonction statique (Petit disque noir) :</strong> Fusionne ou sépare des segments de transition évalués statiquement avant franchissement.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Pseudo-États d’Historique (H et H*)</h4>
+    <ul>
+      <li><strong>Historique superficiel (H) :</strong> Mémorise le dernier sous-état actif de plus haut niveau au sein d’un état composite.</li>
+      <li><strong>Historique profond (H*) :</strong> Mémorise l’état actif à tous les niveaux de récursion imbriqués.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Diagramme de Composants : Interfaces Lollipop &amp; Socket</h2>
+
+<p>Le <strong>diagramme de composants</strong> modélise l’architecture modulaire du logiciel. Un composant (<code>&laquo;component&raquo;</code>) représente une unité autonome de déploiement et de packaging (ex: une bibliothèque, un microservice, un module NPM, un bundle OSGi) :</p>
+<p>Les composants communiquent exclusivement à travers des contrats d’interface standardisés, représentés par la célèbre notation <strong>« Boule et Réceptacle » (Ball-and-Socket)</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Interface Fournie (&ndash;&ndash;&CircleTimes; Lollipop)</h4>
+    <p>Une tige terminée par un petit cercle plein (« sucette » / Lollipop). Indique le service ou l’API publique que le composant implémente et met à disposition des autres modules (ex: <code>IPaiementService</code>).</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Interface Requise (&ndash;&ndash;&LeftCeiling; Socket)</h4>
+    <p>Une tige terminée par un demi-cercle creux (« réceptacle » / Socket). Indique le service ou contrat dont le composant a impérativement besoin pour fonctionner (ex: <code>IBanquePasserelle</code>).</p>
+  </div>
+</div>
+<p>Lorsque le réceptacle d’un composant client s’emboîte parfaitement dans la sucette d’un composant fournisseur, on forme un <strong>connecteur d’assemblage</strong> garantissant le respect du principe de découplage.</p>
+
+<h2>3. Diagramme de Déploiement : Infrastructure Matérielle et Artefacts</h2>
+
+<p>Le <strong>diagramme de déploiement</strong> décrit la topologie physique d’exécution du système en production. Il repose sur des boîtes tridimensionnelles (cubes en perspective) :</p>
+<ul>
+  <li><strong>Nœud matériel (&laquo;device&raquo;) :</strong> Équipement physique disposant de capacités de calcul (ex: <em>Serveur Dell PowerEdge</em>, <em>Smartphone Android</em>, <em>Routeur Cisco</em>).</li>
+  <li><strong>Environnement d’exécution (&laquo;executionEnvironment&raquo;) :</strong> Système d’exploitation, conteneur ou machine virtuelle hébergé au sein d’un device (ex: <em>Linux Ubuntu 24.04</em>, <em>Moteur Docker</em>, <em>JVM OpenJDK 21</em>).</li>
+  <li><strong>Artefact logiciel (&laquo;artifact&raquo;) :</strong> Représenté par un rectangle avec le stéréotype ou une icône de feuille cornée. C’est le livrable concret déployé sur le nœud (ex: <code>api-gateway.jar</code>, <code>frontend.docker.tar</code>, <code>schema.sql</code>).</li>
+  <li><strong>Canaux de communication :</strong> Lignes pleines reliant les nœuds physiques, annotées du protocole réseau utilisé (ex: <code>&laquo;HTTPS / TLS 1.3&raquo;</code>, <code>&laquo;TCP / JDBC port 5432&raquo;</code>).</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="um2-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="INITIAL Cree&#10;TRANSITION Cree -&gt; Paye : payer [montant&gt;0] / emettreRecu&#10;TRANSITION Paye -&gt; Expedie : expedier / notifierClient&#10;EVENT payer montant=50&#10;EVENT expedier">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c6-e1) — Machine à états finis UML (State Machine)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Événement ignoré car état incompatible]
+# Données : INITIAL Initial
+# Données : TRANSITION Initial -> Actif : start / initTimer
+# Données : EVENT stop
+# Données : EVENT start
+A_COMPLETER
+
+[Cas 2 — Garde non satisfaite]
+# Données : INITIAL Verrouille
+# Données : TRANSITION Verrouille -> Deverrouille : badge [codeValide==1] / ouvrirPorte
+# Données : EVENT badge codeValide=0
+A_COMPLETER
+
+[Cas 3 — Transition sans action]
+# Données : INITIAL E1
+# Données : TRANSITION E1 -> E2 : valider
+# Données : EVENT valider
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Machine à états finis UML (State Machine)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler un automate d'états finis UML en évaluant les transitions déclenchées par des événements avec gardes et actions.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas...]</code>.<br>
+Pour chaque événement :<br>
+- Si une transition valide existe depuis l'état courant avec une garde vraie :<br>
+  franchir la transition, exécuter l'action éventuelle, et afficher :<br>
+  <code>[TRANSITION] &lt;Source&gt; -&gt; &lt;Cible&gt; via &lt;event&gt; [Action: &lt;act&gt;]</code><br>
+- Si aucune transition n'est franchissable :<br>
+  afficher <code>[IGNORE] Evenement &lt;event&gt; sans effet dans l'etat &lt;EtatCourant&gt;</code>.<br>
+À la fin, afficher : <code>ETAT FINAL COURANT: &lt;Etat&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INITIAL Cree
+TRANSITION Cree -&gt; Paye : payer [montant&gt;0] / emettreRecu
+TRANSITION Paye -&gt; Expedie : expedier / notifierClient
+EVENT payer montant=50
+EVENT expedier</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[TRANSITION] Cree -&gt; Paye via payer [Action: emettreRecu]
+[TRANSITION] Paye -&gt; Expedie via expedier [Action: notifierClient]
+ETAT FINAL COURANT: Expedie</pre></div>
+    </div>
+    <p class="lab__note">Cycle de vie d'une commande : Créée -&gt; Payée -&gt; Expédiée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer l'état courant sous forme d'une variable initialisée par la directive INITIAL.</li>
+        <li>Une transition est franchie seulement si l'événement correspond et que sa condition de garde est satisfaite.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="PROVIDES ServicePaiement IPayment:2.0&#10;REQUIRES ModulePanier IPayment:1.5&#10;CONNECT ModulePanier -&gt; ServicePaiement [IPayment]">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c6-e2) — Vérificateur d'interfaces de composants (Lollipop)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Version fournie obsolète par rapport au besoin]
+# Données : PROVIDES DBService IDatabase:1.0
+# Données : REQUIRES BackendApp IDatabase:2.0
+# Données : CONNECT BackendApp -> DBService [IDatabase]
+A_COMPLETER
+
+[Cas 2 — Interface non fournie par le composant cible]
+# Données : PROVIDES AuthEngine IAuth:1.0
+# Données : REQUIRES Gateway IPayment:1.0
+# Données : CONNECT Gateway -> AuthEngine [IPayment]
+A_COMPLETER
+
+[Cas 3 — Plusieurs connecteurs réussis]
+# Données : PROVIDES C1 I1:1.0
+# Données : PROVIDES C2 I2:3.0
+# Données : REQUIRES App I1:1.0
+# Données : REQUIRES App I2:2.5
+# Données : CONNECT App -> C1 [I1]
+# Données : CONNECT App -> C2 [I2]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Vérificateur d'interfaces de composants (Lollipop)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider l'assemblage de composants logiciels UML en appariant les interfaces fournies (ball/lollipop) et requises (socket).</p>
+    <div class="lab__brief"><p>Dans un diagramme de composants UML :<br>
+- Un composant <strong>fournit</strong> une interface via une sucette/cercle plein (lollipop) : <code>PROVIDES &lt;Composant&gt; &lt;Interface&gt;:&lt;Version&gt;</code>.<br>
+- Un composant <strong>requiert</strong> une interface via un demi-cercle (socket) : <code>REQUIRES &lt;Composant&gt; &lt;Interface&gt;:&lt;VersionMin&gt;</code>.<br>
+- Un connecteur d'assemblage relie deux composants : <code>CONNECT &lt;ClientComp&gt; -&gt; &lt;FournisseurComp&gt; [&lt;Interface&gt;]</code>.<br>
+Règles de validation :<br>
+1. Le composant fournisseur doit obligatoirement fournir l'interface spécifiée.<br>
+2. Le composant client doit requérir cette interface.<br>
+3. La version fournie doit être <strong>supérieure ou égale</strong> à la version minimale requise (<code>VersionFournie &gt;= VersionMin</code>).<br>
+Afficher pour chaque connecteur :<br>
+<code>[VALIDE|ERREUR] Assemblage &lt;Client&gt; -&gt; &lt;Fournisseur&gt; (&lt;Interface&gt;) : &lt;motif&gt;</code>.<br>
+À la fin : <code>CONNECTEURS CONFORMES: &lt;N&gt;/&lt;Total&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROVIDES ServicePaiement IPayment:2.0
+REQUIRES ModulePanier IPayment:1.5
+CONNECT ModulePanier -&gt; ServicePaiement [IPayment]</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[VALIDE] Assemblage ModulePanier -&gt; ServicePaiement (IPayment) : Compatibilite version v2.0 &gt;= v1.5
+CONNECTEURS CONFORMES: 1/1</pre></div>
+    </div>
+    <p class="lab__note">Le service fournit IPayment v2.0, supérieur au v1.5 requis.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un dictionnaire pour les interfaces fournies (comp -&gt; {interface: version}) et requises.</li>
+        <li>Comparer les numéros de version sous forme numérique flottante ou entière.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="NODE ClientPC &lt;&lt;device&gt;&gt;&#10;NODE WebServer &lt;&lt;executionEnvironment&gt;&gt;&#10;DEPLOY AppReact ON ClientPC&#10;DEPLOY ApiFlask ON WebServer&#10;LINK ClientPC &lt;--&gt; WebServer PROTO=HTTPS&#10;COMM AppReact -&gt; ApiFlask REQ_PROTO=HTTPS">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c6-e3) — Mappeur de diagramme de déploiement (Nœuds & Artefacts)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Communication locale sur même nœud]
+# Données : NODE Srv1 <<device>>
+# Données : DEPLOY ServiceA ON Srv1
+# Données : DEPLOY ServiceB ON Srv1
+# Données : COMM ServiceA -> ServiceB REQ_PROTO=IPC
+A_COMPLETER
+
+[Cas 2 — Protocole réseau incompatible]
+# Données : NODE AppSrv <<device>>
+# Données : NODE DBSrv <<device>>
+# Données : DEPLOY Backend ON AppSrv
+# Données : DEPLOY Postgres ON DBSrv
+# Données : LINK AppSrv <--> DBSrv PROTO=SSH
+# Données : COMM Backend -> Postgres REQ_PROTO=JDBC
+A_COMPLETER
+
+[Cas 3 — Absence totale de lien réseau]
+# Données : NODE N1 <<device>>
+# Données : NODE N2 <<device>>
+# Données : DEPLOY A1 ON N1
+# Données : DEPLOY A2 ON N2
+# Données : COMM A1 -> A2 REQ_PROTO=TCP
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Mappeur de diagramme de déploiement (Nœuds &amp; Artefacts)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la cohérence d'un diagramme de déploiement : hébergement des artefacts dans les nœuds et compatibilité des protocoles de communication.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Pour chaque communication applicative <code>COMM</code> :<br>
+1. Si les deux artefacts résident sur le <strong>même nœud</strong> : <code>[LOCAL] Communication intra-noeud sur &lt;Noeud&gt; : OK</code>.<br>
+2. S'ils sont sur deux nœuds distincts, vérifier s'il existe un <code>LINK</code> direct entre ces deux nœuds supportant le protocole requis <code>REQ_PROTO</code>.<br>
+   - Si oui : <code>[RESEAU OK] &lt;ArtA&gt; (&lt;NoeudA&gt;) communique avec &lt;ArtB&gt; (&lt;NoeudB&gt;) via &lt;Proto&gt;</code>.<br>
+   - Si aucun lien réseau ou protocole incompatible : <code>[ECHEC RESEAU] Pas de lien compatible &lt;Proto&gt; entre &lt;NoeudA&gt; et &lt;NoeudB&gt;</code>.<br>
+Bilan final : <code>COMMUNICATIONS OPERATIONNELLES: &lt;N&gt;/&lt;Total&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NODE ClientPC &lt;&lt;device&gt;&gt;
+NODE WebServer &lt;&lt;executionEnvironment&gt;&gt;
+DEPLOY AppReact ON ClientPC
+DEPLOY ApiFlask ON WebServer
+LINK ClientPC &lt;--&gt; WebServer PROTO=HTTPS
+COMM AppReact -&gt; ApiFlask REQ_PROTO=HTTPS</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[RESEAU OK] AppReact (ClientPC) communique avec ApiFlask (WebServer) via HTTPS
+COMMUNICATIONS OPERATIONNELLES: 1/1</pre></div>
+    </div>
+    <p class="lab__note">Communication client-serveur validée sur lien HTTPS.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Associer chaque artefact à son nœud d'hébergement.</li>
+        <li>Vérifier l'existence d'un lien réseau bidirectionnel supportant le protocole spécifié.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la syntaxe complète et normalisée d’une transition dans un diagramme d’états-transitions UML ?</p>
+      <div class="opts">
+        <button class="opt">action -&gt; état [événement]</button>
+        <button class="opt" data-correct="1">événement(paramètres) [garde] / action</button>
+        <button class="opt">&laquo;transition&raquo; événement : action</button>
+        <button class="opt">état_initial =&gt; état_final</button>
+      </div>
+      <div class="q__exp">La syntaxe officielle est : événement(paramètres) [garde] / action. L’événement déclenche l’analyse, la garde valide la condition, et l’action s’exécute lors du tir.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la caractéristique fondamentale d’une activité déclarée avec le mot-clé «do /» au sein d’un état ?</p>
+      <div class="opts">
+        <button class="opt">Elle s’exécute en une fraction de seconde de façon instantanée</button>
+        <button class="opt" data-correct="1">Elle s’exécute en continu tant que l’objet reste dans l’état et peut être interrompue dès qu’une transition sortante est tirée</button>
+        <button class="opt">Elle est exécutée uniquement lorsque l’état est détruit</button>
+        <button class="opt">Elle nécessite obligatoirement une connexion Internet</button>
+      </div>
+      <div class="q__exp">L’activité «do /» représente un travail durable en tâche de fond qui se poursuit tant que l’état est actif, et qui est stoppé dès le déclenchement d’une transition sortante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence entre l’historique superficiel (H) et l’historique profond (H*) dans un état composite ?</p>
+      <div class="opts">
+        <button class="opt">H sauvegarde sur disque dur et H* en mémoire RAM</button>
+        <button class="opt" data-correct="1">H mémorise uniquement le sous-état immédiat de premier niveau, alors que H* rétablit récursivement tous les sous-états imbriqués au niveau le plus profond</button>
+        <button class="opt">H ne fonctionne qu’une seule fois</button>
+        <button class="opt">H* est réservé aux architectures microservices</button>
+      </div>
+      <div class="q__exp">L’historique superficiel H ne restaure que le niveau direct au sein de l’état composite. L’historique profond H* plonge récursivement jusqu’au sous-état le plus imbriqué.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un diagramme de composants, comment est notée une «interface fournie» (service offert par le composant) ?</p>
+      <div class="opts">
+        <button class="opt">Une tige terminée par un demi-cercle creux (Socket)</button>
+        <button class="opt" data-correct="1">Une tige terminée par un petit disque plein (Lollipop / sucette)</button>
+        <button class="opt">Une flèche rouge clignotante</button>
+        <button class="opt">Un losange noir plein</button>
+      </div>
+      <div class="q__exp">La notation «Lollipop» (disque plein au bout d’une ligne) symbolise formellement une interface fournie par le composant (Provided Interface).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment s’appelle l’assemblage où le réceptacle (Socket) d’un composant client vient s’emboîter dans la boule (Lollipop) d’un composant fournisseur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un connecteur d’assemblage (Assembly Connector)</button>
+        <button class="opt">Un pont de routage VPN</button>
+        <button class="opt">Une agrégation forte composite</button>
+        <button class="opt">Une liaison de dépendance circulaire</button>
+      </div>
+      <div class="q__exp">L’OMG nomme «connecteur d’assemblage» la liaison qui associe une interface requise (Socket) et une interface fournie compatible (Lollipop).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un diagramme de déploiement, comment représente-t-on graphiquement un nœud physique («device») ?</p>
+      <div class="opts">
+        <button class="opt">Un cercle concentrique</button>
+        <button class="opt" data-correct="1">Un parallélépipède / cube en perspective tridimensionnelle portant le stéréotype «device»</button>
+        <button class="opt">Un losange horizontal</button>
+        <button class="opt">Un rectangle à coins arrondis</button>
+      </div>
+      <div class="q__exp">Les nœuds de déploiement (matériels et environnements) sont formellement modélisés par des boîtes tridimensionnelles (cubes en perspective).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un «artefact» («artifact») dans un diagramme de déploiement ?</p>
+      <div class="opts">
+        <button class="opt">Un bogue logiciel non résolu</button>
+        <button class="opt" data-correct="1">Un élément physique concret produit par le développement (fichier binaire, WAR, JAR, exécutable, conteneur) déployé sur un nœud</button>
+        <button class="opt">Un câble réseau à fibre optique</button>
+        <button class="opt">Une réunion de sprint Scrum</button>
+      </div>
+      <div class="q__exp">Un artefact représente l’entité concrète issue de la compilation ou du packaging (JAR, DLL, image Docker, script) qui est matérialisée et exécutée sur un nœud.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel stéréotype utilise-t-on pour désigner une machine virtuelle ou un runtime logiciel (ex: JVM, Docker Engine, Linux OS) hébergé dans un équipement physique ?</p>
+      <div class="opts">
+        <button class="opt">«device»</button>
+        <button class="opt" data-correct="1">«executionEnvironment»</button>
+        <button class="opt">«hardware»</button>
+        <button class="opt">«storage»</button>
+      </div>
+      <div class="q__exp">Le stéréotype officiel «executionEnvironment» caractérise un environnement logiciel d’exécution offrant des services de plateforme au sein d’un équipement physique.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre un état (situation stable dans le temps) avec une action (opération instantanée).</li>
+      <li>Oublier que l’activité do / est immédiatement interrompue dès qu’une transition sortante de l’état est déclenchée.</li>
+      <li>Inverser les notations Lollipop et Socket : la sucette pleine donne le service (fournie), le réceptacle creux le consomme (requise).</li>
+      <li>Dessiner des classes dans un diagramme de déploiement physique : on n’y déploie que des artefacts compilés concrets (&laquo;artifact&raquo;).</li>
+      <li>Oublier de nommer le protocole de communication reliant deux nœuds de déploiement distants.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Finalisation d’une Architecture Logicielle Complète</div>
+    <ol>
+      <li>Étape 1 — Identifier les entités réactives à cycle de vie complexe : Isoler les objets dont le comportement dépend d’états successifs (Commandes, Sessions, Périphériques IoT).</li>
+      <li>Étape 2 — Construire le Statechart : Poser l’état initial, les états nominaux, les états d’erreur et les états terminaux ; spécifier les triggers et les gardes [condition].</li>
+      <li>Étape 3 — Définir les actions internes : Distinguer les actions entry/exit instantanées des activités do longues en tâche de fond.</li>
+      <li>Étape 4 — Découper le logiciel en composants autonomes : Identifier les paquetages et regrouper les classes en modules cohérents faiblement couplés.</li>
+      <li>Étape 5 — Déclarer les interfaces Lollipop et Socket : Formaliser chaque dépendance sous forme d’interface fournie ou requise pour chaque composant.</li>
+      <li>Étape 6 — Mapper les composants en artefacts physiques : Spécifier le format des livrables (JAR, WAR, conteneurs, binaires compilés).</li>
+      <li>Étape 7 — Concevoir la topologie de déploiement : Répartir les artefacts sur les nœuds matériels et d’exécution, en précisant les protocoles de communication sécurisés.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le diagramme d’états-transitions modélise les réactions d’un objet aux événements extérieurs selon la syntaxe événement [garde] / action.</li>
+      <li>Les actions entry et exit sont atomiques et instantanées, tandis que l’activité do est continue et interruptible.</li>
+      <li>Les pseudo-états d’historique (H superficiel et H* profond) permettent de reprendre le sous-état actif lors de la réactivation d’un état composite.</li>
+      <li>Le diagramme de composants représente l’architecture modulaire logicielle.</li>
+      <li>La notation Lollipop (sucette pleine) symbolise une interface fournie, et Socket (réceptacle creux) une interface requise.</li>
+      <li>Le diagramme de déploiement décrit l’infrastructure physique : nœuds matériels, environnements d’exécution, protocoles réseau et artefacts logiciels.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais rédiger la syntaxe normalisée d’une transition : événement [garde] / action.</li>
+      <li>Je fais la différence entre entry / action, exit / action et do / activité.</li>
+      <li>Je connais la différence entre historique superficiel H et historique profond H*.</li>
+      <li>Je sais reconnaître et dessiner une interface fournie (Lollipop) et une interface requise (Socket).</li>
+      <li>Je sais représenter un nœud physique en cube 3D (&laquo;device&raquo;) et un environnement d’exécution (&laquo;executionEnvironment&raquo;).</li>
+      <li>Je sais modéliser un artefact déployé (&laquo;artifact&raquo;) et son protocole de communication.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Machines à états finis (Statecharts)</li><li>Syntaxe transition : événement [garde] / action</li><li>Actions entry /, exit / et activités do /</li><li>Pseudo-états (Choix, Jonction, Historique H/H*)</li><li>Diagramme de composants (&laquo;component&raquo;)</li><li>Interfaces Lollipop (fournies) et Socket (requises)</li><li>Diagramme de déploiement (cubes 3D)</li><li>Nœuds, environnements d’exécution et artefacts</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la syntaxe des transitions, les actions internes (entry/do) et les symboles Lollipop/Socket.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes connaissances. Consolidez les diagrammes de déploiement et la modélisation des artefacts.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bon niveau ! Vous maîtrisez les Statecharts complexes et l’architecture physique.</div>
+      <div class="bandrow bandrow--top">8/8 : Score maximal ! Vous maîtrisez l’intégralité du cycle de vie réactif, modulaire et physique en UML 2.5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la spécification officielle OMG UML 2.5.1, le standard OCL 2.4, les ouvrages de référence des trois amigos (Booch, Rumbaugh, Jacobson) et les patrons de conception GoF.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

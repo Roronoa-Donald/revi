@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Modélisation Relationnelle, DDL &amp;amp; Contraintes d’Intégrité | SQL B2</title>
+<meta name="description" content="Chapitre 1 du cours SQL B2 : Schéma relationnel formel, typage strict des données, syntaxe DDL (CREATE, ALTER, DROP, TRUNCATE), clés primaires composites et politiques d’intégrité référentielle (CASCADE, RESTRICT, SET NULL). Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/sql/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Modélisation Relationnelle, DDL &amp;amp; Contraintes d’Intégrité | SQL B2">
+<meta property="og:description" content="Chapitre 1 du cours SQL B2 : Schéma relationnel formel, typage strict des données, syntaxe DDL (CREATE, ALTER, DROP, TRUNCATE), clés primaires composites et politiques d’intégrité référentielle (CASCADE, RESTRICT, SET NULL). Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B2</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Modélisation Relationnelle, DDL &amp; Contraintes d’Intégrité</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une jeune pousse de la FinTech lance une application de gestion de portefeuilles financiers. Lors de la phase de test initiale, des ordres d’achat sont enregistrés sans identifiant client valide, des transactions orphelines subsistent après la suppression d’un compte et des montants négatifs sont injectés par erreur. Ces défaillances critiques proviennent d’un schéma SQL mal contraint et de l’absence de règles d’intégrité référentielle strictes au niveau du SGBD. Comment concevoir un schéma robuste avec CREATE TABLE, verrouiller les domaines avec des contraintes CHECK et UNIQUE, et garantir la cohérence mathématique des relations avec les clés primaires composites et les clés étrangères ? Ce premier module établit les fondations du Data Definition Language (DDL) en SQL professionnel.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>traduire un modèle conceptuel entité-association en un schéma relationnel normalisé (3NF) ;</li>
+      <li>sélectionner les types de données SQL optimaux (INT, BIGINT, VARCHAR, TEXT, DECIMAL, TIMESTAMP, BOOLEAN) selon les contraintes de stockage et de précision ;</li>
+      <li>déclarer des clés primaires simples ou composites et des contraintes d’unicité (UNIQUE) ;</li>
+      <li>configurer l’intégrité référentielle (FOREIGN KEY) et maîtriser les comportements ON DELETE / ON UPDATE (RESTRICT, CASCADE, SET NULL) ;</li>
+      <li>implémenter des règles de validation métier directes grâce à la contrainte CHECK.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Modèle Relationnel &amp; Typage Strict des Données SQL</h2>
+
+<p>Introduit par Edgar F. Codd en 1970, le <strong>modèle relationnel</strong> organise l’information sous forme de tables (relations mathématiques) composées de lignes (tuples ou enregistrements) et de colonnes (attributs). Chaque attribut appartient à un <em>domaine de définition</em> strict déterminé par son type SQL.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Types numériques &amp; Monétaires</h4>
+    <ul>
+      <li><strong>INT / BIGINT :</strong> Entiers signés 32 bits (jusqu’à 2 milliards) ou 64 bits (pour les identifiants à fort volume).</li>
+      <li><strong>DECIMAL(p, s) / NUMERIC(p, s) :</strong> Nombre à virgule fixe exact (p chiffres au total, s après la virgule). <em>Indispensable pour les valeurs monétaires</em> afin de bannir les erreurs d’arrondi inhérentes aux types flottants (FLOAT/DOUBLE).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Types textuels &amp; Temporels</h4>
+    <ul>
+      <li><strong>CHAR(n) vs VARCHAR(n) :</strong> <code>CHAR</code> réserve une longueur fixe complétée par des espaces (ex: code ISO pays à 2 lettres). <code>VARCHAR</code> n’occupe que la taille réelle du texte plus un préfixe de longueur.</li>
+      <li><strong>TIMESTAMP WITH TIME ZONE :</strong> Horodatage universel stocké en UTC et restitué selon le fuseau du client.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Langage de Définition de Données (DDL) : CREATE, ALTER &amp; DROP</h2>
+
+<p>Le sous-ensemble DDL (Data Definition Language) de SQL permet de créer, modifier et supprimer les structures de la base de données. Contrairement aux requêtes de consultation (DQL), les commandes DDL appliquent des verrous exclusifs de schéma.</p>
+<div class="code-block">CREATE TABLE Commandes (
+    id_cmd BIGINT GENERATED ALWAYS AS IDENTITY,
+    ref_commande VARCHAR(32) NOT NULL,
+    client_id INT NOT NULL,
+    montant_ht DECIMAL(12,2) NOT NULL,
+    taux_tva DECIMAL(4,2) DEFAULT 20.00 NOT NULL,
+    cree_le TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    PRIMARY KEY (id_cmd),
+    CONSTRAINT uq_ref_commande UNIQUE (ref_commande),
+    CONSTRAINT ck_montant_positif CHECK (montant_ht &ge; 0),
+    CONSTRAINT fk_cmd_client FOREIGN KEY (client_id)
+        REFERENCES Clients(id_client)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+);</div>
+  <div class="box box--Différence fondamentale : DROP vs TRUNCATE vs DELETE">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <ul>  <li><code>DROP TABLE t;</code> détruit complètement la structure, les index, les contraintes et les données de la table dans le dictionnaire du SGBD.</li>  <li><code>TRUNCATE TABLE t;</code> vide instantanément toutes les lignes de la table en désallouant les blocs de données sur disque. C’est une commande DDL très rapide, non journalisée ligne par ligne, qui réinitialise les compteurs d’auto-incrément.</li>  <li><code>DELETE FROM t;</code> est une commande DML qui supprime les lignes une à une dans le journal des transactions (WAL), permettant un ROLLBACK et activant les déclencheurs (triggers).</li></ul></div>
+
+  </div>
+
+<h2>3. Clés Primaires Composites &amp; Intégrité Référentielle</h2>
+
+<p>L’intégrité des données d’une application repose sur deux règles immuables :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. Intégrité d’Entité (PRIMARY KEY)</h4>
+    <p>Chaque ligne d’une relation doit être identifiable de façon unique et non nulle.     Dans une table d’association (ex: ligne de facture ou inscription à un cours), la clé primaire est dite <em>composite</em> car elle associe plusieurs colonnes :</p>
+    <p><code>PRIMARY KEY (commande_id, produit_id)</code></p>
+    <p>Cette déclaration garantit à elle seule qu’un même produit ne peut pas figurer deux fois dans la même commande.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. Intégrité Référentielle (FOREIGN KEY)</h4>
+    <p>Une clé étrangère garantit que la valeur d’une colonne fait référence à une clé primaire existante dans la table parent :</p>
+    <ul>
+      <li><strong>ON DELETE RESTRICT (défaut) :</strong> Empêche la suppression du parent tant que des enfants y sont rattachés.</li>
+      <li><strong>ON DELETE CASCADE :</strong> Supprime automatiquement tous les enregistrements enfants dépendants lors de la suppression du parent.</li>
+      <li><strong>ON DELETE SET NULL :</strong> Affecte la valeur NULL à la clé étrangère des enfants si la colonne est nullable.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sql2-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CREATE TABLE clients ( id INT PRIMARY KEY, nom VARCHAR(50), email VARCHAR(100) );">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c1-e1) — Analyseur syntaxique de commande DDL CREATE TABLE
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Table simple avec PK inline]
+# Données : CREATE TABLE commandes ( num_cmd INT PRIMARY KEY, date_cmd DATE, total DECIMAL(10,2) );
+A_COMPLETER
+
+[Cas 2 — Table avec contrainte séparée PRIMARY KEY]
+# Données : CREATE TABLE articles ( ref_art VARCHAR(20), libelle TEXT, prix INT, PRIMARY KEY (ref_art) );
+A_COMPLETER
+
+[Cas 3 — Table sans clé primaire explicite]
+# Données : CREATE TABLE logs ( horodatage TIMESTAMP, ip VARCHAR(45), action VARCHAR(255) );
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur syntaxique de commande DDL CREATE TABLE</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une instruction DDL CREATE TABLE pour extraire le nom de la table, les colonnes et la clé primaire.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Il doit extraire :
+- Le <strong>nom de la table</strong> ;
+- Le <strong>nombre de colonnes</strong> définies ;
+- Le nom de la <strong>colonne clé primaire</strong> (identifiée par la mention <code>PRIMARY KEY</code> inline ou comme contrainte <code>PRIMARY KEY (col)</code>).
+
+Format de sortie :
+<code>Table: &lt;Nom&gt; | Colonnes: &lt;Nb&gt; | PK: &lt;NomColonnePK&gt;</code> (ou <code>PK: AUCUNE</code> si absente).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CREATE TABLE clients ( id INT PRIMARY KEY, nom VARCHAR(50), email VARCHAR(100) );</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Table: clients | Colonnes: 3 | PK: id</pre></div>
+    </div>
+    <p class="lab__note">Table clients avec 3 colonnes et id comme PK.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilise une expression régulière pour extraire le nom de la table après CREATE TABLE.</li>
+        <li>Extrais le contenu entre les parenthèses principales et découpe par les virgules de niveau supérieur.</li>
+        <li>Repère PRIMARY KEY inline ou en contrainte séparée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="10,20,30&#10;1:10,2:99,3:20,4:50">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c1-e2) — Vérificateur d’intégrité référentielle parent-enfant
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Tous les enfants sont valides]
+# Données : 1,2,3,4
+# Données : 101:1,102:2,103:3,104:4
+A_COMPLETER
+
+[Cas 2 — Plusieurs orphelins détectés]
+# Données : 100,200
+# Données : 1:100,2:300,3:400,4:200,5:500
+A_COMPLETER
+
+[Cas 3 — Tous orphelins]
+# Données : 50,60
+# Données : 1:10,2:20,3:30
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Vérificateur d’intégrité référentielle parent-enfant</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les enregistrements enfants dont la clé étrangère pointe vers un parent inexistant (clés orphelines).</p>
+    <div class="lab__brief"><p>Une contrainte de clé étrangère (<code>FOREIGN KEY</code>) impose que toute valeur non nulle de la colonne fille référence une clé primaire existante dans la table parent.</p>
+<p>Entrée :
+- Ligne 1 : Liste ordonnée d’IDs de la table parent séparés par des virgules (ex: <code>10,20,30</code>).
+- Ligne 2 : Liste de couples enfant <code>id_enfant:parent_id</code> séparés par des virgules (ex: <code>1:10,2:99,3:20</code>).
+
+Sortie :
+<code>Valides: &lt;N&gt; | Orphelins: &lt;id1,id2,...&gt;</code> (ou <code>Orphelins: AUCUN</code> si tout est valide).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10,20,30
+1:10,2:99,3:20,4:50</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Valides: 2 | Orphelins: 2,4</pre></div>
+    </div>
+    <p class="lab__note">Les enfants 2 (parent 99) et 4 (parent 50) sont orphelins.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertis les identifiants parents en un ensemble set() pour des tests d appartenance rapides.</li>
+        <li>Sépare chaque couple enfant par deux-points id_enfant:parent_id.</li>
+        <li>Gère le cas où aucun orphelin n est détecté en affichant AUCUN.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RESTRICT,10&#10;1:10,2:20,3:10,4:30">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c1-e3) — Émulateur d’action de clé étrangère ON DELETE (CASCADE vs RESTRICT)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — RESTRICT réussi car aucun enfant rattaché]
+# Données : RESTRICT,99
+# Données : 1:10,2:20,3:30
+A_COMPLETER
+
+[Cas 2 — CASCADE avec suppression de deux enfants]
+# Données : CASCADE,10
+# Données : 1:10,2:20,3:10,4:30
+A_COMPLETER
+
+[Cas 3 — CASCADE sans enfant lié]
+# Données : CASCADE,50
+# Données : 1:10,2:20
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Émulateur d’action de clé étrangère ON DELETE (CASCADE vs RESTRICT)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la politique de suppression ON DELETE CASCADE ou ON DELETE RESTRICT lors de la suppression d’un enregistrement parent.</p>
+    <div class="lab__brief"><p>Lorsqu’un enregistrement parent est supprimé :
+- <code>RESTRICT</code> : La suppression est immédiatement <strong>rejetée</strong> si au moins un enfant dépend de ce parent.
+- <code>CASCADE</code> : La suppression du parent est <strong>acceptée</strong> et entraîne automatiquement la suppression de tous ses enregistrements enfants.</p>
+<p>Entrée :
+- Ligne 1 : <code>ACTION,ID_PARENT_A_SUPPRIMER</code> (ex: <code>CASCADE,10</code> ou <code>RESTRICT,20</code>).
+- Ligne 2 : Liste des enfants au format <code>id_enfant:parent_id</code> séparés par des virgules.
+
+Sortie :
+- Si RESTRICT rejeté : <code>ERREUR: Suppression interdite (enfants presents: &lt;id1,id2&gt;)</code>
+- Si RESTRICT accepté (aucun enfant) : <code>SUCCES: Parent &lt;ID&gt; supprime | Enfants restants: &lt;liste&gt;</code>
+- Si CASCADE : <code>SUCCES: Parent &lt;ID&gt; supprime | Enfants supprimes: &lt;Nb&gt; | Enfants restants: &lt;liste&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESTRICT,10
+1:10,2:20,3:10,4:30</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ERREUR: Suppression interdite (enfants presents: 1,3)</pre></div>
+    </div>
+    <p class="lab__note">La suppression du parent 10 est bloquée par RESTRICT car les enfants 1 et 3 y sont rattachés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Sépare l action (RESTRICT ou CASCADE) et l ID parent sur la première ligne.</li>
+        <li>Identifie tous les enfants qui ont ce parent_id.</li>
+        <li>Pour CASCADE, filtre les enfants pour ne garder que ceux dont le parent_id est différent.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pour stocker des montants monétaires dans une base de données de production, quel type SQL garantit l’absence totale d’erreurs d’arrondi binaire ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">DECIMAL(p, s) ou NUMERIC(p, s)</button>
+        <button class="opt">FLOAT</button>
+        <button class="opt">DOUBLE PRECISION</button>
+        <button class="opt">REAL</button>
+      </div>
+      <div class="q__exp">Les types flottants (FLOAT, DOUBLE) utilisent une représentation binaire IEEE 754 qui engendre des erreurs d’arrondi sur les fractions décimales. DECIMAL/NUMERIC stocke les nombres en base 10 exacte et est le standard obligatoire en finance.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle action se produit lors de la suppression d’une ligne parente si la clé étrangère est configurée avec ON DELETE CASCADE ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Toutes les lignes de la table enfant associées à ce parent sont automatiquement supprimées</button>
+        <button class="opt">La suppression de la ligne parente est immédiatement bloquée avec une erreur</button>
+        <button class="opt">La clé étrangère des lignes enfants est remplacée par la valeur 0</button>
+        <button class="opt">Les lignes enfants sont transférées dans une table d’archive dédiée</button>
+      </div>
+      <div class="q__exp">ON DELETE CASCADE propage automatiquement la suppression de la ligne parente à l’ensemble des lignes dépendantes dans la table enfant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence majeure entre les instructions TRUNCATE TABLE et DELETE FROM sans clause WHERE ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">TRUNCATE est une commande DDL rapide qui désalloue directement les blocs de stockage sans journaliser chaque ligne, alors que DELETE est du DML journalisé ligne par ligne</button>
+        <button class="opt">TRUNCATE supprime la table elle-même du schéma, contrairement à DELETE</button>
+        <button class="opt">DELETE réinitialise automatiquement les compteurs auto-incrémentés, contrairement à TRUNCATE</button>
+        <button class="opt">TRUNCATE nécessite obligatoirement d’indiquer une condition WHERE</button>
+      </div>
+      <div class="q__exp">TRUNCATE est une instruction DDL qui vide la table instantanément en libérant les pages de disque sans enregistrer chaque suppression dans le journal des transactions (WAL), ce qui la rend considérablement plus rapide que DELETE.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une table d’association modélisant les lignes d’une commande, comment interdire qu’un même produit soit présent plusieurs fois dans une même commande ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En définissant une clé primaire composite : PRIMARY KEY (id_commande, id_produit)</button>
+        <button class="opt">En ajoutant un index non unique sur id_commande</button>
+        <button class="opt">En utilisant une clé étrangère simple sur id_produit</button>
+        <button class="opt">En écrivant un commentaire dans le code applicatif</button>
+      </div>
+      <div class="q__exp">La clé primaire composite PRIMARY KEY (id_commande, id_produit) impose l’unicité stricte du couple (id_commande, id_produit) au niveau du moteur relationnel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle contrainte SQL permet de s’assurer qu’une colonne numérique stocke exclusivement des valeurs strictement positives (> 0) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">CHECK (colonne > 0)</button>
+        <button class="opt">NOT NULL (colonne > 0)</button>
+        <button class="opt">UNIQUE (colonne > 0)</button>
+        <button class="opt">CONSTRAINT POSITIVE (colonne)</button>
+      </div>
+      <div class="q__exp">La contrainte CHECK évalue une expression booléenne sur chaque ligne insérée ou modifiée et rejette l’opération si l’expression vaut FALSE.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser le type FLOAT pour des montants monétaires au lieu de DECIMAL, entraînant des décalages de centimes inacceptables.</li>
+      <li>Oublier de déclarer une contrainte FOREIGN KEY explicite entre deux tables, laissant l’application créer des enregistrements orphelins incohérents.</li>
+      <li>Configurer systématiquement ON DELETE CASCADE sans discernement, risquant d’effacer par inadvertance des pans entiers de la base de données.</li>
+      <li>Confondre CHAR(10) (qui remplit systématiquement avec des espaces jusqu’à 10 caractères) et VARCHAR(10) (qui s’adapte à la longueur réelle).</li>
+      <li>Exécuter un TRUNCATE TABLE sur un environnement de production en pensant pouvoir le restaurer par un simple ROLLBACK dans tous les SGBD.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour créer une table conforme aux normes professionnelles</div>
+    <ol>
+      <li>Identifier l’identifiant unique et déclarer la clé primaire (clé synthétique auto-incrémentée BIGINT ou clé composite naturelle).</li>
+      <li>Choisir le type de données le plus précis et le plus économique pour chaque colonne (DECIMAL pour les prix, VARCHAR calibré, TIMESTAMP UTC).</li>
+      <li>Poser les contraintes d’intégrité structurelle : NOT NULL sur tous les attributs obligatoires et UNIQUE sur les identifiants alternatifs (email, référence).</li>
+      <li>Définir les clés étrangères avec leurs règles d’intégrité référentielle explicites (RESTRICT par défaut, CASCADE pour les dépendances strictes compositionnelles).</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le modèle relationnel s’appuie sur des relations mathématiques (tables), des tuples (lignes) et des attributs typés.</li>
+      <li>Les types à virgule fixe DECIMAL(p, s) sont obligatoires pour toutes les valeurs comptables et financières.</li>
+      <li>Les commandes DDL (CREATE, ALTER, DROP, TRUNCATE) définissent et modifient la structure physique de la base.</li>
+      <li>L’intégrité référentielle (FOREIGN KEY) empêche l’apparition de données orphelines et orchestre les suppressions (CASCADE, RESTRICT).</li>
+      <li>Les contraintes CHECK et UNIQUE déportent les règles de cohérence au cœur du SGBD, garantissant une protection indépendante du code applicatif.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais écrire une commande CREATE TABLE complète avec types, valeurs par défaut et contraintes.</li>
+      <li>Je comprends la différence technique entre FLOAT et DECIMAL(10,2).</li>
+      <li>Je maîtrise les comportements ON DELETE CASCADE et ON DELETE RESTRICT.</li>
+      <li>Je sais quand et comment utiliser une clé primaire composite.</li>
+      <li>Je connais la différence de fonctionnement entre DROP, TRUNCATE et DELETE.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Modèle Relationnel & Schéma de table</li><li>Types de données SQL (INT, DECIMAL, VARCHAR, TIMESTAMP)</li><li>Data Definition Language (DDL)</li><li>Commandes CREATE TABLE, ALTER TABLE, DROP TABLE</li><li>Commande TRUNCATE TABLE vs DELETE</li><li>Intégrité d’Entité (PRIMARY KEY simple et composite)</li><li>Intégrité Référentielle (FOREIGN KEY)</li><li>Actions de suppression (ON DELETE CASCADE, RESTRICT, SET NULL)</li><li>Contraintes d’intégrité CHECK et UNIQUE</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la syntaxe de CREATE TABLE et la différence entre FLOAT et DECIMAL.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les clés primaires composites et les actions ON DELETE.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la modélisation formelle et les contraintes DDL.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe à la manipulation des données, au filtrage et aux fonctions scalaires au module 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Manipulation des Données (DML), Filtrage &amp; Fonctions Scalaires <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

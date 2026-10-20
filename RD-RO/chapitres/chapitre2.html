@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Formes Mathématiques &amp;amp; Résolution Graphique | Recherche Opérationnelle B2</title>
+<meta name="description" content="Chapitre 2 du cours Recherche Opérationnelle B2 : Forme canonique, forme standard, variables d’écart et d’excès, géométrie du polyèdre convexe et résolution dans le plan R². Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/RD-RO/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Formes Mathématiques &amp;amp; Résolution Graphique | Recherche Opérationnelle B2">
+<meta property="og:description" content="Chapitre 2 du cours Recherche Opérationnelle B2 : Forme canonique, forme standard, variables d’écart et d’excès, géométrie du polyèdre convexe et résolution dans le plan R². Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="RD-ROnav"><div class="RD-ROnav__in">
+  <a class="RD-ROnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="RD-ROnav__sep" aria-hidden="true">/</span>
+  <a class="RD-ROnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Recherche Opérationnelle B2</a>
+  <div class="RD-ROnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="RD-ROnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="RD-ROwrap">
+<p class="crumb"><a href="../index.html">Recherche Opérationnelle B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Formes Mathématiques &amp; Résolution Graphique</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 40 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un problème linéaire à deux variables de décision ($x_1, x_2$) possède une propriété visuelle remarquable : chaque contrainte délimite un demi-plan, et leur intersection forme un polygone convexe dans le premier quadrant. Comment trouver le point optimal parmi une infinité de points réalisables sans les tester un par un ? Grâce à la géométrie des droites d’iso-profit et au calcul matriciel des sommets par la règle de Cramer, on peut localiser l’optimum absolu instantanément et comprendre pourquoi il se situe toujours sur un sommet.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>convertir un programme linéaire sous forme canonique en forme standard par ajout de variables d’écart et d’excès ;</li>
+      <li>comprendre le rôle mathématique des variables d’écart ($s_i \ge 0$) et d’excès ($e_i \ge 0$) ;</li>
+      <li>tracer graphiquement la région réalisable (polyèdre convexe) dans le plan cartésien $\mathbb{R}^2$ ;</li>
+      <li>calculer les coordonnées analytiques exactes des sommets d’intersection par la règle de Cramer ;</li>
+      <li>déterminer l’optimum géométrique via le déplacement du vecteur gradient de la fonction objectif ;</li>
+      <li>diagnostiquer les quatre cas de figures : optimum unique, infinité de solutions, problème non borné et infaisabilité.</li>
+    </ol>
+  </div>
+
+<h2>1. Forme Canonique vs Forme Standard</h2>
+
+<p>La forme d’un programme linéaire conditionne son mode de traitement mathématique :</p>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Comparaison matricielle : Forme Canonique vs Forme Standard</div>
+<div class="box--formula">
+  <span class="formula-label">1. Forme Canonique (Idéale pour l’analyse géométrique)</span>
+  <div class="math-block">$$\begin{aligned} \text{MAX } & Z = c^T x \\[4pt] \text{sous } & A x \le b \\[4pt] \text{avec } & x \ge 0 \quad (b \ge 0) \end{aligned}$$</div>
+</div>
+<div class="box--formula">
+  <span class="formula-label">2. Forme Standard (Obligatoire pour l’algorithme du Simplexe)</span>
+  <div class="math-block">$$\begin{aligned} \text{MAX } & Z = c^T x + 0^T s \\[4pt] \text{sous } & A x + I s = b \\[4pt] \text{avec } & x \ge 0, \ s \ge 0 \quad (b \ge 0) \end{aligned}$$</div>
+</div>
+  </div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Variables d’écart (Slack) et d’excès (Surplus)</div>
+<p>Pour transformer une <strong>inéquation</strong> en <strong>équation stricte</strong> :</p>
+<ul>
+  <li><strong>Contrainte $\le$ (ressource maximale)</strong> : on ajoute une <em>variable d’écart</em> $s_i \ge 0$.<br>  $$a_{i1} x_1 + a_{i2} x_2 \le b_i \iff a_{i1} x_1 + a_{i2} x_2 + s_i = b_i$$  <em>Sens économique</em> : $s_i$ mesure la <strong>capacité inutilisée</strong> de la ressource $i$ (si $s_i = 0$, la ressource est saturée).</li>
+  <li><strong>Contrainte $\ge$ (exigence minimale)</strong> : on soustrait une <em>variable d’excès</em> $e_k \ge 0$.<br>  $$a_{k1} x_1 + a_{k2} x_2 \ge b_k \iff a_{k1} x_1 + a_{k2} x_2 - e_k = b_k$$  <em>Sens économique</em> : $e_k$ mesure le <strong>dépassement au-dessus du seuil minimum</strong> imposé.</li>
+</ul>
+  </div>
+
+<h2>2. Géométrie de la Région Réalisable : Le Polyèdre Convexe</h2>
+
+<p>L’ensemble des points $(x_1, x_2)$ vérifiant simultanément toutes les contraintes forme la <strong>région réalisable</strong> (ou domaine de faisabilité). Sur le plan mathématique, cette région possède des propriétés capitales :</p>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Propriétés mathématiques fondamentales</div>
+<ul>
+  <li><strong>Intersection de demi-plans</strong> : chaque contrainte $a_1 x_1 + a_2 x_2 \le b$ définit une droite frontière et un demi-plan fermé.</li>
+  <li><strong>Convexité</strong> : la région est un ensemble <em>convexe</em>. Si deux points $A$ et $B$ sont réalisables, tout le segment reliant $A$ et $B$ est également réalisable.</li>
+  <li><strong>Sommets (Points extrêmes)</strong> : ce sont les coins du polygone, obtenus par l’intersection de deux droites de contraintes (actives).</li>
+  <li><strong>Théorème fondamental de la PL</strong> : si un programme linéaire admet une solution optimale finie, au moins un sommet du polyèdre réalisable est optimal.</li>
+</ul>
+  </div>
+<p>Ce théorème réduit considérablement la recherche : au lieu de sonder une infinité de points intérieurs, il suffit d’examiner le nombre <em>fini</em> de sommets extrêmes !</p>
+
+<h2>3. Calcul analytique des sommets par la règle de Cramer</h2>
+
+<p>Pour trouver avec exactitude les coordonnées $(x_1, x_2)$ d’un sommet formé par l’intersection de deux droites frontières actives $a_1 x_1 + b_1 x_2 = c_1$ et $a_2 x_1 + b_2 x_2 = c_2$, on utilise la <strong>règle de Cramer</strong> :</p>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Formules analytiques de Cramer pour un système 2 × 2</div>
+<div class="math-block">
+$$\Delta = \begin{vmatrix} a_1 & b_1 \\[4pt] a_2 & b_2 \end{vmatrix} = a_1 b_2 - a_2 b_1$$
+</div>
+<p>Si $\Delta \ne 0$, le point d’intersection unique $(x_1, x_2)$ du sommet s’écrit :</p>
+<div class="math-block">
+$$x_1 = \frac{c_1 b_2 - c_2 b_1}{\Delta}, \qquad x_2 = \frac{a_1 c_2 - a_2 c_1}{\Delta}$$
+</div>
+<p><strong>Test de faisabilité :</strong> le sommet est réalisable si et seulement si $x_1 \ge 0$, $x_2 \ge 0$ et s’il vérifie toutes les autres contraintes du problème.</p>
+  </div>
+
+<h2>4. Typologie des Solutions d’un Programme Linéaire</h2>
+
+<p>L’analyse graphique met en évidence quatre cas de figures possibles pour un problème d’optimisation linéaire :</p>
+<table class="table">
+  <thead><tr><th>Cas de figure</th><th>Configuration géométrique</th><th>Interprétation pratique</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Solution optimale unique</strong></td><td>La droite d’iso-profit touche le polyèdre en exactement un sommet.</td><td>Un plan de production parfait identifié sans ambiguïté.</td></tr>
+    <tr><td><strong>2. Infinité de solutions optimales</strong></td><td>La droite d’iso-profit est parallèle à un côté du polyèdre.</td><td>Toutes les combinaisons linéaires sur ce segment partagent le même profit maximal.</td></tr>
+    <tr><td><strong>3. Problème non borné (Unbounded)</strong></td><td>La région réalisable est ouverte à l’infini dans la direction d’optimisation.</td><td>Erreur de modélisation : une contrainte de ressource limitante a été oubliée ($Z \to +\infty$).</td></tr>
+    <tr><td><strong>4. Région réalisable vide (Infeasible)</strong></td><td>Les contraintes sont contradictoires, aucun point ne vérifie tout le système.</td><td>Exigences incompatibles entre elles (ex. $x_1 \le 2$ et $x_1 \ge 5$).</td></tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ro2-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="1;3,4;LE;24">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c2-e1) — Conversion en forme standard (Écart & Excès)
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Contrainte <= standard]
+# Données : 2;2,5;LE;30
+A_COMPLETER
+
+[Cas 2 — Contrainte >= avec variable d excès]
+# Données : 1;1,3;GE;15
+A_COMPLETER
+
+[Cas 3 — Coefficients décimaux]
+# Données : 3;0.5,1.5;LE;12
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Conversion en forme standard (Écart &amp; Excès)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Transformer une inégalité de contrainte en équation standard par ajout de variable d’écart ou d’excès.</p>
+    <div class="lab__brief"><p>Pour préparer un programme linéaire à l’algorithme du simplexe, chaque contrainte d’inégalité doit être transformée en égalité avec second membre positif :</p><ul>  <li>Une contrainte $\le$ reçoit une variable d’écart positive : $a_1 x_1 + a_2 x_2 + s_k = b$ ;</li>  <li>Une contrainte $\ge$ reçoit une variable d’excès soustraite : $a_1 x_1 + a_2 x_2 - e_k = b$.</li></ul><p>Analysez les paramètres du problème pour chaque cas. <code>1</code>, <code>2</code>) ;<br>- <code>a1,a2</code> sont les coefficients de $x_1$ et $x_2$ ;<br>- <code>SENS</code> vaut <code>LE</code> (pour $\le$) ou <code>GE</code> (pour $\ge$) ;<br>- <code>b</code> est le second membre.</p><p>Indiquez l’équation résultante sous la forme canonique :<br>Pour <code>LE</code> : <code>&lt;a1&gt;*x1 + &lt;a2&gt;*x2 + s&lt;num&gt; = &lt;b&gt;</code>.<br>Pour <code>GE</code> : <code>&lt;a1&gt;*x1 + &lt;a2&gt;*x2 - e&lt;num&gt; = &lt;b&gt;</code>.<br>(Les nombres entiers ou flottants conservent leur écriture naturelle).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1;3,4;LE;24</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>3*x1 + 4*x2 + s1 = 24</pre></div>
+    </div>
+    <p class="lab__note">Contrainte &lt;= transformée avec la variable d’écart s1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe la ligne par ";".</li>
+        <li>Selon que SENS == "LE" ou "GE", choisis "+ s{num}" ou "- e{num}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="2,1,10;1,2,8">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c2-e2) — Intersection de deux droites par la règle de Cramer
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Intersection nette à coordonnées entières]
+# Données : 3,1,15;1,2,10
+A_COMPLETER
+
+[Cas 2 — Droites parallèles (pentes identiques)]
+# Données : 2,4,12;1,2,9
+A_COMPLETER
+
+[Cas 3 — Intersection avec coordonnées décimales]
+# Données : 2,3,13;4,1,11
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Intersection de deux droites par la règle de Cramer</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le point d’intersection de deux droites de frontière dans le plan.</p>
+    <div class="lab__brief"><p>Deux droites de contrainte du plan $(x_1, x_2)$ sont données sous forme d’équations :<br>$$a_1 x_1 + b_1 x_2 = c_1 \quad \text{et} \quad a_2 x_1 + b_2 x_2 = c_2$$</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calcule le déterminant du système $\Delta = a_1 b_2 - a_2 b_1$.<br>Si $|\Delta| < 10^{-6}$, les droites sont parallèles ou confondues, Indiquez :<br><code>PARALLELES DELTA=0.0</code>.<br>Sinon, applique la règle de Cramer :<br>$$x_1 = \frac{c_1 b_2 - c_2 b_1}{\Delta}, \quad x_2 = \frac{a_1 c_2 - a_2 c_1}{\Delta}$$<br>Indiquez : <code>INTERSECTION x1=&lt;x1 à 2 décimales&gt; x2=&lt;x2 à 2 décimales&gt; DELTA=&lt;Delta à 2 décimales&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2,1,10;1,2,8</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INTERSECTION x1=4.00 x2=2.00 DELTA=3.00</pre></div>
+    </div>
+    <p class="lab__note">Delta = 2*2 - 1*1 = 3. x1 = (10*2 - 8*1)/3 = 4. x2 = (2*8 - 1*10)/3 = 2.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calcule delta = a1 * b2 - a2 * b1.</li>
+        <li>Si abs(delta) &lt; 1e-6, affiche le cas des droites parallèles.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3,5;2,1,16|1,2,11;0,0|8,0|0,5.5|7,2|9,1">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c2-e3) — Résolution graphique par évaluation des sommets
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Quatre sommets avec optimum intérieur]
+# Données : 4,3;1,1,8|2,1,12;0,0|6,0|0,8|4,4
+A_COMPLETER
+
+[Cas 2 — Optimum situé sur un axe]
+# Données : 10,2;1,1,5|3,1,9;0,0|3,0|0,5|2,3
+A_COMPLETER
+
+[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]
+# Données : 5,5;1,1,4|2,1,6;10,10|5,5|0,8
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Résolution graphique par évaluation des sommets</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier le sommet optimal maximisant la fonction objectif dans la région réalisable.</p>
+    <div class="lab__brief"><p>D’après le théorème fondamental de la programmation linéaire, si un programme linéaire admet une solution optimale finie, au moins un des <strong>sommets du polyèdre réalisable</strong> est optimal.</p><p>Analysez les paramètres du problème pour chaque cas...</code> contenant :</p><ul>  <li>Les coefficients de la fonction objectif MAX $Z = c_1 x_1 + c_2 x_2$ ;</li>  <li>Les contraintes $a_{i1} x_1 + a_{i2} x_2 \le b_i$ séparées par <code>|</code> ;</li>  <li>Une liste de sommets candidats $(x_1, x_2)$ séparés par <code>|</code>.</li></ul><p>Filtre les sommets réalisables (vérifiant $x_1 \ge 0$, $x_2 \ge 0$ et toutes les contraintes $\le$).<br>Sélectionne le sommet réalisable qui maximise $Z$ et Indiquez :<br><code>OPTIMUM: (x1=&lt;x1&gt;, x2=&lt;x2&gt;) Z=&lt;Z max à 1 décimale&gt;</code>.<br>Si aucun sommet n’est réalisable, Indiquez : <code>REGION_VIDE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3,5;2,1,16|1,2,11;0,0|8,0|0,5.5|7,2|9,1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OPTIMUM: (x1=7.0, x2=2.0) Z=31.0</pre></div>
+    </div>
+    <p class="lab__note">Sommets réalisables : (0,0)-&gt;Z=0, (8,0)-&gt;Z=24, (0,5.5)-&gt;Z=27.5, (7,2)-&gt;Z=31.0. Le point (9,1) viole la contrainte 1 (2*9+1=19 &gt; 16).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parse les contraintes dans une liste de tuples (a1, a2, b).</li>
+        <li>Pour chaque sommet, vérifie qu'il satisfait chaque contrainte (avec marge EPS) et compare Z.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle variable ajoute-t-on pour convertir une contrainte d’inégalité de type « ≤ » en équation stricte ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une variable d’écart (slack variable, s_i ≥ 0)</button>
+        <button class="opt">Une variable d’excès soustraite</button>
+        <button class="opt">Une variable artificielle binaire</button>
+        <button class="opt">Une constante multiplicative</button>
+      </div>
+      <div class="q__exp">On ajoute une variable d’écart positive $s_i \ge 0$ pour combler la différence jusqu’au plafond de ressource.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que représente économiquement une variable d’écart égale à zéro (s_i = 0) à l’optimum ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La ressource correspondante est saturée (pleinement exploitée)</button>
+        <button class="opt">La ressource est inutile et n’a pas été utilisée</button>
+        <button class="opt">Le problème n’a pas de solution</button>
+        <button class="opt">Le coût unitaire de la ressource est nul</button>
+      </div>
+      <div class="q__exp">$s_i = 0$ signifie que toute la capacité disponible de la ressource $i$ a été consommée par la production.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">D’après le théorème fondamental de la programmation linéaire, où se trouve nécessairement la solution optimale si elle existe et est finie ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Sur au moins un sommet (point extrême) de la région réalisable</button>
+        <button class="opt">Toujours au centre de gravité géométrique</button>
+        <button class="opt">À l’origine (0, 0)</button>
+        <button class="opt">Strictement à l’intérieur du polygone</button>
+      </div>
+      <div class="q__exp">Le gradient linéaire pousse la solution vers le bord le plus éloigné, garantissant que l’optimum est atteint sur un sommet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si deux droites frontières ont des pentes strictement identiques et que le déterminant principal Δ vaut 0, que peut-on en déduire ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les deux droites sont parallèles (ou confondues) et ne se coupent pas en un point unique</button>
+        <button class="opt">Le problème est forcément sans solution</button>
+        <button class="opt">L’optimum est atteint à l’origine</button>
+        <button class="opt">Les variables sont nulles</button>
+      </div>
+      <div class="q__exp">$\Delta = 0$ implique la colinéarité des vecteurs normaux, donc des droites parallèles sans point d’intersection unique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appelle-t-on les droites pour lesquelles la fonction objectif Z conserve une valeur constante dans le plan ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les droites d’iso-profit (ou lignes de niveau)</button>
+        <button class="opt">Les droites de régression</button>
+        <button class="opt">Les asymptotes obliques</button>
+        <button class="opt">Les bissectrices canoniques</button>
+      </div>
+      <div class="q__exp">Pour une constante $k$, l’équation $c_1 x_1 + c_2 x_2 = k$ décrit une droite d’iso-profit le long de laquelle le gain est identique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il graphiquement si la droite d’iso-profit est parallèle à une arête de la région réalisable à l’optimum ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il y a une infinité de solutions optimales sur toute cette arête</button>
+        <button class="opt">Le problème devient non borné</button>
+        <button class="opt">Le profit maximal vaut 0</button>
+        <button class="opt">Le problème devient irréalisable</button>
+      </div>
+      <div class="q__exp">Tous les points du segment frontière partagent la même valeur optimale de $Z$.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie un problème linéaire « non borné » (unbounded) dans un contexte économique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le profit pourrait croître vers l’infini car une contrainte physique essentielle a été omise</button>
+        <button class="opt">L’usine n’a aucun client</button>
+        <button class="opt">Le budget de trésorerie est bloqué</button>
+        <button class="opt">Les variables doivent être négatives</button>
+      </div>
+      <div class="q__exp">Dans la réalité, aucun profit ne peut être infini : la non-bornitude révèle un oubli dans les contraintes de ressources.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la méthode graphique, que représente la région réalisable lorsque le système de contraintes est contradictoire ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’ensemble vide ∅ (aucune solution réalisable)</button>
+        <button class="opt">Le plan entier ℝ²</button>
+        <button class="opt">L’origine uniquement</button>
+        <button class="opt">Une droite infinie</button>
+      </div>
+      <div class="q__exp">Si aucun point ne satisfait l’ensemble des contraintes, la région réalisable est vide (problème infaisable).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de vérifier si un sommet calculé mathématiquement est réalisable vis-à-vis des autres contraintes.</li>
+      <li>Confondre variable d’écart ($+ s_i$ sur une contrainte $\le$) et variable d’excès ($- e_i$ sur une contrainte $\ge$).</li>
+      <li>Changer le sens de l’inégalité sans multiplier par $-1$ lors d’une conversion algébrique.</li>
+      <li>Croire qu’un problème est résolu dès qu’on a trouvé un sommet quelconque sans comparer la valeur de $Z$ avec tous les autres sommets.</li>
+      <li>Tracer les droites de contraintes en intervertissant l’axe des abscisses $x_1$ et l’axe des ordonnées $x_2$.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode de résolution graphique d’un PL à 2 variables</div>
+    <ol>
+      <li>Tracer les axes cartésiens $(x_1, x_2)$ et restreindre l’étude au premier quadrant ($x_1 \ge 0, x_2 \ge 0$).</li>
+      <li>Pour chaque contrainte, tracer la droite frontière en trouvant ses deux points d’intersection avec les axes ($x_1=0$ puis $x_2=0$).</li>
+      <li>Déterminer le demi-plan valide en testant le point origine $(0, 0)$ et hachurer la région réalisable polygonale.</li>
+      <li>Identifier tous les sommets de la région réalisable et calculer leurs coordonnées par résolution de système (règle de Cramer).</li>
+      <li>Calculer la valeur de $Z$ sur chaque sommet et sélectionner celui qui fournit la valeur optimale absolue.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Forme standard : toutes les contraintes sont des équations ($=$) avec des variables d’écart $s_i \ge 0$ ou d’excès $e_i \ge 0$.</li>
+      <li>La région réalisable est un polyèdre convexe issu de l’intersection de demi-plans fermés.</li>
+      <li>L’optimum fini d’un programme linéaire est toujours atteint sur au moins un sommet du polyèdre.</li>
+      <li>La règle de Cramer permet de calculer les intersections de deux droites frontières sans erreur d’arrondi.</li>
+      <li>Les 4 diagnostics possibles : optimum unique, infinité d’optimums, problème non borné, ou problème infaisable.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais transformer une contrainte $\le$ en ajoutant une variable d’écart $s_i \ge 0$.</li>
+      <li>Je sais transformer une contrainte $\ge$ en soustrayant une variable d’excès $e_i \ge 0$.</li>
+      <li>Je sais tracer la région réalisable polygonale dans le premier quadrant.</li>
+      <li>Je sais calculer les coordonnées d’un sommet par la règle de Cramer ($x = \Delta_x / \Delta$).</li>
+      <li>Je sais évaluer la fonction objectif $Z$ sur chaque sommet pour identifier l’optimum.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Forme canonique</li><li>Forme standard</li><li>Variable d’écart (Slack)</li><li>Variable d’excès (Surplus)</li><li>Polyèdre convexe</li><li>Règle de Cramer</li><li>Droite d’iso-profit</li><li>Point extrême / Sommet</li><li>Problème non borné</li><li>Infaisabilité</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la transformation en forme standard et les variables d’écart/excès.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le calcul d’intersection par la règle de Cramer.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la géométrie des polyèdres et l’évaluation des sommets.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à l’algorithme matriciel du Simplexe au chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Algorithme du Simplexe &amp; Tableaux <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Recherche Opérationnelle B2, les publications historiques de George Dantzig (1947), Ford & Fulkerson (1956) et les manuels de référence en optimisation linéaire.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Sécurité des Identités IAM, Politiques JSON &amp; Gouvernance Multi-Comptes | Services Cloud AWS B3</title>
+<meta name="description" content="Module 2 du cours Services Cloud AWS B3 : Identités IAM, rôles temporaires, politiques JSON, moteur d'évaluation, rotation des clés et Service Control Policies (SCPs). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-aws/chapitres/chapitre2.html">
+<meta property="og:title" content="Module 2 — Sécurité des Identités IAM, Politiques JSON &amp; Gouvernance Multi-Comptes | Services Cloud AWS B3">
+<meta property="og:description" content="Module 2 du cours Services Cloud AWS B3 : Identités IAM, rôles temporaires, politiques JSON, moteur d'évaluation, rotation des clés et Service Control Policies (SCPs). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-awsnav"><div class="b3-cloud-awsnav__in">
+  <a class="b3-cloud-awsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-awsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-awsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Services Cloud AWS B3</a>
+  <div class="b3-cloud-awsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-awsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-awswrap">
+<p class="crumb"><a href="../index.html">Services Cloud AWS B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Sécurité des Identités IAM, Politiques JSON & Gouvernance Multi-Comptes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>À la suite d'un audit de cybersécurité interne, votre direction vous confie le durcissement intégral de la gestion des identités et des accès sur le tenant AWS de l'entreprise. Vous devez éradiquer les clés d'accès statiques en déployant des rôles IAM temporaires, modéliser des politiques d'autorisation JSON respectant le principe du moindre privilège, et instaurer une gouvernance multi-comptes centralisée avec AWS Organizations et des Service Control Policies (SCPs) infranchissables.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Maîtriser les entités IAM : Utilisateurs, Groupes, Rôles temporaires (Instance Profiles, STS AssumeRole) et politiques basées sur l'identité vs sur la ressource.</li>
+      <li>Rédiger et auditer des politiques d'autorisation IAM JSON (Version, Statement, Effect, Action, Resource, Condition).</li>
+      <li>Comprendre et appliquer l'algorithme d'évaluation strict d'AWS (Default Deny, Explicit Allow, primauté absolue de l'Explicit Deny).</li>
+      <li>Mettre en œuvre la gouvernance multi-comptes avec AWS Organizations et les Service Control Policies (SCPs) pour imposer des garde-fous organisationnels.</li>
+    </ol>
+  </div>
+
+<h2>1. Les Fondements d'AWS IAM : Utilisateurs, Groupes &amp; Rôles</h2>
+
+<p>AWS Identity and Access Management (IAM) est le service mondial gratuit permettant de contrôler de manière sécurisée les accès aux ressources AWS :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Utilisateurs IAM (Users)</h4>
+    <p>Identité persistante attribuée à une personne ou un système spécifique nécessitant un accès console (mot de passe + MFA) ou programmatique (Access Key ID et Secret Access Key).</p>
+    <p>Bonne pratique : ne jamais créer d'utilisateurs IAM avec des accès administrateurs pour des services automatisés.</p>
+  </div>
+  <div class="card">
+    <h4>Groupes IAM (Groups)</h4>
+    <p>Regroupement logique d'utilisateurs (ex: <code>Developpeurs</code>, <code>Auditeurs-Securite</code>) simplifiant l'application collective de politiques d'autorisation.</p>
+    <p>Un groupe ne peut pas contenir d'autres groupes et ne possède pas d'identifiants propres.</p>
+  </div>
+  <div class="card">
+    <h4>Rôles IAM (Roles)</h4>
+    <p>Identité sans identifiant permanent, endossable temporairement par des entités de confiance (instances EC2 via Instance Profile, fonctions Lambda, utilisateurs fédérés).</p>
+    <p>Génère des jetons éphémères via <strong>AWS Security Token Service (STS)</strong> valides de 15 minutes à 12 heures, éliminant les fuites de clés statiques.</p>
+  </div>
+</div>
+
+<h2>2. Structure &amp; Syntaxe des Politiques d'Autorisation JSON</h2>
+
+<p>Toute autorisation dans AWS est déclarée sous forme d'un document JSON normalisé :</p>
+<pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowS3ReadOnlyProduction",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::data-prod-2026",
+        "arn:aws:s3:::data-prod-2026/*"
+      ],
+      "Condition": {
+        "Bool": { "aws:MultiFactorAuthPresent": "true" }
+      }
+    }
+  ]
+}</code></pre>
+<ul>
+  <li><strong>Version :</strong> toujours spécifier <code>"2012-10-17"</code> (la version moderne supportant les variables de stratégie et conditions).</li>
+  <li><strong>Effect :</strong> obligatoirement <code>Allow</code> ou <code>Deny</code>.</li>
+  <li><strong>Action :</strong> liste des opérations API ciblées (supporte les caractères génériques ex: <code>ec2:Describe*</code>).</li>
+  <li><strong>Resource :</strong> liste des ARN sur lesquels s'appliquent les actions.</li>
+  <li><strong>Condition :</strong> bloc facultatif restreignant l'autorisation (ex: présence du MFA, plage d'adresses IP source <code>aws:SourceIp</code>, date/heure).</li>
+</ul>
+
+<h2>3. Moteur d'Évaluation des Politiques : La Règle d'Or d'AWS</h2>
+
+<p>Lorsqu'un utilisateur ou un service émet un appel d'API, le moteur IAM évalue l'ensemble des politiques selon un ordre invariable :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Logique de Décision IAM</h4>
+    <ol>
+      <li><strong>1. Refus par défaut (Default Deny) :</strong> toute action est interdite a priori.</li>
+      <li><strong>2. Recherche d'un Explicit Deny :</strong> si n'importe quelle politique applicable (politique d'identité, SCP, politique de ressource) stipule <code>Deny</code> sur l'action, la décision est <strong>immédiatement et irrévocablement DENY</strong>.</li>
+      <li><strong>3. Recherche d'un Explicit Allow :</strong> si aucun Deny n'est trouvé et qu'au moins une politique stipule <code>Allow</code>, la décision devient <strong>ALLOW</strong>.</li>
+      <li><strong>4. Refus implicite :</strong> en l'absence de déclaration Allow applicable, la décision finale reste <strong>DENY</strong>.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Politiques d'Identité vs Politiques de Ressource</h4>
+    <ul>
+      <li><strong>Identity-based policies :</strong> attachées aux utilisateurs, groupes ou rôles (gérées par AWS ou par le client).</li>
+      <li><strong>Resource-based policies :</strong> attachées directement aux ressources (ex: Bucket Policy S3, politique de clé KMS, politique de file SQS). Elles comportent un champ obligatoire <code>Principal</code> définissant QUI a le droit d'agir.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Cycle de Vie des Clés d'Accès &amp; Sécurité des Identifiants</h2>
+
+<p>Les clés d'accès permanentes (Access Key ID / Secret Access Key) constituent le vecteur d'attaque le plus fréquemment ciblé par les cybercriminels :</p>
+<ul>
+  <li><strong>Format officiel :</strong> les clés IAM permanentes débutent par <code>AKIA</code> et comportent 20 caractères alphanumériques majuscules. Les clés temporaires STS commencent par <code>ASIA</code>.</li>
+  <li><strong>Seuil de rotation maximal :</strong> les standards industriels (CIS AWS Foundations Benchmark) exigent une <strong>rotation tous les 90 jours</strong> au maximum.</li>
+  <li><strong>Privilégier les Instance Profiles :</strong> une instance EC2 ou un conteneur ECS ne doit JAMAIS contenir de clés d'accès écrites sur disque. Le rattachement d'un rôle IAM fournit automatiquement des identifiants temporaires renouvelés via le service de métadonnées d'instance (IMDSv2).</li>
+</ul>
+
+<h2>5. Gouvernance Multi-Comptes : AWS Organizations &amp; SCPs</h2>
+
+<p>Dans les architectures d'entreprise, l'isolation des charges de travail impose une stratégie multi-comptes (comptes distincts pour la Sécurité, le Réseau, la Préproduction et la Production) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>AWS Organizations</h4>
+    <p>Permet de consolider la facturation (Consolidated Billing) et de structurer les comptes membres en une arborescence d'Unités Organisationnelles (OUs - Organizational Units).</p>
+    <p>Le compte de gestion (Management Account) administre la hiérarchie et applique les stratégies globales.</p>
+  </div>
+  <div class="card">
+    <h4>Service Control Policies (SCPs)</h4>
+    <p>Les SCPs définissent les permissions maximales autorisées (garde-fous) pour les comptes d'une OU ou d'un compte individuel :</p>
+    <ul>
+      <li>Une SCP <strong>ne confère jamais de droit</strong>, elle limite la portée des autorisations que les administrateurs locaux peuvent accorder.</li>
+      <li>Pour qu'une action soit possible dans un compte membre, elle doit être explicitement autorisée à CHAQUE niveau de l'arbre hiérarchique, et interdite à AUCUN niveau.</li>
+      <li>Exemple : interdire la désactivation du chiffrement ou l'utilisation d'une région non approuvée (ex: interdire les régions hors Europe).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="aws3-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e1) — Moteur d'Évaluation de Politiques IAM JSON (Deny / Allow / Default Deny)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deny explicite prioritaire sur un Allow générique]
+# Données : ACTION=s3:DeleteBucket STATEMENTS=Allow:s3:*;Deny:s3:DeleteBucket
+A_COMPLETER
+
+[Cas 2 — Refus par défaut (aucune politique correspondante)]
+# Données : ACTION=ec2:RunInstances STATEMENTS=Allow:s3:GetObject;Allow:s3:ListBucket
+A_COMPLETER
+
+[Cas 3 — Allow complet avec joker universel (*)]
+# Données : ACTION=iam:CreateUser STATEMENTS=Allow:*
+A_COMPLETER
+
+[Cas 4 — Deny avec joker sur les suppressions]
+# Données : ACTION=dynamodb:DeleteItem STATEMENTS=Allow:dynamodb:*;Deny:*:Delete*
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moteur d'Évaluation de Politiques IAM JSON (Deny / Allow / Default Deny)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter l'algorithme d'évaluation officiel des politiques d'autorisation IAM d'AWS.</p>
+    <div class="lab__brief"><p>Dans AWS IAM, chaque requête API est évaluée selon un ordre strict :<br><br>
+1. <strong>Default Deny</strong> : Par défaut, toute requête est refusée.<br>
+2. <strong>Explicit Deny prioritaire</strong> : Si au moins une déclaration applicable comporte <code>Effect: Deny</code>, la décision finale est <code>DENY</code>, quoi qu'il arrive.<br>
+3. <strong>Explicit Allow</strong> : Si aucune déclaration ne refuse la requête et qu'au moins une déclaration comporte <code>Effect: Allow</code>, la décision est <code>ALLOW</code>.<br>
+4. <strong>Refus implicite</strong> : Si aucune déclaration ne s'applique, la décision finale reste <code>DENY</code>.<br><br>
+Les actions supportent le préfixe avec joker (ex: <code>s3:Get*</code> correspond à <code>s3:GetObject</code>, <code>s3:GetBucketLocation</code> ; <code>*</code> correspond à tout).<br><br>
+Format d'entrée STDIN :<br>
+<code>ACTION=&lt;action_demandée&gt; STATEMENTS=&lt;Effect:Action_pattern;Effect:Action_pattern;...&gt;</code><br><br>
+Sortie : <code>IAM_EVAL: action=&lt;act&gt; decision=&lt;ALLOW|DENY&gt; reason=&lt;EXPLICIT_DENY|EXPLICIT_ALLOW|DEFAULT_DENY&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IAM_EVAL: action=s3:GetObject decision=ALLOW reason=EXPLICIT_ALLOW</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e2) — Auditeur de Clés d'Accès IAM & Détecteur d'Inactivité / Rotation
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Clé active ayant dépassé 90 jours (120 jours)]
+# Données : KEY_AUDIT USER=admin-bob KEY_ID=AKIA1122334455667788 STATUS=Active AGE_DAYS=120
+A_COMPLETER
+
+[Cas 2 — Clé inactive conservée (40 jours)]
+# Données : KEY_AUDIT USER=svc-app KEY_ID=AKIA9988776655443322 STATUS=Inactive AGE_DAYS=40
+A_COMPLETER
+
+[Cas 3 — Clé malformée (préfixe invalide)]
+# Données : KEY_AUDIT USER=hacker KEY_ID=ASIA1122334455667788 STATUS=Active AGE_DAYS=10
+A_COMPLETER
+
+[Cas 4 — Clé exactement au seuil limite de 90 jours]
+# Données : KEY_AUDIT USER=ops-charlie KEY_ID=AKIAABCDEF0123456789 STATUS=Active AGE_DAYS=90
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Auditeur de Clés d'Accès IAM &amp; Détecteur d'Inactivité / Rotation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer le rapport d'identifiants IAM (Credential Report) et identifier les clés compromises, inactives ou périmées.</p>
+    <div class="lab__brief"><p>Les bonnes pratiques de sécurité AWS exigent une rotation régulière des clés d'accès programmatiques (Access Keys) :<br><br>
+Règles d'audit d'une clé :<br>
+1. <strong>Format valide</strong> : Une clé d'accès IAM permanente commence obligatoirement par le préfixe <code>AKIA</code> et comporte exactement 20 caractères alphanumériques majuscules.<br>
+Si ce n'est pas le cas -> <code>ALERT_MALFORMED_KEY</code>.<br>
+2. <strong>Statut inactif</strong> : Si <code>STATUS=Inactive</code> -> <code>NOTICE_KEY_INACTIVE</code> (ne pose pas de risque immédiat mais doit être supprimée).<br>
+3. <strong>Périmètre d'âge (Rotation)</strong> :<br>
+- Si <code>STATUS=Active</code> et <code>AGE_DAYS &gt; 90</code> -> <code>ALERT_ROTATION_REQUIRED</code> (dépassement du seuil de 90 jours préconisé par AWS).<br>
+- Si <code>STATUS=Active</code> et <code>AGE_DAYS &lt;= 90</code> -> <code>KEY_COMPLIANT</code>.<br><br>
+Entrée STDIN : <code>KEY_AUDIT USER=&lt;username&gt; KEY_ID=&lt;key&gt; STATUS=&lt;Active|Inactive&gt; AGE_DAYS=&lt;n&gt;</code>.<br>
+Sortie : <code>AUDIT: user=&lt;u&gt; key=&lt;k&gt; status=&lt;s&gt; age_days=&lt;n&gt; verdict=&lt;VERDICT&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT: user=dev-alice key=AKIAIOSFODNN7EXAMPLE status=Active age_days=45 verdict=KEY_COMPLIANT</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e3) — Évaluateur de Politiques de Contrôle des Services AWS Organizations (SCP)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Blocage par Deny explicite au niveau de l OU Core]
+# Données : SCP_CHECK ACTION=s3:DeleteBucket HIERARCHY=Root:Allow;CoreOU:Deny;Account:Allow
+A_COMPLETER
+
+[Cas 2 — Blocage par absence d Allow au niveau Root]
+# Données : SCP_CHECK ACTION=dynamodb:PutItem HIERARCHY=Root:None;AppOU:Allow;Account:Allow
+A_COMPLETER
+
+[Cas 3 — Blocage par Deny sur le compte final]
+# Données : SCP_CHECK ACTION=iam:CreateUser HIERARCHY=Root:Allow;DevOU:Allow;Account:Deny
+A_COMPLETER
+
+[Cas 4 — Arborescence à 4 niveaux validée]
+# Données : SCP_CHECK ACTION=ec2:RunInstances HIERARCHY=Root:Allow;EuropeOU:Allow;ProdOU:Allow;Account:Allow
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Évaluateur de Politiques de Contrôle des Services AWS Organizations (SCP)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si une action est autorisée à travers l'arborescence hiérarchique d'unités organisationnelles (OUs) avec des SCPs.</p>
+    <div class="lab__brief"><p>Les <strong>Service Control Policies (SCPs)</strong> dans AWS Organizations définissent les garde-fous maximaux pour les comptes membres :<br><br>
+Règles d'évaluation des SCPs :<br>
+1. Les SCPs ne confèrent pas de droits, elles définissent une <strong>limite supérieure</strong> de permissions.<br>
+2. Pour qu'une action soit autorisée sur un compte cible :<br>
+- Aucun niveau de l'arborescence (du Root jusqu'au compte) ne doit comporter de <code>Deny</code> explicite sur l'action.<br>
+- CHAQUE niveau traversé (Root, OUs intermédiaires, Compte) doit explicitement comporter un <code>Allow</code> sur l'action (politique <code>FullAWSAccess</code> par défaut).<br>
+3. Si un seul niveau bloque l'action (absence d'Allow ou présence d'un Deny), l'action est interdite (<code>BLOCKED</code>).<br><br>
+Entrée STDIN :<br>
+<code>SCP_CHECK ACTION=&lt;action&gt; HIERARCHY=&lt;Niveau1:Allow/Deny;Niveau2:Allow/Deny;...&gt;</code>.<br><br>
+Sortie : Si autorisée : <code>SCP_RESULT: action=&lt;act&gt; status=ALLOWED</code>.<br>
+Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt;Niveau&gt; reason=&lt;EXPLICIT_DENY|NO_ALLOW_FOUND&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SCP_RESULT: action=ec2:StopInstances status=ALLOWED</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un utilisateur IAM fait l'objet d'une politique avec « Effect: Allow » sur s3:* et d'une autre politique avec « Effect: Deny » sur s3:DeleteBucket ?</p>
+      <div class="opts">
+        <button class="opt">L'utilisateur peut supprimer les buckets car Allow est évalué en premier</button>
+        <button class="opt" data-correct="1">La suppression de bucket est strictement refusée, mais les autres opérations S3 sont autorisées</button>
+        <button class="opt">Toutes les opérations S3 sont bloquées</button>
+        <button class="opt">Une erreur de conflit de politique est levée dans la console</button>
+      </div>
+      <div class="q__exp">L'Explicit Deny est prioritaire absolu sur tout Allow. L'utilisateur conserve le droit d'exécuter toutes les actions S3 (GetObject, PutObject...) SAUF DeleteBucket qui est refusée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme AWS permet à une application exécutée sur une instance EC2 d'accéder à S3 sans stocker de clés d'accès en dur sur le serveur ?</p>
+      <div class="opts">
+        <button class="opt">Un fichier texte ~/.aws/credentials contenant les clés root</button>
+        <button class="opt" data-correct="1">Un Instance Profile associant un rôle IAM à l'instance EC2</button>
+        <button class="opt">Une variable d'environnement globale dans /etc/profile</button>
+        <button class="opt">Un tunnel VPN IPsec dédié</button>
+      </div>
+      <div class="q__exp">L'Instance Profile transmet un rôle IAM à la VM EC2. Le SDK Boto3/AWS CLI interroge alors automatiquement le service de métadonnées (IMDS) pour obtenir des clés temporaires renouvelées en continu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel préfixe identifie de manière univoque une clé d'accès IAM permanente dans AWS ?</p>
+      <div class="opts">
+        <button class="opt">ASIA</button>
+        <button class="opt" data-correct="1">AKIA</button>
+        <button class="opt">AROA</button>
+        <button class="opt">AIDA</button>
+      </div>
+      <div class="q__exp">AKIA désigne une clé d'accès permanente pour utilisateur IAM. Les clés temporaires fournies par STS commencent par ASIA, les rôles par AROA et les utilisateurs par AIDA.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon les recommandations officielles d'AWS et le benchmark CIS, quelle est la fréquence maximale de rotation des clés d'accès ?</p>
+      <div class="opts">
+        <button class="opt">Tous les 7 jours</button>
+        <button class="opt">Tous les 30 jours</button>
+        <button class="opt" data-correct="1">Tous les 90 jours</button>
+        <button class="opt">Tous les 365 jours</button>
+      </div>
+      <div class="q__exp">Le benchmark CIS AWS Foundations exige une rotation d'au moins tous les 90 jours pour toute clé d'accès IAM permanente afin de minimiser le risque de compromission.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle exact d'une Service Control Policy (SCP) dans AWS Organizations ?</p>
+      <div class="opts">
+        <button class="opt">Accorder des droits administratifs aux utilisateurs d'un compte</button>
+        <button class="opt" data-correct="1">Définir une limite supérieure (garde-fou) des permissions autorisées sur les comptes membres d'une OU</button>
+        <button class="opt">Chiffrer automatiquement tous les disques EBS d'une région</button>
+        <button class="opt">Générer la facture consolidée mensuelle</button>
+      </div>
+      <div class="q__exp">Une SCP ne donne aucun droit direct. Elle agit comme un filtre supérieur interdisant formellement certaines actions ou limitant le périmètre d'action possible des administrateurs du compte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle version de document de stratégie doit être impérativement déclarée dans le champ « Version » d'une politique JSON moderne ?</p>
+      <div class="opts">
+        <button class="opt">2008-10-17</button>
+        <button class="opt" data-correct="1">2012-10-17</button>
+        <button class="opt">2024-01-01</button>
+        <button class="opt">latest</button>
+      </div>
+      <div class="q__exp">La valeur officielle standard est strictement « 2012-10-17 ». L'ancienne version « 2008-10-17 » ne supporte pas les conditions avancées ni les variables de stratégie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre une Identity-based policy et une Resource-based policy ?</p>
+      <div class="opts">
+        <button class="opt">Les Resource-based policies sont payantes</button>
+        <button class="opt" data-correct="1">Une Resource-based policy est attachée directement à la ressource (ex: bucket S3) et contient un élément « Principal » obligatoire</button>
+        <button class="opt">Les Identity-based policies ne peuvent pas comporter de Condition</button>
+        <button class="opt">Il n'y a aucune différence</button>
+      </div>
+      <div class="q__exp">Une Resource-based policy (comme une Bucket Policy S3) est attachée à la ressource elle-même et doit impérativement spécifier « Principal » pour désigner QUI a le droit d'y accéder.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si aucune politique applicable ne mentionne une action donnée, quelle décision est prise par le moteur IAM ?</p>
+      <div class="opts">
+        <button class="opt">ALLOW (car rien n'interdit l'action)</button>
+        <button class="opt" data-correct="1">DENY (en vertu du refus par défaut / Default Deny)</button>
+        <button class="opt">ASK_USER (une alerte est envoyée par e-mail)</button>
+        <button class="opt">LOG_ONLY (l'action est permise mais consignée)</button>
+      </div>
+      <div class="q__exp">Dans AWS IAM, la sécurité repose sur le modèle de fermeture par défaut : toute action qui n'est pas explicitement autorisée est systématiquement refusée (Default Deny).</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Créer des clés d'accès AccessKeyId permanentes pour des applications s'exécutant sur des instances EC2 au lieu d'utiliser un Instance Profile.</li>
+      <li>Supposer qu'une SCP avec Effect: Allow confère des droits directs à un utilisateur : la SCP n'est qu'un filtre supérieur, il faut aussi une politique IAM d'identité.</li>
+      <li>Oublier de spécifier l'ARN de la ressource dans une politique IAM en utilisant Resource: "*", ce qui expose inutilement toutes les ressources du compte.</li>
+      <li>Négliger la politique de confiance (Trust Policy) d'un rôle IAM, sans laquelle aucune entité ne peut endosser le rôle.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Cadrage des Droits & IAM Hardening</div>
+    <ol>
+      <li>Inventaire des besoins et application stricte du principe du moindre privilège (PoLP) : spécifier des actions API et des ARN de ressources granulaires sans jamais utiliser d'étoile générique (*:*).</li>
+      <li>Déploiement systématique de rôles IAM temporaires pour les charges de calcul : bannir les Access Keys sur les VMs EC2, les conteneurs et les lambdas au profit d'Instance Profiles.</li>
+      <li>Activation obligatoire du Multi-Factor Authentication (MFA) : exiger un token TOTP ou une clé FIDO2 matérielle pour tout utilisateur console et protéger les actions sensibles via des conditions JSON (aws:MultiFactorAuthPresent).</li>
+      <li>Mise en place de garde-fous centralisés avec les SCPs : bloquer l'accès aux régions non utilisées, interdire la suppression des logs CloudTrail et verrouiller les buckets de sauvegarde.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>AWS IAM gère les identités (Utilisateurs, Groupes, Rôles temporaires STS) et les politiques d'autorisation JSON à l'échelle mondiale sans frais supplémentaires.</li>
+      <li>Les rôles IAM éliminent les risques de fuite de clés statiques en fournissant des identifiants éphémères renouvelés automatiquement.</li>
+      <li>Le moteur d'évaluation IAM applique le Default Deny, donne une priorité absolue et immuable à tout Explicit Deny, puis vérifie la présence d'un Explicit Allow.</li>
+      <li>Les clés d'accès statiques AKIA doivent faire l'objet d'une rotation obligatoire tous les 90 jours maximum selon le CIS Benchmark.</li>
+      <li>AWS Organizations et les Service Control Policies (SCPs) imposent des limites supérieures de permissions infranchissables sur l'ensemble des comptes d'entreprise.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous expliquer la différence entre un utilisateur IAM et un rôle IAM temporaire ?</li>
+      <li>Connaissez-vous les 5 blocs fondamentaux d'une déclaration de politique JSON (Version, Statement, Effect, Action, Resource, Condition) ?</li>
+      <li>Pouvez-vous prédire sans erreur l'issue d'une requête en présence de politiques contradictoires Allow et Deny ?</li>
+      <li>Savez-vous pourquoi les SCPs dans AWS Organizations ne confèrent aucun droit direct mais définissent des garde-fous ?</li>
+      <li>Avez-vous compris le mécanisme de jetons STS et l'intérêt d'un Instance Profile sur une instance EC2 ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Rôle IAM :</strong> Identité sans mot de passe permanent, endossable temporairement par des services ou utilisateurs via AWS STS.</li><li><strong>Instance Profile :</strong> Conteneur permettant de transmettre un rôle IAM à une machine virtuelle Amazon EC2 sans identifiants écrits sur disque.</li><li><strong>AWS STS :</strong> Security Token Service : service générant des jetons d'accès temporaires signés d'une durée de vie limitée.</li><li><strong>Explicit Deny :</strong> Déclaration Effect: Deny l'emportant de façon irrévocable sur toute autre autorisation dans le moteur IAM.</li><li><strong>Service Control Policy (SCP) :</strong> Politique d'AWS Organizations définissant les limites maximales de permissions pour une organisation ou une OU.</li><li><strong>Moindre Privilège :</strong> Principe de sécurité consistant à n'accorder que les permissions strictement nécessaires à l'accomplissement d'une tâche.</li><li><strong>IMDSv2 :</strong> Instance Metadata Service version 2 : API locale (169.254.169.254) sécurisée par jeton de session contre les failles SSRF.</li><li><strong>Credential Report :</strong> Rapport téléchargeable d'audit listant l'état, l'âge et l'utilisation des identifiants et clés de tous les utilisateurs du compte.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions IAM et ordre d'évaluation mal assimilés. Révisez le Default Deny et les rôles STS.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Connaissances de base acquises. Entraînez-vous à décrypter des politiques JSON complexes.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise. Pratiquez l'évaluation de politiques et la détection de clés obsolètes dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau avancé. Vous maîtrisez les SCPs multi-comptes et les bonnes pratiques de moindre privilège.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'expert sécurité AWS. Prêt pour les services de calcul EC2, EBS et Auto Scaling du Module 3 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Calcul & Conteneurs — EC2, EBS, ELB, Auto Scaling & Fargate <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AWS L3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja, 2025/2026), Documentation officielle Amazon Web Services (AWS Architecture Center), Référentiels des certifications AWS Certified Cloud Practitioner (CLF-C02) et Solutions Architect - Associate (SAA-C03).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

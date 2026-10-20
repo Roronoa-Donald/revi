@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Modélisation &amp;amp; Priorisation des Exigences | Ingénierie du besoin B2</title>
+<meta name="description" content="Chapitre 4 du cours Ingénierie du besoin B2 : User Stories agiles Connextra, critères d’acceptation (DoD/DoR), modèle de Kano, priorisation MoSCoW et algorithme WSJF. Théorie, démarches méthodologiques, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/ingenierie-besoin/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Modélisation &amp;amp; Priorisation des Exigences | Ingénierie du besoin B2">
+<meta property="og:description" content="Chapitre 4 du cours Ingénierie du besoin B2 : User Stories agiles Connextra, critères d’acceptation (DoD/DoR), modèle de Kano, priorisation MoSCoW et algorithme WSJF. Théorie, démarches méthodologiques, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ingenierie-besoinnav"><div class="ingenierie-besoinnav__in">
+  <a class="ingenierie-besoinnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ingenierie-besoinnav__sep" aria-hidden="true">/</span>
+  <a class="ingenierie-besoinnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg> Ingénierie du besoin B2</a>
+  <div class="ingenierie-besoinnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ingenierie-besoinnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ingenierie-besoinwrap">
+<p class="crumb"><a href="../index.html">Ingénierie du besoin B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Modélisation &amp; Priorisation des Exigences</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un projet ne dispose jamais d’un budget ni d’un temps infinis. Si tout est déclaré prioritaire, alors rien ne l’est réellement. L’ingénieur des exigences doit modéliser les fonctionnalités sous un format exploitable par les équipes de développement et arbitrer scientifiquement les priorités à l’aide de méthodes catégorielles et économiques reconnues.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>rédiger des User Stories conformes au standard Connextra (« En tant que / Je veux / Afin de ») ;</li>
+      <li>distinguer clairement la Definition of Ready (DoR) et la Definition of Done (DoD) ;</li>
+      <li>arbitrer un backlog avec la matrice MoSCoW (Must, Should, Could, Won’t) en respectant la règle 60/20/20 ;</li>
+      <li>calculer la priorité économique fine avec l’algorithme Weighted Shortest Job First (WSJF) ;</li>
+      <li>classifier les attentes des utilisateurs selon les catégories de satisfaction du modèle de Kano.</li>
+    </ol>
+  </div>
+
+<h2>1. La User Story agile et le canevas Connextra</h2>
+
+<p>Dans les approches agiles, l’exigence fonctionnelle prend la forme d’une <strong>User Story (US)</strong>. Le canevas standardisé de <strong>Connextra</strong> structure la story autour de trois éléments fondamentaux :</p>
+<blockquote>
+  <strong>En tant que</strong> [rôle ou persona utilisateur]<br>
+  <strong>Je veux</strong> [action ou fonctionnalité souhaitée]<br>
+  <strong>Afin de</strong> [bénéfice métier mesurable / valeur ajoutée]
+</blockquote>
+<p>La clause « Afin de » est la plus déterminante : elle explicite <em>pourquoi</em> la fonctionnalité a de la valeur et permet de challenger l’utilité réelle du besoin.</p>
+  <div class="box box--danger">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-alert"></use></svg> La fausse User Story technique</div>
+    <p>Écrire : <em>« En tant que développeur, je veux migrer la base vers PostgreSQL afin d’avoir une base moderne »</em> est une dérive fréquente. Une User Story s’adresse à un utilisateur ou à une partie prenante métier. Les travaux d’infrastructure relèvent de <em>Spikes</em> techniques ou de tâches d’architecture, non de stories utilisateur.</p>
+  </div>
+
+<h2>2. Critères d’acceptation, Definition of Ready (DoR) et Definition of Done (DoD)</h2>
+
+<p>Pour qu’une User Story passe du statut d’idée à celui de logiciel livré sans contestation, trois garde-fous sont indispensables :</p>
+<ul>
+  <li><strong>Critères d’acceptation (Acceptance Criteria)</strong> : conditions spécifiques et mesurables propres à la story que le livrable doit valider pour être accepté par le Product Owner.</li>
+  <li><strong>Definition of Ready (DoR)</strong> : ensemble de critères qu’une story doit impérativement satisfaire <em>avant</em> d’être sélectionnée dans un sprint (story comprise, critères écrits, maquette prête, dépendances levées, estimée).</li>
+  <li><strong>Definition of Done (DoD)</strong> : liste de contrôle qualité générique applicable à <em>toutes</em> les stories pour déclarer leur complétude (code revu, tests unitaires &gt; 80 %, doc mise à jour, déployé en pré-production).</li>
+</ul>
+
+<h2>3. La priorisation catégorielle : la méthode MoSCoW</h2>
+
+<p>La méthode <strong>MoSCoW</strong> catégorise l’ensemble des exigences d’un périmètre ou d’une release :</p>
+<ul>
+  <li><strong>M (Must have)</strong> : vital pour le système. Sans cela, le produit n’a aucune valeur ou est illégal. Non négociable.</li>
+  <li><strong>S (Should have)</strong> : hautement important mais une solution de contournement manuelle temporaire est envisageable.</li>
+  <li><strong>C (Could have)</strong> : fonctionnalités de confort ou « nice-to-have », développées uniquement s’il reste du temps et du budget.</li>
+  <li><strong>W (Won’t have this time)</strong> : formellement exclu de l’itération courante mais gardé en mémoire pour les versions ultérieures.</li>
+</ul>
+  <div class="box box--astuce">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> La règle d’or budgétaire 60 / 20 / 20</div>
+    <p>Pour garantir la réussite d’un projet à date fixe, limitez les <strong>Must</strong> à un maximum de <strong>60 %</strong> de l’effort total estimé. Consacrez <strong>20 %</strong> aux <strong>Should</strong> et <strong>20 %</strong> aux <strong>Could</strong>. Les Could constituent la marge d’ajustement en cas d’aléa sans jamais sacrifier la date de livraison.</p>
+  </div>
+
+<h2>4. La priorisation économique : l’algorithme WSJF (SAFe)</h2>
+
+<p>Lorsque plusieurs chantiers sont en compétition, le <strong>Weighted Shortest Job First (WSJF)</strong> de la démarche Scaled Agile Framework (SAFe) permet de maximiser le retour sur investissement en divisant le <strong>Coût du Retard (Cost of Delay - CoD)</strong> par la <strong>Durée / Taille du travail (Job Duration)</strong> :</p>
+<div class="formule-box">
+  $$\text{WSJF} = \frac{\text{Cost of Delay}}{\text{Job Duration / Size}}$$
+</div>
+<p>Le Coût du Retard combine trois dimensions estimées sur une échelle relative (ex. suite de Fibonacci 1, 2, 3, 5, 8, 13, 20) :</p>
+<ol>
+  <li><strong>Valeur Utilisateur / Métier (User-Business Value)</strong> : impact direct sur les revenus ou le service rendu.</li>
+  <li><strong>Criticité Temporelle (Time Criticality)</strong> : urgence liée à une date limite légale ou à la concurrence.</li>
+  <li><strong>Réduction de Risque / Opportunité Future (RR &amp; OE)</strong> : sécurisation de l’architecture ou ouverture de nouveaux marchés.</li>
+</ol>
+<p>$$\text{Cost of Delay} = \text{User-Business Value} + \text{Time Criticality} + \text{RR \& OE}$$</p>
+<p>L’exigence ayant le score WSJF le plus élevé doit être traitée en priorité absolue par l’équipe.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ib2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="En tant que client, je veux reinitialiser mon mot de passe, afin de recuperer l acces a mon compte.">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ib2-c4-e1) — Analyseur syntaxique de User Story
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Test 1]
+# Données : En tant qu administrateur, je veux bannir un spammeur, afin de proteger la communaute
+A_COMPLETER
+
+[Cas 2 — Test 2]
+# Données : Je veux exporter mes factures en PDF directement.
+A_COMPLETER
+
+[Cas 3 — Test 3]
+# Données : En tant que comptable, je veux cloturer l exercice, afin d eviter les retards fiscaux.
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur syntaxique de User Story</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Découper et valider une User Story selon le gabarit canonique Connextra.</p>
+    <div class="lab__brief"><p>Le format standard d’une <strong>User Story</strong> s’énonce :<br><code>En tant que &lt;Role&gt;, je veux &lt;Action&gt;, afin de &lt;Benefice&gt;.</code> (la ponctuation finale peut être un point ou absente).</p><p>Lit une ligne sur l’entrée standard et extrait les 3 composantes :<br>- Si la syntaxe est respectée et que les trois éléments sont non vides, affiche :<br><code>ROLE: &lt;Role&gt; | ACTION: &lt;Action&gt; | BENEFICE: &lt;Benefice&gt;</code>.<br>- Si l’un des motifs ou éléments manque, affiche :<br><code>ERREUR: Format User Story non respecte</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>En tant que client, je veux reinitialiser mon mot de passe, afin de recuperer l acces a mon compte.</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROLE: client | ACTION: reinitialiser mon mot de passe | BENEFICE: recuperer l acces a mon compte</pre></div>
+    </div>
+    <p class="lab__note">Les trois composantes sont correctement extraites et nettoyées des espaces et virgules superflus.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilise une expression régulière avec re.search() ou re.match() insensible à la casse.</li>
+        <li>Pattern suggéré : r"en tant qu[e']\s*(.+?),?\s*je veux\s*(.+?),?\s*afin d[e']?\s*(.+?)\.?$"</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ib2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;US-1;Connexion;Must;5&#10;US-2;Filtres;Should;3&#10;US-3;Theme sombre;Could;2">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ib2-c4-e2) — Priorisation MoSCoW d’un Backlog
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Test 1]
+# Données : REQ-01;Paiement;Must;8
+# Données : REQ-02;Remboursement;Must;5
+A_COMPLETER
+
+[Cas 2 — Test 2]
+# Données : US-10;Export;Could;3
+# Données : US-11;Audit;Wont;5
+# Données : US-12;SSO;Must;8
+# Données : US-13;PDF;Should;5
+A_COMPLETER
+
+[Cas 3 — Test 3]
+# Données : US-99;Refonte globale;Won't;13
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Priorisation MoSCoW d’un Backlog</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la répartition des points d’effort par catégorie MoSCoW dans un sprint ou une release.</p>
+    <div class="lab__brief"><p>La méthode <strong>MoSCoW</strong> classe les exigences en 4 catégories : <code>Must</code>, <code>Should</code>, <code>Could</code> et <code>Won't</code>.</p><p>Lit sur l’entrée standard :<br>- Première ligne : le nombre <code>N</code> d’exigences.<br>- Les <code>N</code> lignes suivantes : <code>ID;Titre;MoSCoW;Points</code> (Points est un entier &ge; 0).<br>Affiche un dictionnaire JSON avec les totaux par catégorie et le total général au format strict :<br><code>{"Must": X, "Should": Y, "Could": Z, "Wont": W, "Total": T}</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+US-1;Connexion;Must;5
+US-2;Filtres;Should;3
+US-3;Theme sombre;Could;2</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>{"Must": 5, "Should": 3, "Could": 2, "Wont": 0, "Total": 10}</pre></div>
+    </div>
+    <p class="lab__note">Must: 5, Should: 3, Could: 2, Wont: 0, Total: 10 points.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Initialise un dictionnaire avec {"Must": 0, "Should": 0, "Could": 0, "Wont": 0}.</li>
+        <li>Attention à mapper "Won't" ou "Wont" vers la clé "Wont" dans la sortie JSON.</li>
+        <li>Utilise json.dumps(res) pour afficher le JSON sur une seule ligne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ib2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="FEAT-101;8;5;3;2">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ib2-c4-e3) — Ordonnancement WSJF (Weighted Shortest Job First)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Test 1]
+# Données : FEAT-202;10;8;6;5
+A_COMPLETER
+
+[Cas 2 — Test 2]
+# Données : FEAT-303;3;2;1;3
+A_COMPLETER
+
+[Cas 3 — Test 3]
+# Données : FEAT-404;13;8;5;8
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Ordonnancement WSJF (Weighted Shortest Job First)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le score d’opportunité WSJF pour ordonnancer les fonctionnalités les plus rentables.</p>
+    <div class="lab__brief"><p>En méthodologie agile à l’échelle (SAFe), l’algorithme <strong>WSJF</strong> priorise les fonctionnalités maximisant la valeur par unité de temps :<br>1. <strong>CoD (Cost of Delay / Coût du retard)</strong> = <code>Valeur_Metier + Criticite_Temporelle + Reduction_Risque</code>.<br>2. <strong>Score WSJF</strong> = <code>CoD / Taille_Job</code>.</p><p>Lit une ligne au format <code>ID;Valeur;Temps;Risque;Taille</code> (les 4 métriques sont des entiers &gt; 0).<br>Affiche : <code>ID: &lt;ID&gt; | CoD: &lt;CoD&gt; | WSJF: &lt;Score arrondi à 2 décimales&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FEAT-101;8;5;3;2</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ID: FEAT-101 | CoD: 16 | WSJF: 8.00</pre></div>
+    </div>
+    <p class="lab__note">CoD = 8 + 5 + 3 = 16. WSJF = 16 / 2 = 8.00.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe la ligne avec split(";").</li>
+        <li>Calcule cod = val + temps + risque, puis wsjf = cod / taille.</li>
+        <li>Formate le score avec f"{wsjf:.2f}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans le canevas de User Story Connextra, quel segment explicite la valeur ajoutée et le bénéfice métier ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">« Afin de... » (So that)</button>
+        <button class="opt">« En tant que... » (As a)</button>
+        <button class="opt">« Je veux... » (I want)</button>
+      </div>
+      <div class="q__exp">La partie « Afin de... » exprime la finalité économique ou métier qui justifie l’effort de développement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon les bonnes pratiques de la méthode MoSCoW, quelle proportion maximale de l’effort total doit être allouée aux exigences « Must » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Environ 60 % de l’effort total</button>
+        <button class="opt">95 % de l’effort total</button>
+        <button class="opt">100 % de l’effort total</button>
+      </div>
+      <div class="q__exp">Plafonner les Must à 60 % préserve une marge de manœuvre (buffer) indispensable pour absorber les imprévus.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la formule exacte du calcul de priorité WSJF (Weighted Shortest Job First) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Cost of Delay / Job Duration</button>
+        <button class="opt">Job Duration * Budget</button>
+        <button class="opt">Business Value - Time Criticality</button>
+      </div>
+      <div class="q__exp">WSJF = Coût du Retard divisé par la Taille/Durée du travail à réaliser.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre la Definition of Ready (DoR) et la Definition of Done (DoD) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La DoR conditionne l’entrée d’une story en sprint, la DoD conditionne sa livraison finale terminée</button>
+        <button class="opt">La DoR est réservée aux managers, la DoD aux testeurs</button>
+        <button class="opt">Ce sont deux termes identiques pour désigner le budget</button>
+      </div>
+      <div class="q__exp">La DoR valide que la story est prête à être développée ; la DoD valide que le travail réalisé répond à tous les standards de qualité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le modèle de Kano, comment qualifie-t-on une caractéristique tenue pour acquise dont l’absence provoque une vive insatisfaction ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Besoin de base / Obligatoire (Must-be)</button>
+        <button class="opt">Besoin attractif / Excitateur</button>
+        <button class="opt">Besoin de performance proportionnel</button>
+      </div>
+      <div class="q__exp">Un besoin obligatoire (Must-be) est indispensable : sa présence n’émerveille pas le client, mais son absence est disqualifiante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’acronyme MoSCoW, que signifie la lettre « W » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Won’t have this time (Reporté ou exclu de cette itération)</button>
+        <button class="opt">Waiting (En attente de validation)</button>
+        <button class="opt">Workflow (Processus métier)</button>
+      </div>
+      <div class="q__exp">Won’t have marque les fonctionnalités formellement écartées du périmètre immédiat sans être effacées du référentiel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelles sont les trois composantes du Coût du Retard (Cost of Delay) dans l’algorithme WSJF ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">User-Business Value + Time Criticality + Risk Reduction / Opportunity Enablement</button>
+        <button class="opt">Budget + Nombre de bugs + Nombre de lignes de code</button>
+        <button class="opt">Salaires + Licences + Matériel</button>
+      </div>
+      <div class="q__exp">Le Cost of Delay est la somme de la valeur métier, de l’urgence temporelle et de la réduction des risques/opportunités futures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une exigence classée « Could have » est-elle précieuse pour le chef de projet ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle sert de variable d’ajustement pour préserver la date de livraison en cas de retard</button>
+        <button class="opt">Elle rapporte le plus de chiffre d’affaires immédiat</button>
+        <button class="opt">Elle est obligatoire devant la loi</button>
+      </div>
+      <div class="q__exp">Les exigences Could peuvent être sacrifiées sans dégrader le cœur du système si le calendrier est menacé.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Classer 90 % des exigences du backlog en « Must have », rendant tout arbitrage budgétaire et temporel impossible.</li>
+      <li>Rédiger des User Stories sans clause « Afin de », empêchant l’équipe de comprendre la véritable finalité du besoin.</li>
+      <li>Démarrer le développement d’une story incomplète qui ne respecte pas la Definition of Ready (DoR).</li>
+      <li>Considérer que l’estimation WSJF est gravée dans le marbre : les priorités relatives doivent être réévaluées à chaque jalon.</li>
+      <li>Ignorer les besoins de base du modèle de Kano sous prétexte qu’ils ne sont pas explicitement réclamés par les utilisateurs.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Prioriser scientifiquement un backlog de projet</div>
+    <ol>
+      <li><strong>Structurer les User Stories</strong> : formuler chaque besoin selon le canevas Connextra avec critères d’acceptation.</li>
+      <li><strong>Évaluer la Definition of Ready</strong> : valider que chaque story est comprise et estimable avant priorisation.</li>
+      <li><strong>Appliquer un premier filtre MoSCoW</strong> : isoler les obligations légales et vitales en veillant à ne pas dépasser 60 % de Must.</li>
+      <li><strong>Calculer le ratio économique WSJF</strong> : évaluer le Coût du Retard et la durée pour ordonner objectivement les stories concurrentes.</li>
+      <li><strong>Confronter au modèle de Kano</strong> : s’assurer que le lot comprend tous les Must-be et au moins une fonctionnalité attractive différenciante.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La User Story Connextra (« En tant que / Je veux / Afin de ») centre la spécification sur la valeur utilisateur.</li>
+      <li>La DoR protège l’entrée du sprint ; la DoD garantit la rigueur et l’excellence de la sortie.</li>
+      <li>La priorisation MoSCoW équilibre le risque avec le ratio 60 % Must / 20 % Should / 20 % Could.</li>
+      <li>L’algorithme WSJF priorise les chantiers à fort coût du retard et courte durée (High Value / Low Effort).</li>
+      <li>Le modèle de Kano distingue besoins obligatoires (Must-be), proportionnels et attractifs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais rédiger une User Story conforme au canevas Connextra.</li>
+      <li>Je sais définir des critères d’acceptation vérifiables.</li>
+      <li>Je comprends la différence fondamentale entre DoR et DoD.</li>
+      <li>Je sais ventiler un budget d’effort selon la règle MoSCoW 60/20/20.</li>
+      <li>Je sais calculer le score de priorité WSJF d’une exigence.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>User Story</li><li>Connextra</li><li>Critères d’acceptation</li><li>DoR</li><li>DoD</li><li>MoSCoW</li><li>WSJF</li><li>Cost of Delay</li><li>Modèle de Kano</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise le canevas Connextra et les principes du MoSCoW.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le calcul WSJF et les différences DoR/DoD.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la modélisation et l’arbitrage du backlog.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à la spécification formelle et traçabilité au chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Spécification Formelle &amp; Traçabilité (SRS &amp; BDD) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel Ingénierie du besoin B2, la norme ISO/IEC/IEEE 29148, le modèle FURPS+, les standards IREB et les pratiques agiles de modélisation.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

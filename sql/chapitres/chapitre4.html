@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Agrégation Avancée, GROUP BY, HAVING &amp;amp; Fonctions de Fenêtrage | SQL B2</title>
+<meta name="description" content="Chapitre 4 du cours SQL B2 : Fonctions d’agrégation (COUNT, SUM, AVG, MIN, MAX), regroupement multi-colonnes, filtrage par HAVING, et calculs analytiques de fenêtrage (OVER, PARTITION BY, ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD). Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/sql/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Agrégation Avancée, GROUP BY, HAVING &amp;amp; Fonctions de Fenêtrage | SQL B2">
+<meta property="og:description" content="Chapitre 4 du cours SQL B2 : Fonctions d’agrégation (COUNT, SUM, AVG, MIN, MAX), regroupement multi-colonnes, filtrage par HAVING, et calculs analytiques de fenêtrage (OVER, PARTITION BY, ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD). Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B2</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Agrégation Avancée, GROUP BY, HAVING &amp; Fonctions de Fenêtrage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L’équipe de direction d’une marketplace souhaite obtenir un tableau de bord analytique complexe : le chiffre d’affaires mensuel cumulé depuis le début de l’année par catégorie de produits, le rang des 3 meilleurs vendeurs au sein de chaque région géographique (avec gestion des ex aequo), et la variation en pourcentage des ventes par rapport au mois précédent. Avec de simples clauses GROUP BY, les lignes sont fusionnées, rendant impossible la conservation du détail de chaque vente. Comment exploiter la puissance des fonctions de fenêtrage (Window Functions) introduites par la norme SQL:2003 pour réaliser des calculs partitionnés et ordonnés sans jamais écraser le niveau de granularité des lignes d’origine ? Ce module détaille l’agrégation avancée et l’analyse décisionnelle en SQL moderne.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le fonctionnement interne des fonctions d’agrégation (COUNT, SUM, AVG, MIN, MAX) et leur comportement face aux valeurs NULL ;</li>
+      <li>distinguer avec une rigueur absolue le rôle du filtre WHERE (sur les lignes individuelles) de celui de HAVING (sur les groupes agrégés) ;</li>
+      <li>comprendre l’architecture d’une fonction de fenêtrage avec la clause OVER (PARTITION BY ... ORDER BY ... FRAME) ;</li>
+      <li>comparer et choisir parmi les fonctions de classement : ROW_NUMBER(), RANK(), DENSE_RANK() et NTILE() ;</li>
+      <li>mettre en œuvre des analyses de séries chronologiques avec les fonctions de décalage LAG() et LEAD() et calculer des cumuls continus.</li>
+    </ol>
+  </div>
+
+<h2>1. Agrégation &amp; Distinction Cruciale entre WHERE et HAVING</h2>
+
+<p>Les fonctions d’agrégation appliquent une réduction mathématique sur un ensemble de lignes pour produire une valeur unique. Leur combinaison avec la clause <code>GROUP BY</code> partitionne les données en sous-ensembles indépendants.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Comportement face aux valeurs NULL</h4>
+    <ul>
+      <li><code>COUNT(*)</code> : Compte le nombre total de lignes dans le groupe, qu’elles contiennent des NULLs ou non.</li>
+      <li><code>COUNT(colonne)</code> : Ne compte QUE les lignes où la colonne est strictement non-NULL.</li>
+      <li><code>SUM(colonne)</code> et <code>AVG(colonne)</code> : Ignorent silencieusement toutes les valeurs NULL (ne les assimilent pas à zéro).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">WHERE vs HAVING</h4>
+    <ul>
+      <li><strong>WHERE :</strong> Filtre les lignes <em>avant</em> tout regroupement et calcul d’agrégat. Les fonctions d’agrégation y sont strictement <strong>interdites</strong>.</li>
+      <li><strong>HAVING :</strong> Filtre les groupes <em>après</em> le calcul des agrégats (ex: <code>HAVING COUNT(*) &gt; 5</code> ou <code>HAVING SUM(montant) &ge; 1000</code>).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Introduction aux Fonctions de Fenêtrage (Window Functions &amp; OVER)</h2>
+
+<p>Contrairement au <code>GROUP BY</code> classique qui fusionne les enregistrements en un tuple unique par groupe, les <strong>fonctions de fenêtrage</strong> (Window Functions) calculent des agrégats et des métriques relatives tout en <strong>conservant l’identité individuelle de chaque ligne</strong>.</p>
+<div class="code-block">SELECT
+    nom_employe,
+    departement,
+    salaire,
+    -- Moyenne calculée sur le département de la ligne courante sans aplatir la table
+    AVG(salaire) OVER (PARTITION BY departement) AS salaire_moyen_dept,
+    -- Écart de l’employé par rapport à la moyenne de son propre département
+    salaire - AVG(salaire) OVER (PARTITION BY departement) AS ecart_moyen
+FROM Employes;</div>
+  <div class="box box--Anatomie de la clause OVER(...)">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <ul>  <li><code>PARTITION BY col1, col2</code> : Découpe la table en fenêtres virtuelles indépendantes (analogue au GROUP BY). Si omis, la fenêtre couvre la table entière.</li>  <li><code>ORDER BY col3 ASC/DESC</code> : Définit l’ordre de traitement au sein de la fenêtre (obligatoire pour le classement et les cumuls).</li>  <li><code>ROWS BETWEEN ... AND ...</code> : Délimite le cadre (frame) de calcul relatif (ex: 3 lignes précédentes jusqu’à la ligne courante).</li></ul></div>
+
+  </div>
+
+<h2>3. Fonctions de Classement &amp; Décalage Temporel (LAG / LEAD)</h2>
+
+<p>Les fonctions analytiques résolvent les questions métier les plus complexes sans recourir à des sous-requêtes imbriquées lentes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Fonctions de Classement</h4>
+    <ul>
+      <li><strong>ROW_NUMBER() :</strong> Numérotation séquentielle stricte (1, 2, 3, 4, 5...) sans doublon même en cas d’égalité.</li>
+      <li><strong>RANK() :</strong> Classement avec ex aequo laissant des trous dans la suite (ex: 1, 2, 2, 4).</li>
+      <li><strong>DENSE_RANK() :</strong> Classement avec ex aequo sans aucun trou dans la numérotation (ex: 1, 2, 2, 3).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Fonctions de Décalage (LAG &amp; LEAD)</h4>
+    <ul>
+      <li><strong>LAG(col, n, defaut) :</strong> Accède à la valeur de la colonne située n lignes <em>avant</em> la ligne courante dans la partition ordonnée. Idéal pour comparer avec le mois précédent (M-1).</li>
+      <li><strong>LEAD(col, n, defaut) :</strong> Accède à la valeur située n lignes <em>après</em> la ligne courante (M+1).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sql2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="5000&#10;Alice:IT:3200,Bob:RH:2200,Claire:IT:2800,David:RH:2500,Eva:VENTES:6000">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c4-e1) — Moteur GROUP BY avec agrégation et clause HAVING
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Tous les départements passent le seuil]
+# Données : 2000
+# Données : Alice:IT:3000,Bob:RH:2500,Claire:COMM:2200
+A_COMPLETER
+
+[Cas 2 — Aucun département ne passe le seuil]
+# Données : 10000
+# Données : Alice:IT:3000,Claire:IT:3000,Bob:RH:2000
+A_COMPLETER
+
+[Cas 3 — Département unique avec moyenne décimale]
+# Données : 4000
+# Données : A:DEV:2000,B:DEV:2500,C:DEV:2200
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moteur GROUP BY avec agrégation et clause HAVING</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Agréger des salaires par département (COUNT, SUM, AVG) et filtrer les groupes avec HAVING.</p>
+    <div class="lab__brief"><p>Le script simule la requête :
+<code>SELECT dept, COUNT(*), SUM(salaire), ROUND(AVG(salaire), 2) FROM Employes GROUP BY dept HAVING SUM(salaire) &gt;= seuil ORDER BY dept</code>
+
+Entrée :
+- Ligne 1 : Le seuil minimal pour la clause <code>HAVING SUM(salaire) &gt;= seuil</code>.
+- Ligne 2 : Liste des employés <code>nom:dept:salaire</code> séparés par des virgules.
+
+Sortie :
+Pour chaque département satisfaisant la clause HAVING (triés par ordre alphabétique de département) :
+<code>&lt;dept&gt; | COUNT: &lt;N&gt; | SUM: &lt;Total&gt; | AVG: &lt;Moyenne.2f&gt;</code> (ou <code>AUCUN DEPARTEMENT</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5000
+Alice:IT:3200,Bob:RH:2200,Claire:IT:2800,David:RH:2500,Eva:VENTES:6000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IT | COUNT: 2 | SUM: 6000 | AVG: 3000.00
+VENTES | COUNT: 1 | SUM: 6000 | AVG: 6000.00</pre></div>
+    </div>
+    <p class="lab__note">RH a une somme de 4700 &lt; 5000, il est donc éliminé par la clause HAVING.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilise un dictionnaire avec le nom du département comme clé pour stocker la liste des salaires.</li>
+        <li>Calcule le total (SUM), l effectif (COUNT) et la moyenne (AVG = SUM / COUNT).</li>
+        <li>Filtre avec la condition sum &gt;= seuil et trie les clés par ordre alphabétique.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Alice:A:95,Bob:B:80,Claire:A:98,David:B:80,Eva:A:90">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c4-e2) — Fonction de fenêtrage ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule équipe]
+# Données : Marc:DEV:50,Luc:DEV:85,Zoe:DEV:92
+A_COMPLETER
+
+[Cas 2 — Membres avec scores identiques]
+# Données : Paul:X:100,Alain:X:100,Benoit:X:100
+A_COMPLETER
+
+[Cas 3 — Plusieurs équipes distinctes de taille 1]
+# Données : A:T1:10,B:T2:20,C:T3:30
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Fonction de fenêtrage ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer les numéros de ligne partitionnés par catégorie et triés par score décroissant.</p>
+    <div class="lab__brief"><p>En SQL moderne, les fonctions de fenêtrage (Window Functions) calculent des valeurs relatives sans regrouper (aplatir) les lignes.
+Le script simule la fonction analytique :
+<code>ROW_NUMBER() OVER (PARTITION BY equipe ORDER BY score DESC, nom ASC)</code>
+
+Entrée :
+Une liste de membres <code>nom:equipe:score</code> séparés par des virgules.
+
+Sortie :
+Pour chaque membre (trié par équipe alphabétique, puis par row_number croissant) :
+<code>&lt;equipe&gt; | Rang: &lt;row_number&gt; | &lt;nom&gt; (&lt;score&gt;)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Alice:A:95,Bob:B:80,Claire:A:98,David:B:80,Eva:A:90</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>A | Rang: 1 | Claire (98)
+A | Rang: 2 | Alice (95)
+A | Rang: 3 | Eva (90)
+B | Rang: 1 | Bob (80)
+B | Rang: 2 | David (80)</pre></div>
+    </div>
+    <p class="lab__note">Claire est première dans l'équipe A, Alice deuxième. Dans l'équipe B, Bob et David ont le même score, départagés par nom.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Regroupe les membres par équipe dans un dictionnaire.</li>
+        <li>Pour chaque équipe, trie les membres par score décroissant (-score), puis nom alphabétique.</li>
+        <li>Attribue un numéro 1, 2, 3... à chaque membre au sein de sa partition.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="2026-01:100,2026-02:130,2026-03:110,2026-04:110">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c4-e3) — Fonction de décalage LAG() OVER (ORDER BY ...) et variation temporelle
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Progression continue positive]
+# Données : T1:10,T2:25,T3:40
+A_COMPLETER
+
+[Cas 2 — Baisse continue]
+# Données : M1:500,M2:420,M3:390
+A_COMPLETER
+
+[Cas 3 — Valeur unique]
+# Données : 2026-01:250
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Fonction de décalage LAG() OVER (ORDER BY ...) et variation temporelle</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la différence entre la valeur courante et la valeur précédente selon la fonction LAG().</p>
+    <div class="lab__brief"><p>La fonction <code>LAG(valeur, 1, defaut) OVER (ORDER BY date ASC)</code> permet d’accéder à la valeur de la ligne précédente pour calculer l’évolution relative (delta).
+
+Entrée :
+Une séquence chronologique de couples <code>date:valeur</code> séparés par des virgules (ex: <code>2026-01:100,2026-02:130,2026-03:110</code>).
+
+Sortie :
+Pour chaque date (dans l’ordre chronologique de l’entrée) :
+<code>&lt;date&gt; | Actuel: &lt;val&gt; | Precedent: &lt;lag_val&gt; | Delta: &lt;+delta/-delta/0&gt;</code>
+(Pour la toute première ligne, où il n’y a pas de ligne antérieure, <code>Precedent: NULL | Delta: NULL</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2026-01:100,2026-02:130,2026-03:110,2026-04:110</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>2026-01 | Actuel: 100 | Precedent: NULL | Delta: NULL
+2026-02 | Actuel: 130 | Precedent: 100 | Delta: +30
+2026-03 | Actuel: 110 | Precedent: 130 | Delta: -20
+2026-04 | Actuel: 110 | Precedent: 110 | Delta: 0</pre></div>
+    </div>
+    <p class="lab__note">LAG() permet de comparer directement chaque valeur à celle de la période antérieure.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garde une variable pour mémoriser la valeur de l étape précédente.</li>
+        <li>Si c est la première ligne, affiche Precedent: NULL | Delta: NULL.</li>
+        <li>Pour les lignes suivantes, préfixe les deltas positifs d un signe + (ex: +30) ou négatifs (-20).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre une fonction de fenêtrage (Window Function) et une clause GROUP BY classique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La fonction de fenêtrage conserve chaque ligne individuelle tout en effectuant des calculs sur une partition, alors que GROUP BY fusionne et aplatit les lignes du groupe</button>
+        <button class="opt">Les fonctions de fenêtrage ne fonctionnent que sur des tables temporaires</button>
+        <button class="opt">GROUP BY ne permet pas de faire de somme (SUM)</button>
+        <button class="opt">Les fonctions de fenêtrage s’exécutent avant la clause WHERE</button>
+      </div>
+      <div class="q__exp">Une fonction de fenêtrage calcule des métriques sur une partition définie par OVER(...) sans jamais agréger ni réduire le nombre de lignes initialement sélectionnées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle clause SQL est-il strictement interdit d’utiliser une fonction d’agrégation comme SUM() ou COUNT() ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Dans la clause WHERE</button>
+        <button class="opt">Dans la clause HAVING</button>
+        <button class="opt">Dans la clause SELECT</button>
+        <button class="opt">Dans la clause ORDER BY</button>
+      </div>
+      <div class="q__exp">La clause WHERE s’exécute ligne par ligne avant tout regroupement : les fonctions d’agrégation n’y ont aucun sens et déclenchent une erreur de syntaxe SQL. Il faut utiliser HAVING pour filtrer sur les agrégats.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Soit trois employés ayant le même salaire le plus élevé de leur entreprise. Quels rangs respectifs attribue la fonction DENSE_RANK() OVER (ORDER BY salaire DESC) à ces trois employés et à l’employé suivant ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">1, 1, 1 puis 2 pour le suivant</button>
+        <button class="opt">1, 1, 1 puis 4 pour le suivant</button>
+        <button class="opt">1, 2, 3 puis 4 pour le suivant</button>
+        <button class="opt">0, 0, 0 puis 1 pour le suivant</button>
+      </div>
+      <div class="q__exp">DENSE_RANK attribue le même rang 1 aux trois ex aequo, puis continue la séquence au rang 2 sans interruption. En revanche, RANK() aurait attribué 1, 1, 1 puis 4.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie la fonction COUNT(commission) sur une table de 10 lignes où la colonne commission contient 4 valeurs chiffrées et 6 valeurs NULL ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">4</button>
+        <button class="opt">10</button>
+        <button class="opt">0</button>
+        <button class="opt">NULL</button>
+      </div>
+      <div class="q__exp">COUNT(nom_colonne) ne comptabilise que les lignes pour lesquelles la colonne spécifiée est non-NULL (ici 4). À l’inverse, COUNT(*) aurait renvoyé 10.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert la fonction analytique LAG(chiffre_affaires, 1) OVER (ORDER BY mois ASC) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À récupérer le chiffre d’affaires du mois précédent pour comparer l’évolution mensuelle sur chaque ligne</button>
+        <button class="opt">À calculer le retard de paiement moyen des clients</button>
+        <button class="opt">À ralentir volontairement l’exécution de la requête</button>
+        <button class="opt">À afficher le chiffre d’affaires du mois suivant</button>
+      </div>
+      <div class="q__exp">LAG(col, 1) permet d’accéder à la valeur de la colonne de la ligne immédiatement antérieure selon le tri défini, ce qui permet de calculer des deltas ou taux de croissance temporels.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter d’utiliser une fonction d’agrégation dans la clause WHERE (ex: WHERE COUNT(*) > 10 au lieu de HAVING COUNT(*) > 10).</li>
+      <li>Confondre COUNT(*) (qui compte toutes les lignes) et COUNT(colonne) (qui ignore silencieusement les valeurs NULL).</li>
+      <li>Oublier d’inclure dans le GROUP BY toutes les colonnes non agrégées présentes dans la clause SELECT (erreur classique "not a GROUP BY expression").</li>
+      <li>Confondre RANK() (qui laisse des sauts dans les rangs en cas d’ex aequo : 1, 2, 2, 4) et DENSE_RANK() (qui reste contigu : 1, 2, 2, 3).</li>
+      <li>Tenter d’utiliser le résultat d’une fonction de fenêtrage dans la clause WHERE de la même requête (il faut utiliser une CTE ou une sous-requête, car les Window Functions s’évaluent après le WHERE).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour concevoir une requête analytique avec fenêtrage</div>
+    <ol>
+      <li>Déterminer si la granularité des lignes d’origine doit être conservée (utiliser les fonctions de fenêtrage OVER) ou réduite (utiliser GROUP BY).</li>
+      <li>Définir la partition logique dans la clause PARTITION BY (ex: par département, par client ou par région).</li>
+      <li>Spécifier l’ordonnancement indispensable dans la clause ORDER BY de la fenêtre pour donner un sens au rang (ROW_NUMBER) ou au décalage (LAG).</li>
+      <li>Pour filtrer sur le rang (ex: top 3 des ventes par région), encapsuler la requête dans une expression de table commune (WITH ... AS) et filtrer dans la requête finale.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les fonctions d’agrégation (COUNT, SUM, AVG) réduisent un ensemble de lignes en une valeur synthétique en ignorant les NULLs.</li>
+      <li>La clause WHERE filtre les lignes individuelles avant regroupement, tandis que HAVING filtre les groupes après agrégation.</li>
+      <li>Les fonctions de fenêtrage (OVER) calculent des agrégats et classements sans jamais perdre le niveau de détail des lignes.</li>
+      <li>ROW_NUMBER() attribue un identifiant unique contigu, RANK() laisse des sauts en cas d’ex aequo, et DENSE_RANK() reste contigu.</li>
+      <li>LAG() et LEAD() permettent des comparaisons chronologiques directes de séries temporelles sans jointure externe.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais quand utiliser WHERE et quand utiliser HAVING.</li>
+      <li>Je comprends la différence de résultat entre COUNT(*) et COUNT(colonne) en présence de NULL.</li>
+      <li>Je maîtrise la syntaxe de base d’une fonction de fenêtrage avec la clause OVER (PARTITION BY ... ORDER BY ...).</li>
+      <li>Je sais faire le bon choix entre ROW_NUMBER(), RANK() et DENSE_RANK().</li>
+      <li>Je sais utiliser LAG() pour calculer une variation par rapport à la période antérieure.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Fonctions d’agrégation (COUNT, SUM, AVG, MIN, MAX)</li><li>Clause GROUP BY multi-attributs</li><li>Clause de filtrage d’agrégats HAVING</li><li>Fonctions de fenêtrage (Window Functions)</li><li>Clause OVER (PARTITION BY ... ORDER BY ...)</li><li>Fonction de numérotation séquentielle ROW_NUMBER()</li><li>Fonctions de classement RANK() et DENSE_RANK()</li><li>Fonctions de décalage temporel LAG() et LEAD()</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise impérativement la distinction entre WHERE et HAVING.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la clause OVER et la fonction ROW_NUMBER().</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les subtilités du fenêtrage et des fonctions analytiques.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe aux transactions ACID, à la concurrence et aux verrous au module 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Transactions ACID, Concurrence &amp; Niveaux d’Isolation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

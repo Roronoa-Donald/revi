@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Le Web : clients, serveurs, URL et HTTP | Prog. Web B1</title>
+<meta name="description" content="Chapitre 1 du cours de programmation web B1 : Client et serveur, requête HTTP, anatomie d’une URL, méthodes, codes de statut, rôle de HTML, CSS et JavaScript. Théorie, exemples de code, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-prog-web/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Le Web : clients, serveurs, URL et HTTP | Prog. Web B1">
+<meta property="og:description" content="Chapitre 1 du cours de programmation web B1 : Client et serveur, requête HTTP, anatomie d’une URL, méthodes, codes de statut, rôle de HTML, CSS et JavaScript. Théorie, exemples de code, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="webnav"><div class="webnav__in">
+  <a class="webnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="webnav__sep" aria-hidden="true">/</span>
+  <a class="webnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Prog. Web B1</a>
+  <div class="webnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="webnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="webwrap">
+<p class="crumb"><a href="../index.html">Prog. Web B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Le Web : clients, serveurs, URL et HTTP</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Tu tapes une adresse dans la barre du navigateur et la page apparaît. Entre ces deux instants, il y a un dialogue complet entre deux ordinateurs : une demande précise, une réponse, puis un document qu’il faut interpréter. Quand une page affiche « 404 » ou charge des images cassées, toute la lecture du problème se fait dans ce dialogue. Ce chapitre t’apprend à le voir.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire le rôle du client, du serveur et du protocole HTTP ;</li>
+      <li>décomposer une URL en protocole, hôte, chemin et paramètres de requête ;</li>
+      <li>reconnaître les méthodes HTTP et dire lesquelles sont idempotentes ;</li>
+      <li>interpréter un code de statut par sa famille (1xx à 5xx) ;</li>
+      <li>situer les responsabilités de HTML, CSS et JavaScript dans une page.</li>
+    </ol>
+  </div>
+
+<h2>1. Un dialogue entre deux programmes</h2>
+
+<p><strong>Le client</strong> est le programme qui demande (le navigateur, un script, une application mobile). <strong>Le serveur</strong> est le programme qui répond, en attendant les demandes sur un port. Entre les deux circule du texte : la requête du client, puis la réponse du serveur. Le protocole qui fixe la forme de ces messages s’appelle <strong>HTTP</strong>.</p>
+<p>Une requête HTTP contient toujours trois choses : une <strong>méthode</strong> (ce qu’on veut faire), une <strong>ressource</strong> (le chemin demandé) et des <strong>en-têtes</strong> (métadonnées : langue, type de contenu accepté, cookies). La réponse contient un <strong>code de statut</strong>, ses propres en-têtes et un <strong>corps</strong> — le plus souvent du HTML.</p>
+<pre><code>GET /cours/index.html HTTP/1.1        ← la requête du client
+Host: campus.exemple.fr
+Accept-Language: fr
+
+HTTP/1.1 200 OK                      ← la réponse du serveur
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE html> …</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition — le serveur ne devine rien</div>
+    <p>Un serveur ne « sait » pas ce que tu regardes à l’écran. Il reçoit un chemin et rend un fichier. Si les images ne s’affichent pas, c’est souvent que le navigateur a redemandé une ressource dont l’adresse était fausse : autant de requêtes, autant de réponses.</p>
+  </div>
+
+<h2>2. Anatomie d’une URL</h2>
+
+<p>Une <strong>URL</strong> (Uniform Resource Locator) désigne une ressource de façon unique. Elle se lit toujours dans le même ordre :</p>
+<pre><code>https://campus.exemple.fr:443/cours/index.html?page=2&tri=asc#section-3
+└┬─┘   └───────┬───────┘└┬┘└────────┬────────┘└─────┬─────┘└───┬────┘
+protocole      hôte     port     chemin          requête     fragment</code></pre>
+<table>
+    <tr><th>Composante</th><th>Rôle</th><th>Exemple</th></tr>
+    <tr><td>protocole</td><td>la langue du dialogue</td><td><code>https</code></td></tr>
+    <tr><td>hôte</td><td>quel serveur joindre</td><td><code>campus.exemple.fr</code></td></tr>
+    <tr><td>port</td><td>quel service sur ce serveur (facultatif)</td><td><code>443</code></td></tr>
+    <tr><td>chemin</td><td>quelle ressource</td><td><code>/cours/index.html</code></td></tr>
+    <tr><td>requête</td><td>des paramètres, après le <code>?</code></td><td><code>page=2&amp;tri=asc</code></td></tr>
+    <tr><td>fragment</td><td>une ancre dans la page, jamais envoyée au serveur</td><td><code>#section-3</code></td></tr>
+  </table>
+<p>Deux points se retiennent : le <strong>chemin</strong> commence toujours par une barre oblique, même quand tu ne l’écris pas (taper <code>https://exemple.fr</code> demande en réalité <code>/</code>) ; et le <strong>fragment</strong> reste dans le navigateur — le serveur ne le reçoit jamais.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — paramètres de requête et chemins différents</div>
+    <p><code>/notes?page=2</code> et <code>/notes?page=3</code> mènent au <em>même</em> chemin : la différence tient dans la requête. Pour un serveur, ce sont deux demandes distinctes de la même ressource. Confondre les deux fait chercher longtemps un fichier qui n’existe pas.</p>
+  </div>
+
+<h2>3. Les méthodes HTTP</h2>
+
+<p>La méthode dit l’intention. Neuf méthodes existent ; cinq suffisent au quotidien :</p>
+<table>
+    <tr><th>Méthode</th><th>Ce qu’elle demande</th><th>Idempotente ?</th></tr>
+    <tr><td><code>GET</code></td><td>lire une ressource, sans la modifier</td><td>oui</td></tr>
+    <tr><td><code>POST</code></td><td>créer une ressource, envoyer des données</td><td>non</td></tr>
+    <tr><td><code>PUT</code></td><td>remplacer une ressource par celle envoyée</td><td>oui</td></tr>
+    <tr><td><code>PATCH</code></td><td>modifier une partie d’une ressource</td><td>non</td></tr>
+    <tr><td><code>DELETE</code></td><td>supprimer une ressource</td><td>oui</td></tr>
+  </table>
+<p>Une méthode est <strong>idempotente</strong> quand rejouer la même requête laisse le serveur dans le même état que de l’avoir envoyée une fois. Refaire <code>DELETE /notes/12</code> ne supprime rien de plus ; refaire <code>POST /notes</code> crée une deuxième note. C’est ce qui rend une requête rejouable sans crainte après une coupure réseau — et ce qui oblige à protéger les <code>POST</code>.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « POST pousse, PUT pose »</div>
+    <p><code>PUT</code> <em>pose</em> la ressource complète : deux fois la même requête donnent exactement le même résultat. <code>POST</code> <em>pousse</em> quelque chose de neuf dans la collection : chaque envoi ajoute une ligne.</p>
+  </div>
+
+<h2>4. Les codes de statut</h2>
+
+<p>Le code de statut est un nombre à trois chiffres. Le <strong>premier chiffre</strong> donne la famille ; les deux suivants précisent le cas. Savoir lire la famille suffit pour diagnostiquer la plupart des problèmes.</p>
+<table>
+    <tr><th>Famille</th><th>Sens</th><th>Exemples</th></tr>
+    <tr><td><code>1xx</code></td><td>information : la demande est en cours de traitement</td><td>100, 101</td></tr>
+    <tr><td><code>2xx</code></td><td>succès : la demande a abouti</td><td>200, 201, 204</td></tr>
+    <tr><td><code>3xx</code></td><td>redirection : voir ailleurs</td><td>301, 302, 304</td></tr>
+    <tr><td><code>4xx</code></td><td>erreur du client (la demande est fautive)</td><td>400, 403, 404, 422</td></tr>
+    <tr><td><code>5xx</code></td><td>erreur du serveur (la demande était valable)</td><td>500, 502, 503</td></tr>
+  </table>
+<p>La frontière entre <code>4xx</code> et <code>5xx</code> est la plus utile à connaître : <code>404</code> signifie « cette adresse n’existe pas chez moi », <code>500</code> signifie « mon code a planté pendant que je traitais ta demande valable ». Corriger une <code>404</code> se fait dans l’adresse ; corriger une <code>500</code> se fait dans le serveur.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — confondre 401 et 403</div>
+    <p><code>401 Unauthorized</code> veut dire « je ne sais pas qui tu es » : il manque une identification. <code>403 Forbidden</code> veut dire « je sais qui tu es, et tu n’as pas le droit ». La première invite à se connecter ; la seconde interdit d’insister.</p>
+  </div>
+
+<h2>5. HTML, CSS, JavaScript : trois rôles distincts</h2>
+
+<p>Une page web est faite de trois langages qui ne se remplacent pas :</p>
+<ul>
+    <li><strong>HTML</strong> : la structure et le sens du contenu (un titre, une liste, un paragraphe). Sans HTML, rien à afficher.</li>
+    <li><strong>CSS</strong> : la présentation (couleurs, tailles, disposition). Sans CSS, la page reste lisible mais brute.</li>
+    <li><strong>JavaScript</strong> : le comportement (réagir à un clic, calculer, modifier la page après son chargement). Sans JavaScript, la page reste consultable mais figée.</li>
+  </ul>
+<pre><code><!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mes notes</title>
+  <link rel="stylesheet" href="styles.css">   ← CSS
+</head>
+<body>
+  <h1>Mes notes</h1>                          ← HTML
+  <ul id="notes"></ul>
+  <script src="app.js" defer></script>        ← JavaScript
+</body>
+</html></code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le navigateur lit la page dans l’ordre</div>
+    <p>Le serveur envoie le HTML en premier ; le navigateur le construit de haut en bas. Le CSS est appliqué dès qu’il est lu, et le JavaScript s’exécute quand il arrive — sauf s’il porte l’attribut <code>defer</code>, qui le fait attendre la fin de l’analyse du document. D’où la règle : un script qui manipule la page se place en fin de <code>body</code> ou avec <code>defer</code>.</p>
+  </div>
+
+<h2>6. Suivre le dialogue dans le navigateur</h2>
+
+<p>Tout ce chapitre se vérifie à l’écran, sans installer quoi que ce soit. Les outils de développement du navigateur (touche <kbd>F12</kbd>) contiennent un onglet <strong>Réseau</strong> qui liste chaque requête, son statut, son type et sa durée.</p>
+<table>
+    <tr><th>Ce que tu observes</th><th>Ce que cela signifie</th></tr>
+    <tr><td>une ligne rouge en 404</td><td>le chemin demandé n’existe pas sur le serveur</td></tr>
+    <tr><td>une ligne en 500</td><td>le serveur a échoué pendant le traitement</td></tr>
+    <tr><td>une ligne en 304</td><td>la ressource n’a pas changé : le navigateur réutilise sa copie</td></tr>
+    <tr><td>une ressource en « (blocked) »</td><td>une règle de sécurité ou une extension l’a refusée</td></tr>
+  </table>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Réflexe de débogage</div>
+    <p>Devant une page qui ne s’affiche pas comme prévu, ouvre l’onglet Réseau et recharge. Cherche la première ligne en rouge : c’est presque toujours la cause, et les suivantes n’en sont que la conséquence.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>7. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="web-c1-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="https://campus.exemple.fr/cours/index.html?page=2">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const url = lignes[0];
+
+// À compléter : afficher le protocole, l’hôte, le chemin et la requête.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Décomposer une URL</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Séparer une adresse en ses quatre composantes : protocole, hôte, chemin, requête.</p>
+    <div class="lab__brief"><p>Le programme reçoit une adresse sur une seule ligne. Affichez ses quatre composantes, chacune sur sa ligne, dans l’ordre : le <strong>protocole</strong> (ce qui précède <code>://</code>), l’<strong>hôte</strong> (jusqu’au premier <code>/</code>), le <strong>chemin</strong> (jusqu’au <code>?</code>) et la <strong>requête</strong> (ce qui suit le <code>?</code>). Si l’adresse n’a pas de chemin, affichez <code>/</code> ; si elle n’a pas de requête, affichez <code>-</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>https://campus.exemple.fr/cours/index.html?page=2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>https
+campus.exemple.fr
+/cours/index.html
+page=2</pre></div>
+    </div>
+    <p class="lab__note">Les quatre composantes, dans l’ordre.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>indexOf() renvoie -1 quand le caractère cherché n’est pas là : c’est ce qui distingue « absent » de « présent ».</li>
+        <li>Pour couper une chaîne en deux à un séparateur, slice() suffit : slice(0, i) et slice(i + 1).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="web-c1-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="3&#10;200&#10;404&#10;301">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const n = Number(lignes[0]);
+const codes = lignes.slice(1, 1 + n).map(Number);
+
+// À compléter : afficher chaque code suivi de sa famille.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Familles de codes HTTP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traduire un code de statut en la famille qu’il annonce au client.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> codes de statut HTTP (un par ligne). Affichez, pour chacun, une ligne <code>code famille</code> où la famille vaut : <code>information</code> (1xx), <code>succès</code> (2xx), <code>redirection</code> (3xx), <code>erreur client</code> (4xx) ou <code>erreur serveur</code> (5xx).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+200
+404
+301</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>200 succès
+404 erreur client
+301 redirection</pre></div>
+    </div>
+    <p class="lab__note">Trois codes, trois familles.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La famille se lit sur le chiffre des centaines : 200 → 2xx → succès.</li>
+        <li>Une table qui associe le chiffre des centaines au libellé évite cinq if imbriqués.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="web-c1-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="2&#10;GET&#10;POST">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const n = Number(lignes[0]);
+const methodes = lignes.slice(1, 1 + n);
+
+// À compléter : afficher chaque méthode suivie de « oui » ou « non ».
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Méthodes HTTP et idempotence</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer les méthodes qu’on peut rejouer sans conséquence des autres.</p>
+    <div class="lab__brief"><p>Une méthode est <strong>idempotente</strong> quand rejouer la même requête laisse le serveur dans le même état : <code>GET</code>, <code>HEAD</code>, <code>PUT</code>, <code>DELETE</code>, <code>OPTIONS</code> et <code>TRACE</code> le sont ; <code>POST</code> et <code>PATCH</code> ne le sont pas. Le programme reçoit un entier <code>n</code>, puis <code>n</code> méthodes (une par ligne, en majuscules). Affichez pour chacune <code>MÉTHODE oui</code> ou <code>MÉTHODE non</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+GET
+POST</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GET oui
+POST non</pre></div>
+    </div>
+    <p class="lab__note">GET ne modifie rien, POST crée quelque chose.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un tableau de méthodes idempotentes et un test includes() suffisent.</li>
+        <li>La casse compte : normalise en majuscules si l’entrée n’est pas garantie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>8. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans le dialogue HTTP, qui envoie la requête ?</p>
+      <div class="opts">
+        <button class="opt">Le serveur web</button>
+        <button class="opt" data-correct="1">Le client (navigateur)</button>
+        <button class="opt">Le système DNS</button>
+      </div>
+      <div class="q__exp">Le client demande la ressource ; le serveur y répond.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’URL https://campus.fr/cours/a.html?page=2, que vaut l’hôte ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">campus.fr</button>
+        <button class="opt">/cours/a.html</button>
+        <button class="opt">page=2</button>
+      </div>
+      <div class="q__exp">L’hôte suit le protocole et se termine avant la première barre oblique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel élément du chemin est réellement envoyé au serveur ?</p>
+      <div class="opts">
+        <button class="opt">le fragment #ancre</button>
+        <button class="opt" data-correct="1">les paramètres après le ?</button>
+        <button class="opt">aucun des deux</button>
+      </div>
+      <div class="q__exp">Le fragment reste dans le navigateur ; les paramètres font partie de la requête.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle méthode est idempotente ?</p>
+      <div class="opts">
+        <button class="opt">POST</button>
+        <button class="opt">PATCH</button>
+        <button class="opt" data-correct="1">PUT</button>
+      </div>
+      <div class="q__exp">PUT remplace la ressource : la rejouer ne change pas l’état final. POST crée à chaque appel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le serveur renvoie 503. De quelle famille s’agit-il ?</p>
+      <div class="opts">
+        <button class="opt">erreur du client</button>
+        <button class="opt" data-correct="1">erreur du serveur</button>
+        <button class="opt">redirection</button>
+      </div>
+      <div class="q__exp">5xx : la demande était valable mais le serveur n’a pas pu y répondre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel langage décrit la structure du contenu ?</p>
+      <div class="opts">
+        <button class="opt">CSS</button>
+        <button class="opt" data-correct="1">HTML</button>
+        <button class="opt">JavaScript</button>
+      </div>
+      <div class="q__exp">HTML structure et donne du sens ; CSS présente ; JavaScript anime.</div>
+    </div>
+  </div>
+
+<h2>9. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre paramètres de requête et chemin</strong> : <code>/notes?page=2</code> n’est pas un fichier <code>notes?page=2</code>.</li>
+      <li><strong>Croire que le fragment part au serveur</strong> : <code>#section</code> ne quitte jamais le navigateur.</li>
+      <li><strong>Attendre d’un <code>GET</code> qu’il modifie quelque chose</strong> : il est censé ne rien changer.</li>
+      <li><strong>Chercher une erreur de serveur dans le HTML</strong> : une <code>500</code> se diagnostique côté serveur.</li>
+      <li><strong>Mettre le <code>&lt;script&gt;</code> en haut de page</strong> sans <code>defer</code> : le script cherche des éléments qui n’existent pas encore.</li>
+    </ul>
+  </div>
+
+<h2>10. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire une adresse et une réponse, sans hésiter</div>
+    <ol>
+      <li><strong>Découpe l’URL</strong> de gauche à droite : protocole, hôte, port éventuel, chemin, requête, fragment.</li>
+      <li><strong>Décide de la méthode</strong> selon l’intention : lire (GET), créer (POST), remplacer (PUT), modifier (PATCH), supprimer (DELETE).</li>
+      <li><strong>Prévois le statut</strong> attendu du serveur avant de lancer la requête ; compare ensuite.</li>
+      <li><strong>Lis le premier chiffre</strong> d’un code inattendu pour savoir de quel côté chercher.</li>
+      <li><strong>Ouvre l’onglet Réseau</strong> et remonte à la première requête rouge.</li>
+    </ol>
+  </div>
+
+<h2>11. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le client demande, le serveur répond ; HTTP fixe la forme des messages.</li>
+      <li>Une URL se lit : protocole, hôte, port, chemin, requête, fragment — le fragment ne part pas au serveur.</li>
+      <li>Cinq méthodes suffisent : GET lire, POST créer, PUT remplacer, PATCH modifier, DELETE supprimer.</li>
+      <li>Idempotente = rejouable sans effet supplémentaire : GET, PUT, DELETE le sont ; POST et PATCH non.</li>
+      <li>Le premier chiffre du statut donne la famille : 2xx succès, 3xx redirection, 4xx faute du client, 5xx faute du serveur.</li>
+      <li>HTML structure, CSS présente, JavaScript anime — trois rôles, trois fichiers.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décompose une URL en quatre parties sans me tromper.</li>
+      <li>Je choisis la bonne méthode HTTP pour une intention donnée.</li>
+      <li>Je dis si une méthode est idempotente et j’explique pourquoi.</li>
+      <li>Je classe un code de statut dans sa famille et j’en tire la bonne conclusion.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>client</li><li>serveur</li><li>requête HTTP</li><li>en-tête</li><li>URL</li><li>chemin</li><li>paramètre de requête</li><li>idempotence</li><li>code de statut</li><li>HTML/CSS/JavaScript</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>12. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2 en réécrivant à la main une URL découpée.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices 1 et 2 du module : URL et familles de codes.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible l’idempotence et la frontière 4xx / 5xx.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, la structure HTML.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — HTML : structure, sémantique et contenu <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les quatre modules du support B1 de programmation web (introduction au Web, HTML, CSS, JavaScript).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

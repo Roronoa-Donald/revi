@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration - Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23141414'/><text x='50' y='72' font-size='60' font-family='monospace' font-weight='700' fill='%23ffffff' text-anchor='middle'>A</text></svg>">
+  <link rel="stylesheet" href="../../assets/css/tokens.css">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+  <link rel="stylesheet" href="../css/auth-global.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg></div>
+      </div>
+
+      <h1 class="auth-title">Administration</h1>
+      <p class="auth-subtitle">Connectez-vous pour gérer les clés d'activation</p>
+
+      <form id="loginForm">
+        <div class="auth-form-group">
+          <label class="auth-label" for="username">Nom d'utilisateur</label>
+          <input class="auth-input" type="text" id="username" name="username" required autofocus autocomplete="username">
+        </div>
+
+        <div class="auth-form-group">
+          <label class="auth-label" for="password">Mot de passe</label>
+          <input class="auth-input" type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+
+        <div id="errorMsg" class="auth-message auth-message-error"></div>
+
+        <button type="submit" id="btnLogin" class="auth-btn auth-btn-primary">
+          <span class="auth-btn-text">Se connecter</span>
+        </button>
+      </form>
+
+      <a href="/" class="auth-back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Retour au site
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const btn = document.getElementById('btnLogin');
+    const errorMsg = document.getElementById('errorMsg');
+
+    fetch('/api/admin/verify', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => { if (data.authenticated) window.location.href = '/_auth/admin/dashboard.html'; })
+      .catch(() => {});
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.classList.remove('visible');
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      if (!username || !password) {
+        errorMsg.textContent = 'Veuillez remplir tous les champs';
+        errorMsg.classList.add('visible'); return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="auth-spinner"></span> Connexion...';
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.16em;margin-right:6px" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-check"></use></svg>Connecté !';
+          btn.classList.add('auth-btn-success-state');
+          setTimeout(() => { window.location.href = '/_auth/admin/dashboard.html'; }, 600);
+        } else {
+          errorMsg.textContent = data.message || 'Identifiants incorrects';
+          errorMsg.classList.add('visible');
+          btn.disabled = false; btn.innerHTML = '<span class="auth-btn-text">Se connecter</span>';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Erreur de connexion au serveur';
+        errorMsg.classList.add('visible');
+        btn.disabled = false; btn.innerHTML = '<span class="auth-btn-text">Se connecter</span>';
+      }
+    });
+  </script>
+</body>
+</html>

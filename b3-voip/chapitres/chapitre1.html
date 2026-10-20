@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 — Fondamentaux de la ToIP &amp; Numérisation Vocale | Téléphonie VoIP B3</title>
+<meta name="description" content="Module 1 du cours Téléphonie VoIP B3 : Histoire et principes de la convergence voix-données, théorème d'échantillonnage de Nyquist-Shannon (8 kHz), quantification logarithmique A-law et µ-law (G.711), codecs audio standards (G.729, G.722, Opus), calcul rigoureux de bande passante avec en-têtes IP/UDP/RTP et modèle E (score R &amp; MOS). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-voip/chapitres/chapitre1.html">
+<meta property="og:title" content="Module 1 — Fondamentaux de la ToIP &amp; Numérisation Vocale | Téléphonie VoIP B3">
+<meta property="og:description" content="Module 1 du cours Téléphonie VoIP B3 : Histoire et principes de la convergence voix-données, théorème d'échantillonnage de Nyquist-Shannon (8 kHz), quantification logarithmique A-law et µ-law (G.711), codecs audio standards (G.729, G.722, Opus), calcul rigoureux de bande passante avec en-têtes IP/UDP/RTP et modèle E (score R &amp; MOS). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-voipnav"><div class="b3-voipnav__in">
+  <a class="b3-voipnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-voipnav__sep" aria-hidden="true">/</span>
+  <a class="b3-voipnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-phone"></use></svg> Téléphonie VoIP B3</a>
+  <div class="b3-voipnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-voipnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-voipwrap">
+<p class="crumb"><a href="../index.html">Téléphonie VoIP B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondamentaux de la ToIP & Numérisation Vocale</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Vous êtes recruté comme ingénieur réseaux et télécoms pour piloter la migration intégrale de la flotte téléphonique d'une entreprise multisite (300 collaborateurs) du vieux standard RTC/RNIS vers une infrastructure moderne de Voix sur IP. Votre première mission consiste à poser les bases d'ingénierie acoustique et réseau : comprendre la numérisation du signal vocal, maîtriser le théorème de Nyquist-Shannon et la quantification G.711, sélectionner les codecs audio adaptés aux liaisons inter-sites et calculer rigoureusement la bande passante nécessaire en incluant les en-têtes réseau IP/UDP/RTP pour garantir un score MOS d'excellence.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Comprendre la rupture technologique entre la commutation de circuits (RTC/RNIS) et la commutation de paquets (ToIP/VoIP).</li>
+      <li>Maîtriser les principes physiques et mathématiques de la numérisation vocale : théorème de Nyquist-Shannon (8 kHz) et quantification logarithmique A-law / µ-law (G.711).</li>
+      <li>Calculer la bande passante réelle d'un flux ToIP en intégrant la charge utile du codec et les en-têtes de paquetisation (IP 20B, UDP 8B, RTP 12B).</li>
+      <li>Évaluer et prédire la qualité perçue de la communication à l'aide du modèle E (facteur R) et du score MOS (Mean Opinion Score).</li>
+    </ol>
+  </div>
+
+<h2>1. De la Téléphonie Traditionnelle (RTC/RNIS) à la Téléphonie sur IP (ToIP)</h2>
+
+<p>Pendant plus d'un siècle, la communication vocale à distance a reposé sur le <strong>Réseau Téléphonique Commuté (RTC / PSTN)</strong>, fondé sur la commutation de circuits physiques ou temporels dédiés (lignes analogiques cuivre et liaisons numériques RNIS T0/T2 à 64 kbps). Dans cette approche historique, un canal complet de 64 kbps restait monopolisé en continu pendant toute la durée de l'appel, même lors des silences, engendrant des coûts d'infrastructure et d'abonnement élevés.</p>
+<p>La <strong>Téléphonie sur IP (ToIP)</strong> et la <strong>Voix sur IP (VoIP)</strong> matérialisent la convergence numérique : le signal vocal n'est plus véhiculé sur une boucle locale dédiée mais découpé en paquets de données numériques routés sur les réseaux IP (Ethernet, WAN, Internet) aux côtés du trafic bureautique et web standard.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Réseau Téléphonique Commuté (RTC / RNIS)</h4>
+    <ul>
+      <li><strong>Commutation de circuits :</strong> Allocation exclusive d'un circuit physique ou temporel (Time Slot de 64 kbps) de bout en bout.</li>
+      <li><strong>Facturation à la durée et à la distance :</strong> Coûts télécoms élevés pour les communications longue distance et internationales.</li>
+      <li><strong>Infrastructure cloisonnée :</strong> Câblage téléphonique cuivre (RJ11/PABX analogique) séparé du réseau informatique (RJ45).</li>
+      <li><strong>Obsolescence programmée :</strong> Arrêt progressif du réseau cuivre et fin de commercialisation du RTC par les opérateurs mondiaux.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Téléphonie sur IP (ToIP / VoIP)</h4>
+    <ul>
+      <li><strong>Commutation de paquets :</strong> Échantillonnage, compression et encapsulation de la voix dans des paquets IP/UDP/RTP.</li>
+      <li><strong>Mutualisation d'infrastructure :</strong> Câblage unique RJ45 catégorie 6+, switches PoE et VLANs logiques partagés.</li>
+      <li><strong>Communications unifiées :</strong> Intégration naturelle de la messagerie vocale vers email, de la vidéo, du partage d'écran et du CTI.</li>
+      <li><strong>Flexibilité et réduction des coûts :</strong> Trunks SIP dématérialisés, forfaits illimités et nomadisme intégral (softphones).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Numérisation Vocale : Échantillonnage de Nyquist & Quantification G.711</h2>
+
+<p>La voix humaine émise lors d'une conversation produit des ondes acoustiques analogiques continues. Pour transmettre cette parole sur un réseau informatique binaire, elle doit subir une chaîne de transformation en trois étapes : <strong>l'échantillonnage</strong>, <strong>la quantification</strong> et <strong>le codage</strong> (PCM - Pulse Code Modulation).</p>
+<p>Le <strong>théorème d'échantillonnage de Nyquist-Shannon</strong> énonce que pour restituer intégralement et fidèlement un signal analogique continu de bande passante <code>B</code> sans distorsion de repliement de spectre (aliasing), la fréquence d'échantillonnage <code>Fe</code> doit être strictement supérieure ou égale au double de la fréquence maximale contenue dans le signal :</p>
+<pre><code>Fe &ge; 2 * Fmax</code></pre>
+<p>La parole humaine intelligible en téléphonie classique couvre la bande spectrale de <strong>300 Hz à 3 400 Hz</strong> (largeur de bande téléphonique normalisée). La fréquence maximale est donc <code>Fmax = 3 400 Hz</code>. Le double théorique est 6 800 Hz. Afin de ménager une marge technique indispensable pour concevoir des filtres analogiques passe-bas anti-repliement réalisables, les instances internationales (UIT-T) ont fixé la fréquence d'échantillonnage universelle à <strong>8 000 Hz</strong> (soit 8 000 mesures par seconde, ou une mesure toutes les 125 microsecondes).</p>
+<div class="card">
+  <h4>Lois de Quantification Logarithmique ITU-T G.711 (A-law &amp; µ-law)</h4>
+  <p>Une quantification linéaire uniforme de la voix exigerait 12 à 14 bits par échantillon pour offrir une dynamique convenable sans bruit de fond sur les voix faibles, ce qui exigerait un débit de plus de 100 kbps. Pour optimiser ce volume, la recommandation <strong>ITU-T G.711</strong> applique une compression logarithmique instantanée réduisant chaque échantillon sur <strong>8 bits</strong> (1 octet) :</p>
+  <ul>
+    <li><strong>Loi A (A-law) :</strong> Déployée en Europe, en Afrique et dans la majorité du monde. Elle découpe la plage d'amplitude en 13 segments linéaires approximant une courbe logarithmique. Les signaux de faible niveau bénéficient de pas de quantification très serrés (pas = 2), garantissant un excellent rapport signal/bruit (SQNR).</li>
+    <li><strong>Loi µ (µ-law / PCMU) :</strong> Déployée en Amérique du Nord (USA, Canada) et au Japon. Elle utilise 15 segments avec un biais accentué sur les très faibles amplitudes.</li>
+    <li><strong>Débit binaire standard :</strong> <code>8 000 échantillons/s * 8 bits/échantillon = 64 000 bps = 64 kbps</code>. C'est le débit de référence d'un canal voix numérique non compressé (canal B en RNIS).</li>
+  </ul>
+</div>
+
+<h2>3. Codecs Vocaux, Calcul de Bande Passante Réseau & Modèle E (Score R & MOS)</h2>
+
+<p>Si le codec G.711 fournit une fidélité acoustique irréprochable sur un réseau local d'entreprise, le transport de dizaines d'appels simultanés sur une liaison WAN ou internet exige souvent l'usage d'algorithmes de compression vocale (codecs avec perte) pour économiser la ressource spectrale.</p>
+<table class="table">
+  <thead><tr><th>Codec</th><th>Standard</th><th>Débit Brut</th><th>Algorithme de Compression</th><th>Complexité DSP</th><th>Usage Typique</th></tr></thead>
+  <tbody>
+    <tr><td><strong>G.711 (PCMA / PCMU)</strong></td><td>ITU-T</td><td>64 kbps</td><td>Modulation PCM logarithmique sans prédiction</td><td>Nulle (0.1 MIPS)</td><td>LAN local, qualité cristal, aucun lag de compression.</td></tr>
+    <tr><td><strong>G.729 (G.729a)</strong></td><td>ITU-T</td><td>8 kbps</td><td>CS-ACELP (synthèse vocale par prédiction linéaire)</td><td>Élevée (20-30 MIPS)</td><td>Liens WAN contraints, économie de 70% de bande passante.</td></tr>
+    <tr><td><strong>G.722</strong></td><td>ITU-T</td><td>64 kbps</td><td>SB-ADPCM (Large bande 50 Hz - 7 kHz)</td><td>Modérée (5 MIPS)</td><td>Téléphonie HD d'entreprise, conférences audiophiles.</td></tr>
+    <tr><td><strong>OPUS</strong></td><td>IETF RFC 6716</td><td>6 à 510 kbps</td><td>Hybride SILK (voix) + CELT (musique), adaptatif</td><td>Modérée à forte</td><td>WebRTC, visioconférence et réseaux internet grand public.</td></tr>
+  </tbody>
+</table>
+<div class="card">
+  <h4>Calcul Rigoureux de la Bande Passante Réseau (Overhead En-Têtes)</h4>
+  <p>Une erreur fréquente consiste à dimensionner un lien WAN en additionnant uniquement les débits bruts des codecs. En ToIP, chaque échantillon audio de 20 ms est encapsulé dans trois en-têtes réseau superposés :</p>
+  <pre><code>[ En-tête IP : 20 octets ] + [ En-tête UDP : 8 octets ] + [ En-tête RTP : 12 octets ] = 40 octets d'en-têtes</code></pre>
+  <p>Pour un paquetage standard de <code>PTIME = 20 ms</code> (soit <code>50 paquets par seconde</code>) :</p>
+  <ul>
+    <li><strong>G.711 (64 kbps) :</strong> Charge utile = 160 octets. Paquet total = 160 + 40 = 200 octets. Débit réel par appel = <code>200 octets * 8 bits * 50 pps = 80.0 kbps</code>.</li>
+    <li><strong>G.729 (8 kbps) :</strong> Charge utile = 20 octets. Paquet total = 20 + 40 = 60 octets. Débit réel par appel = <code>60 octets * 8 bits * 50 pps = 24.0 kbps</code>.</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>Évaluation de la Qualité Vocale : Modèle E &amp; Score MOS (ITU-T G.107)</h4>
+  <p>Le <strong>Mean Opinion Score (MOS)</strong> est une échelle normalisée de 1.0 (incompréhensible) à 5.0 (parfait, qualité studio) mesurant la qualité ressentie d'une conversation téléphonique. Le <strong>modèle E (G.107)</strong> permet d'estimer ce score par calcul à partir d'un facteur de transmission <code>R</code> (0 à 100) :</p>
+  <pre><code>R = R0 - Id(Délai) - Ie(Pertes &amp; Codec)</code></pre>
+  <p>La valeur de R est ensuite traduite en MOS : un score MOS &ge; 4.03 qualifie une communication d'<strong>Excellente</strong>, entre 3.60 et 4.02 de <strong>Bonne</strong>, entre 3.10 et 3.59 de <strong>Moyenne</strong>, et en dessous de 3.10 de <strong>Mauvaise</strong>.</p>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="vo3-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CODEC=G.711 BITRATE_KBPS=64 PTIME_MS=20 CALLS=10&#10;CODEC=G.729 BITRATE_KBPS=8 PTIME_MS=20 CALLS=25">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c1-e1) — Calculateur de Débit Voix & Bande Passante Réseau
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cas de test 1]
+# Données : CODEC=G.722 BITRATE_KBPS=64 PTIME_MS=20 CALLS=5
+# Données : CODEC=OPUS BITRATE_KBPS=24 PTIME_MS=20 CALLS=50
+# Données : CODEC=OPUS BITRATE_KBPS=32 PTIME_MS=10 CALLS=2
+A_COMPLETER
+
+[Cas 2 — Cas de test 2]
+# Données : CODEC=G.711 BITRATE_KBPS=64 PTIME_MS=30 CALLS=1
+# Données : CODEC=G.729 BITRATE_KBPS=8 PTIME_MS=10 CALLS=100
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de Débit Voix &amp; Bande Passante Réseau</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l'overhead des en-têtes réseau ToIP (IP/UDP/RTP) et la bande passante cumulée selon le codec et la durée de paquetisation.</p>
+    <div class="lab__brief"><p>La transmission de la voix sur IP encapsule les échantillons audio numériques dans des paquets RTP, puis UDP et IP. Chaque paquet comporte une charge utile audio (payload) correspondant à une durée d'échantillonnage de paquetisation (typiquement 20 ms), précédée des en-têtes suivants : Total des en-têtes réseau = 40 octets par paquet.</p><ul><li>En-tête IP : 20 octets</li><li>En-tête UDP : 8 octets</li><li>En-tête RTP : 12 octets</li></ul>
+<p>Les codecs usuels présentent les caractéristiques suivantes pour 20 ms de voix :</p><ul><li>G.711 (PCMA / PCMU) : débit brut 64 kbps -> charge utile = 160 octets</li><li>G.729 : débit brut 8 kbps -> charge utile = 20 octets</li><li>G.722 : débit brut 64 kbps -> charge utile = 160 octets</li><li>OPUS : débit brut configurable (ex: 24 kbps -> charge utile = 60 octets, calculé par: (bitrate_kbps * 1000 * 0.02) / 8 octets)</li></ul>
+<p>Format d'entrée (sur STDIN) :<br>Lignes de la forme :<br>CODEC=<nom> BITRATE_KBPS=<val> PTIME_MS=<ms> CALLS=<nb></p>
+<p>Pour chaque ligne :<br>1. Calculer le nombre de paquets par seconde par appel : <code>pps = 1000 / PTIME_MS</code>.<br>2. Calculer la taille de la charge utile en octets :<br>   <code>payload_bytes = int((BITRATE_KBPS * 1000 * (PTIME_MS / 1000)) / 8)</code><br>3. Calculer la taille totale d'un paquet en octets : <code>packet_bytes = payload_bytes + 40</code>.<br>4. Calculer le débit réseau total par appel en kbps (avec en-têtes) :<br>   <code>bandwidth_per_call_kbps = (packet_bytes * 8 * pps) / 1000</code><br>5. Calculer le débit total cumulé pour l'ensemble des appels simultanés :<br>   <code>total_bandwidth_kbps = bandwidth_per_call_kbps * CALLS</code></p>
+<p>Format de sortie :<br>Pour chaque ligne analysée, afficher :<br>CODEC:<nom> | PAYLOAD:<payload_bytes>B | PACKET:<packet_bytes>B | PER_CALL:<bandwidth_per_call_kbps:.1f>kbps | TOTAL:<total_bandwidth_kbps:.1f>kbps</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CODEC=G.711 BITRATE_KBPS=64 PTIME_MS=20 CALLS=10
+CODEC=G.729 BITRATE_KBPS=8 PTIME_MS=20 CALLS=25</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CODEC:G.711 | PAYLOAD:160B | PACKET:200B | PER_CALL:80.0kbps | TOTAL:800.0kbps
+CODEC:G.729 | PAYLOAD:20B | PACKET:60B | PER_CALL:24.0kbps | TOTAL:600.0kbps
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Ajoutez systématiquement 40 octets d'en-têtes (IP 20B, UDP 8B, RTP 12B) à la charge utile du codec.</li>
+        <li>Calculez la cadence de paquets par seconde : pps = 1000 / PTIME_MS.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CODEC=G.711 DELAY_MS=50 LOSS_PCT=0.0&#10;CODEC=G.711 DELAY_MS=150 LOSS_PCT=2.0&#10;CODEC=G.729 DELAY_MS=220 LOSS_PCT=5.0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c1-e2) — Estimateur de Qualité Vocale & Modèle E (Score R & MOS)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cas de test 1]
+# Données : CODEC=G.722 DELAY_MS=80 LOSS_PCT=1.0
+# Données : CODEC=G.711 DELAY_MS=200 LOSS_PCT=6.0
+# Données : CODEC=G.729 DELAY_MS=120 LOSS_PCT=1.0
+A_COMPLETER
+
+[Cas 2 — Cas de test 2]
+# Données : CODEC=G.711 DELAY_MS=300 LOSS_PCT=15.0
+# Données : CODEC=G.722 DELAY_MS=180 LOSS_PCT=0.5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Estimateur de Qualité Vocale &amp; Modèle E (Score R &amp; MOS)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Estimer le facteur de qualité R et le score MOS selon la recommandation ITU-T G.107 en fonction du délai et des pertes.</p>
+    <div class="lab__brief"><p>Le standard ITU-T G.107 (E-Model) évalue la qualité de transmission vocale à travers un facteur de qualité <code>R</code> (variant typiquement de 0 à 100). Une simplification standardisée pour la ToIP prend en compte :   - Si <code>D <= 100</code> : <code>Id = 0</code>   - Si <code>100 < D <= 177</code> : <code>Id = 0.024 * D</code>   - Si <code>D > 177</code> : <code>Id = 0.024 * D + 0.11 * (D - 177)</code>   - Pour G.711 : <code>Ie = 2.5 * P</code>   - Pour G.729 : <code>Ie = 11.0 + 3.0 * P</code>   - Pour G.722 : <code>Ie = 2.0 * P</code></p><ul><li><code>R0</code> : facteur intrinsèque de base (environ 93.2 pour G.711, 83.0 pour G.729, 94.0 pour G.722).</li><li><code>Id</code> : dégradation liée au délai unidirectionnel <code>D</code> (en millisecondes) :</li><li><code>Ie</code> : dégradation liée aux pertes de paquets <code>P</code> (pourcentage 0..100) :</li><li>Calcul du facteur <code>R</code> : <code>R = max(0.0, min(100.0, R0 - Id - Ie))</code></li></ul>
+<p>Conversion du facteur R en score MOS (Mean Opinion Score entre 1.0 et 4.5) selon la formule ITU-T :   <code>MOS = 1.0 + 0.035 * R + R * (R - 60.0) * (100.0 - R) * 7e-6</code>   (borné entre 1.0 et 4.5)</p><ul><li>Si <code>R < 0</code> : <code>MOS = 1.0</code></li><li>Si <code>0 <= R <= 100</code> :</li><li>Si <code>R > 100</code> : <code>MOS = 4.5</code></li></ul>
+<p>Qualification de la qualité :</p><ul><li>MOS >= 4.03 : EXCELLENT</li><li>3.60 <= MOS < 4.03 : BON</li><li>3.10 <= MOS < 3.60 : MOYEN</li><li>MOS < 3.10 : MAUVAIS</li></ul>
+<p>Format d'entrée :<br>Lignes de la forme :<br>CODEC=<G.711|G.729|G.722> DELAY_MS=<ms> LOSS_PCT=<pct></p>
+<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>CODEC:<nom> | DELAY:<d>ms | LOSS:<p>% | R:<R:.1f> | MOS:<MOS:.2f> | QUALITE:<label></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CODEC=G.711 DELAY_MS=50 LOSS_PCT=0.0
+CODEC=G.711 DELAY_MS=150 LOSS_PCT=2.0
+CODEC=G.729 DELAY_MS=220 LOSS_PCT=5.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CODEC:G.711 | DELAY:50.0ms | LOSS:0.0% | R:93.2 | MOS:4.41 | QUALITE:EXCELLENT
+CODEC:G.711 | DELAY:150.0ms | LOSS:2.0% | R:84.6 | MOS:4.19 | QUALITE:EXCELLENT
+CODEC:G.729 | DELAY:220.0ms | LOSS:5.0% | R:47.0 | MOS:2.42 | QUALITE:MAUVAIS
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Appliquez la formule par morceaux pour Id selon les seuils de 100 ms et 177 ms.</li>
+        <li>Bornez le score MOS entre 1.0 et 4.5.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SAMPLE=150 REGION=EUROPE&#10;SAMPLE=-1500 REGION=AMERIQUE&#10;SAMPLE=25 REGION=EUROPE">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c1-e3) — Convertisseur & Échantillonneur PCM / A-law & µ-law
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cas de test 1]
+# Données : SAMPLE=0 REGION=EUROPE
+# Données : SAMPLE=3500 REGION=EUROPE
+# Données : SAMPLE=-50 REGION=AMERIQUE
+A_COMPLETER
+
+[Cas 2 — Cas de test 2]
+# Données : SAMPLE=-300 REGION=EUROPE
+# Données : SAMPLE=800 REGION=AMERIQUE
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Convertisseur &amp; Échantillonneur PCM / A-law &amp; µ-law</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la quantification logarithmique ITU-T G.711 A-law et µ-law et extraire les segments et pas de quantification.</p>
+    <div class="lab__brief"><p>La numérisation vocale standard G.711 échantillonne la voix à une fréquence de 8 000 Hz avec des échantillons linéaires sur 13 bits (A-law en Europe) ou 14 bits (µ-law en Amérique du Nord).<br>Ces échantillons sont compressés sur 8 bits (1 octet), produisant le débit universel de 64 kbps (8 000 éch/s * 8 bits = 64 000 bps).</p>
+<p>Principe de quantification logarithmique A-law (ITU-T G.711) : Chaque échantillon linéaire entier signé <code>S</code> (-4096 <= S <= 4095) est codé en un octet binaire <code>b7 b6 b5 b4 b3 b2 b1 b0</code> :   - Segment 0 : 0 <= M < 32 -> code binaire segment <code>000</code>, pas = 2   - Segment 1 : 32 <= M < 64 -> code <code>001</code>, pas = 2   - Segment 2 : 64 <= M < 128 -> code <code>010</code>, pas = 4   - Segment 3 : 128 <= M < 256 -> code <code>011</code>, pas = 8   - Segment 4 : 256 <= M < 512 -> code <code>100</code>, pas = 16   - Segment 5 : 512 <= M < 1024 -> code <code>101</code>, pas = 32   - Segment 6 : 1024 <= M < 2048 -> code <code>110</code>, pas = 64   - Segment 7 : 2048 <= M <= 4095 -> code <code>111</code>, pas = 128   où <code>nb_bits_lin</code> est le nombre de bits effectifs (segment + 4).</p><ul><li><code>b7</code> (signe) : 1 si S >= 0, 0 si S < 0.</li><li>L'amplitude absolue <code>M = min(abs(S), 4095)</code> détermine le segment (de 0 à 7) :</li><li>Rapport signal sur bruit de quantification approximé : <code>SQNR_dB = 6.02 * nb_bits_lin + 1.76</code></li></ul>
+<p>Format d'entrée :<br>Lignes de la forme :<br>SAMPLE=<entier_signé> REGION=<EUROPE|AMERIQUE></p>
+<p>Règles de sortie : SAMPLE:<val> | NORME:<A-LAW|U-LAW> | SIGNE:<POSITIF|NEGATIF> | SEGMENT:<0..7> | PAS:<pas></p><ul><li>Déterminer la norme : <code>A-LAW</code> si EUROPE, <code>U-LAW</code> si AMERIQUE.</li><li>Extraire le signe : <code>POSITIF</code> si >= 0 sinon <code>NEGATIF</code>.</li><li>Déterminer l'indice du segment (0 à 7).</li><li>Calculer le pas de quantification associé au segment.</li><li>Afficher la ligne :</li></ul></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SAMPLE=150 REGION=EUROPE
+SAMPLE=-1500 REGION=AMERIQUE
+SAMPLE=25 REGION=EUROPE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SAMPLE:150 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:3 | PAS:8
+SAMPLE:-1500 | NORME:U-LAW | SIGNE:NEGATIF | SEGMENT:6 | PAS:64
+SAMPLE:25 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:0 | PAS:2
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez la région géographique pour associer A-LAW (Europe) ou U-LAW (Amérique).</li>
+        <li>Identifiez le segment de 0 à 7 selon l'amplitude absolue bornée à 4095.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Selon le théorème d'échantillonnage de Nyquist-Shannon, quelle fréquence minimale d'échantillonnage doit être appliquée pour numériser un signal audio dont la fréquence maximale est de 3 400 Hz ?</p>
+      <div class="opts">
+        <button class="opt">3 400 Hz</button>
+        <button class="opt" data-correct="1">6 800 Hz</button>
+        <button class="opt">8 000 Hz</button>
+        <button class="opt">16 000 Hz</button>
+      </div>
+      <div class="q__exp">Le théorème impose Fe >= 2 * Fmax = 2 * 3 400 = 6 800 Hz. (La norme internationale a fixé 8 000 Hz pour ménager une marge technique de filtrage anti-repliement).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le débit binaire brut d'un canal voix standard numérisé selon la norme ITU-T G.711 (loi A ou loi µ) ?</p>
+      <div class="opts">
+        <button class="opt">8 kbps</button>
+        <button class="opt">16 kbps</button>
+        <button class="opt" data-correct="1">64 kbps</button>
+        <button class="opt">128 kbps</button>
+      </div>
+      <div class="q__exp">G.711 échantillonne à 8 000 Hz avec 8 bits par échantillon : 8 000 * 8 = 64 000 bits/s = 64 kbps.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle taille totale d'en-têtes réseau (IP + UDP + RTP) est ajoutée à chaque paquet voix lors de la transmission ToIP standard sur réseau IPv4 ?</p>
+      <div class="opts">
+        <button class="opt">14 octets</button>
+        <button class="opt">28 octets</button>
+        <button class="opt" data-correct="1">40 octets</button>
+        <button class="opt">64 octets</button>
+      </div>
+      <div class="q__exp">En-tête IP (20 octets) + En-tête UDP (8 octets) + En-tête RTP (12 octets) = 40 octets de surcharge par paquet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour une communication utilisant le codec G.711 (64 kbps) avec une durée de paquetisation standard de 20 ms (50 paquets/s), quel est le débit réseau total consommé par appel avec les en-têtes IP/UDP/RTP ?</p>
+      <div class="opts">
+        <button class="opt">64.0 kbps</button>
+        <button class="opt">74.7 kbps</button>
+        <button class="opt" data-correct="1">80.0 kbps</button>
+        <button class="opt">96.0 kbps</button>
+      </div>
+      <div class="q__exp">Payload 20ms = (64 000 * 0.02) / 8 = 160 octets. Paquet total = 160 + 40 = 200 octets. Débit = 200 * 8 * 50 = 80 000 bps = 80.0 kbps.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel codec audio utilise l'algorithme CS-ACELP pour compresser la parole humaine à un débit brut de seulement 8 kbps ?</p>
+      <div class="opts">
+        <button class="opt">G.711</button>
+        <button class="opt">G.722</button>
+        <button class="opt" data-correct="1">G.729</button>
+        <button class="opt">Opus</button>
+      </div>
+      <div class="q__exp">G.729 compresse la voix à 8 kbps grâce à la modélisation mathématique du conduit vocal par prédiction linéaire (CS-ACELP).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle région géographique la loi de compression logarithmique G.711 A-law est-elle obligatoirement déployée sur les réseaux téléphoniques ?</p>
+      <div class="opts">
+        <button class="opt">États-Unis et Canada</button>
+        <button class="opt" data-correct="1">Europe et Afrique</button>
+        <button class="opt">Japon uniquement</button>
+        <button class="opt">Australie uniquement</button>
+      </div>
+      <div class="q__exp">L'Europe, l'Afrique et la majorité des pays du monde utilisent la norme A-law (PCMA), tandis que l'Amérique du Nord et le Japon utilisent la loi µ (PCMU).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le modèle E (ITU-T G.107), quel score MOS (Mean Opinion Score) correspond au seuil à partir duquel la qualité de communication est qualifiée d'Excellente ?</p>
+      <div class="opts">
+        <button class="opt">MOS >= 3.10</button>
+        <button class="opt">MOS >= 3.60</button>
+        <button class="opt" data-correct="1">MOS >= 4.03</button>
+        <button class="opt">MOS = 5.00</button>
+      </div>
+      <div class="q__exp">Selon la classification ITU-T, un score MOS >= 4.03 qualifie une communication d'Excellente (qualité studio/réseau local optimal).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impossible d'utiliser le protocole de transport TCP pour acheminer les flux audio RTP en téléphonie temps réel ?</p>
+      <div class="opts">
+        <button class="opt">Car TCP ne supporte pas les adresses IP</button>
+        <button class="opt" data-correct="1">Car le mécanisme de retransmission (ACK/retransmission) et le contrôle de congestion de TCP introduiraient un retard et une gigue inacceptables pour la conversation</button>
+        <button class="opt">Car TCP est limité à 10 kbps</button>
+        <button class="opt">Car les pare-feux bloquent tous les flux TCP</button>
+      </div>
+      <div class="q__exp">La retransmission TCP en cas de paquet perdu arriverait trop tard pour être jouée dans l'oreille humaine. On privilégie UDP qui délivre les paquets sans délai ni retransmission.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Dimensionner un lien WAN en prenant uniquement le débit brut du codec (8 kbps pour G.729 au lieu des 24 kbps réels avec en-têtes IP/UDP/RTP).</li>
+      <li>Confondre la fréquence d'échantillonnage (8 000 Hz = 8 000 mesures/s) et le débit binaire résultant (64 000 bps = 64 kbps).</li>
+      <li>Oublier que les paquets voix perdus ne sont jamais retransmis en UDP/RTP sous peine d'introduire un écho et un décalage temporel inaudible.</li>
+      <li>Utiliser le codec G.711 sur des liaisons satellite ou 4G à fort taux de pertes sans mécanisme de dissimulation de paquets (PLC).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : Numérisation & Dimensionnement de la Voix</div>
+    <ol>
+      <li>Caractériser les flux acoustiques : vérifier la conformité d'échantillonnage au théorème de Nyquist (8 kHz pour bande étroite, 16 kHz pour large bande HD).</li>
+      <li>Sélectionner les codecs audio selon les contraintes de liaison : imposer G.711 sur le LAN local et G.729 ou Opus sur les liaisons WAN ou internet contraintes.</li>
+      <li>Calculer la surcharge réseau (Overhead) : intégrer systématiquement les 40 octets d'en-têtes IP/UDP/RTP dans le calcul du débit par canal à 20 ms de PTIME.</li>
+      <li>Évaluer la qualité prévisionnelle avec le Modèle E : projeter les scores R et MOS selon la latence mesurée et le taux de pertes de paquets sur le lien.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La ToIP remplace la commutation de circuits du RTC par la commutation de paquets numériques IP/UDP/RTP mutualisée sur le réseau informatique.</li>
+      <li>Le théorème de Nyquist-Shannon impose Fe &ge; 2 * Fmax ; la téléphonie numérise la bande 300-3400 Hz à 8 000 échantillons par seconde.</li>
+      <li>La recommandation ITU-T G.711 compresse les échantillons linéaires sur 8 bits via la loi A (Europe) ou la loi µ (USA), produisant le débit universel de 64 kbps.</li>
+      <li>Les en-têtes réseau IP (20B), UDP (8B) et RTP (12B) ajoutent 40 octets par paquet, élevant le débit réel de G.711 à 80 kbps et de G.729 à 24 kbps par appel à 20 ms.</li>
+      <li>Le modèle E (ITU-T G.107) calcule le facteur R et le score MOS (1.0 à 4.5) pour qualifier objectivement l'expérience utilisateur face au délai et aux pertes.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous énoncer le théorème de Nyquist-Shannon et expliquer pourquoi la fréquence Fe a été fixée à 8 000 Hz en téléphonie ?</li>
+      <li>Pouvez-vous expliquer le principe de la quantification logarithmique non uniforme A-law et µ-law ?</li>
+      <li>Savez-vous calculer la taille du payload et le débit réseau total avec en-têtes pour G.711 et G.729 à 20 ms de PTIME ?</li>
+      <li>Comprenez-vous pourquoi un codec G.729 consomme 24 kbps sur le réseau alors que son débit brut de compression est de 8 kbps ?</li>
+      <li>Savez-vous interpréter le score MOS et qualifier la qualité d'une communication téléphonique ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>ToIP / VoIP :</strong> Téléphonie sur IP : transport de la voix numérisée sous forme de paquets IP/UDP/RTP sur un réseau informatique.</li><li><strong>Théorème de Nyquist :</strong> Règle physique imposant une fréquence d'échantillonnage au moins double de la fréquence maximale du signal analogique.</li><li><strong>G.711 (PCM) :</strong> Norme internationale de numérisation vocale non compressée à 64 kbps utilisant la loi A (Europe) ou la loi µ (USA).</li><li><strong>G.729 (CS-ACELP) :</strong> Codec de compression vocale haute efficacité réduisant le débit audio brut à 8 kbps par modélisation prédictive.</li><li><strong>Overhead IP/UDP/RTP :</strong> Surcharge protocolaire de 40 octets ajoutée à chaque paquet voix (IP 20B + UDP 8B + RTP 12B).</li><li><strong>Score MOS (Mean Opinion Score) :</strong> Échelle de notation standardisée (1.0 à 4.5) mesurant la qualité perçue d'une transmission vocale.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions de Nyquist et débits codecs mal assimilés. Relisez le cours et refaites le QCM.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Principes généraux compris. Entraînez-vous sur le calcul de bande passante avec en-têtes IP/UDP/RTP.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Approfondissez le modèle E et la quantification A-law / µ-law.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez le dimensionnement réseau et les caractéristiques des codecs ToIP.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'ingénieur ToIP. Prêt pour les protocoles de signalisation SIP et SDP du Module 2 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Module 2 — Protocoles de Signalisation & Médias (SIP, SDP, RTP) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Téléphonie Voix sur IP (Auteur : M. Pape Moussa SONKO, Élève Ingénieur en Systèmes et Réseaux), Normes IETF RFC 3261 (SIP), RFC 4566 (SDP), RFC 3550 (RTP), RFC 5389 (STUN), Recommandations ITU-T G.107, G.711, G.729, Documentation officielle Asterisk.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

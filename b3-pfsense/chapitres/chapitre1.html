@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Architecture pfSense, Moteur BSD Packet Filter &amp;amp; Déploiement Réseau | pfSense &amp; Routage B3</title>
+<meta name="description" content="Chapitre 1 du cours pfSense &amp; Routage B3 : Noyau FreeBSD, moteur Packet Filter pf, interfaces physiques WAN/LAN/Opt, adressage CIDR, passerelles, services DHCP et DNS Resolver Unbound. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-pfsense/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Architecture pfSense, Moteur BSD Packet Filter &amp;amp; Déploiement Réseau | pfSense &amp; Routage B3">
+<meta property="og:description" content="Chapitre 1 du cours pfSense &amp; Routage B3 : Noyau FreeBSD, moteur Packet Filter pf, interfaces physiques WAN/LAN/Opt, adressage CIDR, passerelles, services DHCP et DNS Resolver Unbound. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-pfsensenav"><div class="b3-pfsensenav__in">
+  <a class="b3-pfsensenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-pfsensenav__sep" aria-hidden="true">/</span>
+  <a class="b3-pfsensenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> pfSense &amp; Routage B3</a>
+  <div class="b3-pfsensenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-pfsensenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-pfsensewrap">
+<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Architecture pfSense, Moteur BSD Packet Filter &amp; Déploiement Réseau</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans une infrastructure informatique d’entreprise, le pare-feu constitue la première ligne de défense et le cœur d’acheminement des flux réseau. Dérivé du projet m0n0wall et propulsé par le système d’exploitation FreeBSD, Netgate pfSense s’appuie sur le moteur de filtrage Packet Filter (pf), réputé pour sa robustesse, sa vélocité et sa gestion native des états de connexion. L’ingénieur réseau et cybersécurité de niveau Bachelor 3 doit maîtriser l’architecture sous-jacente du noyau BSD, la cinématique d’interception des paquets sur les interfaces physiques (WAN, LAN, Optional), le calcul rigoureux des plans d’adressage CIDR, ainsi que la configuration des services d’infrastructure critiques (serveur DHCP, résolveur DNS Unbound durci avec DNSSEC) pour poser les fondations inébranlables d’un réseau sécurisé.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’architecture interne de pfSense et son articulation avec le noyau FreeBSD ;</li>
+      <li>analyser la cinématique d’interception des paquets par le sous-système réseau Packet Filter (pf) ;</li>
+      <li>configurer et assigner les interfaces réseau physiques (WAN, LAN, OPT) et leurs passerelles par défaut ;</li>
+      <li>calculer et valider les plans d’adressage IPv4/IPv6 en notation CIDR pour chaque zone réseau ;</li>
+      <li>déployer et sécuriser le serveur DHCP interne et le résolveur DNS Unbound avec validation DNSSEC ;</li>
+      <li>développer en Python 3 des validateurs d’adresses réseau CIDR, des convertisseurs WebGUI vers syntaxe pf.conf et des auditeurs de pools DHCP.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture Système : Du Noyau FreeBSD au Moteur Packet Filter (pf)</h2>
+
+<p>Netgate pfSense est une distribution logicielle sécurisée construite sur une base <strong>FreeBSD</strong> allégée et durcie. Contrairement aux solutions sous Linux qui exploitent <em>Netfilter / iptables / nftables</em>, pfSense délègue l’intégralité de l’interception et du traitement des paquets au moteur <strong>Packet Filter (pf)</strong>, initialement conçu par Daniel Hartmeier pour le projet OpenBSD.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. La Couche Noyau (FreeBSD Kernel)</h4>
+    <p>Le noyau assure la communication directe avec les contrôleurs d’interface réseau (cartes Intel <code>igb</code>, <code>em</code>, VirtIO <code>vtnet</code>, etc.). Le traitement des paquets s’opère au plus près du matériel :</p>
+    <ul>
+      <li><strong>Interceptions BPF (Berkeley Packet Filter) :</strong> Capture bas niveau des trames pour l’analyse (utilitaire <code>tcpdump</code>).</li>
+      <li><strong>Mécanisme pfctl :</strong> Outil de contrôle en ligne de commande permettant de manipuler directement les règles en mémoire du noyau sans redémarrage : <code>pfctl -e</code> (activation), <code>pfctl -f /tmp/rules.debug</code> (chargement des règles).</li>
+      <li><strong>Structure mbuf :</strong> Tampons de mémoire noyau alloués dynamiquement pour stocker les en-têtes et les charges utiles des paquets en transit.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. La Couche d’Orchestration pfSense</h4>
+    <p>L’interface d’administration graphique (WebGUI) écrite en PHP ne modifie jamais directement la mémoire du noyau. Elle maintient un fichier maître de configuration au format XML : <code>/cf/conf/config.xml</code>.</p>
+    <p>À chaque validation dans l’interface graphique :</p>
+    <ol>
+      <li>Le moteur PHP génère un fichier de règles texte temporaire <code>/tmp/rules.debug</code>.</li>
+      <li>La commande système <code>pfctl -f /tmp/rules.debug</code> est appelée en tâche de fond.</li>
+      <li>Le noyau valide la syntaxe et injecte atomiquement les nouvelles tables de filtrage.</li>
+    </ol>
+  </div>
+</div>
+
+<h2>2. Assignation des Interfaces Réseau & Modèle de Routage</h2>
+
+<p>La topologie de base d’un pare-feu pfSense distingue trois grands types d’interfaces réseau logiques associées aux cartes physiques :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>WAN (Wide Area Network)</h4>
+    <p>Interface connectée au réseau public ou au routeur du FAI. Elle reçoit l’adresse IP publique (statique ou via DHCP) et héberge la passerelle par défaut (Default Gateway) vers Internet. Par défaut, <strong>tout flux entrant non sollicité sur le WAN est bloqué</strong>.</p>
+  </div>
+  <div class="card">
+    <h4>LAN (Local Area Network)</h4>
+    <p>Interface du réseau d’entreprise interne de confiance (typiquement <code>192.168.1.1/24</code> ou <code>10.0.0.1/24</code>). Par défaut, pfSense y déploie une règle <em>Default allow LAN to any rule</em> permettant aux postes internes de naviguer librement.</p>
+  </div>
+  <div class="card">
+    <h4>OPT (Optional Interfaces)</h4>
+    <p>Interfaces additionnelles (DMZ, Wi-Fi Invités, Réseau Serveurs, Liaisons Inter-sites). Contrairement au LAN, une interface OPT nouvellement créée ne possède <strong>aucune règle par défaut</strong> : elle est totalement hermétique jusqu’à configuration explicite.</p>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Protection Anti-Usurpation : RFC 1918 &amp; Block Bogon Networks</div>
+<p>Sur l’interface WAN, pfSense propose deux cases à cocher de sécurité indispensables :</p>,<ul>,  <li><strong>Block private networks (RFC 1918) :</strong> Rejette tout paquet arrivant sur le WAN dont l’adresse source est privée (<code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>). À désactiver uniquement si pfSense est lui-même placé derrière une box opérateur en double NAT.</li>,  <li><strong>Block bogon networks :</strong> Télécharge périodiquement et bloque les blocs d’adresses IP non attribués par l’IANA ou réservés, empêchant les attaques d’usurpation d’adresses inexistantes.</li>,</ul>
+  </div>
+
+<h2>3. Services d’Infrastructure Indispensables : DHCP &amp; DNS Resolver Unbound</h2>
+
+<p>Pour qu’un sous-réseau local fonctionne de manière autonome, pfSense intègre nativement les services d’infrastructure de couche applicative indispensables :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Le Serveur DHCP (ISC DHCPD / Kea)</h4>
+    <p>pfSense distribue dynamiquement les paramètres de configuration IP aux postes clients de chaque interface locale :</p>
+    <ul>
+      <li><strong>Plage d’adresses (Pool Range) :</strong> Intervalle d’IP attribuées dynamiquement (ex: <code>192.168.1.100</code> à <code>192.168.1.200</code>).</li>
+      <li><strong>Baux statiques (Static Mappings) :</strong> Réservations permanentes liant une adresse MAC à une IP fixe. Règle d’or de configuration : <em>les baux statiques doivent impérativement être assignés en dehors du pool dynamique</em> pour éviter tout conflit d’adressage.</li>
+      <li><strong>Options avancées :</strong> Définition des passerelles, serveurs DNS, serveurs NTP et options PXE TFTP (option 66/67).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Le DNS Resolver (Unbound)</h4>
+    <p>Contrairement à un simple relais DNS (DNS Forwarder), <strong>Unbound</strong> est un résolveur récursif complet qui interroge directement les serveurs racines (Root Servers) et applique la validation cryptographique <strong>DNSSEC</strong> pour garantir l’authenticité des réponses :</p>
+    <ul>
+      <li><strong>DNSSEC Validation :</strong> Bloque les attaques d’empoisonnement de cache (Cache Poisoning) en vérifiant les signatures RRSIG.</li>
+      <li><strong>DNS Query Forwarding :</strong> Option permettant de relayer les requêtes vers des DNS sécurisés tiers (ex: Quad9 <code>9.9.9.9</code> ou Cloudflare <code>1.1.1.1</code> via DoT - DNS over TLS sur le port 853).</li>
+      <li><strong>Host Overrides :</strong> Enregistrements DNS locaux permettant de résoudre les serveurs internes sans recourir à un serveur Active Directory externe.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="pf3-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="IFACE_CONFIG iface=lan ip=192.168.1.1/24">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c1-e1) — Validateur d’assignation d’interfaces et calcul de sous-réseau CIDR
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Sous-réseau WAN public de classe C restreint /29]
+# Données : IFACE_CONFIG iface=wan ip=203.0.113.10/29
+A_COMPLETER
+
+[Cas 2 — Interface DMZ en /28]
+# Données : IFACE_CONFIG iface=opt1 ip=10.0.50.1/28
+A_COMPLETER
+
+[Cas 3 — Configuration multi-interfaces simultanées]
+# Données : IFACE_CONFIG iface=wan ip=198.51.100.2/30
+# Données : IFACE_CONFIG iface=lan ip=172.16.0.1/16
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur d’assignation d’interfaces et calcul de sous-réseau CIDR</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité de l’attribution IP d’une interface pfSense et calculer l’adresse réseau et de diffusion (Broadcast).</p>
+    <div class="lab__brief"><p>Dans pfSense, chaque interface physique ou virtuelle (WAN, LAN, OPT) est configurée avec une adresse IPv4 et un masque de sous-réseau au format CIDR.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Règles de calcul (avec le module <code>ipaddress</code>) :<br>
+- Extraire l'adresse de réseau (<code>network_address</code>) et l'adresse de broadcast (<code>broadcast_address</code>).<br>
+- Calculer le nombre d'adresses d'hôtes utilisables : <code>usable_hosts = net.num_addresses - 2</code> (si prefix &lt; 31, sinon 0).<br><br>
+Pour chaque interface, afficher :<br>
+<code>IFACE_REPORT iface={iface} ip={ip} net={network_address} bcast={broadcast_address} hosts={usable_hosts}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IFACE_CONFIG iface=lan ip=192.168.1.1/24</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IFACE_REPORT iface=lan ip=192.168.1.1 net=192.168.1.0 bcast=192.168.1.255 hosts=254</pre></div>
+    </div>
+    <p class="lab__note">Réseau 192.168.1.0/24 avec 254 hôtes utilisables.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser ipaddress.ip_interface(ip_str) pour manipuler facilement l’adresse et le réseau.</li>
+        <li>Le réseau parent est accessible via iface_obj.network.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.0/24 dst=any port=443">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c1-e2) — Convertisseur de règles pfSense WebGUI vers syntaxe native FreeBSD PF (pf.conf)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Blocage total de tout trafic sur le WAN]
+# Données : GUI_RULE action=block iface=wan proto=any src=any dst=any port=any
+A_COMPLETER
+
+[Cas 2 — Autorisation DNS UDP spécifique]
+# Données : GUI_RULE action=pass iface=opt1 proto=udp src=10.0.1.0/24 dst=1.1.1.1 port=53
+A_COMPLETER
+
+[Cas 3 — Trafic TCP sans restriction de port]
+# Données : GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.10 dst=10.0.0.5 port=any
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Convertisseur de règles pfSense WebGUI vers syntaxe native FreeBSD PF (pf.conf)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traduire une déclaration de règle de pare-feu de l’interface graphique pfSense en directive syntaxique native Packet Filter.</p>
+    <div class="lab__brief"><p>pfSense repose sur le moteur de filtrage de paquets <strong>Packet Filter (PF)</strong> de FreeBSD. Dans pfSense, les règles sont saisies via la WebGUI mais compilées dans le fichier système <code>/tmp/rules.debug</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Règles de génération PF :<br>
+- Syntax : <code>{action} in on {iface} [proto {proto}] from {src} to {dst} [port {port}]</code>.<br>
+- Si <code>proto == 'any'</code>, omettre la clause <code>proto</code>.<br>
+- Si <code>port == 'any'</code>, omettre la clause <code>port</code>.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>PF_CONF_RULE {règle_générée}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.0/24 dst=any port=443</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PF_CONF_RULE pass in on lan proto tcp from 192.168.1.0/24 to any port 443</pre></div>
+    </div>
+    <p class="lab__note">Règle autorisant le trafic HTTPS sortant du LAN.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer conditionnellement l’ajout de "proto &lt;proto&gt;" si proto != "any".</li>
+        <li>Gérer conditionnellement l’ajout de "port &lt;port&gt;" après la destination si port != "any".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.50">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c1-e3) — Auditeur de plage DHCP pfSense et détection de conflit de baux statiques
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Bail statique en plein milieu de la plage dynamique (conflit)]
+# Données : DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.150
+A_COMPLETER
+
+[Cas 2 — Adresse statique hors du sous-réseau configuré]
+# Données : DHCP_CHECK subnet=10.0.0.0/24 pool_start=10.0.0.10 pool_end=10.0.0.50 static_ip=10.0.1.5
+A_COMPLETER
+
+[Cas 3 — Plage dynamique hors sous-réseau]
+# Données : DHCP_CHECK subnet=172.16.10.0/24 pool_start=172.16.20.10 pool_end=172.16.20.50 static_ip=172.16.10.5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Auditeur de plage DHCP pfSense et détection de conflit de baux statiques</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité de la plage DHCP dynamique et détecter les conflits avec les baux statiques (Static Mappings).</p>
+    <div class="lab__brief"><p>Sous pfSense, le démon DHCP (ISC DHCPD ou Kea) distribue les adresses IP dynamiques. Une bonne pratique réseau stricte impose que les réservations statiques (Static Mappings) soient situées <strong>hors de la plage dynamique (pool)</strong> mais au sein du même sous-réseau.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Règles :<br>
+1. Vérifier si <code>pool_start</code>, <code>pool_end</code> et <code>static_ip</code> appartiennent au sous-réseau <code>subnet</code>.<br>
+   Si l'un d'eux est hors du sous-réseau : <code>status=INVALID_SUBNET_OUT_OF_BOUNDS</code>.<br>
+2. Si tous sont dans le sous-réseau :<br>
+   - Si <code>pool_start &lt;= static_ip &lt;= pool_end</code> :<br>
+     <code>status=CONFLICT_STATIC_INSIDE_DYNAMIC_POOL</code>.<br>
+   - Sinon :<br>
+     <code>status=VALID_SCOPE</code>.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>DHCP_AUDIT subnet={subnet} static_ip={static_ip} status={status}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.50</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DHCP_AUDIT subnet=192.168.1.0/24 static_ip=192.168.1.50 status=VALID_SCOPE</pre></div>
+    </div>
+    <p class="lab__note">IP statique 192.168.1.50 en dehors de la plage 100-200 : configuration optimale.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser ipaddress.ip_network(subnet) et ipaddress.ip_address(ip).</li>
+        <li>Tester l’appartenance avec ip in net.</li>
+        <li>Comparer les adresses IP avec les opérateurs classiques (start &lt;= static &lt;= end).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel moteur de filtrage noyau est utilisé sous pfSense pour inspecter les paquets ?</p>
+      <div class="opts">
+        <button class="opt">Netfilter / iptables</button>
+        <button class="opt" data-correct="1">Packet Filter (pf)</button>
+        <button class="opt">Windows Filtering Platform (WFP)</button>
+        <button class="opt">eBPF / XDP</button>
+      </div>
+      <div class="q__exp">pfSense s’appuie sur le moteur Packet Filter (pf) intégré au noyau FreeBSD, réputé pour sa gestion native des états et sa haute performance.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel fichier maître stocke l’intégralité de la configuration persistante de pfSense ?</p>
+      <div class="opts">
+        <button class="opt">/etc/pf.conf</button>
+        <button class="opt">/var/log/filter.log</button>
+        <button class="opt" data-correct="1">/cf/conf/config.xml</button>
+        <button class="opt">/tmp/rules.debug</button>
+      </div>
+      <div class="q__exp">Toute la configuration de pfSense (interfaces, règles, certificats, paquets) est centralisée dans le fichier XML unique /cf/conf/config.xml.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande CLI permet d’activer le moteur de filtrage pf sous FreeBSD ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">pfctl -e</button>
+        <button class="opt">pfctl -d</button>
+        <button class="opt">service firewall start</button>
+        <button class="opt">systemctl enable iptables</button>
+      </div>
+      <div class="q__exp">La commande pfctl -e (enable) active le moteur de filtrage pf dans le noyau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Par défaut, quelle est la politique de filtrage appliquée sur une interface OPT nouvellement activée ?</p>
+      <div class="opts">
+        <button class="opt">Tout le trafic est autorisé vers Internet</button>
+        <button class="opt" data-correct="1">Tout le trafic entrant est bloqué (aucun flux autorisé)</button>
+        <button class="opt">Seul le trafic Web (port 80 et 443) est autorisé</button>
+        <button class="opt">Le trafic est routé sans inspection vers le LAN</button>
+      </div>
+      <div class="q__exp">Contrairement au LAN qui dispose d’une règle par défaut, une interface OPT n’a aucune règle à la création : tout trafic est bloqué.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que réalise l’option « Block private networks » sur l’interface WAN ?</p>
+      <div class="opts">
+        <button class="opt">Elle empêche les postes du LAN de communiquer entre eux</button>
+        <button class="opt" data-correct="1">Elle bloque tout paquet entrant sur le WAN ayant une adresse source privée RFC 1918</button>
+        <button class="opt">Elle chiffre le trafic interne avec IPsec</button>
+        <button class="opt">Elle interdit l’accès à l’interface d’administration Web</button>
+      </div>
+      <div class="q__exp">Cette option protège le pare-feu contre l’usurpation d’adresses privées (RFC 1918) provenant d’Internet sur le lien public WAN.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où doivent être positionnées les adresses IP des réservations DHCP statiques (Static Mappings) ?</p>
+      <div class="opts">
+        <button class="opt">Obligatoirement dans la plage du pool dynamique</button>
+        <button class="opt" data-correct="1">En dehors de la plage d’adresses du pool dynamique</button>
+        <button class="opt">Dans un sous-réseau différent de l’interface</button>
+        <button class="opt">Sur l’adresse IP de broadcast du réseau</button>
+      </div>
+      <div class="q__exp">Pour éviter les conflits d’attribution IP dans ISC DHCPD, les baux statiques doivent impérativement être configurés hors du pool dynamique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle principal du service DNS Unbound dans pfSense ?</p>
+      <div class="opts">
+        <button class="opt">Transférer les fichiers par FTP sécurisé</button>
+        <button class="opt" data-correct="1">Résolveur DNS récursif local avec validation cryptographique DNSSEC</button>
+        <button class="opt">Générer les certificats SSL du serveur Web</button>
+        <button class="opt">Synchroniser l’horloge système par NTP</button>
+      </div>
+      <div class="q__exp">Unbound est un résolveur DNS récursif performant assurant la résolution locale et la validation d’intégrité DNSSEC des enregistrements.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole est utilisé pour acheminer les requêtes DNS chiffrées vers des résolveurs publics sur le port 853 ?</p>
+      <div class="opts">
+        <button class="opt">DoH (DNS over HTTPS)</button>
+        <button class="opt" data-correct="1">DoT (DNS over TLS)</button>
+        <button class="opt">DNSSEC standard</button>
+        <button class="opt">TFTP</button>
+      </div>
+      <div class="q__exp">DNS over TLS (DoT) chiffre les requêtes et réponses DNS avec TLS sur le port TCP dédié 853.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer des adresses de réservations DHCP statiques à l’intérieur du pool dynamique, provoquant des conflits d’attribution IP.</li>
+      <li>Laisser cochée l’option « Block private networks » sur un WAN situé derrière une box opérateur en 192.168.1.0/24.</li>
+      <li>Oublier de créer une règle d’autorisation sur une interface OPT nouvellement activée et s’étonner de l’absence de connectivité.</li>
+      <li>Éditer directement /tmp/rules.debug à la main sans savoir que pfSense l’écrase à chaque modification graphique.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Identifier les interfaces physiques détectées par le pilote FreeBSD (ifconfig) et planifier l’affectation WAN, LAN et OPT.</li>
+      <li>Étape 2 : Calculer les plans d’adressage CIDR en réservant les adresses de réseau, de passerelle et de diffusion.</li>
+      <li>Étape 3 : Configurer l’interface WAN avec sa passerelle par défaut et activer les protections RFC 1918 et Bogons selon la topologie.</li>
+      <li>Étape 4 : Définir la plage du pool dynamique DHCP en réservant explicitement une zone d’adresses pour les baux statiques.</li>
+      <li>Étape 5 : Activer le résolveur Unbound avec validation DNSSEC et configurer les relais chiffrés DoT si nécessaire.</li>
+      <li>Étape 6 : Valider la syntaxe et charger les règles dans le noyau via pfctl avant d’ouvrir les accès réseau.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>pfSense repose sur le noyau FreeBSD et orchestre le moteur de filtrage à état Packet Filter (pf).</li>
+      <li>La configuration complète est centralisée dans /cf/conf/config.xml et compilée à la volée dans /tmp/rules.debug.</li>
+      <li>L’interface WAN bloque tout flux entrant par défaut et requiert l’activation des filtres RFC 1918 et Bogons.</li>
+      <li>Une interface OPT nouvellement créée est hermétique et ne dispose d’aucune règle par défaut.</li>
+      <li>Les baux DHCP statiques doivent impérativement être configurés en dehors de la plage d’attribution dynamique.</li>
+      <li>Le résolveur Unbound offre une résolution récursive autonome avec authentification cryptographique DNSSEC.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends le rôle de pfctl dans la manipulation des règles et des tables du noyau FreeBSD.</li>
+      <li>Je sais identifier le fichier de configuration maître /cf/conf/config.xml.</li>
+      <li>Je sais calculer un sous-réseau CIDR, son masque, sa passerelle et son nombre d’hôtes utiles.</li>
+      <li>Je sais pourquoi une interface OPT ne laisse passer aucun trafic à sa création.</li>
+      <li>Je maîtrise la règle d’or de séparation entre pool DHCP dynamique et réservations statiques.</li>
+      <li>Je sais expliquer la valeur ajoutée de la validation DNSSEC dans le résolveur Unbound.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Noyau FreeBSD & Pilotes Réseau</li><li>Moteur Packet Filter (pf)</li><li>Utilitaire CLI pfctl</li><li>Fichier Maître config.xml</li><li>Interfaces WAN, LAN & OPT</li><li>Filtrage RFC 1918 & Bogons</li><li>Pool DHCP & Baux Statiques</li><li>Résolveur DNS Unbound & DNSSEC</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à distinguer le rôle du noyau FreeBSD du moteur pf ou erreurs dans les calculs de plages d’adresses CIDR.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension de l’architecture pfSense, configuration opérationnelle des interfaces WAN/LAN et des services DHCP/DNS.</div>
+      <div class="bandrow bandrow--high">Maîtrise complète du moteur pf, administration CLI via pfctl, durcissement DNSSEC et conception de topologies réseau d’entreprise résilientes.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Règles de Pare-Feu, Aliases, États de Connexion (Stateful) &amp; Limiteurs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Netgate pfSense, Architecture FreeBSD Packet Filter (pf), RFC 5798 (CARP/VRRP), RFC 7296 (IKEv2) et Guides de durcissement ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

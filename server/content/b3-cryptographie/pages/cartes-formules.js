@@ -1,0 +1,144 @@
+/**
+ * Pages « cartes » (flashcards) et « formules » (mémento) du cours « Cryptographie & PKI B3 ».
+ */
+'use strict';
+
+const { crumb, cards } = require('../../../../scripts/course-kit');
+const { chnav, disclaimer } = require('./helpers');
+
+/* ======================== Cartes Flashcards ======================== */
+
+function cartes(course, chapterList) {
+  const crumbs = crumb(course, [
+    { label: 'Accueil', href: '../index.html' },
+    { label: 'Sommaire', href: '../sommaire.html' },
+    { label: 'Cartes de révision' }
+  ]);
+
+  const modules = chapterList.map(ch => ({
+    title: 'Module ' + ch.n + ' — ' + ch.short,
+    items: ch.flashcards || []
+  }));
+
+  const body = [
+    crumbs,
+    '  <h1>Cartes de Révision &amp; Mémorisation Active — Cryptographie &amp; PKI B3</h1>',
+    '  <p class="lead">36 fiches synthétiques pour ancrer les concepts clés de la cryptographie et de la sécurité des infrastructures : Principes de Kerckhoffs et Shannon, Chiffres historiques, LFSR, AES et modes opératoires, Padding PKCS#7, Fonctions de hachage et HMAC, Paradoxe des anniversaires, Algorithme d\'Euclide étendu, Diffie-Hellman et RSA, Signatures numériques, Certificats X.509v3, Chaîne de confiance PKI, Handshake TLS 1.3 et Standards NIST Post-Quantiques.</p>',
+    '',
+    cards(modules),
+    '',
+    chnav({ href: '../sommaire.html', label: 'Sommaire général' }, { href: 'formules.html', label: 'Consulter le mémento technique' }),
+    '',
+    disclaimer()
+  ].join('\n\n');
+
+  return {
+    'chapitres/cartes.html': {
+      title: 'Cartes de révision — ' + course.brand,
+      description: 'Flashcards de révision du cours Cryptographie & PKI B3 : Théorie, Chiffrements symétriques et asymétriques, Hachage, PKI et Protocoles des ' + chapterList.length + ' modules.',
+      active: 'cartes',
+      body
+    }
+  };
+}
+
+/* ======================== Formules & Mémento ======================== */
+
+function formules(course) {
+  const crumbs = crumb(course, [
+    { label: 'Accueil', href: '../index.html' },
+    { label: 'Sommaire', href: '../sommaire.html' },
+    { label: 'Formules &amp; Mémento' }
+  ]);
+
+  const body = [
+    crumbs,
+    '  <h1>Mémento Technique &amp; Guide Opérationnel — Cryptographie &amp; PKI B3</h1>',
+    '  <p class="lead">Guide de référence des principes de sécurité, équations modulaires, algorithmes symétriques et asymétriques, champs X.509 et suites TLS 1.3.</p>',
+    '',
+    '  <h2>1. Principes Fondamentaux de la Sécurité Cryptographique</h2>',
+    '  <table class="table">',
+    '    <thead><tr><th>Principe / Théorie</th><th>Auteur / Référence</th><th>Énoncé Essentiel</th><th>Impact Pratique</th></tr></thead>',
+    '    <tbody>',
+    '      <tr><td><strong>Principe de Kerckhoffs</strong></td><td>Auguste Kerckhoffs (1883)</td><td>La sécurité d\'un cryptosystème ne doit reposer que sur le secret de la clé, et non sur le secret de l\'algorithme.</td><td>Bannit la sécurité par l\'obscurité ; tous les algorithmes modernes sont publics et audités.</td></tr>',
+    '      <tr><td><strong>Confidentialité Parfaite</strong></td><td>Claude Shannon (1949)</td><td>L\'observation du texte chiffré n\'apporte aucune information sur le texte clair : P(M|C) = P(M).</td><td>Atteinte uniquement par le masque jetable (One-Time Pad) avec clé aléatoire de taille >= message.</td></tr>',
+    '      <tr><td><strong>Diffusion &amp; Confusion</strong></td><td>Claude Shannon (1945)</td><td>Confusion : lien complexe entre clé et chiffré. Diffusion : chaque bit clair influence tout le chiffré.</td><td>Fondement des réseaux SPN (AES) et des schémas de Feistel (DES).</td></tr>',
+    '      <tr><td><strong>Indice de Coïncidence</strong></td><td>William Friedman (1922)</td><td>IC = sum(f_i * (f_i - 1)) / (N * (N - 1)). IC_fr ≈ 0.0778, IC_alea ≈ 0.0385.</td><td>Permet d\'estimer la longueur de la clé d\'un chiffre polyalphabétique (Kasiski/Friedman).</td></tr>',
+    '    </tbody>',
+    '  </table>',
+    '',
+    '  <h2>2. Panorama des Algorithmes et Modes Symétriques</h2>',
+    '  <table class="table">',
+    '    <thead><tr><th>Algorithme / Mode</th><th>Taille Bloc / Clé</th><th>Structure</th><th>Statut &amp; Recommandation</th></tr></thead>',
+    '    <tbody>',
+    '      <tr><td><strong>DES / 3DES</strong></td><td>64 bits / 56 à 168 bits</td><td>Réseau de Feistel (16 tours)</td><td><span class="badge badge--danger">Obsolète</span> (clé courte, collision Sweet32)</td></tr>',
+    '      <tr><td><strong>AES (Rijndael)</strong></td><td>128 bits / 128, 192, 256 bits</td><td>SPN (SubBytes, ShiftRows, MixColumns, AddRoundKey)</td><td><span class="badge badge--success">Standard Mondial</span> (NIST FIPS 197)</td></tr>',
+    '      <tr><td><strong>ChaCha20-Poly1305</strong></td><td>Flux (Stream) / 256 bits</td><td>Chiffre de flux ARX + MAC Poly1305</td><td><span class="badge badge--success">Recommandé</span> (performant sans accélération matérielle AES-NI)</td></tr>',
+    '      <tr><td><strong>Mode ECB</strong></td><td>Bloc indépendant</td><td>C_i = E_K(P_i) sans vecteur d\'initialisation</td><td><span class="badge badge--danger">Dangereux</span> (révèle les motifs des données répétées)</td></tr>',
+    '      <tr><td><strong>Mode CBC</strong></td><td>Bloc chaîné avec IV</td><td>C_0 = E_K(P_0 ^ IV), C_i = E_K(P_i ^ C_{i-1})</td><td><span class="badge badge--warning">Toléré avec HMAC</span> (vulnérable aux oracles de padding sans AEAD)</td></tr>',
+    '      <tr><td><strong>Mode GCM / CTR</strong></td><td>Compteur parallélisable</td><td>CTR incrémental + multiplication Galois (GHASH)</td><td><span class="badge badge--success">Standard AEAD</span> (confidentialité et intégrité intégrées)</td></tr>',
+    '    </tbody>',
+    '  </table>',
+    '',
+    '  <h2>3. Fonctions de Hachage &amp; Codes d\'Authentification (MAC)</h2>',
+    '  <table class="table">',
+    '    <thead><tr><th>Primitive</th><th>Taille Sortie</th><th>Résistance Collision</th><th>Statut Actuel (NIST / ANSSI)</th></tr></thead>',
+    '    <tbody>',
+    '      <tr><td><strong>MD5</strong></td><td>128 bits</td><td>Cassée (Wang 2004)</td><td><span class="badge badge--danger">Bannie</span> (collisions pratiques en quelques secondes)</td></tr>',
+    '      <tr><td><strong>SHA-1</strong></td><td>160 bits</td><td>Cassée (SHAttered 2017)</td><td><span class="badge badge--danger">Bannie</span> (retirée de tous les navigateurs et normes TLS)</td></tr>',
+    '      <tr><td><strong>SHA-256 / SHA-512</strong></td><td>256 / 512 bits</td><td>Robuste (sécurité 2^{128} / 2^{256})</td><td><span class="badge badge--success">Standard Actuel</span> (recommandé en production)</td></tr>',
+    '      <tr><td><strong>SHA-3 (Keccak)</strong></td><td>224 à 512 bits</td><td>Robuste (construction éponge)</td><td><span class="badge badge--success">Standard NIST FIPS 202</span> (alternative moderne à SHA-2)</td></tr>',
+    '      <tr><td><strong>HMAC (RFC 2104)</strong></td><td>Taille du hash</td><td>Immunisé contre length-extension</td><td><span class="badge badge--success">Recommandé</span> pour l\'authentification de messages partagés</td></tr>',
+    '    </tbody>',
+    '  </table>',
+    '',
+    '  <h2>4. Arithmétique Modulaire &amp; Cryptographie Asymétrique</h2>',
+    '  <table class="table">',
+    '    <thead><tr><th>Concept / Algorithme</th><th>Formules Mathématiques Clés</th><th>Problème Difficile Sous-Jacent</th></tr></thead>',
+    '    <tbody>',
+    '      <tr><td><strong>Bézout &amp; Euclide étendu</strong></td><td><code>a * u + b * v = pgcd(a, b)</code> ; si pgcd=1, <code>inv = u mod m</code></td><td>Algorithme en O(log min(a, b))</td></tr>',
+    '      <tr><td><strong>Diffie-Hellman (DH)</strong></td><td><code>A = g^a mod p</code>, <code>B = g^b mod p</code>, <code>S = g^{ab} mod p</code></td><td>Logarithme discret dans (Z/pZ)*</td></tr>',
+    '      <tr><td><strong>RSA</strong></td><td><code>n = p*q</code>, <code>phi = (p-1)(q-1)</code>, <code>e*d = 1 mod phi</code>, <code>c = m^e mod n</code></td><td>Factorisation de grands entiers n</td></tr>',
+    '      <tr><td><strong>Courbes Elliptiques (ECC)</strong></td><td><code>y^2 = x^3 + ax + b mod p</code>, point public <code>Q = d * G</code></td><td>Logarithme discret sur courbe elliptique (ECDLP)</td></tr>',
+    '    </tbody>',
+    '  </table>',
+    '',
+    '  <h2>5. Anatomie des Certificats X.509v3 &amp; Révocation PKI</h2>',
+    '  <table class="table">',
+    '    <thead><tr><th>Champ / Extension</th><th>Rôle et Contenu Type</th><th>Règle de Contrôle</th></tr></thead>',
+    '    <tbody>',
+    '      <tr><td><code>Subject</code> &amp; <code>Issuer</code></td><td>Distinguished Name (C, O, OU, CN)</td><td>Dans la chaîne, <code>Issuer(Cert_i) == Subject(Cert_{i+1})</code></td></tr>',
+    '      <tr><td><code>Validity</code></td><td>Not Before / Not After (dates ISO UTC)</td><td>La date de validation T doit satisfaire <code>NotBefore &lt;= T &lt;= NotAfter</code></td></tr>',
+    '      <tr><td><code>SAN (Subject Alt Name)</code></td><td>Noms DNS alternatifs (ex: <code>*.cloud.corp</code>, <code>api.cloud.corp</code>)</td><td>Prend le pas sur le CN pour la correspondance d\'hôte TLS</td></tr>',
+    '      <tr><td><code>Basic Constraints</code></td><td><code>cA=TRUE/FALSE</code>, <code>pathLenConstraint</code></td><td>Obligatoirement <code>cA=TRUE</code> pour signer d\'autres certificats</td></tr>',
+    '      <tr><td><code>CRL / OCSP</code></td><td>Liste de révocation périodique / Protocole en ligne</td><td>Vérifie que le numéro de série n\'a pas été invalidé avant terme</td></tr>',
+    '    </tbody>',
+    '  </table>',
+    '',
+    '  <h2>6. Protocoles Sécurisés (TLS 1.3) &amp; Standards Post-Quantiques</h2>',
+    '  <table class="table">',
+    '    <thead><tr><th>Domaine</th><th>Standard Actuel</th><th>Menace / Remplacement Post-Quantique</th></tr></thead>',
+    '    <tbody>',
+    '      <tr><td><strong>Échange de clés TLS</strong></td><td>ECDHE (x25519, secp256r1) avec PFS 1-RTT</td><td>Cassé par Shor -> Remplacé par <strong>ML-KEM (Kyber, FIPS 203)</strong></td></tr>',
+    '      <tr><td><strong>Signatures Numériques</strong></td><td>RSA-PSS, ECDSA (P-256), Ed25519</td><td>Cassé par Shor -> Remplacé par <strong>ML-DSA (Dilithium, FIPS 204)</strong> et SLH-DSA</td></tr>',
+    '      <tr><td><strong>Chiffrement Symétrique</strong></td><td>AES-128 / AES-256-GCM</td><td>Grover divise la sécurité par 2 -> <strong>AES-256 obligatoire</strong> (128 bits résiduels)</td></tr>',
+    '      <tr><td><strong>Intégrité &amp; Empreinte</strong></td><td>SHA-256, SHA-384, SHA-512</td><td>Résistant à Grover (espace 256 bits suffisant) -> <strong>Maintenu</strong></td></tr>',
+    '    </tbody>',
+    '  </table>',
+    '',
+    chnav({ href: 'cartes.html', label: 'Cartes de révision' }, { href: 'examens.html', label: 'Passer aux examens blancs' }),
+    '',
+    disclaimer()
+  ].join('\n\n');
+
+  return {
+    'chapitres/formules.html': {
+      title: 'Formules & Mémento — ' + course.brand,
+      description: 'Mémento technique et fiches de référence opérationnelles Cryptographie & PKI B3.',
+      active: 'formules',
+      body
+    }
+  };
+}
+
+module.exports = { cartes, formules };

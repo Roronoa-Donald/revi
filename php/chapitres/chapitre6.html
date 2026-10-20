@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — PDO, dépôt de données et architecture | PHP POO B2</title>
+<meta name="description" content="Chapitre 6 du cours de PHP objet B2 : Se connecter avec PDO, requêtes préparées contre l’injection, patron repository, projet ToDo List. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/php/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — PDO, dépôt de données et architecture | PHP POO B2">
+<meta property="og:description" content="Chapitre 6 du cours de PHP objet B2 : Se connecter avec PDO, requêtes préparées contre l’injection, patron repository, projet ToDo List. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="phpnav"><div class="phpnav__in">
+  <a class="phpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phpnav__sep" aria-hidden="true">/</span>
+  <a class="phpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP POO B2</a>
+  <div class="phpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="phpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="phpwrap">
+<p class="crumb"><a href="../index.html">PHP POO B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — PDO, dépôt de données et architecture</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une application objet finit toujours par parler à une base de données. Le faire proprement, c’est séparer le code qui décrit les données (les objets) de celui qui les range (le dépôt), et ne jamais concaténer une entrée utilisateur dans une requête SQL. Ce dernier point sépare une application sûre d’une faille béante.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>ouvrir une connexion PDO avec un DSN et le mode erreur par exception ;</li>
+      <li>écrire une requête préparée et lier ses paramètres ;</li>
+      <li>isoler l’accès aux données dans une classe de dépôt ;</li>
+      <li>assembler un petit service (liste de tâches) en couches.</li>
+    </ol>
+  </div>
+
+<h2>1. Se connecter avec PDO</h2>
+
+<p><strong>PDO</strong> (PHP Data Objects) est une couche d’accès unique pour MySQL, PostgreSQL, SQLite… On ouvre une connexion avec un <strong>DSN</strong> (Data Source Name) qui décrit le driver et la cible.</p>
+<pre><code>$pdo = new PDO("sqlite::memory:");
+$pdo-&gt;setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);</code></pre>
+<p>Le mode <code>ERRMODE_EXCEPTION</code> est essentiel : sans lui, une requête qui échoue renvoie simplement <code>false</code> et l’erreur passe inaperçue. Avec, chaque incident lève une <code>PDOException</code> qu’on peut intercepter.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> Le DSN, mode d’emploi</div>
+    <p>Le DSN a la forme <code>driver:paramètres</code> — par exemple <code>mysql:host=localhost;dbname=app</code> ou <code>sqlite:ma-base.sqlite</code>. Le même code PHP fonctionne avec plusieurs bases en changeant seulement le DSN.</p>
+  </div>
+
+<h2>2. Requêtes préparées contre l’injection SQL</h2>
+
+<p>Ne <strong>jamais</strong> concaténer une entrée dans le SQL : une apostrophe bien placée suffit à détourner la requête (<em>injection SQL</em>). Une <strong>requête préparée</strong> sépare le modèle SQL des valeurs, liées ensuite comme paramètres.</p>
+<pre><code>$stmt = $pdo-&gt;prepare("INSERT INTO contacts (nom) VALUES (:nom)");
+$stmt-&gt;execute([":nom" =&gt; $nom]);</code></pre>
+<p>Le pilote traite la valeur <code>$nom</code> comme une donnée, jamais comme du SQL. C’est la protection de référence, et ce n’est pas plus compliqué à écrire.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’injection par concaténation</div>
+    <p><code>"SELECT * FROM users WHERE nom = '" . $nom . "'"</code> est une porte ouverte : si <code>$nom</code> vaut <code>a' OR '1'='1</code>, la condition devient toujours vraie. La requête préparée ferme cette porte.</p>
+  </div>
+
+<h2>3. Le patron dépôt (repository)</h2>
+
+<p>Un <strong>dépôt</strong> est une classe dont le seul métier est l’accès aux données d’un type d’entité : ajouter, lister, compter, retrouver. Le reste de l’application parle au dépôt, pas à PDO.</p>
+<pre><code>class ContactDepot {
+    private $pdo;
+
+    public function __construct(PDO $pdo) {
+        $this-&gt;pdo = $pdo;
+    }
+
+    public function ajouter(string $nom): void {
+        $stmt = $this-&gt;pdo-&gt;prepare("INSERT INTO contacts (nom) VALUES (:nom)");
+        $stmt-&gt;execute([":nom" =&gt; $nom]);
+    }
+}</code></pre>
+<p>Avantage : le jour où la base change ou où l’on passe à des données en mémoire, seul le dépôt bouge. Le reste du code ne connaît pas PDO.</p>
+
+<h2>4. Architecture en couches et projet</h2>
+
+<p>Une application se découpe en <strong>couches</strong> : les entités (les objets métier), le dépôt (les données), le service (les règles) et l’affichage. Chaque couche ne connaît que la suivante. Le mini-projet ToDo List de ce chapitre assemble exactement cela : une entité tâche, une liste qui la gère, et un rendu numéroté.</p>
+<pre><code>class TodoList {
+    private $taches = [];
+
+    public function ajouter(string $tache): void {
+        $this-&gt;taches[] = $tache;
+    }
+
+    public function lister(): array {
+        return $this-&gt;taches;
+    }
+}</code></pre>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Cahier des charges du projet</div>
+    <p>Le projet lit un nombre de tâches puis les tâches elles-mêmes, les range dans une liste et les affiche numérotées de 1 à n. Il exerce la lecture d’entrée, l’encapsulation d’un tableau dans une classe, et la mise en forme — les trois gestes d’une application en couches.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php2-c6-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="Ada">
+  <script type="text/plain" data-lab-starter><?php
+// À compléter : ouvrir la base sqlite en mémoire (new PDO) et activer PDO::ERRMODE_EXCEPTION.
+// À compléter : créer la table contacts.
+
+$nom = trim(fgets(STDIN));
+// À compléter : insérer puis relire avec une requête préparée et afficher "contact : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Insérer avec une requête préparée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Ouvrir une base sqlite en mémoire, créer une table et insérer sans concaténation.</p>
+    <div class="lab__brief"><p>Le programme reçoit un nom. Ouvre une connexion <code>sqlite::memory:</code> (mode erreur par exception), crée la table <code>contacts(id, nom)</code>, insère le nom avec une <strong>requête préparée</strong>, puis relis-le et affiche <code>contact : nom</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Ada</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>contact : Ada</pre></div>
+    </div>
+    <p class="lab__note">Nom stocké puis relu.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>On prépare le modèle une fois : $stmt = $pdo-&gt;prepare('INSERT INTO contacts (nom) VALUES (:nom)'); puis $stmt-&gt;execute([':nom' =&gt; $nom]);.</li>
+        <li>La lecture se fait simplement : $pdo-&gt;query('SELECT nom FROM contacts LIMIT 1')-&gt;fetchColumn().</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c6-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="3&#10;1&#10;2&#10;3">
+  <script type="text/plain" data-lab-starter><?php
+class Depot {
+    private $valeurs = [];
+
+    // À compléter : ajouter() range une valeur.
+
+    // À compléter : somme() renvoie le total.
+}
+
+$n = (int) trim(fgets(STDIN));
+$depot = new Depot();
+for ($i = 0; $i < $n; $i++) {
+    // À compléter : lire chaque valeur et l’ajouter au dépôt.
+}
+// À compléter : afficher "somme : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Un dépôt en mémoire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Isoler l’accès aux données dans une classe de dépôt.</p>
+    <div class="lab__brief"><p>La première ligne donne un entier <code>n</code>, puis <code>n</code> lignes donnent des entiers. Écris une classe <code>Depot</code> qui expose <code>ajouter(int $valeur): void</code> et <code>somme(): int</code>. Range les valeurs reçues puis affiche <code>somme : total</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1
+2
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>somme : 6</pre></div>
+    </div>
+    <p class="lab__note">Trois valeurs additionnées.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>ajouter() empile dans le tableau privé : $this-&gt;valeurs[] = $valeur;.</li>
+        <li>somme() peut utiliser array_sum($this-&gt;valeurs).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c6-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="1&#10;Faire les courses">
+  <script type="text/plain" data-lab-starter><?php
+class TodoList {
+    private $taches = [];
+
+    // À compléter : ajouter() empile une tâche.
+
+    // À compléter : lister() renvoie les tâches dans l’ordre.
+}
+
+$n = (int) trim(fgets(STDIN));
+$todo = new TodoList();
+for ($i = 0; $i < $n; $i++) {
+    // À compléter : ajouter la tâche lue.
+}
+// À compléter : numéroter et afficher chaque tâche.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Mini projet : liste de tâches</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Assembler une classe de service et une mise en forme numérotée.</p>
+    <div class="lab__brief"><p>Mini application ToDo : la première ligne donne un entier <code>n</code>, puis <code>n</code> lignes donnent des tâches. Écris une classe <code>TodoList</code> exposant <code>ajouter(string $tache): void</code> et <code>lister(): array</code>. Affiche chaque tâche numérotée à partir de 1, au format <code>1. tâche</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1
+Faire les courses</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1. Faire les courses</pre></div>
+    </div>
+    <p class="lab__note">Une seule tâche.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour numéroter, parcours le tableau avec foreach ($todo-&gt;lister() as $i =&gt; $tache) et affiche ($i + 1) . '. ' . $tache.</li>
+        <li>La concaténation se termine par un retour à la ligne pour éviter que tout s’affiche sur une seule ligne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que signifie PDO ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">PHP Data Objects</button>
+        <button class="opt">Private Data Output</button>
+        <button class="opt">PHP Direct Object</button>
+      </div>
+      <div class="q__exp">PDO est la couche d’accès aux bases de données de PHP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un DSN ?</p>
+      <div class="opts">
+        <button class="opt">Une requête</button>
+        <button class="opt" data-correct="1">Un descripteur de connexion</button>
+        <button class="opt">Un mot de passe</button>
+      </div>
+      <div class="q__exp">Le DSN décrit le driver et la cible de la connexion.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi ERRORMODE_EXCEPTION ?</p>
+      <div class="opts">
+        <button class="opt">Pour aller plus vite</button>
+        <button class="opt" data-correct="1">Pour que les erreurs lèvent une exception</button>
+        <button class="opt">Pour se connecter</button>
+      </div>
+      <div class="q__exp">Sans ce mode, une requête échouée renvoie false en silence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que protège une requête préparée ?</p>
+      <div class="opts">
+        <button class="opt">La vitesse</button>
+        <button class="opt" data-correct="1">De l’injection SQL</button>
+        <button class="opt">La mémoire</button>
+      </div>
+      <div class="q__exp">Elle sépare le SQL des valeurs, empêchant l’injection.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment lie-t-on un paramètre nommé ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">$stmt->execute([":nom" => $v])</button>
+        <button class="opt">echo $v</button>
+        <button class="opt">$pdo->link($v)</button>
+      </div>
+      <div class="q__exp">On passe un tableau associatif à execute().</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un dépôt (repository) ?</p>
+      <div class="opts">
+        <button class="opt">À afficher</button>
+        <button class="opt" data-correct="1">À isoler l’accès aux données</button>
+        <button class="opt">À valider les formulaires</button>
+      </div>
+      <div class="q__exp">Il centralise les accès à la base pour un type d’entité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que reçoit un dépôt à sa construction ?</p>
+      <div class="opts">
+        <button class="opt">Un utilisateur</button>
+        <button class="opt" data-correct="1">L’objet PDO</button>
+        <button class="opt">Une requête</button>
+      </div>
+      <div class="q__exp">On lui injecte la connexion PDO, qu’il utilise en interne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de couches distingue-t-on ici ?</p>
+      <div class="opts">
+        <button class="opt">Une</button>
+        <button class="opt" data-correct="1">Entités, dépôt, service, affichage</button>
+        <button class="opt">Aucune</button>
+      </div>
+      <div class="q__exp">Chaque couche ne connaît que la suivante : entités, dépôt, service, affichage.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Concaténer une entrée utilisateur dans une requête SQL (injection).</li>
+      <li>Oublier <code>ERRMODE_EXCEPTION</code> et ignorer les échecs silencieux.</li>
+      <li>Mélanger requêtes SQL et logique métier dans la même classe.</li>
+      <li>Laisser PDO se propager dans tout le code au lieu de l’isoler dans un dépôt.</li>
+      <li>Oublier d’échapper le nom d’un paramètre (<code>:nom</code>) dans <code>execute()</code>.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire une application en couches</div>
+    <ol>
+      <li><strong>Modéliser</strong> l’entité métier en premier (une classe, pas une table).</li>
+      <li><strong>Ouvrir</strong> une connexion PDO en mode exception, avec un DSN clair.</li>
+      <li><strong>Préparer</strong> chaque requête et lier les valeurs (jamais de concaténation).</li>
+      <li><strong>Enfermer</strong> les accès dans un dépôt qui expose des méthodes métier.</li>
+      <li><strong>Assembler</strong> le service et l’affichage, puis tester avec des cas limites.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>PDO connecte PHP à la base via un DSN ; le mode exception rend les erreurs visibles.</li>
+      <li>Une requête préparée sépare le SQL des valeurs : c’est la protection contre l’injection.</li>
+      <li>Un dépôt isole l’accès aux données d’une entité derrière des méthodes claires.</li>
+      <li>Une application se découpe en couches : entités, dépôt, service, affichage.</li>
+      <li>Le projet ToDo List assemble liste, ajout et rendu numéroté.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J’ouvre une connexion PDO avec un DSN et le mode exception.</li>
+      <li>J’écris une requête préparée avec un paramètre nommé.</li>
+      <li>Je sais pourquoi la concaténation SQL est dangereuse.</li>
+      <li>J’organise mon code en couches autour d’un dépôt.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>PDO</li><li>DSN</li><li>ERRMODE_EXCEPTION</li><li>PDOException</li><li>requête préparée</li><li>paramètre nommé</li><li>injection SQL</li><li>dépôt</li><li>repository</li><li>couches</li><li>ToDo List</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends l’ouverture de connexion et la requête préparée.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à écrire le dépôt d’une entité.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu ne concatènes jamais d’entrée dans du SQL.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : le projet ToDo List est à ta portée, direction les examens blancs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de PHP objet (classes, héritage, namespaces, PDO, projet ToDo List).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

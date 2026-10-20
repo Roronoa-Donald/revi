@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Architectures Réseau Sécurisées, Zone Démilitarisée (DMZ) &amp;amp; Bastions | Firewall &amp; Sécurité Réseau B3</title>
+<meta name="description" content="Chapitre 4 du cours Firewall &amp; Sécurité Réseau B3 : Zone Démilitarisée (DMZ), règle cardinale inter-zones, topologies pare-feu (Dual-Homed, Triple-Homed, Back-to-Back en cascade), hôtes de rebond et bastions SSH d’administration. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-firewall/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Architectures Réseau Sécurisées, Zone Démilitarisée (DMZ) &amp;amp; Bastions | Firewall &amp; Sécurité Réseau B3">
+<meta property="og:description" content="Chapitre 4 du cours Firewall &amp; Sécurité Réseau B3 : Zone Démilitarisée (DMZ), règle cardinale inter-zones, topologies pare-feu (Dual-Homed, Triple-Homed, Back-to-Back en cascade), hôtes de rebond et bastions SSH d’administration. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-firewallnav"><div class="b3-firewallnav__in">
+  <a class="b3-firewallnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-firewallnav__sep" aria-hidden="true">/</span>
+  <a class="b3-firewallnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Firewall &amp; Sécurité Réseau B3</a>
+  <div class="b3-firewallnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-firewallnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-firewallwrap">
+<p class="crumb"><a href="../index.html">Firewall & Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Architectures Réseau Sécurisées, Zone Démilitarisée (DMZ) &amp; Bastions</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Déployer un pare-feu sans concevoir une topologie réseau adaptée est illusoire : si tous les serveurs de l’entreprise cohabitent sur le même segment que les postes des collaborateurs, la moindre faille sur un site web public livre l’intégralité du système d’information aux attaquants. C’est pourquoi l’ingénierie réseau de niveau Bachelor 3 repose sur le cloisonnement en zones de sécurité et le concept fondamental de Zone Démilitarisée (DMZ). La règle cardinale de sécurité réseau interdit formellement à un serveur situé en DMZ d’initier une connexion vers le réseau interne LAN. De plus, selon le niveau d’exigence et le budget de l’organisation, l’architecture peut s’appuyer sur un pare-feu unique à trois interfaces (Triple-Homed) ou sur deux pare-feux distincts de constructeurs différents en cascade (Back-to-Back). Enfin, l’accès d’administration doit impérativement transiter par un bastion SSH durci.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>concevoir une architecture réseau étanche articulant zones LAN, DMZ et WAN ;</li>
+      <li>appliquer rigoureusement la règle d’or de la DMZ interdisant tout flux initié de la DMZ vers le LAN interne ;</li>
+      <li>comparer les avantages et limites des topologies Dual-Homed, Triple-Homed et Back-to-Back ;</li>
+      <li>justifier la défense en profondeur par l’hétérogénéité des constructeurs de pare-feux en cascade ;</li>
+      <li>mettre en œuvre des passerelles d’administration sécurisées via des hôtes bastions (Jump Hosts) avec MFA ;</li>
+      <li>développer en Python 3 des auditeurs de conformité DMZ, des évaluateurs de résilience de topologie et des contrôleurs de bastion.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Concept de Zone Démilitarisée (DMZ) &amp; la Règle Cardinal de Sécurité</h2>
+
+<p>La <strong>Zone Démilitarisée (DMZ)</strong> est un sous-réseau tampon intermédiaire dédié à l’hébergement des services d’entreprise accessibles depuis l’extérieur (serveurs web, messagerie SMTP, DNS faisant autorité, proxies inverses) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Objectif Stratégique</h4>
+    <p>Isoler les serveurs publics pour contenir toute intrusion. Si un attaquant exploite une vulnérabilité logicielle (ex: injection SQL ou exécution de code à distance) sur le serveur web en DMZ, il se retrouve confiné dans ce sous-réseau et ne peut pas accéder aux bases de données internes, aux contrôleurs de domaine Active Directory ni aux postes clients.</p>
+  </div>
+  <div class="card">
+    <h4>La Règle d’Or Absolue</h4>
+    <p><strong>Aucune session ne doit jamais pouvoir être initiée depuis la DMZ vers le réseau interne LAN.</strong></p>
+    <p>Seuls les paquets de retour (état <code>ESTABLISHED</code>) répondant à des requêtes légitimement initiées par le LAN vers la DMZ sont admis. Toute tentative d’ouverture (<code>SYN</code>) depuis la DMZ vers le LAN déclenche une alerte de compromission critique.</p>
+  </div>
+</div>
+
+<h2>2. Topologies Pare-feux : Dual-Homed, Triple-Homed &amp; Back-to-Back</h2>
+
+<p>Le choix de l’implantation physique ou virtuelle des pare-feux conditionne la résilience globale du périmètre :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Dual-Homed (2 interfaces)</h4>
+    <p>1 pare-feu reliant uniquement le LAN et le WAN. Pas de DMZ. Les serveurs sont soit exposés directement sur le LAN, soit hébergés chez un tiers. Résilience faible (4/10) : tout serveur interne compromis expose l’ensemble du réseau.</p>
+  </div>
+  <div class="card">
+    <h4>2. Triple-Homed (3 interfaces)</h4>
+    <p>1 pare-feu à trois pattes interconnectant LAN, DMZ et WAN. Économique et simple à maintenir. Résilience moyenne (7/10) : présente un point unique de défaillance matériel et logiciel (SPOF).</p>
+  </div>
+  <div class="card">
+    <h4>3. Back-to-Back (Cascade)</h4>
+    <p>2 pare-feux distincts encadrant la DMZ (« sandwich »). Le pare-feu externe filtre WAN -> DMZ ; le pare-feu interne filtre DMZ -> LAN. Résilience maximale (9/10) avec constructeurs hétérogènes.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’Atout Majeur de l’Hétérogénéité des Constructeurs en Back-to-Back</div>
+<p>En choisissant deux équipements de constructeurs concurrents (par exemple un pare-feu Fortinet FortiGate en frontal et un pare-feu Palo Alto Networks ou Cisco Secure Firewall en interne) :</p>,<ul>,  <li>Si une vulnérabilité zero-day non corrigée ou un bogue de firmware touche le premier pare-feu, le second équipement n’en est pas affecté.</li>,  <li>L’attaquant doit réussir deux exploits techniques totalement indépendants sur deux systèmes d’exploitation différents pour atteindre le réseau cœur d’entreprise. C’est le sommet de la <strong>défense en profondeur</strong>.</li>,</ul>
+  </div>
+
+<h2>3. Passerelles d’Administration Sécurisées : Bastions SSH &amp; Jump Hosts</h2>
+
+<p>L’accès d’administration aux équipements et serveurs critiques (zone PROD) ne doit jamais être direct depuis les postes de travail bureautiques :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Architecture Bastion SSH (Jump Host)</h4>
+    <ul>
+      <li>Tout accès SSH (port 22) ou RDP (port 3389) direct du LAN vers la PROD est formellement bloqué par le pare-feu.</li>
+      <li>L’administrateur doit obligatoirement se connecter en premier lieu au <strong>Bastion d’administration</strong> situé dans une zone d’administration dédiée (ADM).</li>
+      <li>Le bastion exige une authentification forte multifacteur (MFA) et enregistre l’intégralité des frappes clavier et sessions pour traçabilité médico-légale.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Rebond Contrôlé vers la Production</h4>
+    <ul>
+      <li>Seul le bastion dispose de règles de filtrage lui permettant d’ouvrir une session SSH vers les serveurs de production.</li>
+      <li>Les clés privées SSH critiques restent stockées sur le bastion ou sur une clé de sécurité matérielle (FIDO2/YubiKey) et ne quittent jamais le périmètre d’administration.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="fw3-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="FLOW id=F1 src_zone=WAN dst_zone=DMZ dport=443&#10;FLOW id=F2 src_zone=DMZ dst_zone=LAN dport=3306">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c4-e1) — Contrôleur de conformité des flux de sécurité DMZ
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Tentative de connexion WAN directe vers le LAN]
+# Données : FLOW id=W1 src_zone=WAN dst_zone=LAN dport=22
+# Données : FLOW id=W2 src_zone=WAN dst_zone=DMZ dport=80
+A_COMPLETER
+
+[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]
+# Données : FLOW id=L1 src_zone=LAN dst_zone=DMZ dport=3306
+# Données : FLOW id=L2 src_zone=LAN dst_zone=DMZ dport=139
+# Données : FLOW id=D1 src_zone=DMZ dst_zone=WAN dport=443
+# Données : FLOW id=D2 src_zone=DMZ dst_zone=WAN dport=22
+A_COMPLETER
+
+[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]
+# Données : FLOW id=N1 src_zone=LAN dst_zone=WAN dport=80
+# Données : FLOW id=N2 src_zone=LAN dst_zone=WAN dport=6667
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Contrôleur de conformité des flux de sécurité DMZ</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité des flux réseau selon la matrice de sécurité inter-zones et interdire formellement DMZ vers LAN.</p>
+    <div class="lab__brief"><p>La <strong>Zone Démilitarisée (DMZ)</strong> héberge les serveurs publics de l'entreprise. La règle cardinale de sécurité réseau stipule qu'<strong>aucune connexion ne doit jamais pouvoir être initiée depuis la DMZ vers le réseau interne LAN</strong> (car un pirate ayant compromis un serveur web en DMZ pourrait pivoter vers les postes internes).<br><br>
+Matrice de conformité des flux initiés :<br>
+1. <code>DMZ -&gt; LAN</code> : Toujours <code>VIOLATION_CRITIQUE_DMZ_VERS_LAN</code> quel que soit le port.<br>
+2. <code>WAN -&gt; DMZ</code> : Autorisé uniquement sur les ports publics <code>80, 443, 25, 53</code> -> <code>CONFORME</code> (sinon <code>SERVICE_NON_AUTORISE</code>).<br>
+3. <code>LAN -&gt; DMZ</code> : Autorisé pour l'administration et les services <code>80, 443, 22, 3306</code> -> <code>CONFORME</code> (sinon <code>SERVICE_NON_AUTORISE</code>).<br>
+4. <code>LAN -&gt; WAN</code> : Autorisé pour la navigation <code>80, 443, 53</code> -> <code>CONFORME</code> (sinon <code>SERVICE_NON_AUTORISE</code>).<br>
+5. <code>DMZ -&gt; WAN</code> : Autorisé uniquement pour les mises à jour et DNS <code>80, 443, 53</code> -> <code>CONFORME</code> (sinon <code>SERVICE_NON_AUTORISE</code>).<br>
+6. <code>WAN -&gt; LAN</code> : Toujours <code>VIOLATION_WAN_VERS_LAN_INTERDIT</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque flux, afficher :<br>
+<code>AUDIT flow={id} status={CONFORME | motif_rejet}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLOW id=F1 src_zone=WAN dst_zone=DMZ dport=443
+FLOW id=F2 src_zone=DMZ dst_zone=LAN dport=3306</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT flow=F1 status=CONFORME
+AUDIT flow=F2 status=VIOLATION_CRITIQUE_DMZ_VERS_LAN</pre></div>
+    </div>
+    <p class="lab__note">F1 est conforme (HTTPS public en DMZ), F2 est une violation critique majeure de DMZ vers LAN.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traiter en priorité les violations absolues (DMZ-&gt;LAN et WAN-&gt;LAN).</li>
+        <li>Vérifier si le port destination fait partie de la liste blanche autorisée pour le couple (src, dst).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="TOPOLOGY nom=Siege_Banque firewalls=2 zones=LAN,DMZ,WAN constructeurs=2">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c4-e2) — Évaluateur d’architectures et topologies pare-feu
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]
+# Données : TOPOLOGY nom=PME_Site firewalls=1 zones=LAN,DMZ,WAN constructeurs=1
+A_COMPLETER
+
+[Cas 2 — Routeur basique sans DMZ]
+# Données : TOPOLOGY nom=Agence_Locale firewalls=1 zones=LAN,WAN constructeurs=1
+A_COMPLETER
+
+[Cas 3 — Back-to-back avec équipements du même fabricant]
+# Données : TOPOLOGY nom=Campus_Univ firewalls=2 zones=LAN,DMZ,WAN constructeurs=1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Évaluateur d’architectures et topologies pare-feu</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classifier l’architecture réseau (Dual-Homed, Triple-Homed, Back-to-Back) et calculer son score de résilience.</p>
+    <div class="lab__brief"><p>L'architecture de déploiement des pare-feux conditionne la résistance globale du système informatique face aux intrusions :<br><br>
+Modèles d'architecture :<br>
+1. <strong>Dual-Homed Bastion</strong> : 1 seul pare-feu, 2 zones (<code>LAN, WAN</code>). Pas de DMZ.<br>
+   - <code>ARCHITECTURE=DUAL_HOMED</code>, <code>SCORE=4/10</code>, <code>VERDICT=INSUFFISANT_PAS_DE_DMZ</code>.<br>
+2. <strong>Triple-Homed (Screened Subnet unique)</strong> : 1 seul pare-feu, 3 zones (<code>LAN, DMZ, WAN</code>).<br>
+   - Si <code>constructeurs=1</code> : <code>ARCHITECTURE=TRIPLE_HOMED</code>, <code>SCORE=7/10</code>, <code>VERDICT=ACCEPTABLE_SPOF_FIREWALL_UNIQUE</code>.<br>
+3. <strong>Back-to-Back (Pare-feux en cascade avec DMZ sandwich)</strong> : au moins 2 pare-feux distincts encadrant la DMZ.<br>
+   - Si <code>constructeurs &gt;= 2</code> : <code>ARCHITECTURE=BACK_TO_BACK_HETEROGENE</code>, <code>SCORE=9/10</code>, <code>VERDICT=EXCELLENT_DEFENSE_EN_PROFONDEUR</code>.<br>
+   - Si <code>constructeurs == 1</code> : <code>ARCHITECTURE=BACK_TO_BACK_HOMOGENE</code>, <code>SCORE=8/10</code>, <code>VERDICT=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>TOPOLOGY_AUDIT nom={nom} arch={ARCHITECTURE} score={SCORE} verdict={VERDICT}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TOPOLOGY nom=Siege_Banque firewalls=2 zones=LAN,DMZ,WAN constructeurs=2</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TOPOLOGY_AUDIT nom=Siege_Banque arch=BACK_TO_BACK_HETEROGENE score=9/10 verdict=EXCELLENT_DEFENSE_EN_PROFONDEUR</pre></div>
+    </div>
+    <p class="lab__note">Double pare-feu hétérogène (ex: Fortinet en frontal + Cisco en interne) : standard bancaire.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Compter le nombre de pare-feux et la présence de la zone DMZ.</li>
+        <li>Distinguer les topologies Back-to-Back selon le nombre de constructeurs différents.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ACCESS_REQ id=R1 user=alice target_zone=PROD port=22 via_bastion=NON mfa_valid=OUI&#10;ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=OUI">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c4-e3) — Passerelle d’administration sécurisée et Bastion SSH / Jump Host
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Connexion directe avec port non SSH]
+# Données : ACCESS_REQ id=T1 user=bob target_zone=PROD port=80 via_bastion=NON mfa_valid=NON
+A_COMPLETER
+
+[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]
+# Données : ACCESS_REQ id=T2 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=NON
+# Données : ACCESS_REQ id=T3 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=OUI
+A_COMPLETER
+
+[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]
+# Données : ACCESS_REQ id=T4 user=david target_zone=PROD port=22 via_bastion=OUI mfa_valid=NON
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Passerelle d’administration sécurisée et Bastion SSH / Jump Host</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider les accès d’administration via un hôte bastion avec authentification forte et MFA.</p>
+    <div class="lab__brief"><p>Dans une infrastructure sécurisée, les serveurs critiques de production ne doivent jamais être accessibles directement en SSH depuis le réseau bureautique LAN. Tout accès administrateur doit obligatoirement transiter par un <strong>Bastion SSH (Jump Host)</strong> avec authentification forte (MFA).<br><br>
+Règles de validation :<br>
+1. Si le port demandé n'est pas <code>22</code> : <code>DENY</code>, motif <code>PORT_NON_ADMINISTRATIF</code>.<br>
+2. Si la cible <code>target_zone == 'PROD'</code> :<br>
+   a) Si <code>via_bastion == 'NON'</code> : <code>DENY</code>, motif <code>ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION</code>.<br>
+   b) Si <code>via_bastion == 'OUI'</code> et <code>mfa_valid == 'NON'</code> : <code>DENY</code>, motif <code>MFA_REQUIS</code>.<br>
+   c) Si <code>via_bastion == 'OUI'</code> et <code>mfa_valid == 'OUI'</code> : <code>PERMIT</code>, motif <code>SESSION_BASTION_VALIDEE</code>.<br>
+3. Si la cible <code>target_zone == 'BASTION'</code> :<br>
+   a) Si <code>mfa_valid == 'OUI'</code> : <code>PERMIT</code>, motif <code>AUTHENTIFICATION_BASTION_OK</code>.<br>
+   b) Sinon : <code>DENY</code>, motif <code>MFA_REQUIS</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>BASTION_GATEWAY req={id} decision={PERMIT|DENY} motif={MOTIF}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACCESS_REQ id=R1 user=alice target_zone=PROD port=22 via_bastion=NON mfa_valid=OUI
+ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=OUI</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BASTION_GATEWAY req=R1 decision=DENY motif=ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION
+BASTION_GATEWAY req=R2 decision=PERMIT motif=SESSION_BASTION_VALIDEE</pre></div>
+    </div>
+    <p class="lab__note">R1 tente une connexion directe non autorisée ; R2 transite par le bastion avec MFA.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier d’abord le port SSH (22).</li>
+        <li>Exiger obligatoirement le passage par le bastion et le MFA valide pour la zone PROD.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la règle d’or absolue concernant les flux réseau entre la DMZ et le réseau local interne LAN ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Aucune connexion ne doit jamais être initiée depuis la DMZ vers le LAN</button>
+        <button class="opt">Le LAN ne doit jamais pouvoir accéder à la DMZ</button>
+        <button class="opt">Tous les flux entre DMZ et LAN doivent être configurés en protocole UDP</button>
+        <button class="opt">Les serveurs DMZ doivent partager les mêmes adresses IP que les postes LAN</button>
+      </div>
+      <div class="q__exp">Si un serveur web en DMZ est piraté, l’interdiction d’initier des flux vers le LAN l’empêche de pivoter vers le réseau interne d’entreprise.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’inconvénient principal d’une architecture pare-feu Triple-Homed (un seul boîtier à trois interfaces) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le pare-feu constitue un point unique de défaillance matériel et logiciel (SPOF)</button>
+        <button class="opt">Elle ne permet pas de naviguer sur Internet en HTTPS</button>
+        <button class="opt">Elle exige obligatoirement trois adresses IP publiques différentes</button>
+        <button class="opt">Elle est incompatible avec le protocole TCP</button>
+      </div>
+      <div class="q__exp">Si le boîtier unique tombe en panne ou subit une faille de sécurité majeure, l’ensemble des trois zones (LAN, DMZ, WAN) est impacté.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi recommande-t-on d’utiliser deux constructeurs différents dans une architecture pare-feu Back-to-Back en cascade ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour qu’une vulnérabilité zero-day touchant le pare-feu frontal n’impacte pas le pare-feu interne (défense en profondeur)</button>
+        <button class="opt">Pour diviser par deux le coût des licences logicielles</button>
+        <button class="opt">Pour doubler automatiquement la vitesse de transmission des câbles</button>
+        <button class="opt">Pour éviter d’avoir à configurer des adresses IP privées</button>
+      </div>
+      <div class="q__exp">L’hétérogénéité logicielle et matérielle empêche un pirate d’utiliser le même exploit pour franchir successivement les deux barrières défensives.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel équipement doit-on intercaler pour administrer en toute sécurité des serveurs de production sans accès SSH direct depuis les postes de travail ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un Bastion SSH (Jump Host) avec authentification forte et traçabilité des sessions</button>
+        <button class="opt">Un commutateur non administrable de niveau 2</button>
+        <button class="opt">Un point d’accès Wi-Fi ouvert</button>
+        <button class="opt">Un répéteur Ethernet passif</button>
+      </div>
+      <div class="q__exp">Le Bastion SSH centralise les accès d’administration, applique le MFA, isole la zone critique et enregistre les sessions pour audit.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle zone réseau doit idéalement être situé le serveur de base de données contenant les données sensibles de l’entreprise ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Dans une zone interne protégée (LAN ou zone BDD dédiée), jamais directement en DMZ publique</button>
+        <button class="opt">Directement sur le routeur frontière Internet</button>
+        <button class="opt">En DMZ publique avec le port 3306 exposé à tous les internautes</button>
+        <button class="opt">Sur une clé USB branchée sur la passerelle</button>
+      </div>
+      <div class="q__exp">La base de données critique doit être abritée au cœur du réseau interne ou dans un sous-réseau dédié ; seul le serveur applicatif autorisé peut y accéder.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole réseau est typiquement autorisé dans le sens WAN vers DMZ pour un serveur web public sécurisé ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">TCP sur le port 443 (HTTPS)</button>
+        <button class="opt">TCP sur le port 23 (Telnet)</button>
+        <button class="opt">TCP sur le port 3389 (RDP direct)</button>
+        <button class="opt">UDP sur le port 69 (TFTP)</button>
+      </div>
+      <div class="q__exp">Le port 443 (HTTPS) est le standard sécurisé universellement ouvert vers les serveurs web situés en DMZ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un serveur web en DMZ doit envoyer des données vers une base de données du LAN, comment concevoir l’architecture conformément aux bonnes pratiques ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le serveur web dépose les données sur une file de messages intermédiaire ou c’est un service interne du LAN qui vient régulièrement interroger la DMZ</button>
+        <button class="opt">On désactive temporairement le pare-feu chaque nuit</button>
+        <button class="opt">On ouvre tous les ports entre la DMZ et le LAN sans aucune restriction</button>
+        <button class="opt">On installe un serveur DHCP sur le poste de l’administrateur</button>
+      </div>
+      <div class="q__exp">Pour respecter la règle d’or, on privilégie l’interrogation initiée depuis le LAN vers la DMZ (Pull) ou une passerelle intermédiaire étanche.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une architecture Dual-Homed (pare-feu à 2 pattes), où se trouvent nécessairement les serveurs d’entreprise ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Directement sur le réseau local interne LAN (créant un risque majeur) ou externalisés chez un hébergeur</button>
+        <button class="opt">Dans la zone DMZ dédiée intégrée au boîtier</button>
+        <button class="opt">Dans le nuage sans aucune adresse IP</button>
+        <button class="opt">Sur l’interface de bouclage local 127.0.0.1</button>
+      </div>
+      <div class="q__exp">Le modèle Dual-Homed ne possédant que 2 interfaces (LAN et WAN), il ne dispose d’aucun troisième segment pour héberger une DMZ isolée.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Autoriser une connexion initiée par la DMZ vers le LAN sous prétexte qu’un serveur web doit interroger directement la base de données interne.</li>
+      <li>Mettre tous les serveurs en DMZ sans distinguer les serveurs publics (web) des serveurs critiques (bases de données clients).</li>
+      <li>Utiliser le même mot de passe d’administration sur le pare-feu frontal et le pare-feu interne.</li>
+      <li>Permettre des accès SSH directs depuis les postes bureautiques vers la production sans passer par le bastion d’administration.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie &amp; de Déploiement d’une Zone DMZ</div>
+    <ol>
+      <li>1. Définir le plan d’adressage IP distinct pour chaque zone (ex: LAN 192.168.10.0/24, DMZ 172.16.50.0/24, ADM 10.100.0.0/24).</li>
+      <li>2. Déclarer les interfaces physiques ou VLANs dédiés sur le pare-feu avec leurs profils de sécurité respectifs.</li>
+      <li>3. Rédiger la politique WAN -> DMZ en limitant strictement l’accès aux ports de publication indispensables (80, 443, 53, 25).</li>
+      <li>4. Rédiger la politique LAN -> DMZ pour permettre aux utilisateurs et services internes de consommer les applications de la DMZ.</li>
+      <li>5. Interdire formellement et journaliser avec alerte critique toute tentative de connexion initiée depuis la DMZ vers le LAN.</li>
+      <li>6. Déployer un Bastion SSH dans un segment d’administration étanche pour centraliser et tracer tous les accès aux serveurs.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La DMZ isole les serveurs publics d’Internet du reste du réseau d’entreprise pour limiter l’impact d’une intrusion.</li>
+      <li>Règle cardinale DMZ : aucune session ne doit être initiée de la DMZ vers le réseau interne LAN.</li>
+      <li>L’architecture Triple-Homed est économique mais présente un point unique de défaillance (SPOF).</li>
+      <li>L’architecture Back-to-Back à double pare-feu hétérogène offre la défense en profondeur la plus résiliente.</li>
+      <li>Les bastions SSH (Jump Hosts) sécurisent l’administration des serveurs critiques avec MFA et audit de session.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le rôle et la justification sécuritaire de la DMZ sont compris.</li>
+      <li>La règle d’or interdisant les flux DMZ vers LAN est intégrée et respectée.</li>
+      <li>Les trois topologies (Dual-Homed, Triple-Homed, Back-to-Back) sont maîtrisées.</li>
+      <li>L’intérêt de l’hétérogénéité des constructeurs en cascade est assimilé.</li>
+      <li>Le fonctionnement d’un Bastion SSH d’administration avec MFA est compris.</li>
+      <li>Les 3 ateliers de programmation interactive en Python 3 (fw3-c4-e1 à fw3-c4-e3) sont validés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Zone Démilitarisée (DMZ)</li><li>Règle d’or des flux DMZ vers LAN</li><li>Topologie Dual-Homed</li><li>Topologie Triple-Homed</li><li>Architecture Back-to-Back</li><li>Hétérogénéité des constructeurs</li><li>Bastion d’administration (Jump Host)</li><li>Authentification multifacteur (MFA)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Niveau initial : vous exposez des serveurs directement sur le LAN ou autorisez des connexions initiées de la DMZ vers le LAN.</div>
+      <div class="bandrow bandrow--medium">Niveau opérationnel : vous concevez des zones DMZ étanches avec Triple-Homed et déployez des bastions pour l’administration.</div>
+      <div class="bandrow bandrow--high">Maîtrise B3 : vous modélisez des architectures Back-to-Back hétérogènes haute disponibilité et garantissez une isolation multi-zones de niveau bancaire.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Filtrage Applicatif L7, UTM &amp; Pare-feux Nouvelle Génération (NGFW) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Variables, types et affectation | Algorithmique B1</title>
+<meta name="description" content="Chapitre 2 du cours d'algorithmique B1 : déclaration, types de base, affectation, échange de variables, div et mod, Pascal et Python. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="2">
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algo B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="alwrap">
+  <p class="crumb"><a href="../index.html">Algo B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+  <h1>Chapitre 2 — Variables, types et affectation</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>On te confie deux dossiers physiques à échanger entre deux tiroirs. Impossible de les échanger sans une
+    troisième case pour poser l'un des deux. Les variables se comportent exactement ainsi : l'échange passe
+    toujours par une variable temporaire.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Déclarer une variable avec le bon type (entier, réel, chaîne, booléen) ;</li>
+      <li>prédire le résultat d'une affectation, y compris <code>x ← x + 1</code> ;</li>
+      <li>utiliser <code>div</code> et <code>mod</code> (Python : <code>//</code> et <code>%</code>) ;</li>
+      <li>échanger le contenu de deux variables.</li>
+    </ol>
+  </div>
+
+  <h2>1. La variable : un nom, un type, une valeur</h2>
+  <p><strong>Définition.</strong> Une variable est un emplacement mémoire nommé qui contient une valeur de son
+  type. Le type est déclaré avant l'usage en Pascal ; il est déduit de la valeur en Python.</p>
+
+  <div class="pseudo"><b>Pseudo-code</b><br>Variable age : Entier<br>Variable moyenne : Réel<br>Variable nom : Chaîne<br>Variable admis : Booléen</div>
+  <pre><code><span class="k">var</span>
+  age: integer;
+  moyenne: real;
+  nom: string;
+  admis: boolean;
+<span class="k">begin</span>
+  age := 20;
+  moyenne := 13.5;
+<span class="k">end</span>.</code></pre>
+  <pre><code>age = 20
+moyenne = 13.5
+nom = "Ali"
+admis = True</code></pre>
+
+  <table>
+    <tr><th>Pseudo-code</th><th>Pascal</th><th>Python</th><th>Exemple</th></tr>
+    <tr><td>Entier</td><td><code>integer</code></td><td><code>int</code></td><td>42, −7</td></tr>
+    <tr><td>Réel</td><td><code>real</code></td><td><code>float</code></td><td>3.14</td></tr>
+    <tr><td>Chaîne</td><td><code>string</code></td><td><code>str</code></td><td>"bonjour"</td></tr>
+    <tr><td>Booléen</td><td><code>boolean</code></td><td><code>bool</code></td><td>True / False</td></tr>
+  </table>
+
+  <h2>2. L'affectation</h2>
+  <p><strong>Définition.</strong> L'affectation (<code>←</code> en pseudo-code, <code>:=</code> en Pascal,
+  <code>=</code> en Python) calcule l'expression de droite puis range le résultat dans la variable de gauche.
+  L'ancienne valeur est écrasée.</p>
+
+  <div class="pseudo"><b>Pseudo-code</b><br>x ← 5<br>x ← x + 1 &nbsp; <span class="c">// x vaut maintenant 6</span></div>
+  <pre><code>x := 5;
+x := x + 1;   <span class="c">(* x vaut 6 *)</span></code></pre>
+  <pre><code>x = 5
+x += 1        # x vaut 6</code></pre>
+
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p><code>x ← x + 1</code> ne veut pas dire « x est égal à x + 1 » (impossible !) : la flèche est un ordre.
+    « Prends la valeur actuelle de x, ajoute 1, range le résultat dans x ». Toujours lire la droite d'abord.</p>
+  </div>
+
+  <h2>3. div et mod</h2>
+  <p><strong>Définition.</strong> Pour deux entiers a et b : <code>a div b</code> donne le quotient entier de la
+  division, <code>a mod b</code> le reste.</p>
+  <table>
+    <tr><th>Opération</th><th>Pseudo-code</th><th>Pascal</th><th>Python</th></tr>
+    <tr><td>Division entière</td><td>div</td><td><code>div</code></td><td><code>//</code></td></tr>
+    <tr><td>Reste</td><td>mod</td><td><code>mod</code></td><td><code>%</code></td></tr>
+  </table>
+  <pre><code>17 div 5 = 3    <span class="c">(* 3 × 5 = 15, reste 2 *)</span>
+17 mod 5 = 2</code></pre>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> L'identité à retenir</div>
+    <p>Pour tout a et b ≠ 0 : <code>a = (a div b) × b + (a mod b)</code>. Cette identité sert à vérifier un
+    découpage (heures/minutes, billets/reste, boîtes/pièces) et revient dans presque tous les sujets.</p>
+  </div>
+
+  <h2>4. Échanger deux variables</h2>
+  <div class="pseudo"><b>Pseudo-code</b><br>temp ← a<br>a ← b<br>b ← temp</div>
+  <pre><code>temp := a;
+a := b;
+b := temp;</code></pre>
+  <pre><code>a, b = b, a        # affectation simultanée
+<span class="c"># ou, façon manuelle :</span>
+temp = a
+a = b
+b = temp</code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l'échange sans case temporaire</div>
+    <p>Écrire <code>a ← b</code> puis <code>b ← a</code> perd la valeur initiale de a : après la première
+    affectation, les deux variables contiennent la valeur de b. La variable temporaire est obligatoire
+    (sauf affectation simultanée en Python).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="algo-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;8">
+  <script type="text/plain" data-lab-starter>a = int(input())
+b = int(input())
+
+# À compléter : échanger a et b, puis les afficher.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Permuter deux valeurs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Échanger le contenu de deux variables.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers, chacun sur une ligne. Échangez leurs valeurs : la première valeur lue doit être affichée en second et la seconde en premier, séparées par une espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+8</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>8 3</pre></div>
+    </div>
+    <p class="lab__note">Les deux valeurs ont été permutées.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un échange a besoin d’une case temporaire, ou d’une écriture qui affecte les deux variables en une seule fois.</li>
+        <li>Attention à l’ordre : ce qui est demandé, c’est b puis a à l’affichage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="12&#10;15">
+  <script type="text/plain" data-lab-starter>controle = int(input())
+examen = int(input())
+
+# À compléter : afficher la moyenne pondérée avec deux décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moyenne pondérée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer une moyenne pondérée sans perdre les décimales.</p>
+    <div class="lab__brief"><p>Le programme reçoit une note de contrôle continu (sur 20, entier) et une note d’examen (sur 20, entier). La moyenne pondérée vaut 40 % du contrôle continu plus 60 % de l’examen. Affichez-la avec deux décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>12
+15</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>13.80</pre></div>
+    </div>
+    <p class="lab__note">0,4 × 12 + 0,6 × 15 = 13,80.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour que la division soit décimale, au moins un opérande doit être un nombre à virgule.</li>
+        <li>L’arrondi se fait au moment de l’affichage : le format des f-strings fixe le nombre de décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="4729">
+  <script type="text/plain" data-lab-starter>nombre = int(input())
+
+# À compléter : additionner les chiffres du nombre.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Somme des chiffres</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décomposer un entier chiffre par chiffre.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier positif. Affichez la somme de ses chiffres.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4729</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>22</pre></div>
+    </div>
+    <p class="lab__note">4 + 7 + 2 + 9 = 22.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un nombre peut se parcourir caractère par caractère une fois converti en texte.</li>
+        <li>Chaque morceau doit redevenir un entier pour entrer dans une somme.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que fait <code>x ← x + 1</code> ?</p>
+      <div class="opts">
+        <button class="opt">Elle compare x et x + 1</button>
+        <button class="opt" data-correct="1">Elle augmente x d'une unité</button>
+        <button class="opt">Elle provoque une erreur</button>
+      </div>
+      <div class="q__exp">La droite est calculée puis rangée dans x.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>17 mod 5</code> ?</p>
+      <div class="opts">
+        <button class="opt">3</button>
+        <button class="opt" data-correct="1">2</button>
+        <button class="opt">3.4</button>
+      </div>
+      <div class="q__exp">17 = 3 × 5 + 2 : le reste est 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>17 div 5</code> ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">2</button>
+        <button class="opt">3.4</button>
+      </div>
+      <div class="q__exp">Le quotient entier est 3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En Pascal, quel symbole compare deux valeurs ?</p>
+      <div class="opts">
+        <button class="opt"><code>:=</code></button>
+        <button class="opt" data-correct="1"><code>=</code></button>
+        <button class="opt"><code>==</code></button>
+      </div>
+      <div class="q__exp"><code>:=</code> affecte ; <code>=</code> compare (Pascal n'a pas de <code>==</code>).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une variable temporaire pour échanger ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour ne pas perdre la première valeur lors de l'écrasement</button>
+        <button class="opt">Pour aller plus vite</button>
+        <button class="opt">Pour respecter le typage</button>
+      </div>
+      <div class="q__exp">Sans elle, la valeur initiale est écrasée avant d'être recopiée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type pour une note avec décimales ?</p>
+      <div class="opts">
+        <button class="opt">Entier</button>
+        <button class="opt" data-correct="1">Réel</button>
+        <button class="opt">Booléen</button>
+      </div>
+      <div class="q__exp">Une valeur décimale exige le type réel (<code>real</code>/<code>float</code>).</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Échanger sans variable temporaire.</li>
+      <li>Confondre <code>div</code> et <code>/</code> (division réelle).</li>
+      <li>Utiliser une variable non initialisée.</li>
+      <li>Confondre <code>=</code> et <code>:=</code> en Pascal.</li>
+      <li>Mélanger les types : ranger du texte dans un entier.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Choisir ses variables</div>
+    <ol>
+      <li><strong>Une variable par donnée</strong> du problème, avec un nom explicite.</li>
+      <li><strong>Un type par nature de valeur</strong> : compte → entier, mesure → réel.</li>
+      <li><strong>Initialiser</strong> avant toute lecture.</li>
+      <li><strong>Vérifier</strong> chaque affectation avec une table de trace.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Variable = nom + type + valeur ; le type fixe les opérations permises.</li>
+      <li>Affectation : toujours calculer la droite, puis ranger à gauche.</li>
+      <li><code>div</code>/<code>mod</code> (Python : <code>//</code>/<code>%</code>) : quotient et reste entiers.</li>
+      <li>Identité : <code>a = (a div b) × b + (a mod b)</code>.</li>
+      <li>Échange = trois affectations avec temporaire.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déclare chaque variable avec le bon type.</li>
+      <li>Je prédis le résultat de toute affectation.</li>
+      <li>Je découpe une valeur avec <code>div</code> et <code>mod</code>.</li>
+      <li>J'échange deux variables sans perdre de valeur.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>déclaration</li><li>types de base</li><li>affectation <code>←</code></li>
+      <li><code>x ← x + 1</code></li><li><code>div</code></li><li><code>mod</code></li>
+      <li>identité de la division euclidienne</li><li>échange avec temporaire</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 1-2.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible <code>div</code>/<code>mod</code>.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux passer au chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 1</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Conditions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (INF-1002) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

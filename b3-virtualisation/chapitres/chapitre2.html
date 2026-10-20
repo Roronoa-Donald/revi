@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Déploiement vCenter, Cycle de Vie des VM &amp; Gestion des Ressources | Virtualisation Avancée B3</title>
+<meta name="description" content="Module 2 du cours Virtualisation Avancée B3 : Architecture VMware vCenter Server (VCSA, inventaire, PSC), anatomie complète des fichiers d'une VM (.vmx, .vmdk, .nvram, .vswp), arborescence de disques deltas de snapshots et consolidation, ordonnancement fin par Resource Pools (Shares, Reservations, Limits). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-virtualisation/chapitres/chapitre2.html">
+<meta property="og:title" content="Module 2 — Déploiement vCenter, Cycle de Vie des VM &amp; Gestion des Ressources | Virtualisation Avancée B3">
+<meta property="og:description" content="Module 2 du cours Virtualisation Avancée B3 : Architecture VMware vCenter Server (VCSA, inventaire, PSC), anatomie complète des fichiers d'une VM (.vmx, .vmdk, .nvram, .vswp), arborescence de disques deltas de snapshots et consolidation, ordonnancement fin par Resource Pools (Shares, Reservations, Limits). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-virtualisationnav"><div class="b3-virtualisationnav__in">
+  <a class="b3-virtualisationnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-virtualisationnav__sep" aria-hidden="true">/</span>
+  <a class="b3-virtualisationnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Virtualisation Avancée B3</a>
+  <div class="b3-virtualisationnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-virtualisationnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-virtualisationwrap">
+<p class="crumb"><a href="../index.html">Virtualisation Avancée B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Déploiement vCenter, Cycle de Vie des VM & Gestion des Ressources</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>En tant qu'administrateur de virtualisation vSphere, vous devez centraliser le pilotage d'un parc de 40 serveurs hôtes ESXi répartis sur deux sites. Vous déployez l'appliance vCenter Server (VCSA), structurez l'inventaire hiérarchique, analysez les fichiers de configuration sous-jacents des machines virtuelles critiques, gérez les risques liés à l'accumulation de snapshots différentiels et configurez des Resource Pools équitables pour prioriser les charges applicatives de production en période de contention.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Déployer et administrer VMware vCenter Server Appliance (VCSA) et structurer un inventaire d'entreprise (Datacenters, Clusters, Dossiers).</li>
+      <li>Identifier et analyser la fonction de chaque fichier constitutif d'une VM sur le datastore (.vmx, .vmdk, .nvram, .vswp, .vmsd).</li>
+      <li>Maîtriser la mécanique des disques deltas de snapshots, modéliser la croissance d'espace et exécuter la consolidation sans rupture de service.</li>
+      <li>Configurer les Resource Pools et arbitrer l'allocation des cycles CPU et de la mémoire vive par les parts (Shares), les réservations et les limites.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture VMware vCenter Server : Appliance VCSA & Inventaire Datacenter</h2>
+
+<p>Si un hôte ESXi peut être administré individuellement via son interface web (Host Client), la gestion avancée d'un centre de données (clustering, mobilité à chaud, haute disponibilité, templates) exige une console de gestion centralisée : <strong>VMware vCenter Server</strong>.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Architecture VCSA (vCenter Server Appliance)</h4>
+    <ul>
+      <li><strong>Système d'exploitation durci :</strong> Appliance virtuelle pré-packagée sous VMware Photon OS (Linux minimaliste optimisé).</li>
+      <li><strong>Base de données intégrée :</strong> Base relationnelle PostgreSQL embarquée gérant jusqu'à plusieurs dizaines de milliers de VM sans base Oracle externe.</li>
+      <li><strong>Services d'authentification :</strong> Single Sign-On (SSO) vSphere intégrant Active Directory / LDAP et Platform Services Controller (PSC) unifié.</li>
+      <li><strong>Gestion des hôtes :</strong> Déploiement d'un agent léger <code>vpxa</code> sur chaque ESXi communiquant avec le démon <code>hostd</code> local.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Hiérarchie de l'Inventaire vSphere</h4>
+    <p>L'inventaire vCenter organise logiquement les ressources du système d'information selon une arborescence stricte :</p>
+    <ol>
+      <li><strong>Datacenter logique :</strong> Périmètre géographique ou organisationnel regroupant ressources de calcul, stockage et réseaux.</li>
+      <li><strong>Cluster d'hôtes :</strong> Regroupement de serveurs ESXi partageant le même stockage et mutualisant CPU/RAM (socle de HA et DRS).</li>
+      <li><strong>Resource Pools &amp; Dossiers :</strong> Découpage hiérarchique de calcul et regroupement administratif des VM.</li>
+    </ol>
+  </div>
+</div>
+
+<h2>2. Anatomie des Fichiers d'une Machine Virtuelle sur le Datastore</h2>
+
+<p>Une machine virtuelle n'est pas un objet abstrait : elle se matérialise sur le datastore sous la forme d'un répertoire contenant un ensemble de fichiers aux rôles bien définis :</p>
+<table class="table">
+  <thead><tr><th>Fichier / Extension</th><th>Format</th><th>Fonction Clé sur le Système de Fichiers VMFS / NFS</th></tr></thead>
+  <tbody>
+    <tr><td><code>.vmx</code></td><td>Texte brut ASCII (clef = "valeur")</td><td>Fichier de configuration de la VM (nombre de vCPUs, taille RAM, adresses MAC virtuelles, contrôleurs SCSI, version matérielle).</td></tr>
+    <tr><td><code>.vmdk</code></td><td>Texte brut ASCII (Descripteur)</td><td>Descripteur du disque dur virtuel pointant vers le fichier de données binaire et décrivant la géométrie (cylindres, têtes, secteurs).</td></tr>
+    <tr><td><code>-flat.vmdk</code></td><td>Binaire brut (Data)</td><td>Fichier plat contenant les blocs de données réels du disque dur de la VM.</td></tr>
+    <tr><td><code>.nvram</code></td><td>Binaire</td><td>Mémoire non volatile stockant les paramètres BIOS de la VM ou l'état UEFI / Secure Boot.</td></tr>
+    <tr><td><code>.vswp</code></td><td>Binaire (Swap fichier)</td><td>Fichier de pagination créé <em>à l'allumage de la VM</em>. Sa taille équivaut à <code>RAM_allouée - Réservation_RAM</code>.</td></tr>
+    <tr><td><code>.vmsd</code> &amp; <code>.vmsn</code></td><td>Texte / Binaire</td><td>Métadonnées de l'arborescence de snapshots (.vmsd) et état de la mémoire vive au moment du cliché (.vmsn).</td></tr>
+    <tr><td><code>vmware.log</code></td><td>Journal texte</td><td>Historique chronologique des événements, démarrages, avertissements d'I/O et erreurs du VMkernel.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Disques Deltas, Snapshots & Alerte de Consolidation Disque</h2>
+
+<p>Un <strong>snapshot (cliché instantané)</strong> capture l'état exact des disques et optionnellement de la mémoire vive d'une VM à un instant T. Il est indispensable pour sécuriser une mise à jour d'application ou un correctif d'OS :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mécanisme des Disques Différentiels (Deltas)</h4>
+    <ul>
+      <li>Dès la création du snapshot, le disque de base <code>-flat.vmdk</code> est verrouillé en lecture seule.</li>
+      <li>L'hyperviseur crée un disque différentiel <code>-000001-delta.vmdk</code> qui intercepte et stocke <strong>toutes les nouvelles écritures</strong>.</li>
+      <li>Chaque nouveau snapshot ajoute une couche delta supplémentaire à la chaîne (arborescence de clichés).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Risques &amp; Nécessité de la Consolidation</h4>
+    <ul>
+      <li><strong>Un snapshot n'est PAS une sauvegarde :</strong> La suppression accidentelle ou la corruption du disque de base rend le delta totalement inutilisable.</li>
+      <li><strong>Dégradation des E/S :</strong> La lecture d'un bloc impose de parcourir la chaîne de deltas du plus récent au plus ancien, augmentant la latence disque.</li>
+      <li><strong>Saturation du datastore :</strong> Les deltas grossissent indéfiniment. Dès que plus de 3 snapshots s'accumulent ou que le delta dépasse 50% de la base, une <strong>alerte de consolidation</strong> doit être émise.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Gestion des Ressources : Resource Pools, Shares, Reservations & Limits</h2>
+
+<p>Les <strong>Resource Pools</strong> permettent de partitionner les capacités globales de calcul (CPU en MHz et Mémoire en Mo) d'un cluster d'hôtes pour les allouer à des départements ou des catégories d'applications :</p>
+<ul>
+  <li><strong>Reservation (Garantie) :</strong> Quantité minimale garantie allouée au pool. L'hyperviseur refuse le démarrage d'une VM si la somme des réservations dépasse la capacité physique du cluster (contrôle d'admission).</li>
+  <li><strong>Limit (Plafond strict) :</strong> Quantité maximale de cycles processeur ou de mémoire qu'un pool ne peut dépasser, même si l'hôte est totalement inoccupé. Une limite de <code>-1</code> signifie <em>illimitée (Unlimited)</em>.</li>
+  <li><strong>Shares (Parts relatives de priorité) :</strong> Facteur de pondération appliqué <strong>exclusivement en situation de contention (saturation des ressources)</strong>. Les valeurs standards sont <code>LOW (2000)</code>, <code>NORMAL (4000)</code> et <code>HIGH (8000)</code> :</li>
+</ul>
+<pre><code>Part_allouée = Réservation + ((Shares_Pool / Somme_Shares) * Capacité_Non_Réservée)</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="vrt3-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="displayName = &quot;SRV-PROD-WEB01&quot;&#10;guestOS = &quot;rhel9-64&quot;&#10;numvcpus = &quot;4&quot;&#10;memsize = &quot;8192&quot;&#10;firmware = &quot;efi&quot;&#10;uefi.secureBoot.enabled = &quot;TRUE&quot;&#10;tools.syncTime = &quot;TRUE&quot;&#10;ethernet0.virtualDev = &quot;vmxnet3&quot;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c2-e1) — Parseur de Fichier de Configuration VM .vmx & Validateur d'Options Matérielles
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Configuration minimale par défaut sans options avancées]
+# Données : displayName = "SRV-LEGACY-DB"
+# Données : guestOS = "winnetenterprise-64"
+# Données : memsize = "4096"
+A_COMPLETER
+
+[Cas 2 — VM sans nom explicite et minuscules dans les booléens]
+# Données : guestOS = "ubuntu-64"
+# Données : numvcpus = "8"
+# Données : memsize = "16384"
+# Données : firmware = "EFI"
+# Données : uefi.secureBoot.enabled = "false"
+# Données : tools.syncTime = "true"
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur de Fichier de Configuration VM .vmx &amp; Validateur d'Options Matérielles</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parser la structure clé-valeur d'un fichier de description de machine virtuelle VMware (.vmx) et extraire les options matérielles.</p>
+    <div class="lab__brief"><p>Dans l'infrastructure VMware ESXi / Workstation, une machine virtuelle est définie par un fichier texte <code>.vmx</code> composé de paires <code>cle = "valeur"</code> :<br><br>
+Champs à extraire :<br>
+- <code>VM</code> : valeur de <code>displayName</code> (ou <code>"VM-Inconnue"</code> si absente).<br>
+- <code>OS</code> : valeur de <code>guestOS</code> (ou <code>"other"</code>).<br>
+- <code>VCPUS</code> : entier <code>numvcpus</code> (par défaut 1).<br>
+- <code>RAM</code> : entier <code>memsize</code> en Mo (par défaut 1024).<br>
+- <code>BOOT</code> : valeur de <code>firmware</code> (par défaut <code>"bios"</code>, en minuscules).<br>
+- <code>SECURE_BOOT</code> : <code>"ENABLED"</code> si <code>uefi.secureBoot.enabled = "TRUE"</code> (insensible à la casse), sinon <code>"DISABLED"</code>.<br>
+- <code>TOOLS_SYNC</code> : <code>"YES"</code> si <code>tools.syncTime = "TRUE"</code> (insensible à la casse), sinon <code>"NO"</code>.<br><br>
+Format d'entrée (sur STDIN) :<br>
+Un bloc de fichier <code>.vmx</code> complet.<br><br>
+Format de sortie :<br>
+<code>VM:<VM> | OS:<OS> | VCPUS:<VCPUS> | RAM:<RAM>MB | BOOT:<BOOT> | SECURE_BOOT:<SECURE_BOOT> | TOOLS_SYNC:<TOOLS_SYNC></code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>displayName = "SRV-PROD-WEB01"
+guestOS = "rhel9-64"
+numvcpus = "4"
+memsize = "8192"
+firmware = "efi"
+uefi.secureBoot.enabled = "TRUE"
+tools.syncTime = "TRUE"
+ethernet0.virtualDev = "vmxnet3"</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VM:SRV-PROD-WEB01 | OS:rhel9-64 | VCPUS:4 | RAM:8192MB | BOOT:efi | SECURE_BOOT:ENABLED | TOOLS_SYNC:YES
+</pre></div>
+    </div>
+    <p class="lab__note">Configuration d'un serveur Linux RHEL sous UEFI avec Secure Boot et synchronisation horaire.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isolez les lignes avec clé = 'valeur' en retirant les guillemets et espaces superflus.</li>
+        <li>Gérez les valeurs par défaut si une directive est absente du fichier .vmx.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vrt3-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="VM=vm-compta BASE_GB=100 DAILY_GB=2.0 SNAPS=2,5&#10;VM=vm-dev BASE_GB=50 DAILY_GB=5.0 SNAPS=3,8,12,20&#10;VM=vm-backup BASE_GB=200 DAILY_GB=1.0 SNAPS=NONE">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c2-e2) — Calculateur d'Espace Disque & Arborescence de Snapshots VM (Delta VMDKs)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Dépassement du seuil de 50% de delta avec seulement 2 snapshots]
+# Données : VM=vm-bigdata BASE_GB=80 DAILY_GB=10.0 SNAPS=3,4
+# Données : VM=vm-mail BASE_GB=150 DAILY_GB=2.0 SNAPS=10,15,20
+A_COMPLETER
+
+[Cas 2 — Exactement 3 snapshots sous le seuil de 50%]
+# Données : VM=vm-erp BASE_GB=200 DAILY_GB=1.0 SNAPS=10,20,30
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur d'Espace Disque &amp; Arborescence de Snapshots VM (Delta VMDKs)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la croissance d'espace disque cumulée d'une chaîne de snapshots et émettre une alerte de consolidation.</p>
+    <div class="lab__brief"><p>Chaque snapshot VMware crée un disque différentiel (delta <code>.vmdk</code>) qui enregistre les écritures et grossit au fil du temps :<br><br>
+1. <strong>Nombre de snapshots actifs</strong> :<br>
+Le champ <code>SNAPS</code> fournit la liste des âges (en jours) des snapshots actifs (ex: <code>3,7,12</code>), ou <code>NONE</code> s'il n'y a aucun snapshot.<br><br>
+2. <strong>Volume cumulé des fichiers deltas</strong> :<br>
+<code>total_delta_gb = sum(DAILY_GB * jours)</code> pour tous les snapshots.<br><br>
+3. <strong>Espace total consommé sur le Datastore</strong> :<br>
+<code>total_storage_gb = BASE_GB + total_delta_gb</code>.<br><br>
+4. <strong>Ratio d'expansion de stockage</strong> :<br>
+<code>ratio = total_storage_gb / BASE_GB</code>.<br><br>
+5. <strong>Alerte de consolidation</strong> :<br>
+- Si le nombre de snapshots est supérieur à 3, OU si <code>total_delta_gb &gt; BASE_GB * 0.5</code> : statut <code>ALERTE_CONSOLIDATION</code> (risque de saturation et dégradation des I/O).<br>
+- Sinon : statut <code>NOMINAL</code>.<br><br>
+Format d'entrée (sur STDIN) :<br>
+Lignes : <code>VM=&lt;nom&gt; BASE_GB=&lt;n&gt; DAILY_GB=&lt;n&gt; SNAPS=&lt;d1,d2,...|NONE&gt;</code>.<br><br>
+Format de sortie :<br>
+<code>VM:&lt;nom&gt; | SNAPS:&lt;count&gt; | DELTA:&lt;total_delta_gb:.1f&gt;GB | TOTAL:&lt;total_storage_gb:.1f&gt;GB | RATIO:&lt;ratio:.2f&gt; | STATUT:&lt;statut&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VM=vm-compta BASE_GB=100 DAILY_GB=2.0 SNAPS=2,5
+VM=vm-dev BASE_GB=50 DAILY_GB=5.0 SNAPS=3,8,12,20
+VM=vm-backup BASE_GB=200 DAILY_GB=1.0 SNAPS=NONE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VM:vm-compta | SNAPS:2 | DELTA:14.0GB | TOTAL:114.0GB | RATIO:1.14 | STATUT:NOMINAL
+VM:vm-dev | SNAPS:4 | DELTA:215.0GB | TOTAL:265.0GB | RATIO:5.30 | STATUT:ALERTE_CONSOLIDATION
+VM:vm-backup | SNAPS:0 | DELTA:0.0GB | TOTAL:200.0GB | RATIO:1.00 | STATUT:NOMINAL
+</pre></div>
+    </div>
+    <p class="lab__note">Chaîne de snapshots modérée, chaîne excessive (&gt; 3 snapshots et &gt; 50% delta) et VM sans snapshot.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traitez le cas SNAPS=NONE en comptant 0 snapshot et 0.0 Go de delta.</li>
+        <li>Formatez le ratio d'expansion avec deux chiffres après la virgule.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vrt3-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CLUSTER_CAPACITY_MHZ=20000&#10;POOL=Production RESERVED_MHZ=8000 LIMIT_MHZ=-1 SHARES=HIGH&#10;POOL=Test-Dev RESERVED_MHZ=2000 LIMIT_MHZ=6000 SHARES=NORMAL&#10;POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c2-e3) — Ordonnanceur de Pools de Ressources vCenter (Shares, Reservations, Limits CPU)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cluster sur-réservé dépassant la capacité]
+# Données : CLUSTER_CAPACITY_MHZ=10000
+# Données : POOL=Pool-A RESERVED_MHZ=6000 LIMIT_MHZ=-1 SHARES=NORMAL
+# Données : POOL=Pool-B RESERVED_MHZ=5000 LIMIT_MHZ=-1 SHARES=NORMAL
+A_COMPLETER
+
+[Cas 2 — Pool plafonné par sa limite explicite]
+# Données : CLUSTER_CAPACITY_MHZ=10000
+# Données : POOL=Pool-Capped RESERVED_MHZ=1000 LIMIT_MHZ=3000 SHARES=HIGH
+# Données : POOL=Pool-Free RESERVED_MHZ=1000 LIMIT_MHZ=-1 SHARES=LOW
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Ordonnanceur de Pools de Ressources vCenter (Shares, Reservations, Limits CPU)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la répartition des ressources CPU entre pools sous contention en respectant réservations, limites et shares.</p>
+    <div class="lab__brief"><p>Dans un cluster vSphere, les pools de ressources se partagent la capacité CPU du cluster selon trois mécanismes :<br><br>
+1. <strong>Capacité et Réservations</strong> :<br>
+Le cluster possède une capacité <code>CLUSTER_CAPACITY_MHZ</code>. Chaque pool dispose d'une réservation minimale garantie <code>RESERVED_MHZ</code>.<br>
+Si la somme des réservations de tous les pools dépasse la capacité, le contrôle d'admission échoue (<code>CLUSTER_OVERCOMMITTED</code>).<br><br>
+2. <strong>Distribution des Shares en situation de partage</strong> :<br>
+La capacité non réservée restante est : <code>unreserved = CLUSTER_CAPACITY_MHZ - sum(RESERVED_MHZ)</code>.<br>
+Poids des parts (Shares) :<br>
+- <code>LOW</code> = 2000, <code>NORMAL</code> = 4000, <code>HIGH</code> = 8000 (ou valeur entière numérique directe).<br>
+Chaque pool reçoit une part proportionnelle :<br>
+<code>part_mhz = (pool.shares / total_shares) * unreserved</code>.<br><br>
+3. <strong>Allocation totale et Limite</strong> :<br>
+<code>allocation = pool.reserved + part_mhz</code>.<br>
+Si <code>LIMIT_MHZ</code> est supérieur à zéro (limite active), l'allocation est plafonnée :<br>
+<code>allocation = min(allocation, pool.limit)</code>.<br><br>
+Format d'entrée (sur STDIN) :<br>
+Ligne 1 : <code>CLUSTER_CAPACITY_MHZ=&lt;total&gt;</code>.<br>
+Lignes suivantes : <code>POOL=&lt;nom&gt; RESERVED_MHZ=&lt;r&gt; LIMIT_MHZ=&lt;l|-1&gt; SHARES=&lt;s|LOW|NORMAL|HIGH&gt;</code>.<br><br>
+Format de sortie :<br>
+Pour chaque pool :<br>
+<code>POOL:&lt;nom&gt; | RESERVED:&lt;r&gt;MHz | LIMIT:&lt;l_str&gt; | SHARES:&lt;s&gt; | ALLOCATED:&lt;allocated:.1f&gt;MHz</code><br>
+(Si le cluster est sur-réservé, afficher une seule ligne : <code>ERROR:CLUSTER_OVERCOMMITTED</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CLUSTER_CAPACITY_MHZ=20000
+POOL=Production RESERVED_MHZ=8000 LIMIT_MHZ=-1 SHARES=HIGH
+POOL=Test-Dev RESERVED_MHZ=2000 LIMIT_MHZ=6000 SHARES=NORMAL
+POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>POOL:Production | RESERVED:8000MHz | LIMIT:UNLIMITED | SHARES:8000 | ALLOCATED:12571.4MHz
+POOL:Test-Dev | RESERVED:2000MHz | LIMIT:6000MHz | SHARES:4000 | ALLOCATED:4285.7MHz
+POOL:Staging | RESERVED:2000MHz | LIMIT:UNLIMITED | SHARES:2000 | ALLOCATED:3142.9MHz
+</pre></div>
+    </div>
+    <p class="lab__note">Capacité 20000 MHz partagée entre 3 pools avec pondérations HIGH (8000), NORMAL (4000) et LOW (2000).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertissez les mots-clés LOW (2000), NORMAL (4000) et HIGH (8000) en valeurs entières.</li>
+        <li>Affichez LIMIT:UNLIMITED si la limite vaut -1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le système d'exploitation sous-jacent de l'appliance moderne VMware vCenter Server Appliance (VCSA) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">VMware Photon OS (distribution Linux durcie optimisée).</button>
+        <button class="opt">Microsoft Windows Server 2022 Datacenter Edition.</button>
+        <button class="opt">Red Hat Enterprise Linux 9 avec interface graphique GNOME.</button>
+        <button class="opt">FreeBSD 13 avec noyau personnalisé pour vSphere.</button>
+      </div>
+      <div class="q__exp">Depuis vSphere 6.5+, vCenter Server est exclusivement distribué sous la forme d'une appliance virtuelle (VCSA) autonome s'exécutant sur VMware Photon OS avec une base PostgreSQL intégrée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel fichier stocké sur le datastore contient la configuration matérielle complète d'une VM au format texte ASCII ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le fichier avec l'extension .vmx.</button>
+        <button class="opt">Le fichier avec l'extension -flat.vmdk.</button>
+        <button class="opt">Le fichier avec l'extension .nvram.</button>
+        <button class="opt">Le fichier avec l'extension .vmsd.</button>
+      </div>
+      <div class="q__exp">Le fichier .vmx est le fichier de configuration principal d'une VM VMware. Il décrit en texte brut les vCPUs, la mémoire, les disques durs, les adresses MAC et les contrôleurs matériels.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quel moment précis le fichier de pagination .vswp d'une machine virtuelle est-il créé sur le datastore ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Au moment de la mise sous tension (Power On) de la machine virtuelle.</button>
+        <button class="opt">Dès la création de la VM dans l'assistant de vCenter.</button>
+        <button class="opt">Uniquement lorsque la mémoire physique de l'hôte atteint 100% d'utilisation.</button>
+        <button class="opt">Lors de la création du premier snapshot différentiel.</button>
+      </div>
+      <div class="q__exp">Le fichier .vswp est alloué sur le datastore dès l'allumage de la machine virtuelle. Sa taille est égale à la mémoire allouée moins la réservation mémoire garantie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que devient le fichier de disque principal `-flat.vmdk` lorsqu'un administrateur prend un snapshot d'une VM ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il est verrouillé en lecture seule et un nouveau disque différentiel (-delta.vmdk) intercepte les écritures.</button>
+        <button class="opt">Il est immédiatement compressé et déplacé dans la corbeille de vCenter.</button>
+        <button class="opt">Il est cloné intégralement vers le second hôte ESXi du cluster.</button>
+        <button class="opt">Il est converti à chaud au format Thick Eager Zeroed.</button>
+      </div>
+      <div class="q__exp">Lors de la création d'un snapshot, le disque de base est figé en lecture seule pour préserver son état exact, tandis qu'un fichier delta (.vmdk de cliché) enregistre toutes les modifications ultérieures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un Resource Pool, quand les parts (Shares) entrent-elles en jeu pour déterminer l'allocation des ressources ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Uniquement en situation de contention (saturation des ressources physiques de l'hôte).</button>
+        <button class="opt">En permanence, même si le serveur physique n'est utilisé qu'à 10%.</button>
+        <button class="opt">Uniquement lors des sauvegardes nocturnes déclenchées par l'API VADP.</button>
+        <button class="opt">Seulement lorsque la machine virtuelle subit un crash système.</button>
+      </div>
+      <div class="q__exp">Les Shares (LOW 2000, NORMAL 4000, HIGH 8000) sont des parts relatives de priorité qui ne s'activent qu'en cas de conflit ou de saturation (contention) des ressources processeur ou mémoire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la taille d'un fichier .vswp pour une VM configurée avec 32 Go de RAM et une réservation mémoire de 32 Go ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0 Go (aucun fichier d'échange requis car la mémoire est garantie à 100%).</button>
+        <button class="opt">32 Go (la taille de la RAM allouée).</button>
+        <button class="opt">64 Go (le double de la RAM par mesure de sécurité).</button>
+        <button class="opt">16 Go (la moitié de la RAM allouée).</button>
+      </div>
+      <div class="q__exp">Taille .vswp = RAM allouée - RAM réservée. Si 32 Go sont alloués et 32 Go sont réservés, la différence est nulle : aucun espace de swap n'est réservé sur le datastore.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une accumulation excessive de snapshots dégrade-t-elle les performances d'I/O d'une VM ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les lectures nécessitent de parcourir successivement l'ensemble des fichiers deltas de la chaîne.</button>
+        <button class="opt">La carte réseau virtuelle passe automatiquement du mode 10G au mode 100M.</button>
+        <button class="opt">Le contrôleur SCSI virtuel bascule en émulation IDE lente.</button>
+        <button class="opt">L'hyperviseur désactive l'Hyper-Threading sur tous les cœurs du socket.</button>
+      </div>
+      <div class="q__exp">Pour lire un bloc de données, le VMkernel doit d'abord chercher s'il a été modifié dans le delta le plus récent, puis remonter la chaîne des deltas jusqu'au disque plat d'origine, augmentant la latence d'accès.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un Resource Pool possède une Limit CPU fixée à 4000 MHz alors que l'application en réclame 6000 MHz et que le cluster est inoccupé ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L'allocation est strictement bridée à 4000 MHz, créant un goulot d'étranglement artificiel.</button>
+        <button class="opt">La limite est ignorée dynamiquement et l'application reçoit ses 6000 MHz.</button>
+        <button class="opt">L'hyperviseur éteint immédiatement la VM pour non-respect des quotas.</button>
+        <button class="opt">Une alarme sonore retentit sur les haut-parleurs physiques du serveur.</button>
+      </div>
+      <div class="q__exp">La directive Limit impose un plafond rigide. Même si le processeur de l'hôte est libre à 90%, l'hyperviseur bride l'exécution à la valeur de la limite configurée.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d'Ingénierie : Gestion et Nettoyage d'un Parc vCenter</div>
+    <ol>
+      <li>Inspecter l'arborescence de l'inventaire vCenter et valider l'état opérationnel des agents vpxa sur chaque nœud ESXi.</li>
+      <li>Analyser les fichiers VMX pour repérer les anomalies de configuration (cartes réseaux obsolètes e1000 au lieu de vmxnet3, options de débogage activées).</li>
+      <li>Auditer systématiquement les snapshots orphelins ou anciens (> 72 heures) et lancer la consolidation des disques deltas avant saturation des LUNs.</li>
+      <li>Dimensionner les Resource Pools avec des Shares proportionnées et éviter de poser des Limits rigides qui brident les performances sans gain d'infrastructure.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>vCenter Server Appliance (VCSA) centralise la gestion de clusters ESXi avec sa base PostgreSQL intégrée et ses services SSO.</li>
+      <li>Une machine virtuelle est un dossier de fichiers sur datastore : .vmx (configuration), .vmdk (descripteur), -flat.vmdk (données) et .vswp (swap).</li>
+      <li>Le fichier de swap .vswp est dimensionné à la différence exacte entre la mémoire vive allouée et la mémoire vive réservée.</li>
+      <li>Les snapshots créent des disques deltas qui grossissent à chaque écriture ; ils ne doivent jamais être conservés plus de quelques jours sous peine de dégrader les I/O.</li>
+      <li>Les Shares des Resource Pools n'agissent qu'en période de contention pour arbitrer équitablement la capacité CPU restante au prorata des parts.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>L'appliance VCSA est-elle sauvegardée quotidiennement via le protocole VCSA File-Based Backup (SMB/NFS/SFTP) ?</li>
+      <li>Toutes les VM de production exploitent-elles le pilote réseau paravirtualisé vmxnet3 dans leur fichier .vmx ?</li>
+      <li>Une tâche planifiée d'audit des snapshots identifie-t-elle les clichés de plus de 3 jours ?</li>
+      <li>Les fichiers .vswp sont-ils placés sur un datastore performant ou réduits par une réservation mémoire appropriée ?</li>
+      <li>La somme des réservations de tous les Resource Pools reste-t-elle inférieure à la capacité CPU/RAM du cluster ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>VCSA (vCenter Server Appliance) :</strong> Appliance virtuelle pré-configurée sous Linux Photon OS hébergeant le service de gestion centralisée vCenter Server.</li><li><strong>Fichier VMX :</strong> Fichier de configuration en texte ASCII décrivant le matériel virtuel, l'UUID et l'état de la machine virtuelle.</li><li><strong>Disque Delta (-delta.vmdk) :</strong> Disque virtuel différentiel créé lors d'un snapshot qui intercepte les nouvelles écritures par rapport au disque de base.</li><li><strong>Consolidation de snapshots :</strong> Opération vSphere qui fusionne les modifications des disques deltas dans le disque parent et supprime les fichiers temporaires.</li><li><strong>Fichier VSWP :</strong> Fichier d'échange mémoire créé sur le datastore à la mise sous tension de la VM pour héberger les pages en cas de surallocation extrême.</li><li><strong>Resource Pool :</strong> Objet logique permettant de partitionner et d'allouer hiérarchiquement les ressources CPU et mémoire d'un cluster.</li><li><strong>Shares (Parts) :</strong> Valeurs relatives (LOW, NORMAL, HIGH) déterminant la part prioritaire de CPU/RAM accordée à un pool en période de saturation.</li><li><strong>Reservation :</strong> Quantité garantie minimale de MHz ou de Mo réservée en permanence pour une VM ou un Resource Pool.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow">Déployer l'appliance vCenter Server (VCSA) et structurer un inventaire hiérarchique avec Clusters et Datacenters.</div>
+      <div class="bandrow">Analyser et éditer de manière sécurisée les directives de configuration du fichier .vmx d'une machine virtuelle.</div>
+      <div class="bandrow">Modéliser la croissance des disques deltas de snapshots et planifier les consolidations de disques virtuels.</div>
+      <div class="bandrow">Calculer la taille précise des fichiers d'échange .vswp et optimiser l'espace disque des datastores.</div>
+      <div class="bandrow">Configurer les Resource Pools avec des Shares, Réservations et Limites équilibrées pour garantir les SLA applicatifs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Stockage Virtuel Datastores, VMFS-6 & Architectures Hyperconvergées vSAN <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant & Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

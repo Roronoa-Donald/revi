@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Menaces et attaques : malwares, phishing, réseau | Cybersécurité B1</title>
+<meta name="description" content="Chapitre 2 du cours de Cybersécurité B1 : Familles de malwares, ingénierie sociale et phishing, attaques actives/passives, attaques réseau et sources de menaces. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-cyber/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Menaces et attaques : malwares, phishing, réseau | Cybersécurité B1">
+<meta property="og:description" content="Chapitre 2 du cours de Cybersécurité B1 : Familles de malwares, ingénierie sociale et phishing, attaques actives/passives, attaques réseau et sources de menaces. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="cynav"><div class="cynav__in">
+  <a class="cynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cynav__sep" aria-hidden="true">/</span>
+  <a class="cynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B1</a>
+  <div class="cynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="cynav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="cywrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Menaces et attaques : malwares, phishing, réseau</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le servicedesk reçoit dans la même heure un rapport EXE bizarre, un courriel « votre compte sera fermé sous 24 h » et un réseau Wi-Fi invité qui porte le nom de l'entreprise. Trois attaques différentes, un même réflexe : reconnaître la famille, les indices, puis la parade.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire les familles de malwares et leur mode de propagation ;</li>
+      <li>reconnaître les indices d'un phishing et nommer l'ingénierie sociale ;</li>
+      <li>distinguer attaque active et passive, interne et externe ;</li>
+      <li>décrire rogue AP, MAC spoofing et man-in-the-middle.</li>
+    </ol>
+  </div>
+
+<h2>1. Les familles de malwares</h2>
+
+<p>Un <strong>malware</strong> est un programme conçu pour nuire. Quatre familles dominent les épreuves — la différence tient à <em>comment il se propage</em> et <em>ce qu'il fait</em> :</p>
+<table>
+    <tr><th>Famille</th><th>Propagation</th><th>Action</th><th>Réponse de référence</th></tr>
+    <tr><td>Virus</td><td>s'attache à un fichier, action humaine requise (exécuter)</td><td>corrompt, ralentit, détruit</td><td>supprimer, re-scanner</td></tr>
+    <tr><td>Ver</td><td>se réplique seul par le réseau</td><td>sature, installe des portes dérobées</td><td>isoler la machine</td></tr>
+    <tr><td>Ransomware</td><td>pièce jointe, faille, ver (ex. WannaCry)</td><td>chiffre puis exige une rançon</td><td>restaurer une sauvegarde hors ligne</td></tr>
+    <tr><td>Spyware</td><td>installé en sourdine, souvent par bundle</td><td>espionne (touches, navigation)</td><td>changer les mots de passe</td></tr>
+  </table>
+<p>Exemples à citer : ILOVEYOU (virus par courriel, 2000), WannaCry (ver ransomware, 2017), CryptoLocker (ransomware, 2013). Le ver Morris (1988) est le premier ver d'Internet.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « le virus attend, le ver voyage »</div>
+    <p>Le <strong>virus</strong> attend qu'un humain exécute le fichier infecté ; le <strong>ver</strong> (worm) voyage tout seul de machine en machine. Le ransomware chiffre, le spyware espionne — et la parade suit la famille, pas l'instinct.</p>
+  </div>
+
+<h2>2. Ingénierie sociale et phishing</h2>
+
+<p>L'<strong>ingénierie sociale</strong> manipule l'humain plutôt que la machine : urgence, autorité, peur, appât. Sa forme la plus courante est le <strong>phishing</strong> (hameçonnage) : un courriel imite un service de confiance pour voler des identifiants. Les indices reconnaissables :</p>
+<ul>
+  <li>un <strong>expéditeur</strong> dont le domaine est presque le bon (banque-securite.fr) ;</li>
+  <li>une <strong>URL en adresse IP</strong> ou un nom de domaine exotique (.info, .tk) ;</li>
+  <li>l'<strong>absence de HTTPS</strong> sur une page qui réclame un mot de passe ;</li>
+  <li>un <strong>sentiment d'urgence</strong> et une menace de suspension ;</li>
+  <li>des <strong>fautes d'orthographe</strong> et un ton générique (« Cher client »).</li>
+</ul>
+<p>Côté réseau, la même arnaque existe en sans-fil : l'<strong>AP phishing</strong> installe un faux point d'accès qui imite le portail captif d'un opérateur légitime pour capter les identifiants.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l'urgence est la signature</div>
+    <p>« Sous 24 h », « compte suspendu », « dernier avertissement » : l'urgence a pour but d'empêcher de vérifier. La parade est un réflexe, pas une intuition : vérifier l'URL, joindre le service par un canal connu, signaler. La simulation de phishing régulière transforme les utilisateurs en capteurs de menaces.</p>
+  </div>
+
+<h2>3. Attaques actives, passives, internes, externes</h2>
+
+<p>Selon le comportement et la position de l'attaquant, une attaque se classe en deux axes :</p>
+<table>
+    <tr><th>Axe</th><th>Type</th><th>Caractéristique</th></tr>
+    <tr><td>Comportement</td><td><strong>active</strong></td><td>modifie les ressources ou affecte leur fonctionnement</td></tr>
+    <tr><td>Comportement</td><td><strong>passive</strong></td><td>observe et apprend, sans toucher aux ressources (écoute)</td></tr>
+    <tr><td>Position</td><td><strong>interne</strong></td><td>part d'une entité autorisée qui abuse de ses accès</td></tr>
+    <tr><td>Position</td><td><strong>externe</strong></td><td>part d'un utilisateur non autorisé, hors du périmètre</td></tr>
+  </table>
+<p>Le <strong>déni de service</strong> (DoS) sature un service ; sa version distribuée (<strong>DDoS</strong>) le fait depuis des milliers de machines compromises — un botnet. C'est l'attaque active par excellence : elle vise la disponibilité, pas le secret.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-users"></use></svg> Les sources de menaces à citer en examen</div>
+    <ul>
+      <li><strong>Hacktivistes</strong> : motivation idéologique, cible symbolique.</li>
+      <li><strong>Cybercriminels</strong> : motivation financière (rançon, fraude).</li>
+      <li><strong>États-nations</strong> : espionnage, sabotage d'infrastructures.</li>
+      <li><strong>Menaces internes</strong> : employés malveillants ou simplement négligents.</li>
+    </ul>
+  </div>
+
+<h2>4. Les attaques réseau sans fil</h2>
+
+<p>Les attaques contre les réseaux WLAN (802.11) se classent selon la composante CIA qu'elles attaquent — contrôle d'accès, confidentialité, intégrité, authentification ou disponibilité. Trois classiques à connaître :</p>
+<ul>
+  <li><strong>Rogue AP</strong> (point d'accès rogue) : un AP non autorisé branché dans le réseau de confiance crée une porte dérobée ouverte ; les grandes entreprises déploient des systèmes WIPS avec capteurs pour les repérer à plein temps.</li>
+  <li><strong>MAC spoofing</strong> : l'adresse MAC d'une carte n'est pas modifiable en dur, mais les pilotes et outils permettent de la falsifier — usurper l'identité d'une machine autorisée pour franchir un filtre MAC.</li>
+  <li><strong>Man-in-the-middle</strong> (MITM) : l'attaquant s'installe entre deux parties qui croient dialoguer en direct, intercepte et relaie les messages — l'attaque type contre la confidentialité.</li>
+</ul>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « rogue s'installe, spoof imite, MITM s'intercale »</div>
+    <p>Le rogue AP <strong>s'installe</strong> dans le réseau de confiance ; le MAC spoofing <strong>imite</strong> l'identité d'une machine ; le MITM <strong>s'intercale</strong> entre deux victimes. Chacun viole une composante : contrôle d'accès, authentification, confidentialité.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cy-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="6&#10;ransomware rapport.pdf&#10;virus photo.exe&#10;ver cle_usb&#10;spyware navigateur&#10;virus installateur.exe&#10;spyware clavier&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c2-e1) — Diagnostic des malwares
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Ver et virus]
+# Données : 2
+# Données : ver partage
+# Données : virus jeu.exe
+A_COMPLETER
+
+[Cas 2 — Ransomware et spyware]
+# Données : 3
+# Données : ransomware disque
+# Données : spyware tache
+# Données : ransomware sauvegarde
+A_COMPLETER
+
+[Cas 3 — Cinq familles mélangées]
+# Données : 5
+# Données : virus a.exe
+# Données : ver b
+# Données : spyware c
+# Données : ver d
+# Données : virus e.exe
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Diagnostic des malwares</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer à chaque famille de malware la première mesure qui s’impose.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « famille cible » : famille vaut <code>ransomware</code>, <code>virus</code>, <code>ver</code> ou <code>spyware</code>. Pour chaque ligne il Indiquez <code>famille cible : mesure</code> avec : restaure une sauvegarde hors ligne (ransomware), supprime et re-scanne (virus), isole la machine du réseau (ver), change les mots de passe (spyware). Enfin <code>rapport : n malwares</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>6
+ransomware rapport.pdf
+virus photo.exe
+ver cle_usb
+spyware navigateur
+virus installateur.exe
+spyware clavier
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ransomware rapport.pdf : restaure une sauvegarde hors ligne
+virus photo.exe : supprime et re-scanne
+ver cle_usb : isole la machine du réseau
+spyware navigateur : change les mots de passe
+virus installateur.exe : supprime et re-scanne
+spyware clavier : change les mots de passe
+rapport : 6 malwares</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à quatre branches couvre exactement les quatre familles.</li>
+        <li>Le rapport final affiche n : le compteur total existe déjà, il ne reste qu’à l’afficher après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="5&#10;Autruche2024&#10;kP9!v$2zR#mQ&#10;123456&#10;LeChatBleuMangeUnePomme!&#10;ete2025!&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c2-e2) — Score de mot de passe
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deux mots de passe usuels]
+# Données : 2
+# Données : password
+# Données : MotDePasse1
+A_COMPLETER
+
+[Cas 2 — Un moyen au milieu]
+# Données : 3
+# Données : Bonjour2024
+# Données : chaton99xx
+# Données : Bonjour
+A_COMPLETER
+
+[Cas 3 — Fort, faible, court]
+# Données : 3
+# Données : Mot2PasseLong!
+# Données : Ete2024
+# Données : chat
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Score de mot de passe</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter une politique de mots de passe : liste noire, longueur minimale, verdict.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Pour chacun il Indiquez <code>mdp_minuscules : verdict</code> : <code>faible</code> s’il figure (en minuscules) dans la liste noire <code>123456 password motdepasse autruche azerty qwerty 2024 2025 ete</code> ou s’il fait moins de 8 caractères ; <code>fort</code> s’il en fait 12 ou plus ; <code>moyen</code> sinon. Le mot affiché est la version minuscules du mot de passe.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5
+Autruche2024
+kP9!v$2zR#mQ
+123456
+LeChatBleuMangeUnePomme!
+ete2025!
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>autruche2024 : faible
+kp9!v$2zr#mq : fort
+123456 : faible
+lechatbleumangeunepomme! : fort
+ete2025! : faible</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>minuscules=$(echo "$mdp" | tr '[:upper:]' '[:lower:]') puis parcourir la liste noire avec un case « *mot* ».</li>
+        <li>La longueur s’obtient avec ${#mdp} : moins de 8 c’est faible, 12 ou plus c’est fort — teste la liste noire d’abord, la longueur ensuite.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="5&#10;https banque-exemple.fr&#10;http banque-securite.fr&#10;ip 192.168.12.7&#10;domaine paypal-compte.info&#10;https impots.gouv.fr&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c2-e3) — Détection de phishing
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une IP et un https]
+# Données : 2
+# Données : ip 10.0.0.2
+# Données : https adresse.gouv.fr
+A_COMPLETER
+
+[Cas 2 — Domaine douteux et http]
+# Données : 3
+# Données : domaine microsoft-securite.tk
+# Données : http portail.fr
+# Données : https ecli.bzh
+A_COMPLETER
+
+[Cas 3 — Cinq URL variées]
+# Données : 5
+# Données : https ssl.gouv.fr
+# Données : ip 172.16.0.9
+# Données : domaine compte-ameli.info
+# Données : http suivi-colis.fr
+# Données : https git.bzh
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détection de phishing</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Retrouver les indices d’hameçonnage d’une URL à partir de son type.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « type url » : type vaut <code>https</code>, <code>http</code>, <code>ip</code> (URL en adresse IP) ou <code>domaine</code> (nom trompeur en .info/.tk). Pour chaque ligne il Indiquez <code>type url : etiquette</code> : <code>normal</code> (https), <code>nom trompeur</code> (http), <code>pas de nom</code> (ip), <code>domaine douteux</code> (domaine). Enfin <code>soupçons : X/n</code> où X compte les lignes non « normal ».</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5
+https banque-exemple.fr
+http banque-securite.fr
+ip 192.168.12.7
+domaine paypal-compte.info
+https impots.gouv.fr
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>https banque-exemple.fr : normal
+http banque-securite.fr : nom trompeur
+ip 192.168.12.7 : pas de nom
+domaine paypal-compte.info : domaine douteux
+https impots.gouv.fr : normal
+soupçons : 3/5</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le case doit tester https AVANT http : autrement le motif http matcherait aussi les URL https.</li>
+        <li>Une étiquette différente de « normal » fait monter le compteur de soupçons d’un cran.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel malware se propage seul par le réseau ?</p>
+      <div class="opts">
+        <button class="opt">virus</button>
+        <button class="opt" data-correct="1">ver</button>
+        <button class="opt">spyware</button>
+      </div>
+      <div class="q__exp">Le ver se réplique sans action humaine ; le virus attend l'exécution d'un fichier infecté.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">WannaCry est avant tout…</p>
+      <div class="opts">
+        <button class="opt">un virus de macro</button>
+        <button class="opt" data-correct="1">un ver ransomware</button>
+        <button class="opt">un spyware</button>
+      </div>
+      <div class="q__exp">Il combine propagation de ver et chiffrement à rançon.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une URL en adresse IP sur une page de connexion est…</p>
+      <div class="opts">
+        <button class="opt">normal pour un intranet</button>
+        <button class="opt" data-correct="1">un indice de phishing</button>
+        <button class="opt">un signe de HTTPS</button>
+      </div>
+      <div class="q__exp">Un service de confiance n'utilise pas une IP nue pour réclamer des identifiants.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une écoute passive…</p>
+      <div class="opts">
+        <button class="opt">modifie les ressources</button>
+        <button class="opt" data-correct="1">n'affecte pas les ressources</button>
+        <button class="opt">sature le service</button>
+      </div>
+      <div class="q__exp">L'attaque passive observe sans altérer ; l'active modifie ou perturbe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un DDoS vise…</p>
+      <div class="opts">
+        <button class="opt">la confidentialité</button>
+        <button class="opt">l'intégrité</button>
+        <button class="opt" data-correct="1">la disponibilité</button>
+      </div>
+      <div class="q__exp">Saturer le service le rend indisponible — c'est le but du déni de service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le MAC spoofing consiste à…</p>
+      <div class="opts">
+        <button class="opt">casser le chiffrement WPA</button>
+        <button class="opt" data-correct="1">falsifier l'adresse MAC d'une interface</button>
+        <button class="opt">installer un AP</button>
+      </div>
+      <div class="q__exp">Les pilotes permettent de falsifier la MAC et d'usurper l'identité d'une machine autorisée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un employé qui exfiltre des fichiers abuse de…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un accès autorisé</button>
+        <button class="opt">une faille zero-day</button>
+        <button class="opt">un botnet</button>
+      </div>
+      <div class="q__exp">C'est une attaque interne : l'entité autorisée utilise ses accès de façon non approuvée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le MITM viole principalement…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la confidentialité</button>
+        <button class="opt">la disponibilité</button>
+        <button class="opt">le contrôle d'accès</button>
+      </div>
+      <div class="q__exp">L'attaquant intercepte secrètement des messages censés rester privés.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre virus et ver</strong> : l'un attend un clic, l'autre voyage seul.</li>
+      <li><strong>Payer la rançon d'un ransomware</strong> : sans garantie, et la parade est la sauvegarde hors ligne.</li>
+      <li><strong>Croire un courriel à l'urgence artificielle</strong> : vérifier expéditeur et URL, toujours.</li>
+      <li><strong>Réduire les menaces aux hackers externes</strong> : l'interne négligent coûte aussi cher.</li>
+      <li><strong>Assurer qu'un filtre MAC protège</strong> : il se contourne en spoofant une MAC autorisée.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Qualifier une attaque en trois étapes</div>
+    <ol>
+      <li><strong>Nommer la famille</strong> : malware (quelle sorte ?), ingénierie sociale, déni de service, attaque réseau.</li>
+      <li><strong>Classer l'attaque</strong> : active ou passive, interne ou externe, et composante CIA violee.</li>
+      <li><strong>Choisir la parade</strong> adaptée à la famille : restauration, isolement, mots de passe, signalement, WIPS.</li>
+      <li><strong>Documenter</strong> : ce tri alimente le registre d'incidents du chapitre 5.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Virus (action humaine), ver (réplication autonome), ransomware (chiffrement à rançon), spyware (espionnage).</li>
+      <li>Le phishing exploite urgence, autorité et confiance ; ses indices : expéditeur presque correct, URL suspecte, absence de HTTPS.</li>
+      <li>Attaque active = modifie ; passive = observe. Interne = abus d'un accès autorisé ; externe = intrus.</li>
+      <li>DoS/DDoS vise la disponibilité ; rogue AP, MAC spoofing et MITM attaquent accès, authentification et confidentialité.</li>
+      <li>Sources de menaces : hacktivistes, cybercriminels, États-nations, internes.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décris les quatre familles de malwares avec propagation et parade.</li>
+      <li>Je liste cinq indices de phishing et je sais quoi faire en les recevant.</li>
+      <li>Je classe une attaque active/passive, interne/externe sans hésiter.</li>
+      <li>J'explique rogue AP, MAC spoofing et MITM en une phrase chacun.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>malware</li><li>virus</li><li>ver</li><li>ransomware</li><li>spyware</li><li>phishing</li><li>DDoS</li><li>man-in-the-middle</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le tableau des malwares de mémoire, famille par famille.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Prends dix courriels réels et traque les indices de phishing.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : qualifie chaque attaque en famille, axe et composante CIA.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 3, l'authentification et la cryptographie.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Authentification, cryptographie, pare-feu <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Introduction à la Cybersécurité B1 IT 2024-2025 » (modules 1 à 7).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

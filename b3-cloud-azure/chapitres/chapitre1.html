@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 — Architecture Globale, Régions, Souscriptions &amp;amp; Hiérarchie ARM | Cloud Azure B3</title>
+<meta name="description" content="Module 1 du cours Cloud Microsoft Azure B3 : Structure mondiale des datacenters Azure, Régions et Zones de Disponibilité (AZs 1, 2, 3), Paires Régionales, hiérarchie de gestion organisationnelle (Root Management Group, Abonnements, Resource Groups), conventions de nommage du Cloud Adoption Framework (CAF) et optimisation financière TCO / FinOps. Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-azure/chapitres/chapitre1.html">
+<meta property="og:title" content="Module 1 — Architecture Globale, Régions, Souscriptions &amp;amp; Hiérarchie ARM | Cloud Azure B3">
+<meta property="og:description" content="Module 1 du cours Cloud Microsoft Azure B3 : Structure mondiale des datacenters Azure, Régions et Zones de Disponibilité (AZs 1, 2, 3), Paires Régionales, hiérarchie de gestion organisationnelle (Root Management Group, Abonnements, Resource Groups), conventions de nommage du Cloud Adoption Framework (CAF) et optimisation financière TCO / FinOps. Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-azurenav"><div class="b3-cloud-azurenav__in">
+  <a class="b3-cloud-azurenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-azurenav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-azurenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Cloud Azure B3</a>
+  <div class="b3-cloud-azurenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-azurenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-azurewrap">
+<p class="crumb"><a href="../index.html">Cloud Azure B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Architecture Globale, Régions, Souscriptions &amp; Hiérarchie ARM</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans une entreprise internationale migrant son système d'information vers Microsoft Azure, le déploiement anarchique de machines virtuelles et de comptes de stockage sans structure hiérarchique entraîne rapidement des failles de conformité, des pannes régionales non couvertes par les SLAs et des dépassements budgétaires massifs. En tant qu'architecte Cloud Azure B3, vous devez concevoir la hiérarchie organisationnelle ARM conforme aux bonnes pratiques du Cloud Adoption Framework, choisir rigoureusement les régions et zones de disponibilité en fonction des SLAs cibles (99.9% à 99.99%) et dimensionner les engagements financiers (Pay-As-You-Go vs Instances Réservées).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser l'organisation physique et logique mondiale d'Azure : Régions, Zones de Disponibilité (AZ) et Paires Régionales ;</li>
+      <li>concevoir une hiérarchie de gouvernance Azure Resource Manager (ARM) robuste : Root Management Group, Management Groups, Subscriptions et Resource Groups ;</li>
+      <li>appliquer les règles de normalisation de nommage et d'étiquetage (Tags) définies par le Cloud Adoption Framework (CAF) de Microsoft ;</li>
+      <li>calculer la disponibilité théorique des architectures et choisir la stratégie de réplication des données (LRS vs ZRS vs GRS) ;</li>
+      <li>évaluer les coûts IaaS/PaaS (TCO / FinOps) et optimiser les dépenses via les Instances Réservées (RI sur 1 an ou 3 ans) ;</li>
+      <li>implémenter en Python 3 des validateurs de hiérarchie CAF, des sélecteurs de résilience régionale et des estimateurs de budget.</li>
+    </ol>
+  </div>
+
+<h2>1. Organisation Mondiale d'Azure : Datacenters, Régions, Zones de Disponibilité et Paires</h2>
+
+<p>L'infrastructure globale de Microsoft Azure repose sur plus de 60 régions réparties dans le monde entier, interconnectées par un réseau privé dédié en fibre optique à très haut débit et ultra-faible latence (Microsoft Dark Fiber Network) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Régions et Zones de Disponibilité (AZs)</h4>
+    <ul>
+      <li><strong>Région Azure :</strong> zone géographique délimitée abritant un ou plusieurs datacenters reliés par un réseau régional à faible latence (ex. <code>France Central</code> à Paris, <code>West Europe</code> à Amsterdam, <code>North Europe</code> à Dublin).</li>
+      <li><strong>Zones de Disponibilité (AZ 1, 2, 3) :</strong> datacenters physiquement et géographiquement séparés au sein d'une même région, disposant chacun de leurs propres sources d'alimentation électrique, de leur propre refroidissement et de leur propre connectivité réseau indépendante.</li>
+      <li><strong>SLA 99.99% :</strong> le déploiement de machines virtuelles réparties sur au moins deux zones de disponibilité d'une même région garantit un SLA contractuel de 99.99% (moins de 53 minutes d'interruption tolérée par an).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Paires Régionales &amp; Résilience Catastrophe (DR)</h4>
+    <ul>
+      <li><strong>Paires Régionales (Regional Pairs) :</strong> chaque région Azure est couplée à une autre région de la même zone géographique, distante d'au moins 480 km (ex. <code>West Europe</code> &lt;-&gt; <code>North Europe</code>, <code>France Central</code> &lt;-&gt; <code>France South</code>).</li>
+      <li><strong>Mises à jour ordonnées :</strong> lors des opérations de maintenance de la plateforme Azure, Microsoft ne met jamais à jour les deux régions d'une même paire simultanément, garantissant la continuité opérationnelle.</li>
+      <li><strong>Priorité de reprise :</strong> en cas de panne continentale généralisée, Azure priorise la restauration d'au moins une région par paire régionale pour permettre aux entreprises de redémarrer leurs PRA.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Hiérarchie de Gestion Organisationnelle ARM (Azure Resource Manager)</h2>
+
+<p>Azure Resource Manager (ARM) est la couche centrale de déploiement, de gestion et de contrôle de la plateforme Azure. Elle structure toutes les entités de l'entreprise selon une hiérarchie stricte à 4 niveaux :</p>
+<table class="table">
+  <thead><tr><th>Niveau Hiérarchique</th><th>Rôle et Fonctions Clés</th><th>Héritage des Droits &amp; Politiques</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Root Management Group</strong></td><td>Racine globale du tenant Entra ID. Tout abonnement existant ou nouvellement créé y est rattaché.</td><td>Toute politique Azure Policy ou attribution RBAC définie ici s'applique à 100% des ressources de l'entreprise.</td></tr>
+    <tr><td><strong>2. Management Groups (MG)</strong></td><td>Conteneurs intermédiaires organisés en arborescence (jusqu'à 6 niveaux de profondeur) par environnement (Prod, Hors-Prod) ou unité opérationnelle (Finance, R&amp;D).</td><td>Permettent d'appliquer des règles de conformité globale à plusieurs abonnements en une seule affectation.</td></tr>
+    <tr><td><strong>3. Subscriptions (Abonnements)</strong></td><td>Unité fondamentale de facturation, d'isolation de sécurité et de limites de quotas (nombre de vCPUs max, adresses IP publiques).</td><td>Chaque ressource appartient obligatoirement à un et un seul abonnement.</td></tr>
+    <tr><td><strong>4. Resource Groups (RG)</strong></td><td>Conteneur logique regroupant des ressources partageant le même cycle de vie applicatif (VM, disque, interface réseau, IP).</td><td>Une ressource ne peut appartenir qu'à un seul RG à un instant T mais peut être déplacée entre groupes.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Le Cloud Adoption Framework (CAF) : Conventions de Nommage, Tags &amp; FinOps</h2>
+
+<p>Pour éviter le chaos opérationnel, le Cloud Adoption Framework (CAF) de Microsoft standardise la nomenclature des ressources et les leviers d'optimisation budgétaire (FinOps) :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Gabarit de Nommage Normalisé CAF pour les Ressources Azure</div>
+<p>La syntaxe universelle recommandée par Microsoft adopte le format suivant :<br>,<code>&lt;type_ressource&gt;-&lt;application/workload&gt;-&lt;environnement&gt;-&lt;region&gt;-&lt;instance&gt;</code></p>,<ul>,  <li><code>rg-erp-prod-we-01</code> : Groupe de ressources hébergeant l'ERP de production sur West Europe, instance 01.</li>,  <li><code>vm-web-dev-fc-02</code> : Machine virtuelle du front-end web en environnement de développement sur France Central, instance 02.</li>,  <li><code>stbillstageuse01</code> : Compte de stockage (qui n'accepte ni tirets ni majuscules, de 3 à 24 caractères alphanumériques).</li>,</ul>
+  </div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Optimisation FinOps : Pay-As-You-Go vs Instances Réservées (RI)</div>
+<p>Le modèle Pay-As-You-Go (à l'usage sans engagement) offre une flexibilité totale mais présente le coût horaire le plus élevé. Pour les charges de travail stables (bases de données, serveurs applicatifs actifs 24/7), Azure propose les <strong>Reserved Instances (RI)</strong> :</p>,<ul>,  <li><strong>Engagement sur 1 an :</strong> environ 30% à 40% d'économie sur la part calcul (Compute) de la machine virtuelle.</li>,  <li><strong>Engagement sur 3 ans :</strong> jusqu'à 60% à 72% d'économie sur le calcul par rapport au tarif PAYG.</li>,  <li><strong>Azure Hybrid Benefit (AHB) :</strong> permet de réutiliser des licences Windows Server ou SQL Server existantes dotées de la Software Assurance pour cumuler jusqu'à 85% d'économies totales.</li>,</ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="az3-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="HIERARCHY mg-root/mg-core/sub-prod-01/rg-erp-prod-we-01">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c1-e1) — Validateur de hiérarchie ARM & Conventions de nommage CAF
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Hiérarchies conformes en production et dev]
+# Données : HIERARCHY mg-root/mg-prod/sub-corp-01/rg-web-prod-fc-01
+# Données : HIERARCHY mg-tenant/mg-dev/sub-sandbox-02/rg-api-dev-use-02
+A_COMPLETER
+
+[Cas 2 — Erreur de hiérarchie malformée]
+# Données : HIERARCHY mg-root/sub-prod-01/rg-web-prod-fc-01
+# Données : HIERARCHY mg-root/mg-core/sub-01/sub-02/rg-data-prod-we-01
+A_COMPLETER
+
+[Cas 3 — Nom de Resource Group non conforme (env ou région invalide)]
+# Données : HIERARCHY mg-root/mg-prod/sub-01/rg-web-preprod-we-01
+# Données : HIERARCHY mg-root/mg-prod/sub-01/rg-db-prod-paris-01
+# Données : HIERARCHY mg-root/mg-prod/sub-01/my-resource-group
+A_COMPLETER
+
+[Cas 4 — Segment vide dans la hiérarchie]
+# Données : HIERARCHY mg-root//sub-01/rg-app-test-ne-01
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de hiérarchie ARM &amp; Conventions de nommage CAF</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la structure hiérarchique de gestion Azure (Root MG -&gt; MG -&gt; Subscription -&gt; Resource Group) et vérifier la conformité du nommage CAF.</p>
+    <div class="lab__brief"><p>Dans le Microsoft Cloud Adoption Framework (CAF), l'organisation des ressources repose sur une hiérarchie stricte à 4 niveaux :
+<code>ManagementGroup_Parent / ManagementGroup_Child / Subscription / ResourceGroup</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas. La chaîne doit comporter exactement 4 segments non vides séparés par <code>/</code>. Si ce n'est pas le cas :<br>
+   <code>INVALID: reason=MALFORMED_HIERARCHY</code><br>
+2. Le 4e segment correspond au Resource Group (RG). Il doit respecter le gabarit CAF suivant :<br>
+   <code>rg-&lt;app&gt;-&lt;env&gt;-&lt;region&gt;-&lt;instance&gt;</code><br>
+   - Préfixe : exactement <code>rg-</code><br>
+   - <code>&lt;app&gt;</code> : chaîne alphanumérique non vide (lettres/chiffres)<br>
+   - <code>&lt;env&gt;</code> : une valeur parmi <code>prod</code>, <code>dev</code>, <code>stage</code>, <code>test</code><br>
+   - <code>&lt;region&gt;</code> : code région abrégé parmi <code>we</code> (West Europe), <code>ne</code> (North Europe), <code>fc</code> (France Central), <code>use</code> (East US)<br>
+   - <code>&lt;instance&gt;</code> : exactement 2 chiffres décimaux (ex: <code>01</code>, <code>02</code>)<br>
+3. Si le format du RG ne respecte pas ce gabarit :<br>
+   <code>INVALID: rg=&lt;rg_name&gt; reason=NON_COMPLIANT_NAMING</code><br>
+4. Si la hiérarchie et le nom du RG sont conformes :<br>
+   <code>VALID: HIERARCHY depth=4 sub=&lt;segment3&gt; rg=&lt;rg_name&gt; status=COMPLIANT</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HIERARCHY mg-root/mg-core/sub-prod-01/rg-erp-prod-we-01</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VALID: HIERARCHY depth=4 sub=sub-prod-01 rg=rg-erp-prod-we-01 status=COMPLIANT</pre></div>
+    </div>
+    <p class="lab__note">Hiérarchie standard 4 niveaux avec Resource Group conforme au CAF.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser split("/") sur le chemin de la hiérarchie pour vérifier qu'il contient exactement 4 éléments.</li>
+        <li>Valider le nom du groupe de ressources à l'aide d'une regex ou en découpant sur le tiret "-" : rg-&lt;app&gt;-&lt;env&gt;-&lt;region&gt;-&lt;instance&gt;.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="REGION westeurope SLA 99.99%">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c1-e2) — Sélecteur de région, Zones de disponibilité et Paires géographiques
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — SLA haute disponibilité 99.99% sur West Europe et France Central]
+# Données : REGION westeurope SLA 99.99%
+# Données : REGION francecentral SLA 99.99%
+A_COMPLETER
+
+[Cas 2 — Région avec zones insuffisantes pour 99.99%]
+# Données : REGION brazilsouth SLA 99.99%
+A_COMPLETER
+
+[Cas 3 — Paliers SLA 99.95% et 99.9% sur diverses régions]
+# Données : REGION northeurope SLA 99.95%
+# Données : REGION eastus SLA 99.9%
+# Données : REGION germanywestcentral SLA 99.95%
+A_COMPLETER
+
+[Cas 4 — Région non répertoriée]
+# Données : REGION mars-central SLA 99.99%
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Sélecteur de région, Zones de disponibilité et Paires géographiques</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une cible de haute disponibilité (SLA) pour une région Azure et déterminer le niveau de résilience et la stratégie de réplication associés.</p>
+    <div class="lab__brief"><p>Azure organise ses datacenters mondiaux en Régions, Zones de Disponibilité (AZ 1, 2, 3 avec datacenters indépendants) et Paires Régionales (séparées d'au moins 480 km pour la reprise après sinistre).<br><br>
+Données de référence des régions Azure :<br>
+- <code>westeurope</code> : paired=<code>northeurope</code>, zones=3<br>
+- <code>northeurope</code> : paired=<code>westeurope</code>, zones=3<br>
+- <code>francecentral</code> : paired=<code>francesouth</code>, zones=3<br>
+- <code>eastus</code> : paired=<code>westus</code>, zones=3<br>
+- <code>germanywestcentral</code> : paired=<code>germanynorth</code>, zones=3<br>
+- <code>brazilsouth</code> : paired=<code>southcentralus</code>, zones=2<br><br>
+Analysez les données fournies pour chaque cas.9%</code>, <code>99.95%</code>, <code>99.99%</code>).<br><br>
+Règles de décision :<br>
+1. Si la région n'est pas dans le catalogue :<br>
+   <code>REGION: &lt;nom_region&gt; -&gt; UNKNOWN_REGION</code><br>
+2. Si le SLA cible est <code>99.99%</code> :<br>
+   - Si la région possède au moins 3 zones de disponibilité (<code>zones &gt;= 3</code>) :<br>
+     <code>REGION: &lt;nom_region&gt; -&gt; RESILIENCE=AZ_SUPPORTED (zones=&lt;zones&gt;) | PAIRED=&lt;paired&gt; | REPLICATION=ZRS_OR_GZRS</code><br>
+   - Sinon :<br>
+     <code>REGION: &lt;nom_region&gt; -&gt; INSUFFICIENT_ZONES (zones=&lt;zones&gt;) | TARGET_SLA_UNMET</code><br>
+3. Si le SLA cible est <code>99.95%</code> :<br>
+   <code>REGION: &lt;nom_region&gt; -&gt; RESILIENCE=AVAILABILITY_SETS | PAIRED=&lt;paired&gt; | REPLICATION=LRS_OR_GRS</code><br>
+4. Si le SLA cible est inférieur ou égal à <code>99.9%</code> :<br>
+   <code>REGION: &lt;nom_region&gt; -&gt; RESILIENCE=SINGLE_VM_PREMIUM | PAIRED=&lt;paired&gt; | REPLICATION=LRS</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REGION westeurope SLA 99.99%</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REGION: westeurope -&gt; RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=northeurope | REPLICATION=ZRS_OR_GZRS</pre></div>
+    </div>
+    <p class="lab__note">West Europe dispose de 3 zones de disponibilité permettant d'atteindre 99.99% de SLA.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Consultez la cartographie des régions Azure pour identifier les zones de disponibilité (Availability Zones) et régions appairées.</li>
+        <li>Vérifiez la conformité du contrat de niveau de service (SLA) avec les exigences de redondance géographique.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CALC sku=Standard_B2s qty=2 disk=P10 egress_gb=5 commitment=PAYG">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c1-e3) — Estimateur de coûts TCO et optimisation par Instances Réservées (RI)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Flotte PAYG standard 3 VMs B2s]
+# Données : CALC sku=Standard_B2s qty=3 disk=P10 egress_gb=10 commitment=PAYG
+A_COMPLETER
+
+[Cas 2 — Engagement RI 1 an avec egress significatif]
+# Données : CALC sku=Standard_D4s_v5 qty=4 disk=P20 egress_gb=105 commitment=RI_1Y
+A_COMPLETER
+
+[Cas 3 — Engagement RI 3 ans haute capacité mémoire]
+# Données : CALC sku=Standard_E4s_v5 qty=2 disk=P30 egress_gb=50 commitment=RI_3Y
+A_COMPLETER
+
+[Cas 4 — Une seule VM B2s avec RI 3 ans sans egress]
+# Données : CALC sku=Standard_B2s qty=1 disk=P10 egress_gb=0 commitment=RI_3Y
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Estimateur de coûts TCO et optimisation par Instances Réservées (RI)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le budget mensuel d’une flotte de machines virtuelles et disques managés, en simulant l’économie apportée par les réservations Azure (1 an ou 3 ans).</p>
+    <div class="lab__brief"><p>La maîtrise financière (FinOps) sous Azure requiert d'optimiser l'engagement sur les capacités de calcul (Instances Réservées) tout en dimensionnant le stockage et les flux sortants (Egress).<br><br>
+Base tarifaire mensuelle (730 heures par mois) :<br>
+- VM Calcul (tarif Pay-As-You-Go) :<br>
+  - <code>Standard_B2s</code> : 30.37 USD / mois par VM<br>
+  - <code>Standard_D4s_v5</code> : 140.16 USD / mois par VM<br>
+  - <code>Standard_E4s_v5</code> : 183.96 USD / mois par VM<br>
+- Disques managés SSD Premium (tarif mensuel fixe par unité) :<br>
+  - <code>P10</code> (128 Go) : 19.71 USD<br>
+  - <code>P20</code> (512 Go) : 73.22 USD<br>
+  - <code>P30</code> (1024 Go) : 135.17 USD<br>
+- Bande passante sortante (Egress Internet) :<br>
+  - Les 5 premiers Go du mois sont gratuits (0.00 USD).<br>
+  - Tout Go supplémentaire est facturé à 0.087 USD / Go.<br>
+- Remises sur le calcul des VMs par engagement Reserved Instances (RI) :<br>
+  - <code>PAYG</code> : 0% de remise.<br>
+  - <code>RI_1Y</code> : 35% de remise sur le coût du calcul VM.<br>
+  - <code>RI_3Y</code> : 60% de remise sur le coût du calcul VM.<br>
+  (Le stockage et l'egress ne bénéficient pas de la remise RI calcul).<br><br>
+Format de la ligne d'entrée :<br>
+<code>CALC sku=&lt;SKU&gt; qty=&lt;N&gt; disk=&lt;DISK&gt; egress_gb=&lt;GB&gt; commitment=&lt;PAYG|RI_1Y|RI_3Y&gt;</code><br><br>
+Format de sortie attendu :<br>
+<code>COST: VM=&lt;vm_cost:.2f&gt; DISK=&lt;disk_cost:.2f&gt; EGRESS=&lt;egress_cost:.2f&gt; TOTAL=&lt;total:.2f&gt; SAVINGS=&lt;savings:.2f&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CALC sku=Standard_B2s qty=2 disk=P10 egress_gb=5 commitment=PAYG</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>COST: VM=60.74 DISK=39.42 EGRESS=0.00 TOTAL=100.16 SAVINGS=0.00</pre></div>
+    </div>
+    <p class="lab__note">2 VMs B2s avec 2 disques P10 sans engagement et 5 Go egress gratuits.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer d'abord le coût de base des VMs sans remise (PAYG) : base_vm = qty * tarif_unitaire.</li>
+        <li>La remise RI s'applique uniquement à base_vm : savings = base_vm * discount_rate.</li>
+        <li>Le coût effectif de la VM devient base_vm - savings.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel SLA de disponibilité est garanti par Microsoft pour une architecture de machines virtuelles réparties sur au moins deux Zones de Disponibilité (Availability Zones) d'une région ?</p>
+      <div class="opts">
+        <button class="opt">99.0%</button>
+        <button class="opt">99.5%</button>
+        <button class="opt">99.95%</button>
+        <button class="opt" data-correct="1">99.99%</button>
+      </div>
+      <div class="q__exp">Le déploiement de VMs sur au moins deux Availability Zones distinctes d'une même région bénéficie du SLA Azure le plus élevé pour le calcul IaaS : 99.99% (moins de 53 minutes d'indisponibilité tolérée par an).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle distance minimale sépare généralement deux régions Azure au sein d'une Paire Régionale (Paired Region) ?</p>
+      <div class="opts">
+        <button class="opt">50 km</button>
+        <button class="opt">100 km</button>
+        <button class="opt" data-correct="1">480 km (300 miles)</button>
+        <button class="opt">2 000 km</button>
+      </div>
+      <div class="q__exp">Les régions jumelées (Paired Regions) sont distantes d'au moins 480 kilomètres (300 miles) afin qu'une catastrophe naturelle majeure (séisme, inondation, tempête) ne puisse pas impacter les deux datacenters simultanément.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la hiérarchie Azure Resource Manager (ARM), quel niveau constitue la frontière fondamentale de facturation et d'attribution des quotas de calcul ?</p>
+      <div class="opts">
+        <button class="opt">Le Tenant Entra ID</button>
+        <button class="opt">Le Management Group</button>
+        <button class="opt" data-correct="1">L'Abonnement (Subscription)</button>
+        <button class="opt">Le Resource Group</button>
+      </div>
+      <div class="q__exp">L'Abonnement (Subscription) est l'entité juridique et financière qui délimite la facturation mensuelle, les quotas de ressources (vCPUs max, adresses IP publiques) et les limites d'administration.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon les conventions du Cloud Adoption Framework (CAF), quel est le format recommandé pour un Resource Group de pré-production hébergeant l'API en Europe de l'Ouest ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">rg-api-stage-we-01</button>
+        <button class="opt">resourcegroup_api_preprod_westeurope</button>
+        <button class="opt">API-STAGE-WESTEUROPE-GROUP</button>
+        <button class="opt">my-rg-api-stage-01</button>
+      </div>
+      <div class="q__exp">Le gabarit CAF prescrit rg-<app>-<env>-<region>-<instance> en minuscules séparé par des tirets, soit rg-api-stage-we-01.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle stratégie de réplication de stockage garantit une copie des données sur trois zones de disponibilité indépendantes au sein de la même région ?</p>
+      <div class="opts">
+        <button class="opt">LRS (Locally Redundant Storage)</button>
+        <button class="opt" data-correct="1">ZRS (Zone-Redundant Storage)</button>
+        <button class="opt">GRS (Geo-Redundant Storage)</button>
+        <button class="opt">RA-GRS</button>
+      </div>
+      <div class="q__exp">ZRS (Zone-Redundant Storage) écrit les données de manière synchrone sur 3 datacenters physiquement séparés (Availability Zones) de la région locale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l'avantage d'une politique d'engagement Reserved Instances (RI) sur 3 ans sous Azure par rapport au tarif Pay-As-You-Go ?</p>
+      <div class="opts">
+        <button class="opt">Augmentation de la vitesse CPU de 50%</button>
+        <button class="opt" data-correct="1">Réduction tarifaire pouvant atteindre environ 60% sur le coût du calcul</button>
+        <button class="opt">Gratuité totale de la bande passante sortante Internet</button>
+        <button class="opt">Disques SSD Premium illimités sans surcoût</button>
+      </div>
+      <div class="q__exp">Les réservations d'instances sur 3 ans permettent d'obtenir jusqu'à 60% à 72% d'économies sur la composante calcul (vCPU/RAM) des machines virtuelles stables par rapport au tarif PAYG.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une ressource peut-elle appartenir simultanément à deux Resource Groups distincts ?</p>
+      <div class="opts">
+        <button class="opt">Oui, si les deux groupes sont dans le même abonnement</button>
+        <button class="opt">Oui, si elle utilise une étiquette (tag) partagée</button>
+        <button class="opt" data-correct="1">Non, chaque ressource appartient obligatoirement à un et un seul Resource Group à un instant donné</button>
+        <button class="opt">Oui, uniquement pour les réseaux virtuels VNet</button>
+      </div>
+      <div class="q__exp">Dans l'architecture ARM, une ressource n'appartient qu'à un seul Resource Group. Elle peut en revanche interagir avec des ressources d'autres groupes ou être déplacée vers un autre groupe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel composant de l'infrastructure n'est PAS couvert par la réduction tarifaire d'une Instance Réservée (RI) Azure ?</p>
+      <div class="opts">
+        <button class="opt">Les vCPUs de la machine virtuelle</button>
+        <button class="opt">La mémoire RAM de la machine virtuelle</button>
+        <button class="opt" data-correct="1">Le stockage des disques managés (OS Disk et Data Disks)</button>
+        <button class="opt">Le processeur sous système Linux</button>
+      </div>
+      <div class="q__exp">Les Reserved Instances (RI) ne couvrent que le coût horaire de la puissance de calcul (vCPU et RAM) de la VM. Le stockage des disques managés attachés et l'egress réseau continuent d'être facturés selon leurs tarifs respectifs.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre région et zone de disponibilité : une région contient plusieurs zones (AZs 1, 2, 3), mais toutes les régions Azure ne possèdent pas nécessairement de zones de disponibilité.</li>
+      <li>Penser qu'un Resource Group peut être imbriqué dans un autre Resource Group : la hiérarchie ARM interdit l'imbrication de groupes de ressources.</li>
+      <li>Supposer qu'un Resource Group restreint l'emplacement des ressources : une ressource peut être déployée dans une région différente de celle de son Resource Group (bien que cela soit déconseillé en gouvernance).</li>
+      <li>Oublier que les remises Reserved Instances (RI) s'appliquent uniquement au composant calcul (Compute de la VM), et jamais au stockage des disques managés ni à l'egress réseau.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Cartographie de l'organisation et création de la hiérarchie ARM : structurer le Root Management Group, créer les groupes intermédiaires (mg-core, mg-prod, mg-nonprod) et rattacher les abonnements dédiés pour séparer facturation et sécurité.</li>
+      <li>Sélection de la région et validation des zones de disponibilité : vérifier la présence d'au moins 3 Availability Zones dans la région cible (ex. francecentral ou westeurope) et identifier la région jumelée pour le plan de reprise d'activité (PRA).</li>
+      <li>Application stricte de la nomenclature CAF et politique de tags : imposer par Azure Policy la convention de nommage rg-<app>-<env>-<region>-<num> et le marquage obligatoire des tags Environment, CostCenter et Owner.</li>
+      <li>Calcul de disponibilité SLA et arbitrage financier FinOps : calculer le SLA combiné de l'architecture et identifier les serveurs éligibles aux réservations 1 an ou 3 ans pour maximiser le retour sur investissement.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une Région Azure est un ensemble de datacenters reliés par un réseau dédié ; une Zone de Disponibilité (AZ) est un datacenter isolé au sein de la région offrant un SLA de 99.99%.</li>
+      <li>La Paire Régionale regroupe deux régions d'une même zone géographique distantes d'au moins 480 km pour garantir la reprise après sinistre (Disaster Recovery).</li>
+      <li>La hiérarchie ARM comprend 4 niveaux : Root Management Group, Management Groups, Subscriptions (facturation/quotas) et Resource Groups (cycle de vie).</li>
+      <li>Le Cloud Adoption Framework (CAF) normalise le nommage (type-app-env-region-num) et le balisage des ressources pour auditer et imputer les coûts.</li>
+      <li>Les Instances Réservées (RI) Azure permettent de réduire les coûts de calcul de 35% (1 an) à 60% (3 ans) par rapport au modèle Pay-As-You-Go.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous expliquer la différence entre LRS, ZRS et GRS en lien avec les zones et paires régionales ?</li>
+      <li>Pouvez-vous citer les 4 niveaux hiérarchiques d'Azure ARM et la portée d'héritage des politiques ?</li>
+      <li>Savez-vous décoder et composer un nom de ressource conforme au Cloud Adoption Framework (CAF) ?</li>
+      <li>Connaissez-vous le SLA garanti pour des VMs réparties sur 2 Availability Zones (99.99%) ?</li>
+      <li>Savez-vous calculer l'économie apportée par une réservation 1 an ou 3 ans sur une flotte de calcul ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Availability Zone (AZ) :</strong> Datacenter physiquement indépendant au sein d'une région Azure, doté de sa propre alimentation, refroidissement et réseau, permettant un SLA de 99.99%.</li><li><strong>Paired Region :</strong> Région jumelée située à au moins 480 km dans la même géographie, recevant les réplications GRS et bénéficiant de mises à jour Azure séquentielles.</li><li><strong>Management Group :</strong> Conteneur organisationnel ARM permettant d'appliquer des politiques et des attributions RBAC à un ensemble d'abonnements simultanément.</li><li><strong>Cloud Adoption Framework (CAF) :</strong> Ensemble de bonnes pratiques et de normes publiées par Microsoft pour cadrer l'architecture, le nommage et la gouvernance Cloud.</li><li><strong>Reserved Instances (RI) :</strong> Engagement financier sur 1 an ou 3 ans réservant des capacités de calcul Azure en échange d'une réduction tarifaire substantielle (35% à 60%).</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Conception de hiérarchie ARM d'entreprise multi-environnements :</strong> Créer une arborescence complète de Management Groups isolant la Production, les Environnements de Recette et la Sandbox R&D sous le Root Management Group.</div>
+      <div class="bandrow"><strong>Matrice de résilience régionale et choix de stockage ZRS/GRS :</strong> Dimensionner l'infrastructure de données selon les contraintes de RPO (Recovery Point Objective) et RTO (Recovery Time Objective) du cahier des charges client.</div>
+      <div class="bandrow"><strong>Mise en œuvre du Cloud Adoption Framework (CAF) :</strong> Standardiser les conventions de nommage et d'étiquetage pour automatiser l'imputation des coûts et l'audit de conformité organisationnelle.</div>
+      <div class="bandrow"><strong>Optimisation FinOps par Reserved Instances et Azure Hybrid Benefit :</strong> Calculer le TCO prévisionnel sur 3 ans et modéliser les économies d'échelle entre PAYG, RI 1Y, RI 3Y et réutilisation de licences sur site.</div>
+      <div class="bandrow"><strong>Automatisation d'audit d'infrastructure en Python 3 :</strong> Développer des scripts d'audit vérifiant la conformité des noms de ressources et simulant les calculs de coûts et de résilience régionale.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Module 2 — Identité Microsoft Entra ID (Azure AD), RBAC &amp; Gouvernance <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AZURE B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation Microsoft Learn Azure, Référentiels d'examen Microsoft Certified Azure Administrator (AZ-104) et Azure Solutions Architect Expert (AZ-305).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

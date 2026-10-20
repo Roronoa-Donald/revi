@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Analyse de Complexité, Notations Asymptotiques &amp;amp; Récursivité | Algorithmique B3</title>
+<meta name="description" content="Chapitre 1 du cours Algorithmique B3 : Notations asymptotiques O, Omega, Theta, calcul des opérations élémentaires, théorème maître de division pour régner, analyse spatiale de la pile d’appels récursive et détection de stack overflow. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-algo/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Analyse de Complexité, Notations Asymptotiques &amp;amp; Récursivité | Algorithmique B3">
+<meta property="og:description" content="Chapitre 1 du cours Algorithmique B3 : Notations asymptotiques O, Omega, Theta, calcul des opérations élémentaires, théorème maître de division pour régner, analyse spatiale de la pile d’appels récursive et détection de stack overflow. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-algonav"><div class="b3-algonav__in">
+  <a class="b3-algonav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-algonav__sep" aria-hidden="true">/</span>
+  <a class="b3-algonav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algorithmique B3</a>
+  <div class="b3-algonav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-algonav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-algowrap">
+<p class="crumb"><a href="../index.html">Algorithmique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Analyse de Complexité, Notations Asymptotiques &amp; Récursivité</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>En ingénierie logicielle d’envergure industrielle, le volume de données traitées peut exploser en passant d’un millier à plusieurs dizaines de millions d’enregistrements. Un algorithme qui s’exécute en quelques millisecondes sur la machine du développeur peut saturer le CPU pendant plusieurs jours s’il possède une complexité quadratique O(n^2), ou même provoquer un arrêt brutal de la JVM ou du runtime Python par dépassement de pile (Stack Overflow) en cas de récursion non maîtrisée. Ce premier chapitre d’Algorithmique B3 formalise les outils mathématiques d’analyse asymptotique : la caractérisation exacte du comportement limite par les notations de Landau (O, Omega, Theta), la résolution analytique systématique des récurrences par le Théorème Maître de division pour régner, et la mesure rigoureuse de l’empreinte mémoire de la pile d’exécution récursive.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir rigoureusement les notions mathématiques de grand O, grand Omega et grand Theta ;</li>
+      <li>calculer la complexité asymptotique au pire des cas, au meilleur des cas et en moyenne ;</li>
+      <li>appliquer le Théorème Maître (Master Theorem) pour résoudre toute relation de récurrence T(n) = a*T(n/b) + Theta(n^d) ;</li>
+      <li>différencier la complexité temporelle de la complexité spatiale auxiliaire ;</li>
+      <li>analyser le déroulement de la pile d’appels récursive et borner sa profondeur maximale ;</li>
+      <li>instrumenter et benchmarkez des fonctions Python pour confronter théorie mathématique et temps CPU réel.</li>
+    </ol>
+  </div>
+
+<h2>1. Notations Asymptotiques et Mathématiques du Grand O</h2>
+
+<p>L’analyse asymptotique étudie l’évolution des ressources (temps de calcul, mémoire) lorsque la taille de l’entrée $n$ tend vers l’infini ($n \to +\infty$). On néglige les constantes multiplicatives et les termes de bas degré pour ne retenir que l’ordre de grandeur dominant.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Grand O : Majoration Asymptotique</h4>
+    <p><strong>$f(n) = O(g(n))$</strong> s’il existe des constantes $c &gt; 0$ et $n_0$ telles que :<br>    $\forall n \ge n_0, \quad 0 \le f(n) \le c \cdot g(n)$.<br>    Il quantifie le <em>pire des cas</em> (borne supérieure garantie).</p>
+  </div>
+  <div class="card">
+    <h4>Grand $\Omega$ : Minoration Asymptotique</h4>
+    <p><strong>$f(n) = \Omega(g(n))$</strong> s’il existe des constantes $c &gt; 0$ et $n_0$ telles que :<br>    $\forall n \ge n_0, \quad 0 \le c \cdot g(n) \le f(n)$.<br>    Il quantifie la <em>borne inférieure</em> théorique.</p>
+  </div>
+  <div class="card">
+    <h4>Grand $\Theta$ : Encadrement Strict</h4>
+    <p><strong>$f(n) = \Theta(g(n))$</strong> si et seulement si $f(n) = O(g(n))$ et $f(n) = \Omega(g(n))$.<br>    Il caractérise l’ordre de grandeur <em>exact</em> de l’algorithme.</p>
+  </div>
+</div>
+<h4>Hiérarchie des classes de complexité fondamentales</h4>
+<p>Par ordre de croissance pour de grands $n$ :<br>$$O(1) \prec O(\log n) \prec O(n) \prec O(n \log n) \prec O(n^2) \prec O(n^3) \prec O(2^n) \prec O(n!)$$</p>
+<p>Pour $n = 10^6$ éléments, un algorithme en $O(\log_2 n)$ n’exécute qu’environ 20 opérations, alors qu’un algorithme en $O(n^2)$ exécute $10^{12}$ opérations (plusieurs heures de calcul sur un cœur moderne).</p>
+
+<h2>2. Le Théorème Maître de Division pour Régner</h2>
+
+<p>Le paradigme « Diviser pour Régner » (Divide and Conquer) résout un problème en le découpant en sous-problèmes plus petits de même nature, en les résolvant récursivement, puis en combinant leurs résultats. Le temps d’exécution satisfait la relation de récurrence :</p>
+<p>$$T(n) = a \cdot T\left(\frac{n}{b}\right) + \Theta(n^d)$$</p>
+<p>où :</p>
+<ul>
+  <li><strong>$a \ge 1$ :</strong> nombre de sous-problèmes résolus récursivement ;</li>
+  <li><strong>$b &gt; 1$ :</strong> facteur de division de la taille d’entrée à chaque niveau ;</li>
+  <li><strong>$\Theta(n^d)$ :</strong> coût du travail de découpage et de combinaison à chaque étape (avec $d \ge 0$).</li>
+</ul>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les Trois Cas du Théorème Maître</div>
+<p>On compare l’exposant critique de prolifération <strong>$c = \log_b(a)$</strong> avec l’exposant de travail local <strong>$d$</strong> :</p>
+<ul>
+  <li><strong>Cas 1 ($c &gt; d$) :</strong> La prolifération des sous-problèmes l’emporte. Le coût est dominé par les feuilles de l’arbre récursif.<br>  $$T(n) = \Theta\left(n^{\log_b a}\right)$$<br>  <em>Exemple :</em> Multiplication de Karatsuba ($a=3, b=2, d=1 \Rightarrow c = \log_2 3 \approx 1.585 &gt; 1 \Rightarrow \Theta(n^{1.58})$).</li>
+  <li><strong>Cas 2 ($c = d$) :</strong> Équilibre parfait entre division et combinaison à tous les niveaux de l’arbre.<br>  $$T(n) = \Theta\left(n^d \log n\right)$$<br>  <em>Exemple :</em> Tri Fusion (Mergesort) ($a=2, b=2, d=1 \Rightarrow c = 1 = d \Rightarrow \Theta(n \log n)$) ; Recherche dichotomique ($a=1, b=2, d=0 \Rightarrow \Theta(\log n)$).</li>
+  <li><strong>Cas 3 ($c &lt; d$) :</strong> Le travail de découpage/combinaison à la racine domine la charge totale.<br>  $$T(n) = \Theta\left(n^d\right)$$<br>  <em>Exemple :</em> Algorithme découpant en 2 problèmes de demi-taille avec prétraitement quadratique ($a=2, b=2, d=2 \Rightarrow c=1 &lt; 2 \Rightarrow \Theta(n^2)$).</li>
+</ul>
+  </div>
+
+<h2>3. Empreinte Spatiale et Gestion de la Pile Récursive</h2>
+
+<p>Chaque appel de fonction empile un cadre de pile (<em>stack frame</em>) contenant ses paramètres, ses variables locales et l’adresse de retour. Si la profondeur de récursion devient trop grande, l’espace alloué à la pile d’exécution (généralement 1 Mo à 8 Mo selon le système) est saturé, déclenchant une exception irrécupérable de type <code>RecursionError</code> en Python ou <code>java.lang.StackOverflowError</code>.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Récursion Linéaire</h4>
+    <p>Une fonction s’appelle une seule fois par niveau (ex: factorielle, recherche dichotomique).     La profondeur maximale de pile est $O(n)$ ou $O(\log n)$.<br>    Peut souvent être optimisée par récursion terminale (<em>tail recursion</em>) ou transformée en simple boucle <code>while</code>.</p>
+  </div>
+  <div class="card">
+    <h4>Récursion Arborescente</h4>
+    <p>Une fonction déclenche plusieurs sous-appels (ex: Fibonacci naïf $f(n) = f(n-1) + f(n-2)$).     Le nombre total d’appels explose exponentiellement en $O(2^n)$,     bien que la profondeur maximale de pile ne soit que de $O(n)$.<br>    Nécessite impérativement de la mémoïsation ou de la programmation dynamique.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al3-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ALGO nom=recherche_dicho CLASSE=O(log_n) N=1024&#10;ALGO nom=tri_fusion CLASSE=O(n_log_n) N=16&#10;ALGO nom=tri_bulles CLASSE=O(n2) N=100">
+  <script type="text/plain" data-lab-starter>import sys
+import math
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les opérations selon la classe de complexité
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur d’ordres de grandeur et notations asymptotiques (Grand O)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre d’opérations théoriques et classifier le comportement asymptotique d’un algorithme selon sa taille d’entrée n.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>ALGO nom=&lt;nom&gt; CLASSE=&lt;O(1)|O(log_n)|O(n)|O(n_log_n)|O(n2)|O(2n)&gt; N=&lt;valeur&gt;</code>.<br>
+Formules d’opérations $f(N)$ selon la classe :<br>
+- <code>O(1)</code> : $f(N) = 1$<br>
+- <code>O(log_n)</code> : $f(N) = int(math.floor(math.log2(N)))$ si $N \ge 1$ sinon 0<br>
+- <code>O(n)</code> : $f(N) = N$<br>
+- <code>O(n_log_n)</code> : $f(N) = int(math.floor(N * math.log2(N)))$ si $N \ge 1$ sinon 0<br>
+- <code>O(n2)</code> : $f(N) = N^2$<br>
+- <code>O(2n)</code> : $f(N) = 2^N$<br>
+Afficher pour chaque ligne :<br>
+<code>COMPLEXITE: &lt;nom&gt; | ASYMPTOTE: &lt;CLASSE&gt; | N=&lt;N&gt; -&gt; OPERATIONS: &lt;f(N)&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ALGO nom=recherche_dicho CLASSE=O(log_n) N=1024
+ALGO nom=tri_fusion CLASSE=O(n_log_n) N=16
+ALGO nom=tri_bulles CLASSE=O(n2) N=100</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>COMPLEXITE: recherche_dicho | ASYMPTOTE: O(log_n) | N=1024 -&gt; OPERATIONS: 10
+COMPLEXITE: tri_fusion | ASYMPTOTE: O(n_log_n) | N=16 -&gt; OPERATIONS: 64
+COMPLEXITE: tri_bulles | ASYMPTOTE: O(n2) | N=100 -&gt; OPERATIONS: 10000</pre></div>
+    </div>
+    <p class="lab__note">log2(1024) = 10, 16 * log2(16) = 16 * 4 = 64, et 100^2 = 10000 opérations.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser math.log2 pour les logarithmes en base 2.</li>
+        <li>Pour O(2n), calculer 2 ** N.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="RECURRENCE nom=tri_fusion a=2 b=2 d=1&#10;RECURRENCE nom=karatsuba a=3 b=2 d=1&#10;RECURRENCE nom=dicho a=1 b=2 d=0">
+  <script type="text/plain" data-lab-starter>import sys
+import math
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : appliquer le théorème maître
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Résolveur du Théorème Maître (Master Theorem)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer la classe de complexité asymptotique globale d’une relation de récurrence diviser-pour-régner T(n) = a*T(n/b) + Theta(n^d).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>RECURRENCE nom=&lt;nom&gt; a=&lt;a&gt; b=&lt;b&gt; d=&lt;d&gt;</code>.<br>
+Théorème Maître pour $T(n) = a \cdot T(n / b) + \Theta(n^d)$ avec $a \ge 1, b &gt; 1, d \ge 0$ :<br>
+1. Calculer la constante critique $c = \log_b(a) = \ln(a) / \ln(b)$.<br>
+2. Comparer $c$ et $d$ avec tolérance $10^{-5}$ :<br>
+   - Si $c &gt; d$ : <strong>Cas 1</strong> (les feuilles dominent) -&gt; $\Theta(n^{c})$ noté <code>Theta(n^&lt;c:.2f&gt;)</code>.<br>
+   - Si $|c - d| &lt; 10^{-5}$ : <strong>Cas 2</strong> (équilibre parfait) -&gt; $\Theta(n^d \log n)$ noté <code>Theta(n^&lt;d&gt; log n)</code> (ou <code>Theta(log n)</code> si $d=0$).<br>
+   - Si $c &lt; d$ : <strong>Cas 3</strong> (la racine/combinaison domine) -&gt; $\Theta(n^d)$ noté <code>Theta(n^&lt;d&gt;)</code> (ou <code>Theta(1)</code> si $d=0$).<br>
+Afficher :<br>
+<code>MASTER: &lt;nom&gt; | a=&lt;a&gt; b=&lt;b&gt; d=&lt;d&gt; (c=&lt;c:.2f&gt;) -&gt; CAS &lt;1|2|3&gt; : COMPLEXITE = &lt;resultat&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RECURRENCE nom=tri_fusion a=2 b=2 d=1
+RECURRENCE nom=karatsuba a=3 b=2 d=1
+RECURRENCE nom=dicho a=1 b=2 d=0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MASTER: tri_fusion | a=2 b=2 d=1 (c=1.00) -&gt; CAS 2 : COMPLEXITE = Theta(n^1 log n)
+MASTER: karatsuba | a=3 b=2 d=1 (c=1.58) -&gt; CAS 1 : COMPLEXITE = Theta(n^1.58)
+MASTER: dicho | a=1 b=2 d=0 (c=0.00) -&gt; CAS 2 : COMPLEXITE = Theta(log n)</pre></div>
+    </div>
+    <p class="lab__note">Tri fusion : équilibre Cas 2. Multiplication de Karatsuba : Cas 1 sous-linéaire O(n^1.58). Recherche dicho : Cas 2 O(log n).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>log_b(a) = math.log(a) / math.log(b).</li>
+        <li>Le tri fusion a=2, b=2, d=1 donne c=1.00 == d=1 (Cas 2).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="RECURSION nom=somme_lin TYPE=LINEAIRE N=5 MAX_DEPTH=10&#10;RECURSION nom=fibo_arbre TYPE=ARBORESCENTE N=5 MAX_DEPTH=10&#10;RECURSION nom=overflow_test TYPE=LINEAIRE N=15 MAX_DEPTH=10">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la pile récursive et détecter le dépassement
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Traceur de pile récursive et détection de Stack Overflow</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l’empilement des cadres d’appels d’une fonction récursive f(n) = f(n-1) + f(n-2) et détecter les risques de débordement de pile.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>RECURSION nom=&lt;nom&gt; TYPE=&lt;LINEAIRE|ARBORESCENTE&gt; N=&lt;n&gt; MAX_DEPTH=&lt;limite&gt;</code>.<br>
+Règles d’exécution :<br>
+- <code>LINEAIRE</code> : $f(n) = 1 + f(n-1)$ avec $f(0) = 0$. Profondeur maximale atteinte = $N$. Total des appels = $N + 1$.<br>
+- <code>ARBORESCENTE</code> (type Fibonacci naïve) : $f(n) = f(n-1) + f(n-2)$ pour $n \ge 2$, cas de base $f(0)=0, f(1)=1$. Profondeur maximale = $N$. Nombre total d’appels récursifs compté exactement.<br>
+Si la profondeur maximale $N &gt; MAX\_DEPTH$ :<br>
+Afficher : <code>RECURSION: &lt;nom&gt; | DEBORDEMENT DE PILE : Profondeur &lt;N&gt; &gt; Limite &lt;MAX_DEPTH&gt; (Stack Overflow)</code>.<br>
+Sinon :<br>
+Afficher : <code>RECURSION: &lt;nom&gt; | SUCCES : Profondeur &lt;N&gt;/&lt;MAX_DEPTH&gt; | APPELS_TOTAUX: &lt;nb_appels&gt; | VALEUR: &lt;res&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RECURSION nom=somme_lin TYPE=LINEAIRE N=5 MAX_DEPTH=10
+RECURSION nom=fibo_arbre TYPE=ARBORESCENTE N=5 MAX_DEPTH=10
+RECURSION nom=overflow_test TYPE=LINEAIRE N=15 MAX_DEPTH=10</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RECURSION: somme_lin | SUCCES : Profondeur 5/10 | APPELS_TOTAUX: 6 | VALEUR: 5
+RECURSION: fibo_arbre | SUCCES : Profondeur 5/10 | APPELS_TOTAUX: 15 | VALEUR: 5
+RECURSION: overflow_test | DEBORDEMENT DE PILE : Profondeur 15 &gt; Limite 10 (Stack Overflow)</pre></div>
+    </div>
+    <p class="lab__note">somme_lin(5) fait 6 appels. fibo(5) fait 15 appels et renvoie 5. overflow_test dépasse la limite de pile.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour une récursion arborescente type Fibonacci, f(n) compte les appels récursifs réels.</li>
+        <li>Si N &gt; MAX_DEPTH, court-circuiter et signaler le Stack Overflow.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité temporelle asymptotique au pire des cas de l’algorithme de tri fusion (Mergesort) sur un tableau de taille n ?</p>
+      <div class="opts">
+        <button class="opt">O(n)</button>
+        <button class="opt" data-correct="1">O(n log n)</button>
+        <button class="opt">O(n^2)</button>
+        <button class="opt">O(log n)</button>
+      </div>
+      <div class="q__exp">Le tri fusion découpe le tableau en 2 moitiés (a=2, b=2) et fusionne en O(n) (d=1). Par le Théorème Maître c = log2(2) = 1 = d, nous sommes au Cas 2 donnant Theta(n log n).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Soit la relation T(n) = 3*T(n/2) + Theta(n). Quel cas du Théorème Maître s’applique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Cas 1 car log2(3) ≈ 1.58 > 1, donnant Theta(n^1.58)</button>
+        <button class="opt">Cas 2 car le découpage est en 2</button>
+        <button class="opt">Cas 3 car n domine</button>
+        <button class="opt">Le théorème maître ne s’applique pas ici</button>
+      </div>
+      <div class="q__exp">Ici a=3, b=2, d=1. c = log2(3) ≈ 1.585. Comme c > d, nous sommes au Cas 1 : les feuilles dominent, donnant une complexité en Theta(n^{1.58}).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si f(n) = 5*n^2 + 100*n + 42, quelle est la notation Theta exacte de f(n) ?</p>
+      <div class="opts">
+        <button class="opt">Theta(n)</button>
+        <button class="opt" data-correct="1">Theta(n^2)</button>
+        <button class="opt">Theta(n^3)</button>
+        <button class="opt">Theta(100n)</button>
+      </div>
+      <div class="q__exp">Pour n -> infini, le terme n^2 domine tous les autres et les constantes multiplicatives sont éliminées dans la définition de Theta. f(n) = Theta(n^2).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la profondeur maximale de pile atteinte par le calcul récursif naïf de Fibonacci fib(n) = fib(n-1) + fib(n-2) ?</p>
+      <div class="opts">
+        <button class="opt">O(1)</button>
+        <button class="opt">O(log n)</button>
+        <button class="opt" data-correct="1">O(n)</button>
+        <button class="opt">O(2^n)</button>
+      </div>
+      <div class="q__exp">Bien que le nombre d’appels totaux soit O(2^n), la pile d’appels explore une branche jusqu’à la feuille la plus profonde, qui atteint au maximum une profondeur n (branche gauche tout en fib(n-1)).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie formellement f(n) = Omega(g(n)) ?</p>
+      <div class="opts">
+        <button class="opt">f(n) est majorée par g(n)</button>
+        <button class="opt" data-correct="1">f(n) est minorée par c*g(n) pour n assez grand</button>
+        <button class="opt">f(n) et g(n) sont strictement égales</button>
+        <button class="opt">f(n) tend vers 0 plus vite que g(n)</button>
+      </div>
+      <div class="q__exp">Grand Omega fournit une minoration asymptotique : il existe c > 0 et n0 tels que pour tout n >= n0, f(n) >= c * g(n).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Soit la relation T(n) = T(n/2) + Theta(1). Quelle est la complexité résultante ?</p>
+      <div class="opts">
+        <button class="opt">Theta(1)</button>
+        <button class="opt" data-correct="1">Theta(log n)</button>
+        <button class="opt">Theta(n)</button>
+        <button class="opt">Theta(n log n)</button>
+      </div>
+      <div class="q__exp">a=1, b=2, d=0. c = log2(1) = 0. Comme c = d = 0, le Cas 2 s’applique : Theta(n^0 log n) = Theta(log n). C’est la recherche dichotomique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel scénario une fonction récursive linéaire provoque-t-elle un Stack Overflow ?</p>
+      <div class="opts">
+        <button class="opt">Quand elle s’exécute trop vite</button>
+        <button class="opt" data-correct="1">Quand la profondeur d’appels dépasse la limite allouée à la pile d’exécution (ex: n = 100 000 en Python)</button>
+        <button class="opt">Quand elle utilise des variables globales</button>
+        <button class="opt">Quand elle renvoie un entier négatif</button>
+      </div>
+      <div class="q__exp">Chaque appel empilant un cadre, une récursion de 100 000 niveaux dépasse largement la limite standard de la pile (par défaut 1 000 en Python, paramétrable via sys.setrecursionlimit).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle classe de complexité caractérise un algorithme dont le temps double chaque fois que l’on incrémente n de 1 ?</p>
+      <div class="opts">
+        <button class="opt">O(n^2)</button>
+        <button class="opt" data-correct="1">O(2^n)</button>
+        <button class="opt">O(n!)</button>
+        <button class="opt">O(n log n)</button>
+      </div>
+      <div class="q__exp">Si T(n+1) = 2 * T(n), par récurrence T(n) = T(0) * 2^n. Il s’agit de la complexité exponentielle O(2^n).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre pire des cas et grand O : grand O est un outil mathématique de majoration, le pire des cas est une configuration d’entrée.</li>
+      <li>Appliquer le Théorème Maître quand b n’est pas constant ou quand a n’est pas constant.</li>
+      <li>Oublier de compter la mémoire consommée par la pile récursive dans l’analyse spatiale d’un algorithme.</li>
+      <li>Supposer qu’un algorithme O(n log n) est toujours plus rapide qu’un O(n^2) pour de très petites valeurs de n (ex: n < 10).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole d’Analyse Formelle d’un Algorithme</div>
+    <ol>
+      <li>Identifier formellement le paramètre n représentatif de la taille de l’entrée (nombre d’éléments, nombre de bits, etc.).</li>
+      <li>Déterminer l’opération fondamentale ou critique (comparaison de clés, écriture mémoire, produit arithmétique).</li>
+      <li>Distinguer le pire des cas (worst-case), le meilleur des cas (best-case) et le cas moyen (average-case).</li>
+      <li>Pour une relation récursive, formaliser T(n) sous la forme a*T(n/b) + f(n) et tester l’applicabilité du Théorème Maître.</li>
+      <li>Calculer la profondeur maximale de récursion pour valider la complexité spatiale auxiliaire O(prof).</li>
+      <li>Vérifier empiriquement l’analyse par un profilage en temps réel sur des jeux de données de taille n, 2n, 4n, 8n.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le grand O majore asymptotiquement le temps de calcul dans le pire des cas ; le grand Omega le minore ; le grand Theta donne l’ordre de grandeur exact.</li>
+      <li>La hiérarchie des complexités place O(1) < O(log n) < O(n) < O(n log n) < O(n^2) < O(2^n) < O(n!).</li>
+      <li>Le Théorème Maître résout les récurrences T(n) = a*T(n/b) + Theta(n^d) en comparant c = log_b(a) à d.</li>
+      <li>Cas 1 (c > d) : Theta(n^c) dominé par les feuilles. Cas 2 (c == d) : Theta(n^d log n) à l’équilibre. Cas 3 (c < d) : Theta(n^d) dominé par la racine.</li>
+      <li>La complexité spatiale auxiliaire d’un algorithme récursif est proportionnelle à la profondeur maximale de son arbre d’appels.</li>
+      <li>Une récursion arborescente sans mémoïsation engendre une redondance massive et une complexité exponentielle.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais énoncer les définitions formelles avec quantificateurs de O, Omega et Theta.</li>
+      <li>Je sais identifier instantanément le cas du Théorème Maître pour le tri fusion et la recherche dichotomique.</li>
+      <li>Je connais la valeur de log2(3) et log2(7) pour Karatsuba et Strassen.</li>
+      <li>Je sais calculer la profondeur de pile atteinte par une fonction récursive.</li>
+      <li>Je sais expliquer pourquoi un algorithme O(2^n) devient impraticable dès n >= 50.</li>
+      <li>Je sais convertir une récursion linéaire en itération pour éviter tout Stack Overflow.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Notation de Landau Grand O (borne supérieure)</li><li>Notations Grand Omega (borne inférieure) et Grand Theta (encadrement)</li><li>Hiérarchie des classes de complexité (O(1) à O(n!))</li><li>Théorème Maître de division pour régner (Cas 1, 2 et 3)</li><li>Exposant critique de prolifération c = log_b(a)</li><li>Cadre de pile d’exécution (Stack Frame)</li><li>Dépassement de pile (Stack Overflow)</li><li>Complexité spatiale auxiliaire de la récursion</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez les définitions formelles du Grand O, de Landau et les cas du Théorème Maître.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bonnes bases analytiques, revoyez l’analyse de récurrence et la gestion de la pile.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! L’analyse asymptotique et le Théorème Maître sont parfaitement maîtrisés.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Structures Arborescentes &amp; Arbres Binaires de Recherche (ABR) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral ALGO_B3, l’ouvrage de référence Introduction à l’Algorithmique (Cormen, Leiserson, Rivest, Stein - CLRS) et les standards académiques universitaires de Licence 3 Informatique.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

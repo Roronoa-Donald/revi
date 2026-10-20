@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6 — Observabilité (Operations Suite), FinOps &amp; Infrastructure as Code (Terraform) | Google Cloud Platform B3</title>
+<meta name="description" content="Module 6 du cours Google Cloud Platform B3 : Google Cloud Operations Suite (Cloud Monitoring, métriques, alertes, Cloud Logging, filtres et Log Sinks vers BigQuery), diagnostics avancés (Error Reporting, Cloud Trace, Cloud Profiler), gouvernance financière FinOps (budgets, alertes de seuil, remises SUD automatiques et engagements CUD 1 an/3 ans), et automatisation déclarative avec Terraform (provider Google, state backend GCS et conformité HCL). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-google-cloud/chapitres/chapitre6.html">
+<meta property="og:title" content="Module 6 — Observabilité (Operations Suite), FinOps &amp; Infrastructure as Code (Terraform) | Google Cloud Platform B3">
+<meta property="og:description" content="Module 6 du cours Google Cloud Platform B3 : Google Cloud Operations Suite (Cloud Monitoring, métriques, alertes, Cloud Logging, filtres et Log Sinks vers BigQuery), diagnostics avancés (Error Reporting, Cloud Trace, Cloud Profiler), gouvernance financière FinOps (budgets, alertes de seuil, remises SUD automatiques et engagements CUD 1 an/3 ans), et automatisation déclarative avec Terraform (provider Google, state backend GCS et conformité HCL). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-google-cloudnav"><div class="b3-google-cloudnav__in">
+  <a class="b3-google-cloudnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-google-cloudnav__sep" aria-hidden="true">/</span>
+  <a class="b3-google-cloudnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Google Cloud Platform B3</a>
+  <div class="b3-google-cloudnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-google-cloudnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-google-cloudwrap">
+<p class="crumb"><a href="../index.html">Google Cloud Platform B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Observabilité (Operations Suite), FinOps & Infrastructure as Code (Terraform)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Déployer des services dans le Cloud sans observabilité en temps réel ni gouvernance financière rigoureuse conduit inexorablement à deux désastres : l'incapacité à diagnostiquer les pannes de production (lenteurs invisibles, incidents non détectés) et l'explosion non maîtrisée des factures mensuelles (« bill shock »). De plus, gérer l'infrastructure manuellement via la console graphique empêche toute reproductibilité et multiplie les erreurs de configuration humaines. En tant qu'ingénieur DevOps & SRE B3, vous devez superviser la santé de vos systèmes avec Cloud Operations, optimiser les coûts avec les pratiques FinOps et automatiser l'intégralité des déploiements déclaratifs via Terraform.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la suite Google Cloud Operations : métriques, tableaux de bord et canaux d'alerte Cloud Monitoring ;</li>
+      <li>exploiter Cloud Logging : syntaxe de filtrage des événements, journaux d'audit et export continu via Log Sinks ;</li>
+      <li>diagnostiquer les goulets d'étranglement applicatifs avec Error Reporting, Cloud Trace et Cloud Profiler ;</li>
+      <li>piloter la rentabilité financière FinOps : calcul des remises d'utilisation continue (SUD) et des engagements CUD (1 an et 3 ans) ;</li>
+      <li>automatiser l'infrastructure avec Terraform : provider Google, gestion de l'état distant sécurisé sur GCS et bonnes pratiques HCL ;</li>
+      <li>développer en Python 3 des parseurs de filtres de logs, des calculateurs de remises FinOps et des linters de manifestes Terraform.</li>
+    </ol>
+  </div>
+
+<h2>1. Google Cloud Operations Suite : Monitoring, Alertes &amp; Métriques</h2>
+
+<p>Google Cloud Operations Suite (anciennement Stackdriver) est la solution intégrée de supervision, de journalisation et d'analyse de performance de Google Cloud :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Cloud Monitoring</h4>
+    <ul>
+      <li>Collecte automatiquement les métriques d'infrastructure (CPU, mémoire, réseau, disque, requêtes HTTP, latence).</li>
+      <li>Support des métriques personnalisées via l'API ou l'agent OpenTelemetry.</li>
+      <li><strong>Tableaux de bord (Dashboards) :</strong> visualisations graphiques en temps réel avec corrélation multi-projets.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Politiques d'Alerte (Alerting Policies)</h4>
+    <ul>
+      <li>Déclenchées lorsqu'une métrique franchit un seuil pendant une durée paramétrable (ex: CPU &gt; 85% pendant plus de 5 minutes).</li>
+      <li><strong>Canaux de notification :</strong> Email, Slack, Webhook, SMS, PagerDuty ou Pub/Sub.</li>
+      <li>Gestion des incidents avec accusé de réception et fermeture automatique lors du retour à la normale.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Cloud Logging &amp; Export de Données (Log Sinks)</h2>
+
+<p>Cloud Logging centralise des pétaoctets d'événements générés par les services GCP, les VM et les applications :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Types de Journaux &amp; Niveaux de Gravité</h4>
+    <ul>
+      <li><strong>Admin Activity Audit Logs :</strong> tracent qui a créé, modifié ou supprimé une ressource (conservés gratuitement 400 jours).</li>
+      <li><strong>Data Access Audit Logs :</strong> tracent les lectures et écritures de données sensibles (BigQuery, Cloud Storage).</li>
+      <li><strong>System Event Logs :</strong> événements de maintenance ou d'auto-scaling de l'infrastructure Google.</li>
+      <li>Sévérités : <code>DEBUG &lt; INFO &lt; NOTICE &lt; WARNING &lt; ERROR &lt; CRITICAL</code>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Récepteurs de Journaux (Log Sinks)</h4>
+    <p>Par défaut, les logs applicatifs sont conservés 30 jours. Pour un archivage pérenne ou une analyse analytique, on configure un <strong>Log Sink</strong> avec un filtre de sélection vers :</p>
+    <ul>
+      <li><strong>BigQuery :</strong> pour l'analyse SQL temps réel et les requêtes de conformité.</li>
+      <li><strong>Cloud Storage :</strong> pour l'archivage à long terme à coût minimal (Archive class).</li>
+      <li><strong>Cloud Pub/Sub :</strong> pour router les logs vers un SIEM externe (Splunk, Datadog).</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Diagnostics de Performance : Trace, Profiler &amp; Error Reporting</div>
+<p>Au-delà des métriques et des logs, Google Cloud intègre des outils d'observabilité avancés :</p>,<ul>,  <li><strong>Cloud Trace :</strong> système de traçabilité distribuée (Distributed Tracing) mesurant la latence de chaque appel RPC entre microservices pour identifier les requêtes lentes.</li>,  <li><strong>Cloud Profiler :</strong> analyse en continu l'utilisation CPU et la consommation de mémoire heap de chaque fonction dans le code source en production sans dégradation de performance (&lt; 5% overhead).</li>,  <li><strong>Error Reporting :</strong> regroupe automatiquement les traces de pile (stack traces) non interceptées de vos applications par motif d'erreur et alerte immédiatement les développeurs.</li>,</ul>
+  </div>
+
+<h2>3. Gouvernance Financière FinOps : Budgets, CUD &amp; SUD</h2>
+
+<p>Le mouvement FinOps (Financial Operations) allie ingénierie et finance pour maximiser la valeur métier de chaque euro investi dans le Cloud :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Budgets &amp; Alertes de Facturation</h4>
+    <ul>
+      <li>Définition d'un montant de budget mensuel cible par projet ou compte de facturation.</li>
+      <li>Alertes automatiques par seuil de consommation : <strong>50%</strong>, <strong>90%</strong> et <strong>100%</strong> des dépenses prévisionnelles ou réelles.</li>
+      <li>Automatisation : publication des alertes vers un topic Pub/Sub déclenchant une Cloud Function pour désactiver temporairement les environnements de test hors-production.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Remises Tarifaires : SUD vs CUD</h4>
+    <ul>
+      <li><strong>Sustained Use Discounts (SUD) :</strong> réduction automatique appliquée par Google sans aucun engagement si une instance Compute Engine tourne plus de 25% du mois (jusqu'à <strong>20% à 30%</strong> de remise).</li>
+      <li><strong>Committed Use Discounts (CUD) :</strong> engagement contractuel sur une capacité minimale de vCPU/RAM ou sur une dépense monétaire horaire (Flexible CUD) :<br>- Engagement 1 an : environ <strong>37%</strong> de remise.<br>- Engagement 3 ans : environ <strong>55%</strong> de remise.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Infrastructure as Code (IaC) avec Terraform sur GCP</h2>
+
+<p>Pour garantir la reproductibilité, l'auditabilité et le déploiement automatisé en CI/CD, l'infrastructure Google Cloud est déclarée sous forme de code avec HashiCorp Terraform :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Provider Google pour Terraform</h4>
+    <pre><code>terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
+    }
+  }
+  backend "gcs" {
+    bucket = "mon-tfstate-prod"
+    prefix = "terraform/state"
+  }
+}
+
+provider "google" {
+  project = "fintech-prod-2026"
+  region  = "europe-west9"
+}</code></pre>
+  </div>
+  <div class="card">
+    <h4>Bonnes Pratiques de Sécurité HCL</h4>
+    <ul>
+      <li><strong>Backend distant sur GCS :</strong> stocker le fichier d'état (<code>terraform.tfstate</code>) dans un bucket Cloud Storage sécurisé avec contrôle de version et verrouillage d'état automatique (State Locking).</li>
+      <li><strong>Zéro secret en dur :</strong> ne jamais utiliser <code>credentials = file(...)</code> dans le code ! Terraform doit utiliser automatiquement <em>Application Default Credentials (ADC)</em> en local ou <em>Workload Identity</em> en CI/CD.</li>
+      <li><strong>Audit de pare-feu :</strong> bannir les règles de pare-feu autorisant <code>0.0.0.0/0</code> sur les ports d'administration (SSH 22, RDP 3389).</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Workflow de Déploiement Terraform</div>
+<p>Le cycle de vie standard Terraform comprend 4 étapes : <code>terraform init</code> (téléchargement du provider et initialisation du backend GCS), <code>terraform fmt -check</code> (validation de la mise en forme), <code>terraform plan</code> (calcul différentiel sans modification de l'infrastructure) et <code>terraform apply</code> (application idempotente des changements sur Google Cloud).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="gcp3-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="LOG_QUERY target_resource=gce_instance min_severity=WARNING logs=gce_instance:INFO:Boot ok;gce_instance:ERROR:Disk full;cloud_run:ERROR:Timeout;gce_instance:CRITICAL:Kernel panic">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c6-e1) — Interpréteur de Filtres Cloud Logging et Détection d'Incidents
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Filtrage ne retenant aucun log correspondant]
+# Données : LOG_QUERY target_resource=cloud_run min_severity=ERROR logs=gce_instance:ERROR:Crash;cloud_run:INFO:Deploy success
+A_COMPLETER
+
+[Cas 2 — Tous les logs correspondent pour sévérité minimale DEBUG]
+# Données : LOG_QUERY target_resource=gke_cluster min_severity=DEBUG logs=gke_cluster:DEBUG:Pod init;gke_cluster:INFO:Pod scheduled;gke_cluster:CRITICAL:Node down
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Interpréteur de Filtres Cloud Logging et Détection d'Incidents</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Filtrer des flux d'événements Google Cloud Logging selon le type de ressource et le niveau de sévérité.</p>
+    <div class="lab__brief"><p>Google Cloud Logging structure les événements avec un type de ressource et un niveau de gravité :<br>
+Hiérarchie des sévérités :<br>
+<code>DEBUG (0) &lt; INFO (1) &lt; NOTICE (2) &lt; WARNING (3) &lt; ERROR (4) &lt; CRITICAL (5)</code>.<br><br>
+Format d'un log : <code>resource_type:severity:message</code> (ex: <code>gce_instance:ERROR:Disk quota exceeded</code>).<br><br>
+Commande STDIN :<br>
+<code>LOG_QUERY target_resource=&lt;res&gt; min_severity=&lt;sev&gt; logs=&lt;log1;log2;...&gt;</code>.<br>
+Sortie :<br>
+<code>LOG_RESULTS: resource=&lt;res&gt; min_sev=&lt;sev&gt; total=&lt;T&gt; matched=&lt;M&gt; critical_count=&lt;C&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LOG_QUERY target_resource=gce_instance min_severity=WARNING logs=gce_instance:INFO:Boot ok;gce_instance:ERROR:Disk full;cloud_run:ERROR:Timeout;gce_instance:CRITICAL:Kernel panic</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LOG_RESULTS: resource=gce_instance min_sev=WARNING total=4 matched=2 critical_count=1</pre></div>
+    </div>
+    <p class="lab__note">2 logs GCE correspondent avec sévérité &gt;= WARNING dont 1 critique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Créez un dictionnaire associant chaque sévérité à son niveau numérique (DEBUG=0 ... CRITICAL=5).</li>
+        <li>Un log correspond si log_resource == target_resource et log_sev_level &gt;= min_sev_level.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gcp3-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="FINOPS_EVAL base_cost=1000 runtime_pct=100 commit_years=3 budget=600">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c6-e2) — Moteur d'Alertes Budgétaires et Optimisation FinOps (CUD & SUD)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Alerte dépassement de budget]
+# Données : FINOPS_EVAL base_cost=2000 runtime_pct=50 commit_years=0 budget=1500
+A_COMPLETER
+
+[Cas 2 — Alerte seuil 90% du budget atteint]
+# Données : FINOPS_EVAL base_cost=1000 runtime_pct=100 commit_years=1 budget=650
+A_COMPLETER
+
+[Cas 3 — Remise automatique SUD sans engagement]
+# Données : FINOPS_EVAL base_cost=500 runtime_pct=100 commit_years=0 budget=450
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur d'Alertes Budgétaires et Optimisation FinOps (CUD &amp; SUD)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le coût net remisé avec les remises d'engagement (CUD) et générer des alertes de budget GCP.</p>
+    <div class="lab__brief"><p>Google Cloud propose deux mécanismes majeurs de réduction tarifaire Compute Engine :<br>
+- <code>CUD (Committed Use Discount)</code> : engagement d'1 an (-37%) ou 3 ans (-55%).<br>
+- <code>SUD (Sustained Use Discount)</code> : réduction automatique jusqu'à -20% si exécuté 100% du mois sans engagement.<br><br>
+Règles de calcul (non cumulables, CUD prioritaire) :<br>
+- Si <code>commit_years == 3</code> : <code>discount = 0.55</code>.<br>
+- Sinon si <code>commit_years == 1</code> : <code>discount = 0.37</code>.<br>
+- Sinon (commit_years == 0) : si <code>runtime_pct == 100</code> : <code>discount = 0.20</code> ; sinon <code>discount = 0.00</code>.<br><br>
+Coût net : <code>net_cost = base_cost * (1 - discount)</code>.<br>
+Alerte budgétaire face au seuil de référence :<br>
+- Si <code>net_cost &gt; budget</code> : <code>alert=BUDGET_EXCEEDED</code><br>
+- Si <code>net_cost &gt;= 0.90 * budget</code> : <code>alert=WARNING_90_PCT</code><br>
+- Sinon : <code>alert=OK</code><br><br>
+Commande STDIN : <code>FINOPS_EVAL base_cost=&lt;cost&gt; runtime_pct=&lt;pct&gt; commit_years=&lt;0|1|3&gt; budget=&lt;budget&gt;</code>.<br>
+Sortie : <code>FINOPS: base=&lt;cost&gt; discount_pct=&lt;pct&gt; net_cost=&lt;net:.2f&gt; budget=&lt;budget&gt; alert=&lt;alert&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FINOPS_EVAL base_cost=1000 runtime_pct=100 commit_years=3 budget=600</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>FINOPS: base=1000 discount_pct=55 net_cost=450.00 budget=600 alert=OK</pre></div>
+    </div>
+    <p class="lab__note">Engagement 3 ans apportant 55% de remise : coût net de 450$ sous le budget de 600$.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculez discount_pct (55, 37, 20 ou 0).</li>
+        <li>Calculez net_cost = base * (1.0 - discount_pct / 100.0).</li>
+        <li>Vérifiez net_cost &gt; budget, puis net_cost &gt;= 0.90 * budget, sinon OK.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gcp3-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="TF_LINT res_type=google_compute_instance res_name=web_vm props=machine_type:e2-medium,zone:europe-west9-a">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c6-e3) — Linter et Validateur de Manifeste Terraform pour GCP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Rejet clé de compte de service en dur dans le manifeste]
+# Données : TF_LINT res_type=provider res_name=google props=credentials:file(sa-key.json),project:demo-corp
+A_COMPLETER
+
+[Cas 2 — Rejet règle de pare-feu ouvrant SSH 0.0.0.0/0 à tout Internet]
+# Données : TF_LINT res_type=google_compute_firewall res_name=allow_ssh props=source_ranges:0.0.0.0/0,ports:22
+A_COMPLETER
+
+[Cas 3 — Rejet règle pare-feu ouvrant RDP 3389 à tout Internet]
+# Données : TF_LINT res_type=google_compute_firewall res_name=allow_rdp props=source_ranges:0.0.0.0/0,ports:3389
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Linter et Validateur de Manifeste Terraform pour GCP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer un extrait de code Terraform HCL pour Google Cloud et détecter les mauvaises pratiques de sécurité.</p>
+    <div class="lab__brief"><p>Terraform automatise le déploiement déclaratif de ressources Google Cloud.<br><br>
+Règles d'audit de sécurité et de conformité :<br>
+1. <code>HARDCODED_SECRETS</code> : le code ne doit jamais contenir <code>credentials = file(...)</code> ou de chaînes de clé privée (utiliser Application Default Credentials ou Workload Identity).<br>
+2. <code>MISSING_PROJECT</code> : toute ressource doit hériter d'un projet explicite ou du bloc provider.<br>
+3. <code>OPEN_FIREWALL</code> : une règle pare-feu autorisant <code>0.0.0.0/0</code> sur le port <code>22</code> (SSH) ou <code>3389</code> (RDP) doit être rejetée.<br><br>
+Commande STDIN : <code>TF_LINT res_type=&lt;type&gt; res_name=&lt;nom&gt; props=&lt;k1:v1,k2:v2,...&gt;</code>.<br>
+Sorties :<br>
+- Si valide : <code>TF_AUDIT: resource=&lt;type&gt;.&lt;name&gt; status=VALID_HCL security=COMPLIANT</code><br>
+- Si secret en dur : <code>TF_AUDIT: resource=&lt;type&gt;.&lt;name&gt; status=REJECTED reason=HARDCODED_SECRETS</code><br>
+- Si pare-feu trop ouvert : <code>TF_AUDIT: resource=&lt;type&gt;.&lt;name&gt; status=REJECTED reason=OPEN_INGRESS_MANAGEMENT_PORT port=&lt;p&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TF_LINT res_type=google_compute_instance res_name=web_vm props=machine_type:e2-medium,zone:europe-west9-a</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TF_AUDIT: resource=google_compute_instance.web_vm status=VALID_HCL security=COMPLIANT</pre></div>
+    </div>
+    <p class="lab__note">Ressource Compute Engine Terraform valide et conforme.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez chaque couple cle:valeur dans props.</li>
+        <li>Si cle == "credentials" ou "file(" dans valeur -&gt; HARDCODED_SECRETS.</li>
+        <li>Si source_ranges == "0.0.0.0/0" et port in ("22", "3389") -&gt; OPEN_INGRESS_MANAGEMENT_PORT.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel composant de Cloud Logging permet de router et d'exporter automatiquement les journaux d'événements vers BigQuery pour analyse SQL à long terme ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un Log Router (Log Sink)</button>
+        <button class="opt">Un Cloud Router</button>
+        <button class="opt">Une URL Map</button>
+        <button class="opt">Une règle de pare-feu</button>
+      </div>
+      <div class="q__exp">Un récepteur de journaux (Log Sink) configure un filtre logique et achemine en streaming continu les événements sélectionnés vers une destination comme BigQuery ou Cloud Storage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel niveau de réduction approximatif un engagement d'utilisation continue (CUD) de 3 ans sur Compute Engine procure-t-il par rapport au tarif standard à la demande ?</p>
+      <div class="opts">
+        <button class="opt">Environ 10%</button>
+        <button class="opt">Environ 20%</button>
+        <button class="opt" data-correct="1">Environ 55%</button>
+        <button class="opt">Environ 95%</button>
+      </div>
+      <div class="q__exp">Un engagement CUD de 3 ans permet d'obtenir environ 55% de réduction sur les ressources de calcul engagées (contre environ 37% pour 1 an).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel outil de la suite Google Cloud Operations permet de mesurer la latence de chaque appel RPC et requête réseau à travers une chaîne complexe de microservices ?</p>
+      <div class="opts">
+        <button class="opt">Cloud Monitoring</button>
+        <button class="opt">Cloud Profiler</button>
+        <button class="opt" data-correct="1">Cloud Trace</button>
+        <button class="opt">Error Reporting</button>
+      </div>
+      <div class="q__exp">Cloud Trace est le système de traçabilité distribuée (Distributed Tracing) qui chronomètre la traversée des requêtes à travers l'ensemble des microservices.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où le fichier d'état d'infrastructure Terraform (terraform.tfstate) doit-il être stocké en production pour garantir le travail collaboratif et le verrouillage d'état ?</p>
+      <div class="opts">
+        <button class="opt">Dans le dépôt Git public du projet</button>
+        <button class="opt" data-correct="1">Dans un bucket Cloud Storage configuré en backend distant (backend "gcs")</button>
+        <button class="opt">Sur le bureau de l'administrateur</button>
+        <button class="opt">Dans un fichier ZIP sur une clé USB</button>
+      </div>
+      <div class="q__exp">Terraform recommande d'utiliser le backend « gcs » pour stocker son fichier d'état dans un bucket Google Cloud Storage sécurisé avec verrouillage automatique pour éviter les écritures concurrentes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle pratique de sécurité relative aux identifiants est formellement requise lors de l'écriture de code Terraform pour Google Cloud ?</p>
+      <div class="opts">
+        <button class="opt">Écrire le mot de passe root en commentaire</button>
+        <button class="opt">Inscrire le chemin d'une clé JSON de compte de service dans le bloc provider</button>
+        <button class="opt" data-correct="1">Utiliser Application Default Credentials (ADC) ou Workload Identity sans clé en dur</button>
+        <button class="opt">Désactiver le contrôle SSL</button>
+      </div>
+      <div class="q__exp">Le code Terraform ne doit jamais contenir de fichier de clé de compte de service en dur ; il doit s'appuyer sur Application Default Credentials (ADC) en local ou Workload Identity Federation dans la CI/CD.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Laisser les logs applicatifs verbeux s'accumuler dans Cloud Logging sans filtre d'exclusion, générant une facture de stockage de logs imprévue.</li>
+      <li>Ne pas configurer d'alertes budgétaires lors du lancement d'un projet, découvrant les dérives de coûts uniquement lors de la réception de la facture mensuelle.</li>
+      <li>Stocker le fichier d'état Terraform (terraform.tfstate) sur un poste local au lieu d'un bucket GCS partagé, provoquant des conflits d'état et des désynchronisations d'infrastructure.</li>
+      <li>Inscrire des clés privées de service account en dur dans les fichiers Terraform (credentials = file(...)) au lieu d'utiliser Application Default Credentials.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Mise en place de l'observabilité dès l'initialisation : configurer un espace de travail Cloud Monitoring, créer des tableaux de bord pour les métriques de saturation (Golden Signals) et définir des alertes à notification multi-canal.</li>
+      <li>Exportation et rétention des journaux d'audit : créer un Log Sink filtrant les événements de sécurité critiques et les acheminer vers un dataset BigQuery partitionné pour les contrôles réglementaires.</li>
+      <li>Optimisation proactive FinOps : analyser les recommandations de dimensionnement (Recommender API), activer les alertes de budget à 50%, 90% et 100%, et souscrire des engagements CUD sur la capacité de base stable.</li>
+      <li>Automatisation déclarative avec Terraform : modulariser les déploiements GCP (modules VPC, GKE, Cloud Run), sécuriser le backend d'état sur un bucket Cloud Storage et intégrer un linter de conformité dans la pipeline CI/CD.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Cloud Monitoring supervise les métriques système et déclenche des alertes configurées vers Slack, PagerDuty ou Email.</li>
+      <li>Cloud Logging centralise tous les événements d'infrastructure et permet l'archivage à long terme via des Log Sinks vers BigQuery ou Cloud Storage.</li>
+      <li>Cloud Trace et Cloud Profiler identifient avec précision les goulots d'étranglement de latence et de mémoire dans le code applicatif.</li>
+      <li>Le FinOps optimise les dépenses via les remises automatiques d'usage continu (SUD) et les remises sur engagement d'utilisation (CUD 1 an et 3 ans).</li>
+      <li>Terraform automatise l'infrastructure déclarative avec le provider Google, un backend d'état distant GCS et une stricte interdiction de secrets en dur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous configurer une alerte Cloud Monitoring avec seuil métrique et canal de notification ?</li>
+      <li>Comprenez-vous le rôle d'un Log Sink pour exporter des journaux d'audit vers BigQuery ?</li>
+      <li>Pouvez-vous expliquer la différence entre Cloud Trace (latence de requêtes) et Cloud Profiler (CPU/mémoire du code) ?</li>
+      <li>Connaissez-vous les pourcentages de remise des engagements CUD 1 an (~37%) et 3 ans (~55%) ?</li>
+      <li>Savez-vous configurer un backend GCS distant pour stocker l'état Terraform de façon collaborative et sécurisée ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Cloud Operations Suite :</strong> Ensemble unifié d'outils d'observabilité Google Cloud regroupant Monitoring, Logging, Trace, Profiler et Error Reporting.</li><li><strong>Log Sink :</strong> Mécanisme de routage dans Cloud Logging qui filtre et exporte en continu des journaux d'événements vers BigQuery, Storage ou Pub/Sub.</li><li><strong>Committed Use Discount (CUD) :</strong> Remise contractuelle substantielle accordée par Google en échange d'un engagement d'utilisation continue de ressources sur 1 ou 3 ans.</li><li><strong>Sustained Use Discount (SUD) :</strong> Remise automatique sans engagement appliquée sur les VMs Compute Engine tournant une part significative du mois civil.</li><li><strong>Backend Terraform GCS :</strong> Configuration stockant le fichier d'état terraform.tfstate dans un bucket Google Cloud Storage avec gestion des versions et verrouillage automatique.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Configuration d'observabilité avancée avec Cloud Operations :</strong> Créer des dashboards personnalisés et paramétrer des alertes multi-canaux pour superviser les Golden Signals.</div>
+      <div class="bandrow"><strong>Export et conformité des logs d'audit avec Log Sinks :</strong> Déployer des récepteurs de journaux acheminant les événements de sécurité vers BigQuery pour analyse SQL.</div>
+      <div class="bandrow"><strong>Diagnostic de performance avec Trace et Profiler :</strong> Identifier les requêtes lentes et optimiser l'utilisation CPU/RAM dans les applications de production.</div>
+      <div class="bandrow"><strong>Pilotage de la gouvernance financière FinOps :</strong> Modéliser les budgets avec alertes de seuil et planifier les engagements CUD pour réduire la facture d'infrastructure.</div>
+      <div class="bandrow"><strong>Automatisation déclarative avec Terraform pour GCP :</strong> Concevoir des manifestes HCL conformes aux meilleures pratiques avec backend d'état GCS et zéro secret en dur.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud (Google Cloud) B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation officielle Google Cloud Architecture Center, Référentiels d'examen Google Cloud Certified Associate Cloud Engineer (ACE) et Professional Cloud Architect (PCA).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

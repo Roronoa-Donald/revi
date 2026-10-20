@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 — Exploitation Système, Escalade de Privilèges &amp; Pivoting (Gaining Access) | Hacking Éthique &amp; Pentest B3</title>
+<meta name="description" content="Module 5 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes d'exploitation bas niveau et corruption de mémoire (architecture de pile, dépassement de tampon Buffer Overflow x86/x64, détournement d'EIP/RIP, NOP sled et protections ASLR/DEP/Canaries), utilisation professionnelle de Metasploit Framework et payloads Meterpreter, vecteurs d'élévation de privilèges sous Linux (binaires SUID GTFOBins, configurations sudoers NOPASSWD, crontabs modifiables), élévation de privilèges Windows (Unquoted Service Paths, SeImpersonatePrivilege et PrintSpoofer), et techniques de mouvement latéral et pivoting réseau (tunnels SSH, proxies SOCKS et Chisel). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-hacking/chapitres/chapitre5.html">
+<meta property="og:title" content="Module 5 — Exploitation Système, Escalade de Privilèges &amp; Pivoting (Gaining Access) | Hacking Éthique &amp; Pentest B3">
+<meta property="og:description" content="Module 5 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes d'exploitation bas niveau et corruption de mémoire (architecture de pile, dépassement de tampon Buffer Overflow x86/x64, détournement d'EIP/RIP, NOP sled et protections ASLR/DEP/Canaries), utilisation professionnelle de Metasploit Framework et payloads Meterpreter, vecteurs d'élévation de privilèges sous Linux (binaires SUID GTFOBins, configurations sudoers NOPASSWD, crontabs modifiables), élévation de privilèges Windows (Unquoted Service Paths, SeImpersonatePrivilege et PrintSpoofer), et techniques de mouvement latéral et pivoting réseau (tunnels SSH, proxies SOCKS et Chisel). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-hackingnav"><div class="b3-hackingnav__in">
+  <a class="b3-hackingnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-hackingnav__sep" aria-hidden="true">/</span>
+  <a class="b3-hackingnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Hacking Éthique &amp; Pentest B3</a>
+  <div class="b3-hackingnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-hackingnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-hackingwrap">
+<p class="crumb"><a href="../index.html">Hacking Éthique & Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Exploitation Système, Escalade de Privilèges & Pivoting (Gaining Access)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L'obtention d'un shell initial non privilégié (par exemple sous l'identité www-data sur un serveur web) ne constitue qu'une étape intermédiaire dans un test d'intrusion. L'auditeur doit élever ses privilèges pour atteindre les droits suprêmes (root sous Linux, SYSTEM sous Windows) afin de démontrer l'accès aux données sensibles et pivoter vers les réseaux internes isolés non routables directement depuis Internet. En tant que pentesteur B3, vous devez maîtriser les techniques d'audit des configurations locales, exploiter méthodiquement les faiblesses d'assignation de droits et établir des passerelles de rebond sécurisées.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre la structure mémoire d'un processus et la mécanique d'un Stack Buffer Overflow (x86/x64) ;</li>
+      <li>identifier et contourner les mécanismes de protection mémoire fondamentaux (ASLR, DEP/NX, Stack Canaries) ;</li>
+      <li>exploiter Metasploit Framework, manipuler des payloads stagés vs inline et opérer une session Meterpreter ;</li>
+      <li>auditer et exploiter les vecteurs d'escalade de privilèges Linux : binaires SUID (GTFOBins) et règles sudoers ;</li>
+      <li>maîtriser l'élévation de privilèges Windows : chemins de services non quotés et abus de jetons (SeImpersonate) ;</li>
+      <li>mettre en œuvre des tunnels de pivoting réseau (SSH port forwarding local/distant/dynamique SOCKS et Chisel).</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture Mémoire &amp; Dépassement de Tampon (Stack Buffer Overflow)</h2>
+
+<p>Dans les programmes compilés en C ou C++ sans vérification stricte des limites de tableaux (fonctions dangereuses comme <code>strcpy</code>, <code>gets</code>, <code>sprintf</code>), un Buffer Overflow permet de détourner le flux d'exécution :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Organisation de la Pile (Stack)</h4>
+    <p>La pile croît des adresses hautes vers les adresses basses. Lors d'un appel de fonction :</p>
+    <ol>
+      <li>Empilement des arguments de fonction.</li>
+      <li>Empilement de l'adresse de retour (<strong>Saved Return Pointer</strong> : EIP en x86, RIP en x64).</li>
+      <li>Sauvegarde du Frame Pointer (EBP/RBP).</li>
+      <li>Allocation des variables locales dans le tampon mémoire (Buffer).</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Mécanique de l'Exploit</h4>
+    <p>En injectant plus de données que la taille allouée du tampon :</p>
+    <ul>
+      <li>Les données débordent et écrasent EBP puis le pointeur de retour (EIP/RIP).</li>
+      <li>L'attaquant remplace l'adresse de retour par l'adresse de son code malveillant injecté (<strong>Shellcode</strong>).</li>
+      <li>Un <strong>NOP Sled</strong> (suite d'instructions <code>\x90</code> No Operation) précède le shellcode pour sécuriser l'atterrissage de l'exécution.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les Mécanismes de Protection Moderne de la Mémoire</div>
+<p>Les systèmes d'exploitation contemporains intègrent des défenses matérielles et logicielles :</p>,<ul>,  <li><strong>DEP / NX (Data Execution Prevention / No-Execute) :</strong> marque les zones de données (pile et tas) comme non exécutables. Tout saut direct vers du shellcode sur la pile déclenche un crash (contourné par la technique Return-Oriented Programming - ROP).</li>,  <li><strong>ASLR (Address Space Layout Randomization) :</strong> aléatorise les adresses mémoire de la pile, du tas et des bibliothèques à chaque exécution du programme.</li>,  <li><strong>Stack Canaries :</strong> valeur aléatoire secrète placée sur la pile juste avant l'adresse de retour. Si la valeur est modifiée lors du retour de fonction, le programme s'arrête immédiatement (Stack Smashing Detected).</li>,</ul>
+  </div>
+
+<h2>2. Exploitation avec Metasploit Framework &amp; Sessions Meterpreter</h2>
+
+<p>Metasploit Framework (MSF) est la plateforme modulaire d'automatisation d'exploits la plus répandue :</p>
+<table class="table">
+  <thead><tr><th>Composant</th><th>Rôle dans le Framework</th><th>Exemple d'Utilisation</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Exploit</strong></td><td>Module exploitant une vulnérabilité logicielle pour injecter la charge</td><td><code>use exploit/windows/smb/ms17_010_eternalblue</code></td></tr>
+    <tr><td><strong>Payload (Charge Utile)</strong></td><td>Code exécuté sur la cible une fois l'accès obtenu (Reverse Shell, Meterpreter)</td><td><code>set PAYLOAD windows/x64/meterpreter/reverse_tcp</code></td></tr>
+    <tr><td><strong>Auxiliary</strong></td><td>Modules de scan, d'énumération ou de déni de service sans charge utile</td><td><code>use auxiliary/scanner/smb/smb_version</code></td></tr>
+    <tr><td><strong>Post</strong></td><td>Modules d'énumération locale, extraction de hashes ou escalade après compromission</td><td><code>use post/windows/gather/smart_hashdump</code></td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Différence entre Payloads Stagés et Non-Stagés (Inline)</div>
+<p>Dans Metasploit, la convention de nommage distingue deux types d'architectures de charge utile :</p>,<ul>,  <li><strong>Payload Stagé (avec un slash intermédiaire, ex: <code>meterpreter/reverse_tcp</code>) :</strong> un premier petit code injecté (Stager) se connecte au serveur de l'attaquant pour télécharger en mémoire la charge utile complète plus volumineuse. Indispensable lorsque l'espace mémoire pour l'exploit initial est restreint.</li>,  <li><strong>Payload Inline / Non-stagé (avec un tiret du bas, ex: <code>meterpreter_reverse_tcp</code>) :</strong> la charge utile entière est envoyée d'un seul bloc dans l'exploit. Plus stable face aux coupures réseau ou aux inspections proxies.</li>,</ul>
+  </div>
+
+<h2>3. Élévation de Privilèges Linux : SUID, GTFOBins &amp; Sudoers</h2>
+
+<p>Sous Linux, l'élévation de privilèges vers le compte <code>root</code> repose majoritairement sur les mauvaises configurations d'administration :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Binaires SUID &amp; GTFOBins</h4>
+    <p>La recherche de fichiers avec le bit SUID (<code>chmod u+s</code>) appartenant à root est systématique :</p>
+    <pre><code>$ find / -perm -4000 -type f 2&gt;/dev/null</code></pre>
+    <p>Le projet <strong>GTFOBins</strong> répertorie les binaires légitimes qui permettent d'obtenir un shell administrateur :</p>
+    <ul>
+      <li><code>/usr/bin/find</code> : <code>find . -exec /bin/sh -p \; -quit</code></li>
+      <li><code>/usr/bin/vim</code> : <code>vim -c ':!/bin/sh'</code></li>
+      <li><code>/usr/bin/awk</code> : <code>awk 'BEGIN {system("/bin/sh")}'</code></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Droits Sudoers Permissifs (sudo -l)</h4>
+    <p>La commande <code>sudo -l</code> liste les commandes autorisées pour l'utilisateur courant :</p>
+    <p>Si la directive <code>NOPASSWD:</code> est attribuée sur un binaire permettant l'échappement (ex: <code>(ALL) NOPASSWD: /usr/bin/less /var/log/syslog</code>), l'attaquant lance la commande et tape <code>!/bin/sh</code> dans l'interface pour obtenir un shell root instantané.</p>
+  </div>
+</div>
+
+<h2>4. Élévation de Privilèges Windows : Unquoted Service Paths &amp; SeImpersonate</h2>
+
+<p>Sous Windows, l'élévation vers le compte <code>NT AUTHORITY\SYSTEM</code> exploite deux grandes familles de failles :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Chemins de Services Non Quotés (Unquoted Service Paths)</h4>
+    <p>Si le chemin d'un service Windows contient des espaces et n'est pas entouré de guillemets doubles (ex: <code>C:\Program Files\Mon Service\service.exe</code>) :</p>
+    <p>Le gestionnaire de services tente d'exécuter séquentiellement :</p>
+    <ol>
+      <li><code>C:\Program.exe</code></li>
+      <li><code>C:\Program Files\Mon.exe</code></li>
+      <li><code>C:\Program Files\Mon Service\service.exe</code></li>
+    </ol>
+    <p>Si un utilisateur sans privilège a le droit d'écriture dans <code>C:\</code>, il y dépose un binaire malveillant <code>Program.exe</code> qui sera exécuté avec les droits SYSTEM au redémarrage du service.</p>
+  </div>
+  <div class="card">
+    <h4>Abus de Privilèges de Jetons (SeImpersonatePrivilege)</h4>
+    <p>Les comptes de services Windows (comme <code>LOCAL SERVICE</code> ou <code>NETWORK SERVICE</code> sous IIS) possèdent le privilège <code>SeImpersonatePrivilege</code> (visible via <code>whoami /priv</code>).</p>
+    <p>Ce droit autorise un processus à usurper le jeton de sécurité de n'importe quel client qui se connecte à lui via un tube nommé (Named Pipe).</p>
+    <p>Des exploits automatisés (<strong>PrintSpoofer</strong>, <strong>SweetPotato</strong>) forcent le service Spooler local (SYSTEM) à s'authentifier sur un tube contrôlé pour dupliquer son jeton et spawner un shell SYSTEM.</p>
+  </div>
+</div>
+
+<h2>5. Mouvement Latéral et Pivoting Réseau (SSH &amp; Chisel)</h2>
+
+<p>Le pivoting consiste à utiliser une machine compromise comme passerelle de rebond pour attaquer des réseaux internes isolés :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Tunnel SSH Local (-L)</h4>
+    <p>Redirige un port de la machine de l'auditeur vers un service interne accessible par la machine pivot :</p>
+    <pre><code>ssh -L 8080:10.0.0.5:80 user@pivot</code></pre>
+    <p>Accès à l'intranet interne sur <code>http://localhost:8080</code>.</p>
+  </div>
+  <div class="card">
+    <h4>Tunnel Dynamique SOCKS (-D)</h4>
+    <p>Transforme la connexion SSH en proxy SOCKS complet :</p>
+    <pre><code>ssh -D 1080 user@pivot</code></pre>
+    <p>Combiné avec <code>proxychains</code>, toutes les commandes Nmap, curl ou navigateurs transitent par le pivot.</p>
+  </div>
+  <div class="card">
+    <h4>Tunneling HTTP Chisel</h4>
+    <p>Outil écrit en Go encapsulant un proxy SOCKS chiffré au travers d'une connexion HTTP/Websocket standard :</p>
+    <p>Idéal pour traverser les pare-feux stricts n'autorisant que les flux web sortants (port 80/443).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="hk3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SUID_CHECK path=/usr/bin/find owner=root mode=4755">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e1) — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Binaire système passwd avec SUID légitime et restreint]
+# Données : SUID_CHECK path=/usr/bin/passwd owner=root mode=4755
+A_COMPLETER
+
+[Cas 2 — Éditeur vim mis en SUID par erreur d'administration]
+# Données : SUID_CHECK path=/bin/vim owner=root mode=4750
+A_COMPLETER
+
+[Cas 3 — Binaire normal sans aucun bit SUID]
+# Données : SUID_CHECK path=/usr/bin/ls owner=root mode=0755
+A_COMPLETER
+
+[Cas 4 — Binaire SUID appartenant à un utilisateur non root]
+# Données : SUID_CHECK path=/opt/app/worker owner=deploy mode=4755
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les permissions octales de fichiers système pour détecter les binaires SUID exploitables (GTFOBins).</p>
+    <div class="lab__brief"><p>Le bit SUID (Set User ID) permet d'exécuter un binaire avec les privilèges de son propriétaire (généralement root).<br><br>
+Binaires connus du catalogue GTFOBins permettant une évasion directe vers un shell root :<br>
+<code>bash</code>, <code>find</code>, <code>vim</code>, <code>nano</code>, <code>cp</code>, <code>awk</code>, <code>python</code>, <code>nmap</code>, <code>pkexec</code>.<br><br>
+Règles d'évaluation :<br>
+1. Vérifier si le mode octal comporte le bit SUID (chiffre des milliers &gt;= 4, ex: <code>4755</code>, <code>4750</code>) :<br>
+   - Si le bit SUID est absent : <code>exploit=NO_SUID_BIT</code>, <code>risk=NONE</code>.<br>
+2. Si le bit SUID est présent et <code>owner == 'root'</code> :<br>
+   - Si le nom du binaire est dans GTFOBins : <code>exploit=GTFOBINS_PRIVILEGE_ESCALATION</code>, <code>risk=CRITICAL</code>.<br>
+   - Sinon (binaire standard comme <code>passwd</code>, <code>ping</code>) : <code>exploit=STANDARD_SYSTEM_BINARY</code>, <code>risk=LOW</code>.<br>
+3. Si le bit SUID est présent mais <code>owner != 'root'</code> :<br>
+   - <code>exploit=NON_ROOT_SUID</code>, <code>risk=MEDIUM</code>.<br><br>
+Entrée STDIN : <code>SUID_CHECK path=&lt;chemin&gt; owner=&lt;user&gt; mode=&lt;octal&gt;</code>.<br>
+Sortie : <code>SUID_AUDIT: binary=&lt;nom&gt; owner=&lt;user&gt; mode=&lt;octal&gt; exploit=&lt;exploit&gt; risk=&lt;risk&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUID_CHECK path=/usr/bin/find owner=root mode=4755</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUID_AUDIT: binary=find owner=root mode=4755 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">Binaire find SUID root exploitable directement via la commande find . -exec /bin/sh -p ;</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extrayez le nom de base du fichier (ex: /usr/bin/find -&gt; find).</li>
+        <li>Vérifiez si le premier chiffre du mode octal (mode &gt;= 4000) active le bit SUID.</li>
+        <li>Comparez avec la liste GTFOBins si owner == root.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e2) — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Règle accordant tous les privilèges sans mot de passe (ALL)]
+# Données : SUDO_PARSE rule=john ALL=(ALL:ALL) NOPASSWD: ALL
+A_COMPLETER
+
+[Cas 2 — Commande restreinte d'administration sans échappement de shell]
+# Données : SUDO_PARSE rule=backup_svc ALL=(root) NOPASSWD: /usr/bin/rsync
+A_COMPLETER
+
+[Cas 3 — Règle classique exigeant l'authentification par mot de passe]
+# Données : SUDO_PARSE rule=alice ALL=(ALL) /bin/bash
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une directive sudoers pour détecter des privilèges excessifs permettant l'élévation directe vers root.</p>
+    <div class="lab__brief"><p>Une mauvaise configuration dans <code>/etc/sudoers</code> constitue le vecteur d'élévation de privilèges le plus fréquent en environnement Linux.<br><br>
+Commandes dangereuses permettant l'échappement vers un shell (Shell Escape) :<br>
+<code>ALL</code>, <code>find</code>, <code>vim</code>, <code>vi</code>, <code>less</code>, <code>more</code>, <code>bash</code>, <code>sh</code>, <code>python</code>, <code>perl</code>, <code>awk</code>.<br><br>
+Règles d'analyse :<br>
+1. Déterminer si <code>NOPASSWD:</code> est présent dans la règle :<br>
+   - Si absent : <code>nopasswd=FALSE</code>, <code>vector=PASSWORD_PROTECTED</code>, <code>risk=LOW</code>.<br>
+2. Si <code>NOPASSWD:</code> est présent (<code>nopasswd=TRUE</code>) :<br>
+   - Extraire la commande autorisée située après <code>NOPASSWD:</code> (ex: <code>/usr/bin/find</code>).<br>
+   - Extraire le nom du binaire de base.<br>
+   - Si le binaire est <code>ALL</code> ou appartient à la liste de shell escape :<br>
+     <code>vector=INSTANT_ROOT_SHELL</code>, <code>risk=CRITICAL</code>.<br>
+   - Sinon (binaire d'administration restreint, ex: <code>systemctl restart nginx</code>) :<br>
+     <code>vector=RESTRICTED_SUDO_EXECUTION</code>, <code>risk=MEDIUM</code>.<br><br>
+Entrée STDIN : <code>SUDO_PARSE rule=&lt;texte_complet_de_la_regle_sudoers&gt;</code>.<br>
+Sortie : <code>SUDO_AUDIT: user=&lt;user&gt; nopasswd=&lt;TRUE|FALSE&gt; command=&lt;cmd_name&gt; vector=&lt;vector&gt; risk=&lt;risk&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUDO_AUDIT: user=developer nopasswd=TRUE command=find vector=INSTANT_ROOT_SHELL risk=CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">find exécutable sans mot de passe permettant l'échappement shell immédiat.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isolez le texte de la règle avec line.split("rule=", 1)[1].</li>
+        <li>Le premier mot de la règle correspond à l'utilisateur ou au groupe.</li>
+        <li>Vérifiez la présence de NOPASSWD: et extrayez la commande qui suit.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e3) — Calculateur d'Offset de Buffer Overflow et Agencement de Payload
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Payload 64-bit avec pointeur d'instruction RIP sur 8 octets]
+# Données : BOF_LAYOUT arch=x64 offset=264 sled_len=64 shellcode_len=85
+A_COMPLETER
+
+[Cas 2 — Petit offset sans NOP sled (saut direct au début du shellcode)]
+# Données : BOF_LAYOUT arch=x86 offset=40 sled_len=0 shellcode_len=28
+A_COMPLETER
+
+[Cas 3 — Tampon volumineux sous architecture x64]
+# Données : BOF_LAYOUT arch=x64 offset=1024 sled_len=128 shellcode_len=120
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calculateur d'Offset de Buffer Overflow et Agencement de Payload</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la structure et la taille globale d'un exploit de dépassement de tampon de pile (Stack Buffer Overflow).</p>
+    <div class="lab__brief"><p>Dans l'exploitation de binaires compilés (x86/x64 sans canary), un dépassement de tampon permet de réécrire le pointeur d'instruction de retour (EIP/RIP).<br><br>
+Structure du payload dans la pile :<br>
+1. <code>PADDING</code> : <code>offset</code> octets (remplissage jusqu'au pointeur de retour).<br>
+2. <code>RET_ADDR</code> : taille de l'adresse de retour (4 octets en <code>x86</code>, 8 octets en <code>x64</code>).<br>
+3. <code>NOP_SLED</code> : <code>sled_len</code> octets de NOP (<code>\x90</code>).<br>
+4. <code>SHELLCODE</code> : <code>shellcode_len</code> octets du code exécutable injecté.<br><br>
+Calcul de la taille totale du payload :<br>
+<code>total_size = offset + ret_bytes + sled_len + shellcode_len</code>.<br><br>
+Entrée STDIN : <code>BOF_LAYOUT arch=&lt;x86|x64&gt; offset=&lt;N&gt; sled_len=&lt;S&gt; shellcode_len=&lt;L&gt;</code>.<br>
+Sortie : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&lt;N&gt; ret_bytes=&lt;4|8&gt; sled=&lt;S&gt; shellcode=&lt;L&gt; total_size=&lt;total&gt; status=READY_FOR_INJECTION</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PAYLOAD_LAYOUT: arch=x86 offset=112 ret_bytes=4 sled=32 shellcode=44 total_size=192 status=READY_FOR_INJECTION</pre></div>
+    </div>
+    <p class="lab__note">Payload x86 standard avec 112 octets de padding et 32 octets de NOP sled.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Identifiez ret_bytes : 4 octets pour x86 et 8 octets pour x64.</li>
+        <li>Sommez offset + ret_bytes + sled_len + shellcode_len.</li>
+        <li>Affichez la disposition du payload selon le format demandé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans une attaque par dépassement de tampon sur la pile (Stack Buffer Overflow x86), quel registre de processeur l'attaquant cherche-t-il à écraser pour contrôler le flux d'exécution ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le registre EIP (Extended Instruction Pointer)</button>
+        <button class="opt">Le registre EAX (Accumulateur)</button>
+        <button class="opt">Le registre ECX (Compteur)</button>
+        <button class="opt">Le registre ESP (Stack Pointer)</button>
+      </div>
+      <div class="q__exp">EIP contient l'adresse de la prochaine instruction processeur à exécuter. En écrasant l'adresse de retour sauvegardée sur la pile, EIP est forcé de pointer vers le shellcode de l'attaquant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle d'un "NOP Sled" (suite d'instructions 0x90) placé avant le shellcode dans un exploit Buffer Overflow ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Créer une zone d'atterrissage tolérante : si le saut processeur tombe n'importe où dans les NOP, l'exécution glisse sans erreur jusqu'au shellcode</button>
+        <button class="opt">Chiffrer le shellcode pour le rendre indétectable par l'antivirus</button>
+        <button class="opt">Augmenter les privilèges de l'utilisateur au niveau root avant l'exécution</button>
+        <button class="opt">Supprimer les journaux d'événements du système d'exploitation</button>
+      </div>
+      <div class="q__exp">Le NOP sled (No Operation) permet de compenser les légères imprécisions d'adressage mémoire : le processeur exécute les NOP séquentiellement jusqu'à atteindre le début du shellcode.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme de sécurité de l'OS empêche l'exécution de code injecté directement dans la mémoire de la pile (Stack) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">DEP / NX (Data Execution Prevention / No-Execute)</button>
+        <button class="opt">ASLR (Address Space Layout Randomization)</button>
+        <button class="opt">DHCP Snooping</button>
+        <button class="opt">RAID 5</button>
+      </div>
+      <div class="q__exp">DEP/NX marque les pages de pile et de tas comme non exécutables : toute tentative du processeur d'exécuter des instructions situées sur la pile déclenche une exception matérielle immédiate.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans Metasploit, quelle est la particularité d'un payload de type "Stagé" (ex: windows/x64/meterpreter/reverse_tcp) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il est scindé en deux parties : un petit chargeur initial (Stager) qui se connecte pour télécharger ensuite le corps complet de la charge utile en mémoire</button>
+        <button class="opt">Il s'exécute exclusivement depuis une clé USB physique</button>
+        <button class="opt">Il ne fonctionne que si la cible dispose de privilèges root préalables</button>
+        <button class="opt">Il est entièrement compilé en assembleur 16-bit</button>
+      </div>
+      <div class="q__exp">Les payloads stagés résolvent le problème des petits tampons mémoire : le stager est minuscule, établit la connexion réseau, puis télécharge en RAM le reste du binaire Meterpreter volumineux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un système Linux, pourquoi le binaire /usr/bin/find avec le bit SUID root (mode 4755) représente-t-il une élévation de privilèges immédiate (GTFOBins) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce qu'il permet d'exécuter un shell arbitraire via la commande : find . -exec /bin/sh -p \; en conservant les privilèges du propriétaire root</button>
+        <button class="opt">Parce qu'il efface automatiquement le mot de passe root dans le fichier /etc/shadow</button>
+        <button class="opt">Parce qu'il désactive le pare-feu iptables lors de chaque recherche</button>
+        <button class="opt">Parce qu'il redémarre la machine en mode secours mono-utilisateur</button>
+      </div>
+      <div class="q__exp">L'option -exec de find lance une commande sous l'identité effective du propriétaire du binaire (root grâce au bit SUID), ce qui permet d'obtenir un shell root avec le drapeau -p.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle mauvaise configuration dans Windows permet l'attaque par "Unquoted Service Path" ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le chemin vers l'exécutable du service comporte des espaces et n'est pas entouré de guillemets doubles dans le registre</button>
+        <button class="opt">Le pare-feu Windows est désactivé sur le profil domaine</button>
+        <button class="opt">Le mot de passe administrateur comporte moins de 8 caractères</button>
+        <button class="opt">Le service utilise le protocole UDP au lieu de TCP</button>
+      </div>
+      <div class="q__exp">Sous Windows, un chemin avec espaces sans guillemets force le gestionnaire de services à tenter d'exécuter chaque mot précédant un espace (ex: C:\Program.exe avant C:\Program Files\...).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel privilège Windows, souvent détenu par les comptes de services applicatifs (IIS/SQL), permet d'usurper l'identité de jetons locaux et d'obtenir les droits SYSTEM via l'exploit PrintSpoofer ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">SeImpersonatePrivilege</button>
+        <button class="opt">SeShutdownPrivilege</button>
+        <button class="opt">SeTimeZonePrivilege</button>
+        <button class="opt">SeUndockPrivilege</button>
+      </div>
+      <div class="q__exp">SeImpersonatePrivilege autorise un compte de service à usurper le jeton de sécurité de n'importe quel client local se connectant à lui, permettant des attaques comme RottenPotato ou PrintSpoofer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande SSH permet de créer un tunnel proxy dynamique SOCKS sur le port local 1080 au travers d'une machine pivot ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ssh -D 1080 user@pivot</button>
+        <button class="opt">ssh -L 1080:remote:80 user@pivot</button>
+        <button class="opt">ssh -R 1080:localhost:80 user@pivot</button>
+        <button class="opt">ssh -p 1080 user@pivot</button>
+      </div>
+      <div class="q__exp">L'option "-D" de SSH ouvre un proxy SOCKS dynamique local qui route le trafic de n'importe quel outil (via proxychains ou navigateur) à travers la machine pivot distante.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier d'ajouter le drapeau -p lors de l'exécution d'un shell via un binaire SUID (l'OS rétrograde sinon l'euid au compte réel).</li>
+      <li>Confondre un payload Metasploit stagé (avec slash) et non-stagé inline (avec tiret bas).</li>
+      <li>Modifier directement des fichiers système critiques sans vérifier les sauvegardes lors d'une élévation de privilèges.</li>
+      <li>Négliger les règles sudoers comportant la directive NOPASSWD: sur des binaires d'édition comme vim ou less.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Énumérer l'environnement local après premier accès : OS, kernel, utilisateurs, groupes et privilèges (whoami, id).</li>
+      <li>Rechercher les binaires SUID mal configurés sous Linux et croiser avec GTFOBins.</li>
+      <li>Auditer les autorisations accordées par le fichier sudoers (sudo -l).</li>
+      <li>Sous Windows, inspecter les privilèges de jetons (whoami /priv) et les services non quotés.</li>
+      <li>Mettre en place un tunnel de pivoting (SSH -D ou Chisel) pour router les attaques vers le réseau interne.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L'exploitation de buffer overflows détourne EIP/RIP mais se heurte aux protections modernes ASLR, DEP/NX et Canaries.</li>
+      <li>Metasploit structure l'attaque en exploits, payloads, modules auxiliaires et sessions de post-exploitation Meterpreter.</li>
+      <li>Sous Linux, les binaires SUID non nécessaires et les règles sudoers NOPASSWD sont les vecteurs d'escalade les plus courants.</li>
+      <li>Sous Windows, les privilèges de jetons applicatifs (SeImpersonate) permettent d'obtenir les droits SYSTEM via PrintSpoofer.</li>
+      <li>Le pivoting réseau étend la portée de l'intrusion en transformant une machine compromise en passerelle de rebond.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la structure d'un payload Buffer Overflow avec offset, adresse de retour, NOP sled et shellcode.</li>
+      <li>Je sais identifier et exploiter les binaires SUID répertoriés dans GTFOBins.</li>
+      <li>Je maîtrise l'analyse des failles sudoers NOPASSWD et l'échappement de shell.</li>
+      <li>Je sais monter un tunnel de rebond SSH ou Chisel pour pivoter vers un segment interne.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Stack Buffer Overflow :</strong> Écrasement de la mémoire de pile permettant de remplacer le pointeur d'instruction EIP/RIP par l'adresse d'un shellcode.</li><li><strong>GTFOBins :</strong> Catalogue de référence des binaires Unix légitimes détournables pour échapper à un shell restreint ou élever ses privilèges.</li><li><strong>NOP Sled :</strong> Suite d'octets 0x90 créant une zone tampon d'atterrissage sécurisée précédant le shellcode lors d'un buffer overflow.</li><li><strong>Unquoted Service Path :</strong> Chemin d'exécutable de service Windows contenant des espaces sans guillemets permettant l'injection de binaire.</li><li><strong>SeImpersonatePrivilege :</strong> Privilège Windows autorisant l'usurpation de jetons de sécurité clients pour obtenir les droits NT AUTHORITY\SYSTEM.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections théoriques et revois les définitions clés.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Pratique les exercices N1 de l'atelier avant de retenter le test.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise d'ingénierie validée : passe au module suivant.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Maintien de l'Accès, Post-Exploitation, Anti-Forensics & Rapport de Pentest <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins & MITRE ATT&CK.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

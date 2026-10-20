@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Plateformes Cloud, Hyperscalers &amp;amp; Architectures Haute Disponibilité | Cloud Computing B3</title>
+<meta name="description" content="Chapitre 2 du cours Cloud Computing B3 : Cartographie comparative des hyperscalers (AWS, Azure, GCP), régions et zones de disponibilité (AZ), calculs de SLA composés en série et parallèle, résilience multi-cloud. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-computing/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Plateformes Cloud, Hyperscalers &amp;amp; Architectures Haute Disponibilité | Cloud Computing B3">
+<meta property="og:description" content="Chapitre 2 du cours Cloud Computing B3 : Cartographie comparative des hyperscalers (AWS, Azure, GCP), régions et zones de disponibilité (AZ), calculs de SLA composés en série et parallèle, résilience multi-cloud. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-computingnav"><div class="b3-cloud-computingnav__in">
+  <a class="b3-cloud-computingnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-computingnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-computingnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Cloud Computing B3</a>
+  <div class="b3-cloud-computingnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-computingnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-computingwrap">
+<p class="crumb"><a href="../index.html">Cloud Computing B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Plateformes Cloud, Hyperscalers &amp; Architectures Haute Disponibilité</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le marché mondial du Cloud est dominé par trois géants hyperscalers : Amazon Web Services (AWS), Microsoft Azure et Google Cloud Platform (GCP). Bien que partageant des principes d’ingénierie similaires, chacun emploie une nomenclature propre et déploie des topologies d’infrastructure spécifiques articulées autour de Régions géographiques et de Zones de Disponibilité (AZ). Pour bâtir des systèmes résilients tolérants aux désastres majeurs, l’ingénieur Cloud doit savoir cartographier les services équivalents, dimensionner des architectures redondées, et calculer avec une rigueur mathématique le taux de disponibilité garanti par contrat (SLA composé) et son budget d’erreur annuel en minutes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la taxonomie comparative des services majeurs entre AWS, Azure et Google Cloud Platform ;</li>
+      <li>comprendre l’architecture topologique physique globale : Régions, Zones de Disponibilité (AZ) et Edge Locations ;</li>
+      <li>calculer analytiquement le SLA composé pour des composants montés en série (dépendance) et en parallèle (redondance) ;</li>
+      <li>convertir un pourcentage de disponibilité contractuel en budget d’indisponibilité annuel maximal toléré (downtime) ;</li>
+      <li>concevoir une stratégie de bascule automatique multi-régions (Active-Passive vs Active-Active) ;</li>
+      <li>évaluer les compromis technico-économiques des architectures multi-cloud face au risque de vendor lock-in.</li>
+    </ol>
+  </div>
+
+<h2>1. Cartographie Comparative des Hyperscalers : AWS, Azure et GCP</h2>
+
+<p>Chaque fournisseur propose des dizaines de services managés. La maîtrise du Cloud requiert une vision synoptique des équivalences fonctionnelles directes :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Amazon Web Services (AWS)</h4>
+    <p>Pionnier historique (2006) et leader du marché.<br>
+    <strong>Compute :</strong> EC2, Lambda, ECS, EKS<br>
+    <strong>Stockage :</strong> S3, EBS, EFS<br>
+    <strong>Bases de données :</strong> RDS, DynamoDB, Aurora<br>
+    <strong>Réseau :</strong> VPC, Route 53, Direct Connect</p>
+  </div>
+  <div class="card">
+    <h4>Microsoft Azure</h4>
+    <p>Leader du monde entreprise et des environnements hybrides.<br>
+    <strong>Compute :</strong> Virtual Machines, Azure Functions, AKS<br>
+    <strong>Stockage :</strong> Blob Storage, Azure Files, Managed Disks<br>
+    <strong>Bases de données :</strong> Azure SQL, Cosmos DB<br>
+    <strong>Réseau :</strong> Virtual Network (VNet), Azure DNS, ExpressRoute</p>
+  </div>
+  <div class="card">
+    <h4>Google Cloud Platform (GCP)</h4>
+    <p>Spécialiste de la data, de l’intelligence artificielle et des conteneurs.<br>
+    <strong>Compute :</strong> Compute Engine, Cloud Functions, GKE<br>
+    <strong>Stockage :</strong> Cloud Storage, Persistent Disk<br>
+    <strong>Bases de données :</strong> Cloud SQL, Cloud Spanner, Bigtable<br>
+    <strong>Réseau :</strong> VPC Global, Cloud DNS, Cloud Interconnect</p>
+  </div>
+</div>
+
+<h2>2. Topologie Mondiale : Régions, Zones de Disponibilité et Réseau Edge</h2>
+
+<p>Les hyperscalers déploient leur infrastructure physique selon une hiérarchie géographique stricte :</p>
+<ul>
+  <li><strong>Région Cloud :</strong> Zone géographique distincte (ex: <code>eu-west-3</code> Paris, <code>eu-west-1</code> Irlande) regroupant plusieurs centres de données isolés. Chaque région est totalement autonome pour garantir la souveraineté territoriale des données.</li>
+  <li><strong>Zone de Disponibilité (AZ - Availability Zone) :</strong> Un ou plusieurs centres de données distincts au sein d’une même région, distants de quelques kilomètres (moins de 100 km), disposant d’alimentations électriques, de climatisation et de raccordements réseau indépendants, interconnectés par des fibres optiques dédiées à très faible latence (&lt; 2 ms).</li>
+  <li><strong>Points de Présence Edge (PoP / Edge Locations) :</strong> Serveurs relais répartis dans les grandes métropoles mondiales pour mettre en cache les contenus statiques (CDN : CloudFront, Azure CDN, Cloud CDN) et protéger des attaques DDoS (AWS Shield, Cloud Armor).</li>
+</ul>
+
+<h2>3. Calcul Mathématique de SLA Composé et Budget d’Erreur</h2>
+
+<p>Un contrat de niveau de service (Service Level Agreement - SLA) garantit contractuellement un pourcentage minimal de disponibilité. Lorsqu’une application chaîne plusieurs services, son SLA effectif se calcule par modélisation probabiliste :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Composants en Série (Dépendance stricte)</h4>
+    <p>Si le service A et le service B doivent tous deux fonctionner simultanément pour que l’application réponde, la disponibilité globale est le produit des disponibilités :<br>
+    $$SLA_{total} = SLA_1 \times SLA_2 \times \dots \times SLA_n$$<br>
+    <em>Propriété clé :</em> Le SLA résultant est <strong>toujours inférieur</strong> au plus faible composant.</p>
+  </div>
+  <div class="card">
+    <h4>Composants en Parallèle (Redondance active)</h4>
+    <p>Si deux serveurs identiques sont placés derrière un équilibreur de charge, le système ne tombe en panne que si les deux tombent en même temps :<br>
+    $$SLA_{total} = 1 - \prod_{i=1}^n (1 - SLA_i)$$<br>
+    <em>Propriété clé :</em> Deux VM à 99.9% en parallèle atteignent 99.9999% de disponibilité.</p>
+  </div>
+</div>
+<div class="box box--standard" style="margin-top:16px">
+  <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Calcul de l’Indisponibilité Annuelle (Downtime)</div>
+  <p>Sur une année civile de 365 jours ($365 \times 24 \times 60 = 525\,600$ minutes) :<br>
+  $$Downtime_{minutes} = 525\,600 \times (1 - SLA_{total})$$<br>
+  - Pour 99.9% (trois neufs) : 8 heures 45 minutes par an.<br>
+  - Pour 99.99% (quatre neufs) : 52 minutes 34 secondes par an.<br>
+  - Pour 99.999% (cinq neufs) : seulement 5 minutes 15 secondes par an.</p>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cc3-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="MAPPING csp_src=AWS csp_dst=GCP service=S3&#10;MAPPING csp_src=Azure csp_dst=AWS service=Virtual_Machines&#10;MAPPING csp_src=AWS csp_dst=Azure service=OpenSearch">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c2-e1) — Cartographe d’équivalences de services CSP (AWS, Azure, GCP)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Fonctions Serverless AWS vers Azure]
+# Données : MAPPING csp_src=AWS csp_dst=Azure service=Lambda
+A_COMPLETER
+
+[Cas 2 — Kubernetes managé GCP vers AWS]
+# Données : MAPPING csp_src=GCP csp_dst=AWS service=GKE
+A_COMPLETER
+
+[Cas 3 — Base de données managée Azure vers GCP]
+# Données : MAPPING csp_src=Azure csp_dst=GCP service=Azure_SQL
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Cartographe d’équivalences de services CSP (AWS, Azure, GCP)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer les dénominations commerciales des services entre les trois géants hyperscalers selon leur catégorie fonctionnelle.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Catalogue officiel de correspondance :<br>
+- <code>COMPUTE</code> : AWS=<code>EC2</code>, Azure=<code>Virtual_Machines</code>, GCP=<code>Compute_Engine</code><br>
+- <code>STORAGE</code> : AWS=<code>S3</code>, Azure=<code>Blob_Storage</code>, GCP=<code>Cloud_Storage</code><br>
+- <code>RELATIONAL_DB</code> : AWS=<code>RDS</code>, Azure=<code>Azure_SQL</code>, GCP=<code>Cloud_SQL</code><br>
+- <code>SERVERLESS</code> : AWS=<code>Lambda</code>, Azure=<code>Azure_Functions</code>, GCP=<code>Cloud_Functions</code><br>
+- <code>CONTAINER_ORCH</code> : AWS=<code>EKS</code>, Azure=<code>AKS</code>, GCP=<code>GKE</code><br>
+- <code>MESSAGING</code> : AWS=<code>SQS</code>, Azure=<code>Service_Bus</code>, GCP=<code>Cloud_PubSub</code><br><br>
+Si le service source est répertorié :<br>
+<code>EQUIVALENCE: &lt;csp_src&gt;:&lt;service&gt; -&gt; &lt;csp_dst&gt;:&lt;nom_dst&gt; (CATEGORIE=&lt;CAT&gt;)</code><br>
+Sinon :<br>
+<code>EQUIVALENCE: &lt;csp_src&gt;:&lt;service&gt; -&gt; INCONNU</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MAPPING csp_src=AWS csp_dst=GCP service=S3
+MAPPING csp_src=Azure csp_dst=AWS service=Virtual_Machines
+MAPPING csp_src=AWS csp_dst=Azure service=OpenSearch</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EQUIVALENCE: AWS:S3 -&gt; GCP:Cloud_Storage (CATEGORIE=STORAGE)
+EQUIVALENCE: Azure:Virtual_Machines -&gt; AWS:EC2 (CATEGORIE=COMPUTE)
+EQUIVALENCE: AWS:OpenSearch -&gt; INCONNU</pre></div>
+    </div>
+    <p class="lab__note">S3 correspond à Cloud Storage sous GCP, et Virtual Machines à EC2 sous AWS.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker le tableau sous forme d’un dictionnaire indexé par catégorie.</li>
+        <li>Comparer les noms de manière exacte (sensible à la casse).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc3-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CALCUL_SLA MODE=SERIE SLAS=99.9,99.95&#10;CALCUL_SLA MODE=PARALLELE SLAS=99.9,99.9">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c2-e2) — Calculateur de SLA composé et budget d’erreur annuel
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Chaîne trois tiers Web-App-BDD en série]
+# Données : CALCUL_SLA MODE=SERIE SLAS=99.95,99.9,99.99
+A_COMPLETER
+
+[Cas 2 — Deux passerelles API redondées en parallèle]
+# Données : CALCUL_SLA MODE=PARALLELE SLAS=99.95,99.95
+A_COMPLETER
+
+[Cas 3 — Composant unique]
+# Données : CALCUL_SLA MODE=SERIE SLAS=99.99
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de SLA composé et budget d’erreur annuel</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la disponibilité globale résultante d’une chaîne de services Cloud (série) ou de composants redondés (parallèle) et son indisponibilité annuelle.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...&gt;</code>.<br>
+Chaque SLA est exprimé en pourcentage (ex: <code>99.9,99.95</code>), converti en décimal $p_i = s_i / 100$.<br>
+Formules :<br>
+- <strong>SERIE</strong> (chaîne de dépendances directes) : $P_{total} = \prod_{i} p_i$<br>
+- <strong>PARALLELE</strong> (redondance active / bascule automatique) : $P_{total} = 1 - \prod_{i} (1 - p_i)$<br><br>
+Calcul de l’indisponibilité annuelle (base 365 jours = 525 600 minutes) :<br>
+$Downtime = 525600 \times (1 - P_{total})$ (en minutes).<br>
+Afficher :<br>
+<code>SLA: MODE=&lt;MODE&gt; -&gt; DISPONIBILITE=&lt;pct:.4f&gt;% | INDISPONIBILITE=&lt;downtime:.2f&gt; min/an</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CALCUL_SLA MODE=SERIE SLAS=99.9,99.95
+CALCUL_SLA MODE=PARALLELE SLAS=99.9,99.9</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SLA: MODE=SERIE -&gt; DISPONIBILITE=99.8501% | INDISPONIBILITE=788.14 min/an
+SLA: MODE=PARALLELE -&gt; DISPONIBILITE=99.9999% | INDISPONIBILITE=0.53 min/an</pre></div>
+    </div>
+    <p class="lab__note">Une chaîne en série de deux services 3 neufs et 3.5 neufs tombe à 99.85%. Deux VM à 99.9% en parallèle montent à 99.9999% (moins d'une minute d'interruption).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En série, le SLA global est toujours STRICTEMENT INFÉRIEUR au plus faible SLA unitaire.</li>
+        <li>En parallèle, la redondance réduit drastiquement la probabilité de panne simultanée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc3-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ENDPOINT csp=AWS_eu_west latence=28 sante=UP cout=0.0040&#10;ENDPOINT csp=GCP_europe latence=19 sante=UP cout=0.0065&#10;ENDPOINT csp=Azure_fr latence=15 sante=DOWN cout=0.0035&#10;ROUTE strategie=MIN_LATENCY&#10;ROUTE strategie=MIN_COST&#10;ROUTE strategie=FAILOVER">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c2-e3) — Simulateur de passerelle multi-cloud et routage dynamique
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Basculement après panne du nœud primaire]
+# Données : ENDPOINT csp=AWS_primary latence=10 sante=DOWN cout=0.0020
+# Données : ENDPOINT csp=Azure_backup latence=25 sante=UP cout=0.0025
+# Données : ROUTE strategie=FAILOVER
+A_COMPLETER
+
+[Cas 2 — Tous les nœuds hors service]
+# Données : ENDPOINT csp=AWS_dc1 latence=12 sante=DOWN cout=0.0020
+# Données : ENDPOINT csp=GCP_dc2 latence=18 sante=DOWN cout=0.0030
+# Données : ROUTE strategie=MIN_LATENCY
+A_COMPLETER
+
+[Cas 3 — Égalité de latence résolue par le coût]
+# Données : ENDPOINT csp=CSP_A latence=20 sante=UP cout=0.0050
+# Données : ENDPOINT csp=CSP_B latence=20 sante=UP cout=0.0030
+# Données : ROUTE strategie=MIN_LATENCY
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de passerelle multi-cloud et routage dynamique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Aiguiller dynamiquement les flux applicatifs vers le meilleur point de terminaison Cloud sain selon la stratégie opérationnelle choisie.</p>
+    <div class="lab__brief"><p>Le script enregistre d'abord une série d'endpoints, puis évalue les ordres de routage :<br>
+<code>ENDPOINT csp=&lt;nom&gt; latence=&lt;ms&gt; sante=&lt;UP|DOWN&gt; cout=&lt;usd&gt;</code><br>
+<code>ROUTE strategie=&lt;MIN_LATENCY|MIN_COST|FAILOVER&gt;</code>.<br><br>
+Seuls les endpoints avec <code>sante=UP</code> sont éligibles.<br>
+Stratégies :<br>
+- <code>MIN_LATENCY</code> : l’endpoint sain avec la latence la plus faible. En cas d’égalité, départager par le coût le plus faible, puis l’ordre d’apparition.<br>
+- <code>MIN_COST</code> : l’endpoint sain avec le coût le plus faible. En cas d’égalité, départager par la latence la plus faible, puis l’ordre d’apparition.<br>
+- <code>FAILOVER</code> : choisir le premier endpoint sain rencontré dans l'ordre de déclaration.<br><br>
+Afficher :<br>
+<code>ROUTAGE: STRATEGIE=&lt;strat&gt; -&gt; CSP_CHOISI=&lt;csp&gt; (latence=&lt;ms&gt;ms, cout=$&lt;cout:.4f&gt;)</code><br>
+Ou si aucun endpoint n’est UP :<br>
+<code>ROUTAGE: STRATEGIE=&lt;strat&gt; -&gt; AUCUN_ENDPOINT_DISPONIBLE</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ENDPOINT csp=AWS_eu_west latence=28 sante=UP cout=0.0040
+ENDPOINT csp=GCP_europe latence=19 sante=UP cout=0.0065
+ENDPOINT csp=Azure_fr latence=15 sante=DOWN cout=0.0035
+ROUTE strategie=MIN_LATENCY
+ROUTE strategie=MIN_COST
+ROUTE strategie=FAILOVER</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTAGE: STRATEGIE=MIN_LATENCY -&gt; CSP_CHOISI=GCP_europe (latence=19ms, cout=$0.0065)
+ROUTAGE: STRATEGIE=MIN_COST -&gt; CSP_CHOISI=AWS_eu_west (latence=28ms, cout=$0.0040)
+ROUTAGE: STRATEGIE=FAILOVER -&gt; CSP_CHOISI=AWS_eu_west (latence=28ms, cout=$0.0040)</pre></div>
+    </div>
+    <p class="lab__note">Azure_fr est ignoré car en état DOWN. GCP l'emporte en latence, AWS en coût.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garder la liste ordonnée des déclarations d’endpoints.</li>
+        <li>Filtrer impérativement les hôtes DOWN avant d'appliquer la stratégie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel service de stockage objet chez Microsoft Azure correspond fonctionnellement à Amazon S3 sur AWS et à Cloud Storage sur GCP ?</p>
+      <div class="opts">
+        <button class="opt">Azure Managed Disks</button>
+        <button class="opt" data-correct="1">Azure Blob Storage</button>
+        <button class="opt">Azure Files</button>
+        <button class="opt">Azure Table Storage</button>
+      </div>
+      <div class="q__exp">Azure Blob Storage est la solution de stockage d’objets non structurés chez Microsoft, directement équivalente à AWS S3 et GCP Cloud Storage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Physiquement, que représente une Zone de Disponibilité (AZ - Availability Zone) au sein d’une Région Cloud ?</p>
+      <div class="opts">
+        <button class="opt">Un simple rack de serveurs au sein d’une même salle</button>
+        <button class="opt" data-correct="1">Un ou plusieurs datacenters physiquement séparés, dotés d’alimentations électriques et de réseaux indépendants</button>
+        <button class="opt">Une partition logique de réseau virtuel sans séparation physique</button>
+        <button class="opt">Un serveur mandataire inverse de mise en cache</button>
+      </div>
+      <div class="q__exp">Une AZ est composée d’un ou plusieurs datacenters physiquement isolés (alimentation, refroidissement, connectivité séparés) pour qu’un incident dans une zone n’affecte pas les autres.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une application dépend successivement d’une passerelle API (SLA 99.9%) et d’une base de données (SLA 99.9%) en série, quel est le SLA composé global ?</p>
+      <div class="opts">
+        <button class="opt">99.9%</button>
+        <button class="opt" data-correct="1">99.8001%</button>
+        <button class="opt">99.99%</button>
+        <button class="opt">99.95%</button>
+      </div>
+      <div class="q__exp">En série, on multiplie les probabilités : 0.999 * 0.999 = 0.998001, soit un SLA composé de 99.8001% (inférieur au composant unitaire).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour deux instances de calcul montées en parallèle derrière un équilibreur actif/passif avec un SLA de 99.9% chacune, quelle est la disponibilité théorique de ce cluster ?</p>
+      <div class="opts">
+        <button class="opt">99.8001%</button>
+        <button class="opt">99.9%</button>
+        <button class="opt" data-correct="1">99.9999%</button>
+        <button class="opt">100.0%</button>
+      </div>
+      <div class="q__exp">En parallèle, la formule est 1 - (1 - 0.999)^2 = 1 - (0.001)^2 = 1 - 0.000001 = 0.999999, soit 99.9999% de disponibilité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le temps maximal d’interruption annuel toléré (downtime) pour une application affichant un SLA contractuel de 99.99% (quatre neufs) ?</p>
+      <div class="opts">
+        <button class="opt">Environ 8 heures 45 minutes</button>
+        <button class="opt" data-correct="1">Environ 52 minutes et 34 secondes</button>
+        <button class="opt">Environ 5 minutes et 15 secondes</button>
+        <button class="opt">Moins de 30 secondes</button>
+      </div>
+      <div class="q__exp">525 600 minutes * (1 - 0.9999) = 525 600 * 0.0001 = 52.56 minutes par an, soit 52 min et environ 34 s.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne l’indicateur RTO (Recovery Time Objective) dans un plan de continuité d’activité Cloud (PCA) ?</p>
+      <div class="opts">
+        <button class="opt">La quantité maximale de données que l’organisation accepte de perdre lors d’un crash</button>
+        <button class="opt" data-correct="1">La durée maximale admissible pour remettre en service l’application après un sinistre</button>
+        <button class="opt">Le temps moyen écoulé entre deux pannes matérielles consécutives</button>
+        <button class="opt">La latence réseau aller-retour entre deux régions</button>
+      </div>
+      <div class="q__exp">Le RTO est la durée maximale admissible pour restaurer un système et ses applications après une panne majeure.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel rôle jouent les Edge Locations (Points de Présence) dans les architectures Cloud modernes ?</p>
+      <div class="opts">
+        <button class="opt">Héberger les bases de données transactionnelles principales</button>
+        <button class="opt" data-correct="1">Fournir des caches réseau de proximité (CDN) pour accélérer la diffusion de contenu et absorber les attaques DDoS</button>
+        <button class="opt">Remplacer les régions pour le stockage de données de longue durée</button>
+        <button class="opt">Compiler le code applicatif en continu</button>
+      </div>
+      <div class="q__exp">Les Edge Locations rapprochent le contenu des utilisateurs finaux grâce au cache CDN et filtrent le trafic malveillant au plus près de la source.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une stratégie multi-cloud, quel est le principal avantage recherché par les grandes entreprises ?</p>
+      <div class="opts">
+        <button class="opt">Réduire les coûts de développement à zéro</button>
+        <button class="opt" data-correct="1">Éviter le verrouillage auprès d’un unique fournisseur (vendor lock-in) et optimiser la résilience</button>
+        <button class="opt">Supprimer la nécessité d’utiliser des adresses IP</button>
+        <button class="opt">Éliminer toute responsabilité en matière de sécurité</button>
+      </div>
+      <div class="q__exp">Le multi-cloud permet de mitiger les risques de dépendance technologique et commerciale exclusive vis-à-vis d’un seul géant du secteur.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Déployer toutes ses machines virtuelles dans une seule et unique AZ en pensant que le Cloud public garantit magiquement la résilience.</li>
+      <li>Additionner les pourcentages de SLA au lieu de les multiplier dans une chaîne en série.</li>
+      <li>Confondre réplication asynchrone (risque de perte de données RPO > 0) et réplication synchrone multi-AZ.</li>
+      <li>Oublier le SLA de l’équilibreur de charge ou de la base de données dans le calcul du SLA de l’application.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Conception d’une Architecture Haute Disponibilité</div>
+    <ol>
+      <li>Établir les exigences de service métier : RTO (Recovery Time Objective) et RPO (Recovery Point Objective).</li>
+      <li>Décomposer la chaîne applicative en composants élémentaires (DNS, équilibreur, frontaux, API, bases, stockage).</li>
+      <li>Identifier les points uniques de défaillance (Single Points of Failure - SPOF) et doubler les composants critiques.</li>
+      <li>Répartir les instances applicatives sur un minimum de deux ou trois Zones de Disponibilité (multi-AZ).</li>
+      <li>Calculer le SLA composé théorique et vérifier sa conformité avec les engagements clients.</li>
+      <li>Simuler des pannes de zone entière via des tests d’ingénierie du chaos (Chaos Engineering) pour valider le basculement automatique.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>AWS, Azure et GCP offrent des services fonctionnellement équivalents sur le calcul, le stockage, les bases relationnelles et le serverless.</li>
+      <li>Une Région est un territoire géographique contenant au moins trois Zones de Disponibilité (AZ) électriquement et physiquement isolées.</li>
+      <li>En série, les SLA se multiplient, réduisant la disponibilité globale de l’ensemble.</li>
+      <li>En parallèle, la redondance élimine la panne unique et élève la disponibilité vers les « quatre ou cinq neufs ».</li>
+      <li>Un SLA de 99.99% n’autorise qu’un maximum de 52 minutes d’interruption sur l’ensemble de l’année.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais les équivalences de nommage entre EC2/VM/Compute Engine et S3/Blob/Cloud Storage.</li>
+      <li>Je sais expliquer la différence physique entre deux régions et deux AZ d’une même région.</li>
+      <li>Je sais calculer à la main le SLA d’une chaîne web en série et en parallèle.</li>
+      <li>Je sais convertir un SLA en minutes d’interruption annuelle autorisée.</li>
+      <li>Je sais définir RTO (temps de reprise) et RPO (perte de données tolérée).</li>
+      <li>Je comprends les enjeux du multi-cloud face au verrouillage propriétaire (vendor lock-in).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Région Cloud et Zone de Disponibilité (AZ)</li><li>Équivalences de services AWS, Azure et GCP</li><li>Point de Présence Edge et réseaux CDN</li><li>Calcul de SLA composé en série (dépendance)</li><li>Calcul de SLA composé en parallèle (redondance)</li><li>Budget d’erreur et indisponibilité annuelle</li><li>Objectif de temps de reprise (RTO)</li><li>Objectif de point de reprise (RPO)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la topologie des régions/AZ et les formules mathématiques de SLA série/parallèle.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, consolidez la conversion du SLA en budget d’erreur annuel et les équivalences d’hyperscalers.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! Vous maîtrisez les architectures haute disponibilité et la résilience multi-cloud.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Technologies de Virtualisation, Hyperviseurs &amp; Dimensionnement <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral COURS CLOUD COMPUTING CDPS ITB3, les publications spéciales du NIST (SP 800-145), les standards The Green Grid / ISO 30134 et les référentiels professionnels AWS, Azure et ANSSI SecNumCloud.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

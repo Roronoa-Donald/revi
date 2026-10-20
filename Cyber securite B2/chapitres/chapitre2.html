@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Cryptographie Appliquée, Hachage &amp;amp; Signatures Numériques | Cybersécurité B2</title>
+<meta name="description" content="Chapitre 2 du cours Cybersécurité B2 : Chiffrement symétrique (AES, CBC/GCM, masque jetable Vernam), chiffrement asymétrique (RSA, Diffie-Hellman), hachage cryptographique (SHA-256, HMAC), signatures numériques et certificats X.509. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/Cyber%20securite%20B2/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Cryptographie Appliquée, Hachage &amp;amp; Signatures Numériques | Cybersécurité B2">
+<meta property="og:description" content="Chapitre 2 du cours Cybersécurité B2 : Chiffrement symétrique (AES, CBC/GCM, masque jetable Vernam), chiffrement asymétrique (RSA, Diffie-Hellman), hachage cryptographique (SHA-256, HMAC), signatures numériques et certificats X.509. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="Cyber securite B2nav"><div class="Cyber securite B2nav__in">
+  <a class="Cyber securite B2nav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="Cyber securite B2nav__sep" aria-hidden="true">/</span>
+  <a class="Cyber securite B2nav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B2</a>
+  <div class="Cyber securite B2nav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="Cyber securite B2nav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="Cyber securite B2wrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Cryptographie Appliquée, Hachage &amp; Signatures Numériques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Deux serveurs distants doivent échanger des transactions financières hautement confidentielles à travers l’Internet public. Si un attaquant écoute la ligne, il ne doit rien pouvoir déchiffrer ; s’il modifie un seul octet du flux, le récepteur doit immédiatement rejeter le paquet ; et si l’émetteur nie avoir envoyé l’ordre de virement, une preuve mathématique irréfutable doit le confondre. Comment combiner chiffrement symétrique rapide, échange asymétrique de clés et signatures numériques pour garantir simultanément confidentialité, intégrité et non-répudiation ? Ce module dévoile les mécanismes de la cryptographie moderne.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre les fondements du chiffrement symétrique et le fonctionnement du masque jetable (One-Time Pad de Vernam) ;</li>
+      <li>comparer les modes opératoires de chiffrement par blocs (l’écueil d’ECB face à CBC et GCM authentifié) ;</li>
+      <li>maîtriser le principe asymétrique RSA et l’échange de clés sécurisé de Diffie-Hellman ;</li>
+      <li>exploiter les propriétés fondamentales des fonctions de hachage (effet avalanche, résistance aux collisions) et les codes HMAC ;</li>
+      <li>analyser le cycle complet d’une signature numérique et la chaîne de confiance des certificats X.509.</li>
+    </ol>
+  </div>
+
+<h2>1. Chiffrement symétrique : Masque jetable de Vernam &amp; Standard AES</h2>
+
+<p>Dans le chiffrement symétrique (à clé secrète partagée), la même clé sert à chiffrer et à déchiffrer. Le modèle théorique absolu est le masque jetable de Vernam, basé sur l’opération logique XOR (ou exclusif) :</p>
+<pre><code>// Propriétés mathématiques du XOR :
+A ^ B = C     (chiffrement du bit A avec la clé B)
+C ^ B = A     (déchiffrement immédiat du cryptogramme C avec la même clé B)
+A ^ A = 0     et     A ^ 0 = A</code></pre>
+<p>Le théorème de Shannon prouve que si la clé est parfaitement aléatoire, aussi longue que le texte et utilisée une seule fois, le cryptogramme ne contient aucune information sur le clair (sécurité inconditionnelle). En pratique, l’industrie utilise l’<strong>AES</strong> (Advanced Encryption Standard, algorithme Rijndael), un chiffrement par blocs de 128 bits avec des clés de 128, 192 ou 256 bits.</p>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> L’écueil fatal du mode ECB (Electronic Codebook)</div>
+<p>En mode <strong>ECB</strong>, chaque bloc de 16 octets est chiffré indépendamment avec la même clé. Deux blocs de clair identiques produisent exactement le même bloc chiffré ! Sur une image ou une base de données, la structure des données reste entièrement visible (le célèbre manchot Tux d’ECB). Il faut impérativement bannir ECB au profit de modes chaînés avec vecteur d’initialisation aléatoire (<strong>CBC</strong>) ou de modes avec authentification intégrée (<strong>GCM</strong> : Galois/Counter Mode).</p>
+  </div>
+
+<h2>2. Chiffrement asymétrique : Paires de clés RSA &amp; Diffie-Hellman</h2>
+
+<p>Pour résoudre le casse-tête de la distribution préalable des clés secrètes, la cryptographie asymétrique introduit une paire de clés complémentaires pour chaque participant :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Algorithme RSA (Rivest, Shamir, Adleman)</h4>
+    <p>Repose sur la difficulté calculatoire de factoriser le produit <i>n = p &times; q</i> de deux très grands nombres premiers :</p>
+    <ul>
+      <li>Clé publique : couple <code>(e, n)</code></li>
+      <li>Clé privée : entier secret <code>d</code> tel que <code>e * d &equiv; 1 (mod &phi;(n))</code></li>
+      <li>Chiffrement : <code>c = m^e (mod n)</code></li>
+      <li>Déchiffrement : <code>m = c^d (mod n)</code></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Échange de clés Diffie-Hellman (DH)</h4>
+    <p>Permet à deux inconnus de convenir d’une clé symétrique secrète sur un canal public non sécurisé :</p>
+    <ul>
+      <li>Paramètres publics : un grand nombre premier <i>p</i> et un générateur <i>g</i>.</li>
+      <li>Secrets privés : Alice choisit <i>a</i>, Bob choisit <i>b</i>.</li>
+      <li>Échanges publics : Alice envoie <i>A = g^a (mod p)</i>, Bob envoie <i>B = g^b (mod p)</i>.</li>
+      <li>Secret commun calculé : <code>K = B^a &equiv; A^b &equiv; g^(ab) (mod p)</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Hachage cryptographique &amp; Code d’authentification HMAC</h2>
+
+<p>Une fonction de hachage transforme un message de taille quelconque en une empreinte de taille fixe (ex. 256 bits pour <strong>SHA-256</strong>). Une fonction cryptographique robuste doit garantir trois propriétés absolues :</p>
+<ol>
+  <li><strong>Résistance à la préimage (sens unique) :</strong> Étant donné une empreinte <i>H</i>, il est calculatoirement impossible de retrouver le message original <i>m</i> tel que <i>hash(m) = H</i>.</li>
+  <li><strong>Résistance à la seconde préimage :</strong> Étant donné <i>m1</i>, impossible de trouver <i>m2 &ne; m1</i> tel que <i>hash(m1) = hash(m2)</i>.</li>
+  <li><strong>Résistance aux collisions :</strong> Impossible de trouver deux messages distincts quelconques produisant la même empreinte.   (C’est l’écroulement de cette résistance qui a rendu MD5 et SHA-1 totalement obsolètes).</li>
+</ol>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Code d’authentification de message : HMAC (RFC 2104)</div>
+<p>Le simple hachage <code>hash(message)</code> garantit l’intégrité contre les erreurs de transmission, mais pas contre un pirate qui modifie le message et recalcule son hash. Le <strong>HMAC</strong> (Hash-based Message Authentication Code) combine le message avec une clé secrète partagée <i>K</i> :</p><pre><code>HMAC(K, m) = hash((K ^ opad) || hash((K ^ ipad) || m))</code></pre><p>Seul celui qui détient la clé secrète <i>K</i> peut forger un HMAC valide.</p>
+  </div>
+
+<h2>4. Signature numérique &amp; Infrastructure à clés publiques (PKI)</h2>
+
+<p>La signature numérique est l’équivalent informatique de la signature manuscrite notariée : elle prouve l’authenticité de l’émetteur, garantit l’intégrité du document et empêche la répudiation.</p>
+<table class="table">
+  <thead><tr><th>Étape</th><th>Acteur</th><th>Opération mathématique</th><th>Objectif</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Condensation</strong></td><td>Émetteur (Alice)</td><td><code>h = SHA-256(document)</code></td><td>Créer une empreinte unique de taille fixe.</td></tr>
+    <tr><td><strong>2. Signature</strong></td><td>Émetteur (Alice)</td><td><code>s = h^d (mod n)</code> avec sa <strong>clé privée</strong></td><td>Sceller l’empreinte de façon infalsifiable.</td></tr>
+    <tr><td><strong>3. Transmission</strong></td><td>Réseau public</td><td>Envoi du document en clair + de la signature <code>s</code></td><td>Transport sans secret nécessaire.</td></tr>
+    <tr><td><strong>4. Vérification</strong></td><td>Récepteur (Bob)</td><td><code>h_verif = s^e (mod n)</code> avec la <strong>clé publique</strong> d’Alice</td><td>Vérifier que <code>h_verif == SHA-256(document)</code>.</td></tr>
+  </tbody>
+</table>
+<p>Pour s’assurer que la clé publique appartient réellement à Alice et non à un usurpateur (attaque Man-in-the-Middle), une Autorité de Certification (CA) signe un <strong>certificat numérique X.509</strong> liant l’identité d’Alice à sa clé publique.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cs2-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="48656c6c6f;KEY">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c2-e1) — Chiffrement symétrique par masque jetable XOR (Vernam)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : 032035272a;KEY
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : ffff;AB
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : 00112233;CYBER
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : 41424344;Z
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Chiffrement symétrique par masque jetable XOR (Vernam)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Chiffrement symétrique par masque jetable XOR (Vernam)</p>
+    <div class="lab__brief"><p>Le masque jetable (One-Time Pad) inventé par Gilbert Vernam repose sur l’opération logique XOR bit à bit. Votre programme reçoit une chaîne hexadécimale représentant le texte en clair (ou chiffré) et une clé ASCII séparées par un point-virgule : <code>flux_hex;cle_ascii</code>.
+
+Traitement :
+1. Convertir le flux hexadécimal en liste d’octets (valeurs 0..255).
+2. Convertir la clé ASCII en liste d’octets de ses codes ASCII.
+3. Pour chaque octet $i$ du flux, calculer $octet_i \oplus cle_{i \pmod L}$ où $L$ est la longueur de la clé.
+4. Afficher le résultat sous forme de chaîne hexadécimale en minuscules (2 chiffres par octet).
+
+Exemple : <code>48656c6c6f;KEY</code> &rarr; <code>032035272a</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>48656c6c6f;KEY</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>032035272a</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le masque jetable (chiffre de Vernam) applique un OU exclusif (XOR) bit à bit entre le message clair et la clé.</li>
+        <li>L’opération XOR est involutive : le chiffrement et le déchiffrement utilisent exactement la même opération.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Transfert de 500 EUR;6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c2-e2) — Contrôle d’intégrité et détection de falsification SHA-256
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : Transfert de 500 EUR;0000000000000000000000000000000000000000000000000000000000000000
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : Cybersecurite B2;4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : Cybersecurite B2;4F488E082C757C61D3E1AC9961723EA2C83A5C80595E6432800739ADEA006A0A
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : Message legitime;1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Contrôle d’intégrité et détection de falsification SHA-256</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôle d’intégrité et détection de falsification SHA-256</p>
+    <div class="lab__brief"><p>Les fonctions de hachage cryptographique comme SHA-256 garantissent l’intégrité d’un message : la moindre modification d’un seul bit produit une empreinte radicalement différente (effet avalanche).
+
+Entrée : <code>message_texte;hash_attendu</code>
+Traitement :
+1. Calculer l’empreinte SHA-256 du texte en minuscules hexadécimales.
+2. Comparer avec le <code>hash_attendu</code> (insensible à la casse).
+3. Sortie :
+- Si identique : <code>INTEGRE (&lt;hash_calcule&gt;)</code>
+- Si différent : <code>FALSIFIE (&lt;hash_calcule&gt; != &lt;hash_attendu&gt;)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Transfert de 500 EUR;6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INTEGRE (6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf)</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La moindre altération d’un octet produit une empreinte de hachage radicalement différente (effet avalanche).</li>
+        <li>Comparez l’empreinte calculée avec l’empreinte de référence certifiée pour attester de l’intégrité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="42;168;7;187">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c2-e3) — Vérification de signature numérique asymétrique RSA
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : 42;89;7;187
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : 123;2746;17;3233
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : 123;999;17;3233
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : 7;4;3;33
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Vérification de signature numérique asymétrique RSA</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérification de signature numérique asymétrique RSA</p>
+    <div class="lab__brief"><p>Dans le schéma de signature RSA, l’émetteur signe un condensat $m$ avec sa clé privée $d$ : $s = m^d \pmod n$. Le récepteur vérifie la signature à l’aide de la clé publique de l’émetteur $(e, n)$ en calculant : $m’ = s^e \pmod n$.
+
+Entrée : Quatre entiers séparés par des points-virgules <code>m;s;e;n</code>.
+Traitement : Calculer $m’ = pow(s, e, n)$ grâce à l’exponentiation modulaire efficace.
+Sortie :
+- Si $m’ == m$ : <code>VALIDE (m = &lt;m&gt;)</code>
+- Si $m’ <br>e m$ : <code>INVALIDE (obtenu: &lt;m’&gt;, attendu: &lt;m&gt;)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>42;168;7;187</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VALIDE (m = 42)</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La signature numérique garantit l’authenticité de l’émetteur et la non-répudiation du message.</li>
+        <li>La signature se vérifie avec la clé publique de l’émetteur sur l’empreinte cryptographique du document.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi le mode de chiffrement par blocs ECB (Electronic Codebook) est-il formellement interdit en production ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que deux blocs de texte en clair identiques produisent toujours le même bloc chiffré, révélant la structure des données</button>
+        <button class="opt">Parce qu’il ne supporte que des clés de 64 bits maximum</button>
+        <button class="opt">Parce qu’il consomme dix fois plus de bande passante que le mode CBC</button>
+        <button class="opt">Parce qu’il nécessite obligatoirement une connexion Internet active pour fonctionner</button>
+      </div>
+      <div class="q__exp">En mode ECB, l’absence de chaînage et de vecteur d’initialisation fait que des motifs identiques en clair produisent des blocs chiffrés identiques, ce qui permet à un attaquant de déduire la structure du message.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le système cryptographique RSA, avec quelle clé l’émetteur fabrique-t-il la signature numérique d’un document ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Avec sa propre clé privée</button>
+        <button class="opt">Avec la clé publique du récepteur</button>
+        <button class="opt">Avec sa propre clé publique</button>
+        <button class="opt">Avec une clé symétrique temporaire négociée par Diffie-Hellman</button>
+      </div>
+      <div class="q__exp">La signature est générée avec la clé privée de l’émetteur (que lui seul possède). Tout le monde peut ensuite vérifier la validité de la signature grâce à sa clé publique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle propriété d’une fonction de hachage cryptographique garantit qu’un pirate ne peut pas trouver deux fichiers différents produisant la même empreinte SHA-256 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La résistance aux collisions</button>
+        <button class="opt">La résistance à la première préimage</button>
+        <button class="opt">L’effet miroir</button>
+        <button class="opt">La réversibilité polynomiale</button>
+      </div>
+      <div class="q__exp">La résistance aux collisions garantit qu’il est calculatoirement impossible de trouver deux entrées x et y distinctes telles que H(x) = H(y).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un échange de clés Diffie-Hellman, que représente le secret final K calculé par Alice et Bob ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une valeur identique partagée g^(ab) mod p qui servira de clé symétrique de session</button>
+        <button class="opt">La clé privée de l’autorité de certification X.509</button>
+        <button class="opt">Le certificat SSL du serveur web</button>
+        <button class="opt">Le mot de passe administrateur en clair</button>
+      </div>
+      <div class="q__exp">Diffie-Hellman permet à Alice et Bob d’obtenir le même secret K = g^(ab) mod p sans jamais transmettre a, b ou K sur le réseau.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser le mode AES-ECB pour chiffrer des données volumineuses ou structurées.</li>
+      <li>Réutiliser le même vecteur d’initialisation (IV) ou le même masque de Vernam avec la même clé.</li>
+      <li>Confondre chiffrement asymétrique (clé publique du destinataire pour chiffrer) et signature numérique (clé privée de l’émetteur pour signer).</li>
+      <li>Considérer une fonction de hachage simple (SHA-256) comme suffisante pour authentifier un message sans associer de clé secrète (HMAC).</li>
+      <li>Faire confiance à une clé publique sans vérifier la chaîne de certification X.509 remontant à une autorité racine (Root CA).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour concevoir un canal d’échange hautement sécurisé</div>
+    <ol>
+      <li>Négocier la session avec de la cryptographie asymétrique (Diffie-Hellman éphémère ECDHE) pour assurer la confidentialité persistante (PFS).</li>
+      <li>Authentifier les parties au moyen de certificats numériques X.509 signés par une autorité reconnue.</li>
+      <li>Chiffrer le flux de données en masse avec un algorithme symétrique rapide en mode authentifié (AES-GCM ou ChaCha20-Poly1305).</li>
+      <li>Détruire immédiatement les clés éphémères en mémoire à la clôture de la session pour empêcher toute compromission rétrospective.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le chiffrement symétrique (AES) assure le débit et la confidentialité en masse ; le mode GCM apporte en plus l’authenticité.</li>
+      <li>Le masque jetable de Vernam est théoriquement inviolable si la clé est aléatoire, unique et de même taille que le clair.</li>
+      <li>La cryptographie asymétrique (RSA, Diffie-Hellman) résout la distribution des clés sans canal sécurisé préalable.</li>
+      <li>Les fonctions de hachage (SHA-256) et les codes HMAC scellent l’intégrité des messages.</li>
+      <li>La signature numérique combinée aux certificats X.509 garantit l’authenticité et la non-répudiation des échanges.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais la table de vérité et les propriétés fondamentales de l’opérateur XOR.</li>
+      <li>Je sais expliquer pourquoi le mode ECB est vulnérable et pourquoi privilégier CBC ou GCM.</li>
+      <li>Je maîtrise le mécanisme mathématique de base de RSA et de Diffie-Hellman.</li>
+      <li>Je fais la différence entre un hachage simple (SHA-256) et un hachage avec clé secrète (HMAC).</li>
+      <li>Je sais décrire le processus en 4 étapes de génération et vérification d’une signature numérique.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Chiffrement symétrique vs asymétrique</li><li>Masque jetable de Vernam (XOR)</li><li>Standard AES (Rijndael)</li><li>Modes de bloc : ECB, CBC, GCM</li><li>Vecteur d’initialisation (IV)</li><li>Algorithme RSA (factorisation)</li><li>Échange de clés Diffie-Hellman</li><li>Hachage cryptographique (SHA-256)</li><li>Code HMAC (RFC 2104)</li><li>Signatures numériques et certificats X.509</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les propriétés du XOR et la distinction entre clé publique et clé privée.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les modes opératoires (ECB vs GCM) et le mécanisme de signature.</div>
+      <div class="bandrow bandrow--good">70–89 % — Très bon niveau : tu maîtrises l’ensemble des briques cryptographiques modernes.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe à la sécurité des réseaux et au filtrage périmétrique au module 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Sécurité des Réseaux, Filtrage &amp; Architecture Périmétrique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Cybersécurité B2, les guides de l’ANSSI, les référentiels du NIST (SP 800-61), de l’OWASP et les documentations Snort et Nmap.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

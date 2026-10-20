@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Routage Intra-Domaine OSPFv2 Avancé, Aires Spéciales &amp;amp; Analyse des LSAs | Réseau LAN Avancé B3</title>
+<meta name="description" content="Chapitre 4 du cours Réseau LAN Avancé B3 : Protocole à état de liens OSPFv2 (RFC 2328), calcul du plus court chemin par l’algorithme SPF de Dijkstra, bande passante de référence, typologie d’aires (Backbone, Stub, Totally Stubby, NSSA), et analyse détaillée des paquets LSA 1 à 7. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-reseau-lan/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Routage Intra-Domaine OSPFv2 Avancé, Aires Spéciales &amp;amp; Analyse des LSAs | Réseau LAN Avancé B3">
+<meta property="og:description" content="Chapitre 4 du cours Réseau LAN Avancé B3 : Protocole à état de liens OSPFv2 (RFC 2328), calcul du plus court chemin par l’algorithme SPF de Dijkstra, bande passante de référence, typologie d’aires (Backbone, Stub, Totally Stubby, NSSA), et analyse détaillée des paquets LSA 1 à 7. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-reseau-lannav"><div class="b3-reseau-lannav__in">
+  <a class="b3-reseau-lannav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-reseau-lannav__sep" aria-hidden="true">/</span>
+  <a class="b3-reseau-lannav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-network"></use></svg> Réseau LAN Avancé B3</a>
+  <div class="b3-reseau-lannav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-reseau-lannav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-reseau-lanwrap">
+<p class="crumb"><a href="../index.html">Réseau LAN Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Routage Intra-Domaine OSPFv2 Avancé, Aires Spéciales &amp; Analyse des LSAs</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lorsque l’infrastructure locale s’étend sur plusieurs bâtiments, étages ou datacenters, le routage statique et le simple routage inter-VLANs atteignent leurs limites opérationnelles. L’interconnexion des commutateurs de cœur et de distribution de niveau 3 requiert un protocole de routage dynamique à état de liens hautement scalable, convergent et standardisé : OSPFv2 (Open Shortest Path First, RFC 2328). Contrairement aux protocoles à vecteur de distance, chaque routeur OSPF dispose d’une vision complète et cartographiée de la topologie locale via sa base de données d’état de liens (LSDB) et calcule le chemin optimal via l’algorithme de Dijkstra. L’ingénieur réseau de niveau Bachelor 3 doit maîtriser le calcul des coûts métriques, structurer le réseau en aires hiérarchiques, optimiser la charge mémoire par des aires spéciales (Stub, Totally Stubby, NSSA) et disséquer les en-têtes des annonces LSA pour auditer le plan de contrôle de routage.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le fonctionnement d’un protocole à état de liens et le rôle de la base LSDB ;</li>
+      <li>calculer les coûts métriques d’interfaces et comprendre l’ajustement de la bande passante de référence ;</li>
+      <li>analyser le cycle de vie d’une adjacence OSPF et les rôles de Designated Router (DR) et BDR ;</li>
+      <li>structurer une architecture hiérarchique multi-aires autour de l’Aire 0 (Backbone Area) ;</li>
+      <li>différencier précisément les caractéristiques des aires Stub, Totally Stubby et NSSA ;</li>
+      <li>développer en Python 3 des calculateurs d’arbres SPF, des parseurs d’en-têtes LSA et des simulateurs de filtrage d’aires.</li>
+    </ol>
+  </div>
+
+<h2>1. Principes du Routage à État de Liens & Algorithme SPF de Dijkstra</h2>
+
+<p>Dans OSPF, chaque équipement de niveau 3 ne se contente pas de relayer des tables de routage de proche en proche (comme RIP). Il sonde ses interfaces, découvre ses voisins par des paquets <em>Hello</em>, et diffuse des annonces d’état de liens <strong>LSA (Link-State Advertisements)</strong> inondées de manière fiable à l’ensemble du domaine.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>La Base de Données LSDB &amp; L’Arbre SPF</h4>
+    <ul>
+      <li><strong>Base de Données d’État de Liens (LSDB) :</strong> Tous les routeurs d’une même aire possèdent une copie strictement identique de la LSDB, représentant le plan cartographique complet de l’infrastructure.</li>
+      <li><strong>Algorithme de Dijkstra (Shortest Path First - SPF) :</strong> Chaque routeur s’érige en racine de son propre arbre de calcul et détermine le chemin de coût cumulé le plus faible vers chaque sous-réseau de destination.</li>
+      <li><strong>Table de Routage Finale :</strong> Seuls les meilleurs chemins calculés sont injectés dans la table de routage IP (RIB).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Calcul du Coût OSPF &amp; Bande Passante de Référence</h4>
+    <p>La métrique standard OSPF est un coût sans unité inversement proportionnel au débit :</p>
+    <pre><code>Coût = Bande_Passante_Reference / Bande_Passante_Interface</code></pre>
+    <p>La référence historique Cisco de <code>100 Mbps (10^8 bps)</code> affecte un coût de 1 aussi bien à une interface 100 Mbps qu’à une interface 1 Gbps ou 10 Gbps. Il est obligatoire de configurer <code>auto-cost reference-bandwidth 100000</code> pour distinguer 100M (coût 1000), 1G (coût 100) et 10G (coût 10).</p>
+  </div>
+</div>
+
+<h2>2. Adjacences OSPF, Élection DR/BDR & Typologie des LSAs</h2>
+
+<p>Sur les réseaux locaux multi-accès (Ethernet broadcast), établir une adjacence pleine entre chaque paire de routeurs engendrerait $\frac{N(N-1)}{2}$ sessions, saturant le réseau en paquets de synchronisation. OSPF élit deux routeurs clés :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Rôles DR (Designated Router) &amp; BDR (Backup DR)</h4>
+    <ul>
+      <li><strong>Designated Router (DR) :</strong> Point central de convergence : tous les autres routeurs (DROTHER) établissent une adjacence FULL uniquement avec le DR et le BDR, et communiquent via l’adresse multicast <code>224.0.0.6</code>.</li>
+      <li><strong>Backup Designated Router (BDR) :</strong> Écoute les échanges et prend instantanément le relais si le DR ne répond plus.</li>
+      <li><strong>Critères d’élection :</strong> 1. Priorité d’interface la plus haute (de 0 à 255, 0 = inéligible) ; 2. Router ID (RID) le plus élevé.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Matrice des Types de LSAs Principaux</h4>
+    <ul>
+      <li><strong>Type 1 (Router LSA) :</strong> Émis par chaque routeur pour décrire ses interfaces locales directes (portée : interne à l’aire).</li>
+      <li><strong>Type 2 (Network LSA) :</strong> Émis par le DR pour décrire la liste des routeurs raccordés au segment multi-accès (interne à l’aire).</li>
+      <li><strong>Type 3 (Summary LSA) :</strong> Émis par l’ABR (Area Border Router) pour annoncer les réseaux d’une aire vers les autres aires.</li>
+      <li><strong>Type 4 (ASBR Summary LSA) :</strong> Émis par l’ABR pour indiquer l’emplacement du routeur passerelle externe (ASBR).</li>
+      <li><strong>Type 5 (AS External LSA) :</strong> Émis par l’ASBR pour injecter des routes externes redistribuées (ex: routes Internet ou BGP).</li>
+      <li><strong>Type 7 (NSSA External LSA) :</strong> Émis dans une aire NSSA pour importer des routes externes sans utiliser de LSA Type 5.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Aires Hiérarchiques & Aires Spéciales (Stub, Totally Stubby, NSSA)</h2>
+
+<p>Pour limiter la taille de la base LSDB et l’utilisation CPU sur les équipements périphériques, OSPF permet de subdiviser le domaine en zones géographiques et logiques :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Aire Stub</h4>
+    <p>Bloque tous les LSA externes de Type 5 (et Type 4). L’ABR injecte automatiquement une route par défaut (LSA Type 3) pour sortir du domaine. Réduit significativement la table de routage.</p>
+  </div>
+  <div class="card">
+    <h4>Aire Totally Stubby</h4>
+    <p>Optimisation propriétaire Cisco : bloque les Type 5 ET les Type 3 (inter-aires). La table locale ne contient que les routes internes à l’aire et une unique route par défaut Type 3 vers l’ABR.</p>
+  </div>
+  <div class="card">
+    <h4>Aire NSSA (Not-So-Stubby Area)</h4>
+    <p>Permet à une aire Stub de connecter son propre ASBR externe. Les routes externes y circulent sous forme de LSA Type 7, puis sont converties en LSA Type 5 standard par l’ABR lors de l’injection dans l’Aire 0.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="lan3-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="OSPF_CONFIG ref_bw=10000&#10;PATH id=PATH_A hops=1000,1000,1000&#10;PATH id=PATH_B hops=10000,100&#10;PATH id=PATH_C hops=10000,10000">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c4-e1) — Calculateur de métrique de coût OSPF et sélection du meilleur chemin
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Bande passante de référence par défaut 100 Mbps sans différenciation au-delà]
+# Données : OSPF_CONFIG ref_bw=100
+# Données : PATH id=P1 hops=100,100
+# Données : PATH id=P2 hops=1000,1000
+A_COMPLETER
+
+[Cas 2 — Chemin à saut unique très rapide surpassant un chemin multi-sauts]
+# Données : OSPF_CONFIG ref_bw=100000
+# Données : PATH id=FIBRE hops=100000
+# Données : PATH id=CUIVRE hops=10000,10000
+A_COMPLETER
+
+[Cas 3 — Liaisons lentes pénalisées (T1/E1)]
+# Données : OSPF_CONFIG ref_bw=1000
+# Données : PATH id=DIRECT_SLOW hops=2
+# Données : PATH id=DETOUR_FAST hops=100,100
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de métrique de coût OSPF et sélection du meilleur chemin</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le coût OSPF cumulé de chemins concurrents à partir de la bande passante de référence.</p>
+    <div class="lab__brief"><p>Le protocole <strong>OSPFv2 (Open Shortest Path First - RFC 2328)</strong> calcule le coût d'une interface selon la formule standard :<br>
+<code>coût = max(1, ref_bandwidth // interface_bandwidth)</code> (en Mbps).<br>
+Par défaut, la bande passante de référence historique est 100 Mbps (ce qui donne un coût de 1 pour FastEthernet, Gigabit et 10G sans différenciation). En réseau de campus moderne, on configure <code>auto-cost reference-bandwidth</code> à 10000 (10 Gbps) ou 100000 (100 Gbps).<br><br>
+Le coût total d'un chemin vers une destination est la somme des coûts de chaque tronçon (interface de sortie le long du chemin). Le chemin au coût total le plus bas est injecté dans la table de routage (Best Path).<br><br>
+Analysez les paramètres du problème pour chaque cas...&gt;</code> (vitesses des interfaces en Mbps).<br><br>
+Pour chaque chemin (triés par id alphabétique), afficher :<br>
+<code>OSPF_PATH id={id} total_cost={total_cost} hops_count={len(hops)} status={BEST_PATH|BACKUP_PATH}</code><br>
+Et la ligne finale élisant le meilleur chemin :<br>
+<code>OSPF_ROUTE best_path={winner_id} metric={winner_cost}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OSPF_CONFIG ref_bw=10000
+PATH id=PATH_A hops=1000,1000,1000
+PATH id=PATH_B hops=10000,100
+PATH id=PATH_C hops=10000,10000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OSPF_PATH id=PATH_A total_cost=30 hops_count=3 status=BACKUP_PATH
+OSPF_PATH id=PATH_B total_cost=101 hops_count=2 status=BACKUP_PATH
+OSPF_PATH id=PATH_C total_cost=2 hops_count=2 status=BEST_PATH
+OSPF_ROUTE best_path=PATH_C metric=2</pre></div>
+    </div>
+    <p class="lab__note">PATH_C traverse deux liens 10G (coût 1 + 1 = 2) et bat PATH_A (coût 10+10+10 = 30).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer pour chaque saut : max(1, ref_bw // bw).</li>
+        <li>Sommer les coûts pour obtenir total_cost.</li>
+        <li>Le chemin minimal (départage par id alphabétique) est BEST_PATH.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="LSA id=L1 type=1 adv_router=1.1.1.1 area=0&#10;LSA id=L2 type=2 adv_router=2.2.2.2 area=0&#10;LSA id=L3 type=3 adv_router=10.0.0.1 area=1&#10;LSA id=L4 type=5 adv_router=192.168.1.1 area=0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c4-e2) — Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Annonces de Type 4 et Type 7 NSSA]
+# Données : LSA id=L_ASBR type=4 adv_router=10.0.0.254 area=2
+# Données : LSA id=L_NSSA type=7 adv_router=172.16.50.1 area=10
+A_COMPLETER
+
+[Cas 2 — Plusieurs LSAs Type 1 dans différentes aires]
+# Données : LSA id=R_BB type=1 adv_router=1.1.1.1 area=0
+# Données : LSA id=R_A1 type=1 adv_router=2.2.2.2 area=1
+A_COMPLETER
+
+[Cas 3 — LSA Type 5 traversant le backbone]
+# Données : LSA id=EXT_ROUTE type=5 adv_router=198.51.100.1 area=0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les annonces d'état de liens (LSA) selon leur type, leur portée de diffusion et leur rôle émetteur.</p>
+    <div class="lab__brief"><p>Dans une architecture OSPF multi-aires, différents types de <strong>Link-State Advertisements (LSA)</strong> circulent pour construire la base de données topologique (LSDB) :<br><br>
+Classification officielle des LSAs :<br>
+- <strong>Type 1 (Router LSA) :</strong> Émis par <em>chaque routeur interne</em>, portée <code>INTRA_AREA</code>.<br>
+- <strong>Type 2 (Network LSA) :</strong> Émis par le <em>Designated Router (DR)</em> sur réseau multi-accès broadcast, portée <code>INTRA_AREA</code>.<br>
+- <strong>Type 3 (Summary LSA) :</strong> Émis par un <em>ABR (Area Border Router)</em> pour annoncer des réseaux d'autres aires, portée <code>INTER_AREA</code>.<br>
+- <strong>Type 4 (ASBR Summary LSA) :</strong> Émis par un <em>ABR</em> pour indiquer la route vers un ASBR, portée <code>INTER_AREA</code>.<br>
+- <strong>Type 5 (AS External LSA) :</strong> Émis par un <em>ASBR (Autonomous System Boundary Router)</em> pour injecter des routes redistribuées (BGP, RIP, statique), portée <code>EXTERNAL_AS</code>.<br>
+- <strong>Type 7 (NSSA External LSA) :</strong> Émis par un <em>ASBR</em> dans une aire NSSA, portée <code>NSSA_LOCAL</code>.<br><br>
+Le script lit dans l’énoncé du cas des annonces LSA capturées :<br>
+<code>LSA id=&lt;nom&gt; type=&lt;1|2|3|4|5|7&gt; adv_router=&lt;ip&gt; area=&lt;int&gt;</code><br><br>
+Pour chaque LSA, afficher :<br>
+<code>LSA_REPORT id={id} type={type} name={lsa_name} emitter={emitter_role} scope={scope}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LSA id=L1 type=1 adv_router=1.1.1.1 area=0
+LSA id=L2 type=2 adv_router=2.2.2.2 area=0
+LSA id=L3 type=3 adv_router=10.0.0.1 area=1
+LSA id=L4 type=5 adv_router=192.168.1.1 area=0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LSA_REPORT id=L1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA
+LSA_REPORT id=L2 type=2 name=Network_LSA emitter=DR scope=INTRA_AREA
+LSA_REPORT id=L3 type=3 name=Summary_LSA emitter=ABR scope=INTER_AREA
+LSA_REPORT id=L4 type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS</pre></div>
+    </div>
+    <p class="lab__note">L1 est un LSA Type 1 intra-zone ; L3 est un Type 3 inter-zone émis par un ABR ; L4 est un Type 5 externe.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un dictionnaire de mapping pour les types 1, 2, 3, 4, 5, 7.</li>
+        <li>Exemple: 1 -&gt; ("Router LSA", "INTERNAL_ROUTER", "INTRA_AREA").</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="AREA_CONFIG area_id=10 type=STUB&#10;INCOMING_LSA id=L1 lsa_type=1 prefix=10.10.0.0/16&#10;INCOMING_LSA id=L2 lsa_type=3 prefix=192.168.0.0/24&#10;INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c4-e3) — Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby & NSSA
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Zone Totally Stubby bloquant même les Summary Type 3]
+# Données : AREA_CONFIG area_id=20 type=TOTALLY_STUBBY
+# Données : INCOMING_LSA id=T1 lsa_type=1 prefix=10.20.0.0/16
+# Données : INCOMING_LSA id=T3 lsa_type=3 prefix=172.16.0.0/16
+# Données : INCOMING_LSA id=T5 lsa_type=5 prefix=8.8.8.8/32
+A_COMPLETER
+
+[Cas 2 — Zone NSSA autorisant le Type 7 et bloquant le Type 5]
+# Données : AREA_CONFIG area_id=30 type=NSSA
+# Données : INCOMING_LSA id=N7 lsa_type=7 prefix=198.51.100.0/24
+# Données : INCOMING_LSA id=N5 lsa_type=5 prefix=203.0.113.0/24
+A_COMPLETER
+
+[Cas 3 — Zone standard acceptant tout]
+# Données : AREA_CONFIG area_id=0 type=STANDARD
+# Données : INCOMING_LSA id=S3 lsa_type=3 prefix=10.0.0.0/8
+# Données : INCOMING_LSA id=S4 lsa_type=4 prefix=1.1.1.1/32
+# Données : INCOMING_LSA id=S5 lsa_type=5 prefix=100.64.0.0/10
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby &amp; NSSA</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer l'acceptation ou le filtrage des LSAs selon la politique de zone OSPF configurée sur l'ABR.</p>
+    <div class="lab__brief"><p>Pour alléger la table de routage et préserver la mémoire des routeurs de succursales, OSPF définit des types de zones spéciales :<br><br>
+Règles de filtrage des LSAs selon le type de zone :<br>
+- <strong>STANDARD (Zone normale) :</strong> Accepte tous les types de LSA (1, 2, 3, 4, 5).<br>
+- <strong>STUB :</strong> Bloque les routes externes (Type 4 et 5 rejetés) ; accepte Type 1, 2, 3.<br>
+- <strong>TOTALLY_STUBBY (Spécifique Cisco) :</strong> Bloque les routes externes (Type 4 et 5) ET les routes inter-zones (Type 3 rejetés) ; n'accepte que Type 1 et 2.<br>
+- <strong>NSSA (Not-So-Stubby Area) :</strong> Bloque les routes externes Type 4 et 5 classiques, mais accepte les Type 7 générés localement ; accepte Type 1, 2, 3, 7.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br>
+- Si bloqué : <code>action=DROP result=BLOCKED_BY_AREA_POLICY</code>.<br><br>
+Afficher :<br>
+<code>OSPF_FILTER id={id} area={area_id} lsa_type={lsa_type} action={action} result={result}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AREA_CONFIG area_id=10 type=STUB
+INCOMING_LSA id=L1 lsa_type=1 prefix=10.10.0.0/16
+INCOMING_LSA id=L2 lsa_type=3 prefix=192.168.0.0/24
+INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OSPF_FILTER id=L1 area=10 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA
+OSPF_FILTER id=L2 area=10 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA
+OSPF_FILTER id=L3 area=10 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY</pre></div>
+    </div>
+    <p class="lab__note">L1 (Type 1) et L2 (Type 3) entrent dans la zone Stub ; L3 (Type 5 externe) est bloqué.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Créer un set de types LSA autorisés selon le type d'aire.</li>
+        <li>STANDARD: {1, 2, 3, 4, 5}.</li>
+        <li>STUB: {1, 2, 3}.</li>
+        <li>TOTALLY_STUBBY: {1, 2}.</li>
+        <li>NSSA: {1, 2, 3, 7}.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel algorithme mathématique est exécuté par OSPF pour déterminer le plus court chemin vers chaque destination ?</p>
+      <div class="opts">
+        <button class="opt">L’algorithme de Bellman-Ford</button>
+        <button class="opt" data-correct="1">L’algorithme SPF de Dijkstra</button>
+        <button class="opt">L’algorithme de Floyd-Warshall</button>
+        <button class="opt">L’algorithme de cryptographie RSA</button>
+      </div>
+      <div class="q__exp">OSPF s’appuie sur l’algorithme de Dijkstra (Shortest Path First) pour calculer l’arbre des chemins de coût minimal.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande Cisco IOS permet d’ajuster la bande passante de référence pour distinguer les liens 1G et 10G ?</p>
+      <div class="opts">
+        <button class="opt">bandwidth 10000000</button>
+        <button class="opt" data-correct="1">auto-cost reference-bandwidth 100000</button>
+        <button class="opt">metric-type 1</button>
+        <button class="opt">ospf cost 100</button>
+      </div>
+      <div class="q__exp">La directive auto-cost reference-bandwidth permet de rehausser la référence (ex: 100000 pour 100 Gbps) pour discriminer les débits supérieurs à 100 Mbps.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un segment Ethernet multi-accès, avec qui les routeurs DROTHER établissent-ils une adjacence pleine (FULL) ?</p>
+      <div class="opts">
+        <button class="opt">Avec tous les routeurs du segment indifféremment</button>
+        <button class="opt" data-correct="1">Uniquement avec le DR (Designated Router) et le BDR (Backup Designated Router)</button>
+        <button class="opt">Uniquement avec la passerelle par défaut DHCP</button>
+        <button class="opt">Avec aucun routeur (état 2-Way permanent)</button>
+      </div>
+      <div class="q__exp">Les DROTHER ne s’adjugent en état FULL qu’avec le DR et le BDR. Entre deux DROTHER, l’état reste stabilisé en 2-Way.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de paquet LSA est généré par un routeur ABR pour annoncer des réseaux d’une aire vers une autre aire ?</p>
+      <div class="opts">
+        <button class="opt">LSA Type 1 (Router LSA)</button>
+        <button class="opt">LSA Type 2 (Network LSA)</button>
+        <button class="opt" data-correct="1">LSA Type 3 (Summary LSA)</button>
+        <button class="opt">LSA Type 5 (AS External LSA)</button>
+      </div>
+      <div class="q__exp">Le LSA Type 3 (Summary LSA) résume et propage les préfixes inter-aires à travers l’Area Border Router (ABR).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel type d’aire OSPF les LSA de Type 5 (routes externes) sont-ils bloqués et remplacés par une route par défaut Type 3 ?</p>
+      <div class="opts">
+        <button class="opt">Aire Backbone (Aire 0)</button>
+        <button class="opt">Aire Normale</button>
+        <button class="opt" data-correct="1">Aire Stub</button>
+        <button class="opt">Aire Transit</button>
+      </div>
+      <div class="q__exp">L’aire Stub filtre les LSA Type 5 et Type 4 externes pour alléger la table des routeurs locaux, les remplaçant par une route par défaut.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la particularité exclusive d’une aire « Totally Stubby » par rapport à une aire « Stub » standard ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle bloque également les LSA Type 3 inter-aires en ne conservant qu’une unique route par défaut vers l’ABR</button>
+        <button class="opt">Elle désactive totalement le protocole OSPF</button>
+        <button class="opt">Elle autorise les annonces BGP directes</button>
+        <button class="opt">Elle ne permet pas d’avoir de switchs de niveau 3</button>
+      </div>
+      <div class="q__exp">L’aire Totally Stubby (Cisco) bloque les Type 5 ET les Type 3 inter-aires : seule une route par défaut injectée par l’ABR subsiste.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de LSA est utilisé pour transporter des routes externes à l’intérieur d’une aire NSSA (Not-So-Stubby Area) ?</p>
+      <div class="opts">
+        <button class="opt">LSA Type 1</button>
+        <button class="opt">LSA Type 5</button>
+        <button class="opt" data-correct="1">LSA Type 7</button>
+        <button class="opt">LSA Type 9</button>
+      </div>
+      <div class="q__exp">L’aire NSSA utilise des LSA Type 7 générés par son ASBR local. L’ABR traduit ensuite ces Type 7 en Type 5 vers l’Aire 0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle adresse IPv4 multicast réservée les routeurs OSPF envoient-ils leurs paquets Hello pour découvrir leurs voisins ?</p>
+      <div class="opts">
+        <button class="opt">224.0.0.1</button>
+        <button class="opt" data-correct="1">224.0.0.5</button>
+        <button class="opt">224.0.0.6</button>
+        <button class="opt">239.255.255.250</button>
+      </div>
+      <div class="q__exp">L’adresse multicast 224.0.0.5 (All OSPF Routers) est utilisée par tous les routeurs OSPF pour échanger leurs paquets Hello.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier d’aligner la bande passante de référence sur tous les routeurs, aboutissant à des calculs de coûts incohérents et du routage asymétrique.</li>
+      <li>Créer des aires disjointes non raccordées à l’Aire 0 sans tunnel virtuel (Virtual Link).</li>
+      <li>Avoir des paramètres de minuteries Hello/Dead discordants entre deux voisins, empêchant toute adjacence OSPF.</li>
+      <li>Confondre un ABR (connecté à plusieurs aires OSPF) et un ASBR (connecté à un domaine de routage externe).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Choisir un Router ID (RID) unique pour chaque routeur (de préférence configuré explicitement sur une interface Loopback).</li>
+      <li>Étape 2 : Harmoniser la bande passante de référence sur tous les équipements via la directive auto-cost reference-bandwidth.</li>
+      <li>Étape 3 : Organiser le découpage hiérarchique avec une Aire 0 (Backbone) contiguë reliant tous les ABRs.</li>
+      <li>Étape 4 : Déclarer les interfaces et masques génériques (wildcard mask) dans les processus OSPF respectifs.</li>
+      <li>Étape 5 : Configurer les aires périphériques en Stub ou Totally Stubby pour alléger les tables des commutateurs d’accès.</li>
+      <li>Étape 6 : Auditer les relations de voisinage via show ip ospf neighbor et inspecter la base de données via show ip ospf database.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>OSPFv2 est un protocole de routage à état de liens ouvert qui calcule le plus court chemin via l’algorithme de Dijkstra.</li>
+      <li>Le coût métrique d’interface nécessite d’ajuster la bande passante de référence sur les réseaux 1G/10G/40G modernes.</li>
+      <li>Sur un segment multi-accès, le DR et le BDR réduisent le nombre d’adjacences et centralisent les échanges de LSAs.</li>
+      <li>L’Aire 0 (Backbone) est le cœur obligatoire assurant l’interconnexion de toutes les autres aires OSPF.</li>
+      <li>Une aire Stub filtre les LSA Type 5 externes ; une aire Totally Stubby filtre en plus les LSA Type 3 inter-aires.</li>
+      <li>Une aire NSSA permet d’importer des routes externes via des LSA Type 7 traduits en Type 5 par l’ABR.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la différence fondamentale entre protocole à état de liens (OSPF) et vecteur de distance (RIP).</li>
+      <li>Je sais calculer le coût OSPF d’une interface selon la formule officielle et régler la bande passante de référence.</li>
+      <li>Je maîtrise le mécanisme d’élection du DR/BDR (priorité puis Router ID le plus élevé).</li>
+      <li>Je connais la typologie et le rôle des LSAs 1, 2, 3, 4, 5 et 7.</li>
+      <li>Je sais expliquer pourquoi une aire Totally Stubby est la plus compacte en termes de routes.</li>
+      <li>Je sais interpréter les sorties des commandes show ip ospf neighbor et show ip ospf database.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Protocole à État de Liens & Base LSDB</li><li>Algorithme SPF de Dijkstra</li><li>Bande Passante de Référence (auto-cost)</li><li>Élection DR (Designated Router) & BDR</li><li>Aire Backbone 0 & Routeurs ABR / ASBR</li><li>Typologie des Paquets LSA 1 à 7</li><li>Aires Spéciales (Stub, Totally Stubby)</li><li>Aire NSSA & Traduction Type 7 vers Type 5</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à calculer le coût OSPF ou confusion entre les différents types de routeurs (ABR vs ASBR).</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension de la hiérarchie multi-aires OSPF, élection DR/BDR et typologie des LSAs 1 à 5.</div>
+      <div class="bandrow bandrow--high">Maîtrise complète de l’optimisation par aires spéciales (Totally Stubby, NSSA), manipulation avancée de la métrique et diagnostic d’adjacence complexe.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Sécurité de la Couche d’Accès (Port Security, DHCP Snooping &amp; DAI) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN & ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 — Stockage &amp; Données — Amazon S3, EFS, RDS &amp; NoSQL DynamoDB | Services Cloud AWS B3</title>
+<meta name="description" content="Module 5 du cours Services Cloud AWS B3 : Stockage objet S3, cycle de vie, S3 Block Public Access, EFS multi-AZ, bases relationnelles RDS &amp; Aurora, et NoSQL DynamoDB (RCU/WCU). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-aws/chapitres/chapitre5.html">
+<meta property="og:title" content="Module 5 — Stockage &amp; Données — Amazon S3, EFS, RDS &amp; NoSQL DynamoDB | Services Cloud AWS B3">
+<meta property="og:description" content="Module 5 du cours Services Cloud AWS B3 : Stockage objet S3, cycle de vie, S3 Block Public Access, EFS multi-AZ, bases relationnelles RDS &amp; Aurora, et NoSQL DynamoDB (RCU/WCU). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-awsnav"><div class="b3-cloud-awsnav__in">
+  <a class="b3-cloud-awsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-awsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-awsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Services Cloud AWS B3</a>
+  <div class="b3-cloud-awsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-awsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-awswrap">
+<p class="crumb"><a href="../index.html">Services Cloud AWS B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Stockage & Données — Amazon S3, EFS, RDS & NoSQL DynamoDB</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L'architecture de votre plateforme web doit traiter des téraoctets de données non structurées, assurer la persistance partagée de médias, et gérer simultanément des transactions financières relationnelles critiques et un catalogue produit à très faible latence. Vous devez concevoir la stratégie de stockage hybride : compartiments Amazon S3 sécurisés avec règles de cycle de vie et Block Public Access, système de fichiers partagé Amazon EFS, cluster Amazon RDS PostgreSQL Multi-AZ avec répliques de lecture, et table Amazon DynamoDB dimensionnée en RCU/WCU.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Maîtriser le stockage objet Amazon S3 : classes de stockage (Standard, IA, Glacier Deep Archive), règles de cycle de vie et durabilité de 99.999999999%.</li>
+      <li>Sécuriser les données S3 avec S3 Block Public Access, le versioning, les Bucket Policies et le chiffrement au repos AWS KMS.</li>
+      <li>Distinguer le stockage bloc (EBS), le stockage fichier partagé (EFS) et le stockage objet (S3) selon leurs cas d'usage.</li>
+      <li>Concevoir des bases de données relationnelles Amazon RDS / Aurora (Multi-AZ vs Read Replicas) et dimensionner des tables NoSQL DynamoDB (RCU, WCU, modes de cohérence).</li>
+    </ol>
+  </div>
+
+<h2>1. Amazon S3 : Stockage Objet &amp; Classes de Stockage</h2>
+
+<p>Amazon Simple Storage Service (S3) est le service de stockage objet distribué d'AWS, conçu pour offrir une <strong>durabilité de 99.999999999% (11 neuf)</strong> en répliquant automatiquement les objets sur plusieurs centres de données physiques d'une région :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Concepts Fondamentaux d'Amazon S3</h4>
+    <ul>
+      <li><strong>Buckets (Compartiments) :</strong> conteneurs logiques racines de niveau mondial dont le nom doit être unique à l'échelle planétaire.</li>
+      <li><strong>Objets &amp; Clés :</strong> un fichier est un objet constitué d'une clé (chemin complet ex: <code>images/logo.png</code>), de données brutes (jusqu'à 5 To par objet) et de métadonnées.</li>
+      <li><strong>Échelle illimitée :</strong> aucun provisionnement de capacité requis, volume total illimité avec paiement au gigaoctet réel.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>La Hiérarchie des Classes de Stockage</h4>
+    <ul>
+      <li><strong>S3 Standard :</strong> haute disponibilité (99.99%), accès ultra-rapide (ms) pour données fréquemment consultées.</li>
+      <li><strong>S3 Intelligent-Tiering :</strong> déplace automatiquement les objets entre tiers d'accès fréquent et rare sans frais d'extraction.</li>
+      <li><strong>S3 Standard-IA :</strong> coût de stockage réduit de 50%, facturation des frais d'accès/extraction pour sauvegardes à consultation rare.</li>
+      <li><strong>S3 Glacier Flexible Retrieval :</strong> archivage à bas coût, récupération en quelques minutes ou 3 à 5 heures.</li>
+      <li><strong>S3 Glacier Deep Archive :</strong> classe la plus économique d'AWS (~1 $/To/mois), récupération en 12 à 48 heures pour archivage légal long terme.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Sécurité S3 : Block Public Access, Versioning &amp; Chiffrement KMS</h2>
+
+<p>Amazon S3 intègre de multiples verrous pour prévenir la fuite accidentelle de données d'entreprise :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>S3 Block Public Access</h4>
+    <p>Garde-fou centralisé activé par défaut au niveau du compte et des buckets.</p>
+    <p>Bloque et ignore immédiatement toute ACL ou politique de compartiment (Bucket Policy) qui tenterait d'accorder un accès anonyme ou public aux objets.</p>
+  </div>
+  <div class="card">
+    <h4>Versioning &amp; MFA Delete</h4>
+    <p>Conserve l'historique complet de toutes les versions d'un objet (créations, modifications, marqueurs de suppression).</p>
+    <p>Protège contre les suppressions accidentelles et les attaques de ransomwares. <em>MFA Delete</em> exige un code d'authentification physique pour supprimer définitivement une version.</p>
+  </div>
+  <div class="card">
+    <h4>Chiffrement au Repos (SSE)</h4>
+    <p>Tout nouvel objet dans S3 est obligatoirement chiffré au repos :</p>
+    <ul>
+      <li><strong>SSE-S3 :</strong> clés gérées par S3 (AES-256), gratuit et transparent.</li>
+      <li><strong>SSE-KMS :</strong> clés gérées par AWS Key Management Service (audit CloudTrail et contrôle d'accès granulaire).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Système de Fichiers Partagé Amazon EFS (Elastic File System)</h2>
+
+<p>Amazon EFS fournit un système de fichiers élastique sans serveur basé sur le protocole standard <strong>NFS v4</strong> :</p>
+<ul>
+  <li><strong>Accès concurrent multi-instances :</strong> contrairement à EBS qui est lié à une seule VM dans une seule AZ, EFS peut être monté simultanément sur des centaines d'instances EC2 et conteneurs ECS/Fargate répartis sur plusieurs AZs.</li>
+  <li><strong>Croissance et décroissance automatique :</strong> s'étend et se rétracte automatiquement à mesure que des fichiers sont ajoutés ou supprimés sans interruption.</li>
+  <li><strong>Cas d'usage types :</strong> répertoires de médias partagés pour CMS (WordPress, Drupal), systèmes de gestion de contenu d'entreprise et répertoires personnels de serveurs Linux.</li>
+</ul>
+
+<h2>4. Bases Relationnelles Amazon RDS &amp; Amazon Aurora</h2>
+
+<p>Amazon Relational Database Service (RDS) automatise l'administration des moteurs relationnels (PostgreSQL, MySQL, MariaDB, Oracle, SQL Server) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Déploiement Multi-AZ (Haute Disponibilité)</h4>
+    <ul>
+      <li><strong>Réplication synchrone</strong> vers une instance Standby passive située dans une Availability Zone distincte.</li>
+      <li>En cas de défaillance matérielle ou de panne d'AZ primaire, AWS bascule automatiquement (Failover) le point de terminaison DNS vers le Standby en 60 à 120 secondes sans perte de données.</li>
+      <li>L'instance Standby ne traite aucune requête client (dédiée exclusivement à la reprise).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Read Replicas (Montée en Charge Lecture)</h4>
+    <ul>
+      <li><strong>Réplication asynchrone</strong> vers jusqu'à 15 instances de lecture dédiées (pouvant être situées dans d'autres AZs ou d'autres régions).</li>
+      <li>Déleste l'instance primaire des requêtes de consultation lourdes (reporting, requêtes de recherche) pour préserver les performances d'écriture.</li>
+    </ul>
+  </div>
+</div>
+<p style="margin-top:16px"><strong>Amazon Aurora :</strong> moteur relationnel propriétaire AWS compatible MySQL et PostgreSQL, offrant jusqu'à 5 fois les performances de MySQL standard. Il s'appuie sur un système de stockage cloud natif qui réplique automatiquement <strong>6 copies des données sur 3 Availability Zones</strong> avec basculement ultra-rapide (&lt; 30 secondes).</p>
+
+<h2>5. Bases NoSQL Managées : Amazon DynamoDB &amp; Capacité RCU/WCU</h2>
+
+<p>Amazon DynamoDB est une base de données NoSQL clé-valeur et document entièrement gérée, offrant des temps de réponse inférieurs à 10 millisecondes à n'importe quelle échelle :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure de Données &amp; Clés</h4>
+    <ul>
+      <li><strong>Partition Key (Clé de hachage) :</strong> détermine la partition physique où l'élément est stocké.</li>
+      <li><strong>Sort Key (Clé de tri) :</strong> facultative, permet d'indexer plusieurs éléments sous une même clé de partition (clé composite).</li>
+      <li>Schéma flexible : chaque élément peut posséder des attributs différents, sans contrainte de schéma rigide.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Dimensionnement RCU &amp; WCU</h4>
+    <ul>
+      <li><strong>RCU (Read Capacity Unit) :</strong> 1 RCU = 1 lecture fortement cohérente par seconde pour un item jusqu'à 4 KB (ou 2 lectures éventuellement cohérentes).</li>
+      <li><strong>WCU (Write Capacity Unit) :</strong> 1 WCU = 1 écriture standard par seconde pour un item jusqu'à 1 KB.</li>
+      <li><strong>Mode On-Demand :</strong> allocation et facturation automatique à la requête sans aucun provisionnement préalable, idéal pour les charges imprévisibles.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="aws3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="S3_COST SIZE_GIB=1000 CLASS=STANDARD RETRIEVE_GIB=500">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e1) — Calculateur de Coûts & Cycle de Vie Amazon S3 (Standard vs Glacier)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Stockage Infrequent Access (10 000 GiB avec 200 GiB récupérés)]
+# Données : S3_COST SIZE_GIB=10000 CLASS=STANDARD_IA RETRIEVE_GIB=200
+A_COMPLETER
+
+[Cas 2 — Archivage Glacier Flexible (50 000 GiB avec 100 GiB récupérés)]
+# Données : S3_COST SIZE_GIB=50000 CLASS=GLACIER_FLEXIBLE RETRIEVE_GIB=100
+A_COMPLETER
+
+[Cas 3 — Archivage froid profond Glacier Deep Archive (100 000 GiB sans extraction)]
+# Données : S3_COST SIZE_GIB=100000 CLASS=DEEP_ARCHIVE RETRIEVE_GIB=0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de Coûts &amp; Cycle de Vie Amazon S3 (Standard vs Glacier)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer les coûts de stockage mensuels d'un volume de données selon la classe de stockage S3 choisie.</p>
+    <div class="lab__brief"><p>Amazon S3 propose plusieurs classes de stockage avec un compromis entre coût au Go et frais d'accès :<br><br>
+Tarifs indicatifs de stockage par GiB et par mois :<br>
+- <code>STANDARD</code> : 0.023 $ / GiB (accès instantané, aucun frais de récupération).<br>
+- <code>STANDARD_IA</code> (Infrequent Access) : 0.0125 $ / GiB + 0.01 $ / GiB récupéré.<br>
+- <code>GLACIER_FLEXIBLE</code> : 0.0036 $ / GiB + 0.03 $ / GiB récupéré (restauration en quelques minutes à plusieurs heures).<br>
+- <code>DEEP_ARCHIVE</code> : 0.00099 $ / GiB + 0.05 $ / GiB récupéré (restauration en 12 à 48 heures).<br><br>
+Entrée STDIN :<br>
+<code>S3_COST SIZE_GIB=&lt;g&gt; CLASS=&lt;CLASSE&gt; RETRIEVE_GIB=&lt;r&gt;</code>.<br><br>
+Sortie :<br>
+<code>S3_BILL: class=&lt;cls&gt; storage_cost=&lt;sc:.2f&gt;$ retrieval_cost=&lt;rc:.2f&gt;$ total_cost=&lt;tot:.2f&gt;$</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>S3_COST SIZE_GIB=1000 CLASS=STANDARD RETRIEVE_GIB=500</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>S3_BILL: class=STANDARD storage_cost=23.00$ retrieval_cost=0.00$ total_cost=23.00$</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="S3_AUDIT BUCKET=mon-bucket-prod-2026 BPA=true,true,true,true">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e2) — Validateur de Nom de Bucket S3 & Détecteur de Risques Publics
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Bucket valide mais exposé (un flag BPA à false)]
+# Données : S3_AUDIT BUCKET=data-lake-raw-logs BPA=true,true,false,true
+A_COMPLETER
+
+[Cas 2 — Erreur majuscules dans le nom]
+# Données : S3_AUDIT BUCKET=MonBucketInvalid BPA=true,true,true,true
+A_COMPLETER
+
+[Cas 3 — Erreur tiret adjacent à un point]
+# Données : S3_AUDIT BUCKET=data.-backup-bucket BPA=true,true,true,true
+A_COMPLETER
+
+[Cas 4 — Erreur format adresse IP]
+# Données : S3_AUDIT BUCKET=192.168.1.50 BPA=true,true,true,true
+A_COMPLETER
+
+[Cas 5 — Erreur longueur inférieure à 3 caractères]
+# Données : S3_AUDIT BUCKET=ab BPA=true,true,true,true
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de Nom de Bucket S3 &amp; Détecteur de Risques Publics</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité syntaxique globale d'un nom de bucket S3 et auditer les paramètres S3 Block Public Access.</p>
+    <div class="lab__brief"><p>Les règles de nommage universelles d'Amazon S3 imposent des contraintes strictes :<br><br>
+1. <strong>Règles de nom de bucket</strong> :<br>
+- Longueur comprise entre 3 et 63 caractères inclus.<br>
+- Uniquement lettres minuscules, chiffres, points <code>.</code> et tirets <code>-</code>.<br>
+- Doit obligatoirement commencer et se terminer par une lettre ou un chiffre.<br>
+- Ne doit pas ressembler à une adresse IP décimale à 4 octets (ex: <code>192.168.1.1</code>).<br>
+- Ne doit pas comporter deux points adjacents (<code>..</code>) ni de points et tirets contigus (<code>.-</code> ou <code>-.</code>).<br><br>
+2. <strong>Audit de sécurité (S3 Block Public Access)</strong> :<br>
+Les 4 paramètres doivent être à <code>true</code> : <code>BlockPublicAcls</code>, <code>IgnorePublicAcls</code>, <code>BlockPublicPolicy</code>, <code>RestrictPublicBuckets</code>.<br>
+Si l'un d'eux est à <code>false</code> -> statut de risque <code>EXPOSED</code>, sinon <code>SECURE</code>.<br><br>
+Entrée STDIN :<br>
+<code>S3_AUDIT BUCKET=&lt;nom&gt; BPA=&lt;bpa1,bpa2,bpa3,bpa4&gt;</code>.<br><br>
+Sortie :<br>
+Si nom valide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=VALID security_status=&lt;SECURE|EXPOSED&gt;</code>.<br>
+Si nom invalide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=INVALID reason=&lt;BAD_LENGTH|BAD_CHARS|BAD_EDGES|IP_FORMAT|BAD_DOT_DASH&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>S3_AUDIT BUCKET=mon-bucket-prod-2026 BPA=true,true,true,true</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BUCKET_AUDIT: bucket=mon-bucket-prod-2026 name_status=VALID security_status=SECURE</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="DYNAMO_CAP SIZE_KB=3.5 READS_SEC=100 WRITES_SEC=50 READ_MODE=EVENTUAL WRITE_MODE=STANDARD">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e3) — Calculateur de Capacité Provisionnée Amazon DynamoDB (RCU & WCU)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Item de 10 KB avec lectures fortement cohérentes]
+# Données : DYNAMO_CAP SIZE_KB=10.0 READS_SEC=200 WRITES_SEC=20 READ_MODE=STRONG WRITE_MODE=STANDARD
+A_COMPLETER
+
+[Cas 2 — Transactions complètes ACID en lecture et écriture]
+# Données : DYNAMO_CAP SIZE_KB=2.0 READS_SEC=50 WRITES_SEC=30 READ_MODE=TRANSACTIONAL WRITE_MODE=TRANSACTIONAL
+A_COMPLETER
+
+[Cas 3 — Lecture avec fractionnement (RCU arrondi au supérieur)]
+# Données : DYNAMO_CAP SIZE_KB=1.0 READS_SEC=5 WRITES_SEC=5 READ_MODE=EVENTUAL WRITE_MODE=STANDARD
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calculateur de Capacité Provisionnée Amazon DynamoDB (RCU &amp; WCU)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer précisément les unités de capacité de lecture (RCU) et d'écriture (WCU) requises pour une table DynamoDB.</p>
+    <div class="lab__brief"><p>Dans Amazon DynamoDB, la capacité provisionnée se calcule selon la taille d'élément et le mode de cohérence :<br><br>
+1. <strong>Calcul des Read Capacity Units (RCU)</strong> :<br>
+- Unité de base : blocs de <strong>4 KB</strong> arrondis au supérieur : <code>Blocs_R = math.ceil(Item_Size_KB / 4.0)</code> (ou 1 si size &lt;= 4).<br>
+- Mode <code>EVENTUAL</code> (Éventuellement cohérent) : 0.5 RCU par lecture par seconde :<br>
+<code>RCU = Blocs_R * Reads_Sec * 0.5</code>.<br>
+- Mode <code>STRONG</code> (Fortement cohérent) : 1 RCU par lecture par seconde :<br>
+<code>RCU = Blocs_R * Reads_Sec * 1.0</code>.<br>
+- Mode <code>TRANSACTIONAL</code> (Lectures transactionnelles) : 2 RCU par lecture par seconde :<br>
+<code>RCU = Blocs_R * Reads_Sec * 2.0</code>.<br>
+Arrondir le RCU final à l'entier supérieur : <code>math.ceil(RCU)</code>.<br><br>
+2. <strong>Calcul des Write Capacity Units (WCU)</strong> :<br>
+- Unité de base : blocs de <strong>1 KB</strong> arrondis au supérieur : <code>Blocs_W = math.ceil(Item_Size_KB / 1.0)</code>.<br>
+- Mode <code>STANDARD</code> : 1 WCU par écriture par seconde :<br>
+<code>WCU = Blocs_W * Writes_Sec * 1.0</code>.<br>
+- Mode <code>TRANSACTIONAL</code> : 2 WCU par écriture par seconde :<br>
+<code>WCU = Blocs_W * Writes_Sec * 2.0</code>.<br><br>
+Entrée STDIN :<br>
+<code>DYNAMO_CAP SIZE_KB=&lt;k&gt; READS_SEC=&lt;r&gt; WRITES_SEC=&lt;w&gt; READ_MODE=&lt;EVENTUAL|STRONG|TRANSACTIONAL&gt; WRITE_MODE=&lt;STANDARD|TRANSACTIONAL&gt;</code>.<br><br>
+Sortie : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rcu&gt; wcu=&lt;wcu&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DYNAMO_CAP SIZE_KB=3.5 READS_SEC=100 WRITES_SEC=50 READ_MODE=EVENTUAL WRITE_MODE=STANDARD</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DYNAMO_SIZING: size=3.5KB rcu=50 wcu=200</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle durabilité théorique des données Amazon S3 garantit-il en répliquant automatiquement chaque objet sur au moins 3 Availability Zones ?</p>
+      <div class="opts">
+        <button class="opt">99.9%</button>
+        <button class="opt">99.99%</button>
+        <button class="opt" data-correct="1">99.999999999% (11 neuf)</button>
+        <button class="opt">100% sans exception</button>
+      </div>
+      <div class="q__exp">Amazon S3 Standard est conçu pour offrir une durabilité de 99.999999999% (11 neuf) sur un an en distribuant les copies d'objets sur plusieurs centres de données indépendants.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle classe de stockage Amazon S3 offre le tarif au Go le plus bas pour des archives légales à long terme nécessitant un délai de récupération de 12 à 48 heures ?</p>
+      <div class="opts">
+        <button class="opt">S3 Standard</button>
+        <button class="opt">S3 Standard-IA</button>
+        <button class="opt">S3 Glacier Flexible Retrieval</button>
+        <button class="opt" data-correct="1">S3 Glacier Deep Archive</button>
+      </div>
+      <div class="q__exp">S3 Glacier Deep Archive est la classe de stockage la plus économique du cloud (~0.00099 $/Go/mois), idéale pour la conformité et la rétention réglementaire sur 7 à 10 ans.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle technologie de stockage AWS permet à des dizaines d'instances EC2 réparties dans plusieurs Availability Zones d'accéder simultanément au même système de fichiers partagé en NFS v4 ?</p>
+      <div class="opts">
+        <button class="opt">Amazon EBS gp3</button>
+        <button class="opt" data-correct="1">Amazon EFS (Elastic File System)</button>
+        <button class="opt">Instance Store local</button>
+        <button class="opt">Amazon S3 Glacier</button>
+      </div>
+      <div class="q__exp">Amazon EFS est un système de fichiers partagé basé sur le protocole NFS v4 qui peut être monté simultanément sur des centaines d'instances réparties sur plusieurs AZs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une architecture de base de données Amazon RDS PostgreSQL, quelle est la fonction principale d'un déploiement Multi-AZ ?</p>
+      <div class="opts">
+        <button class="opt">Doubler la vitesse d'exécution des requêtes de lecture</button>
+        <button class="opt" data-correct="1">Assurer la haute disponibilité et la reprise automatique après sinistre via une réplique synchrone Standby</button>
+        <button class="opt">Fournir un accès gratuit pour les développeurs</button>
+        <button class="opt">Compresser les tables volumineuses</button>
+      </div>
+      <div class="q__exp">Le déploiement Multi-AZ assure la haute disponibilité en maintenant une réplique synchrone passive dans une autre zone. En cas de panne de l'instance primaire, le basculement est automatique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de Read Capacity Units (RCU) sont nécessaires dans Amazon DynamoDB pour réaliser 100 lectures fortement cohérentes (Strongly Consistent) par seconde sur des éléments de 3.5 KB ?</p>
+      <div class="opts">
+        <button class="opt">25 RCU</button>
+        <button class="opt">50 RCU</button>
+        <button class="opt" data-correct="1">100 RCU</button>
+        <button class="opt">200 RCU</button>
+      </div>
+      <div class="q__exp">Un élément de 3.5 KB tient dans un bloc de 4 KB (math.ceil(3.5/4) = 1). Pour une lecture fortement cohérente, 1 lecture = 1 RCU. Donc 100 lectures/sec * 1 RCU = 100 RCU.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme de sécurité Amazon S3 neutralise formellement toute tentative de rendre un bucket ou des objets publics, même si une politique permissive est appliquée ?</p>
+      <div class="opts">
+        <button class="opt">AWS Shield</button>
+        <button class="opt" data-correct="1">S3 Block Public Access</button>
+        <button class="opt">Amazon Inspector</button>
+        <button class="opt">AWS WAF</button>
+      </div>
+      <div class="q__exp">S3 Block Public Access fournit des paramètres centralisés appliqués au niveau du compte ou du bucket qui écrasent et ignorent toute règle permissive publique (ACL ou Bucket Policy).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle caractéristique distingue Amazon Aurora par rapport aux moteurs de bases de données RDS traditionnels (MySQL standard) ?</p>
+      <div class="opts">
+        <button class="opt">Aurora stocke les données sur des disques magnétiques lents</button>
+        <button class="opt" data-correct="1">Aurora réplique automatiquement 6 copies des données sur 3 Availability Zones et offre jusqu'à 5 fois les performances de MySQL</button>
+        <button class="opt">Aurora ne supporte pas le langage SQL</button>
+        <button class="opt">Aurora n'est disponible que dans une seule région</button>
+      </div>
+      <div class="q__exp">Amazon Aurora est un moteur cloud natif qui sépare le calcul et le stockage. Son système de stockage distribué réplique 6 copies des blocs sur 3 AZs avec un basculement ultra-rapide.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour protéger les objets S3 contre les suppressions accidentelles et les ransomwares en conservant l'historique des modifications, quelle fonctionnalité doit être activée ?</p>
+      <div class="opts">
+        <button class="opt">S3 Transfer Acceleration</button>
+        <button class="opt" data-correct="1">S3 Versioning</button>
+        <button class="opt">S3 Intelligent-Tiering</button>
+        <button class="opt">S3 Cross-Origin Resource Sharing (CORS)</button>
+      </div>
+      <div class="q__exp">Le versioning S3 conserve toutes les variantes d'un objet (création, écrasement, suppression). Une suppression place simplement un Delete Marker, permettant de restaurer la version antérieure.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Créer un compartiment S3 avec un nom contenant des majuscules ou des underscores (le nom doit respecter strictement le format DNS minuscule).</li>
+      <li>Penser qu'un Standby RDS Multi-AZ peut être utilisé pour accélérer les requêtes de lecture de l'application (seules les Read Replicas traitent des lectures).</li>
+      <li>Sous-estimer les frais de récupération (retrieval fees) des classes S3 Standard-IA et Glacier lors de restaurations massives fréquentes.</li>
+      <li>Oublier de provisionner suffisamment de WCU sur DynamoDB, entraînant des erreurs de dépassement de quota de débit (ProvisionedThroughputExceededException).</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche de Sélection & Dimensionnement des Données</div>
+    <ol>
+      <li>Classification des données : séparer les objets non structurés (fichiers, images, logs vers S3), le stockage bloc attaché (OS et I/O intensives vers EBS), les fichiers partagés (EFS) et les données structurées (RDS ou DynamoDB).</li>
+      <li>Définition des règles de cycle de vie S3 : configurer des transitions automatiques vers S3 Standard-IA après 30 jours, vers Glacier Flexible après 90 jours et suppression des anciennes versions après 365 jours.</li>
+      <li>Activation des protections de conformité : verrouiller l'ensemble des compartiments avec S3 Block Public Access et exiger le chiffrement systématique par clé KMS managée.</li>
+      <li>Arbitrage relationnel vs NoSQL : opter pour RDS Multi-AZ / Aurora si des requêtes SQL complexes et jointures ACID sont requises, ou pour DynamoDB pour des charges de microservices à volumétrie massive et latence sub-milliseconde.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Amazon S3 fournit un stockage objet mondial hautement durable (99.999999999%), organisé en compartiments et objets avec hiérarchie de classes économiques (Standard, IA, Glacier).</li>
+      <li>La sécurité S3 repose sur S3 Block Public Access, le versioning d'objets contre les ransomwares et le chiffrement transparent SSE-S3 / SSE-KMS.</li>
+      <li>Amazon EFS offre un système de fichiers partagé NFS v4 montable simultanément par des centaines d'instances et conteneurs sur plusieurs zones de disponibilité.</li>
+      <li>Amazon RDS garantit la haute disponibilité via la réplication synchrone Multi-AZ (basculement automatique) et la scalabilité des lectures via Read Replicas asynchrones.</li>
+      <li>Amazon DynamoDB est une base NoSQL serverless ultra-rapide dimensionnée par unités de capacité de lecture (RCU) et d'écriture (WCU) ou en mode On-Demand.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous choisir la classe de stockage S3 optimale selon la fréquence d'accès et les contraintes budgétaires ?</li>
+      <li>Comprenez-vous le rôle des 4 options de S3 Block Public Access pour empêcher les fuites de données ?</li>
+      <li>Distinguez-vous parfaitement les cas d'usage d'Amazon EBS (mono-AZ/bloc), Amazon EFS (multi-AZ/NFS) et Amazon S3 (régional/objet) ?</li>
+      <li>Pouvez-vous expliquer la différence entre un déploiement RDS Multi-AZ et une réplique en lecture (Read Replica) ?</li>
+      <li>Savez-vous calculer les RCU et WCU nécessaires pour une table DynamoDB selon la taille des éléments et le mode de cohérence ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Amazon S3 :</strong> Simple Storage Service : service de stockage objet distribué mondial à durabilité extrême (11 neuf).</li><li><strong>Durabilité 11 neuf (99.999999999%) :</strong> Probabilité théorique de ne perdre qu'un seul objet sur 10 millions stockés sur une période de 10 000 ans.</li><li><strong>S3 Block Public Access :</strong> Mécanisme centralisé neutralisant toute politique ou ACL rendant un compartiment ou objet S3 accessible publiquement.</li><li><strong>Amazon EFS :</strong> Elastic File System : système de fichiers partagé NFS v4 multi-AZ pour instances Linux et conteneurs.</li><li><strong>RDS Multi-AZ :</strong> Déploiement haute disponibilité avec réplication synchrone vers une instance passive Standby avec failover automatique.</li><li><strong>Read Replica :</strong> Copie en lecture seule alimentée par réplication asynchrone pour délester l'instance primaire des requêtes de consultation.</li><li><strong>Amazon Aurora :</strong> Base de données relationnelle cloud native répliquant 6 copies sur 3 AZs avec jusqu'à 5x les performances de MySQL.</li><li><strong>Amazon DynamoDB :</strong> Base de données NoSQL gérée offrant des performances sub-millisecondes et un modèle de dimensionnement RCU/WCU.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions de stockage et bases de données incomplètes. Relisez la différence entre EBS, EFS et S3.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Bases acquises. Approfondissez les calculs de capacité DynamoDB (RCU/WCU) et les classes S3.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à dimensionner les tables DynamoDB dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez les clusters Aurora et les politiques de cycle de vie S3.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte données AWS. Prêt pour le serverless Lambda, SQS et CloudWatch du Module 6 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Serverless, Observabilité, Supervision & Automatisation (Lambda, CloudWatch, SQS, SNS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AWS L3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja, 2025/2026), Documentation officielle Amazon Web Services (AWS Architecture Center), Référentiels des certifications AWS Certified Cloud Practitioner (CLF-C02) et Solutions Architect - Associate (SAA-C03).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

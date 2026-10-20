@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Le modèle logique des données (MLD relationnel) | Modélisation (MERISE) B1</title>
+<meta name="description" content="Chapitre 5 du cours de Modélisation (MERISE) B1 : Attributs, tables, clés primaires et étrangères ; les règles de passage du MCD au MLD ; intégrité référentielle. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-merise/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Le modèle logique des données (MLD relationnel) | Modélisation (MERISE) B1">
+<meta property="og:description" content="Chapitre 5 du cours de Modélisation (MERISE) B1 : Attributs, tables, clés primaires et étrangères ; les règles de passage du MCD au MLD ; intégrité référentielle. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="mrnav"><div class="mrnav__in">
+  <a class="mrnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="mrnav__sep" aria-hidden="true">/</span>
+  <a class="mrnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> Modélisation (MERISE) B1</a>
+  <div class="mrnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="mrnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="mrwrap">
+<p class="crumb"><a href="../index.html">Modélisation (MERISE) B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Le modèle logique des données (MLD relationnel)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le MCD est validé par le métier, mais l'ordinateur ne comprend pas les bulles et les patates. Le MLD traduit : chaque entité devient une table, chaque association porteuse aussi, et les cardinalités deviennent des clés primaires et étrangères. C'est la forme machinale du modèle — celle que le SGBD exécutera.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir attribut, table (relation), clé primaire et clé étrangère ;</li>
+      <li>appliquer les règles de passage du MCD au MLD ;</li>
+      <li>écrire un schéma relationnel en notation textuelle avec les # ;</li>
+      <li>expliquer les contraintes d'intégrité de domaine, de relation et référentielle.</li>
+    </ol>
+  </div>
+
+<h2>1. Tables, clés et règles de passage</h2>
+
+<p>Le <strong>MLD</strong> est la forme machinale du MCD : il s'appuie sur le modèle <strong>relationnel</strong>. L'<strong>attribut</strong> est le plus petit élément d'information manipulable ; la <strong>table</strong> (ou relation) est un ensemble d'attributs significativement associés ; chaque ligne (tuple) est distinguée par une <strong>clé</strong>.</p>
+<p>Deux types de clés : la <strong>clé primaire</strong> (simple ou composée) identifie chaque ligne ; la <strong>clé étrangère</strong> est un attribut qui est clé primaire d'une autre table — elle porte les liens du système d'information et se note avec un # :</p>
+<pre><code>CLIENT (NumClt, NomClt, AdrClt)
+
+COMMANDE (NumCde, DateCde, #NumClt)
+
+LIGNE_CDE (#NumCde, #RefPdt, Quantite)</code></pre>
+<p>Les règles de passage du MCD au MLD :</p>
+<ul>
+    <li><strong>Règle 1</strong> : toute entité devient une table ; son identifiant devient clé primaire, ses propriétés deviennent des attributs.</li>
+    <li><strong>Règle 2</strong> : toute association non hiérarchique (porteuse, max = n) devient une table ; sa clé primaire est la concaténation des identifiants des entités participantes.</li>
+    <li><strong>Règle 3</strong> : toute association hiérarchique avec une cardinalité (0,1) ou (1,1) migre sa clé comme étrangère dans la table côté (0,1)/(1,1) — pas de table nouvelle.</li>
+  </ul>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « entité = table, porteuse = table, (x,1) = # »</div>
+    <p>Deux règles créent des tables (entité, association porteuse) ; la troisième déplace une clé. Un # dans le schéma = un lien vers une autre table, donc une intégrité à surveiller.</p>
+  </div>
+
+<h2>2. Les trois intégrités</h2>
+
+<p>Les contraintes d'intégrité contrôlent les valeurs prises par les attributs :</p>
+<ul>
+    <li><strong>Intégrité de domaine</strong> : chaque attribut respecte son domaine de valeurs (une quantité est un entier positif).</li>
+    <li><strong>Intégrité de relation</strong> : la clé primaire est unique et non nulle — deux clients ne peuvent porter le même numéro, aucun client ne va sans numéro.</li>
+    <li><strong>Intégrité référentielle</strong> : une clé étrangère doit référencer une clé primaire existante — pas de NumClt 25 dans COMMANDE si les clients vont de 1 à 15.</li>
+  </ul>
+<p>Le MLD peut ensuite être transformé en fichiers et en base de données (MPD) : choix du SGBD, des types SQL, des index. Le schéma relationnel textuel est le document de passage entre l'analyse et l'implémentation — celui que le développeur SQL lit.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Oublier le # sur une clé étrangère : le lien disparaît du schéma.</li>
+      <li>Créer une table pour une association hiérarchique (x,1) : sa clé migre comme étrangère, point.</li>
+      <li>Confondre intégrité de relation (clé unique) et référentielle (fk existe dans la table référencée).</li>
+      <li>MLD ≠ MPD : le MLD est logique (tables), le MPD est physique (SGBD, index, fichiers).</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="mr-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;CLIENT entite&#10;PRODUIT entite&#10;FOURNIR assoc&#10;APPARTENIR assoc0&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c5-e1) — Les règles de passage MCD vers MLD
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule entité]
+# Données : 1
+# Données : CLIENT entite
+A_COMPLETER
+
+[Cas 2 — Deux associations hiérarchiques]
+# Données : 2
+# Données : VIVRE assoc0
+# Données : HABITER assoc0
+A_COMPLETER
+
+[Cas 3 — Cinq éléments mixtes]
+# Données : 5
+# Données : CLIENT entite
+# Données : COMMANDE entite
+# Données : CONCERNER assoc
+# Données : PRODUIT entite
+# Données : DIRIGER assoc0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les règles de passage MCD vers MLD</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les règles de passage : entités et associations porteuses deviennent des tables.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « nom nature » : nature vaut <code>entite</code> ou <code>assoc</code> (association). Une association avec des données portées (toute ligne <code>assoc</code> de ce sujet) devient une table ; une association sans données portées (nature <code>assoc0</code>) n'en devient pas. Pour chaque ligne il Indiquez <code>nom : table</code> ou <code>nom : ignoree</code>. Il termine par <code>MLD : X tables</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+CLIENT entite
+PRODUIT entite
+FOURNIR assoc
+APPARTENIR assoc0
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CLIENT : table
+PRODUIT : table
+FOURNIR : table
+APPARTENIR : ignoree
+MLD : 3 tables</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois natures, trois comportements : entite et assoc créent une table, assoc0 non.</li>
+        <li>Incrémentez le compteur dans chaque branche qui crée une table.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;CLIENT NumClt pk&#10;COMMANDE NumCde pk&#10;COMMANDE NumClt fk:CLIENT&#10;LIVRAISON NumClt fk:FOURNISSEUR&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c5-e2) — La clé primaire et les étrangères
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule pk]
+# Données : 1
+# Données : PRODUIT NumPrdt pk
+A_COMPLETER
+
+[Cas 2 — Doublon de pk]
+# Données : 2
+# Données : CLIENT NumClt pk
+# Données : CLIENT NumClt pk
+A_COMPLETER
+
+[Cas 3 — Cinq lignes mixtes]
+# Données : 5
+# Données : CLIENT NumClt pk
+# Données : CLIENT NumClt pk
+# Données : COMMANDE NumCde pk
+# Données : COMMANDE NumClt fk:CLIENT
+# Données : PAIEMENT NumCde fk:ORDER
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — La clé primaire et les étrangères</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider les clés : unicité des primaires, références des étrangères (intégrité référentielle).</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « table cle type » : type vaut <code>pk</code> (clé primaire à déclarer) ou <code>fk:REF</code> (clé étrangère référençant la table REF). Pour chaque ligne il Indiquez <code>table : cle ok</code>, ou <code>table : doublon</code> si la même clé primaire est déclarée deux fois, ou <code>table : REF inconnue</code> si la table référencée n'a pas (encore ou jamais) de clé primaire déclarée. Il termine par <code>lignes valides : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+CLIENT NumClt pk
+COMMANDE NumCde pk
+COMMANDE NumClt fk:CLIENT
+LIVRAISON NumClt fk:FOURNISSEUR
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CLIENT : NumClt ok
+COMMANDE : NumCde ok
+COMMANDE : NumClt ok
+LIVRAISON : FOURNISSEUR inconnue
+lignes valides : 3/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un tableau associatif primaires[REF] est rempli par les lignes pk ; les fk consultent ce même tableau.</li>
+        <li>L'ordre compte : une fk qui référence une table dont la pk arrive plus tard est « inconnue » à cette ligne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="2&#10;CLIENT NumClt&#10;COMMANDE NumCde&#10;4&#10;CLIENT NomClt&#10;COMMANDE NumCde&#10;COMMANDE NumClt&#10;COMMANDE DateCde&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c5-e3) — Le schéma relationnel complet
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Table inconnue]
+# Données : 1
+# Données : CLIENT NumClt
+# Données : 2
+# Données : FOURNISSEUR NumFou
+# Données : CLIENT NomClt
+A_COMPLETER
+
+[Cas 2 — Une seule table, que sa clé]
+# Données : 1
+# Données : PRODUIT NumPrdt
+# Données : 1
+# Données : PRODUIT NumPrdt
+A_COMPLETER
+
+[Cas 3 — Trois tables et quatre champs]
+# Données : 3
+# Données : CLIENT NumClt
+# Données : COMMANDE NumCde
+# Données : PRODUIT NumPrdt
+# Données : 4
+# Données : COMMANDE NumCde
+# Données : COMMANDE NumClt
+# Données : PRODUIT PrixPrdt
+# Données : PRODUIT NumPrdt
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Le schéma relationnel complet</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Assembler un schéma relationnel : table (cle, attributs..., fk#) vérifiée champ par champ.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Puis il lit <code>n_attrs</code> lignes « table champ » où champ est soit la clé de la table (il devient <code>#pk</code> dans l'affichage), soit une clé étrangère référençant une table déclarée (affichée <code>champ#</code>), soit un attribut simple (affiché tel quel). Chaque champ connu est affiché <code>table : champ_role</code> où role vaut <code>pk</code>, <code>fk</code> ou <code>attr</code>. Un champ appartenant à une table non déclarée produit <code>champ : table inconnue</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
+CLIENT NumClt
+COMMANDE NumCde
+4
+CLIENT NomClt
+COMMANDE NumCde
+COMMANDE NumClt
+COMMANDE DateCde
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CLIENT : NomClt attr
+COMMANDE : NumCde pk
+COMMANDE : NumClt fk
+COMMANDE : DateCde attr</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Premier test : la table est-elle déclarée ? Deuxième : le champ est-il la clé de sa table ? Troisième : le champ est-il la clé d'une autre table (donc fk) ? Sinon attribut.</li>
+        <li>Parcourez le tableau des clés déclarées pour savoir si le champ en est une.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le MLD est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la forme machinale du MCD</button>
+        <button class="opt">une copie du MCD</button>
+        <button class="opt">le modèle physique</button>
+      </div>
+      <div class="q__exp">Le MCD n'est pas compréhensible par l'ordinateur ; le MLD est sa forme machinale (relationnelle).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une clé étrangère est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une clé primaire d'une autre table</button>
+        <button class="opt">un attribut décoratif</button>
+        <button class="opt">toujours composée</button>
+      </div>
+      <div class="q__exp">Elle est clé primaire ailleurs et crée le lien entre les tables.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le symbole # marque…</p>
+      <div class="opts">
+        <button class="opt">la clé primaire</button>
+        <button class="opt" data-correct="1">la clé étrangère</button>
+        <button class="opt">un commentaire</button>
+      </div>
+      <div class="q__exp">COMMANDE (NumCde, DateCde, #NumClt) : NumClt référence CLIENT.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Règle 1 du passage MCD → MLD :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">toute entité devient une table</button>
+        <button class="opt">toute association devient une table</button>
+        <button class="opt">rien ne change</button>
+      </div>
+      <div class="q__exp">L'identifiant devient clé primaire, les propriétés deviennent attributs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une association porteuse (max n) devient…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une table dont la clé est la concaténation des identifiants</button>
+        <button class="opt">un attribut</button>
+        <button class="opt">une vue</button>
+      </div>
+      <div class="q__exp">Règle 2 : clé primaire = concaténation des identifiants des entités participantes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une association hiérarchique (0,1)…</p>
+      <div class="opts">
+        <button class="opt">devient une table</button>
+        <button class="opt" data-correct="1">migre sa clé comme étrangère</button>
+        <button class="opt">disparaît sans trace</button>
+      </div>
+      <div class="q__exp">Sa clé devient étrangère dans la table côté (0,1)/(1,1) : pas de table nouvelle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'intégrité référentielle impose…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">que la fk référence une pk existante</button>
+        <button class="opt">que la table soit triée</button>
+        <button class="opt">que les champs soient textes</button>
+      </div>
+      <div class="q__exp">Pas de NumClt 25 si les clients s'arrêtent à 15.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'intégrité de relation impose…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">clé primaire unique et non nulle</button>
+        <button class="opt">une fk par table</button>
+        <button class="opt">des index partout</button>
+      </div>
+      <div class="q__exp">Pas de doublon de clé, pas de ligne sans clé.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Écrire le schéma sans les # : les liens sont invisibles pour le lecteur.</li>
+      <li>Donner une clé primaire composée à une table qui n'en a pas besoin (ou l'inverse).</li>
+      <li>Créer une table pour chaque association, même hiérarchique : les règles de passage existent.</li>
+      <li>Confondre MLD et MPD : logique ≠ physique.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — du MCD au schéma</div>
+    <ol>
+      <li>Une table par entité (règle 1) : clé primaire = identifiant.</li>
+      <li>Une table par association porteuse (règle 2) : clé = concaténation des identifiants.</li>
+      <li>Les associations (0,1)/(1,1) migrent leur clé en # (règle 3).</li>
+      <li>Vérifier les trois intégrités sur le schéma final.</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>MLD = forme machinale du MCD, en tables relationnelles.</li>
+      <li>Clé primaire (simple ou composée) identifie chaque ligne ; clé étrangère (#) porte le lien.</li>
+      <li>Règles de passage : entité → table ; association porteuse → table (clé concaténée) ; (0,1)/(1,1) → #.</li>
+      <li>Trois intégrités : de domaine, de relation (pk unique non nulle), référentielle (fk → pk existante).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais écrire CLIENT (NumClt, NomClt) et COMMANDE (NumCde, #NumClt).</li>
+      <li>Je sais appliquer les trois règles de passage sur un MCD à trois entités.</li>
+      <li>Je sais citer et illustrer les trois intégrités.</li>
+      <li>Je sais dire ce qui distingue MLD et MPD.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Attribut</strong> : plus petit élément d'information manipulable.</li><li><strong>Table (relation)</strong> : ensemble d'attributs significativement associés.</li><li><strong>Clé primaire</strong> : identifie chaque ligne, simple ou composée.</li><li><strong>Clé étrangère</strong> : pk d'une autre table, notée #.</li><li><strong>Règle 1</strong> : entité → table.</li><li><strong>Règle 2</strong> : association porteuse → table, clé concaténée.</li><li><strong>Intégrité de relation</strong> : pk unique et non nulle.</li><li><strong>Intégrité référentielle</strong> : fk référence une pk existante.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — reprends clés primaire/étrangère et les règles de passage.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais le passage MCD → MLD de la facture.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, cible les trois intégrités.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — La normalisation du MLD : 1FN, 2FN, 3FN <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Conception et modélisation des systèmes d'information » (B1 IT, S. P. EDOH) et l'outil AnalyseSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Translation d’Adresses (NAT), Redirections &amp;amp; Routage Multi-WAN | pfSense &amp; Routage B3</title>
+<meta name="description" content="Chapitre 3 du cours pfSense &amp; Routage B3 : Port Forwarding (DNAT), 1:1 NAT, Outbound NAT hybride, IP virtuelles (VIPs), passerelles et Gateway Groups (Failover &amp; Load Balancing). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-pfsense/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Translation d’Adresses (NAT), Redirections &amp;amp; Routage Multi-WAN | pfSense &amp; Routage B3">
+<meta property="og:description" content="Chapitre 3 du cours pfSense &amp; Routage B3 : Port Forwarding (DNAT), 1:1 NAT, Outbound NAT hybride, IP virtuelles (VIPs), passerelles et Gateway Groups (Failover &amp; Load Balancing). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-pfsensenav"><div class="b3-pfsensenav__in">
+  <a class="b3-pfsensenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-pfsensenav__sep" aria-hidden="true">/</span>
+  <a class="b3-pfsensenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> pfSense &amp; Routage B3</a>
+  <div class="b3-pfsensenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-pfsensenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-pfsensewrap">
+<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Translation d’Adresses (NAT), Redirections &amp; Routage Multi-WAN</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un réseau professionnel, les adresses IPv4 publiques sont une ressource rare et coûteuse. Le pare-feu pfSense doit donc traduire les adresses privées internes (RFC 1918) pour leur permettre d’accéder à l’Internet public (SNAT) et permettre l’hébergement sécurisé de services internes via la redirection de ports (DNAT). De plus, pour garantir une haute disponibilité sans interruption de service face aux pannes des fournisseurs d’accès, l’infrastructure d’entreprise s’appuie sur le routage Multi-WAN : agrégation de liens en répartition de charge (Load Balancing) et basculement automatique instantané (Failover) orchestré par le démon de surveillance dpinger.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>configurer les règles de redirection de ports (Port Forwarding / DNAT) et comprendre leur liaison avec les règles de filtrage WAN ;</li>
+      <li>déployer le NAT 1:1 pour associer des adresses IP publiques dédiées à des serveurs critiques ;</li>
+      <li>maîtriser le NAT sortant (Outbound NAT) dans ses modes Automatique et Hybride ;</li>
+      <li>créer des adresses IP Virtuelles (Virtual IPs : IP Alias, CARP, Proxy ARP) sur les interfaces réseau ;</li>
+      <li>configurer des passerelles multiples et les agréger au sein de Gateway Groups avec gestion des Tiers ;</li>
+      <li>développer en Python 3 des simulateurs de DNAT, des moteurs de NAT sortant hybride et des ordonnanceurs Multi-WAN.</li>
+    </ol>
+  </div>
+
+<h2>1. Translation d’Adresses Entrante : Port Forwarding (DNAT) &amp; NAT 1:1</h2>
+
+<p>Le <strong>Port Forwarding (DNAT - Destination NAT)</strong> permet d’exposer un serveur hébergé sur une adresse IP privée interne (LAN ou DMZ) derrière l’adresse IP publique unique de l’interface WAN du pare-feu.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Mécanisme du Port Forwarding</h4>
+    <p>Lorsqu’un paquet externe frappe l’interface WAN sur un port donné (ex: port 8080) :</p>
+    <ol>
+      <li>La table NAT réécrit l’en-tête IP : <code>dst_ip: WAN_IP &rarr; 192.168.1.50</code> et <code>dst_port: 8080 &rarr; 80</code>.</li>
+      <li><strong>La règle de filtrage WAN associée :</strong> La translation d’adresse ne dispense pas du filtrage ! Par défaut, pfSense crée automatiquement la règle de pare-feu correspondante sur l’interface WAN autorisant ce flux vers l’hôte interne (option <em>Filter rule association</em>).</li>
+      <li><strong>NAT Reflection :</strong> Mécanisme permettant à un poste du réseau local d’accéder au serveur interne en utilisant son nom de domaine ou son IP publique sans quitter le pare-feu.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>2. Le NAT 1:1 (One-to-One)</h4>
+    <p>Le <strong>NAT 1:1</strong> établit une correspondance bidirectionnelle statique complète entre une adresse IP publique dédiée et une adresse IP privée interne :</p>
+    <ul>
+      <li>Tous les ports entrants non mappés spécifiquement sont acheminés vers ce serveur interne unique.</li>
+      <li>Tout le trafic sortant émis par ce serveur utilise systématiquement cette adresse IP publique dédiée comme IP source.</li>
+      <li>Idéal pour les serveurs de messagerie (SMTP), passerelles VPN tierces ou serveurs applicatifs dédiés possédant leur propre bloc public (/29 ou /28).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. NAT Sortant (Outbound NAT) : Modes Automatique, Hybride &amp; IP Virtuelles</h2>
+
+<p>L’<strong>Outbound NAT (SNAT - Source NAT)</strong> réécrit l’adresse IP source des paquets générés par les postes internes lorsqu’ils sortent vers Internet, remplaçant l’adresse privée par l’IP publique du WAN (Masquerading / PAT - Port Address Translation).</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Mode Automatique (Automatic)</h4>
+    <p>pfSense génère dynamiquement des règles de translation pour toutes les interfaces internes déclarées vers l’adresse IP principale du WAN. Simple et sans maintenance, mais totalement rigide.</p>
+  </div>
+  <div class="card">
+    <h4>Mode Hybride (Hybrid)</h4>
+    <p><strong>Le mode recommandé en production.</strong> Il conserve toutes les règles automatiques tout en permettant à l’administrateur d’insérer au sommet des règles manuelles prioritaires pour des cas d’usage spécifiques.</p>
+  </div>
+  <div class="card">
+    <h4>Mode Manuel Avancé (Manual)</h4>
+    <p>pfSense désactive la génération automatique : l’administrateur doit déclarer explicitement chaque règle de sortie. Offre un contrôle total mais exige une rigueur absolue lors de l’ajout d’interfaces.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les Types d’Adresses IP Virtuelles (Virtual IPs - VIPs)</div>
+<p>Pour utiliser des adresses IP publiques additionnelles fournies par le FAI sur une interface WAN, pfSense propose plusieurs types de VIPs :</p>,<ul>,  <li><strong>IP Alias :</strong> Type le plus courant pour lier une adresse IP supplémentaire au système d’exploitation. Répond aux requêtes ARP et permet à pfSense d’écouter sur cette IP.</li>,  <li><strong>CARP (Common Address Redundancy Protocol) :</strong> Adresse IP partagée entre deux pare-feux en cluster haute disponibilité. Possède sa propre adresse MAC virtuelle (VHID).</li>,  <li><strong>Proxy ARP :</strong> Permet au pare-feu de répondre aux requêtes ARP pour des adresses qui ne sont pas configurées directement sur les interfaces BSD.</li>,  <li><strong>Other :</strong> Utilisé pour le routage de sous-réseaux publics complets routés sans annonce ARP sur le lien WAN.</li>,</ul>
+  </div>
+
+<h2>3. Architecture Multi-WAN : Groupes de Passerelles, Tiers &amp; PBR</h2>
+
+<p>Lorsque le pare-feu dispose de plusieurs connexions Internet (ex: WAN1 Fibre Optique et WAN2 4G/5G de secours), pfSense orchestre les flux à travers des <strong>Gateway Groups</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Notion de Tiers dans les Gateway Groups</h4>
+    <p>Chaque passerelle membre du groupe se voit assigner un niveau de priorité (Tier) :</p>
+    <ul>
+      <li><strong>Load Balancing (Répartition de charge) :</strong> Les deux passerelles sont configurées sur le <strong>même Tier</strong> (ex: WAN1 = Tier 1, WAN2 = Tier 1). Les connexions sont distribuées selon le poids (Weight) de chaque liaison.</li>
+      <li><strong>Failover (Basculement automatique) :</strong> Les passerelles sont sur des <strong>Tiers différents</strong> (ex: WAN1 = Tier 1, WAN2 = Tier 2). Tout le trafic emprunte WAN1 ; si WAN1 tombe en panne, WAN2 prend immédiatement le relais.</li>
+    </ul>
+    <p>Le démon de surveillance <strong>dpinger</strong> envoie des sondes ICMP périodiques vers l’IP de monitoring (ex: <code>8.8.8.8</code> ou la passerelle du FAI) pour mesurer la latence RTT et le taux de perte de paquets.</p>
+  </div>
+  <div class="card">
+    <h4>2. Routage par Politique (Policy-Based Routing - PBR)</h4>
+    <p>Dans pfSense, le choix de la passerelle de sortie peut être forcé directement dans les règles de filtrage (champ <em>Gateway</em> sous les options avancées) :</p>
+    <p><strong>Cas concret :</strong> Forcer le trafic vidéo ou les postes invités à sortir exclusivement par le lien 4G secondaire pour préserver la bande passante de la fibre optique principale.</p>
+    <p><em>Règle d’or :</em> Toujours placer une règle autorisant le trafic inter-VLANs local (sans passerelle forcée) au-dessus des règles utilisant un Gateway Group pour ne pas casser la communication interne !</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="pf3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="NAT_RULE ext_port=8080 int_ip=192.168.1.50 int_port=80&#10;INCOMING_PKT id=PKT1 ext_dst_ip=203.0.113.1 ext_dst_port=8080&#10;INCOMING_PKT id=PKT2 ext_dst_ip=203.0.113.1 ext_dst_port=22">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c3-e1) — Simulateur de redirection de ports (Port Forwarding / DNAT)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Redirection HTTPS standard 443 vers 443 interne]
+# Données : NAT_RULE ext_port=443 int_ip=10.0.0.10 int_port=443
+# Données : INCOMING_PKT id=HTTPS_REQ ext_dst_ip=198.51.100.1 ext_dst_port=443
+A_COMPLETER
+
+[Cas 2 — Plusieurs règles de redirection distinctes]
+# Données : NAT_RULE ext_port=80 int_ip=192.168.1.10 int_port=80
+# Données : NAT_RULE ext_port=2222 int_ip=192.168.1.20 int_port=22
+# Données : INCOMING_PKT id=SSH_TEST ext_dst_ip=203.0.113.5 ext_dst_port=2222
+# Données : INCOMING_PKT id=UNKNOWN ext_dst_ip=203.0.113.5 ext_dst_port=3389
+A_COMPLETER
+
+[Cas 3 — Aucune règle de redirection déclarée]
+# Données : INCOMING_PKT id=ALONE ext_dst_ip=203.0.113.1 ext_dst_port=80
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de redirection de ports (Port Forwarding / DNAT)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les règles de NAT entrant (Port Forwarding) pour rediriger les flux externes vers les serveurs internes.</p>
+    <div class="lab__brief"><p>Dans pfSense, le <strong>Port Forwarding (DNAT)</strong> permet d'exposer un service interne hébergé sur une IP privée derrière l'adresse IP publique de l'interface WAN.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br>
+Puis des paquets entrants sur le WAN :<br>
+<code>INCOMING_PKT id=&lt;nom&gt; ext_dst_ip=&lt;wan_ip&gt; ext_dst_port=&lt;int&gt;</code>.<br><br>
+Règles :<br>
+- Si <code>ext_dst_port</code> correspond à une <code>NAT_RULE</code> :<br>
+  <code>status=REDIRECTED new_dst={int_ip}:{int_port}</code>.<br>
+- Sinon :<br>
+  <code>status=DROPPED new_dst=NONE</code>.<br><br>
+Pour chaque paquet, afficher :<br>
+<code>DNAT_REPORT id={id} ext_port={ext_dst_port} status={status} target={new_dst}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NAT_RULE ext_port=8080 int_ip=192.168.1.50 int_port=80
+INCOMING_PKT id=PKT1 ext_dst_ip=203.0.113.1 ext_dst_port=8080
+INCOMING_PKT id=PKT2 ext_dst_ip=203.0.113.1 ext_dst_port=22</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DNAT_REPORT id=PKT1 ext_port=8080 status=REDIRECTED target=192.168.1.50:80
+DNAT_REPORT id=PKT2 ext_port=22 status=DROPPED target=NONE</pre></div>
+    </div>
+    <p class="lab__note">Port 8080 redirigé vers 192.168.1.50:80 ; port 22 non mappé rejeté.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un dictionnaire associant ext_port à (int_ip, int_port).</li>
+        <li>Vérifier si ext_dst_port existe dans les règles.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="OUTBOUND_DEF src_subnet=192.168.1.0/24 nat_ip=WAN_INTERFACE&#10;OUT_PKT id=P1 src_ip=192.168.1.15 wan_ip=203.0.113.100&#10;OUT_PKT id=P2 src_ip=10.0.0.5 wan_ip=203.0.113.100">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c3-e2) — Moteur d’Outbound NAT (SNAT) : Masquerade vs Adresses Virtuelles (VIP)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Translation vers IP virtuelle dédiée (VIP)]
+# Données : OUTBOUND_DEF src_subnet=172.16.0.0/16 nat_ip=198.51.100.50
+# Données : OUT_PKT id=P_VIP src_ip=172.16.10.2 wan_ip=198.51.100.1
+A_COMPLETER
+
+[Cas 2 — Plusieurs sous-réseaux internes distincts]
+# Données : OUTBOUND_DEF src_subnet=10.0.1.0/24 nat_ip=WAN_INTERFACE
+# Données : OUTBOUND_DEF src_subnet=10.0.2.0/24 nat_ip=198.51.100.20
+# Données : OUT_PKT id=A src_ip=10.0.1.50 wan_ip=198.51.100.1
+# Données : OUT_PKT id=B src_ip=10.0.2.80 wan_ip=198.51.100.1
+A_COMPLETER
+
+[Cas 3 — Sous-réseau ne correspondant à aucune règle]
+# Données : OUTBOUND_DEF src_subnet=192.168.10.0/24 nat_ip=WAN_INTERFACE
+# Données : OUT_PKT id=NOP src_ip=192.168.20.5 wan_ip=203.0.113.1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur d’Outbound NAT (SNAT) : Masquerade vs Adresses Virtuelles (VIP)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Translater les adresses sources privées des paquets sortants vers l’IP WAN principale ou une IP Virtuelle CARP/Statique.</p>
+    <div class="lab__brief"><p>pfSense propose 4 modes d'<strong>Outbound NAT</strong> (Automatique, Hybride, Manuel, Désactivé). Lorsqu'un paquet quitte le WAN, sa source privée est remplacée (SNAT / Masquerade).<br><br>
+Analysez les paramètres du problème pour chaque cas.<br>
+Puis des paquets sortants :<br>
+<code>OUT_PKT id=&lt;nom&gt; src_ip=&lt;ip&gt; wan_ip=&lt;ip&gt;</code>.<br><br>
+Règles :<br>
+- Vérifier si <code>src_ip</code> appartient à un <code>src_subnet</code> déclaré.<br>
+- Si oui :<br>
+  - Si <code>nat_ip == 'WAN_INTERFACE'</code> : translater vers <code>wan_ip</code>.<br>
+  - Sinon : translater vers <code>nat_ip</code>.<br>
+  <code>status=SNAT_APPLIED new_src={ip_translatée}</code>.<br>
+- Si non :<br>
+  <code>status=NO_NAT new_src={src_ip}</code>.<br><br>
+Pour chaque paquet, afficher :<br>
+<code>SNAT_REPORT id={id} original_src={src_ip} status={status} nat_src={new_src}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OUTBOUND_DEF src_subnet=192.168.1.0/24 nat_ip=WAN_INTERFACE
+OUT_PKT id=P1 src_ip=192.168.1.15 wan_ip=203.0.113.100
+OUT_PKT id=P2 src_ip=10.0.0.5 wan_ip=203.0.113.100</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SNAT_REPORT id=P1 original_src=192.168.1.15 status=SNAT_APPLIED nat_src=203.0.113.100
+SNAT_REPORT id=P2 original_src=10.0.0.5 status=NO_NAT nat_src=10.0.0.5</pre></div>
+    </div>
+    <p class="lab__note">192.168.1.15 translaté vers l’IP WAN 203.0.113.100 ; 10.0.0.5 non couvert conservé sans NAT.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les réseaux avec ipaddress.ip_network(subnet).</li>
+        <li>Tester src_ip in net_obj pour appliquer la règle correspondante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="GW_STATUS name=WAN_FIBRE tier=1 state=DOWN&#10;GW_STATUS name=WAN_4G tier=2 state=ONLINE">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c3-e3) — Évaluateur de Gateway Groups Multi-WAN (Load Balancing vs Failover)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deux liaisons Tier 1 actives (Load Balancing)]
+# Données : GW_STATUS name=WAN_ORANGE tier=1 state=ONLINE
+# Données : GW_STATUS name=WAN_FREE tier=1 state=ONLINE
+# Données : GW_STATUS name=WAN_BACKUP tier=2 state=ONLINE
+A_COMPLETER
+
+[Cas 2 — Une seule liaison Tier 1 nominale active]
+# Données : GW_STATUS name=WAN_MAIN tier=1 state=ONLINE
+# Données : GW_STATUS name=WAN_SEC tier=2 state=ONLINE
+A_COMPLETER
+
+[Cas 3 — Panne complète de toutes les passerelles]
+# Données : GW_STATUS name=WAN1 tier=1 state=DOWN
+# Données : GW_STATUS name=WAN2 tier=2 state=DOWN
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Évaluateur de Gateway Groups Multi-WAN (Load Balancing vs Failover)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Aiguiller les paquets selon l’état de santé des passerelles WAN et la hiérarchie de niveaux (Tiers) dans un groupe pfSense.</p>
+    <div class="lab__brief"><p>pfSense gère les connexions Internet multiples via les <strong>Gateway Groups</strong> :<br>
+- Deux passerelles dans le <strong>même Tier</strong> (ex: Tier 1) : <strong>Load Balancing (répartition de charge Round-Robin)</strong>.<br>
+- Des passerelles dans des <strong>Tiers différents</strong> : <strong>Failover (basculement)</strong>. Le Tier 1 est utilisé en priorité ; s'il tombe (état <code>DOWN</code>), le Tier 2 prend automatiquement le relais.<br><br>
+Analysez les paramètres du problème pour chaque cas..3&gt; state=&lt;ONLINE|DOWN&gt;</code>.<br><br>
+Règles d'élection de la passerelle active :<br>
+1. Trouver le plus petit niveau <code>tier</code> possédant au moins une passerelle <code>ONLINE</code>.<br>
+2. S'il existe plusieurs passerelles <code>ONLINE</code> dans ce meilleur tier, le mode est <code>LOAD_BALANCING</code> et la liste des passerelles actives est affichée triée par ordre alphabétique séparée par une virgule.<br>
+3. S'il n'y a qu'une seule passerelle <code>ONLINE</code> dans ce tier :<br>
+   - Si tier == 1 : <code>mode=PRIMARY_ACTIVE</code>.<br>
+   - Si tier &gt; 1 : <code>mode=FAILOVER_ACTIVE</code>.<br>
+4. Si aucune passerelle n'est <code>ONLINE</code> : <code>mode=TOTAL_OUTAGE selected=NONE</code>.<br><br>
+Afficher :<br>
+<code>MULTIWAN_DECISION tier={meilleur_tier} mode={mode} selected={passerelles}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GW_STATUS name=WAN_FIBRE tier=1 state=DOWN
+GW_STATUS name=WAN_4G tier=2 state=ONLINE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MULTIWAN_DECISION tier=2 mode=FAILOVER_ACTIVE selected=WAN_4G</pre></div>
+    </div>
+    <p class="lab__note">Tier 1 en panne : basculement automatique vers le Tier 2 (WAN_4G).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Grouper les passerelles ONLINE par tier.</li>
+        <li>Prendre le plus petit tier non vide (1, 2, ou 3).</li>
+        <li>Si plusieurs passerelles dans ce tier, trier leurs noms par ordre alphabétique.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel type de NAT est utilisé pour exposer un serveur Web interne (port 80) sur l’IP publique du WAN ?</p>
+      <div class="opts">
+        <button class="opt">Outbound NAT (SNAT)</button>
+        <button class="opt" data-correct="1">Port Forwarding (DNAT)</button>
+        <button class="opt">Carrier-Grade NAT (CGNAT)</button>
+        <button class="opt">NAT Traversal</button>
+      </div>
+      <div class="q__exp">Le Port Forwarding (Destination NAT) redirige les requêtes externes vers l’adresse IP privée et le port interne du serveur hébergé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une règle de filtrage WAN est-elle nécessaire lors de la création d’une redirection de port (DNAT) ?</p>
+      <div class="opts">
+        <button class="opt">Pour chiffrer les données avec TLS</button>
+        <button class="opt" data-correct="1">Car le NAT réécrit uniquement les en-têtes IP ; le paquet doit obligatoirement être autorisé à franchir le pare-feu</button>
+        <button class="opt">Pour empêcher le serveur DHCP d’écraser l’IP du serveur</button>
+        <button class="opt">Elle n’est jamais requise dans pfSense</button>
+      </div>
+      <div class="q__exp">Le NAT modifie les adresses mais n’autorise pas le passage : le moteur de filtrage exige une règle explicite autorisant le trafic vers l’hôte interne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mode d’Outbound NAT est officiellement recommandé en environnement de production sous pfSense ?</p>
+      <div class="opts">
+        <button class="opt">Désactivé (Disabled)</button>
+        <button class="opt">Automatique (Automatic Outbound NAT)</button>
+        <button class="opt" data-correct="1">Hybride (Hybrid Outbound NAT rule generation)</button>
+        <button class="opt">Proxy ARP obligatoire</button>
+      </div>
+      <div class="q__exp">Le mode Hybride conserve la génération automatique pour les réseaux standards tout en autorisant l’ajout de règles manuelles prioritaires.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type d’adresse IP Virtuelle (VIP) est utilisé lorsqu’un bloc public doit être partagé entre deux nœuds en cluster haute disponibilité ?</p>
+      <div class="opts">
+        <button class="opt">IP Alias simple</button>
+        <button class="opt" data-correct="1">CARP (Common Address Redundancy Protocol)</button>
+        <button class="opt">Proxy ARP</button>
+        <button class="opt">Other</button>
+      </div>
+      <div class="q__exp">Les VIPs de type CARP disposent d’une adresse MAC virtuelle et synchronisent l’état actif/passif entre deux pare-feux redondants.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un Gateway Group pfSense, quelle configuration permet d’obtenir un équilibrage de charge (Load Balancing) entre deux liaisons WAN ?</p>
+      <div class="opts">
+        <button class="opt">Affecter WAN1 au Tier 1 et WAN2 au Tier 2</button>
+        <button class="opt" data-correct="1">Affecter les deux passerelles au même niveau de priorité (Tier 1 et Tier 1)</button>
+        <button class="opt">Désactiver la passerelle par défaut du système</button>
+        <button class="opt">Créer un tunnel VPN entre les deux liens</button>
+      </div>
+      <div class="q__exp">Lorsque deux ou plusieurs passerelles sont affectées au même Tier dans un Gateway Group, pfSense répartit les connexions en Round-Robin pondéré.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel démon système sous pfSense est responsable de mesurer la latence et les pertes de paquets sur les passerelles WAN ?</p>
+      <div class="opts">
+        <button class="opt">pingd</button>
+        <button class="opt" data-correct="1">dpinger</button>
+        <button class="opt">fping</button>
+        <button class="opt">netstat</button>
+      </div>
+      <div class="q__exp">dpinger est le démon officiel de surveillance sous FreeBSD/pfSense qui teste périodiquement les passerelles et déclenche le basculement si les seuils sont dépassés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que le NAT Reflection ?</p>
+      <div class="opts">
+        <button class="opt">Une attaque par réflexion DNS sur le port 53</button>
+        <button class="opt" data-correct="1">Un mécanisme permettant à un client interne d’accéder à un serveur local via son adresse IP publique externe</button>
+        <button class="opt">Une sauvegarde miroir de la configuration pf.conf</button>
+        <button class="opt">Un protocole de routage dynamique semblable à BGP</button>
+      </div>
+      <div class="q__exp">Le NAT Reflection permet aux postes internes de joindre les serveurs locaux en utilisant le nom de domaine externe pointant vers l’IP WAN publique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi doit-on exclure le trafic inter-VLANs local avant d’appliquer une règle de Policy-Based Routing (PBR) vers un Gateway Group ?</p>
+      <div class="opts">
+        <button class="opt">Pour éviter la saturation de la table ARP</button>
+        <button class="opt" data-correct="1">Pour que les flux à destination d’autres sous-réseaux internes ne soient pas envoyés par erreur vers Internet</button>
+        <button class="opt">Parce que le routeur FreeBSD ne supporte pas les VLANs</button>
+        <button class="opt">Pour économiser des adresses DHCP</button>
+      </div>
+      <div class="q__exp">Si la règle de PBR envoie tout le trafic vers la passerelle WAN par défaut, les paquets locaux destinés à une autre interface interne sortiront vers le FAI et seront perdus.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Créer une règle de Port Forwarding sans autoriser le trafic dans les règles de filtrage WAN.</li>
+      <li>Appliquer une passerelle PBR WAN sur une règle LAN sans exclure le trafic local RFC 1918, brisant les flux inter-VLANs.</li>
+      <li>Configurer le même Tier dans un Gateway Group en croyant faire du Failover (cela fait du Load Balancing).</li>
+      <li>Utiliser comme IP de monitoring dpinger une adresse qui ne répond pas aux pings ICMP, provoquant un basculement erroné.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Cartographier les flux exposés (DNAT) et les blocs d’adresses IP publiques additionnelles disponibles.</li>
+      <li>Étape 2 : Configurer les règles de Port Forwarding en activant l’association automatique de la règle de filtrage WAN.</li>
+      <li>Étape 3 : Basculer l’Outbound NAT en mode Hybride et déclarer les règles manuelles utilisant les VIPs dédiées.</li>
+      <li>Étape 4 : Déclarer les passerelles WAN dans System > Routing et renseigner les IP de monitoring pour dpinger.</li>
+      <li>Étape 5 : Créer le Gateway Group en assignant les Tiers selon la politique choisie (Failover vs Load Balancing).</li>
+      <li>Étape 6 : Appliquer le Gateway Group via une règle de PBR en prenant soin d’exclure les sous-réseaux locaux RFC 1918.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Port Forwarding (DNAT) redirige les ports externes du WAN vers les adresses IP et ports privés internes.</li>
+      <li>Toute règle DNAT exige une règle de filtrage autorisant explicitement le passage des paquets sur le WAN.</li>
+      <li>Le NAT 1:1 associe de manière bidirectionnelle et statique une adresse IP publique à un serveur interne unique.</li>
+      <li>Le mode Hybrid Outbound NAT permet de concilier la simplicité des règles automatiques et la flexibilité de règles manuelles.</li>
+      <li>Les Gateway Groups organisent la redondance Multi-WAN : mêmes Tiers pour le Load Balancing, Tiers différents pour le Failover.</li>
+      <li>Le Policy-Based Routing (PBR) permet de router des flux applicatifs spécifiques sur des passerelles choisies.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais créer une redirection de port DNAT et vérifier la règle de filtrage WAN associée.</li>
+      <li>Je comprends la différence d’usage entre Port Forwarding et NAT 1:1.</li>
+      <li>Je sais pourquoi le mode Hybrid Outbound NAT est recommandé en entreprise.</li>
+      <li>Je sais configurer une adresse IP Virtuelle (VIP) de type IP Alias.</li>
+      <li>Je maîtrise l’attribution des Tiers dans un Gateway Group pour réaliser du Failover ou du Load Balancing.</li>
+      <li>Je sais pourquoi il faut exclure le trafic inter-VLANs avant d’appliquer une passerelle PBR.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Port Forwarding (DNAT)</li><li>NAT 1:1 (Bidirectionnel)</li><li>NAT Reflection</li><li>Outbound NAT (Modes Auto / Hybride)</li><li>Virtual IPs (IP Alias, CARP, Proxy ARP)</li><li>Passerelles & Démon dpinger</li><li>Gateway Groups (Tiers 1 & 2)</li><li>Policy-Based Routing (PBR)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à configurer une redirection de port ou confusion entre les modes de NAT entrant et sortant.</div>
+      <div class="bandrow bandrow--medium">Configuration autonome des règles DNAT/SNAT, création d’IP virtuelles et gestion d’un groupe Multi-WAN en basculement.</div>
+      <div class="bandrow bandrow--high">Ingénierie avancée Multi-WAN avec Load Balancing pondéré, durcissement du PBR, gestion fine des déclencheurs dpinger et NAT 1:1.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Segmentation Réseau : VLANs 802.1Q &amp; DMZ Sécurisée <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Netgate pfSense, Architecture FreeBSD Packet Filter (pf), RFC 5798 (CARP/VRRP), RFC 7296 (IKEv2) et Guides de durcissement ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

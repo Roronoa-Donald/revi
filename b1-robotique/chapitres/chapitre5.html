@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Portes logiques et chiffrement | Robotique B1</title>
+<meta name="description" content="Chapitre 5 du club de robotique B1 : Tables de vérité des cinq portes, additionneur complet bit à bit, chiffre de César avec casse conservée. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-robotique/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Portes logiques et chiffrement | Robotique B1">
+<meta property="og:description" content="Chapitre 5 du club de robotique B1 : Tables de vérité des cinq portes, additionneur complet bit à bit, chiffre de César avec casse conservée. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rbnav"><div class="rbnav__in">
+  <a class="rbnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rbnav__sep" aria-hidden="true">/</span>
+  <a class="rbnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Robotique B1</a>
+  <div class="rbnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rbnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rbwrap">
+<p class="crumb"><a href="../index.html">Robotique B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Portes logiques et chiffrement</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans CircuitVerse, on câble des portes à la souris ; sur la carte, on écrit des expressions bit à bit. C’est la même logique dans deux habits : ET, OU, NON d’un côté, &amp;, |, ~ de l’autre. Et parce qu’un ordinateur ne sait manipuler que des bits, le chiffre de César — décaler des lettres — est déjà de la logique : positions dans l’alphabet, modulo 26, retour circulaire.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>calculer AND, OR, NAND, NOR et XOR sur un couple de bits ;</li>
+      <li>appliquer les formules S et Cout de l’additionneur complet ;</li>
+      <li>décaler chaque lettre d’un message avec retour circulaire modulo 26 ;</li>
+      <li>préserver la casse et laisser intacts les caractères non alphabétiques.</li>
+    </ol>
+  </div>
+
+<h2>1. Les cinq portes en Python</h2>
+
+<p>Cinq portes fondamentales, quatre fonctions : ET, OU, NON — et XOR qui vaut 1 exactement quand les bits diffèrent. NAND et NOR se déduisent des deux premières.</p>
+<table>
+    <tr><th>a</th><th>b</th><th>AND</th><th>OR</th><th>NAND</th><th>NOR</th><th>XOR</th></tr>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+    <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+  </table>
+<p>En Python : <code>a and b</code>, <code>a or b</code>, <code>not a</code>, et le XOR se réduit à <code>a != b</code>. Comme le résultat doit s’afficher en 0/1, on emballe le booléen dans <code>int(...)</code> — True devient 1, False devient 0.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « NAND universelle »</div>
+    <p>La porte <strong>NAND</strong> est universelle : en la combinant avec elle-même, on reconstruit ET, OU, NON — donc tout circuit. C’est pourquoi les mémoires et processeurs historiques n’implantaient qu’elle.</p>
+  </div>
+
+<h2>2. L’additionneur complet</h2>
+
+<p>Un bit, ça s’additionne : l’additionneur complet reçoit trois bits (a, b, retenue entrante cin) et rend la somme S et la retenue sortante Cout.</p>
+<pre><code>S    = a XOR b XOR cin
+Cout = (a AND b) OR (cin AND (a XOR b))</code></pre>
+<p>En Python, les opérateurs bit à bit tombent bien : <code>^</code> est le XOR, <code>&amp;</code> le ET, <code>|</code> le OU. Sur des bits (0 ou 1), ils coïncident exactement avec les portes.</p>
+<pre><code>x = a ^ b
+somme = x ^ cin
+cout = (a &amp; b) | (cin &amp; x)</code></pre>
+<p>Vérification du cas 1 + 1 + 1 : x = 0, S = 1, cout = 1 — soit « 11 » en binaire, trois. La retenue sortante alimente l’étage supérieur : c’est exactement ainsi qu’on câble quatre additionneurs pour additionner deux octets.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — ^ n’est pas « puissance »</div>
+    <p>En Python, la puissance se note <code>**</code> ; l’accent circonflexe <code>^</code> est le <strong>XOR</strong> bit à bit. Écrire <code>2 ^ 3</code> donne 1 (10 XOR 11 = 01), pas 8. Sur des bits isolés la confusion passe inaperçue ; sur des nombres, elle corrompt tout.</p>
+  </div>
+
+<h2>3. Le chiffre de César</h2>
+
+<p>Décaler chaque lettre de k positions dans l’alphabet, avec <strong>retour circulaire</strong> : après z revient a. L’exemple du support : HELLO avec k = 3 donne KHOOR.</p>
+<pre><code>position      = ord(c) - ord("a")     # 0 à 25
+decalée       = (position + k) % 26
+lettre        = chr(decalée + ord("a"))</code></pre>
+<p><code>ord</code> convertit une lettre en code, <code>chr</code> fait le retour. Le modulo 26 est le rebond : pour z (position 25) et k = 1, (25 + 1) % 26 = 0 — on retombe sur a.</p>
+<pre><code>chiffre = ""
+for c in message:
+    if "a" &lt;= c &lt;= "z":
+        chiffre += chr((ord(c) - ord("a") + k) % 26 + ord("a"))
+    elif "A" &lt;= c &lt;= "Z":
+        chiffre += chr((ord(c) - ord("A") + k) % 26 + ord("A"))
+    else:
+        chiffre += c</code></pre>
+<p>Les deux cas — minuscules et majuscules — utilisent chacun leur base (<code>ord("a")</code> ou <code>ord("A")</code>) : c’est ce qui <strong>conserve la casse</strong>. Le else laisse intacts chiffres, espaces et ponctuation : ils ne sont pas des lettres, ils ne bougent pas.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Décaler de 25, c’est reculer de 1</div>
+    <p>k = 25 revient à reculer d’une lettre : A donne Z. Le modulo gère les deux sens sans aucun cas spécial — c’est aussi pourquoi une attaque par force brute n’a que 25 clés à essayer, le 26e décalage étant le message lui-même.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="rb-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="1 0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c5-e1) — Tables de vérité des cinq portes
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deux bits à 1]
+# Données : 1 1
+A_COMPLETER
+
+[Cas 2 — Deux bits à 0]
+# Données : 0 0
+A_COMPLETER
+
+[Cas 3 — Inverse du premier cas]
+# Données : 0 1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Tables de vérité des cinq portes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer AND, OR, NAND, NOR et XOR sur un couple de bits, sans bibliothèque.</p>
+    <div class="lab__brief"><p>Analysez les données soumises pour chaque cas. Il Indiquez cinq lignes, une par porte : <code>AND : x</code>, <code>OR : x</code>, <code>NAND : x</code>, <code>NOR : x</code>, <code>XOR : x</code>. Les valeurs se calculent en Python pur : NAND = non(ET), NOR = non(OU), XOR vaut 1 exactement quand les bits diffèrent.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1 0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AND : 0
+OR : 1
+NAND : 1
+NOR : 0
+XOR : 1</pre></div>
+    </div>
+    <p class="lab__note">Bits différents : ET = 0, OU = 1, XOR = 1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En Python, et se note and, ou se note or, et non() se note not. Le résultat s’affiche en 0/1 : int(...).</li>
+        <li>XOR se réduit à a != b : vrai exactement quand les deux bits diffèrent.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="1&#10;0&#10;1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c5-e2) — Additionneur complet
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Tout à zéro]
+# Données : 0
+# Données : 0
+# Données : 0
+A_COMPLETER
+
+[Cas 2 — Retenue en cascade]
+# Données : 1
+# Données : 1
+# Données : 1
+A_COMPLETER
+
+[Cas 3 — Un seul bit actif]
+# Données : 0
+# Données : 0
+# Données : 1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Additionneur complet</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler un additionneur complet bit à bit à partir des formules S et Cout.</p>
+    <div class="lab__brief"><p>Un additionneur complet reçoit trois bits : <strong>a</strong>, <strong>b</strong> et la retenue entrante <strong>cin</strong> (trois lignes). Il produit la somme <code>S = a XOR b XOR cin</code> et la retenue sortante <code>Cout = (a AND b) OR (cin AND (a XOR b))</code>. Le programme Indiquez deux lignes : <code>S : x</code> puis <code>Cout : x</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1
+0
+1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>S : 0
+Cout : 1</pre></div>
+    </div>
+    <p class="lab__note">1 + 0 + 1 = 10 en binaire : S = 0, retenue 1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculez d’abord x = a ^ b (le XOR Python) : S vaut x ^ cin et Cout se réécrit (a &amp; b) | (cin &amp; x).</li>
+        <li>Attention : ^ est le XOR en Python et &amp; le ET bit à bit — sur des bits, c’est exactement nos portes.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;HELLO">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c5-e3) — Chiffre de César
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Retour circulaire]
+# Données : 1
+# Données : xyz
+A_COMPLETER
+
+[Cas 2 — Presque un tour]
+# Données : 25
+# Données : AB
+A_COMPLETER
+
+[Cas 3 — Message mixte]
+# Données : 5
+# Données : Robot-2026!
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Chiffre de César</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décaler chaque lettre d’un message de k positions, en préservant la casse et les caractères non alphabétiques.</p>
+    <div class="lab__brief"><p>Analysez les données soumises pour chaque cas. Il Indiquez le message chiffré : chaque lettre est décalée de k positions dans l’alphabet, avec retour circulaire (modulo 26). Les majuscules restent majuscules, les minuscules restent minuscules ; chiffres, espaces et ponctuation ne bougent pas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+HELLO</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>KHOOR</pre></div>
+    </div>
+    <p class="lab__note">H → K, E → H, L → O, O → R : le décalage de 3 de l’exemple du support.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour une minuscule c : ord(c) - ord("a") donne sa position 0-25 ; on ajoute k, on prend % 26, on revient avec chr(... + ord("a")).</li>
+        <li>Traiter majuscules et minuscules séparément, et laisser intacts tous les autres caractères.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que vaut NOT(1) sur un bit ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0</button>
+        <button class="opt">1</button>
+        <button class="opt">Non défini</button>
+      </div>
+      <div class="q__exp">NON inverse le bit : 1 donne 0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">XOR vaut 1 exactement quand…</p>
+      <div class="opts">
+        <button class="opt">les deux bits valent 1</button>
+        <button class="opt" data-correct="1">les bits diffèrent</button>
+        <button class="opt">au moins un bit vaut 1</button>
+      </div>
+      <div class="q__exp">XOR est l’exclusivité : un seul des deux bits à 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut Cout pour a = 1, b = 1, cin = 0 ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">1</button>
+        <button class="opt">2</button>
+      </div>
+      <div class="q__exp">(1 ET 1) OU (0 ET x) = 1 OU 0 = 1 : 1 + 1 = 10 en binaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut 2 ^ 3 en Python ?</p>
+      <div class="opts">
+        <button class="opt">8</button>
+        <button class="opt" data-correct="1">1</button>
+        <button class="opt">5</button>
+      </div>
+      <div class="q__exp">^ est le XOR : 10 XOR 11 = 01. La puissance se note **.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi (position + k) % 26 ?</p>
+      <div class="opts">
+        <button class="opt">Pour arrondir</button>
+        <button class="opt" data-correct="1">Pour rebondir après z et revenir à a</button>
+        <button class="opt">Pour éviter les négatifs</button>
+      </div>
+      <div class="q__exp">Le modulo 26 enroule l’alphabet : 25 + 1 retombe sur 0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le chiffre de César, que devient le tiret de « Robot-2026 » ?</p>
+      <div class="opts">
+        <button class="opt">Il est décalé</button>
+        <button class="opt">Il est supprimé</button>
+        <button class="opt" data-correct="1">Il reste un tiret</button>
+      </div>
+      <div class="q__exp">Seules les lettres se décalent ; chiffres et ponctuation passent par le else inchangés.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>XOR confondu avec la puissance</strong> : ^ au lieu de **, résultats incohérents dès qu’on sort des bits.</li>
+      <li><strong>int(...) oublié</strong> : print affiche True au lieu de 1 — les tests comparent exactement.</li>
+      <li><strong>Base unique pour les deux casses</strong> : décaler une majuscule avec ord("a") sort de l’alphabet.</li>
+      <li><strong>Caractères non alphabétiques décalés</strong> : l’espace devient une lettre et le message se lit plus.</li>
+      <li><strong>Modulo oublié</strong> : z + 1 produit un caractère hors alphabet au lieu de rebondir sur a.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Passer du circuit à l’expression</div>
+    <ol>
+      <li><strong>Écrire la table de vérité</strong> de ce que l’on veut construire, avant le code.</li>
+      <li><strong>Traduire en expressions</strong> : and/or/not, ou les opérateurs bit à bit &amp; | ^.</li>
+      <li><strong>Emballer en 0/1</strong> avec int(...) quand le résultat s’affiche.</li>
+      <li><strong>Isoler la transformation par lettre</strong> : position, décalage, modulo, retour en lettre.</li>
+      <li><strong>Traiter les caractères non concernés</strong> explicitement, dans le else.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Cinq portes, quatre expressions : and, or, not, et a != b pour XOR ; int(...) pour afficher 0/1.</li>
+      <li>NAND est universelle : tout circuit se reconstruit avec elle seule.</li>
+      <li>Additionneur complet : S = a ^ b ^ cin et Cout = (a & b) | (cin & (a ^ b)).</li>
+      <li>César : (ord(c) − base + k) % 26 + base, la casse par la base (a ou A), le rebond par le modulo.</li>
+      <li>Chiffres, espaces et ponctuation ne sont pas des lettres : ils traversent le chiffrement inchangés.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je récite les tables de vérité des cinq portes sans hésiter.</li>
+      <li>Je calcule S et Cout d’un additionneur complet sur n’importe quels bits.</li>
+      <li>J’explique le rôle du modulo 26 dans le retour circulaire.</li>
+      <li>Je chiffre un message mixte en conservant casse et ponctuation.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>porte logique</li><li>table de vérité</li><li>NAND universelle</li><li>additionneur complet</li><li>retenue</li><li>XOR</li><li>ord</li><li>chr</li><li>modulo 26</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Remplis la table des cinq portes à la main pour les quatre couples.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais l’additionneur en testant les huit combinaisons possibles.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : chiffre ton prénom avec k = 7 et vérifie à la main.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 6, capteurs et régulation.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Capteurs, seuils et régulation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support du club « Séance TP — Club Robotique & Électronique » (programmation, CircuitVerse, Tinkercad) et le cours de logique fourni.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

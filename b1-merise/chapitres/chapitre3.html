@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Dictionnaire de données et dépendances fonctionnelles | Modélisation (MERISE) B1</title>
+<meta name="description" content="Chapitre 3 du cours de Modélisation (MERISE) B1 : Recenser les propriétés (élémentaires, composées, calculées) ; écrire les règles de gestion ; construire la matrice des DF. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-merise/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Dictionnaire de données et dépendances fonctionnelles | Modélisation (MERISE) B1">
+<meta property="og:description" content="Chapitre 3 du cours de Modélisation (MERISE) B1 : Recenser les propriétés (élémentaires, composées, calculées) ; écrire les règles de gestion ; construire la matrice des DF. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="mrnav"><div class="mrnav__in">
+  <a class="mrnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="mrnav__sep" aria-hidden="true">/</span>
+  <a class="mrnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> Modélisation (MERISE) B1</a>
+  <div class="mrnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="mrnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="mrwrap">
+<p class="crumb"><a href="../index.html">Modélisation (MERISE) B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Dictionnaire de données et dépendances fonctionnelles</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le client raconte son activité en vrac : factures, clients, remises, catégories. Avant tout schéma, l'analyste recense les propriétés une à une (le dictionnaire de données) et écrit ce qui détermine quoi (les dépendances fonctionnelles). Ces deux documents préparent le MCD — et évitent les propriétés fantômes inventées plus tard.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>classer une propriété en élémentaire, composée ou calculée ;</li>
+      <li>constituer un dictionnaire de données propre (types, formats, remarques) ;</li>
+      <li>formuler une dépendance fonctionnelle « source détermine cible » à partir d'une règle de gestion ;</li>
+      <li>construire la matrice des dépendances et en déduire l'identifiant d'une entité.</li>
+    </ol>
+  </div>
+
+<h2>1. Le dictionnaire de données</h2>
+
+<p>Le dictionnaire de données recense et décrit l'ensemble des <strong>propriétés</strong> qui serviront à élaborer le MCD : nom, type (texte, nombre, date), format, nature, remarques. Une propriété est :</p>
+<ul>
+    <li><strong>élémentaire</strong> : elle ne se déduit d'aucune autre ;</li>
+    <li><strong>composée</strong> : sa valeur résulte d'une règle de construction sur d'autres informations (une adresse = numéro, rue, ville) ;</li>
+    <li><strong>calculée</strong> : elle se déduit d'une autre propriété par une règle de calcul (le TTC depuis le HT et la TVA).</li>
+  </ul>
+<p>Les propriétés calculées ne s'enregistrent pas : elles se recalculent. Le dictionnaire les note, mais le MCD les écarte. Le recueil se fait en interviewant les acteurs et en étudiant les documents existants (factures, bons de livraison, registres) : chaque rubrique d'un document est une propriété candidate.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « E-C-C : élémentaire, composée, calculée »</div>
+    <p>Élémentaire = irremplaçable. Composée = assemblée (décomposable). Calculée = déductible. Seules les deux premières entrent dans le MCD ; la calculée retourne aux traitements.</p>
+  </div>
+
+<h2>2. Dépendances fonctionnelles et matrice</h2>
+
+<p>Une <strong>dépendance fonctionnelle</strong> (DF) relie deux propriétés : « connaître la valeur de A suffit à connaître celle de B ». On écrit <code>A → B</code> : A détermine B. Exemple : NumClt → NomClt (le numéro de client détermine son nom) ; NumCde → DateCde.</p>
+<p>Les DF se tirent des <strong>règles de gestion</strong> énoncées par le client (« une facture concerne un et un seul client ») et se contrôlent sur les documents : une même source qui détermine deux cibles contradictoires révèle une erreur d'analyse ou une propriété mal décomposée.</p>
+<p>La <strong>matrice des dépendances</strong> croise toutes les propriétés : pour chaque couple (ligne source, colonne cible), une croix si la DF existe. On y lit : les identifiants candidats (les sources qui déterminent le plus de propriétés), les propriétés élémentaires, et les associations éventuelles entre entités (une source qui détermine l'identifiant d'un autre groupe de propriétés signale une CIF, contrainte d'intégrité fonctionnelle). Des symboles complètent la légende : association réflexive, DF élémentaire et directe, CIF.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Le TTC est calculé, donc <strong>écarter</strong> du dictionnaire des propriétés à modéliser.</li>
+      <li>Une DF se vérifie sur des exemples : NumClt → VilleClt est suspecte si deux clients d'une même ville… si, ça marche — mais VilleClt → NumClt est fausse.</li>
+      <li>Le sens de la flèche compte : A → B ne dit rien de B → A.</li>
+      <li>Une règle de gestion qui ne donne aucune DF est soit mal comprise, soit un simple commentaire.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="mr-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;NumClt el&#10;NomClt el&#10;AdresseClt co&#10;MontantTTC ca&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c3-e1) — Le dictionnaire de données
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule calculée]
+# Données : 1
+# Données : Age ca
+A_COMPLETER
+
+[Cas 2 — Deux élémentaires]
+# Données : 2
+# Données : NumPrdt el
+# Données : PrixPrdt el
+A_COMPLETER
+
+[Cas 3 — Cinq propriétés mixtes]
+# Données : 5
+# Données : NumCde el
+# Données : DateCde el
+# Données : NomClient co
+# Données : TotalCde ca
+# Données : QteCdée el
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Le dictionnaire de données</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire un dictionnaire de données : filtrer les propriétés élémentaires et repérer les calculées.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « nom type » : type vaut <code>el</code> (élémentaire), <code>co</code> (composée) ou <code>ca</code> (calculée). Le dictionnaire ne retient que les propriétés <strong>élémentaires et composées</strong>. Pour chaque ligne retenue il Indiquez <code>nom : conservee</code>, pour les autres <code>nom : ecartee</code>. Il termine par <code>dictionnaire : X proprietes</code>, X étant le nombre de propriétés retenues.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+NumClt el
+NomClt el
+AdresseClt co
+MontantTTC ca
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NumClt : conservee
+NomClt : conservee
+AdresseClt : conservee
+MontantTTC : ecartee
+dictionnaire : 3 proprietes</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Seul le type « ca » écarte une propriété : les deux autres passent.</li>
+        <li>Le compteur suit exactement les lignes affichées « conservee ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;NumClt NomClt&#10;NumClt AdrClt&#10;NumCde DateCde&#10;NumClt NomClt&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c3-e2) — Les règles de gestion
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule DF]
+# Données : 1
+# Données : NumPrdt PrixPrdt
+A_COMPLETER
+
+[Cas 2 — Source multi-cible sans redondance]
+# Données : 3
+# Données : NumClt NomClt
+# Données : NumClt AdrClt
+# Données : NumCde DateCde
+A_COMPLETER
+
+[Cas 3 — Deux redondances]
+# Données : 4
+# Données : NumFou NomFou
+# Données : NumFou NomFou
+# Données : NumPrdt PrixPrdt
+# Données : NumFou NomFou
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Les règles de gestion</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire les dépendances fonctionnelles des règles de gestion et éliminer les règles redondantes.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « source cible » décrivant une règle de gestion « source détermine cible ». Pour chaque ligne il Indiquez <code>source → cible</code> si le couple n'a jamais été énoncé, sinon <code>source → cible : redondante</code> (règle répétée). Il termine par <code>df elementaires : X/n</code>, X étant le nombre de couples distincts.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+NumClt NomClt
+NumClt AdrClt
+NumCde DateCde
+NumClt NomClt
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NumClt → NomClt
+NumClt → AdrClt
+NumCde → DateCde
+NumClt → NomClt : redondante
+df elementaires : 3/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La clé du tableau associatif est le couple complet : vues[source|cible].</li>
+        <li>Un couple nouveau s'affiche et se compte ; un couple déjà vu s'affiche « : redondante » et ne se compte pas.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;NumClt NomClt&#10;NumClt AdrClt&#10;NumClt TelClt&#10;NumCde NumClt&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c3-e3) — La matrice des dépendances
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule source]
+# Données : 2
+# Données : NumPrdt PrixPrdt
+# Données : NumPrdt NomPrdt
+A_COMPLETER
+
+[Cas 2 — Deux sources équilibrées en apparence]
+# Données : 3
+# Données : NumCde DateCde
+# Données : NumCde NumClt
+# Données : NumClt NomClt
+A_COMPLETER
+
+[Cas 3 — Trois sources]
+# Données : 5
+# Données : NumFou NomFou
+# Données : NumFou AdrFou
+# Données : NumPrdt PrixPrdt
+# Données : NumPrdt NomPrdt
+# Données : NumCde DateCde
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — La matrice des dépendances</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire la matrice des dépendances fonctionnelles et déduire l'identifiant de l'entité.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « source cible » (DF élémentaires, sans doublon de couple). Il dénombre pour chaque source le nombre de cibles qu'elle détermine, puis désigne l'identifiant candidat : la source qui détermine le plus de propriétés (une seule gagnante garantie par les données). Affichage : une ligne <code>source : X cibles</code> par source distincte, triée par ordre d'apparition, puis <code>identifiant candidat : source</code> et <code>propriete : cible</code> pour chaque cible de l'identifiant, dans l'ordre d'apparition.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+NumClt NomClt
+NumClt AdrClt
+NumClt TelClt
+NumCde NumClt
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NumClt : 3 cibles
+NumCde : 1 cibles
+identifiant candidat : NumClt
+propriete : NomClt
+propriete : AdrClt
+propriete : TelClt</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Deux structures : un compteur par source et, par source, la liste des cibles (concaténées avec un séparateur).</li>
+        <li>Un second passage sur les sources distinctes (tableau des clés) trouve le maximum ; l'ordre d'apparition se conserve avec un tableau indexé des sources à leur première apparition.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le MontantTTC d'une facture est une propriété…</p>
+      <div class="opts">
+        <button class="opt">élémentaire</button>
+        <button class="opt">composée</button>
+        <button class="opt" data-correct="1">calculée</button>
+      </div>
+      <div class="q__exp">Il se déduit du HT et de la TVA par une règle de calcul : le MCD ne le mémorise pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">« Adresse = numéro, rue, ville » : Adresse est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">composée</button>
+        <button class="opt">calculée</button>
+        <button class="opt">élémentaire</button>
+      </div>
+      <div class="q__exp">Sa valeur est obtenue par une règle de construction sur d'autres informations.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">NumClt → NomClt se lit…</p>
+      <div class="opts">
+        <button class="opt">le nom détermine le numéro</button>
+        <button class="opt" data-correct="1">le numéro détermine le nom</button>
+        <button class="opt">les deux sont équivalents</button>
+      </div>
+      <div class="q__exp">A → B : connaître A suffit pour connaître B.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le dictionnaire de données sert à…</p>
+      <div class="opts">
+        <button class="opt">dessiner le MCD directement</button>
+        <button class="opt" data-correct="1">recenser et décrire toutes les propriétés</button>
+        <button class="opt">écrire les programmes</button>
+      </div>
+      <div class="q__exp">Il recense et décrit l'ensemble des propriétés utilisées pour élaborer le MCD.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La matrice des dépendances sert à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">voir toutes les DF d'un coup d'œil et repérer les identifiants</button>
+        <button class="opt">compter les utilisateurs</button>
+        <button class="opt">dessiner les écrans</button>
+      </div>
+      <div class="q__exp">Croisement sources × cibles : on y lit identifiants candidats, propriétés élémentaires et CIF.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">NumCde → NumClt (numéro de commande détermine le client) est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une CIF</button>
+        <button class="opt">une association réflexive</button>
+        <button class="opt">une erreur toujours</button>
+      </div>
+      <div class="q__exp">Une DF vers l'identifiant d'un autre groupe de propriétés est une contrainte d'intégrité fonctionnelle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une propriété calculée dans une table…</p>
+      <div class="opts">
+        <button class="opt">est recommandée</button>
+        <button class="opt" data-correct="1">crée un risque d'incohérence</button>
+        <button class="opt">est obligatoire en 3FN</button>
+      </div>
+      <div class="q__exp">Elle risque de contredire le recalcul ; on la calcule au moment du traitement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi reconnaît-on l'identifiant dans la matrice ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">il est la source de toutes les autres propriétés de l'entité</button>
+        <button class="opt">il est en colonne</button>
+        <button class="opt">il apparaît deux fois</button>
+      </div>
+      <div class="q__exp">L'identifiant détermine toutes les propriétés de son entité.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Mémoriser une propriété calculée : le TTC se recalcule, il ne s'enregistre pas.</li>
+      <li>Inverser le sens d'une DF dans la matrice : la source détermine la cible, jamais l'inverse.</li>
+      <li>Oublier de décomposer une adresse (numéro, rue, ville) : la propriété composée masque des attributs utiles.</li>
+      <li>Écrire des DF sans règle de gestion derrière : une DF se justifie par un énoncé ou un document.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — du document au dictionnaire</div>
+    <ol>
+      <li>Lister les rubriques de chaque document de l'entreprise (facture, bon, registre).</li>
+      <li>Pour chaque propriété : élémentaire, composée ou calculée ? Calculée = écartée.</li>
+      <li>Énoncer les règles de gestion et les traduire en DF (source → cible).</li>
+      <li>Construire la matrice, lire les identifiants candidats et les CIF.</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le dictionnaire de données recense toutes les propriétés : nom, type, format, nature.</li>
+      <li>Trois natures : élémentaire (à garder), composée (à décomposer), calculée (à écarter).</li>
+      <li>Une DF « A → B » : connaître A suffit à connaître B ; elle se justifie par une règle de gestion.</li>
+      <li>La matrice des dépendances révèle identifiants candidats et contraintes d'intégrité fonctionnelle.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais trier douze propriétés en élémentaires, composées et calculées.</li>
+      <li>Je sais écrire cinq DF à partir de règles de gestion.</li>
+      <li>Je sais lire une matrice des dépendances et proposer un identifiant.</li>
+      <li>Je sais expliquer pourquoi le TTC ne s'enregistre pas.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Propriété</strong> : plus petit élément d'information manipulable.</li><li><strong>Élémentaire</strong> : non déductible d'autres propriétés.</li><li><strong>Composée</strong> : assemblée par une règle de construction.</li><li><strong>Calculée</strong> : déduite par une règle de calcul (à écarter).</li><li><strong>Dépendance fonctionnelle</strong> : A → B, connaître A suffit pour B.</li><li><strong>Dictionnaire de données</strong> : inventaire descriptif des propriétés.</li><li><strong>Matrice des dépendances</strong> : croisement sources × cibles des DF.</li><li><strong>CIF</strong> : contrainte d'intégrité fonctionnelle entre deux entités.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — reprends les trois natures de propriété.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais le dictionnaire d'un document (facture, bon de livraison).</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, cible la matrice des DF.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Le modèle conceptuel des données (MCD) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Conception et modélisation des systèmes d'information » (B1 IT, S. P. EDOH) et l'outil AnalyseSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

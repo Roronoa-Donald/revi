@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Numération, Représentation des Données &amp;amp; Logique Binaire | Assembleur B2</title>
+<meta name="description" content="Chapitre 1 du cours Architecture &amp; Programmation en Assembleur B2 : Bases binaire, décimale et hexadécimale, entiers signés en complément à 2, masques binaires et décalages arithmétiques. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/assembleur/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Numération, Représentation des Données &amp;amp; Logique Binaire | Assembleur B2">
+<meta property="og:description" content="Chapitre 1 du cours Architecture &amp; Programmation en Assembleur B2 : Bases binaire, décimale et hexadécimale, entiers signés en complément à 2, masques binaires et décalages arithmétiques. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="assembleurnav"><div class="assembleurnav__in">
+  <a class="assembleurnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="assembleurnav__sep" aria-hidden="true">/</span>
+  <a class="assembleurnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Assembleur B2</a>
+  <div class="assembleurnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="assembleurnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="assembleurwrap">
+<p class="crumb"><a href="../index.html">Assembleur B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Numération, Représentation des Données &amp; Logique Binaire</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un ingénieur en rétro-ingénierie examine une trame réseau brute interceptée : l’octet 0xC6. S’agit-il de la valeur décimale 198 (nombre de paquets non signés) ou d’une coordonnée relative négative de -58 (entier signé) ? Et pourquoi un décalage de 1 bit à droite transforme-t-il parfois une valeur négative en un nombre positif aberrant si le développeur utilise un décalage logique plutôt qu’un décalage arithmétique ? Au niveau matériel, le processeur ne manipule que des suites de bits : c’est l’analyste qui donne un sens mathématique aux registres.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>convertir rapidement et sans calculatrice entre les bases binaire (base 2), décimale (base 10) et hexadécimale (base 16) ;</li>
+      <li>comprendre et calculer le complément à 2 pour coder et décoder des entiers signés sur 8, 16, 32 et 64 bits ;</li>
+      <li>concevoir des masques binaires avec les opérateurs logiques fondamentaux (AND, OR, XOR, NOT) ;</li>
+      <li>distinguer rigoureusement le décalage logique (SHL, SHR) du décalage arithmétique (SAR) préservant le bit de signe ;</li>
+      <li>identifier les bornes numériques minimales et maximales d’un registre selon son interprétation signée ou non signée.</li>
+    </ol>
+  </div>
+
+<h2>1. Les systèmes de numération (Binaire, Hexadécimal &amp; Décimal)</h2>
+
+<p>Un système de numération positionnelle en base $B$ exprime tout nombre entier sous la forme d’une somme pondérée de puissances de sa base : $N = \sum_{k=0}^{n-1} d_k \cdot B^k$.</p>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les trois bases reines de l’architecture des ordinateurs</div>
+<ul>
+  <li><strong>Base 2 (Binaire)</strong> : chiffres $\{0, 1\}$. C’est l’état physique des transistors et des lignes de bus (niveau logique bas $0\text{ V}$ ou haut $5\text{ V} / 3.3\text{ V}$).</li>
+  <li><strong>Base 16 (Hexadécimal)</strong> : chiffres $\{0..9, A..F\}$. Chaque chiffre hexadécimal représente exactement un <strong>quartet (nibble, 4 bits)</strong>. Deux chiffres forment un octet (8 bits).</li>
+  <li><strong>Base 10 (Décimal)</strong> : chiffres $\{0..9\}$. Utilisée uniquement pour l’affichage humain en fin de chaîne.</li>
+</ul>
+  </div>
+<p>La conversion binaire &harr; hexadécimal est directe et immédiate par regroupement de 4 bits en partant de la droite :</p>
+<pre><code>// Exemple : 11010110b en hexadécimal
+1. Découpage en quartets :  1101 | 0110
+2. Conversion directe    :   D   |  6    &rarr; 0xD6 (soit 13*16 + 6 = 214 en décimal)</code></pre>
+
+<h2>2. Représentation des entiers relatifs : le Complément à 2</h2>
+
+<p>Pour que l’Unité Arithmétique et Logique (ALU) puisse utiliser <strong>le même circuit électronique d’addition</strong> pour additionner ou soustraire des nombres, les ordinateurs modernes utilisent quasi universellement le <strong>complément à 2</strong>.</p>
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’analogie du compteur kilométrique de voiture</div>
+<p>Pour comprendre intuitivement pourquoi le complément à 2 fonctionne sans magie noire, imaginez le compteur kilométrique d’une voiture affichant 6 chiffres : de <code>000 000</code> à <code>999 999</code>.</p>
+<ul>
+  <li>Si la voiture est neuve à <code>000 000</code> km et que vous la faites reculer d’un kilomètre ($-1$), le rouleau mécanique recule et affiche <code>999 999</code>.</li>
+  <li>Sur ce compteur à 6 chiffres, reculer de 1 équivaut exactement à avancer de $10^6 - 1 = 999 999$.</li>
+</ul>
+<p>Dans un registre processeur sur 8 bits (valeurs de <code>0000 0000b</code> à <code>1111 1111b</code>, soit 0 à 255), si vous partez de 0 et reculez de 1 ($-1$), le registre bascule à <code>1111 1111b</code> (qui vaut 255 en non signé, mais <strong>-1 en signé</strong>). Le complément à 2 exploite simplement cette arithmétique modulaire circulaire !</p>
+  </div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Algorithme du Complément à 2 sur n bits</div>
+<ol>
+  <li>Écrire la valeur absolue du nombre en binaire sur $n$ bits.</li>
+  <li>Inverser tous les bits ($0 \to 1$ et $1 \to 0$, complément à 1 ou NOT).</li>
+  <li>Ajouter $1$ au résultat binaire (en ignorant tout débordement au-delà du $n$-ième bit).</li>
+</ol>
+<p><strong>Plage de valeurs sur n bits :</strong><br>- Entier non signé (unsigned) : $[0 \ .. \ 2^n - 1]$ (ex. 8 bits : $0 \ .. \ 255$)<br>- Entier signé (signed) : $[-2^{n-1} \ .. \ +2^{n-1} - 1]$ (ex. 8 bits : $-128 \ .. \ +127$)</p>
+  </div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Exemple détaillé : coder -13 sur 8 bits</div>
+<pre><code>1. Valeur absolue +13 en 8 bits : 0000 1101b
+2. Inversion (complément à 1)  : 1111 0010b
+3. Ajout de 1                  : 1111 0011b (soit 0xF3 en hexadécimal)</code></pre>
+<p>Le bit 7 (Most Significant Bit, MSB) vaut 1, ce qui confirme que le nombre est négatif.</p>
+  </div>
+
+<h2>3. Opérations logiques fondamentales &amp; Masquage de bits</h2>
+
+<p>Les instructions logiques permettent de contrôler individuellement chaque bit d’un registre matériel :</p>
+<table class="table">
+  <thead><tr><th>Instruction</th><th>Rôle en français</th><th>Usage matériel typique</th></tr></thead>
+  <tbody>
+    <tr><td><code>AND dest, mask</code></td><td>Conserve les bits là où le masque vaut 1, force à 0 ailleurs</td><td><strong>Isoler</strong> un bit ou forcer un état bas ($x \ \&amp; \ 0\text{x0F}$)</td></tr>
+    <tr><td><code>OR dest, mask</code></td><td>Force les bits à 1 là où le masque vaut 1, laisse inchangé ailleurs</td><td><strong>Activer</strong> un drapeau ou une broche de sortie</td></tr>
+    <tr><td><code>XOR dest, mask</code></td><td>Inverse (bascule) les bits là où le masque vaut 1</td><td><strong>Inverser</strong> l’état d’une LED, ou remettre un registre à 0 (<code>XOR EAX, EAX</code>)</td></tr>
+    <tr><td><code>NOT dest</code></td><td>Inverse tous les bits ($0 \leftrightarrow 1$)</td><td>Calcul du complément à 1</td></tr>
+  </tbody>
+</table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> L’astuce classique : XOR EAX, EAX</div>
+<p>Dans tous les compilateurs C/C++ générant du code x86, on observe l’instruction <code>XOR EAX, EAX</code> plutôt que <code>MOV EAX, 0</code>. Pourquoi ?</p><ul>  <li>L’instruction <code>XOR EAX, EAX</code> n’occupe que <strong>2 octets</strong> d’opcode (<code>31 C0</code>), alors que <code>MOV EAX, 0</code> en occupe <strong>5 octets</strong> (<code>B8 00 00 00 00</code>) ;</li>  <li>Les décodeurs CPU modernes reconnaissent <code>XOR reg, reg</code> comme une réinitialisation sans dépendance de données, rompant les aléas de pipeline.</li></ul>
+  </div>
+
+<h2>4. Décalages logiques vs Décalages arithmétiques (SHL, SHR, SAR)</h2>
+
+<p>Décaler les bits d’un registre vers la gauche ou vers la droite équivaut à multiplier ou diviser par des puissances de 2 :</p>
+<pre><code>// 1. Décalage logique gauche (SHL - Shift Left)
+SHL AL, 1    ; Multiplie par 2. Les bits se déplacent à gauche, un 0 entre à droite.
+            ; Le bit éjecté à gauche entre dans le drapeau Carry (CF).
+
+// 2. Décalage logique droite (SHR - Shift Right)
+SHR AL, 1    ; Divise par 2 pour ENTIERS NON SIGNÉS. Un 0 entre à gauche.
+            ; Exemple : 1000 0000b (128) &rarr; 0100 0000b (64). Correct !
+
+// 3. Décalage arithmétique droite (SAR - Shift Arithmetic Right)
+SAR AL, 1    ; Divise par 2 pour ENTIERS SIGNÉS. Le bit de signe (bit 7) est répliqué !
+            ; Exemple : 1000 0000b (-128) &rarr; 1100 0000b (-64). Le signe est conservé !</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="asm2-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="0x3F;0x0F;AND">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (asm2-c1-e1) — Masquage binaire & opérations logiques (AND, OR, XOR)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Opération OR pour forcer des bits]
+# Données : 0x80;0x01;OR
+A_COMPLETER
+
+[Cas 2 — Opération XOR pour inverser un quartet]
+# Données : 0xAA;0x0F;XOR
+A_COMPLETER
+
+[Cas 3 — Opération AND masque nul]
+# Données : 0xFF;0x00;AND
+A_COMPLETER
+
+[Cas 4 — Opération XOR identité (bascule complète)]
+# Données : 0x55;0xAA;XOR
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Masquage binaire &amp; opérations logiques (AND, OR, XOR)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer des masques binaires 8 bits pour isoler, forcer ou inverser des bits.</p>
+    <div class="lab__brief"><p>En programmation assembleur, les opérations bit à bit (AND, OR, XOR) sont omniprésentes pour manipuler les registres et interagir avec le matériel.</p><p>Pour chaque cas, observez :</p><ul><li><code>VAL1</code> et <code>VAL2</code> : les opérandes 8 bits en hexadécimal ;</li><li><code>OP</code> : l’opération logique parmi <code>AND</code>, <code>OR</code>, <code>XOR</code>.</li></ul><p>Indiquez le résultat sur 8 bits au format :<br><code>HEX=0xXX BIN=bbbbbbbb</code> (où XX est en majuscules sur 2 chiffres et bbbbbbbb sur 8 bits binaires).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x3F;0x0F;AND</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>HEX=0x0F BIN=00001111</pre></div>
+    </div>
+    <p class="lab__note">0x3F (00111111) AND 0x0F (00001111) = 0x0F (00001111).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertissez chaque opérande hexadécimale en séquence binaire sur 8 bits.</li>
+        <li>Appliquez l'opération bit à bit : AND exige deux 1, OR exige au moins un 1, XOR exige des bits distincts.</li>
+        <li>Exprimez le résultat final en hexadécimal majuscule préfixé par 0x et en binaire sur 8 positions.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="0xFF;8">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (asm2-c1-e2) — Décodage du Complément à 2 (8 bits & 16 bits)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Minimum 8 bits signé (-128)]
+# Données : 0x80;8
+A_COMPLETER
+
+[Cas 2 — Maximum 8 bits signé (+127)]
+# Données : 0x7F;8
+A_COMPLETER
+
+[Cas 3 — Valeur négative 16 bits (-1)]
+# Données : 0xFFFF;16
+A_COMPLETER
+
+[Cas 4 — Valeur négative 16 bits (-1000)]
+# Données : 0xFC18;16
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Décodage du Complément à 2 (8 bits &amp; 16 bits)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir une valeur hexadécimale brute en entier signé selon le complément à 2.</p>
+    <div class="lab__brief"><p>Les processeurs représentent les entiers relatifs selon la convention du <strong>complément à 2</strong>. Le bit de poids fort (MSB) détermine le signe (0 = positif, 1 = négatif).</p><p>Pour chaque cas, observez :</p><ul><li><code>VAL_HEX</code> : la valeur hexadécimale brute (ex. <code>0xFF</code> ou <code>0x8000</code>) ;</li><li><code>BITS</code> : la largeur du registre (8 ou 16 bits).</li></ul><p>Indiquez la valeur décimale signée au format :<br><code>DEC=&lt;valeur signée&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0xFF;8</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEC=-1</pre></div>
+    </div>
+    <p class="lab__note">0xFF sur 8 bits correspond à -1 en complément à 2.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour 8 bits, si la valeur &gt;= 128 (0x80), soustrais 256 (2^8).</li>
+        <li>Pour 16 bits, si la valeur &gt;= 32768 (0x8000), soustrais 65536 (2^16).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="0x80;1;SHL">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (asm2-c1-e3) — Décalages logiques & arithmétiques (SHL, SHR, SAR)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — SHR logique sur nombre négatif]
+# Données : 0x80;2;SHR
+A_COMPLETER
+
+[Cas 2 — SAR arithmétique préservant le bit de signe 1]
+# Données : 0x80;2;SAR
+A_COMPLETER
+
+[Cas 3 — SAR sur -2 (0xFE) décalé de 1]
+# Données : 0xFE;1;SAR
+A_COMPLETER
+
+[Cas 4 — SHL standard sans débordement]
+# Données : 0x0A;3;SHL
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Décalages logiques &amp; arithmétiques (SHL, SHR, SAR)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer le décalage logique vers la droite (SHR) et le décalage arithmétique avec préservation du signe (SAR).</p>
+    <div class="lab__brief"><p>Les instructions de décalage permettent d’effectuer des multiplications et divisions rapides par des puissances de 2. Sur 8 bits :</p><ul>  <li><code>SHL</code> : décale les bits à gauche et insère des 0 à droite ;</li>  <li><code>SHR</code> : décale à droite et insère des 0 à gauche (pour entiers non signés) ;</li>  <li><code>SAR</code> : décale à droite en répliquant le bit de signe (bit 7) à gauche (pour entiers signés).</li></ul><p>Analysez les paramètres du problème pour chaque cas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x80;1;SHL</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RES=0x00</pre></div>
+    </div>
+    <p class="lab__note">0x80 (10000000) décalé de 1 à gauche déborde sur 8 bits et devient 0x00.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour SAR, si le bit 7 est à 1 (val &gt;= 128), les bits insérés à gauche lors du shift doivent être des 1.</li>
+        <li>Une façon simple pour SAR : convertis en entier signé (-128..127), applique &gt;&gt; n, puis prends &amp; 0xFF.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’équivalent hexadécimal de l’octet binaire 11010110b ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0xD6</button>
+        <button class="opt">0xC6</button>
+        <button class="opt">0xD3</button>
+        <button class="opt">0xE6</button>
+      </div>
+      <div class="q__exp">En regroupant par 4 bits : 1101 = 13 = D, et 0110 = 6. L’octet vaut donc 0xD6.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la plage de valeurs d’un entier signé codé en complément à 2 sur 8 bits ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">-128 à +127</button>
+        <button class="opt">0 à 255</button>
+        <button class="opt">-127 à +128</button>
+        <button class="opt">-256 à +255</button>
+      </div>
+      <div class="q__exp">Sur 8 bits signés : de -2^7 (-128) à +2^7 - 1 (+127).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment s’écrit l’entier négatif -1 en complément à 2 sur 8 bits ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0xFF (11111111b)</button>
+        <button class="opt">0x80 (10000000b)</button>
+        <button class="opt">0x01 (00000001b)</button>
+        <button class="opt">0xFE (11111110b)</button>
+      </div>
+      <div class="q__exp">+1 = 00000001b. Inversion : 11111110b. Ajout de 1 : 11111111b = 0xFF.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle opération logique permet de forcer un bit particulier à 1 sans modifier les autres bits du registre ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">OR avec un masque ayant 1 sur le bit ciblé</button>
+        <button class="opt">AND avec un masque ayant 1 sur le bit ciblé</button>
+        <button class="opt">XOR avec un masque de 0</button>
+        <button class="opt">NOT appliqué au registre</button>
+      </div>
+      <div class="q__exp">Dans la table de vérité de l’opérateur OR : 0 OR 1 = 1, et 1 OR 1 = 1. Le bit est forcé à 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’instruction XOR EAX, EAX est-elle préférée à MOV EAX, 0 par les compilateurs ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle est plus compacte (2 octets contre 5) et rompt les dépendances de registre dans le CPU</button>
+        <button class="opt">Elle active automatiquement l’unité arithmétique flottante FPU</button>
+        <button class="opt">Elle permet d’écrire dans la mémoire cache L1</button>
+        <button class="opt">Elle désactive les interruptions matérielles</button>
+      </div>
+      <div class="q__exp">XOR reg, reg n’occupe que 2 octets et est optimisé par les processeurs modernes pour réinitialiser le registre à coût nul.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre SHR (Shift Right) et SAR (Shift Arithmetic Right) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">SAR réplique le bit de signe (bit 7) à gauche pour préserver la valeur signée, tandis que SHR insère des 0</button>
+        <button class="opt">SHR fonctionne uniquement sur 16 bits</button>
+        <button class="opt">SAR inverse l’ordre des octets en mémoire</button>
+        <button class="opt">Il n’y a aucune différence, ce sont deux synonymes</button>
+      </div>
+      <div class="q__exp">SAR (Shift Arithmetic Right) préserve le signe des entiers négatifs en dupliquant le bit de poids fort.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un registre 8 bits contient 0x80 (-128) et que l’on exécute SAR AL, 1, quel est le résultat ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0xC0 (-64)</button>
+        <button class="opt">0x40 (+64)</button>
+        <button class="opt">0x00 (0)</button>
+        <button class="opt">0xFF (-1)</button>
+      </div>
+      <div class="q__exp">0x80 = 1000 0000b. Avec SAR, le bit 1 est répliqué à gauche : 1100 0000b = 0xC0 (-64 décimal).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’octets contient un mot double (Double Word / DWORD) en architecture Intel x86 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">4 octets (32 bits)</button>
+        <button class="opt">2 octets (16 bits)</button>
+        <button class="opt">8 octets (64 bits)</button>
+        <button class="opt">1 octet (8 bits)</button>
+      </div>
+      <div class="q__exp">Historiquement chez Intel, un WORD fait 16 bits (2 octets). Un DWORD fait donc 32 bits (4 octets) et un QWORD fait 64 bits (8 octets).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre le décalage logique SHR (qui insère des 0) et le décalage arithmétique SAR (qui préserve le signe).</li>
+      <li>Oublier d’ajouter 1 lors du calcul manuel d’un complément à 2 (s’arrêter au complément à 1).</li>
+      <li>Supposer qu’un octet 0xFF vaut toujours 255 : dans un contexte signé, il vaut -1.</li>
+      <li>Utiliser l’opérateur OR au lieu de AND pour tester la présence d’un bit dans un registre.</li>
+      <li>Mélanger les largeurs de registres : affecter un mot 32 bits dans un registre 16 bits sans instruction de troncature.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour décoder toute valeur binaire brute</div>
+    <ol>
+      <li>Identifier la taille exacte du conteneur en bits (8 bits byte, 16 bits word, 32 bits dword, 64 bits qword).</li>
+      <li>Identifier l’interprétation sémantique : entier non signé (unsigned) ou entier signé (signed, complément à 2).</li>
+      <li>Pour un nombre signé négatif (bit MSB à 1) : inverser les bits, ajouter 1 pour trouver la valeur absolue, et ajouter le signe moins.</li>
+      <li>Pour appliquer un masque : écrire le masque en binaire aligné sous la valeur, appliquer la table de vérité bit à bit, puis convertir en hexadécimal.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un quartet (4 bits) correspond exactement à un chiffre hexadécimal (0 à F). Deux chiffres hexadécimaux forment un octet.</li>
+      <li>Le complément à 2 s’obtient par inversion de tous les bits (NOT) puis ajout de 1 : $[-2^{n-1} \ .. \ +2^{n-1} - 1]$.</li>
+      <li>Les masques binaires utilisent AND (isoler/mettre à 0), OR (forcer à 1) et XOR (inverser).</li>
+      <li>L’instruction XOR reg, reg est le moyen le plus rapide et compact pour remettre un registre à zéro.</li>
+      <li>Les décalages gauche (SHL) multiplient par 2. SAR divise par 2 les entiers signés en répliquant le bit de signe.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais convertir instantanément un octet hexadécimal en binaire sans poser de division.</li>
+      <li>Je sais calculer le complément à 2 d’un entier négatif sur 8 bits et 16 bits.</li>
+      <li>Je sais quel masque et quelle opération logique utiliser pour manipuler un bit précis.</li>
+      <li>Je comprends pourquoi XOR EAX, EAX est universellement utilisé à la place de MOV EAX, 0.</li>
+      <li>Je sais distinguer l’effet de SHR et de SAR sur un nombre binaire ayant son bit de signe à 1.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Système binaire (Base 2)</li><li>Système hexadécimal (Base 16)</li><li>Complément à 2</li><li>Bit de poids fort (MSB)</li><li>Masquage bit à bit</li><li>Opérateur AND / OR / XOR</li><li>XOR EAX, EAX</li><li>Décalage logique (SHL / SHR)</li><li>Décalage arithmétique (SAR)</li><li>Entier signé vs non signé</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les conversions binaire/hexa et la méthode du complément à 2.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le masquage logique et la différence entre SHR et SAR.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la numération binaire et les opérations logiques machine.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à l’architecture interne du processeur et aux registres au chapitre 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Architecture du Processeur, Registres &amp; Drapeaux d’État <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours d’Architecture et Programmation en Assembleur B2, les manuels d’architecture logicielle Intel 64 et IA-32, la documentation NASM et la spécification System V AMD64 ABI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

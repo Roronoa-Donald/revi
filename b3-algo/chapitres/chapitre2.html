@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Structures Arborescentes &amp;amp; Arbres Binaires de Recherche (ABR) | Algorithmique B3</title>
+<meta name="description" content="Chapitre 2 du cours Algorithmique B3 : Définition d’un arbre binaire, parcours préfixe, infixe et postfixe, propriété d’ABR, insertion, recherche logarithmique, suppression avec successeur in-order et notions d’équilibrage (AVL / Rouge-Noir). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-algo/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Structures Arborescentes &amp;amp; Arbres Binaires de Recherche (ABR) | Algorithmique B3">
+<meta property="og:description" content="Chapitre 2 du cours Algorithmique B3 : Définition d’un arbre binaire, parcours préfixe, infixe et postfixe, propriété d’ABR, insertion, recherche logarithmique, suppression avec successeur in-order et notions d’équilibrage (AVL / Rouge-Noir). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-algonav"><div class="b3-algonav__in">
+  <a class="b3-algonav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-algonav__sep" aria-hidden="true">/</span>
+  <a class="b3-algonav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algorithmique B3</a>
+  <div class="b3-algonav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-algonav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-algowrap">
+<p class="crumb"><a href="../index.html">Algorithmique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Structures Arborescentes &amp; Arbres Binaires de Recherche (ABR)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Les tableaux et les listes chaînées imposent un compromis insatisfaisant : un tableau trié permet une recherche dichotomique rapide en O(log n), mais l’insertion ou la suppression coûte O(n) à cause des décalages d’éléments en mémoire ; une liste chaînée permet des insertions en O(1) si le pointeur est connu, mais impose une recherche linéaire en O(n). Les arbres binaires de recherche (ABR) réconcilient ces deux exigences en proposant à la fois recherche, insertion et suppression en temps moyen O(log n). Toutefois, sans mécanisme d’auto-équilibrage, un ABR peut dégénérer en simple liste chaînée et ramener les opérations à un coût catastrophique O(n). Ce chapitre explore en profondeur les structures arborescentes hiérarchiques, les algorithmes de manipulation de pointeurs et les invariants d’équilibrage.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir rigoureusement les propriétés structurelles d’un arbre binaire (nœuds, feuilles, hauteur, profondeur) ;</li>
+      <li>maîtriser les 3 parcours récursifs fondamentaux (préfixe, infixe, postfixe) et leurs applications concrètes ;</li>
+      <li>implémenter l’insertion ordonnée et la recherche dichotomique instrumentée dans un ABR ;</li>
+      <li>maîtriser l’algorithme de suppression d’un nœud dans ses 3 cas (feuille, un enfant, deux enfants avec successeur in-order) ;</li>
+      <li>comprendre le phénomène de dégénérescence des ABR et les rotations d’équilibrage des arbres AVL ;</li>
+      <li>analyser la complexité au pire des cas O(n) vs au cas moyen O(log n).</li>
+    </ol>
+  </div>
+
+<h2>1. Anatomie des Arbres Binaires et Parcours Fondamentaux</h2>
+
+<p>Un <strong>arbre binaire</strong> est une structure de données arborescente où chaque nœud possède au plus deux enfants, appelés traditionnellement <em>fils gauche</em> et <em>fils droit</em>.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Parcours Préfixe (Pre-Order)</h4>
+    <p>Ordre : <strong>Racine $\to$ Gauche $\to$ Droite</strong>.<br>    Utilisé pour cloner la structure d’un arbre ou sérialiser une hiérarchie.</p>
+  </div>
+  <div class="card">
+    <h4>Parcours Infixe (In-Order)</h4>
+    <p>Ordre : <strong>Gauche $\to$ Racine $\to$ Droite</strong>.<br>    Sur un ABR, ce parcours produit toujours une suite de valeurs <em>strictement croissante</em>.</p>
+  </div>
+  <div class="card">
+    <h4>Parcours Postfixe (Post-Order)</h4>
+    <p>Ordre : <strong>Gauche $\to$ Droite $\to$ Racine</strong>.<br>    Indispensable pour la désallocation mémoire (suppression ascendante) et l’évaluation d’expressions (notation polonaise inverse).</p>
+  </div>
+</div>
+<h4>Hauteur vs Profondeur</h4>
+<p>La <em>profondeur</em> d’un nœud est la longueur du chemin reliant la racine à ce nœud (la racine a pour profondeur 0).<br>La <em>hauteur</em> d’un arbre est la profondeur maximale de ses feuilles. Un arbre binaire parfait de hauteur $h$ contient exactement $2^{h+1} - 1$ nœuds.</p>
+
+<h2>2. Propriété Fondamentale des ABR & Recherche</h2>
+
+<p>Un <strong>Arbre Binaire de Recherche (ABR)</strong> est un arbre binaire vérifiant l’invariant suivant pour chaque nœud $u$ :</p>
+<ul>
+  <li>Pour tout nœud $v$ dans le <strong>sous-arbre gauche</strong> de $u$, $\text{clé}(v) &lt; \text{clé}(u)$ ;</li>
+  <li>Pour tout nœud $w$ dans le <strong>sous-arbre droit</strong> de $u$, $\text{clé}(w) &gt; \text{clé}(u)$.</li>
+</ul>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Recherche Logarithmique dans un ABR</div>
+<p>Pour chercher une valeur $k$ en partant de la racine :</p>
+<ol>
+  <li>Si le nœud courant est nul : échec (valeur absente).</li>
+  <li>Si $k == \text{clé}(\text{courant})$ : succès, l’élément est trouvé.</li>
+  <li>Si $k &lt; \text{clé}(\text{courant})$ : descendre dans le sous-arbre gauche.</li>
+  <li>Si $k &gt; \text{clé}(\text{courant})$ : descendre dans le sous-arbre droit.</li>
+</ol>
+<p>Dans un arbre équilibré, la recherche élimine la moitié des nœuds résiduels à chaque saut, garantissant un temps d’exécution en $O(h) = O(\log n)$.</p>
+  </div>
+
+<h2>3. Algorithme de Suppression dans un ABR (3 Cas)</h2>
+
+<p>La suppression est l’opération la plus délicate sur un ABR car elle doit préserver strictement l’invariant d’ordre. On distingue 3 cas de figure :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Cas 1 : Nœud Feuille</h4>
+    <p>Le nœud n’a aucun enfant.<br>    On le détache simplement de son parent en mettant le pointeur du parent à <code>None</code>.</p>
+  </div>
+  <div class="card">
+    <h4>Cas 2 : Nœud avec Un Seul Enfant</h4>
+    <p>Le nœud a un seul fils (gauche ou droit).<br>    Le fils unique est directement rattaché au grand-parent à la place du nœud supprimé.</p>
+  </div>
+  <div class="card">
+    <h4>Cas 3 : Nœud avec Deux Enfants</h4>
+    <p>Le nœud a deux sous-arbres.<br>    On cherche son <strong>successeur in-order</strong> (le plus petit élément du sous-arbre droit).     On copie sa valeur dans le nœud courant, puis on supprime récursivement ce successeur (qui est dans le Cas 1 ou 2).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ARBRE nom=arbre_valide RACINE=1&#10;NOEUD id=1 val=50 g=2 d=3&#10;NOEUD id=2 val=20 g=- d=-&#10;NOEUD id=3 val=70 g=- d=-&#10;FIN&#10;ARBRE nom=arbre_invalide RACINE=1&#10;NOEUD id=1 val=50 g=2 d=3&#10;NOEUD id=2 val=60 g=- d=-&#10;NOEUD id=3 val=70 g=- d=-&#10;FIN">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la structure arborescente et vérifier la propriété d'ABR
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de propriété d’Arbre Binaire de Recherche (ABR)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si un arbre binaire donné respecte strictement la propriété d’ABR (ordre infixe strictement croissant sans doublon).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des descriptions d’arbres sous forme de blocs :<br>
+<code>ARBRE nom=&lt;nom&gt; RACINE=&lt;id&gt;</code><br>
+Suivi de lignes de nœuds : <code>NOEUD id=&lt;id&gt; val=&lt;entier&gt; g=&lt;id_gauche|-&gt; d=&lt;id_droite|-&gt;</code><br>
+Et terminé par une ligne <code>FIN</code>.<br>
+Pour chaque arbre, déterminer si la propriété d'ABR est respectée (tout sous-arbre gauche &lt; racine &lt; tout sous-arbre droit).<br>
+Si valide :<br>
+<code>ABR: &lt;nom&gt; | VALIDE : OUI | INFIXE: &lt;v1, v2, ...&gt;</code><br>
+Si non valide :<br>
+<code>ABR: &lt;nom&gt; | VALIDE : NON (Violation propriete ABR)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ARBRE nom=arbre_valide RACINE=1
+NOEUD id=1 val=50 g=2 d=3
+NOEUD id=2 val=20 g=- d=-
+NOEUD id=3 val=70 g=- d=-
+FIN
+ARBRE nom=arbre_invalide RACINE=1
+NOEUD id=1 val=50 g=2 d=3
+NOEUD id=2 val=60 g=- d=-
+NOEUD id=3 val=70 g=- d=-
+FIN</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ABR: arbre_valide | VALIDE : OUI | INFIXE: 20, 50, 70
+ABR: arbre_invalide | VALIDE : NON (Violation propriete ABR)</pre></div>
+    </div>
+    <p class="lab__note">Le premier arbre respecte 20 &lt; 50 &lt; 70. Le second viole la propriété car 60 &gt; 50 dans le sous-arbre gauche.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un parcours infixe (gauche, racine, droite) d’un ABR valide donne une suite de valeurs strictement croissante.</li>
+        <li>Construire un dictionnaire noeuds[id] = {"val": v, "g": g, "d": d}.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="ARBRE nom=annuaire CLES=50,30,70,20,40,60,80 RECHERCHES=40,65">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter l'insertion et la recherche instrumentée dans un ABR
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Insertion et recherche dans un ABR</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire un ABR par insertions successives et mesurer le nombre de comparaisons nécessaires pour rechercher des clés.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>ARBRE nom=&lt;nom&gt; CLES=&lt;c1,c2,...&gt; RECHERCHES=&lt;r1,r2,...&gt;</code>.<br>
+Pour chaque déclaration :<br>
+1. Insérer chaque clé successivement dans un ABR initialement vide (si la clé existe déjà, ignorer l’insertion).<br>
+2. Pour chaque valeur recherchée dans <code>RECHERCHES</code>, parcourir l’arbre et compter les comparaisons (&lt;, &gt;, ==).<br>
+Afficher :<br>
+<code>RECHERCHE: nom=&lt;nom&gt; val=&lt;r&gt; -&gt; &lt;TROUVE|NON_TROUVE&gt; | COMPARAISONS: &lt;nb&gt; | PROFONDEUR: &lt;prof&gt;</code><br>
+(Note : la profondeur de la racine est 0. Si non trouvé, la profondeur est la dernière profondeur atteinte).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ARBRE nom=annuaire CLES=50,30,70,20,40,60,80 RECHERCHES=40,65</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RECHERCHE: nom=annuaire val=40 -&gt; TROUVE | COMPARAISONS: 3 | PROFONDEUR: 2
+RECHERCHE: nom=annuaire val=65 -&gt; NON_TROUVE | COMPARAISONS: 3 | PROFONDEUR: 2</pre></div>
+    </div>
+    <p class="lab__note">Recherche de 40 : 50 (gauche) -&gt; 30 (droite) -&gt; 40 (trouvé). Profondeur 2, 3 comparaisons. 65 : 50 -&gt; 70 -&gt; 60 -&gt; rien.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque étape de recherche effectue des comparaisons avec le nœud courant pour décider de descendre à gauche ou à droite.</li>
+        <li>Si r == node.val, un test d’égalité a réussi et la recherche s’arrête.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SUPPRESSION nom=test_feuille CLES=50,30,70,20,40 CIBLE=20&#10;SUPPRESSION nom=test_deux CLES=50,30,70,20,40,60,80 CIBLE=30&#10;SUPPRESSION nom=test_un CLES=50,30,70,20 CIBLE=30">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la suppression avec identification du cas
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Suppression de nœud dans un ABR (3 cas de figure)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter l’algorithme complet de suppression dans un ABR en traitant les 3 cas : feuille, un enfant, deux enfants (remplacement par successeur in-order).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>SUPPRESSION nom=&lt;nom&gt; CLES=&lt;c1,c2,...&gt; CIBLE=&lt;val&gt;</code>.<br>
+Algorithme :<br>
+1. Construire l’ABR avec les clés fournies.<br>
+2. Supprimer le nœud avec la valeur <code>CIBLE</code> selon les 3 cas standards :<br>
+   - <strong>Cas 1 (FEUILLE)</strong> : le nœud n'a aucun enfant.<br>
+   - <strong>Cas 2 (UN_ENFANT)</strong> : le nœud a un seul enfant (gauche ou droite), qui remplace le nœud.<br>
+   - <strong>Cas 3 (DEUX_ENFANTS)</strong> : le nœud a 2 enfants. On le remplace par son <strong>successeur in-order</strong> (plus petite valeur du sous-arbre droit), puis on supprime ce successeur du sous-arbre droit.<br>
+Afficher :<br>
+<code>SUPPR: nom=&lt;nom&gt; | CIBLE: &lt;val&gt; | CAS: &lt;FEUILLE|UN_ENFANT|DEUX_ENFANTS|ABSENT&gt; | INFIXE_APRES: &lt;v1, v2, ...&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SUPPRESSION nom=test_feuille CLES=50,30,70,20,40 CIBLE=20
+SUPPRESSION nom=test_deux CLES=50,30,70,20,40,60,80 CIBLE=30
+SUPPRESSION nom=test_un CLES=50,30,70,20 CIBLE=30</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SUPPR: nom=test_feuille | CIBLE: 20 | CAS: FEUILLE | INFIXE_APRES: 30, 40, 50, 70
+SUPPR: nom=test_deux | CIBLE: 30 | CAS: DEUX_ENFANTS | INFIXE_APRES: 20, 40, 50, 60, 70, 80
+SUPPR: nom=test_un | CIBLE: 30 | CAS: UN_ENFANT | INFIXE_APRES: 20, 50, 70</pre></div>
+    </div>
+    <p class="lab__note">Cas feuille (20), deux enfants (30 avec successeur 40), un enfant (30 avec enfant 20).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Identifier d’abord le type de nœud avant d’opérer la mutation structurelle.</li>
+        <li>Le successeur in-order se trouve en prenant le nœud droit puis en descendant tout à gauche.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’ordre des nœuds visités lors d’un parcours infixe sur un ABR contenant les clés [50, 20, 70, 10, 30] ?</p>
+      <div class="opts">
+        <button class="opt">50, 20, 10, 30, 70</button>
+        <button class="opt" data-correct="1">10, 20, 30, 50, 70</button>
+        <button class="opt">10, 30, 20, 70, 50</button>
+        <button class="opt">70, 50, 30, 20, 10</button>
+      </div>
+      <div class="q__exp">Le parcours infixe d’un ABR visite obligatoirement les éléments par ordre croissant de clé : 10, 20, 30, 50, 70.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lors de la suppression d’un nœud possédant deux enfants dans un ABR, par quoi remplace-t-on sa valeur ?</p>
+      <div class="opts">
+        <button class="opt">Par la racine de l’arbre</button>
+        <button class="opt">Par la plus grande feuille de l’arbre entier</button>
+        <button class="opt" data-correct="1">Par son successeur in-order (plus petit nœud du sous-arbre droit)</button>
+        <button class="opt">Par son fils gauche immédiat sans autre modification</button>
+      </div>
+      <div class="q__exp">Dans l’algorithme standard, on copie la clé du successeur in-order (minimum du sous-arbre droit) ou du prédécesseur in-order (maximum du sous-arbre gauche).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité temporelle au pire des cas d’une recherche dans un ABR classique sans équilibrage ?</p>
+      <div class="opts">
+        <button class="opt">O(1)</button>
+        <button class="opt">O(log n)</button>
+        <button class="opt" data-correct="1">O(n)</button>
+        <button class="opt">O(n log n)</button>
+      </div>
+      <div class="q__exp">Si les insertions ont été faites dans l’ordre trié croissant, l’arbre dégénère en liste chaînée (peigne) de hauteur n-1, donnant une recherche au pire des cas en O(n).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’enfants au maximum possède le successeur in-order d’un nœud dans un ABR ?</p>
+      <div class="opts">
+        <button class="opt">0 enfant</button>
+        <button class="opt" data-correct="1">Au plus 1 enfant (fils droit)</button>
+        <button class="opt">2 enfants</button>
+        <button class="opt">Aucune limite</button>
+      </div>
+      <div class="q__exp">Le successeur in-order étant le minimum du sous-arbre droit, il ne peut pas avoir de fils gauche (sinon ce fils serait encore plus petit). Il a donc au plus un fils droit.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la hauteur minimale d’un arbre binaire contenant 15 nœuds ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">4</button>
+        <button class="opt">7</button>
+        <button class="opt">15</button>
+      </div>
+      <div class="q__exp">Un arbre binaire parfait de hauteur h=3 contient 2^(3+1) - 1 = 15 nœuds. La hauteur minimale (avec la racine à profondeur 0) est donc 3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel parcours arborescent doit être privilégié pour libérer la mémoire allouée à chaque nœud en langage C sans fuite ?</p>
+      <div class="opts">
+        <button class="opt">Parcours préfixe</button>
+        <button class="opt">Parcours infixe</button>
+        <button class="opt" data-correct="1">Parcours postfixe</button>
+        <button class="opt">Parcours en largeur</button>
+      </div>
+      <div class="q__exp">Le parcours postfixe visite d’abord les enfants gauche et droit avant le parent. On peut donc libérer les enfants en toute sécurité avant de désallouer le parent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un arbre binaire, que vaut le nombre de feuilles par rapport au nombre de nœuds ayant deux enfants ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le nombre de feuilles est égal au nombre de nœuds à 2 enfants + 1</button>
+        <button class="opt">Le nombre de feuilles est le double des nœuds internes</button>
+        <button class="opt">Ils sont toujours égaux</button>
+        <button class="opt">Il n’y a aucun lien fixe</button>
+      </div>
+      <div class="q__exp">Dans tout arbre binaire strict ou complet, le nombre de feuilles L vérifie la formule fondamentale L = N2 + 1 où N2 est le nombre de nœuds ayant exactement deux enfants.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’impact de l’insertion de clés dans un arbre AVL par rapport à un ABR standard ?</p>
+      <div class="opts">
+        <button class="opt">L’insertion est impossible</button>
+        <button class="opt" data-correct="1">L’arbre garantit une hauteur O(log n) grâce à des rotations locales</button>
+        <button class="opt">La recherche devient linéaire</button>
+        <button class="opt">L’arbre double de taille en mémoire</button>
+      </div>
+      <div class="q__exp">L’arbre AVL maintient un facteur d’équilibre (-1, 0, +1) et applique des rotations (gauche, droite) pour borner strictement la hauteur à 1.44 * log2(n).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Vérifier seulement si gauche < racine < droite localement : c’est insuffisant car un nœud peut violer une contrainte d’un ancêtre plus haut.</li>
+      <li>Oublier de mettre à jour le pointeur du parent lors de la suppression d’un nœud.</li>
+      <li>Confondre hauteur d’un nœud (distance à la feuille la plus lointaine) et profondeur (distance depuis la racine).</li>
+      <li>Insérer des données déjà triées dans un ABR naïf : l’arbre dégénère en peigne linéaire O(n).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Manipulation des Arbres Binaires de Recherche</div>
+    <ol>
+      <li>Toujours vérifier le cas de base récursif (nœud courant None / NULL) avant d’accéder aux champs gauche ou droite.</li>
+      <li>Valider la propriété d’ABR par encadrement global (min_val < val < max_val) et non par simple test local parent-fils.</li>
+      <li>Pour trouver le minimum d’un sous-arbre, descendre continuellement à gauche jusqu’au dernier nœud.</li>
+      <li>Pour trouver le successeur in-order d’un nœud à deux enfants, prendre son fils droit puis descendre au minimum à gauche.</li>
+      <li>Mesurer la hauteur de l’arbre pour surveiller son ratio de balance : si h approche n, envisager un arbre AVL ou Rouge-Noir.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un ABR impose que tout le sous-arbre gauche contienne des clés strictement inférieures, et le sous-arbre droit des clés supérieures.</li>
+      <li>Le parcours infixe d’un ABR visite les éléments dans un ordre strictement trié.</li>
+      <li>La complexité des opérations (recherche, insertion, suppression) est proportionnelle à la hauteur h de l’arbre.</li>
+      <li>Cas moyen pour un arbre équilibré : h = Theta(log n). Pire cas pour un arbre dégénéré (peigne) : h = Theta(n).</li>
+      <li>La suppression d’un nœud à deux enfants se ramène à la suppression de son successeur in-order dans le sous-arbre droit.</li>
+      <li>Les arbres auto-équilibrants (AVL, Rouge-Noir) utilisent des rotations pour garantir h <= 2 * log2(n) en toutes circonstances.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais écrire un parcours récursif infixe, préfixe et postfixe.</li>
+      <li>Je sais expliquer pourquoi le parcours infixe d’un ABR est trié.</li>
+      <li>Je maîtrise l’algorithme de suppression d’un nœud ayant deux enfants.</li>
+      <li>Je comprends la différence entre minimum, maximum et successeur in-order.</li>
+      <li>Je sais identifier un piège où un arbre est localement valide mais globalement non ABR.</li>
+      <li>Je connais la formule de la hauteur maximale d’un arbre binaire à n nœuds (n-1).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Arbre Binaire de Recherche (ABR / BST)</li><li>Parcours infixe (In-Order) strictement croissant</li><li>Parcours préfixe (Pre-Order) et postfixe (Post-Order)</li><li>Recherche logarithmique O(log n)</li><li>Insertion ordonnée dans un ABR</li><li>Suppression de nœud (feuille, 1 enfant, 2 enfants)</li><li>Successeur in-order (minimum du sous-arbre droit)</li><li>Arbres auto-équilibrés (AVL et Rouge-Noir)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la propriété d’ordre des ABR et les 3 parcours fondamentaux.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bonnes notions, consolidez la suppression avec successeur in-order et l’équilibrage.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! La manipulation et l’algorithmique des ABR sont pleinement assimilées.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Files de Priorité, Tas Binaires &amp; Tri par Tas (Heapsort) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral ALGO_B3, l’ouvrage de référence Introduction à l’Algorithmique (Cormen, Leiserson, Rivest, Stein - CLRS) et les standards académiques universitaires de Licence 3 Informatique.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — L’Approche Docs-as-Code, Markdown &amp;amp; Générateurs Statiques | Document Technique B3</title>
+<meta name="description" content="Chapitre 5 du cours Document Technique B3 : Philosophie Docs-as-Code, syntaxe Markdown GFM, diagrammes textuels Mermaid.js, moteurs statiques MkDocs et Docusaurus, intégration continue Git/CI. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-document-technique/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — L’Approche Docs-as-Code, Markdown &amp;amp; Générateurs Statiques | Document Technique B3">
+<meta property="og:description" content="Chapitre 5 du cours Document Technique B3 : Philosophie Docs-as-Code, syntaxe Markdown GFM, diagrammes textuels Mermaid.js, moteurs statiques MkDocs et Docusaurus, intégration continue Git/CI. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-document-techniquenav"><div class="b3-document-techniquenav__in">
+  <a class="b3-document-techniquenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-document-techniquenav__sep" aria-hidden="true">/</span>
+  <a class="b3-document-techniquenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Document Technique B3</a>
+  <div class="b3-document-techniquenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-document-techniquenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-document-techniquewrap">
+<p class="crumb"><a href="../index.html">Document Technique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — L’Approche Docs-as-Code, Markdown &amp; Générateurs Statiques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pendant des décennies, la documentation technique d’entreprise est restée enfermée dans des suites bureautiques propriétaires (Word, PowerPoint) ou des wikis d’entreprise non versionnés (Confluence). Le résultat est universellement déplorable : documents désynchronisés du code de production, schémas vectoriels remplacés par des captures d’écran floues impossibles à modifier, conflits de versions insolubles et absence totale de revue collégiale. Le paradigme « Docs-as-Code » révolutionne la documentation technique en appliquant aux documents les mêmes outils, processus et exigences que pour le code source : fichiers textes bruts en Markdown, versionnement sous Git, schémas textuels déclaratifs avec Mermaid.js, compilation en sites web statiques ultra-rapides (MkDocs, Docusaurus) et déploiement automatisé via des pipelines CI/CD. L’ingénieur de Bachelor 3 doit maîtriser ce workflow moderne pour industrialiser la production documentaire.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>assimiler les fondements et avantages opérationnels de la démarche « Docs-as-Code » ;</li>
+      <li>maîtriser la syntaxe Markdown avancée (CommonMark, GitHub Flavored Markdown) et l’organisation modulaire de dossiers ;</li>
+      <li>concevoir des diagrammes d’architecture et de séquence as-code via la syntaxe textuelle Mermaid.js ;</li>
+      <li>configurer et structurer un générateur de site statique documentaire (MkDocs avec le thème Material, Docusaurus, Sphinx) ;</li>
+      <li>automatiser la compilation, la validation et la publication continue de la documentation dans une forge logicielle (GitHub Actions, GitLab CI) ;</li>
+      <li>développer en Python 3 des linters de hiérarchie Markdown, des validateurs de connectivité Mermaid et des générateurs d’arborescence YAML.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Paradigme « Docs-as-Code » : Principes &amp; Rupture Opérationnelle</h2>
+
+<p>L’approche <strong>Docs-as-Code</strong> consiste à traiter la documentation technique avec la même rigueur, les mêmes outils et les mêmes flux de travail que le code applicatif.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>L’Ancien Monde : Fichiers Binaires &amp; Wikis Isolés</h4>
+    <ul>
+      <li>Fichiers <code>.docx</code> ou <code>.pdf</code> stockés sur des répertoires partagés sans historique granulaire.</li>
+      <li>Différences illisibles : impossible de voir ce qui a changé entre deux versions d’un fichier binaire.</li>
+      <li>Déconnexion totale : le développeur modifie le code dans son IDE mais oublie de mettre à jour le wiki distant.</li>
+      <li>Goulots d’étranglement et perte de traçabilité des relectures.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Monde Moderne : Docs-as-Code</h4>
+    <ul>
+      <li><strong>Format texte brut :</strong> Fichiers Markdown (<code>.md</code>) ou AsciiDoc (<code>.adoc</code>) légers et interopérables.</li>
+      <li><strong>Dépôt Git unique :</strong> La documentation vit dans le même dépôt (monorepo ou dossier <code>docs/</code>) que le code.</li>
+      <li><strong>Revue par Pull Request :</strong> Toute modification documentaire est soumise à une PR, commentée ligne par ligne et relue par les pairs.</li>
+      <li><strong>Intégration continue (CI) :</strong> Tests de syntaxe, détection des liens cassés et déploiement automatisé à chaque commit.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Syntaxe Markdown Avancée (GFM) &amp; Structuration Documentaire</h2>
+
+<p>Le format <strong>Markdown</strong> s’est imposé comme le standard de facto de la documentation textuelle. La variante <strong>GitHub Flavored Markdown (GFM)</strong> apporte des extensions indispensables à l’ingénierie logicielle.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Hiérarchie Stricte des Titres</h4>
+    <p>Un seul titre de niveau 1 (<code># Titre Principal</code>) par page. Les sous-sections s’enchaînent obligatoirement sans sauter de niveau (ex. <code>## Niveau 2</code> puis <code>### Niveau 3</code>). Sauter d’un <code>#</code> à un <code>###</code> est une erreur d’accessibilité et de linter.</p>
+  </div>
+  <div class="card">
+    <h4>Blocs de Code Typés</h4>
+    <p>Tout extrait de code ou commande console doit être encapsulé dans un bloc clôturé par trois backticks avec indication explicite du langage (<code>```python</code>, <code>```bash</code>, <code>```json</code>), garantissant la coloration syntaxique et l’extraction automatisée.</p>
+  </div>
+  <div class="card">
+    <h4>Tableaux &amp; Callouts</h4>
+    <p>Tableaux alignés avec barres verticales (<code>|</code>) et tirets. Utilisation des blocs d’alerte standardisés (<code>&gt; [!NOTE]</code>, <code>&gt; [!WARNING]</code>, <code>&gt; [!IMPORTANT]</code>) pour faire ressortir les consignes de sécurité ou d’exploitation.</p>
+  </div>
+</div>
+
+<h2>3. Diagrammes-as-Code avec Mermaid.js : Clarté &amp; Maintenabilité</h2>
+
+<p>Dans un projet Docs-as-Code, intégrer une image PNG ou JPEG d’un schéma réseau ou d’une architecture logicielle est un anti-patron critique. Dès que l’architecture évolue, l’image devient obsolète car personne ne retrouve le fichier source original du logiciel de dessin.</p>
+<p><strong>Mermaid.js</strong> résout ce problème en permettant d’écrire des diagrammes sous forme de code texte déclaratif, directement interprété et rendu par GitHub, GitLab et les générateurs statiques modernes.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Exemple : Graphe d’Architecture Réseau</h4>
+    <pre><code>```mermaid
+graph TD
+  Client[Navigateur Web] --&gt;|HTTPS 443| LB[Reverse Proxy Nginx]
+  LB --&gt;|Port 8000| App1[Service API A]
+  LB --&gt;|Port 8000| App2[Service API B]
+  App1 --&gt;|TCP 5432| BDD[(Cluster PostgreSQL)]
+  App2 --&gt;|TCP 5432| BDD
+```</code></pre>
+  </div>
+  <div class="card">
+    <h4>Avantages Incomparables</h4>
+    <ul>
+      <li><strong>Diff Git Parfait :</strong> Lorsqu’un nœud réseau ou un port est modifié, le diff Git montre exactement la ligne de texte modifiée dans la Pull Request.</li>
+      <li><strong>Maintenance Pérenne :</strong> N’importe quel ingénieur de l’équipe peut mettre à jour le schéma en 30 secondes en modifiant le fichier texte.</li>
+      <li><strong>Accessibilité &amp; Recherche :</strong> Le texte des libellés du schéma est indexable par les moteurs de recherche interne.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Moteurs de Sites Statiques (SSG) : MkDocs, Material &amp; Docusaurus</h2>
+
+<p>Les fichiers Markdown bruts stockés dans un dépôt Git sont compilés par un <strong>Générateur de Site Statique (Static Site Generator - SSG)</strong> pour produire un portail documentaire HTML/CSS/JS complet, réactif, indexé et consultable sur le web interne ou public.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>MkDocs + Material for MkDocs</h4>
+    <p>Le standard incontournable de l’écosystème Python et DevOps. Écrit en Python, il se configure via un fichier central <code>mkdocs.yml</code>. Le thème Material offre une recherche plein texte instantanée, le mode sombre/clair automatique, la coloration syntaxique et le support natif de Mermaid.</p>
+  </div>
+  <div class="card">
+    <h4>Docusaurus (Meta)</h4>
+    <p>Basé sur Node.js et React. Idéal pour les portails développeurs hautement interactifs nécessitant des composants React dynamiques (MDX), le versionnement de documentation multi-releases et l’internationalisation (i18n).</p>
+  </div>
+  <div class="card">
+    <h4>Sphinx (Python / C++)</h4>
+    <p>L’outil historique de référence pour documenter les bibliothèques et frameworks techniques. Supporte reStructuredText et Markdown (MyST), et extrait automatiquement les docstrings du code source pour générer les références de classes et méthodes.</p>
+  </div>
+</div>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Structure du fichier mkdocs.yml</div>
+Le fichier <code>mkdocs.yml</code> définit les métadonnées du site et son arborescence de navigation :
+<pre><code>site_name: Portail Documentation Infrastructure Cloud
+theme:
+  name: material
+  features:
+    - search.suggest
+    - navigation.tabs
+nav:
+  - Accueil: index.md
+  - Architecture: architecture.md
+  - Guides d’Exploitation:
+    - Sauvegardes: runbooks/backup.md
+    - Procédure de Bascule: runbooks/failover.md</code></pre>
+  </div>
+
+<h2>5. Industrialisation en Intégration Continue (CI/CD)</h2>
+
+<p>La puissance du Docs-as-Code réside dans son automatisation au sein des pipelines de la forge logicielle (GitHub Actions, GitLab CI/CD) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Contrôles Automatisés (Linters)</h4>
+    <p>À chaque Pull Request, le runner CI vérifie que le document respecte les standards avant toute fusion :</p>
+    <ul>
+      <li><strong>markdownlint :</strong> Validation de la syntaxe et de la hiérarchie des titres.</li>
+      <li><strong>lychee / markdown-link-check :</strong> Détection immédiate des liens internes ou externes brisés.</li>
+      <li><strong>Vale :</strong> Linter de style éditorial vérifiant la clarté et le respect de la charte de rédaction technique.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Déploiement &amp; Hébergement Statique</h4>
+    <p>Dès que la PR est approuvée et fusionnée sur la branche <code>main</code> :</p>
+    <ul>
+      <li>La commande <code>mkdocs build --strict</code> compile les pages HTML statiques. En mode strict, le moindre avertissement fait échouer le pipeline.</li>
+      <li>Les fichiers générés sont automatiquement déployés sur GitHub Pages, GitLab Pages, AWS S3 / CloudFront ou un conteneur Nginx interne.</li>
+      <li>Zéro maintenance de serveur applicatif : performance et sécurité maximales.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="dt3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="MD_DOC nom=guide.md titres=# Guide d'installation|## Prérequis|### Système|## Configuration">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c5-e1) — Linter de hiérarchie des titres Markdown (Structure Docs-as-Code)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Saut abrupt de niveau 1 vers niveau 3 interdit]
+# Données : MD_DOC nom=archi.md titres=# Architecture Système|### Microservices|#### Base de données
+A_COMPLETER
+
+[Cas 2 — Deux titres H1 dans le même document]
+# Données : MD_DOC nom=double_h1.md titres=# Titre Un|## Section A|# Titre Deux|## Section B
+A_COMPLETER
+
+[Cas 3 — Titre vide et saut de niveau simultanés]
+# Données : MD_DOC nom=bug.md titres=# Racine|### |## Section
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Linter de hiérarchie des titres Markdown (Structure Docs-as-Code)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la rigueur structurelle d’un document Markdown : H1 unique, progression de niveau sans saut abrupt et absence de titre vide.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application un en-tête suivi de lignes de titres Markdown :<br>
+<code>MD_DOC nom=&lt;nom&gt; titres=&lt;t1|t2|...&gt;</code>.<br>
+Chaque titre $t_i$ commence par un ou plusieurs <code>#</code> suivis du texte (ex. <code># Titre</code>, <code>## Section</code>).<br><br>
+Règles de validation :<br>
+1. <strong>Nombre de H1 :</strong> le document doit comporter <strong>exactement un</strong> titre de niveau 1 (<code># </code>). Si 0 ou &gt; 1, ajouter l'anomalie <code>H1_NON_UNIQUE</code>.<br>
+2. <strong>Titres vides :</strong> aucun titre ne doit être vide après les <code>#</code> (ex. <code>## </code> sans texte). Si détecté, ajouter <code>TITRE_VIDE</code>.<br>
+3. <strong>Sauts de niveau :</strong> le niveau d'un sous-titre ne doit jamais dépasser le niveau précédent de plus de 1 (ex. passer de <code>#</code> à <code>###</code> est interdit car le niveau 2 est sauté). Si détecté, ajouter <code>SAUT_DE_NIVEAU_INTERDIT</code>.<br><br>
+Statut :<br>
+- Si aucune anomalie : <code>STATUT=STRUCTURE_MARKDOWN_VALIDE</code><br>
+- Sinon : <code>STATUT=NON_CONFORME (ANOMALIES=[&lt;anomalies_uniques_ordonnees&gt;])</code><br>
+(Ordre : <code>H1_NON_UNIQUE</code>, <code>TITRE_VIDE</code>, <code>SAUT_DE_NIVEAU_INTERDIT</code>).<br><br>
+Afficher :<br>
+<code>MD_LINTER: &lt;nom&gt; -&gt; STATUT=&lt;STATUT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MD_DOC nom=guide.md titres=# Guide d'installation|## Prérequis|### Système|## Configuration</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MD_LINTER: guide.md -&gt; STATUT=STRUCTURE_MARKDOWN_VALIDE</pre></div>
+    </div>
+    <p class="lab__note">Un seul H1, pas de titre vide, progression 1 -&gt; 2 -&gt; 3 -&gt; 2 valide.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Compter les symboles # initiaux pour trouver le niveau du titre.</li>
+        <li>Suivre le niveau précédent pour vérifier qu’il n’y a pas de saut de niveau supérieur à +1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="MERMAID_DIAG nom=flux_auth type=flowchart TD aretes=Client--&gt;Passerelle,Passerelle--&gt;AuthService,AuthService--&gt;BDD">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c5-e2) — Validateur de diagramme textuel Mermaid (Docs-as-Code)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Type de diagramme invalide]
+# Données : MERMAID_DIAG nom=diag_invalide type=diagram_circulaire aretes=A-->B,B-->C
+A_COMPLETER
+
+[Cas 2 — Graphe disjoint avec trop peu d’arêtes pour relier tous les nœuds]
+# Données : MERMAID_DIAG nom=cluster_isole type=graph LR aretes=A-->B,C-->D
+A_COMPLETER
+
+[Cas 3 — Diagramme dense avec cycles et branches multiples valide]
+# Données : MERMAID_DIAG nom=archi_mesh type=flowchart LR aretes=S1-->S2,S2-->S3,S3-->S1,S2-->S4
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de diagramme textuel Mermaid (Docs-as-Code)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité de l’en-tête d’un diagramme Mermaid et la connectivité globale de ses nœuds.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>MERMAID_DIAG nom=&lt;nom&gt; type=&lt;type&gt; aretes=&lt;a1--&gt;b1,a2--&gt;b2,...&gt;</code>.<br><br>
+Règles de validation :<br>
+- Types autorisés (insensible à la casse) : <code>graph TD</code>, <code>graph LR</code>, <code>flowchart TD</code>, <code>flowchart LR</code>.<br>
+  Si le type est différent, <code>VERDICT=TYPE_DIAGRAMME_INVALIDE</code>.<br>
+- Extraire l'ensemble des nœuds distincts participants aux arêtes (format <code>A--&gt;B</code>).<br>
+- Compter le nombre de nœuds uniques $N_{noeuds}$ et le nombre d'arêtes déclarées $N_{aretes}$.<br>
+- Vérification de connectivité : un graphe orienté cohérent possède au minimum $N_{aretes} \ge N_{noeuds} - 1$.<br>
+  Si $N_{aretes} &lt; N_{noeuds} - 1$ : <code>VERDICT=GRAPHE_POTENTIELLEMENT_DISJOINT (NOEUDS=&lt;N&gt;, ARETES=&lt;M&gt;)</code>.<br>
+  Sinon : <code>VERDICT=DIAGRAMME_VALIDE (NOEUDS=&lt;N&gt;, ARETES=&lt;M&gt;)</code>.<br><br>
+Afficher :<br>
+<code>MERMAID_AUDIT: &lt;nom&gt; -&gt; VERDICT=&lt;VERDICT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MERMAID_DIAG nom=flux_auth type=flowchart TD aretes=Client--&gt;Passerelle,Passerelle--&gt;AuthService,AuthService--&gt;BDD</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MERMAID_AUDIT: flux_auth -&gt; VERDICT=DIAGRAMME_VALIDE (NOEUDS=4, ARETES=3)</pre></div>
+    </div>
+    <p class="lab__note">4 nœuds, 3 arêtes : arbre connexe valide.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extraire les nœuds de part et d’autre de "--&gt;".</li>
+        <li>Vérifier le type parmi les 4 valeurs autorisées.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="NAV_GEN module=Guide pages=installation.md,demarrage.md,faq.md">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dt3-c5-e3) — Générateur d’arborescence de navigation MkDocs / Docusaurus (YAML Nav)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Module avec une seule page]
+# Données : NAV_GEN module=Accueil pages=index.md
+A_COMPLETER
+
+[Cas 2 — Module technique avec 4 pages désordonnées]
+# Données : NAV_GEN module=Exploitation pages=runbook.md,backup.md,monitoring.md,alertes.md
+A_COMPLETER
+
+[Cas 3 — Module API avec documentation endpoints]
+# Données : NAV_GEN module=API_Reference pages=users.md,auth.md,errors.md
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Générateur d’arborescence de navigation MkDocs / Docusaurus (YAML Nav)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir une liste de fichiers Markdown hiérarchisés en section de navigation conforme pour un générateur statique.</p>
+    <div class="lab__brief"><p>Pour chaque cas d’application :<br>
+<code>NAV_GEN module=&lt;nom_module&gt; pages=&lt;p1.md,p2.md,...&gt;</code>.<br><br>
+Traitement :<br>
+- Trier la liste des fichiers <code>pages</code> par ordre alphabétique.<br>
+- Produire une structure d'arborescence de navigation au format conventionnel suivant :<br>
+<code>NAV_OUTPUT: - &lt;nom_module&gt;: [&lt;pages_triees_separees_par_virgule&gt;] (TOTAL=&lt;N&gt;)</code>.<br><br>
+Exemple :<br>
+Si <code>module=Architecture</code> et <code>pages=overview.md,infra.md,reseau.md</code> :<br>
+Pages triées : <code>infra.md, overview.md, reseau.md</code><br>
+Affichage :<br>
+<code>NAV_OUTPUT: - Architecture: [infra.md, overview.md, reseau.md] (TOTAL=3)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NAV_GEN module=Guide pages=installation.md,demarrage.md,faq.md</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NAV_OUTPUT: - Guide: [demarrage.md, faq.md, installation.md] (TOTAL=3)</pre></div>
+    </div>
+    <p class="lab__note">Pages triées par ordre alphabétique strict.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trier les fichiers avec sorted().</li>
+        <li>Afficher le total de pages entre parenthèses.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le principe directeur fondamental de l’approche « Docs-as-Code » ?</p>
+      <div class="opts">
+        <button class="opt">Écrire toute la documentation uniquement en langage binaire exécutable</button>
+        <button class="opt" data-correct="1">Traiter la documentation avec les mêmes outils et processus que le code : texte brut, versionnement Git, revues par PR et tests CI/CD</button>
+        <button class="opt">Imprimer la documentation sur papier après chaque sprint agile</button>
+        <button class="opt">Interdire formellement aux développeurs de lire la documentation technique</button>
+      </div>
+      <div class="q__exp">Docs-as-Code applique les pratiques logicielles éprouvées (Git, Pull Requests, linters, pipelines CI/CD) à la rédaction documentaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il considéré comme une faute de hiérarchie de faire suivre immédiatement un titre de niveau 1 (#) par un sous-titre de niveau 3 (###) en Markdown ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le compilateur Markdown détruit automatiquement le fichier source</button>
+        <button class="opt" data-correct="1">Parce que cela brise la structure logique du document, perturbant les lecteurs d’écran pour l’accessibilité et la génération de la table des matières</button>
+        <button class="opt">Parce que le langage Markdown interdit d’avoir plus de deux titres par page</button>
+        <button class="opt">Parce que cela ralentit l’affichage graphique de 10 secondes</button>
+      </div>
+      <div class="q__exp">Sauter un niveau hiérarchique (de h1 à h3 sans h2) crée un trou dans l’arborescence du document, violant les règles WCAG d’accessibilité et déclenchant des erreurs de linters.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’avantage décisif d’un diagramme Mermaid.js par rapport à une image PNG intégrée dans une documentation technique ?</p>
+      <div class="opts">
+        <button class="opt">Mermaid.js utilise obligatoirement la couleur rouge pour tous les serveurs</button>
+        <button class="opt" data-correct="1">Le diagramme Mermaid étant du texte brut, son évolution se relit dans les diffs Git et n’importe quel ingénieur peut le modifier sans outil graphique tiers</button>
+        <button class="opt">Mermaid.js compresse l’image en format zip pour économiser de la bande passante</button>
+        <button class="opt">Les diagrammes Mermaid ne peuvent pas être affichés dans un navigateur web</button>
+      </div>
+      <div class="q__exp">Un schéma texte Mermaid se versionne sous Git : un changement de topologie se relit ligne par ligne lors d’une Pull Request et se modifie directement dans l’éditeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un projet utilisant MkDocs, quel fichier central définit les métadonnées du site, les extensions et l’arborescence de navigation ?</p>
+      <div class="opts">
+        <button class="opt">package.json</button>
+        <button class="opt" data-correct="1">mkdocs.yml</button>
+        <button class="opt">docker-compose.yml</button>
+        <button class="opt">settings.ini</button>
+      </div>
+      <div class="q__exp">Le fichier `mkdocs.yml` est le fichier de configuration principal d’un projet MkDocs, contenant notamment la clé `nav` qui structure la navigation du site.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert l’argument `--strict` lors de l’exécution de la commande de build `mkdocs build --strict` dans un pipeline d’intégration continue ?</p>
+      <div class="opts">
+        <button class="opt">À supprimer tous les fichiers Markdown qui contiennent des fautes d’orthographe</button>
+        <button class="opt" data-correct="1">À faire échouer le pipeline (exit code non nul) dès qu’un avertissement survient, tel qu’un lien interne cassé ou une page orpheline</button>
+        <button class="opt">À empêcher tout accès public au site web généré</button>
+        <button class="opt">À crypter le code HTML produit avec une clé RSA</button>
+      </div>
+      <div class="q__exp">L’option `--strict` transforme les avertissements (warnings) en erreurs bloquantes, garantissant qu’aucun lien brisé ou problème de configuration ne passe en production.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Parmi les propositions suivantes, laquelle décrit correctement le rôle d’un outil comme « Vale » dans une chaîne de CI/CD documentaire ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un linter de style éditorial qui vérifie le respect des règles rédactionnelles, la lisibilité et la terminologie technique</button>
+        <button class="opt">Un serveur de base de données relationnelle en mémoire</button>
+        <button class="opt">Un pare-feu réseau filtrant les attaques DDoS</button>
+        <button class="opt">Un moteur de rendu 3D pour jeux vidéo</button>
+      </div>
+      <div class="q__exp">Vale est un linter de prose (style linter) permettant d’appliquer automatiquement des guides de style rédactionnel (Google Style, Microsoft Style, règles personnalisées).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle balise d’encadrement permet de déclarer un bloc de code Python avec coloration syntaxique en Markdown GFM ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Trois backticks suivis immédiatement de la mention « python » (```python ... ```)</button>
+        <button class="opt">Des guillemets français (&laquo; python ... &raquo;)</button>
+        <button class="opt">Des chevrons HTML ordinaires (&lt;code&gt; ... &lt;/code&gt;)</button>
+        <button class="opt">Deux parenthèses ouvrantes (( python ... ))</button>
+      </div>
+      <div class="q__exp">Trois backticks suivis de l’identifiant du langage (```python) forment la syntaxe standard pour les blocs de code clôturés avec coloration syntaxique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il fortement recommandé d’héberger la documentation dans le même dépôt Git que le code de l’application (dossier docs/) plutôt que dans un wiki externe séparé ?</p>
+      <div class="opts">
+        <button class="opt">Car Git ne peut pas gérer les fichiers textes en dehors du répertoire racine</button>
+        <button class="opt" data-correct="1">Car cela garantit que les modifications documentaires sont synchronisées, relues et fusionnées dans la même branche et la même PR que le code qu’elles décrivent</button>
+        <button class="opt">Car les wikis externes coûtent obligatoirement un million d’euros par an</button>
+        <button class="opt">Car les développeurs refusent d’utiliser internet</button>
+      </div>
+      <div class="q__exp">Conserver la documentation dans le même dépôt permet de coupler les commits de code et de documentation dans la même Pull Request, évitant la dérive documentaire.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Insérer des captures d’écran d’architecture au lieu de diagrammes textuels Mermaid, rendant toute mise à jour ultérieure impossible.</li>
+      <li>Sauter des niveaux de titres Markdown (ex: passer d’un titre `#` directement à un sous-titre `###`), rompant l’accessibilité.</li>
+      <li>Conserver la documentation dans un wiki externe non synchronisé avec les branches de code du dépôt Git.</li>
+      <li>Ignorer les erreurs de compilation du générateur statique au lieu d’activer le mode strict (`--strict`) en intégration continue.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Déploiement d’un Projet Docs-as-Code</div>
+    <ol>
+      <li>1. Initialiser l’arborescence documentaire : Créer un dossier `docs/` à la racine du dépôt Git du projet avec un fichier `index.md` servant de page d’accueil.</li>
+      <li>2. Rédiger en Markdown strict : Respecter la hiérarchie des niveaux de titres (# puis ## puis ###), typager chaque bloc de code et insérer les diagrammes Mermaid.js sous forme textuelle.</li>
+      <li>3. Structurer la navigation : Déclarer l’arborescence dans le fichier de configuration `mkdocs.yml` (ou `docusaurus.config.js`) en organisant les rubriques de manière logique pour l’utilisateur.</li>
+      <li>4. Tester localement : Lancer le serveur de développement en direct (`mkdocs serve`) avec rechargement à chaud (live-reload) pour valider le rendu visuel dans le navigateur.</li>
+      <li>5. Configurer la validation CI : Écrire un workflow GitHub Actions / GitLab CI exécutant un linter Markdown et un vérificateur de liens à chaque pull request.</li>
+      <li>6. Déployer en continu : Configurer le job de publication finale (`mkdocs gh-deploy` ou copie S3) lors de la fusion sur la branche principale.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Docs-as-Code traite la documentation avec les mêmes standards que le code : texte brut versionné sous Git, revues par Pull Requests et tests automatisés en CI/CD.</li>
+      <li>Le format Markdown (GFM) garantit la lisibilité native en texte brut tout en offrant des fonctionnalités riches (code typé, tableaux, alertes).</li>
+      <li>La hiérarchie des titres Markdown doit être rigoureuse : un seul titre h1 par page, sans saut de niveau (ex: passer directement de h1 à h3 est une erreur).</li>
+      <li>Mermaid.js permet de coder des diagrammes d’architecture et de séquence directement en texte, facilitant les revues de diffs Git et bannissant les captures d’écran obsolètes.</li>
+      <li>Les générateurs statiques comme MkDocs (thème Material) et Docusaurus compilent le Markdown en sites web rapides, ergonomiques, avec recherche plein texte instantanée.</li>
+      <li>L’intégration continue (CI) garantit la qualité pérenne : compilation en mode strict (`--strict`), validation de la syntaxe par linters et détection des liens rompus.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>La documentation réside-t-elle dans le même dépôt Git que le code dans un sous-dossier dédié (ex: `docs/`) ?</li>
+      <li>Chaque page Markdown comporte-t-elle un unique titre de niveau 1 (#) sans rupture hiérarchique ?</li>
+      <li>Tous les extraits de code et commandes sont-ils encadrés par des blocs typés avec leur langage ?</li>
+      <li>Les schémas d’architecture et diagrammes de flux sont-ils rédigés en syntaxe textuelle Mermaid.js ?</li>
+      <li>L’arborescence du site est-elle explicitement configurée dans le fichier `mkdocs.yml` sous la clé `nav` ?</li>
+      <li>Un pipeline CI/CD vérifie-t-il la compilation stricte et l’absence de liens cassés à chaque commit ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Philosophie et principes Docs-as-Code</li><li>Syntaxe GitHub Flavored Markdown (GFM)</li><li>Règles de hiérarchie des titres Markdown</li><li>Diagrammes textuels Mermaid.js</li><li>Générateur statique MkDocs &amp; thème Material</li><li>Générateur interactif Docusaurus (MDX)</li><li>Configuration de navigation YAML (nav)</li><li>Pipelines CI/CD de validation et déploiement</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez les bases du Docs-as-Code, la syntaxe Markdown, les diagrammes Mermaid et la configuration MkDocs.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez les linters de style (Vale), la hiérarchie stricte des titres et les options de CI.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! Vous maîtrisez l’industrialisation moderne de la documentation technique en environnement DevOps.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Qualité, Validation Automatisée &amp; Cycle de Vie du Document Technique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours Support_Elaboration Document Technique.pdf (Yan NYAKU), document_technique.docx, la spécification OpenAPI 3.0, la norme CommonMark et les référentiels Docs-as-Code.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

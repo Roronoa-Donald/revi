@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Algorithme du Simplexe &amp;amp; Tableaux | Recherche Opérationnelle B2</title>
+<meta name="description" content="Chapitre 3 du cours Recherche Opérationnelle B2 : Principe d’itération de Dantzig, variables en base et hors-base, règle de sélection entrante/sortante et pivotage de Gauss-Jordan. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/RD-RO/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Algorithme du Simplexe &amp;amp; Tableaux | Recherche Opérationnelle B2">
+<meta property="og:description" content="Chapitre 3 du cours Recherche Opérationnelle B2 : Principe d’itération de Dantzig, variables en base et hors-base, règle de sélection entrante/sortante et pivotage de Gauss-Jordan. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="RD-ROnav"><div class="RD-ROnav__in">
+  <a class="RD-ROnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="RD-ROnav__sep" aria-hidden="true">/</span>
+  <a class="RD-ROnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Recherche Opérationnelle B2</a>
+  <div class="RD-ROnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="RD-ROnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="RD-ROwrap">
+<p class="crumb"><a href="../index.html">Recherche Opérationnelle B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Algorithme du Simplexe &amp; Tableaux</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dès qu’un problème compte 3, 10 ou 100 variables de décision, la représentation graphique dans le plan devient strictement impossible. Comment explorer un polyèdre à 50 dimensions sans tester des milliards de combinaisons ? En 1947, George Dantzig invente une méthode révolutionnaire : partir d’un sommet initial évident, inspecter les arêtes adjacentes pour choisir celle qui augmente le plus vite le profit, et glisser vers le sommet voisin par un pivot matriciel. C’est le génie de l’algorithme du Simplexe.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’intuition géométrique et algébrique de la marche de sommet en sommet sur le polyèdre ;</li>
+      <li>distinguer rigoureusement les variables de base (non nulles a priori) et les variables hors-base (fixées à zéro) ;</li>
+      <li>dresser le tableau initial du simplexe à partir de la forme standard d’un programme linéaire ;</li>
+      <li>appliquer le critère de Dantzig pour désigner la variable entrante (colonne pivot) ;</li>
+      <li>appliquer le test du ratio minimum pour désigner la variable sortante (ligne pivot) et éviter de sortir du domaine réalisable ;</li>
+      <li>exécuter un pivotage complet de Gauss-Jordan pour mettre à jour la base et les coûts réduits ;</li>
+      <li>reconnaître sans hésiter la condition d’optimalité finale (tous les coûts réduits $\bar{c}_j \le 0$).</li>
+    </ol>
+  </div>
+
+<h2>1. Le principe fondamental : Naviguer de sommet en sommet</h2>
+
+<p>L’algorithme du simplexe ne cherche pas au hasard. Il applique un principe d’<strong>ascension systématique</strong> :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> La marche de Dantzig de sommet en sommet</div>
+<div class="box--formula">
+  <span class="formula-label">Itération 0 — Sommet initial (Origine)</span>
+  <p>Base $s = b$, variables de décision hors-base $x_1 = x_2 = 0 \implies Z = 0$.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">Itération 1 — Choix de la plus forte pente</span>
+  <p>Entrée de la variable au coût réduit $\bar{c}_k > 0$ le plus élevé, pivotage $\implies Z = 120$.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">Itération 2 — Atteinte du sommet optimal</span>
+  <p>Nouvelle amélioration jusqu’à ce que tous les coûts réduits soient $\le 0 \implies Z^* = 160$ (Optimum prouvé).</p>
+</div>
+  </div>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Pourquoi le simplexe est-il si rapide ?</div>
+<p>Bien que le nombre théorique de sommets puisse être exponentiel dans le pire des cas (Klee-Minty), en pratique industrielle l’algorithme du simplexe converge en un nombre d’itérations linéaire par rapport au nombre de contraintes (généralement entre $1.5 m$ et $3 m$ pivots, où $m$ est le nombre de lignes).</p>
+  </div>
+
+<h2>2. Base, Hors-Base & Solutions de Base Réalisables</h2>
+
+<p>Considérons un système de $m$ contraintes avec $n$ variables ($n > m$) sous forme standard $A x = b$ :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Définition d’une Solution de Base Réalisable (SBR)</div>
+<ul>
+  <li>On partitionne les $n$ variables en deux groupes :
+    <ul>
+      <li><strong>$m$ variables de base ($x_B$)</strong> : associées à une sous-matrice carrée inversible $B$ de taille $m \times m$.</li>
+      <li><strong>$n - m$ variables hors-base ($x_N$)</strong> : fixées arbitrairement à zéro ($x_N = 0$).</li>
+    </ul>
+  </li>
+  <li>La valeur des variables de base est alors calculée par $x_B = B^{-1} b$.</li>
+  <li>Si $x_B \ge 0$, la solution de base est dite <strong>réalisable (SBR)</strong> : elle correspond exactement à un <strong>sommet</strong> du polyèdre géométrique !</li>
+</ul>
+  </div>
+
+<h2>3. Anatomie du Tableau du Simplexe</h2>
+
+<p>L’algorithme consigne tous les calculs dans un tableau matriciel structuré :</p>
+<table class="table">
+  <thead><tr><th>Base</th><th>x1</th><th>x2</th><th>s1</th><th>s2</th><th>b (Solution)</th><th>Ratio (b / a_col)</th></tr></thead>
+  <tbody>
+    <tr><td><strong>s1</strong></td><td>a11</td><td>a12</td><td>1</td><td>0</td><td>b1</td><td>b1 / a1k</td></tr>
+    <tr><td><strong>s2</strong></td><td>a21</td><td>a22</td><td>0</td><td>1</td><td>b2</td><td>b2 / a2k</td></tr>
+    <tr style="background:var(--accent-soft)"><td><strong>Δ (Coûts réduits)</strong></td><td>c1</td><td>c2</td><td>0</td><td>0</td><td>-Z (ou Z courant)</td><td>—</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Interprétation des coûts réduits (ligne Δ)</div>
+<p>Le coût réduit $\bar{c}_j$ indique le <strong>gain marginal net</strong> obtenu sur la fonction objectif si l’on augmente la variable hors-base $x_j$ d’une unité :</p>
+<ul>
+  <li>Si $\bar{c}_j > 0$ : faire entrer $x_j$ dans la base va <strong>augmenter le profit</strong> $Z$.</li>
+  <li>Si tous les $\bar{c}_j \le 0$ : aucune variable ne peut augmenter le profit, la base courante est <strong>optimale</strong>.</li>
+</ul>
+  </div>
+
+<h2>4. L’Itération du Simplexe en 4 règles précises</h2>
+
+<p>Chaque itération du simplexe applique rigoureusement les quatre étapes suivantes :</p>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Algorithme d’itération du simplexe en 4 étapes clés</div>
+<div class="box--formula">
+  <span class="formula-label">1. Variable entrante (colonne pivot $k$)</span>
+  <div class="math-block">$$k = \operatorname{argmax} \{ \bar{c}_j \mid \bar{c}_j > 0 \}$$</div>
+  <p>Si aucun $\bar{c}_j > 0$, la solution courante est optimale (STOP).</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">2. Variable sortante (ligne pivot $r$ — Test du ratio minimum)</span>
+  <div class="math-block">$$r = \operatorname{argmin} \left\{ \theta_i = \frac{b_i}{a_{ik}} \;\middle|\; a_{ik} > 0 \right\}$$</div>
+  <p>Si tous les $a_{ik} \le 0$, le domaine est ouvert : le problème est non borné ($Z \to +\infty$).</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">3. Pivot de Gauss-Jordan</span>
+  <p>Le coefficient $p = a_{rk}$ est le pivot. On normalise la ligne du pivot : $L_r \leftarrow \frac{L_r}{p}$.</p>
+  <p>Pour chaque autre ligne $i \ne r$ : $L_i \leftarrow L_i - a_{ik} L_r$ (élimination sur la colonne $k$).</p>
+</div>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ro2-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="x1:4.0,x2:6.0,s1:0.0,s2:0.0">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c3-e1) — Critère de Dantzig (Choix de la variable entrante)
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deux variables candidates positives]
+# Données : x1:3.5,x2:2.0,x3:5.8,s1:0.0
+A_COMPLETER
+
+[Cas 2 — Solution optimale (tous négatifs ou nuls)]
+# Données : x1:0.0,x2:-2.5,s1:-1.2,s2:0.0
+A_COMPLETER
+
+[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]
+# Données : x1:4.0,x2:4.0,s1:0.0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Critère de Dantzig (Choix de la variable entrante)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier la variable hors-base entrante selon la règle du plus grand coût réduit.</p>
+    <div class="lab__brief"><p>Dans un problème de maximisation, la ligne d’indicateurs (coûts réduits $\bar{c}_j$) du tableau du simplexe guide l’amélioration de la solution :</p><ul>  <li>Si tous les $\bar{c}_j \le 0$, la solution de base courante est <strong>optimale</strong> ;</li>  <li>Sinon, la variable entrante est celle qui possède le coût réduit le plus strictement positif $\max \bar{c}_j$ (règle de Dantzig). En cas d’égalité, on choisit l’indice le plus petit (règle de Bland pour éviter le cyclage).</li></ul><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>Si toutes les valeurs sont $\le 0$, Indiquez : <code>OPTIMALITE_ATTEINTE</code>.<br>Sinon, Indiquez : <code>ENTRANTE: &lt;nom_variable&gt; COUT_REDUIT=&lt;valeur à 2 décimales&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>x1:4.0,x2:6.0,s1:0.0,s2:0.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ENTRANTE: x2 COUT_REDUIT=6.00</pre></div>
+    </div>
+    <p class="lab__note">x2 a le plus fort coût réduit positif (+6.0).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe par virgule puis chaque couple par deux-points.</li>
+        <li>Cherche le maximum strictement positif. S’il n’y en a aucun, c’est optimal.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="18,42,24;2,3,4">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c3-e2) — Règle du ratio minimum & variable sortante
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Minimum en première ligne]
+# Données : 10,20,30;5,2,1
+A_COMPLETER
+
+[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]
+# Données : 15,25;0,-2
+A_COMPLETER
+
+[Cas 3 — Un seul coefficient strictement positif]
+# Données : 12,8,20;-3,4,-1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Règle du ratio minimum &amp; variable sortante</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer la variable de base sortante par le test du ratio minimum de Dantzig.</p>
+    <div class="lab__brief"><p>Une fois la colonne pivot $k$ choisie, la ligne sortante $r$ est déterminée par la règle du plus petit ratio strictement positif entre le second membre $b_i$ et l’élément de la colonne pivot $a_{ik}$ :<br>$$\theta = \min_{i \mid a_{ik} > 0} \left( \frac{b_i}{a_{ik}} \right)$$</p><p>Si aucun élément $a_{ik}$ n’est strictement positif ($a_{ik} \le 0$ pour toute la colonne), la solution est <strong>non bornée</strong>.</p><p>Analysez les paramètres du problème pour chaque cas...;a1k,a2k,...</code>.<br>Si aucun $a_{ik} > 0$, Indiquez : <code>PROBLEME_NON_BORNE</code>.<br>Sinon, Indiquez : <code>SORTANTE: LIGNE_&lt;numéro 1-indexé&gt; MIN_RATIO=&lt;theta à 2 décimales&gt;</code>.<br>(En cas d’égalité de ratio, choisis la ligne de plus petit indice pour briser l’équi-départ).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>18,42,24;2,3,4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SORTANTE: LIGNE_3 MIN_RATIO=6.00</pre></div>
+    </div>
+    <p class="lab__note">Ratios : L1=18/2=9.0, L2=42/3=14.0, L3=24/4=6.0. Le minimum est en Ligne 3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Ignore les lignes où aik &lt;= 0.</li>
+        <li>Parcours les ratios et retiens le minimum strictement positif.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="1,1;2,4,10|1,1,4">
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c3-e3) — Opération de pivotage de Gauss-Jordan
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Matrice 2x3 avec pivot à 3.0]
+# Données : 1,2;1,3,9|2,1,8
+A_COMPLETER
+
+[Cas 2 — Pivot en deuxième ligne]
+# Données : 2,1;3,2,12|2,4,16
+A_COMPLETER
+
+[Cas 3 — Matrice 3x3 avec ligne identité]
+# Données : 2,2;1,2,5|0,4,8|2,1,6
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Opération de pivotage de Gauss-Jordan</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Effectuer un pivot complet de Gauss-Jordan sur une matrice de simplexe.</p>
+    <div class="lab__brief"><p>Le pivot de Gauss-Jordan sur l’élément de pivot $(r, c)$ d’une matrice $M$ s’effectue en deux étapes :</p><ol>  <li>Normaliser la ligne de pivot $r$ en divisant chaque coefficient par le pivot $p = M[r][c]$ ;</li>  <li>Pour chaque autre ligne $i \neq r$, éliminer le coefficient de la colonne $c$ en effectuant :<br>  $M[i][j] \leftarrow M[i][j] - M[i][c] \times M[r][j]$.</li></ol><p>Analysez les paramètres du problème pour chaque cas...|L2_coeff1,L2_coeff2,...|...</code><br>où $r, c$ sont les indices 1-indexés du pivot (ligne $r$, colonne $c$).<br>Indiquez chaque ligne de la matrice résultante séparée par <code> | </code> avec les coefficients arrondis à 2 décimales séparés par des virgules :<br><code>&lt;val11&gt;,&lt;val12&gt;,... | &lt;val21&gt;,&lt;val22&gt;,...</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1,1;2,4,10|1,1,4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1.00,2.00,5.00 | 0.00,-1.00,-1.00</pre></div>
+    </div>
+    <p class="lab__note">Pivot à la ligne 1, colonne 1 (valeur 2). L1 devient L1/2 = [1, 2, 5]. L2 devient L2 - 1*L1 = [0, -1, -1].</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertis r et c en indices 0-indexés (r-1, c-1).</li>
+        <li>Sauvegarde bien la ligne pivot normalisée avant de modifier les autres lignes.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans un tableau du simplexe en maximisation, à quel moment s’arrête l’algorithme avec la certitude d’avoir trouvé l’optimum ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Lorsque tous les coûts réduits de la ligne d’indicateurs sont négatifs ou nuls (Δj ≤ 0)</button>
+        <button class="opt">Lorsque toutes les variables de décision valent zéro</button>
+        <button class="opt">Lorsque le second membre b devient négatif</button>
+        <button class="opt">Après exactement 10 itérations</button>
+      </div>
+      <div class="q__exp">Si tous les coûts réduits sont $\le 0$, aucune variable hors-base ne peut améliorer la fonction objectif, la solution est optimale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon le critère de Dantzig pour un problème MAX, quelle variable choisit-on pour entrer dans la base ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Celle qui possède le coût réduit le plus strictement positif</button>
+        <button class="opt">Celle qui a la plus petite valeur absolue</button>
+        <button class="opt">Celle qui a le plus petit indice j</button>
+        <button class="opt">Celle dont le coefficient dans la première ligne est nul</button>
+      </div>
+      <div class="q__exp">La règle de Dantzig sélectionne la variable promettant le plus fort taux d’accroissement unitaire de la fonction objectif.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la règle du ratio minimum (b_i / a_ik) impose-t-elle de ne considérer que les coefficients a_ik strictement positifs (a_ik > 0) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour garantir que la nouvelle solution de base reste non négative (réalisable)</button>
+        <button class="opt">Pour éviter une division par un nombre complexe</button>
+        <button class="opt">Parce que les coûts réduits sont positifs</button>
+        <button class="opt">C’est une convention purement esthétique</button>
+      </div>
+      <div class="q__exp">Augmenter la variable entrante diminue les variables de base proportionnellement à $a_{ik}$. Si $a_{ik} > 0$, la variable de base s’annule à $b_i / a_{ik}$. Le ratio minimum garantit qu’aucune variable ne devient négative.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que conclut l’algorithme du simplexe si, pour une variable entrante choisie, tous les coefficients de la colonne pivot sont négatifs ou nuls (a_ik ≤ 0) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le problème est non borné (la fonction objectif peut croître vers l’infini sans jamais violer les contraintes)</button>
+        <button class="opt">Le problème est irréalisable</button>
+        <button class="opt">La solution optimale vaut zéro</button>
+        <button class="opt">Le pivotage est impossible et l’algorithme recommence</button>
+      </div>
+      <div class="q__exp">Si aucun coefficient n’est positif, la variable entrante peut augmenter indéfiniment sans qu’aucune variable de base ne diminue : $Z \to +\infty$.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle règle de brisure d’égalité (tie-breaking) permet de choisir la variable de plus petit indice pour éviter le phénomène de cyclage ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La règle de Bland</button>
+        <button class="opt">La règle de Cramer</button>
+        <button class="opt">La règle de L’Hôpital</button>
+        <button class="opt">La règle de Simpson</button>
+      </div>
+      <div class="q__exp">La règle de Bland (Robert Bland, 1977) garantit formellement l’absence de bouclage infini en cas de dégénérescence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un problème standard avec m contraintes et n variables (n > m), combien de variables sont fixées à zéro (variables hors-base) dans une solution de base ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">n - m variables</button>
+        <button class="opt">m variables</button>
+        <button class="opt">n variables</button>
+        <button class="opt">Exactement 2 variables</button>
+      </div>
+      <div class="q__exp">Une base contient exactement $m$ variables. Les $n - m$ autres variables sont hors-base et ont pour valeur 0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après l’opération de pivot de Gauss-Jordan sur l’élément (r, c), que vaut l’élément de pivot lui-même et les autres coefficients de sa colonne ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le pivot vaut 1 et tous les autres éléments de la colonne valent 0</button>
+        <button class="opt">Le pivot vaut 0 et les autres valent 1</button>
+        <button class="opt">Tous les éléments valent -1</button>
+        <button class="opt">La colonne est supprimée du tableau</button>
+      </div>
+      <div class="q__exp">Le pivotage crée une colonne de la matrice identité : un 1 sur la ligne pivot $r$ et des 0 partout ailleurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment qualifie-t-on une solution de base réalisable dans laquelle au moins une variable de base a une valeur égale à zéro (b_i = 0) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une solution de base dégénérée</button>
+        <button class="opt">Une solution non bornée</button>
+        <button class="opt">Une solution imaginaire</button>
+        <button class="opt">Une solution asymptotique</button>
+      </div>
+      <div class="q__exp">La présence d’un zéro dans le vecteur de base caractérise la dégénérescence, où plus de $n$ hyperplans se coupent en un même sommet.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Calculer le ratio sur des coefficients négatifs ou nuls ($a_{ik} \le 0$), ce qui produit des ratios aberrants ou des divisions par zéro.</li>
+      <li>Oublier de mettre à jour la ligne de fonction objectif lors de l’élimination de Gauss-Jordan.</li>
+      <li>Pivoter sur un élément non nul mais sans diviser toute la ligne de pivot par la valeur du pivot pour obtenir un 1.</li>
+      <li>Déclarer l’optimalité alors qu’il subsiste au moins un coût réduit strictement positif dans la ligne $\Delta$.</li>
+      <li>Confondre le nom de la variable qui entre (en haut de la colonne pivot) et celui de la variable qui sort (à gauche de la ligne pivot).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole d’itération du Simplexe pas à pas</div>
+    <ol>
+      <li>Examiner la ligne des coûts réduits $\Delta$ : repérer le coefficient strictement positif le plus grand. Sa colonne est la colonne pivot $k$. Si aucun $\Delta_j > 0$, la solution est optimale.</li>
+      <li>Pour chaque ligne $i$ ayant $a_{ik} > 0$, calculer le ratio $\theta_i = b_i / a_{ik}$. Identifier le ratio strictement positif le plus petit. Sa ligne est la ligne pivot $r$.</li>
+      <li>Remplacer le nom de la variable de base sortante par celui de la variable entrante dans la colonne de gauche.</li>
+      <li>Diviser tous les coefficients de la ligne $r$ par le pivot $p = a_{rk}$.</li>
+      <li>Pour toutes les autres lignes $i \neq r$ (y compris la ligne de fonction objectif), soustraire $a_{ik} \times L_r$ pour annuler le terme en colonne $k$.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Simplexe parcourt les sommets du polyèdre de proche en proche par pivotage matriciel.</li>
+      <li>Une Solution de Base Réalisable compte $m$ variables de base ($x_B \ge 0$) et $n - m$ variables hors-base ($x_N = 0$).</li>
+      <li>La variable entrante correspond au plus grand coût réduit $\bar{c}_j &gt; 0$ (règle de Dantzig).</li>
+      <li>La variable sortante correspond au plus petit ratio $b_i / a_{ik}$ parmi les $a_{ik} &gt; 0$ (règle du ratio minimum).</li>
+      <li>Le pivotage de Gauss-Jordan transforme la colonne pivot en colonne de la matrice identité ($1$ au pivot, $0$ ailleurs).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais identifier les variables en base et hors-base dans un tableau de simplexe.</li>
+      <li>Je sais sélectionner la variable entrante via la ligne des coûts réduits.</li>
+      <li>Je sais calculer les ratios et identifier la variable sortante sans diviser par un nombre négatif ou nul.</li>
+      <li>Je sais réaliser les opérations élémentaires de Gauss-Jordan pour mettre à jour le tableau.</li>
+      <li>Je reconnais les conditions d’arrêt : optimalité prouvée ou problème non borné.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Algorithme du Simplexe</li><li>Solution de Base Réalisable (SBR)</li><li>Coût réduit (Indicateur)</li><li>Critère de Dantzig</li><li>Règle du ratio minimum</li><li>Pivot de Gauss-Jordan</li><li>Variable entrante / sortante</li><li>Règle de Bland</li><li>Dégénérescence</li><li>Non-bornitude</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois la définition des variables de base et la règle de sélection de la variable entrante.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le calcul des ratios et l’identification de la variable sortante.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les itérations et le pivotage de Gauss-Jordan.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à la dualité et à la méthode des deux phases au chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Méthode des Deux Phases &amp; Dualité Linéaire <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Recherche Opérationnelle B2, les publications historiques de George Dantzig (1947), Ford & Fulkerson (1956) et les manuels de référence en optimisation linéaire.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

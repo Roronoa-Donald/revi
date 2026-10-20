@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Jointures Multi-tables, Sous-requêtes &amp;amp; Expressions Conditionnelles | SQL B2</title>
+<meta name="description" content="Chapitre 3 du cours SQL B2 : Algèbre relationnelle des jointures (INNER, LEFT, RIGHT, FULL, CROSS, SELF JOIN), sous-requêtes scalaires et corrélées (EXISTS, NOT EXISTS, IN), et logique conditionnelle avancée avec l’expression CASE WHEN. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/sql/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Jointures Multi-tables, Sous-requêtes &amp;amp; Expressions Conditionnelles | SQL B2">
+<meta property="og:description" content="Chapitre 3 du cours SQL B2 : Algèbre relationnelle des jointures (INNER, LEFT, RIGHT, FULL, CROSS, SELF JOIN), sous-requêtes scalaires et corrélées (EXISTS, NOT EXISTS, IN), et logique conditionnelle avancée avec l’expression CASE WHEN. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B2</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Jointures Multi-tables, Sous-requêtes &amp; Expressions Conditionnelles</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une plateforme de réservation hôtelière en ligne doit générer la liste des chambres qui n’ont fait l’objet d’aucune réservation au cours des 30 derniers jours, tout en affichant le statut de fidélité calculé de chaque client et la hiérarchie des responsables d’agences rattachés à chaque hôtel. Une simple requête sur une table unique est impuissante face à ce besoin métier transverse. Comment relier les tables sans perdre les entités sans correspondance grâce aux jointures externes (LEFT / FULL OUTER JOIN) ? Comment modéliser une hiérarchie managériale interne avec une auto-jointure (SELF JOIN) ? Pourquoi l’opérateur EXISTS sur sous-requête corrélée est-il infiniment plus performant et sûr que NOT IN en présence de valeurs NULL ? Ce module détaille l’art d’interroger plusieurs tables interconnectées en SQL relationnel.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer et mettre en œuvre les 5 grands types de jointures : INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN et CROSS JOIN ;</li>
+      <li>concevoir une auto-jointure (SELF JOIN) pour modéliser des structures arborescentes (organigrammes, hiérarchies de catégories) ;</li>
+      <li>différencier le filtrage dans la clause ON de la jointure du filtrage dans la clause WHERE générale ;</li>
+      <li>exploiter les sous-requêtes scalaires, en liste (IN / NOT IN) et corrélées avec le prédicat de test d’existence EXISTS / NOT EXISTS ;</li>
+      <li>construire des colonnes calculées dynamiques et classer des profils grâce à l’expression conditionnelle CASE WHEN.</li>
+    </ol>
+  </div>
+
+<h2>1. Algèbre des Jointures : Du Produit Cartésien aux Jointures Externes</h2>
+
+<p>Dans une base de données normalisée, les informations sont réparties dans plusieurs tables pour éliminer les redondances. Les jointures permettent de recombiner ces fragments à la volée selon des clés de correspondance communes.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. INNER JOIN (Intersection A ∩ B)</h4>
+    <p>Ne conserve que les lignes pour lesquelles la condition de correspondance est satisfaite dans les <em>deux</em> tables :</p>
+    <div class="code-block">SELECT c.nom, cmd.id_cmd, cmd.montant
+FROM Clients c
+INNER JOIN Commandes cmd ON c.id = cmd.client_id;    </div>
+    <p>Un client n’ayant passé aucune commande n’apparaît pas dans le résultat.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. LEFT OUTER JOIN (Conservation gauche)</h4>
+    <p>Conserve <strong>toutes</strong> les lignes de la table de gauche (Clients), même si aucune ligne correspondante n’existe à droite :</p>
+    <div class="code-block">SELECT c.nom, cmd.id_cmd, cmd.montant
+FROM Clients c
+LEFT JOIN Commandes cmd ON c.id = cmd.client_id;    </div>
+    <p>Les colonnes de la table droite sont complétées par <code>NULL</code> en l’absence de commande.</p>
+  </div>
+</div>
+<h4>L’Auto-Jointure (SELF JOIN)</h4>
+<p>Lorsqu’une table possède une clé étrangère pointant vers sa propre clé primaire (ex: un employé et son manager dans la même table <code>Employes</code>), on réalise une jointure de la table avec elle-même en utilisant des alias distincts :</p>
+<div class="code-block">SELECT e.nom AS employe, m.nom AS manager
+FROM Employes e
+LEFT JOIN Employes m ON e.manager_id = m.id;</div>
+
+<h2>2. Sous-requêtes Corrélées &amp; Le Prédicat EXISTS vs NOT IN</h2>
+
+<p>Une <strong>sous-requête</strong> (subquery) est une requête SELECT imbriquée dans une autre requête principale. Lorsque la sous-requête fait référence à une colonne de la requête englobante, elle est dite <em>corrélée</em> : elle est réévaluée pour chaque ligne candidate de la requête externe.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Prédicat EXISTS (Test d’existence)</h4>
+    <p>S’évalue à TRUE dès que la sous-requête renvoie au moins un enregistrement (court-circuit dès la première ligne trouvée) :</p>
+    <div class="code-block">SELECT c.nom
+FROM Clients c
+WHERE EXISTS (
+    SELECT 1 FROM Commandes cmd
+    WHERE cmd.client_id = c.id AND cmd.total &gt; 1000
+);    </div>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Le danger mortel de NOT IN avec NULL</h4>
+    <p>Si une sous-requête utilisée avec <code>NOT IN</code> contient une seule valeur NULL, l’expression entière s’évalue à UNKNOWN pour toutes les lignes : <strong>aucun résultat n’est renvoyé !</strong></p>
+    <p><em>Règle d’or :</em> Privilégiez systématiquement <code>NOT EXISTS</code> à <code>NOT IN</code> pour tester l’absence de liaison.</p>
+  </div>
+</div>
+
+<h2>3. Expressions Conditionnelles : L’Instruction CASE WHEN</h2>
+
+<p>L’expression <code>CASE WHEN</code> équivaut à une structure conditionnelle <em>if / else-if / else</em> au sein même d’une projection SQL. Les conditions sont examinées séquentiellement, et la première condition vérifiée détermine la valeur de retour :</p>
+<div class="code-block">SELECT
+    ref_produit,
+    stock,
+    CASE
+        WHEN stock = 0 THEN 'Rupture de stock'
+        WHEN stock &lt; 10 THEN 'Alerte réapprovisionnement'
+        WHEN stock &lt; 50 THEN 'Stock modéré'
+        ELSE 'Stock optimal'
+    END AS etat_inventaire
+FROM Produits;</div>
+  <div class="box box--Différence clé : Filtrer dans ON vs Filtrer dans WHERE sur un LEFT JOIN">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <p>Dans un <code>LEFT JOIN</code>, placer une condition dans la clause <code>ON</code> ou dans la clause <code>WHERE</code> change radicalement le sens de la requête :</p><ul>  <li><code>ON c.id = cmd.client_id AND cmd.statut = 'LIVREE'</code> : Tous les clients sont conservés. Pour les clients n’ayant pas de commande livrée, les colonnes de commande valent NULL.</li>  <li><code>WHERE cmd.statut = 'LIVREE'</code> : Cette condition s’applique <em>après</em> la jointure. Les lignes ayant NULL pour statut sont éliminées, transformant de fait le LEFT JOIN en un INNER JOIN !</li></ul></div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sql2-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="INNER&#10;1:Alice;2:Bob;3:Claire&#10;101:1:150;102:1:300;103:2:50">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c3-e1) — Moteur de jointure relationnelle (INNER JOIN vs LEFT JOIN)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — LEFT JOIN incluant le client sans commande]
+# Données : LEFT
+# Données : 1:Alice;2:Bob;3:Claire
+# Données : 101:1:150;102:1:300;103:2:50
+A_COMPLETER
+
+[Cas 2 — INNER JOIN avec commandes multiples]
+# Données : INNER
+# Données : 10:Zoe;20:David
+# Données : 501:20:80;502:20:120;503:10:450
+A_COMPLETER
+
+[Cas 3 — LEFT JOIN où aucun client n a de commande]
+# Données : LEFT
+# Données : 1:Marc;2:Sophie
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moteur de jointure relationnelle (INNER JOIN vs LEFT JOIN)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler les jointures INNER et LEFT OUTER entre une table Clients et une table Commandes.</p>
+    <div class="lab__brief"><p>Le script simule l’exécution d’une jointure SQL entre :
+- Table <code>Clients(id, nom)</code>
+- Table <code>Commandes(cmd_id, client_id, montant)</code>
+
+Entrée :
+- Ligne 1 : Type de jointure : <code>INNER</code> ou <code>LEFT</code>.
+- Ligne 2 : Clients séparés par des points-virgules <code>id:nom</code>.
+- Ligne 3 : Commandes séparées par des points-virgules <code>cmd_id:client_id:montant</code>.
+
+Sortie :
+Pour chaque paire issue de la jointure, afficher une ligne : <code>nom | cmd_id | montant</code> (en cas de LEFT JOIN sans commande, afficher <code>NULL</code> pour cmd_id et montant). Trier par nom de client puis par cmd_id croissant.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INNER
+1:Alice;2:Bob;3:Claire
+101:1:150;102:1:300;103:2:50</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Alice | 101 | 150
+Alice | 102 | 300
+Bob | 103 | 50</pre></div>
+    </div>
+    <p class="lab__note">Claire n'a pas de commande, elle est donc exclue du INNER JOIN.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocke les clients dans une liste de dictionnaires ou tuples ordonnés.</li>
+        <li>Pour chaque client, trouve toutes ses commandes correspondantes.</li>
+        <li>Si c est un LEFT JOIN et qu un client n a pas de commande, produis une ligne avec NULL.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="EXISTS,10&#10;1:Acme,2:Globex,3:Initech&#10;101:1:15,102:1:5,103:2:2">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c3-e2) — Évaluateur de sous-requête corrélée avec clause EXISTS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — NOT_EXISTS avec plusieurs résultats]
+# Données : NOT_EXISTS,10
+# Données : 1:Acme,2:Globex,3:Initech
+# Données : 101:1:15,102:1:5,103:2:2
+A_COMPLETER
+
+[Cas 2 — EXISTS avec plusieurs fournisseurs satisfaits]
+# Données : EXISTS,50
+# Données : 1:Alpha,2:Beta,3:Gamma
+# Données : 11:1:60,12:2:50,13:3:10
+A_COMPLETER
+
+[Cas 3 — Aucun fournisseur ne satisfait EXISTS]
+# Données : EXISTS,100
+# Données : 1:Alpha,2:Beta
+# Données : 11:1:10,12:2:20
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Évaluateur de sous-requête corrélée avec clause EXISTS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le prédicat SQL EXISTS / NOT EXISTS évaluant l’existence de lignes dans une table liée.</p>
+    <div class="lab__brief"><p>Une clause <code>EXISTS (SELECT 1 FROM ...)</code> est vraie dès lors que la sous-requête corrélée renvoie au moins une ligne.
+Le script simule la requête :
+<code>SELECT nom FROM Fournisseurs f WHERE [NOT] EXISTS (SELECT 1 FROM Produits p WHERE p.fournisseur_id = f.id AND p.stock &gt;= seuil)</code>
+
+Entrée :
+- Ligne 1 : Mode (<code>EXISTS</code> ou <code>NOT_EXISTS</code>) et seuil de stock séparés par une virgule (ex: <code>EXISTS,10</code>).
+- Ligne 2 : Fournisseurs <code>id:nom</code> séparés par des virgules.
+- Ligne 3 : Produits <code>id:fournisseur_id:stock</code> séparés par des virgules.
+
+Sortie :
+Noms des fournisseurs retenus séparés par des virgules, triés alphabétiquement (ou <code>AUCUN</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EXISTS,10
+1:Acme,2:Globex,3:Initech
+101:1:15,102:1:5,103:2:2</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Acme</pre></div>
+    </div>
+    <p class="lab__note">Seul Acme a au moins un produit avec stock &gt;= 10 (produit 101 avec stock 15).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour chaque fournisseur, cherche si au moins un produit respecte p.fournisseur_id == f.id et stock &gt;= seuil.</li>
+        <li>Si le mode est EXISTS, retiens le fournisseur si au moins un produit correspond.</li>
+        <li>Si le mode est NOT_EXISTS, retiens le fournisseur si aucun produit ne correspond.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Alice:90,Bob:65,Claire:45,David:70">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c3-e3) — Interpréteur d’expression conditionnelle SQL CASE WHEN
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Cas limites exacts sur les seuils]
+# Données : T1:85,T2:70,T3:50,T4:49
+A_COMPLETER
+
+[Cas 2 — Tous en échec]
+# Données : U1:10,U2:25,U3:0
+A_COMPLETER
+
+[Cas 3 — Tous en mention excellente]
+# Données : A1:100,A2:95,A3:86
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Interpréteur d’expression conditionnelle SQL CASE WHEN</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la transformation de données par une expression conditionnelle CASE WHEN ... THEN ... ELSE ... END.</p>
+    <div class="lab__brief"><p>En SQL, la structure <code>CASE WHEN condition THEN resultat ... ELSE defaut END</code> permet d’affecter dynamiquement des catégories calculées.
+On applique les règles de classification suivantes sur le score d’un examen :
+- Score &ge; 85 : <code>EXCELLENT</code>
+- Score &ge; 70 : <code>BIEN</code>
+- Score &ge; 50 : <code>PASSABLE</code>
+- Sinon : <code>ECHEC</code>
+
+Entrée :
+Une liste de couples <code>nom:score</code> séparés par des virgules (ex: <code>Alice:90,Bob:65,Claire:45</code>).
+
+Sortie :
+Pour chaque étudiant (dans l’ordre d’entrée) : <code>&lt;nom&gt;: &lt;Score&gt; -&gt; &lt;Mention&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Alice:90,Bob:65,Claire:45,David:70</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Alice: 90 -&gt; EXCELLENT
+Bob: 65 -&gt; PASSABLE
+Claire: 45 -&gt; ECHEC
+David: 70 -&gt; BIEN</pre></div>
+    </div>
+    <p class="lab__note">Chaque score est évalué séquentiellement par les branches du CASE WHEN.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe la ligne par les virgules, puis chaque étudiant par deux-points.</li>
+        <li>Évalue les conditions dans l ordre décroissant des seuils (85, 70, 50).</li>
+        <li>Assure-toi que la valeur finale par défaut (ELSE) est ECHEC.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans une requête SQL reliant Clients c et Commandes cmd avec un LEFT JOIN, comment filtrer pour n’obtenir QUE les clients qui n’ont AUCUNE commande ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En ajoutant la clause WHERE cmd.id IS NULL</button>
+        <button class="opt">En utilisant un INNER JOIN avec WHERE cmd.id = 0</button>
+        <button class="opt">En écrivant WHERE c.id = NULL</button>
+        <button class="opt">En remplaçant le LEFT JOIN par un CROSS JOIN</button>
+      </div>
+      <div class="q__exp">Dans un LEFT JOIN, les clients sans commande ont leurs attributs de commande remplis avec NULL. La clause WHERE cmd.id IS NULL isole exactement cette population sans commande (technique de l’anti-jointure).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’utilisation de NOT IN avec une sous-requête est-elle considérée comme un piège majeur en SQL ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Si la sous-requête renvoie ne serait-ce qu’une seule valeur NULL, l’expression NOT IN renvoie UNKNOWN pour toutes les lignes et le résultat final est vide</button>
+        <button class="opt">NOT IN n’est pas supporté par le standard SQL ANSI</button>
+        <button class="opt">NOT IN modifie automatiquement les données de la table</button>
+        <button class="opt">NOT IN empêche l’utilisation de clés primaires</button>
+      </div>
+      <div class="q__exp">En logique tri-valuée, 'valeur NOT IN (1, 2, NULL)' équivaut à 'valeur != 1 AND valeur != 2 AND valeur != NULL'. Comme toute comparaison avec NULL vaut UNKNOWN, le résultat de la conjonction devient UNKNOWN et aucune ligne n’est sélectionnée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de jointure associe chaque ligne de la table A à absolument toutes les lignes de la table B sans condition de correspondance ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">CROSS JOIN (Produit cartésien)</button>
+        <button class="opt">INNER JOIN</button>
+        <button class="opt">NATURAL JOIN</button>
+        <button class="opt">SELF JOIN</button>
+      </div>
+      <div class="q__exp">Le CROSS JOIN génère le produit cartésien complet : si la table A contient 10 lignes et la table B 50 lignes, le résultat comprend exactement 500 lignes associant chaque élément de A à chaque élément de B.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la particularité d’une auto-jointure (SELF JOIN) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle joint une table avec elle-même en utilisant deux alias différents pour distinguer les rôles</button>
+        <button class="opt">Elle s’exécute sans passer par le moteur de base de données</button>
+        <button class="opt">Elle ne fonctionne qu’avec des tables temporaires en mémoire</button>
+        <button class="opt">Elle interdit l’usage de la clause WHERE</button>
+      </div>
+      <div class="q__exp">Une auto-jointure applique le mécanisme relationnel classique sur une seule et même table physique (ex: Employes e LEFT JOIN Employes m ON e.manager_id = m.id), ce qui exige impérativement des alias distincts.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une expression conditionnelle CASE WHEN ... THEN ... ELSE ... END, que se passe-t-il si aucune condition WHEN n’est vérifiée et que la clause ELSE est omise ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’expression renvoie NULL</button>
+        <button class="opt">La requête s’interrompt avec une erreur d’exécution</button>
+        <button class="opt">L’expression renvoie 0</button>
+        <button class="opt">L’expression renvoie une chaîne vide ''</button>
+      </div>
+      <div class="q__exp">En SQL standard, si aucune clause WHEN n’est satisfaite et qu’aucun bloc ELSE explicite n’est fourni, la valeur retournée par l’expression CASE est implicitement NULL.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer un filtre sur la table de droite dans la clause WHERE d’un LEFT JOIN, ce qui élimine les NULLs et convertit silencieusement la jointure en INNER JOIN.</li>
+      <li>Utiliser NOT IN (SELECT col FROM ...) au lieu de NOT EXISTS lorsque la sous-requête est susceptible de contenir des valeurs NULL.</li>
+      <li>Oublier les alias de tables lors d’une auto-jointure (SELF JOIN), rendant les noms de colonnes ambigus et provoquant une erreur de compilation SQL.</li>
+      <li>Faire un CROSS JOIN involontaire en écrivant FROM TableA, TableB sans clause WHERE ou ON, provoquant une explosion combinatoire du volume de données.</li>
+      <li>Confondre la sous-requête corrélée (exécutée pour chaque ligne de la requête externe) avec la sous-requête indépendante (exécutée une seule fois au préalable).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour concevoir une jointure complexe sans régression</div>
+    <ol>
+      <li>Identifier la table pivot de référence : si toutes ses lignes doivent être conservées quoi qu’il arrive, démarrer par un LEFT JOIN.</li>
+      <li>Exprimer les critères de rapprochement dans la clause ON (clés primaires et clés étrangères).</li>
+      <li>Distinguer soigneusement les conditions de jointure (dans ON) des conditions de filtrage final de la population (dans WHERE).</li>
+      <li>Pour les tests d’exclusion (recherche d’éléments sans correspondance), privilégier NOT EXISTS avec sous-requête corrélée ou LEFT JOIN avec WHERE droit IS NULL.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’INNER JOIN sélectionne l’intersection stricte ; le LEFT JOIN conserve l’intégralité de la table de gauche.</li>
+      <li>L’auto-jointure (SELF JOIN) modélise les relations récursives et hiérarchiques au sein d’une même table grâce aux alias.</li>
+      <li>Les sous-requêtes corrélées s’évaluent dynamiquement en fonction du contexte de la ligne externe.</li>
+      <li>L’opérateur EXISTS avec sous-requête corrélée offre une robustesse et des performances supérieures face aux valeurs NULL par rapport à NOT IN.</li>
+      <li>L’expression CASE WHEN offre la puissance d’une structure conditionnelle if-then-else intégrée directement aux requêtes SQL.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais choisir entre INNER JOIN, LEFT JOIN et FULL OUTER JOIN selon le besoin métier.</li>
+      <li>Je comprends la différence sémantique entre une condition dans ON et dans WHERE lors d’un LEFT JOIN.</li>
+      <li>Je sais écrire une auto-jointure (SELF JOIN) pour naviguer dans une hiérarchie managériale.</li>
+      <li>Je connais le risque de résultat vide avec NOT IN en présence de NULL et je sais utiliser NOT EXISTS en remplacement.</li>
+      <li>Je sais formuler une expression CASE WHEN avec plusieurs branches et valeur par défaut.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Algèbre relationnelle des jointures</li><li>Jointure interne (INNER JOIN)</li><li>Jointure externe gauche (LEFT OUTER JOIN)</li><li>Anti-jointure (WHERE cle_droite IS NULL)</li><li>Auto-jointure (SELF JOIN) et modélisation hiérarchique</li><li>Produit cartésien (CROSS JOIN)</li><li>Sous-requêtes indépendantes vs corrélées</li><li>Prédicats EXISTS et NOT EXISTS</li><li>Expression conditionnelle CASE WHEN THEN ELSE END</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la différence fondamentale entre INNER JOIN et LEFT JOIN.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur l’anti-jointure et le remplacement de NOT IN par NOT EXISTS.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les jointures multi-tables et la logique conditionnelle.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe aux fonctions d’agrégation avancées et au fenêtrage au module 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Agrégation Avancée, GROUP BY, HAVING &amp; Fonctions de Fenêtrage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

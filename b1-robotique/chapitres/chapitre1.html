@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Premier contact : un programme, une carte | Robotique B1</title>
+<meta name="description" content="Chapitre 1 du club de robotique B1 : La boucle capter-décider-agir, structure d’un programme, affichage et calculs de bord. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-robotique/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Premier contact : un programme, une carte | Robotique B1">
+<meta property="og:description" content="Chapitre 1 du club de robotique B1 : La boucle capter-décider-agir, structure d’un programme, affichage et calculs de bord. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rbnav"><div class="rbnav__in">
+  <a class="rbnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rbnav__sep" aria-hidden="true">/</span>
+  <a class="rbnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Robotique B1</a>
+  <div class="rbnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rbnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rbwrap">
+<p class="crumb"><a href="../index.html">Robotique B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Premier contact : un programme, une carte</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le club te prête une carte programmable. Branchée, elle n’affiche rien : ce n’est pas qu’elle est cassée, c’est qu’elle attend un programme. Avant de brancher la moindre LED, il faut comprendre ce qu’un programme pour carte a toujours : des lectures d’entrées, des calculs, des affichages exactement ordonnés. On écrit ce premier programme en Python, parce que MicroPython — la variante qui tourne sur les cartes du club — en est la copie presque conforme.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire la boucle capter, décider, agir qui anime tout robot ;</li>
+      <li>écrire un programme qui lit une donnée et affiche une séquence exacte ;</li>
+      <li>calculer somme, différence, produit, quotient entier et reste ;</li>
+      <li>mettre en forme un rapport lisible avec des f-strings alignées.</li>
+    </ol>
+  </div>
+
+<h2>1. La boucle qui anime tout robot</h2>
+
+<p>Un robot, une machine à laver, un drone : sous les différences, le même squelette de programme, répété sans fin.</p>
+<pre><code>capter    lire les entrées (capteur, bouton, horloge)
+décider   comparer ces lectures à des seuils ou des règles
+agir      commander les sorties (moteur, LED, buzzer)</code></pre>
+<p>Sur une carte Arduino, cette boucle tourne dans une fonction <code>loop()</code> réécrite sans arrêt. En simulation Python, on l’écrit explicitement : le programme lit, décide, agit — puis le programme s’arrête, parce qu’un affichage texte a une fin. La logique, elle, est la même.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Entrées, décisions, sorties »</div>
+    <p>Tout exercice de ce cours se pose dans cet ordre : <strong>quelles entrées</strong> lis-je, <strong>quelle décision</strong> prends-je, <strong>quelle sortie</strong> produis-je. Un programme qui affiche avant de lire ne peut pas marcher, quel que soit le reste du code.</p>
+  </div>
+
+<h2>2. La structure d’un programme</h2>
+
+<p>Un programme s’exécute <strong>ligne par ligne, de haut en bas</strong>. Chaque ligne est une instruction achevée : une lecture, un calcul, un affichage.</p>
+<table>
+    <tr><th>Instruction</th><th>Effet</th></tr>
+    <tr><td><code>x = donnees_capteur</code></td><td>lit une ligne (du texte) et la range dans x</td></tr>
+    <tr><td><code>n = int(donnees_capteur)</code></td><td>lit une ligne et la convertit en entier</td></tr>
+    <tr><td><code>print("LED ON")</code></td><td>affiche le texte puis passe à la ligne</td></tr>
+    <tr><td><code>print(f"{nom}")</code></td><td>affiche le texte en insérant la valeur d’une variable</td></tr>
+  </table>
+<p>Le f-string <code>f"...{expression}..."</code> est le couteau suisse de l’affichage : tout ce qui figure entre accolades est évalué puis inséré dans le texte. C’est lui qui donne les messages précis qu’un moniteur série afficherait.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’ordre d’exécution</div>
+    <p>Les instructions s’exécutent <strong>dans l’ordre écrit</strong>. Si l’énoncé attend « nom puis âge », lire l’âge d’abord produit un programme faux, même si chaque ligne est juste. Relire l’ordre des entrées avant d’écrire la première ligne est un réflexe de roboticien.</p>
+  </div>
+
+<h2>3. Calculs de bord</h2>
+
+<p>Une carte calcule tout : une distance parcourue, un temps d’attente, un partage de pièces. Les opérateurs entiers répondent aux deux questions « combien de fois » et « combien il reste ».</p>
+<pre><code>opération         opérateur    exemple
+somme             a + b        10 + 5 = 15
+différence        a - b        10 - 5 = 5
+produit           a * b        10 * 5 = 50
+quotient entier   a // b       10 // 3 = 3   (combien de fois)
+reste             a % b        10 % 3 = 1    (combien il reste)</code></pre>
+<p>Le <strong>modulo</strong> <code>%</code> est l’opérateur fétiche du roboticien : il dit si un compteur est pair (<code>n % 2</code>), si une lettre revient au début de l’alphabet (<code>(i + k) % 26</code>), si un moteur a fini son tour.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la division par zéro</div>
+    <p><code>a // 0</code> arrête le programme avec une erreur. Sur une carte réelle, la conséquence est pire : le robot fige. Toute division dont le dénominateur vient d’une entrée doit être précédée d’un test <code>if b == 0</code>. L’énoncé du TP le demandait déjà en bonus.</p>
+  </div>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> En Python</div>
+    <pre><code>a, b = (int(x) for x in donnees_capteur.split())
+
+print(f"somme : {a + b}")
+print(f"reste : {a % b}")</code></pre>
+    <p>La première ligne lit <strong>une seule ligne</strong> contenant « 10 5 » et la découpe : <code>split()</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>
+  </div>
+
+<h2>4. Mettre en forme un rapport</h2>
+
+<p>Un moniteur série défile vite : le rapport lisible est aligné. Les f-strings alignent tout seules avec une largeur après les deux-points.</p>
+<pre><code>f&quot;{&#39;Membre&#39;:&lt;12}: {membre}&quot;   →   "Membre      : Alice"
+f"{duree} min"              →   "90 min"
+f"{moyenne:.2f}"            →   "13.67"   (deux décimales)
+f"{t:g}"                    →   "30"      (sans zéros inutiles)</code></pre>
+<p>Le repère <code>:&lt;12</code> signifie « aligner à gauche en complétant avec des espaces jusqu’à 12 caractères ». Les libellés de même largeur forment une colonne : l’œil compare immédiatement, ce qui est le but d’un journal de séance.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="rb-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Alice">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c1-e1) — Carte d’identité du programme
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Autre membre]
+# Données : Zack
+A_COMPLETER
+
+[Cas 2 — Nom composé]
+# Données : Linus T
+A_COMPLETER
+
+[Cas 3 — Une lettre]
+# Données : A
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Carte d’identité du programme</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Afficher une séquence d’instructions exacte, ligne après ligne, sans en oublier une.</p>
+    <div class="lab__brief"><p>Analysez les données soumises pour chaque cas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Alice</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Bonjour, Club Robotique !
+Operateur : Alice
+Ma prochaine seance sera encore meilleure.</pre></div>
+    </div>
+    <p class="lab__note">Les trois lignes, dans cet ordre exact.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Suivez la séquence logique d’instructions du robot pas à pas.</li>
+        <li>Chaque commande programmée produit une action distincte dans l’ordre strict d’exécution.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="10 5">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c1-e2) — Calculatrice de bord
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Reste non nul]
+# Données : 7 3
+A_COMPLETER
+
+[Cas 2 — Division par zéro]
+# Données : 9 0
+A_COMPLETER
+
+[Cas 3 — Valeurs négatives]
+# Données : -6 4
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculatrice de bord</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Lire deux entiers, calculer somme, différence, produit, quotient et reste, et traiter la division par zéro.</p>
+    <div class="lab__brief"><p>La carte reçoit deux entiers <strong>A</strong> et <strong>B</strong> sur la même ligne, séparés par un espace. Indiquez cinq lignes : la somme, la différence (A − B), le produit, le quotient entier et le reste. Si <strong>B vaut 0</strong>, remplacez les deux dernières lignes par une seule : <code>division impossible</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10 5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>somme : 15
+difference : 5
+produit : 50
+quotient : 2
+reste : 0</pre></div>
+    </div>
+    <p class="lab__note">Division entière : 10 // 5 = 2 et 10 % 5 = 0.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le quotient entier s’obtient avec // et le reste avec % : ils répondent tous les deux à la division par zéro.</li>
+        <li>Un seul if suffit : si b vaut 0, on affiche le message et rien d’autre.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Alice&#10;7&#10;Capteurs&#10;90">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (rb-c1-e3) — Journal de séance
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Thème long]
+# Données : Zack
+# Données : 3
+# Données : Tri a bulles
+# Données : 120
+A_COMPLETER
+
+[Cas 2 — Séance double chiffre]
+# Données : Awa
+# Données : 12
+# Données : Cesar
+# Données : 60
+A_COMPLETER
+
+[Cas 3 — Thème court]
+# Données : Tom
+# Données : 1
+# Données : LED
+# Données : 45
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Journal de séance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Mettre en forme un rapport aligné à partir de quatre données lues séparément.</p>
+    <div class="lab__brief"><p>Analysez les données soumises pour chaque cas. Il Indiquez un cartouche de quatre lignes où chaque libellé (<code>Membre</code>, <code>Seance</code>, <code>Theme</code>, <code>Duree</code>) est complété par des espaces jusqu’à 12 caractères, suivi de <code>: valeur</code>. La durée est suivie de <code>min</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Alice
+7
+Capteurs
+90</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Membre      : Alice
+Seance      : 7
+Theme       : Capteurs
+Duree       : 90 min</pre></div>
+    </div>
+    <p class="lab__note">Chaque libellé occupe exactement 12 caractères avant les deux-points.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les f-strings savent aligner : f"{"Membre":&lt;12}" complète « Membre » avec des espaces jusqu’à 12 caractères.</li>
+        <li>Le numéro de séance et la durée ont été convertis en entiers : il faut les réafficher tels quels.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans quel ordre s’exécutent les instructions d’un programme ?</p>
+      <div class="opts">
+        <button class="opt">De la dernière à la première</button>
+        <button class="opt" data-correct="1">De haut en bas, ligne par ligne</button>
+        <button class="opt">Dans un ordre imprévisible</button>
+      </div>
+      <div class="q__exp">L’exécution est séquentielle : chaque ligne finit avant que la suivante commence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut 17 % 5 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">2</button>
+        <button class="opt">3</button>
+        <button class="opt">3,4</button>
+      </div>
+      <div class="q__exp">17 = 5 × 3 + 2 : le quotient entier vaut 3, le reste 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut 17 // 5 ?</p>
+      <div class="opts">
+        <button class="opt">2</button>
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">3,4</button>
+      </div>
+      <div class="q__exp">Le quotient entier est la partie entière du quotient : 3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que lit exactement donnees_capteur ?</p>
+      <div class="opts">
+        <button class="opt">Un nombre</button>
+        <button class="opt" data-correct="1">Une ligne de texte</button>
+        <button class="opt">Un mot</button>
+      </div>
+      <div class="q__exp">donnees_capteur renvoie une ligne complète sans son retour à la ligne ; c’est int() qui convertit.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit f&quot;{&#39;Seance&#39;:&lt;12}: 7&quot; ?</p>
+      <div class="opts">
+        <button class="opt">Seance: 7</button>
+        <button class="opt" data-correct="1">Seance      : 7</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">:&lt;12 complète le libellé avec des espaces jusqu’à 12 caractères.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi tester la division par zéro avant de diviser ?</p>
+      <div class="opts">
+        <button class="opt">Pour aller plus vite</button>
+        <button class="opt" data-correct="1">Car a // 0 arrête le programme</button>
+        <button class="opt">Ce n’est pas nécessaire</button>
+      </div>
+      <div class="q__exp">La division par zéro lève une erreur qui interrompt le programme.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Ordre des lectures inversé</strong> : lire l’âge avant le nom alors que l’énoncé donne le nom d’abord.</li>
+      <li><strong>Confusion / et //</strong> : afficher 3,3333 là où on attend le quotient entier 3.</li>
+      <li><strong>Division sans garde</strong> : le programme tombe sur b = 0 et s’arrête au milieu du rapport.</li>
+      <li><strong>Espaces oubliés</strong> : afficher « somme:15 » au lieu de « somme : 15 » — les tests comparent exactement.</li>
+      <li><strong>F-string sans f</strong> : print("{nom}") affiche les accolades littéralement.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire un programme pour carte</div>
+    <ol>
+      <li><strong>Relire l’ordre des entrées</strong> : chaque ligne d’entrée a une position exacte.</li>
+      <li><strong>Choisir le type</strong> : texte brut, entier <code>int()</code>, décimal <code>float()</code>.</li>
+      <li><strong>Écrire les calculs</strong> dans l’ordre, en nommant les variables pour qu’on les relise.</li>
+      <li><strong>Mettre en forme</strong> la sortie avec des f-strings, virgule par virgule.</li>
+      <li><strong>Rejouer mentalement</strong> le cas d’exemple ligne par ligne avant d’exécuter.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un robot exécute la boucle capter, décider, agir — sur la carte dans loop(), en simulation dans le programme.</li>
+      <li>Les instructions s’exécutent de haut en bas : l’ordre des lectures est imposé par l’énoncé.</li>
+      <li>donnees_capteur lit une ligne de texte ; int() ou float() la convertit en nombre.</li>
+      <li>// donne le quotient entier, % le reste ; on garde toujours la division par zéro sous test.</li>
+      <li>Les f-strings insèrent des valeurs, alignent (:&lt;12), arrondissent (:.2f) et nettoyent (:g).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décris la boucle capter, décider, agir avec mes mots.</li>
+      <li>Je lis des entrées dans l’ordre exact de l’énoncé.</li>
+      <li>Je calcule quotient et reste sans confondre / et //.</li>
+      <li>Je produis un affichage aligné, au caractère près, avec des f-strings.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>boucle principale</li><li>entrée</li><li>sortie</li><li>instruction</li><li>f-string</li><li>quotient entier</li><li>modulo</li><li>formatage</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais les trois exercices en relisant chaque ligne à voix haute.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Travaille les f-strings de mise en forme sur tes propres rapports.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : rejoue le calculatrice de bord avec des valeurs négatives.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, les boucles et temporisations.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Boucles et temporisations <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support du club « Séance TP — Club Robotique & Électronique » (programmation, CircuitVerse, Tinkercad) et le cours de logique fourni.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

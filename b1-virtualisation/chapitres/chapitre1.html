@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Le serveur fainéant : le constat | Virtualisation B1</title>
+<meta name="description" content="Chapitre 1 du cours B1 : L’histoire d’ouverture, le gaspillage des 80 %, un service par serveur, la facture d’électricité. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-virtualisation/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Le serveur fainéant : le constat | Virtualisation B1">
+<meta property="og:description" content="Chapitre 1 du cours B1 : L’histoire d’ouverture, le gaspillage des 80 %, un service par serveur, la facture d’électricité. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="vtnav"><div class="vtnav__in">
+  <a class="vtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="vtnav__sep" aria-hidden="true">/</span>
+  <a class="vtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Virtualisation B1</a>
+  <div class="vtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="vtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="vtwrap">
+<p class="crumb"><a href="../index.html">Virtualisation B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Le serveur fainéant : le constat</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 1 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans l’architecture informatique classique, la règle historique était stricte : « un serveur physique dédié pour un seul service ». Cette approche a engendré un gaspillage économique et écologique massif : des machines surpuissantes et coûteuses sous-utilisées à plus de 80 % de leur temps, condamnées à consommer de l’électricité à vide. Ce syndrome du « serveur fainéant » est le point de départ de toute la révolution de la virtualisation. Ce chapitre pose le constat chiffré indispensable à tout ingénieur d’infrastructure : mesurer le temps perdu, identifier les serveurs mono-service et calculer la facture énergétique.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’origine historique de la sous-utilisation : le dogme « un serveur, un service » ;</li>
+      <li>mesurer le taux d’inactivité d’un parc serveur (seuil critique des 80 % / 48 minutes par heure) ;</li>
+      <li>identifier les serveurs mono-service et chiffrer le coût financier du gaspillage matériel ;</li>
+      <li>calculer la consommation électrique réelle d’un serveur en fonctionnement (watts vers kWh).</li>
+    </ol>
+  </div>
+
+<h2>1. Le problème historique : le syndrome du serveur mono-service</h2>
+
+<p>Avant l’avènement de la virtualisation moderne, les administrateurs systèmes appliquaient un principe de précaution absolu : <strong>isoler physiquement chaque application sur sa propre machine</strong>. Un serveur physique était acheté pour héberger un site web, un autre pour la base de données, un troisième pour la messagerie. L’objectif était d’éviter qu’un plantage logiciel n’entraîne la chute des autres services.</p>
+<p>La conséquence directe de cette architecture fut désastreuse : des serveurs professionnels puissants, dotés de processeurs multicœurs et de dizaines de gigaoctets de mémoire vive, passaient en réalité <strong>80 % de leur temps à ne rien faire</strong> (en attente de requêtes). Le support pédagogique illustre cette réalité sous le nom parlant de <strong>serveur fainéant</strong> : une machine coûteuse qui tourne à vide et consomme de l’électricité sans produire de valeur.</p>
+<p>C’est pour briser cette impasse qu’un ingénieur IT a introduit la <strong>virtualisation</strong> : plutôt que de multiplier les boîtiers physiques, on installe une couche logicielle (l’<strong>hyperviseur</strong>) qui crée plusieurs <strong>machines virtuelles (VM)</strong> indépendantes et isolées se partageant la même machine physique.</p>
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> L’origine du terme « serveur fainéant »</div>
+    <p>Le « serveur fainéant » n’est pas une machine défectueuse : c’est une machine victime d’une mauvaise architecture. Tant qu’un serveur reste cantonné à un seul service, son taux d’utilisation moyen plafonne entre 10 % et 20 %. La virtualisation résout ce problème en consolidant les charges.</p>
+  </div>
+
+<h2>2. Mesurer le gaspillage : le seuil des 80 %</h2>
+
+<p>En ingénierie d’infrastructure, le gaspillage ne se devine pas : il se quantifie. Sur une heure standard de 60 minutes, un taux d’inactivité de 80 % correspond exactement à <strong>48 minutes à ne rien faire</strong> :</p>
+$$\text{Temps perdu} = 60 \text{ min} \times 0{,}80 = 48 \text{ min}$$
+<p>Toute heure où l’inactivité cumulée atteint ou dépasse 48 minutes est formellement qualifiée d’<strong>heure perdue</strong>. Pour auditer un parc informatique, l’administrateur recense systématiquement les machines hébergeant <strong>moins de deux services</strong> (les serveurs mono-service). Chaque machine mono-service reproduit ce schéma de sous-utilisation : <strong>80 % de son coût d’amortissement mensuel part en pure perte</strong>.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Les trois repères du constat</div>
+    <p>Retenir les trois chiffres cardinaux de l’audit : <strong>48 minutes</strong> d’inactivité par heure, moins de <strong>2 services</strong> par machine physique = serveur fainéant, et <strong>80 %</strong> du coût matériel gaspillé. C’est la base du dimensionnement vu au chapitre 4.</p>
+  </div>
+
+<h2>3. La facture d’électricité : puissance et énergie</h2>
+
+<p>En plus de l’amortissement matériel, un serveur sous-utilisé engendre une facture énergétique continue. En physique et en informatique industrielle, il est capital de ne pas confondre la <strong>puissance instantanée</strong> (en watts, W) et l’<strong>énergie consommée dans la durée</strong> (en kilowattheures, kWh) :</p>
+$$\text{Énergie (kWh)} = \frac{\text{Puissance (W)} \times \text{Temps (h)}}{1000}$$
+<p><strong>Exemple chiffré :</strong> Un serveur consommant <strong>500 W</strong> en continu pendant un mois de <strong>720 heures</strong> consomme :</p>
+$$\text{Consommation} = \frac{500 \times 720}{1000} = 360 \text{ kWh}$$
+<p>À 100 francs le kWh, cette seule machine génère <strong>36 000 FCFA</strong> d’électricité par mois — soit plus de 430 000 FCFA par an pour un serveur qui ne travaille utilement que 20 % de son temps ! À l’échelle d’un centre de données de dix ou vingt serveurs, le coût de l’inaction se chiffre en millions.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège classique — Watts contre Kilowattheures</div>
+    <p>Le <strong>watt (W)</strong> mesure la puissance appelée à un instant T (le débit d’eau du robinet). Le <strong>kilowattheure (kWh)</strong> mesure le volume total consommé dans le temps (la quantité d’eau dans la baignoire). On ne facture jamais des watts, mais des kilowattheures.</p>
+  </div>
+
+<h2>4. Vers la consolidation et les machines virtuelles</h2>
+
+<p>Face à ce constat accablant — 80 % d’inactivité, serveurs mono-service pléthoriques, factures d’énergie et de climatisation colossales —, la question de l’ingénieur s’impose d’elle-même : <em>« Pourquoi payer dix machines physiques quand une seule suffirait amplement à héberger tous ces services ? »</em></p>
+<p>La réponse technique réside dans la <strong>consolidation par virtualisation</strong>, abordée au chapitre suivant : allouer à chaque service uniquement les ressources réelles dont il a besoin (vCPU, mémoire vive, stockage), tout en maintenant une étanchéité logicielle totale.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les exercices pratiques de ce module</div>
+    <p>Pour valider ce premier chapitre, vous allez coder trois algorithmes d’audit : 1. Classer les heures d’un serveur (utile vs perdue) au seuil de 48 min ; 2. Identifier les serveurs mono-service et chiffrer la perte financière ; 3. Calculer la facture d’électricité globale d’un parc à partir de sa consommation en watts.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="vt-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;00h 50&#10;01h 30&#10;02h 48&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c1-e1) — Le rapport d’inactivité du serveur
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Journée du paresseux]
+# Données : 4
+# Données : 08h 55
+# Données : 09h 40
+# Données : 10h 48
+# Données : 11h 12
+A_COMPLETER
+
+[Cas 2 — Serveur très fainéant]
+# Données : 3
+# Données : 22h 60
+# Données : 23h 59
+# Données : 00h 48
+A_COMPLETER
+
+[Cas 3 — Frontière exacte]
+# Données : 3
+# Données : a 47
+# Données : b 48
+# Données : c 49
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Le rapport d’inactivité du serveur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les heures du serveur : inactif ou utile, selon le seuil des 80 % de l’histoire.</p>
+    <div class="lab__brief"><p>Dans l’histoire, « le serveur passait 80 % de son temps à ne rien faire ». Analysez chaque ligne proposée « heure inactif » (heures de la journée, inactif en minutes sur l’heure). Une heure est <code>perdue</code> si au moins 48 minutes (80 %) sont inactives, sinon <code>utile</code>. Pour chaque ligne il Indiquez <code>heure : verdict</code>, puis <code>heures perdues : X/n</code> et <code>inactivite : Y min</code> (somme des minutes d’inactivité).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+00h 50
+01h 30
+02h 48
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>00h : perdue
+01h : utile
+02h : perdue
+heures perdues : 2/3
+inactivite : 128 min</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>80 % d’une heure = 48 minutes : inactif -ge 48 → perdue, sinon utile.</li>
+        <li>La somme des minutes progresse dans les deux cas ; les bilans sortent après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;web1 1 100000&#10;bd1 3 200000&#10;test1 1 50000&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c1-e2) — Un service par serveur : le constat
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Salle serveur]
+# Données : 4
+# Données : srv1 1 80000
+# Données : srv2 5 300000
+# Données : srv3 3 150000
+# Données : srv4 1 100000
+A_COMPLETER
+
+[Cas 2 — Que du farniente]
+# Données : 3
+# Données : a 1 50000
+# Données : b 1 50000
+# Données : c 1 50000
+A_COMPLETER
+
+[Cas 3 — Frontières]
+# Données : 4
+# Données : a 0 100000
+# Données : b 1 100000
+# Données : c 4 100000
+# Données : d 5 100000
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Un service par serveur : le constat</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter les serveurs mono-service et calculer le coût du gaspillage.</p>
+    <div class="lab__brief"><p>Dans l’histoire, le serveur fainéant « n’héberge qu’un seul système et un seul service ». Analysez chaque ligne proposée « serveur services cout » (services hébergés, coût mensuel en francs). Un serveur est <code>faineant</code> s’il héberge moins de 2 services. Pour chaque ligne il Indiquez <code>serveur : verdict</code> (faineant ou sature si plus de 4 services, sinon <code>equilibre</code>), puis <code>faineants : X</code> et <code>gaspillage : Y FCFA</code> (80 % du coût de chaque fainéant, arrondi à l’entier inférieur).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+web1 1 100000
+bd1 3 200000
+test1 1 50000
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>web1 : faineant
+bd1 : equilibre
+test1 : faineant
+faineants : 2
+gaspillage : 120000 FCFA</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Qualifiez l’état du serveur : sous-utilisé (&lt; 2 services), saturé (&gt; 4 services) ou équilibré.</li>
+        <li>Pour un serveur sous-utilisé, évaluez le coût de gaspillage des ressources allouées non consommées.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="2&#10;paresseux 500 720&#10;actif 400 600&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c1-e3) — Le serveur se plaint : facture d’électricité
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Trois serveurs]
+# Données : 3
+# Données : a 1000 500
+# Données : b 500 800
+# Données : c 750 1000
+A_COMPLETER
+
+[Cas 2 — Aucun gros consommateur]
+# Données : 2
+# Données : a 300 720
+# Données : b 200 720
+A_COMPLETER
+
+[Cas 3 — Seuil exact]
+# Données : 2
+# Données : a 700 1000
+# Données : b 701 1000
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Le serveur se plaint : facture d’électricité</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Relier l’inactivité à la facture : « il mangeait de l’électricité pour rien ».</p>
+    <div class="lab__brief"><p>L’histoire dit du serveur qu’il « mangeait de l’électricité pour rien ». Analysez chaque ligne proposée « serveur watt heures » : consommation en watts, heures de marche du mois. L’énergie consommée vaut watt × heures / 1000 (kWh) ; à 100 francs le kWh, Indiquez pour chaque serveur <code>serveur : X kWh — Y FCFA</code> (nombres entiers), puis <code>facture : Z FCFA</code> (somme) et <code>gaspille : W FCFA</code> (part des serveurs à plus de 700 kWh, 80 % de leur facture).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
+paresseux 500 720
+actif 400 600
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>paresseux : 360 kWh — 36000 FCFA
+actif : 240 kWh — 24000 FCFA
+facture : 60000 FCFA
+gaspille : 0 FCFA</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>kWh = watt * heures / 1000 (division entière) ; coût = kWh * 100.</li>
+        <li>Serveur à plus de 700 kWh : sa part gaspillée vaut cout * 80 / 100, à ajouter au total.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi le serveur est-il qualifié de « fainéant » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">il passait 80 % de son temps à ne rien faire</button>
+        <button class="opt">il refusait les mises à jour</button>
+        <button class="opt">il était trop lent</button>
+      </div>
+      <div class="q__exp">Un seul système, un seul service, 80 % d’inactivité : la définition exacte de l’histoire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que faisait le serveur avec son temps libre ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">il dormait et mangeait de l’électricité pour rien</button>
+        <button class="opt">il compilait des projets</button>
+        <button class="opt">il aidait les autres serveurs</button>
+      </div>
+      <div class="q__exp">L’histoire insiste : il s’ennuyait et coûtait de l’électricité à vide.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">80 % d’une heure, c’est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">48 minutes</button>
+        <button class="opt">60 minutes</button>
+        <button class="opt">30 minutes</button>
+      </div>
+      <div class="q__exp">0,8 × 60 = 48 minutes — le seuil du calcul du fainéant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un serveur mono-service héberge…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">moins de deux services</button>
+        <button class="opt">exactement dix services</button>
+        <button class="opt">aucun service</button>
+      </div>
+      <div class="q__exp">Moins de 2 services : le profil du fainéant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L’énergie consommée par 500 W pendant 720 h vaut…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">360 kWh</button>
+        <button class="opt">360 000 W</button>
+        <button class="opt">36 kWh</button>
+      </div>
+      <div class="q__exp">500 × 720 / 1000 = 360 kWh.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le service hébergé en premier dans l’histoire…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un site web ou une base de données</button>
+        <button class="opt">un jeu vidéo</button>
+        <button class="opt">un serveur de mail</button>
+      </div>
+      <div class="q__exp">L’histoire cite « un site web ou une base de données » comme unique service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le gaspillage d’un fainéant se chiffre à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">80 % de son coût</button>
+        <button class="opt">100 % de son coût</button>
+        <button class="opt">50 % de son coût</button>
+      </div>
+      <div class="q__exp">Il tourne à vide 80 % du temps : 80 % du coût part pour rien.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qui a l’idée de la virtualisation dans l’histoire ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un ingénieur IT</button>
+        <button class="opt">le serveur lui-même</button>
+        <button class="opt">les machines virtuelles</button>
+      </div>
+      <div class="q__exp">Un jour, un ingénieur IT eut cette idée.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre puissance (W) et énergie (kWh) dans le calcul de la facture.</li>
+      <li>Déclarer un serveur fainéant sans avoir mesuré : le 80 % se constate, il ne se devine pas.</li>
+      <li>Oublier que l’inactivité coûte aussi de l’électricité, pas seulement l’achat.</li>
+      <li>Chercher une solution technique avant d’avoir chiffré le problème.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire le constat</div>
+    <ol>
+      <li>Mesurer l’inactivité heure par heure et compter les heures perdues (seuil 48 minutes).</li>
+      <li>Lister les serveurs à moins de deux services et chiffrer 80 % de leur coût.</li>
+      <li>Traduire le tout en facture d’électricité : le langage que les responsables comprennent.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un serveur puissant + un seul service = 80 % du temps à ne rien faire.</li>
+      <li>Le gaspillage se mesure : heures perdues, serveurs mono-service, facture du vide.</li>
+      <li>48 minutes, 2 services, 80 % : les trois nombres du constat.</li>
+      <li>L’énergie se calcule : watt × heures / 1000 = kWh, puis × prix = facture.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je raconte le constat de l’histoire en trois phrases.</li>
+      <li>Je calcule les heures perdues et le gaspillage d’un parc.</li>
+      <li>Je convertis watts et heures en kWh et en francs.</li>
+      <li>Je sais expliquer pourquoi le 80 % se mesure avant de se résoudre.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>serveur fainéant</li><li>mono-service</li><li>taux d’inactivité</li><li>heure perdue</li><li>kilowattheure (kWh)</li><li>gaspillage</li><li>parc physique</li><li>constat chiffré</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis l’histoire et refais les calculs des 48 minutes.</div>
+      <div class="bandrow bandrow--mid">50–69 % — rejoue les exercices jusqu’aux bilans sans faute.</div>
+      <div class="bandrow bandrow--good">70–89 % — solide : chiffre le gaspillage d’un parc fictif.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : passe au remède, la virtualisation.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — La virtualisation et le partage des ressources <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support B1 « Le serveur fainéant et les machines ambitieuses — histoire » (dossier « cours B1 IT / Virtualisation des serveurs ») : texte narratif et questions de compréhension, d’analyse technique et de réflexion.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

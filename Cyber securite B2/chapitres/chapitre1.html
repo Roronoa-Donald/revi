@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondements de la Sécurité, Modèle CIA &amp;amp; Gestion des Risques | Cybersécurité B2</title>
+<meta name="description" content="Chapitre 1 du cours Cybersécurité B2 : Triade CIA (Confidentialité, Intégrité, Disponibilité), modèle AAA (Authentification, Autorisation, Traçabilité), surface d’attaque, analyse de risques ISO 27005 et politiques PSSI. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/Cyber%20securite%20B2/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondements de la Sécurité, Modèle CIA &amp;amp; Gestion des Risques | Cybersécurité B2">
+<meta property="og:description" content="Chapitre 1 du cours Cybersécurité B2 : Triade CIA (Confidentialité, Intégrité, Disponibilité), modèle AAA (Authentification, Autorisation, Traçabilité), surface d’attaque, analyse de risques ISO 27005 et politiques PSSI. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="Cyber securite B2nav"><div class="Cyber securite B2nav__in">
+  <a class="Cyber securite B2nav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="Cyber securite B2nav__sep" aria-hidden="true">/</span>
+  <a class="Cyber securite B2nav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B2</a>
+  <div class="Cyber securite B2nav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="Cyber securite B2nav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="Cyber securite B2wrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements de la Sécurité, Modèle CIA &amp; Gestion des Risques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lundi matin à 8h30, l’équipe support reçoit des dizaines d’appels d’utilisateurs paniqués : le portail de gestion commerciale refuse les connexions, et les bases de données financières affichent des soldes négatifs aberrants. Simultanément, un compte anonyme sur un forum publie un échantillon de 10 000 dossiers clients avec pièces d’identité. Face à cette crise multiforme, comment caractériser avec rigueur les atteintes subies ? Quelles sont les failles organisationnelles et logiques exploitées ? Ce premier module pose les fondations conceptuelles de la sécurité de l’information.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir et différencier les trois piliers fondamentaux de la triade CIA (Confidentialité, Intégrité, Disponibilité) ;</li>
+      <li>appliquer le modèle AAA (Authentification, Autorisation, Traçabilité/Accounting) dans la conception des systèmes ;</li>
+      <li>distinguer clairement une menace, une vulnérabilité, un exploit et un impact financier ou opérationnel ;</li>
+      <li>quantifier le niveau de risque informatique selon l’approche ISO 27005 (Score = Menace &times; Vulnérabilité &times; Impact) ;</li>
+      <li>auditer et renforcer la robustesse des mots de passe selon les recommandations de l’ANSSI et du NIST.</li>
+    </ol>
+  </div>
+
+<h2>1. La triade fondamentale CIA : Confidentialité, Intégrité, Disponibilité</h2>
+
+<p>Tout programme de sécurité de l’information vise à préserver l’équilibre entre trois exigences vitales, désignées par l’acronyme <strong>CIA</strong> (ou DICP en français pour Disponibilité, Intégrité, Confidentialité, Preuve) :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4 class="card-title">1. Confidentialité (Confidentiality)</h4>
+    <p>Garantit que l’information n’est accessible et divulguée qu’aux personnes, entités ou processus autorisés.</p>
+    <p><strong>Menaces types :</strong> écoute clandestine (sniffing), vol d’identifiants, exfiltration de base de données.</p>
+    <p><strong>Contre-mesures :</strong> chiffrement au repos (AES-256), chiffrement en transit (TLS 1.3), cloisonnement des accès.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. Intégrité (Integrity)</h4>
+    <p>Garantit l’exactitude, la complétude et la non-altération des données tout au long de leur cycle de vie.</p>
+    <p><strong>Menaces types :</strong> altération frauduleuse de transactions, injection SQL, empoisonnement DNS/ARP.</p>
+    <p><strong>Contre-mesures :</strong> fonctions de hachage (SHA-256), signatures numériques, contrôles de redondance cyclique.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">3. Disponibilité (Availability)</h4>
+    <p>Garantit que les services et données sont opérationnels et accessibles aux utilisateurs légitimes au moment requis.</p>
+    <p><strong>Menaces types :</strong> attaques par déni de service distribué (DDoS), ransomwares bloquants, pannes matérielles.</p>
+    <p><strong>Contre-mesures :</strong> redondance d’infrastructure, plans de reprise d’activité (PRA), sauvegardes 3-2-1 déconnectées.</p>
+  </div>
+</div>
+
+<h2>2. Le cadre opérationnel AAA : Authentification, Autorisation &amp; Traçabilité</h2>
+
+<p>Pour contrôler l’accès aux ressources numériques, les systèmes déploient le triptyque <strong>AAA</strong> :</p>
+<table class="table">
+  <thead><tr><th>Composante</th><th>Question clé</th><th>Mécanisme technique associé</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Authentification (Authentication)</strong></td><td>« Qui êtes-vous ? »</td><td>Mots de passe, certificats X.509, facteurs biométriques, jetons TOTP (RFC 6238).</td></tr>
+    <tr><td><strong>Autorisation (Authorization)</strong></td><td>« Qu’avez-vous le droit de faire ? »</td><td>Listes de contrôle d’accès (ACL), matrices RBAC (rôles), politiques ABAC (attributs).</td></tr>
+    <tr><td><strong>Traçabilité (Accounting / Audit)</strong></td><td>« Qu’avez-vous réellement fait et quand ? »</td><td>Journaux d’événements immuables (syslog sécurisé), horodatage NTP synchronisé, SIEM.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusion fréquente : Authentification versus Autorisation</div>
+<p>Une erreur classique consiste à croire qu’un utilisateur authentifié avec succès dispose nécessairement des droits pour exécuter une opération. L’authentification prouve l’identité ; l’autorisation valide si cette identité possède la permission requise. La rupture de cette frontière engendre les failles de contrôle d’accès (IDOR).</p>
+  </div>
+
+<h2>3. Analyse et quantification des risques selon l’ISO 27005</h2>
+
+<p>La sécurité absolue n’existant pas, la gestion des risques permet d’orienter les investissements vers les menaces les plus dévastatrices. Un risque informatique se décompose en trois variables :</p>
+<pre><code>// Formule fondamentale de l’évaluation du risque brut :
+Risque = Menace &times; Vulnerabilite &times; Impact
+
+Où :
+- Menace (M)       : Potentiel d’un agent externe ou interne à causer un préjudice (échelle 1 à 5)
+- Vulnerabilite (V) : Faille ou faiblesse du système exploitable par la menace (échelle 1 à 5)
+- Impact (I)        : Gravité financière, juridique ou d’image en cas de réalisation (échelle 1 à 5)
+
+Score brut = M * V * I   (compris entre 1 et 125)
+- Score &lt; 20       &rarr; Risque FAIBLE (acceptation sous surveillance)
+- 20 &le; Score &lt; 50 &rarr; Risque MOYEN (mesures d’atténuation standard)
+- 50 &le; Score &lt; 80 &rarr; Risque ÉLEVÉ (traitement prioritaire requis)
+- Score &ge; 80      &rarr; Risque CRITIQUE (remédiation immédiate obligatoire)</code></pre>
+
+<h2>4. Politique de sécurité des mots de passe &amp; Calcul d’entropie</h2>
+
+<p>Le mot de passe demeure le premier rempart d’authentification. L’ANSSI et le NIST recommandent d’abandonner l’expiration périodique arbitraire au profit d’une longueur minimale substantielle et d’une grande variété de caractères.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Les 5 règles de robustesse ANSSI / NIST</h4>
+    <ul>
+      <li><strong>Longueur minimale :</strong> au moins 12 à 15 caractères.</li>
+      <li><strong>Complexité :</strong> mélange de majuscules, minuscules, chiffres et symboles.</li>
+      <li><strong>Non-prédictibilité :</strong> refus des mots du dictionnaire, dates de naissance ou séquences triviales.</li>
+      <li><strong>Unicité :</strong> jamais de réutilisation d’un même mot de passe sur deux services.</li>
+      <li><strong>Double facteur :</strong> association systématique d’un second facteur MFA.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Entropie de Shannon d’un mot de passe</h4>
+    <p>L’entropie mesure le degré d’incertitude (en bits) face à une attaque par force brute :</p>
+    <p><code>E = L &times; log2(N)</code></p>
+    <p>Où <i>L</i> est la longueur et <i>N</i> la taille de l’ensemble de caractères utilisé :</p>
+    <ul>
+      <li>Chiffres seuls (0-9) : <i>N = 10</i> (3.32 bits / car.)</li>
+      <li>Lettres min + maj : <i>N = 52</i> (5.70 bits / car.)</li>
+      <li>Alphanumérique + symboles : <i>N = 94</i> (6.55 bits / car.)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cs2-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4,5,5">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c1-e1) — Évaluation quantitative du niveau de risque informatique
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : 2,2,3
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : 3,3,3
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : 3,4,5
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : 5,4,4
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Évaluation quantitative du niveau de risque informatique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluation quantitative du niveau de risque informatique</p>
+    <div class="lab__brief"><p>Dans la gestion des risques selon la norme ISO 27005, le niveau de risque brut est calculé par le produit de la Menace (M, de 1 à 5), de la Vulnérabilité (V, de 1 à 5) et de l’Impact financier/opérationnel (I, de 1 à 5) : <code>Score = M * V * I</code> (variant de 1 à 125).
+
+Les seuils de criticité sont définis ainsi :
+- Score &lt; 20 : <code>FAIBLE</code>
+- 20 &le; Score &lt; 50 : <code>MOYEN</code>
+- 50 &le; Score &lt; 80 : <code>ELEVE</code>
+- Score &ge; 80 : <code>CRITIQUE</code>
+
+Entrée : Trois entiers séparés par des virgules <code>M,V,I</code>.
+Sortie : <code>Score: &lt;Score&gt; | Niveau: &lt;Niveau&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4,5,5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Score: 100 | Niveau: CRITIQUE</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Appliquez la formule de calcul de risque brut : Score = M × V × I (produit des trois facteurs de 1 à 5).</li>
+        <li>Comparez le score aux seuils ISO 27005 : Faible (&lt; 20), Moyen (20 à 49), Élevé (50 à 79) ou Critique (&gt;= 80).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="DIVULGATION">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c1-e2) — Classification d’incidents selon la triade CIA
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : RANSOMWARE
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : DDOS
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : ALTERATION_BASE
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : AUTRE_CHOSE
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Classification d’incidents selon la triade CIA</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classification d’incidents selon la triade CIA</p>
+    <div class="lab__brief"><p>La sécurité de l’information repose sur la triade CIA : Confidentialité, Intégrité, Disponibilité. Votre programme reçoit un code d’incident et doit déterminer le principe majeur violé ainsi que l’impact :
+- <code>DIVULGATION</code> : <code>Principe: Confidentialite | Impact: Fuite de donnees</code>
+- <code>RANSOMWARE</code> : <code>Principe: Disponibilite | Impact: Chiffrement malveillant des fichiers</code>
+- <code>DDOS</code> : <code>Principe: Disponibilite | Impact: Saturation de la bande passante</code>
+- <code>ALTERATION_BASE</code> : <code>Principe: Integrite | Impact: Modification frauduleuse d enregistrements</code>
+- <code>VOL_SESSION</code> : <code>Principe: Confidentialite | Impact: Usurpation de session utilisateur</code>
+- <code>DEFIGURATION_WEB</code> : <code>Principe: Integrite | Impact: Remplacement non autorise du contenu</code>
+
+Si le code est inconnu, afficher : <code>INCIDENT INCONNU</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DIVULGATION</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Principe: Confidentialite | Impact: Fuite de donnees</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Identifiez quel pilier (Confidentialité, Intégrité ou Disponibilité) est directement compromis par l’incident.</li>
+        <li>Associez la conséquence opérationnelle exacte : fuite de données, chiffrement malveillant ou altération.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Secr3t_P@ssw0rd2026">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c1-e3) — Audit de robustesse de mot de passe (Politique ANSSI / NIST)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : admin123
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : MotDePasseTresLongMaisSansChiffreNiSymbole
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : Court1@
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : Cyber_Secu_B2#2026
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Audit de robustesse de mot de passe (Politique ANSSI / NIST)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Audit de robustesse de mot de passe (Politique ANSSI / NIST)</p>
+    <div class="lab__brief"><p>Pour se prémunir des attaques par dictionnaire et force brute, vérifiez si un mot de passe respecte les 5 critères essentiels :
+1. <code>longueur</code> : au moins 12 caractères
+2. <code>majuscule</code> : au moins une lettre majuscule (A-Z)
+3. <code>minuscule</code> : au moins une lettre minuscule (a-z)
+4. <code>chiffre</code> : au moins un chiffre (0-9)
+5. <code>special</code> : au moins un caractère spécial parmi <code>!@#$%^&*()_+-=[]{}|;:,.<>?</code>
+
+Sortie :
+- Si valide : <code>ROBUSTE</code>
+- Si invalide : <code>VULNERABLE (manque: crit1, crit2, ...)</code> dans l’ordre exact ci-dessus.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Secr3t_P@ssw0rd2026</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROBUSTE</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez les critères ANSSI/NIST : longueur minimale, diversité des classes de caractères et absence de motifs triviaux.</li>
+        <li>Un mot de passe non conforme sur l’un des critères obligatoires doit être rejeté immédiatement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle propriété de la triade CIA est directement violée lorsqu’un rançongiciel (ransomware) chiffre les disques durs d’une entreprise ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La Disponibilité</button>
+        <button class="opt">La Confidentialité</button>
+        <button class="opt">L’Authenticité</button>
+        <button class="opt">La Non-répudiation</button>
+      </div>
+      <div class="q__exp">Le chiffrement malveillant empêche les utilisateurs légitimes d’accéder à leurs fichiers et serveurs, ce qui constitue une atteinte directe et majeure à la Disponibilité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le modèle AAA, quelle composante détermine si un utilisateur authentifié a le droit de modifier un fichier spécifique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’Autorisation</button>
+        <button class="opt">L’Authentification</button>
+        <button class="opt">La Traçabilité (Accounting)</button>
+        <button class="opt">L’Imputabilité</button>
+      </div>
+      <div class="q__exp">L’authentification prouve qui est l’utilisateur, tandis que l’Autorisation vérifie les privilèges et permissions dont il dispose sur l’objet sollicité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon la formule standard de l’ISO 27005 (Risque = Menace &times; Vulnérabilité &times; Impact), quel est le niveau de risque pour M=4, V=3, I=5 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ÉLEVÉ (Score = 60)</button>
+        <button class="opt">FAIBLE (Score = 12)</button>
+        <button class="opt">MOYEN (Score = 35)</button>
+        <button class="opt">CRITIQUE (Score = 95)</button>
+      </div>
+      <div class="q__exp">Score = 4 * 3 * 5 = 60. Ce score se situe dans la plage 50 à 79, ce qui correspond au niveau de risque ÉLEVÉ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’entropie d’un mot de passe de 14 caractères composé uniquement de chiffres est-elle bien inférieure à celle d’un mot de passe de 14 caractères complet ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que la taille de l’alphabet N n’est que de 10 contre 94, réduisant drastiquement le nombre total de combinaisons N^L</button>
+        <button class="opt">Parce que les chiffres sont stockés sur moins d’octets en mémoire vive</button>
+        <button class="opt">Parce que les algorithmes de hachage comme SHA-256 refusent les mots de passe numériques</button>
+        <button class="opt">Parce que le protocole TCP interdit l’envoi de chiffres isolés</button>
+      </div>
+      <div class="q__exp">L’entropie vaut L * log2(N). Avec N=10, 14 * 3.32 ≈ 46.5 bits d’entropie. Avec N=94, 14 * 6.55 ≈ 91.7 bits, soit une résistance des milliards de fois supérieure aux attaques.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Considérer que l’authentification équivaut à l’autorisation : être connecté ne donne pas tous les droits.</li>
+      <li>Confondre vulnérabilité (faiblesse interne du système) et menace (agent extérieur susceptible d’exploiter cette faiblesse).</li>
+      <li>Imposer un renouvellement mensuel obligatoire des mots de passe sans double facteur, ce qui incite les utilisateurs à concevoir des variantes prévisibles (ex. Ete2026!).</li>
+      <li>Négliger la Disponibilité dans les architectures au profit du seul chiffrement des données.</li>
+      <li>Traiter un risque sans évaluer l’impact métier réel : surprotéger des données publiques insignifiantes tout en négligeant la base comptable.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour mener une analyse de risques d’infrastructure</div>
+    <ol>
+      <li>Cartographier les actifs primordiaux : inventorier les bases de données, applications critiques et flux sensibles.</li>
+      <li>Identifier les menaces et vulnérabilités : recenser les vecteurs d’attaque crédibles et auditer l’exposition des services.</li>
+      <li>Quantifier les scores de risque brut : calculer le produit Menace &times; Vulnérabilité &times; Impact pour chaque scénario.</li>
+      <li>Définir le plan de traitement : choisir entre atténuation (mesures techniques), transfert (cyber-assurance), évitement ou acceptation formelle.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La triade CIA (Confidentialité, Intégrité, Disponibilité) est la boussole incontournable de tout audit de sécurité.</li>
+      <li>Le modèle AAA garantit que chaque requête est identifiée (Authentification), vérifiée (Autorisation) et consignée (Traçabilité).</li>
+      <li>Le risque résulte du croisement d’une menace, d’une vulnérabilité et d’un impact financier ou réglementaire.</li>
+      <li>La robustesse d’un mot de passe dépend avant tout de sa longueur et de sa diversité (entropie &ge; 80 bits).</li>
+      <li>La sécurité opérationnelle exige une politique cohérente combinant mesures préventives, contrôles continus et PRA.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliciter chaque pilier de la triade CIA avec des exemples d’incidents concrets.</li>
+      <li>Je distingue rigoureusement Authentification et Autorisation dans une architecture applicative.</li>
+      <li>Je maîtrise le calcul et la classification du score de risque selon l’ISO 27005.</li>
+      <li>Je connais la formule de l’entropie de Shannon et les recommandations de l’ANSSI pour les mots de passe.</li>
+      <li>Je comprends l’intérêt d’une journalisation immuable pour assurer la traçabilité des accès.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Triade CIA (Confidentialité, Intégrité, Disponibilité)</li><li>Modèle AAA (Authentification, Autorisation, Accounting)</li><li>Menace vs Vulnérabilité vs Exploit vs Impact</li><li>Gestion des risques ISO 27005</li><li>Score de criticité du risque</li><li>Politique de Sécurité des SI (PSSI)</li><li>Entropie de mot de passe (formule de Shannon)</li><li>Règles ANSSI & NIST pour les identifiants</li><li>Authentification multi-facteurs (MFA)</li><li>Traçabilité et horodatage des journaux</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les définitions de la triade CIA et la différence entre menace et vulnérabilité.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le calcul de risque ISO 27005 et la formule d’entropie.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les principes fondamentaux de la gestion des risques et du modèle AAA.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Excellent : passe à la cryptographie appliquée et aux signatures numériques au module 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Cryptographie Appliquée, Hachage &amp; Signatures Numériques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Cybersécurité B2, les guides de l’ANSSI, les référentiels du NIST (SP 800-61), de l’OWASP et les documentations Snort et Nmap.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

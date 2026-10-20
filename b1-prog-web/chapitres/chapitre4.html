@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — CSS : sélecteurs, cascade et modèle de boîte | Prog. Web B1</title>
+<meta name="description" content="Chapitre 4 du cours de programmation web B1 : Règles et feuilles de style, sélecteurs, cascade et spécificité, héritage, modèle de boîte, unités. Théorie, exemples de code, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-prog-web/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — CSS : sélecteurs, cascade et modèle de boîte | Prog. Web B1">
+<meta property="og:description" content="Chapitre 4 du cours de programmation web B1 : Règles et feuilles de style, sélecteurs, cascade et spécificité, héritage, modèle de boîte, unités. Théorie, exemples de code, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="webnav"><div class="webnav__in">
+  <a class="webnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="webnav__sep" aria-hidden="true">/</span>
+  <a class="webnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Prog. Web B1</a>
+  <div class="webnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="webnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="webwrap">
+<p class="crumb"><a href="../index.html">Prog. Web B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — CSS : sélecteurs, cascade et modèle de boîte</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Tu écris une règle, la page ignore ton style. Ce n’est presque jamais un bug de navigateur : c’est une règle concurrente qui gagne. CSS applique ses décisions selon des règles précises — spécificité, ordre d’apparition, héritage — et savoir prédire laquelle gagne évite de tout réécrire à l’aveugle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>écrire une règle CSS et choisir le bon sélecteur ;</li>
+      <li>calculer la spécificité d’un sélecteur et l’utiliser pour résoudre un conflit ;</li>
+      <li>expliquer l’ordre dans lequel CSS applique ses règles ;</li>
+      <li>calculer la largeur réelle d’un élément avec le modèle de boîte ;</li>
+      <li>choisir des unités adaptées et prévisibles.</li>
+    </ol>
+  </div>
+
+<h2>1. Une règle, une feuille de style</h2>
+
+<p>Une feuille de style CSS est une suite de règles. Chaque règle a un <strong>sélecteur</strong> (ce qui est visé) et un <strong>bloc de déclarations</strong> (ce qui est appliqué), sous la forme <code>propriété: valeur;</code>.</p>
+<pre><code>/* sélecteur   bloc de déclarations */
+h1 {
+  font-size: 2rem;
+  color: #1c1917;
+  margin-bottom: 0.5rem;
+}</code></pre>
+<p>Trois façons d’appliquer du CSS, dans l’ordre de préférence :</p>
+<table>
+    <tr><th>Méthode</th><th>Où</th><th>Quand</th></tr>
+    <tr><td>feuille externe</td><td><code>&lt;link rel="stylesheet" href="styles.css"&gt;</code></td><td>presque toujours : mise en cache, réutilisable</td></tr>
+    <tr><td>bloc interne</td><td><code>&lt;style&gt;</code> dans le <code>head</code></td><td>cas isolé d’une seule page</td></tr>
+    <tr><td>attribut en ligne</td><td><code>&lt;p style="color:red"&gt;</code></td><td>à éviter : non réutilisable et difficile à surcharger</td></tr>
+  </table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le <code>&lt;link&gt;</code> oublié</div>
+    <p>Un chemin de feuille de style faux ne produit aucune erreur visible : la page s’affiche sans style, et l’onglet Réseau montre une requête en <code>404</code>. C’est la première chose à vérifier quand « le CSS ne marche pas ».</p>
+  </div>
+
+<h2>2. Les sélecteurs</h2>
+
+<p>Choisir le sélecteur, c’est exprimer une intention. Les plus utiles :</p>
+<table>
+    <tr><th>Sélecteur</th><th>Ce qu’il cible</th><th>Exemple</th></tr>
+    <tr><td>type</td><td>toutes les balises d’un nom</td><td><code>p</code></td></tr>
+    <tr><td>classe</td><td>les éléments portant <code>class="…"</code></td><td><code>.badge</code></td></tr>
+    <tr><td>identifiant</td><td>l’élément portant <code>id="…"</code></td><td><code>#sommaire</code></td></tr>
+    <tr><td>descendant</td><td>un élément contenu dans un autre</td><td><code>nav a</code></td></tr>
+    <tr><td>enfant direct</td><td>un enfant immédiat</td><td><code>ul &gt; li</code></td></tr>
+    <tr><td>attribut</td><td>un élément selon ses attributs</td><td><code>a[target="_blank"]</code></td></tr>
+    <tr><td>pseudo-classe</td><td>un état de l’élément</td><td><code>a:hover</code>, <code>li:nth-child(2)</code></td></tr>
+    <tr><td>pseudo-élément</td><td>une partie engendrée</td><td><code>p::first-line</code></td></tr>
+  </table>
+<p>La classe est le sélecteur du quotidien : elle est réutilisable, explicite et de faible spécificité. Réserver l’<code>id</code> au ciblage unique (ancre de navigation, élément isolé) laisse les styles faciles à surcharger.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « classe pour styler, id pour viser »</div>
+    <p>Une classe décrit à quoi ressemble un élément ; un <code>id</code> désigne un élément précis. Styler par <code>id</code> revient à écrire une exception dans le CSS : ça marche, mais ça se paie au deuxième élément.</p>
+  </div>
+
+<h2>3. Cascade, spécificité et héritage</h2>
+
+<p>Quand plusieurs règles visent le même élément, elles ne s’appliquent pas « dans l’ordre du fichier » mais selon une hiérarchie :</p>
+<ol>
+    <li><strong>Origine</strong> : styles du navigateur, puis de l’auteur, puis <code>!important</code>.</li>
+    <li><strong>Spécificité</strong> : un sélecteur plus précis l’emporte.</li>
+    <li><strong>Ordre d’apparition</strong> : à spécificité égale, la dernière règle gagne.</li>
+  </ol>
+<p>La spécificité se calcule en trois compteurs, lus de gauche à droite : le nombre d’<strong>identifiants</strong>, puis de <strong>classes</strong> (et d’attributs et de pseudo-classes), puis de <strong>types</strong> (et de pseudo-éléments). On ne compare jamais les totaux : on compare compteur par compteur, comme des nombres écrits à côté.</p>
+<table>
+    <tr><th>Sélecteur</th><th>Identifiants</th><th>Classes</th><th>Types</th></tr>
+    <tr><td><code>p</code></td><td>0</td><td>0</td><td>1</td></tr>
+    <tr><td><code>.item</code></td><td>0</td><td>1</td><td>0</td></tr>
+    <tr><td><code>div#main.item p</code></td><td>1</td><td>1</td><td>2</td></tr>
+    <tr><td><code>#app section h2</code></td><td>1</td><td>0</td><td>2</td></tr>
+  </table>
+<p>L’<strong>héritage</strong> complète le tableau : certaines propriétés (couleur du texte, police, interlignage) descendent des parents vers les enfants, d’autres non (marges, bordures, position). C’est pourquoi <code>body { color: … }</code> colore toute la page, tandis que <code>body { margin: 0 }</code> ne retire rien aux paragraphes.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — <code>!important</code> comme rustine</div>
+    <p><code>!important</code> casse la hiérarchie naturelle : la règle suivante devra elle-même être <code>!important</code>, et le fichier devient ingérable. Un style qui n’est pas appliqué s’explique presque toujours par une spécificité, pas par un manque d’autorité.</p>
+  </div>
+
+<h2>4. Le modèle de boîte</h2>
+
+<p>Chaque élément est une boîte rectangulaire composée de quatre couches, de l’intérieur vers l’extérieur : le <strong>contenu</strong>, le <strong>padding</strong> (marge intérieure), la <strong>bordure</strong>, puis la <strong>marge</strong> (extérieure, qui ne se voit pas mais écarte les voisins).</p>
+<pre><code>.carte {
+  width: 200px;      /* largeur du contenu par défaut */
+  padding: 10px;     /* 2 × 10px autour du contenu */
+  border: 2px solid #1c1917;   /* 2 × 2px */
+  margin: 5px;       /* 2 × 5px autour de la boîte */
+}
+
+/* largeur occupée par le contenu : 200 + 20 + 4 = 224px  (box-sizing: content-box) */
+/* place totale occupée :          224 + 10     = 234px  (avec les marges)        */</code></pre>
+<p>Par défaut, <code>width</code> ne désigne que le contenu : ajouter un padding agrandit la boîte. La règle <code>box-sizing: border-box</code> change tout — la largeur déclarée englobe alors padding et bordure, ce qui rend les calculs de mise en page prévisibles. C’est pour cette raison que la plupart des feuilles de style commencent par :</p>
+<pre><code>*, *::before, *::after { box-sizing: border-box; }</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « border-box : la promesse est tenue »</div>
+    <p>En <code>border-box</code>, une boîte déclarée à 300 px occupe au plus 300 px de contenu, padding et bordure compris. C’est ce que tout le monde attend en lisant <code>width: 300px</code>.</p>
+  </div>
+
+<h2>5. Unités, couleurs et fonctions</h2>
+
+<p>Une valeur sans unité adaptée produit un résultat qui « marche » sur un écran et pas sur un autre. Les unités à connaître :</p>
+<table>
+    <tr><th>Unité</th><th>Relative à</th><th>Usage typique</th></tr>
+    <tr><td><code>px</code></td><td>rien : valeur absolue</td><td>bordures, ombres, détails</td></tr>
+    <tr><td><code>rem</code></td><td>la taille de police de la racine (<code>html</code>)</td><td>tailles de texte, espacements</td></tr>
+    <tr><td><code>em</code></td><td>la taille de police de l’élément parent</td><td>padding dépendant du texte</td></tr>
+    <tr><td><code>%</code></td><td>l’élément parent</td><td>largeurs fluides</td></tr>
+    <tr><td><code>vw</code> / <code>vh</code></td><td>la fenêtre</td><td>sections plein écran</td></tr>
+  </table>
+<p>Les couleurs s’écrivent en hexadécimal (<code>#047857</code>), en fonction (<code>rgb(4,120,87)</code>, <code>hsl(160 93% 24%)</code>) ou par mot-clé. Deux règles de lisibilité : le contraste texte/fond doit dépasser 4,5:1 pour un texte courant, et la couleur ne doit jamais être le seul moyen de transmettre une information.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Pourquoi rem plutôt que px</div>
+    <p><code>rem</code> suit la taille de base choisie par l’utilisateur dans son navigateur. Un texte exprimé en <code>rem</code> grossit pour ceux qui en ont besoin ; exprimé en <code>px</code>, il reste figé. C’est un point d’accessibilité, pas une préférence esthétique.</p>
+  </div>
+
+<h2>6. Déboguer le CSS</h2>
+
+<p>Les outils de développement affichent, pour l’élément sélectionné, toutes les déclarations reçues et celles qui ont été <strong>barrées</strong> : une déclaration barrée est une déclaration perdante. La cause apparaît alors en clair.</p>
+<table>
+    <tr><th>Symptôme</th><th>Cause la plus fréquente</th><th>Vérification</th></tr>
+    <tr><td>le style ne s’applique pas</td><td>sélecteur qui ne correspond à rien</td><td>compter les éléments sélectionnés</td></tr>
+    <tr><td>le style est barré</td><td>une règle plus spécifique gagne</td><td>comparer les triplet de spécificité</td></tr>
+    <tr><td>aucun style du tout</td><td>feuille non chargée</td><td>onglet Réseau : 404 ?</td></tr>
+    <tr><td>une boîte dépasse</td><td><code>content-box</code> avec padding</td><td>mesurer avec l’inspecteur</td></tr>
+  </table>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode de résolution</div>
+    <p>Devant un style qui n’arrive pas : vérifie d’abord que le sélecteur cible bien quelque chose, puis cherche la règle gagnante dans l’inspecteur, et seulement en dernier ressort augmente la spécificité. Ajouter <code>!important</code> avant d’avoir compris est le meilleur moyen de créer un problème plus difficile à défaire.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>7. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="web-c4-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="div#main.item p">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const selecteur = lignes[0];
+
+// À compléter : afficher ids, classes et types séparés par des espaces.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Spécificité d’un sélecteur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le triplet (identifiants, classes, types) qui décide du style gagnant.</p>
+    <div class="lab__brief"><p>Le programme reçoit un sélecteur CSS sur une seule ligne (sans virgule, combinateurs par espaces). Affichez ses trois compteurs sur une ligne : nombre d’<strong>identifiants</strong> (<code>#…</code>), nombre de <strong>classes</strong> (<code>.…</code>, y compris plusieurs sur un même élément) et nombre de <strong>types</strong> (noms de balises). Le sélecteur universel <code>*</code> ne compte pas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>div#main.item p</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1 1 2</pre></div>
+    </div>
+    <p class="lab__note">Un identifiant, une classe, deux types.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe sur les espaces pour obtenir les éléments du sélecteur : chacun se juge séparément.</li>
+        <li>Un élément qui commence par . peut porter plusieurs classes : compte les points, pas les éléments.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="web-c4-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="200 10 2 5">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const [largeur, padding, bordure, marge] = lignes[0].split(' ').map(Number);
+
+// À compléter : afficher les trois largeurs, sur trois lignes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Modèle de boîte : content-box ou border-box</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Voir par le calcul ce que change box-sizing sur la largeur réellement occupée.</p>
+    <div class="lab__brief"><p>Le programme reçoit une ligne <code>largeur padding border margin</code> (quatre nombres de pixels). Affichez trois lignes : la largeur de la boîte avec <code>box-sizing: content-box</code> (largeur de contenu + 2·padding + 2·border) ; la place totale occupée avec les marges, dans tous les cas (largeur déclarée + 2·margin) ; enfin la largeur de contenu restante avec <code>box-sizing: border-box</code> (largeur déclarée − 2·padding − 2·border).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>200 10 2 5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>224
+210
+176</pre></div>
+    </div>
+    <p class="lab__note">200 + 20 + 4 = 224 ; 200 + 10 = 210 ; 200 − 20 − 4 = 176.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En content-box, la largeur déclarée ne concerne que le contenu : les marges internes et la bordure s’ajoutent.</li>
+        <li>En border-box, la largeur déclarée englobe padding et bordure ; le contenu rétrécit d’autant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="web-c4-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="16&#10;3&#10;1.5 rem&#10;2 em&#10;10 px">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const base = Number(lignes[0]);
+const n = Number(lignes[1]);
+const declarations = lignes.slice(2, 2 + n);
+
+// À compléter : afficher chaque déclaration convertie en pixels, deux décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Convertir rem, em et px</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Maîtriser les unités relatives, qui font toute la différence en responsive.</p>
+    <div class="lab__brief"><p>Le programme reçoit une taille de référence en pixels, puis un entier <code>n</code>, puis <code>n</code> déclarations de la forme <code>valeur unité</code>, où l’unité vaut <code>px</code>, <code>rem</code> (1 rem = taille de référence) ou <code>em</code> (l’élément parent a ici la taille de référence). Affichez chaque valeur convertie en pixels, deux décimales, une par ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>16
+3
+1.5 rem
+2 em
+10 px</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>24.00
+32.00
+10.00</pre></div>
+    </div>
+    <p class="lab__note">16 × 1,5 = 24 ; 16 × 2 = 32 ; 10 px reste 10.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>toFixed(2) formate un nombre à deux décimales.</li>
+        <li>px se recopie tel quel ; rem et em multiplient par la taille de référence.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>8. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel sélecteur cible toutes les cartes portant la classe « item » ?</p>
+      <div class="opts">
+        <button class="opt">#item</button>
+        <button class="opt" data-correct="1">.item</button>
+        <button class="opt">item</button>
+      </div>
+      <div class="q__exp">Le point introduit une classe ; # introduit un identifiant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la spécificité de « div#main.item p » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">1 identifiant, 1 classe, 2 types</button>
+        <button class="opt">0 identifiant, 2 classes, 1 type</button>
+        <button class="opt">2 identifiants, 0 classe, 2 types</button>
+      </div>
+      <div class="q__exp">#main donne un identifiant, .item une classe, div et p deux types.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Deux règles de même spécificité se contredisent. Laquelle gagne ?</p>
+      <div class="opts">
+        <button class="opt">la première écrite</button>
+        <button class="opt" data-correct="1">la dernière écrite</button>
+        <button class="opt">celle du fichier le plus long</button>
+      </div>
+      <div class="q__exp">À spécificité égale, l’ordre d’apparition tranche : la dernière gagne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Avec box-sizing: border-box, width: 300px désigne…</p>
+      <div class="opts">
+        <button class="opt">la largeur du contenu seul</button>
+        <button class="opt" data-correct="1">la largeur contenu + padding + bordure</button>
+        <button class="opt">la largeur avec les marges</button>
+      </div>
+      <div class="q__exp">border-box englobe padding et bordure ; les marges restent extérieures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle unité suit la taille de base du navigateur ?</p>
+      <div class="opts">
+        <button class="opt">px</button>
+        <button class="opt" data-correct="1">rem</button>
+        <button class="opt">cm</button>
+      </div>
+      <div class="q__exp">rem est relative à la taille de police de la racine : elle respecte les préférences du lecteur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert !important ?</p>
+      <div class="opts">
+        <button class="opt">à accélérer le rendu</button>
+        <button class="opt" data-correct="1">à forcer une déclaration, en dernier recours</button>
+        <button class="opt">à rendre un style hérité</button>
+      </div>
+      <div class="q__exp">C’est une exception qui casse la hiérarchie naturelle : à utiliser le moins possible.</div>
+    </div>
+  </div>
+
+<h2>9. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Styler par <code>id</code></strong> : la spécificité monte et les surcharges deviennent impossibles.</li>
+      <li><strong>Oublier <code>box-sizing: border-box</code></strong> : une boîte à 100 % de large plus un padding déborde.</li>
+      <li><strong>Ajouter <code>!important</code> sans comprendre</strong> : le conflit suivant sera plus dur encore.</li>
+      <li><strong>Mélanger <code>px</code> et <code>rem</code> sans intention</strong> : le texte ne suit plus les préférences du lecteur.</li>
+      <li><strong>Croire qu’un style absent est un bug du navigateur</strong> : c’est presque toujours un sélecteur qui ne correspond à rien.</li>
+    </ul>
+  </div>
+
+<h2>10. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Résoudre un conflit de style</div>
+    <ol>
+      <li><strong>Vérifie que la feuille est chargée</strong> (onglet Réseau) avant tout le reste.</li>
+      <li><strong>Contrôle le sélecteur</strong> : combien d’éléments correspondent vraiment ?</li>
+      <li><strong>Calcule les triplets de spécificité</strong> des deux règles concurrentes.</li>
+      <li><strong>Corrige la cause</strong> : un sélecteur plus juste, pas une autorité plus forte.</li>
+      <li><strong>Contrôle enfin la boîte</strong> : padding, bordure et <code>box-sizing</code> expliquent la plupart des débordements.</li>
+    </ol>
+  </div>
+
+<h2>11. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une règle CSS = un sélecteur + un bloc de déclarations <code>propriété: valeur;</code>.</li>
+      <li>La feuille externe (<code>link</code>) est la méthode à privilégier ; l’attribut <code>style</code> se réserve aux cas isolés.</li>
+      <li>Spécificité : identifiants, puis classes (et attributs, pseudo-classes), puis types — comparés compteur par compteur.</li>
+      <li>À spécificité égale, la dernière règle écrite gagne ; <code>!important</code> passe avant tout, au prix de la lisibilité.</li>
+      <li>Modèle de boîte : contenu, padding, bordure, marge ; <code>border-box</code> englobe padding et bordure dans <code>width</code>.</li>
+      <li><code>rem</code> suit les préférences du lecteur ; <code>px</code> reste une valeur absolue.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis un sélecteur adapté et je justifie mon choix.</li>
+      <li>Je calcule la spécificité de deux sélecteurs et je prédis le gagnant.</li>
+      <li>Je calcule la largeur réelle d’une boîte avec et sans <code>border-box</code>.</li>
+      <li>Je choisis mes unités en fonction de l’usage, pas de l’habitude.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>règle CSS</li><li>sélecteur de classe</li><li>sélecteur d’identifiant</li><li>sélecteur descendant</li><li>pseudo-classe</li><li>spécificité</li><li>héritage</li><li>modèle de boîte</li><li>box-sizing</li><li>rem et em</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>12. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends la section 3 et recalcule cinq triplets de spécificité à la main.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais l’exercice 1 du module : spécificité d’un sélecteur.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible le modèle de boîte et les unités relatives.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 5, la mise en page.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — CSS : mise en page, flexbox et responsive <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les quatre modules du support B1 de programmation web (introduction au Web, HTML, CSS, JavaScript).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

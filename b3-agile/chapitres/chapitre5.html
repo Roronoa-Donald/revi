@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Planification de Release, Vélocité &amp;amp; Suivi de Projet : Burn-down / Burn-up | Méthodes Agiles B3</title>
+<meta name="description" content="Chapitre 5 du cours Méthodes Agiles B3 : Calcul de la vélocité moyenne, capacité d’équipe (focus factor), Sprint Burn-down chart, détection du Scope Creep, Release Burn-up chart et cône d’incertitude. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-agile/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Planification de Release, Vélocité &amp;amp; Suivi de Projet : Burn-down / Burn-up | Méthodes Agiles B3">
+<meta property="og:description" content="Chapitre 5 du cours Méthodes Agiles B3 : Calcul de la vélocité moyenne, capacité d’équipe (focus factor), Sprint Burn-down chart, détection du Scope Creep, Release Burn-up chart et cône d’incertitude. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-agilenav"><div class="b3-agilenav__in">
+  <a class="b3-agilenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-agilenav__sep" aria-hidden="true">/</span>
+  <a class="b3-agilenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Méthodes Agiles B3</a>
+  <div class="b3-agilenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-agilenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-agilewrap">
+<p class="crumb"><a href="../index.html">Méthodes Agiles B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Planification de Release, Vélocité &amp; Suivi de Projet : Burn-down / Burn-up</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Comment une organisation agile peut-elle s’engager auprès de ses clients ou de sa direction financière sans figer un cahier des charges irréaliste deux ans à l’avance ? La réponse réside dans la planification prévisionnelle empirique. Plutôt que de bâtir des plannings prédictifs sur des hypothèses fragiles, l’équipe mesure sa vélocité historique réelle (le nombre de Story Points terminés et conformes à la Definition of Done à chaque sprint). Cette cadence observée permet de projeter des atterrissages de release sous forme d’intervalles de probabilité (cône d’incertitude). L’ingénieur de niveau Bachelor 3 doit maîtriser le calcul de capacité d’un sprint avec le facteur de focalisation (Focus Factor), savoir interpréter les anomalies d’un Sprint Burn-down chart (notamment le Scope Creep ou dérive de périmètre), exploiter la puissance des Release Burn-up charts pour dissocier l’avancement du code des ajouts de fonctionnalités par le métier, et manier avec rigueur la loi de Goodhart pour ne jamais transformer la vélocité en arme de management toxique.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>calculer la vélocité moyenne d’une équipe et comprendre sa nature de mesure descriptive empirique ;</li>
+      <li>appliquer la loi de Goodhart pour éviter les dérives d’inflation artificielle des Story Points ;</li>
+      <li>évaluer la capacité opérationnelle d’un Sprint en appliquant un facteur de focalisation (Focus Factor) ;</li>
+      <li>analyser un Sprint Burn-down chart et diagnostiquer instantanément les dérives de périmètre (Scope Creep) ;</li>
+      <li>exploiter un Release Burn-up chart pour piloter l’atterrissage d’une version face aux demandes d’évolution métier ;</li>
+      <li>développer en Python 3 des projecteurs de release, des traceurs de burn-down et des simulateurs probabilistes de cône d’incertitude.</li>
+    </ol>
+  </div>
+
+<h2>1. La Vélocité d’Équipe : Définition, Calcul Empirique &amp; Pièges (Loi de Goodhart)</h2>
+
+<p>La <strong>Vélocité</strong> est la somme des Story Points associés aux User Stories terminées à 100 % et validées selon la Definition of Done au cours d’un Sprint. Elle n’inclut <em>jamais</em> de pourcentage partiel de story à moitié finie (règle du tout ou rien).</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Calcul &amp; Moyenne Glissante</h4>
+    <p>La vélocité se stabilise généralement après 3 à 5 sprints initiaux. On utilise la moyenne mobile sur les 3 derniers sprints :</p>
+    <p><code>V_moy = (Points_Sprint_{N-2} + Points_Sprint_{N-1} + Points_Sprint_N) / 3</code></p>
+    <p><strong>Projection :</strong> Si le backlog restant comporte 90 points et que $V_{moy} = 30$, l’atterrissage nominal est estimé à $\lceil 90 / 30 \rceil = 3$ sprints.</p>
+  </div>
+  <div class="card">
+    <h4>2. La Loi de Goodhart et les Anti-patterns</h4>
+    <p>Énoncée par l’économiste Charles Goodhart : <em>« Lorsqu’une mesure devient un objectif, elle cesse d’être une bonne mesure. »</em></p>
+    <p>Si la direction demande à une équipe « d’augmenter sa vélocité de 20 % pour la prochaine prime », les développeurs vont simplement coter une story de 5 points à 8 points sans produire une seule ligne de code utile supplémentaire (phénomène d’<strong>inflation des points</strong>). La vélocité n’est pas un indicateur de productivité individuelle, mais un outil interne de calibrage de capacité.</p>
+  </div>
+</div>
+
+<h2>2. Évaluation de la Capacité de Sprint et Facteur de Focalisation (Focus Factor)</h2>
+
+<p>Tous les sprints ne disposent pas du même nombre d’heures disponibles (congés, jours fériés, formations, astreintes). Avant d’engager les stories lors du Sprint Planning, l’équipe évalue sa <strong>Capacité</strong> :</p>
+<div class="card">
+  <h4>Formule de Calcul de Capacité Réelle</h4>
+  <p>1. <code>Heures_Brutes = Somme(Jours_Présence_Devs) &times; 7 heures/jour</code></p>
+  <p>2. <code>Heures_Net_Disponibles = Heures_Brutes &times; Focus_Factor</code></p>
+  <p>Le <strong>Focus Factor (facteur de focalisation)</strong> oscille typiquement entre <strong>0.60 et 0.80</strong> (60 % à 80 %). Il intègre le temps incompressible consacré aux rituels agiles, aux revues de code, au support d’exploitation de niveau 3 et aux interruptions techniques quotidiennes.</p>
+  <p>Plafond d’engagement : L’équipe ne doit jamais engager plus de points dans le Sprint que ce que sa capacité nette calculée permet raisonnablement de concevoir et tester conformément à la DoD.</p>
+</div>
+
+<h2>3. Graphiques de Suivi Visuel : Sprint Burn-down &amp; Scope Creep</h2>
+
+<p>Le <strong>Sprint Burn-down chart</strong> affiche sur l’axe vertical les Story Points restants et sur l’axe horizontal les jours ouvrés du Sprint :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. La Trajectoire Idéale vs Réelle</h4>
+    <p>Une droite descendante relie les points initiaux au jour 0 jusqu’à zéro au jour final (pente idéale).</p>
+    <ul>
+      <li><strong>Courbe réelle en dessous de la ligne idéale</strong> : L’équipe avance plus vite que prévu ; elle peut envisager d’avancer une petite story du backlog en accord avec le PO.</li>
+      <li><strong>Courbe réelle au-dessus</strong> : Retard accumulé ; l’équipe doit réagir rapidement lors du Daily Scrum pour simplifier ou délester du périmètre.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Détection du Scope Creep (Dérive de Périmètre)</h4>
+    <p>Si la courbe réelle <strong>remonte brusquement</strong> au cours du sprint, cela traduit un <strong>Scope Creep</strong> :</p>
+    <p>Des stories supplémentaires ont été ajoutées en douce au sprint en cours, ou une story mal raffinée a vu son estimation exploser en découvrant une complexité imprévue. Règle absolue : protéger le Sprint Goal en refusant tout ajout sans retrait équivalent de périmètre.</p>
+  </div>
+</div>
+
+<h2>4. Pilotage de Release : Release Burn-up Chart &amp; Cône d’Incertitude</h2>
+
+<p>Pour piloter un projet sur plusieurs mois, le <strong>Release Burn-up chart</strong> est largement supérieur au Burn-down car il comporte <strong>deux courbes distinctes</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Deux Courbes du Burn-up</h4>
+    <ul>
+      <li><strong>Courbe supérieure (Périmètre total du backlog)</strong> : Montre l’évolution du volume total de travail demandé. Si le client ajoute des fonctionnalités, cette courbe monte.</li>
+      <li><strong>Courbe inférieure (Cumul des points Done)</strong> : Montre le volume réel de travail achevé et déployé sprint après sprint.</li>
+    </ul>
+    <p><strong>Avantage décisif :</strong> Si la date de release s’éloigne, le Burn-up prouve visuellement si le retard est dû à un ralentissement technique de l’équipe ou aux ajouts massifs de demandes par le client !</p>
+  </div>
+  <div class="card">
+    <h4>2. Le Cône d’Incertitude (Cone of Uncertainty)</h4>
+    <p>Plutôt qu’une date unique créant un faux sentiment de certitude, le pilotage agile communique une <strong>fourchette probabiliste</strong> :</p>
+    <ul>
+      <li><strong>Scénario Optimiste</strong> : $S_{opt} = \lceil Backlog / V_{max} \rceil$</li>
+      <li><strong>Scénario Attendu</strong> : $S_{med} = \lceil Backlog / V_{moy} \rceil$</li>
+      <li><strong>Scénario Pessimiste</strong> : $S_{pess} = \lceil Backlog / V_{min} \rceil$</li>
+    </ul>
+    <p>Cette transparence préserve la crédibilité de l’équipe face aux aléas techniques inhérents au développement logiciel.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ag3-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="RELEASE_PLAN history=20,25,24 backlog_pts=60">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ag3-c5-e1) — Calculateur de Vélocité moyenne et estimation d’atterrissage de Release
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Cinq sprints d’historique avec charge importante]
+# Données : RELEASE_PLAN history=30,32,28,34,31 backlog_pts=155
+A_COMPLETER
+
+[Cas 2 — Vélocité exactement multiple du backlog]
+# Données : RELEASE_PLAN history=20,20 backlog_pts=40
+A_COMPLETER
+
+[Cas 3 — Faible vélocité avec grand nombre de sprints requis]
+# Données : RELEASE_PLAN history=10,12,8 backlog_pts=85
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de Vélocité moyenne et estimation d’atterrissage de Release</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la vélocité moyenne d’une équipe sur les derniers sprints et estimer le nombre de sprints nécessaires pour terminer le backlog restant.</p>
+    <div class="lab__brief"><p>La <strong>Vélocité</strong> mesure la quantité moyenne de Story Points achevés (conformes à la Definition of Done) par une équipe par Sprint.<br><br>
+Pour chaque cas d’application une commande au format :<br>
+<code>RELEASE_PLAN history=&lt;s1,s2,s3,...&gt; backlog_pts=&lt;int&gt;</code>.<br><br>
+Calculs :<br>
+- <code>avg_velocity = round(sum(history) / len(history), 1)</code><br>
+- Sprints restants requis : <code>sprints_needed = math.ceil(backlog_pts / avg_velocity)</code><br><br>
+Afficher :<br>
+<code>VELOCITY_REPORT history_count={n} avg_velocity={avg_velocity} remaining_pts={backlog_pts} sprints_needed={sprints_needed}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RELEASE_PLAN history=20,25,24 backlog_pts=60</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VELOCITY_REPORT history_count=3 avg_velocity=23.0 remaining_pts=60 sprints_needed=3</pre></div>
+    </div>
+    <p class="lab__note">Vélocité moyenne = 69 / 3 = 23.0. 60 / 23 = 2.61 -&gt; 3 sprints nécessaires.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parser les points d’historique séparés par des virgules en entiers.</li>
+        <li>Calculer avg_velocity = round(somme / nb, 1).</li>
+        <li>Utiliser math.ceil(backlog / avg_velocity) pour arrondir au sprint supérieur entier.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ag3-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SPRINT_INIT initial_pts=40 total_days=10&#10;DAY_LOG day=1 actual_rem=36 added_pts=0&#10;DAY_LOG day=2 actual_rem=34 added_pts=2">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ag3-c5-e2) — Traceur de Sprint Burn-down et détection de Dérive de Périmètre (Scope Creep)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Progression rapide en avance constante sur la ligne idéale]
+# Données : SPRINT_INIT initial_pts=50 total_days=10
+# Données : DAY_LOG day=3 actual_rem=30 added_pts=0
+# Données : DAY_LOG day=5 actual_rem=20 added_pts=0
+A_COMPLETER
+
+[Cas 2 — Accumulation sévère de Scope Creep]
+# Données : SPRINT_INIT initial_pts=30 total_days=10
+# Données : DAY_LOG day=4 actual_rem=25 added_pts=5
+A_COMPLETER
+
+[Cas 3 — Dernier jour du sprint avec achèvement complet]
+# Données : SPRINT_INIT initial_pts=20 total_days=10
+# Données : DAY_LOG day=10 actual_rem=0 added_pts=0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Traceur de Sprint Burn-down et détection de Dérive de Périmètre (Scope Creep)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser le reste à faire quotidien d’un Sprint, identifier le Scope Creep et évaluer l’avance ou le retard sur la trajectoire idéale.</p>
+    <div class="lab__brief"><p>Le <strong>Sprint Burn-down chart</strong> trace jour après jour les Story Points restants par rapport à la pente idéale.<br><br>
+Paramètres initiaux (Sprint de 10 jours ouvrés) :<br>
+- <code>SPRINT_INIT initial_pts=&lt;int&gt; total_days=10</code>.<br>
+Pente idéale quotidienne : <code>ideal_burn_per_day = initial_pts / 10.0</code>.<br>
+Le reste idéal au jour <code>d</code> est <code>ideal_rem = round(initial_pts - (d * ideal_burn_per_day), 1)</code>.<br><br>
+Pour chaque jour de relevé :<br>
+<code>DAY_LOG day=&lt;int&gt; actual_rem=&lt;int&gt; added_pts=&lt;int&gt;</code>.<br><br>
+Règles :<br>
+- Si <code>added_pts &gt; 0</code> : <code>scope_creep=YES(+{added_pts}pts)</code>, sinon <code>scope_creep=NO</code>.<br>
+- Si <code>actual_rem &gt; ideal_rem</code> : <code>trend=BEHIND</code>.<br>
+- Si <code>actual_rem &lt;= ideal_rem</code> : <code>trend=ON_TRACK</code>.<br><br>
+Pour chaque jour, afficher :<br>
+<code>BURNDOWN_TRACK day={day} actual={actual_rem} ideal={ideal_rem} trend={trend} creep={scope_creep}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SPRINT_INIT initial_pts=40 total_days=10
+DAY_LOG day=1 actual_rem=36 added_pts=0
+DAY_LOG day=2 actual_rem=34 added_pts=2</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BURNDOWN_TRACK day=1 actual=36 ideal=36.0 trend=ON_TRACK creep=NO
+BURNDOWN_TRACK day=2 actual=34 ideal=32.0 trend=BEHIND creep=YES(+2pts)</pre></div>
+    </div>
+    <p class="lab__note">Jour 1 : 36 restant conforme à la ligne idéale 36.0. Jour 2 : 34 restant &gt; idéal 32.0 avec ajout de 2 points.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Récupérer initial_pts depuis la ligne SPRINT_INIT.</li>
+        <li>Pour chaque jour d, ideal_rem = round(initial_pts - (d * (initial_pts / 10.0)), 1).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ag3-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CONE_FORECAST release=V2.0 backlog_pts=100 v_min=15 v_med=22 v_max=30">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ag3-c5-e3) — Simulateur de Prévision Probabiliste de Release (Pessimiste, Médian, Optimiste)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Vélocité stable avec faible dispersion]
+# Données : CONE_FORECAST release=PILOTE backlog_pts=60 v_min=18 v_med=20 v_max=22
+A_COMPLETER
+
+[Cas 2 — Forte incertitude sur équipe nouvelle]
+# Données : CONE_FORECAST release=PROJET_X backlog_pts=120 v_min=10 v_med=25 v_max=40
+A_COMPLETER
+
+[Cas 3 — Petit backlog d’appoint]
+# Données : CONE_FORECAST release=HOTFIX_PACK backlog_pts=25 v_min=5 v_med=10 v_max=15
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de Prévision Probabiliste de Release (Pessimiste, Médian, Optimiste)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la fourchette d’atterrissage d’une Release en intégrant les trois scénarios de vélocité de l’équipe.</p>
+    <div class="lab__brief"><p>En gestion prévisionnelle agile, une date d'engagement unique est un anti-pattern. On modélise un cône d'incertitude à trois bornes :<br>
+- <strong>Scénario Optimiste (Best case)</strong> : basé sur la vélocité maximale observée (<code>v_max</code>).<br>
+- <strong>Scénario Médian (Expected case)</strong> : basé sur la vélocité médiane/moyenne (<code>v_med</code>).<br>
+- <strong>Scénario Pessimiste (Worst case)</strong> : basé sur la vélocité minimale observée (<code>v_min</code>).<br><br>
+Pour chaque cas d’application des paramètres au format :<br>
+<code>CONE_FORECAST release=&lt;nom&gt; backlog_pts=&lt;int&gt; v_min=&lt;int&gt; v_med=&lt;int&gt; v_max=&lt;int&gt;</code>.<br><br>
+Calculs (en arrondissant chaque sprint nécessaire au plafond supérieur <code>math.ceil</code>) :<br>
+- <code>sprints_best = math.ceil(backlog_pts / v_max)</code><br>
+- <code>sprints_med = math.ceil(backlog_pts / v_med)</code><br>
+- <code>sprints_worst = math.ceil(backlog_pts / v_min)</code><br><br>
+Afficher :<br>
+<code>FORECAST_RANGE release={release} best={sprints_best}sprints expected={sprints_med}sprints worst={sprints_worst}sprints spread={sprints_worst - sprints_best}sprints</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONE_FORECAST release=V2.0 backlog_pts=100 v_min=15 v_med=22 v_max=30</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>FORECAST_RANGE release=V2.0 best=4sprints expected=5sprints worst=7sprints spread=3sprints</pre></div>
+    </div>
+    <p class="lab__note">Best: 100/30=4 sprints, Med: 100/22=5 sprints, Worst: 100/15=7 sprints. Spread: 7 - 4 = 3 sprints.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer les 3 valeurs avec math.ceil(backlog_pts / v).</li>
+        <li>L’écart (spread) vaut sprints_worst - sprints_best.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Si une équipe termine une User Story de 8 points à 95 % lors du sprint (les tests automatisés ne sont pas encore écrits), combien de points sont comptabilisés dans la vélocité ?</p>
+      <div class="opts">
+        <button class="opt">7.6 points (95 % de 8)</button>
+        <button class="opt">8 points car l’essentiel est fait</button>
+        <button class="opt" data-correct="1">0 point, car en Scrum un incrément est soit Done à 100 %, soit non terminé</button>
+        <button class="opt">4 points à titre d’encouragement</button>
+      </div>
+      <div class="q__exp">Dans Scrum et les démarches agiles, la règle du tout ou rien s’applique : un travail incomplet selon la DoD ne rapporte aucun point à la vélocité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que formule la loi de Goodhart appliquée à la gestion de projet agile ?</p>
+      <div class="opts">
+        <button class="opt">Plus un projet dure longtemps, plus il devient cher</button>
+        <button class="opt" data-correct="1">Lorsqu’un indicateur de mesure (comme la vélocité) est transformé en objectif de performance, il cesse d’être une mesure fiable car il est manipulé</button>
+        <button class="opt">Tout binaire finit par planter un jour</button>
+        <button class="opt">La vélocité d’une équipe double chaque année</button>
+      </div>
+      <div class="q__exp">Si le management exige une hausse de vélocité, les équipes sur-estiment artificiellement les stories (inflation de points) sans gain réel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un Sprint Burn-down chart, qu’indique une remontée soudaine de la courbe des points restants au cours du sprint ?</p>
+      <div class="opts">
+        <button class="opt">Une accélération du développement</button>
+        <button class="opt" data-correct="1">L’apparition de Scope Creep (ajout de nouvelles tâches ou réévaluation à la hausse d’une complexité sous-estimée)</button>
+        <button class="opt">La fin prématurée du sprint</button>
+        <button class="opt">Une panne du serveur d’intégration continue</button>
+      </div>
+      <div class="q__exp">Une remontée de la courbe traduit l’injection de nouveau périmètre en cours d’itération (Scope Creep), ce qui compromet le Sprint Goal.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’avantage décisif d’un Release Burn-up chart par rapport à un simple Burn-down chart pour le dialogue avec un client ?</p>
+      <div class="opts">
+        <button class="opt">Il coûte moins cher en licence logicielle</button>
+        <button class="opt" data-correct="1">Il trace séparément la courbe du travail terminé et la courbe du périmètre total demandé, prouvant si les retards proviennent d’ajouts de fonctionnalités</button>
+        <button class="opt">Il est tracé en trois dimensions</button>
+        <button class="opt">Il supprime le besoin de faire des réunions de rétrospective</button>
+      </div>
+      <div class="q__exp">Le Burn-up montre clairement si le décalage de livraison résulte d’une lenteur technique ou de la demande continue de nouvelles fonctionnalités par le client.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il absurde et dangereux de comparer la vélocité brute de deux équipes différentes (ex: Équipe A fait 40 pts, Équipe B fait 25 pts) ?</p>
+      <div class="opts">
+        <button class="opt">Parce que l’équipe A a forcément de meilleurs ingénieurs</button>
+        <button class="opt" data-correct="1">Parce que les Story Points sont une échelle d’estimation relative propre à l’étalonnage interne de chaque équipe : 1 point chez A n’a aucun équivalent chez B</button>
+        <button class="opt">Parce que la loi interdit les classements</button>
+        <button class="opt">Parce que l’équipe B utilise probablement un autre langage de programmation</button>
+      </div>
+      <div class="q__exp">L’étalonnage en Story Points est strictement relatif et idiosyncratique : une équipe peut coter 3 points ce qu’une autre cote 8 points.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert le « Focus Factor » dans le calcul de la capacité d’un sprint ?</p>
+      <div class="opts">
+        <button class="opt">À mesurer le temps passé à regarder son écran sans cligner des yeux</button>
+        <button class="opt" data-correct="1">À réduire les heures brutes théoriques des développeurs pour tenir compte du temps réel consacré aux imprévus, rituels, revues et support (typiquement 65 à 80 %)</button>
+        <button class="opt">À forcer les développeurs à éteindre leur téléphone portable</button>
+        <button class="opt">À calculer le pourcentage de bugs</button>
+      </div>
+      <div class="q__exp">Le Focus Factor intègre les interruptions, réunions et overhead techniques pour ne pas surcharger irréalistement l’équipe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une équipe a une vélocité moyenne de 20 points par sprint. Le backlog compte 75 points. Combien de sprints complets sont mathématiquement nécessaires ?</p>
+      <div class="opts">
+        <button class="opt">3 sprints</button>
+        <button class="opt">3.75 sprints</button>
+        <button class="opt" data-correct="1">4 sprints (arrondi au plafond supérieur car les sprints sont indivisibles)</button>
+        <button class="opt">5 sprints</button>
+      </div>
+      <div class="q__exp">75 / 20 = 3.75. Un sprint ne pouvant être fractionné, il faut ceil(3.75) = 4 sprints entiers pour achever le backlog.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que le « Cône d’Incertitude » (Cone of Uncertainty) en planification logicielle ?</p>
+      <div class="opts">
+        <button class="opt">Un entonnoir utilisé pour verser de l’eau sur les serveurs surchauffés</button>
+        <button class="opt" data-correct="1">Un modèle démontrant que l’imprécision des estimations est maximale au début du projet et se resserre progressivement au fur et à mesure que les retours empiriques s’accumulent</button>
+        <button class="opt">La zone d’ombre où les bugs ne peuvent pas être détectés</button>
+        <button class="opt">Une sanction attribuée au Product Owner</button>
+      </div>
+      <div class="q__exp">Au démarrage, l’incertitude est de 4x à 0.25x ; elle décroît régulièrement à mesure que le logiciel est inspecté et testé en conditions réelles.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Comparer la vélocité numérique de deux équipes différentes (leurs échelles de points d’histoire relatives sont incomparables).</li>
+      <li>Comptabiliser des points partiels pour une story terminée à 90 % (en agile, un travail non Done vaut 0 point).</li>
+      <li>Ignorer le facteur de focalisation et planifier un sprint à 100 % du temps théorique des développeurs (saturation garantie).</li>
+      <li>Donner une date d’engagement ferme unique à un an au lieu de présenter un cône de probabilité révisé à chaque fin de sprint.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Pilotage et Projection d’une Release Logicielle Agile</div>
+    <ol>
+      <li>Étape 1 : Enregistrer rigoureusement les Story Points complétés à chaque sprint et calculer la vélocité moyenne glissante sur 3 à 5 sprints.</li>
+      <li>Étape 2 : Évaluer la capacité du sprint à venir en appliquant le facteur de focalisation (Focus Factor entre 0.65 et 0.80) selon les disponibilités réelles.</li>
+      <li>Étape 3 : Mettre à jour quotidiennement le Sprint Burn-down chart pour visualiser l’écart à la trajectoire idéale.</li>
+      <li>Étape 4 : En cas de détection de Scope Creep lors du Daily Scrum, arbitrer immédiatement avec le PO pour retirer une story équivalente.</li>
+      <li>Étape 5 : Alimenter le Release Burn-up chart à chaque fin de sprint pour rendre transparent l’impact des nouveaux besoins client.</li>
+      <li>Étape 6 : Présenter aux comités de pilotage une projection d’atterrissage en cône d’incertitude (scénarios pessimiste, médian, optimiste).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La vélocité mesure la quantité de points d’histoire terminés selon la Definition of Done à chaque sprint.</li>
+      <li>D’après la loi de Goodhart, la vélocité ne doit jamais être utilisée comme un indicateur d’évaluation de la performance individuelle.</li>
+      <li>Le calcul de capacité nette pondère les heures de présence par un facteur de focalisation (Focus Factor de 65 à 80 %).</li>
+      <li>Le Sprint Burn-down chart suit le reste à faire quotidien et met en lumière le Scope Creep lorsque la courbe remonte.</li>
+      <li>Le Release Burn-up chart dissocie visuellement le travail achevé de l’augmentation du périmètre total demandé.</li>
+      <li>Les prévisions de release s’expriment sous forme de cône d’incertitude probabiliste à trois bornes (optimiste, attendu, pessimiste).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais calculer la vélocité moyenne d’une équipe sur une série historique de sprints.</li>
+      <li>Je comprends la loi de Goodhart et sais expliquer pourquoi la vélocité n’est pas comparable entre deux équipes.</li>
+      <li>Je sais calculer la capacité nette d’un sprint avec le Focus Factor.</li>
+      <li>Je sais analyser un Sprint Burn-down chart et identifier les causes de retard ou de Scope Creep.</li>
+      <li>Je comprends la supériorité du Release Burn-up chart face au Burn-down pour dialoguer avec les clients.</li>
+      <li>Je sais calculer les bornes d’un cône d’incertitude pour une release de backlog donné.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Vélocité moyenne empirique</li><li>Loi de Goodhart & Inflation de points</li><li>Capacité de sprint & Focus Factor</li><li>Sprint Burn-down chart (Pente idéale vs réelle)</li><li>Dérive de périmètre (Scope Creep)</li><li>Release Burn-up chart (Périmètre vs Réalisé)</li><li>Cône d’incertitude (Cone of Uncertainty)</li><li>Prévision probabiliste à trois bornes</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Assimilation de la vélocité à une mesure de productivité individuelle ou planification de sprints sans prise en compte de la capacité réelle.</div>
+      <div class="bandrow bandrow--medium">Calcul rigoureux de vélocité moyenne, utilisation du Focus Factor et détection des anomalies sur Burn-down charts.</div>
+      <div class="bandrow bandrow--high">Maîtrise experte du pilotage de release probabiliste, modélisation fine par Release Burn-up et communication stratégique en cône d’incertitude.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Agilité à l’Échelle (Scaling), Approches Hybrides &amp; Gouvernance d’Entreprise <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Guide officiel Scrum (Ken Schwaber & Jeff Sutherland), Manifeste Agile (2001), Kanban Guide (David J. Anderson), User Stories Applied (Mike Cohn) et Scaled Agile Framework (SAFe).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

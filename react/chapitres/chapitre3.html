@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — État local (useState) &amp; formulaires contrôlés | React B2</title>
+<meta name="description" content="Chapitre 3 du cours React B2 : Hook useState, cycle de ré-exécution, événements synthétiques, inputs contrôlés et immutabilité de l’état. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/react/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — État local (useState) &amp; formulaires contrôlés | React B2">
+<meta property="og:description" content="Chapitre 3 du cours React B2 : Hook useState, cycle de ré-exécution, événements synthétiques, inputs contrôlés et immutabilité de l’état. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="reactnav"><div class="reactnav__in">
+  <a class="reactnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="reactnav__sep" aria-hidden="true">/</span>
+  <a class="reactnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> React B2</a>
+  <div class="reactnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="reactnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="reactwrap">
+<p class="crumb"><a href="../index.html">React B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — État local (useState) & formulaires contrôlés</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une interface statique ne suffit pas : un utilisateur clique sur des boutons, remplit des formulaires et modifie l’affichage. Pour mémoriser ces changements et déclencher des réactualisations visuelles, React fournit la notion d’état local avec le Hook useState.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre pourquoi une variable JavaScript standard ne déclenche pas de nouveau rendu ;</li>
+      <li>utiliser le Hook useState pour stocker et modifier des données réactives ;</li>
+      <li>manipuler les événements synthétiques (onClick, onChange, onSubmit) ;</li>
+      <li>concevoir des formulaires contrôlés avec validation en temps réel ;</li>
+      <li>respecter strictement l’immutabilité des objets et tableaux d’état.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Hook useState et le cycle de rendu</h2>
+
+<p>Contrairement à une variable ordinaire qui est réinitialisée à chaque exécution de fonction, le <strong>state</strong> est une mémoire persistée par React entre les rendus d’un composant.</p>
+<pre><code>import { useState } from 'react';
+
+function Compteur() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Valeur courante : {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Incrémenter
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Comment React réagit à setState ?</div>
+    <p>L’appel à la fonction modifie la valeur en mémoire et planifie un <strong>nouveau rendu</strong> du composant. React réexécute la fonction, calcule la différence avec l’ancien Virtual DOM et met à jour uniquement les nœuds modifiés.</p>
+  </div>
+
+<h2>2. Mises à jour basées sur l’état précédent</h2>
+
+<p>Les mises à jour d’état en React sont regroupées par lot (<em>batching</em>). Si une nouvelle valeur dépend directement de l’ancienne valeur (par exemple lors de plusieurs incrémentations rapides), il faut passer une fonction de rappel :</p>
+<pre><code>// À privilégier pour éviter les états obsolètes :
+setCount(prevCount =&gt; prevCount + 1);</code></pre>
+
+<h2>3. Gestion des événements et formulaires contrôlés</h2>
+
+<p>React enveloppe les événements natifs du navigateur dans des <strong>événements synthétiques</strong> (<code>SyntheticEvent</code>) assurant une compatibilité cross-browser parfaite. On utilise le camelCase : <code>onClick</code>, <code>onChange</code>, <code>onSubmit</code>.</p>
+<p>Dans un <strong>composant contrôlé</strong>, l’élément de formulaire HTML (<code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code>, <code>&lt;select&gt;</code>) ne gère pas son propre état interne : c’est le state React qui devient la <em>source unique de vérité</em>.</p>
+<pre><code>function FormulaireContact() {
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = (e) =&gt; {
+    e.preventDefault(); // Bloque le rechargement de page natif
+    console.log('Envoi pour :', email);
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="email"
+        value={email}
+        onChange={(e) =&gt; setEmail(e.target.value)}
+        placeholder="votre.email@exemple.fr"
+      /&gt;
+      &lt;button type="submit"&gt;Valider&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+<h2>4. Règle d’or : l’immutabilité de l’état</h2>
+
+<p>On ne doit <strong>jamais muter directement</strong> un objet ou un tableau stocké dans le state (ex. <code>tableau.push(...)</code> ou <code>objet.propriete = ...</code>). React compare les références des objets pour savoir s’il doit re-rendre : sans nouvelle référence, le composant ne se met pas à jour.</p>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Opérations immuables courantes</div>
+    <ul>
+      <li><strong>Ajout dans un tableau</strong> : <code>setItems(prev =&gt; [...prev, nouvelItem])</code> (opérateur spread).</li>
+      <li><strong>Suppression d’un élément</strong> : <code>setItems(prev =&gt; prev.filter(item =&gt; item.id !== idCible))</code>.</li>
+      <li><strong>Modification d’un objet</strong> : <code>setUser(prev =&gt; ({ ...prev, role: 'admin' }))</code>.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="rx2-c3-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="5&#10;INC INC DEC&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+let count = parseInt(lignes[0], 10);
+const actions = (lignes[1] || '').split(' ');
+
+// À compléter : appliquer les transitions d'état
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur du Hook useState</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Gérer l'évolution d'un état numérique à travers une succession d'actions INC, DEC et RESET.</p>
+    <div class="lab__brief"><p>Un composant React conserve son état avec <code>useState</code>. Le programme lit la <strong>valeur initiale</strong> sur la ligne 1, puis une <strong>série d'actions</strong> séparées par des espaces sur la ligne 2. Les actions possibles sont <code>INC</code> (+1), <code>DEC</code> (-1) et <code>RESET</code> (revient à 0). Affichez <code>Etat final : VALEUR</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+INC INC DEC
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Etat final : 6</pre></div>
+    </div>
+    <p class="lab__note">5 + 1 + 1 - 1 = 6</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Bouclez sur les actions en vérifiant act === "INC", "DEC" ou "RESET".</li>
+        <li>Nettoyez les entrées vides avec filter(Boolean).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c3-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="React2026&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const saisie = lignes[0] || '';
+
+// À compléter : tester la longueur et la présence d'un chiffre
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validation d'input contrôlé (onChange)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider en direct la valeur saisie dans un champ de formulaire React.</p>
+    <div class="lab__brief"><p>Dans un formulaire contrôlé, la fonction de rappel <code>onChange</code> valide la saisie à chaque frappe. Le programme lit une chaîne représentant un mot de passe. Il est valide s'il mesure <strong>au moins 8 caractères</strong> ET contient <strong>au moins un chiffre</strong>. Affichez <code>Statut : VALIDE</code> ou <code>Statut : INVALIDE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>React2026
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Statut : VALIDE</pre></div>
+    </div>
+    <p class="lab__note">9 caractères dont 4 chiffres.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez saisie.length &gt;= 8 pour le critère de taille.</li>
+        <li>Utilisez l'expression régulière /[0-9]/.test(saisie) pour vérifier la présence d'un chiffre.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c3-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="pomme,banane&#10;AJOUTER orange&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const articles = (lignes[0] || '').split(',').map(s => s.trim()).filter(Boolean);
+const [action, ...reste] = (lignes[1] || '').split(' ');
+const cible = reste.join(' ');
+
+// À compléter : produire le nouveau tableau immuable
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Mise à jour immuable d'un tableau d'état</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Modifier une liste d'éléments sans muter l'état précédent (immutabilité React).</p>
+    <div class="lab__brief"><p>En React, on ne doit jamais modifier directement un tableau d'état (ex. <code>push</code> ou <code>splice</code> interdits). Le script lit sur la ligne 1 une liste d'articles séparés par des virgules, et sur la ligne 2 une commande : soit <code>AJOUTER nom</code>, soit <code>SUPPRIMER nom</code>. Affichez la nouvelle liste avec les éléments séparés par une virgule (ou <code>(vide)</code> si vide).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>pomme,banane
+AJOUTER orange
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>pomme,banane,orange</pre></div>
+    </div>
+    <p class="lab__note">Ajout en fin de tableau par décomposition.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour ajouter sans muter : [...articles, cible].</li>
+        <li>Pour supprimer sans muter : articles.filter(item =&gt; item !== cible).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">L’appel à useState(initial) retourne…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un tableau [valeur, setter]</button>
+        <button class="opt">Une promesse asynchrone</button>
+        <button class="opt">L’élément DOM réel</button>
+      </div>
+      <div class="q__exp">useState renvoie un tuple déstructuré avec la valeur et la fonction de mise à jour.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi variable = 10 ne provoque aucun re-rendu ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que React n’est pas notifié de la modification de la mémoire</button>
+        <button class="opt">Parce que le navigateur refuse les variables globales</button>
+        <button class="opt">Parce que les variables sont figées par défaut</button>
+      </div>
+      <div class="q__exp">Seul le setter de useState informe le réconciliateur de planifier un rendu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert e.preventDefault() dans onSubmit ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À empêcher le rechargement complet de la page par le navigateur</button>
+        <button class="opt">À réinitialiser automatiquement tous les champs</button>
+        <button class="opt">À forcer l’envoi par protocole FTP</button>
+      </div>
+      <div class="q__exp">Dans une SPA, on bloque le comportement par défaut pour traiter la soumission en JS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment ajouter un élément à un tableau d’état de façon immuable ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">setListe([...liste, nouvelElement])</button>
+        <button class="opt">liste.push(nouvelElement); setListe(liste)</button>
+        <button class="opt">liste[liste.length] = nouvelElement</button>
+      </div>
+      <div class="q__exp">L’opérateur spread crée un nouveau tableau avec une nouvelle référence mémoire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un input contrôlé, d’où provient la valeur affichée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">De la variable d’état liée à la prop value</button>
+        <button class="opt">Du cache interne du navigateur</button>
+        <button class="opt">Du fichier index.html</button>
+      </div>
+      <div class="q__exp">L’état React constitue la source unique de vérité de l’input.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour calculer un nouvel état à partir de l’ancien en toute sécurité, on écrit…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">setCount(prev => prev + 1)</button>
+        <button class="opt">setCount(count++)</button>
+        <button class="opt">setCount(count = count + 1)</button>
+      </div>
+      <div class="q__exp">La fonction de rappel garantit de manipuler l’état le plus récent malgré le batching.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel événement React capture la modification d’un champ texte ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">onChange</button>
+        <button class="opt">onInputNative</button>
+        <button class="opt">onTextUpdate</button>
+      </div>
+      <div class="q__exp">onChange en React se déclenche à chaque frappe de touche dans le champ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si l’on mute un objet d’état sans changer sa référence ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">React peut ne pas détecter le changement et ne pas re-rendre l’interface</button>
+        <button class="opt">Le navigateur lève une exception fatale</button>
+        <button class="opt">Le système d’exploitation redémarre</button>
+      </div>
+      <div class="q__exp">La comparaison par référence superficielle (shallow comparison) ne voit pas la mutation interne.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Muter directement un tableau avec push(), pop() ou splice().</li>
+      <li>Modifier une propriété d’objet sans créer une copie via l’opérateur spread (...).</li>
+      <li>Oublier e.preventDefault() dans la gestion d’un formulaire.</li>
+      <li>Associer la prop value d’un input sans fournir de gestionnaire onChange (input bloqué en lecture seule).</li>
+      <li>Compter sur la mise à jour immédiate et synchrone d’un state juste après l’appel du setter.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Gérer un formulaire contrôlé avec validation en direct</div>
+    <ol>
+      <li><strong>Déclarer</strong> une variable d’état avec useState pour chaque champ ou un objet d’état unique.</li>
+      <li><strong>Lier</strong> la prop value du champ HTML à la variable d’état correspondante.</li>
+      <li><strong>Écouter</strong> l’événement onChange pour appeler le setter avec e.target.value.</li>
+      <li><strong>Valider</strong> la saisie à la volée (longueur, caractères, expressions régulières).</li>
+      <li><strong>Intercepter</strong> la soumission avec onSubmit et bloquer le rechargement via e.preventDefault().</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>useState permet de mémoriser des données réactives entre les cycles de rendu.</li>
+      <li>Chaque appel au setter planifie un recalcul du Virtual DOM et une mise à jour ciblée.</li>
+      <li>Les événements synthétiques React normalisent les interactions utilisateur (onClick, onChange).</li>
+      <li>Un formulaire contrôlé fait du state React la source unique de vérité de chaque champ.</li>
+      <li>L’immutabilité stricte des objets et tableaux est indispensable pour la détection des changements.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais initialiser et mettre à jour un état avec useState.</li>
+      <li>J’utilise la forme fonctionnelle setX(prev => ...) pour les mises à jour dépendantes de l’ancien état.</li>
+      <li>Je conçois des inputs contrôlés avec value et onChange.</li>
+      <li>Je neutralise le rechargement natif de page avec e.preventDefault().</li>
+      <li>Je respecte l’immutabilité en utilisant l’opérateur spread (...).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>useState</li><li>State</li><li>Setter</li><li>Batching</li><li>SyntheticEvent</li><li>onChange</li><li>onSubmit</li><li>e.preventDefault()</li><li>Formulaire contrôlé</li><li>Immutabilité</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la syntaxe de useState et l’immutabilité des objets.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les formulaires contrôlés et la capture d’événements.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises le cycle de réactivité et les mises à jour d’état.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux listes et au rendu conditionnel dans le chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Rendu conditionnel, listes & clés dynamiques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel React B2, le recueil de questions interactives (scripts/questions-react.js) et la documentation de référence react.dev.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

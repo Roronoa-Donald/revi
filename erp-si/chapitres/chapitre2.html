@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Automatisation des processus &amp; RPA | ERP &amp; SI B2</title>
+<meta name="description" content="Chapitre 2 du cours ERP &amp; Systèmes d’Information B2 : Modélisation BPMN, moteurs de workflows d’approbation, circuits de validation hiérarchiques et Robotic Process Automation (RPA). Théorie, modélisations BPMN, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/erp-si/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Automatisation des processus &amp; RPA | ERP &amp; SI B2">
+<meta property="og:description" content="Chapitre 2 du cours ERP &amp; Systèmes d’Information B2 : Modélisation BPMN, moteurs de workflows d’approbation, circuits de validation hiérarchiques et Robotic Process Automation (RPA). Théorie, modélisations BPMN, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="erp-sinav"><div class="erp-sinav__in">
+  <a class="erp-sinav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="erp-sinav__sep" aria-hidden="true">/</span>
+  <a class="erp-sinav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> ERP &amp; SI B2</a>
+  <div class="erp-sinav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="erp-sinav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="erp-siwrap">
+<p class="crumb"><a href="../index.html">ERP & SI B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Automatisation des processus & RPA</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Remplir des bordereaux, transférer manuellement des pièces jointes ou attendre la signature d’un directeur par email bloque la fluidité des opérations. Les entreprises automatisent ces tâches répétitives à l’aide de moteurs de Workflow intégrés à l’ERP et de robots logiciels RPA.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le Business Process Management (BPM) et la notation BPMN standard ;</li>
+      <li>concevoir des circuits de workflow d’approbation avec règles d’aiguillage hiérarchiques ;</li>
+      <li>définir la Robotic Process Automation (RPA) et ses cas d’application privilégiés ;</li>
+      <li>différencier un robot assisté (Attended) d’un robot autonome (Unattended) ;</li>
+      <li>mesurer les gains de productivité et de réduction des taux d’erreur de l’automatisation.</li>
+    </ol>
+  </div>
+
+<h2>1. Modélisation des processus métiers avec BPMN</h2>
+
+<p>Le <strong>BPM</strong> (<em>Business Process Management</em>) est une démarche d’entreprise visant à modéliser, exécuter et optimiser les processus opérationnels. Pour formaliser ces flux sans ambiguïté, le standard mondial est la norme <strong>BPMN 2.0</strong> (<em>Business Process Model and Notation</em>).</p>
+<p>Un schéma BPMN standard s’articule autour de quatre familles d’éléments graphiques :</p>
+<ul>
+  <li><strong>Événements (Events)</strong> : cercles marquant le début, la fin ou un jalon intermédiaire du processus (ex. réception d’un bon de commande).</li>
+  <li><strong>Activités / Tâches (Activities)</strong> : rectangles à bords arrondis représentant une action concrète réalisée par un humain ou un système.</li>
+  <li><strong>Passerelles (Gateways)</strong> : losanges représentant des embranchements décisionnels conditionnels (passerelle exclusive XOR, parallèle AND, inclusive OR).</li>
+  <li><strong>Couloirs et Piscines (Pools &amp; Lanes)</strong> : délimitent les responsabilités des différents acteurs ou services (Comptabilité, Logistique, Commercial).</li>
+</ul>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Pourquoi standardiser avec BPMN ?</div>
+    <p>Le BPMN sert de langage commun universel : il est à la fois lisible par les directeurs métiers pour comprendre leurs processus et directement exécutable par les moteurs d’orchestration d’ERP pour automatiser les transitions.</p>
+  </div>
+
+<h2>2. Moteurs de Workflow et circuits de validation</h2>
+
+<p>Un <strong>Workflow</strong> (flux de travail) est la représentation opérationnelle d’un processus au sein de l’ERP : il orchestre la transmission séquentielle ou parallèle des tâches d’un collaborateur à un autre.</p>
+<p>Exemple classique : le <strong>circuit de validation d’une dépense</strong> :</p>
+<ol>
+  <li>L’employé soumet une demande d’achat avec justificatif.</li>
+  <li>L’ERP évalue le montant face aux règles de gestion paramétrées :<br>      - Si &le; 500 € : approbation automatique sans délai.<br>      - Si &le; 5 000 € : notification au Manager direct pour validation.<br>      - Si &le; 50 000 € : validation obligatoire du Directeur de département.<br>      - Au-delà : escalade vers la Direction Générale.</li>
+  <li>Dès approbation, l’ERP génère automatiquement le bon de commande fournisseur.</li>
+</ol>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Gains concrets d’un moteur de workflow</div>
+    <ul>
+      <li><strong>Zéro document égaré</strong> : l’historique est rattaché à l’objet ERP avec horodatage.</li>
+      <li><strong>Alertes de délai (SLA)</strong> : relances automatiques en cas de retard de signature.</li>
+      <li><strong>Délégation d’autorité</strong> : gestion des remplaçants en cas de congés ou d’absence.</li>
+    </ul>
+  </div>
+
+<h2>3. La Robotic Process Automation (RPA)</h2>
+
+<p>La <strong>RPA</strong> (<em>Robotic Process Automation</em>) utilise des robots logiciels (ou « bots ») pour imiter les actions humaines répétitives sur l’interface utilisateur des applications : cliquer sur des boutons, copier-coller des données, extraire des textes de PDF, saisir des écritures.</p>
+<p>La RPA est particulièrement puissante pour combler les manques entre des applications anciennes (legacy) sans API et le nouvel ERP central.</p>
+<table class="data-table">
+  <thead>
+    <tr><th>Critère</th><th>Workflow ERP</th><th>Robotic Process Automation (RPA)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Nature de l’action</td><td>Orchestre les tâches humaines et les données natives.</td><td>Exécute des tâches informatiques répétitives à la place de l’humain.</td></tr>
+    <tr><td>Niveau d’intégration</td><td>Profond (au cœur de la base et du modèle ERP).</td><td>Superficiel (via l’interface graphique UI ou connecteurs légers).</td></tr>
+    <tr><td>Délai de déploiement</td><td>Moyen à long (paramétrage métier complet).</td><td>Très rapide (quelques jours à semaines par scénario).</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Robots assistés (Attended) vs non assistés (Unattended)</h2>
+
+<p>On distingue deux modes fondamentaux de déploiement RPA :</p>
+<ul>
+  <li><strong>Robot assisté (Attended)</strong> : s’exécute sur le poste de travail de l’utilisateur à sa demande. Le robot fait office d’assistant personnel (ex. remplir un formulaire complexe pendant que le téléopérateur répond au client).</li>
+  <li><strong>Robot autonome (Unattended)</strong> : s’exécute sur une machine virtuelle dédiée dans le datacenter sans aucune intervention humaine. Il est déclenché par un événement système (arrivée d’un email avec facture PDF, planification nocturne) et traite des volumes massifs 24h/24.</li>
+</ul>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Les limites de la RPA</div>
+    <p>La RPA est fragile aux changements d’interface : si un bouton change de place ou de libellé dans un logiciel web, le robot peut échouer. Elle ne remplace pas une intégration par API ou ESB lorsque celle-ci est techniquement envisageable.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="erp2-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="350">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (erp2-c2-e1) — Circuit d’approbation de Workflow
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Seuil manager]
+# Données : 2450.50
+A_COMPLETER
+
+[Cas 2 — Seuil directeur exact]
+# Données : 50000
+A_COMPLETER
+
+[Cas 3 — Gros investissement direction générale]
+# Données : 120000
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Circuit d’approbation de Workflow</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Aiguiller une demande d’achat vers le bon palier hiérarchique de validation selon son montant.</p>
+    <div class="lab__brief"><p>Dans un moteur de Workflow d’ERP, les demandes de dépenses sont routées automatiquement vers différents niveaux d’autorité selon des règles de gestion prédéfinies :</p><ul>
+  <li>Jusqu’à <code>500 EUR</code> inclus &rarr; <code>Validation automatique</code></li>
+  <li>De <code>500.01</code> à <code>5000 EUR</code> inclus &rarr; <code>Validation Manager</code></li>
+  <li>De <code>5000.01</code> à <code>50000 EUR</code> inclus &rarr; <code>Validation Directeur</code></li>
+  <li>Strictement supérieur à <code>50000 EUR</code> &rarr; <code>Validation Direction Generale</code></li>
+</ul><p>Lit le montant de la dépense sur l’entrée standard (nombre flottant ou entier positif) et affiche la décision sous la forme :<br><code>Circuit: &lt;Niveau d’approbation&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>350</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Circuit: Validation automatique</pre></div>
+    </div>
+    <p class="lab__note">Montant inférieur à 500 EUR.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilise une série de conditions if / elif / else ordonnées du plus petit au plus grand seuil.</li>
+        <li>Exemple : if montant &lt;= 500: circuit = "Validation automatique".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="erp2-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="FAC-2026-001&#10;100.0&#10;120.0">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (erp2-c2-e2) — Automate RPA de contrôle de facture
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Facture avec centimes exacte]
+# Données : FAC-2026-042
+# Données : 250.50
+# Données : 300.60
+A_COMPLETER
+
+[Cas 2 — Écart de calcul détecté par le robot]
+# Données : FAC-2026-099
+# Données : 500.00
+# Données : 620.00
+A_COMPLETER
+
+[Cas 3 — Facture de service]
+# Données : FAC-2026-115
+# Données : 1500.00
+# Données : 1800.00
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Automate RPA de contrôle de facture</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la cohérence arithmétique d’une facture extraite par un robot RPA.</p>
+    <div class="lab__brief"><p>Un robot d’automatisation (RPA) extrait des données comptables depuis des factures scannées (OCR). Avant injection dans l’ERP, il doit vérifier que le montant TTC correspond exactement au montant HT majoré de la TVA (20%).</p><p>Lit trois lignes sur l’entrée standard :<br>1. Le numéro de facture (ex. <code>FAC-2026-081</code>)<br>2. Le montant Hors Taxes (HT) en flottant (ex. <code>100.00</code>)<br>3. Le montant Toutes Taxes Comprises (TTC) extrait de la facture (ex. <code>120.00</code>)<br>Calcule le TTC théorique avec <code>round(ht * 1.20, 2)</code>.<br>- Si la différence absolue entre le TTC extrait et le calculé est inférieure à <code>0.01</code> : affiche <code>Facture &lt;num&gt; conforme: HT=&lt;ht&gt; TTC=&lt;ttc&gt; EUR</code>.<br>- Sinon : affiche <code>Anomalie facture &lt;num&gt;: TTC attendu &lt;attendu&gt; vs extrait &lt;extrait&gt; EUR</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FAC-2026-001
+100.0
+120.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Facture FAC-2026-001 conforme: HT=100.00 TTC=120.00 EUR</pre></div>
+    </div>
+    <p class="lab__note">100 + 20% = 120.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>ttc_theorique = round(ht * 1.20, 2).</li>
+        <li>Compare abs(ttc_lu - ttc_theorique) &lt; 0.01 pour tolérer les micro-arrondis.</li>
+        <li>Formate les nombres avec :.2f pour un affichage soigné.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="erp2-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="BROUILLON&#10;VALIDE">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (erp2-c2-e3) — Machine à états de commande (BPMN)
+# Complétez la réponse attendue sous chaque cas ci-dessous :
+
+[Cas 1 — Saut d’étape interdit]
+# Données : BROUILLON
+# Données : EXPEDIE
+A_COMPLETER
+
+[Cas 2 — Annulation en cours de préparation]
+# Données : VALIDE
+# Données : ANNULE
+A_COMPLETER
+
+[Cas 3 — Modification d’une commande déjà livrée]
+# Données : LIVRE
+# Données : EN_PREPARATION
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Machine à états de commande (BPMN)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider le respect des transitions du cycle de vie d’une commande dans l’ERP.</p>
+    <div class="lab__brief"><p>Dans un processus modélisé (BPMN), les commandes traversent des états successifs selon un cycle strict :</p><ul>
+  <li><code>BROUILLON</code> &rarr; peut passer à <code>VALIDE</code> ou <code>ANNULE</code></li>
+  <li><code>VALIDE</code> &rarr; peut passer à <code>EN_PREPARATION</code> ou <code>ANNULE</code></li>
+  <li><code>EN_PREPARATION</code> &rarr; peut passer à <code>EXPEDIE</code></li>
+  <li><code>EXPEDIE</code> &rarr; peut passer à <code>LIVRE</code> ou <code>RETOURNE</code></li>
+  <li><code>LIVRE</code>, <code>ANNULE</code>, <code>RETOURNE</code> &rarr; états finaux (aucune transition autorisée).</li>
+</ul><p>Lit deux lignes sur l’entrée standard (l’état actuel puis l’état demandé, en majuscules).<br>- Si la transition est autorisée : affiche <code>Transition autorisee: &lt;actuel&gt; -&gt; &lt;cible&gt;</code>.<br>- Sinon : affiche <code>Transition interdite: de &lt;actuel&gt; vers &lt;cible&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BROUILLON
+VALIDE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Transition autorisee: BROUILLON -&gt; VALIDE</pre></div>
+    </div>
+    <p class="lab__note">Validation normale du devis.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Définis un dictionnaire associant chaque état de départ à un ensemble (set) d’états cibles autorisés.</li>
+        <li>Exemple : transitions = {"BROUILLON": {"VALIDE", "ANNULE"}, ...}.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que signifie l’acronyme BPMN ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Business Process Model and Notation</button>
+        <button class="opt">Basic Protocol Machine Network</button>
+        <button class="opt">Binary Program Management Node</button>
+      </div>
+      <div class="q__exp">BPMN est le standard international de modélisation visuelle des processus métiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un diagramme BPMN, quel symbole représente une passerelle de décision conditionnelle ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un losange (Gateway)</button>
+        <button class="opt">Un cercle (Event)</button>
+        <button class="opt">Un rectangle (Task)</button>
+      </div>
+      <div class="q__exp">Les losanges (Gateways) représentent les embranchements logiques (ex. XOR, AND).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un moteur de Workflow dans un ERP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un composant qui orchestre la circulation automatique des tâches et des approbations</button>
+        <button class="opt">Un moteur de rendu 3D</button>
+        <button class="opt">Un outil de défragmentation du disque dur</button>
+      </div>
+      <div class="q__exp">Le workflow guide la transmission des dossiers selon les règles organisationnelles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie l’acronyme RPA ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Robotic Process Automation</button>
+        <button class="opt">Rapid Protocol Architecture</button>
+        <button class="opt">Regional Process Alliance</button>
+      </div>
+      <div class="q__exp">Robotic Process Automation désigne l’automatisation des tâches logicielles répétitives par des robots.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la particularité d’un robot RPA « Unattended » (non assisté) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il s’exécute de manière autonome en arrière-plan sans intervention humaine</button>
+        <button class="opt">Il exige qu’un humain tape au clavier en permanence</button>
+        <button class="opt">Il ne fonctionne que sur smartphone</button>
+      </div>
+      <div class="q__exp">Les bots Unattended tournent 24h/24 sur serveurs pour traiter des flux de fond.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi un circuit de validation basé sur le montant est-il bénéfique pour l’entreprise ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il fluidifie les petites dépenses tout en contrôlant rigoureusement les engagements majeurs</button>
+        <button class="opt">Il interdit totalement d’acheter du matériel</button>
+        <button class="opt">Il supprime le rôle de la comptabilité</button>
+      </div>
+      <div class="q__exp">Les petits montants sont validés sans engorger la direction, qui se concentre sur les montants élevés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le point faible majeur d’une automatisation par RPA sur interface graphique (UI) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La sensibilité aux modifications visuelles des logiciels pilotés</button>
+        <button class="opt">Le coût excessif du papier</button>
+        <button class="opt">L’impossibilité de traiter des fichiers texte</button>
+      </div>
+      <div class="q__exp">Si l’UI d’une application cible change, le bot graphique risque de ne plus trouver ses cibles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que permet de tracer un système de workflow intégré ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Qui a validé ou rejeté une demande, quand et avec quel motif</button>
+        <button class="opt">La météo du jour de la commande</button>
+        <button class="opt">Le numéro de série de l’écran</button>
+      </div>
+      <div class="q__exp">L’auditabilité complète et l’horodatage des validations garantissent la conformité réglementaire.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Automatiser un processus obsolète ou dysfonctionnel sans l’avoir préalablement simplifié.</li>
+      <li>Utiliser la RPA pour des flux critiques alors qu’une API REST ou un connecteur SQL existe.</li>
+      <li>Oublier de prévoir la gestion des exceptions (ex. document illisible par l’OCR).</li>
+      <li>Définir des seuils de validation trop bas qui saturent les boîtes mail des directeurs.</li>
+      <li>Négliger le maintien en conditions opérationnelles (MCO) des scripts RPA lors des mises à jour applicatives.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Concevoir un circuit d’automatisation de processus</div>
+    <ol>
+      <li><strong>Identifier les goulots d’étranglement</strong> : repérer les tâches manuelles à forte répétitivité et faible valeur ajoutée.</li>
+      <li><strong>Modéliser le flux en BPMN</strong> : clarifier les rôles (Lanes), les décisions (Gateways) et les fins possibles.</li>
+      <li><strong>Fixer les règles de gestion</strong> : déterminer les seuils d’escalade et les approbations requises.</li>
+      <li><strong>Choisir la technologie adaptée</strong> : Workflow natif ERP si dans le périmètre, ou RPA si logiciel tiers sans API.</li>
+      <li><strong>Tester le cas nominal et les exceptions</strong> : s’assurer que les rejets ou erreurs sont correctement pris en charge.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>BPMN 2.0 est la norme universelle de modélisation visuelle des processus d’entreprise.</li>
+      <li>Le moteur de Workflow de l’ERP automatise les circuits d’approbation et la traçabilité des décisions.</li>
+      <li>La RPA délègue à des robots logiciels les tâches manuelles de saisie et de manipulation d’interfaces.</li>
+      <li>Les bots Attended assistent l’employé en temps réel ; les Unattended traitent des flux massifs sur serveur.</li>
+      <li>L’automatisation libère du temps à forte valeur ajoutée et réduit drastiquement les taux d’erreur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais identifier les symboles de base de la notation BPMN (Event, Task, Gateway, Lane).</li>
+      <li>Je comprends le fonctionnement d’un circuit de validation hiérarchique par seuil.</li>
+      <li>Je sais expliquer ce qu’est la RPA et ses cas d’usage types.</li>
+      <li>Je fais la distinction entre robot assisté (Attended) et autonome (Unattended).</li>
+      <li>Je connais les limites et les risques de fragilité de la RPA face aux API directes.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>BPM</li><li>BPMN</li><li>Workflow</li><li>RPA</li><li>Gateway</li><li>Attended</li><li>Unattended</li><li>Circuit d’approbation</li><li>Traçabilité</li><li>Règles de gestion</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la symbolique BPMN et le rôle d’un workflow.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les seuils d’approbation et la différence Attended/Unattended.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises l’automatisation des flux métiers et la RPA.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux architectures d’intégration du SI au chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Intégration du SI & Architectures <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel ERP &amp; Systèmes d’Information B2, la spécification BPMN 2.0 (OMG), les normes d’intégration EDI/XML/JSON et les référentiels d’urbanisation du SI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

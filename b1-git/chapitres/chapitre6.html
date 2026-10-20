@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Stash, gitignore et publication | Git B1</title>
+<meta name="description" content="Chapitre 6 du cours de Git B1 : Remiser avec stash, filtrer avec .gitignore, archiver avec git archive, publier avec GitHub Pages. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Stash, gitignore et publication | Git B1">
+<meta property="og:description" content="Chapitre 6 du cours de Git B1 : Remiser avec stash, filtrer avec .gitignore, archiver avec git archive, publier avec GitHub Pages. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Stash, gitignore et publication</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dernier tour d'outils du semestre : remiser un travail en cours pour changer de branche sans perdre une ligne, tenir un .gitignore qui protège vraiment l'historique, livrer une archive propre, et publier une page d'accueil avec GitHub Pages — le TP4 dans son intégralité.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>remiser et reprendre des modifications avec stash, pop et list ;</li>
+      <li>construire un .gitignore effectif pour un projet réel ;</li>
+      <li>produire une archive de version avec git archive ;</li>
+      <li>publier une page via GitHub Pages (README, index.html, Settings).</li>
+    </ol>
+  </div>
+
+<h2>1. stash : remiser sans committer</h2>
+
+<p>La copie de travail est modifiée, et Git bloque toute opération qui changerait son contenu : changer de branche, rapatrier un commit. Deux solutions : commiter (mais cela laisse une trace dans l'historique) ou <strong>remiser temporairement</strong> :</p>
+<pre><code>git stash            remise : la copie redevient propre, les modifications patientent
+git stash pop        reprend la remise la plus récente et la supprime de la pile
+git stash list       liste les remises en attente
+git stash drop       supprime la remise la plus récente</code></pre>
+<p>Après un stash, on se retrouve dans le même état qu'après un reset --hard — mais les modifications <strong>ne sont pas perdues</strong> : elles dorment dans la pile des remises. C'est la solution honnête avant un checkout -f ou un reset --hard.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « la panière du artisan »</div>
+    <p>stash est une panière : on y dépose le chantier en cours pour libérer la table, on le ressort avec pop. La panière empile : dernier déposé, premier ressorti.</p>
+  </div>
+
+<h2>2. .gitignore en conditions réelles</h2>
+
+<p>Le chapitre 2 a posé la syntaxe ; ici, le contenu d'un vrai projet Python (celui du TP1) :</p>
+<pre><code>__pycache__/
+*.pyc
+venv/
+
+</code></pre>
+<p>Chaque motif cible une pollution : <code>__pycache__/</code> le cache d'exécution, <code>*.pyc</code> les fichiers compilés, <code>venv/</code> l'environnement virtuel. Règle de maintien : le .gitignore se met à jour dès qu'un fichier parasite apparaît dans git status — et pour les fichiers déjà suivis, rappel du chapitre 2, git rm --cached d'abord.</p>
+<p>La commande <code>git ls-files --other --ignored --exclude-standard</code> liste tous les fichiers exclus du suivi dans le projet : le moyen de vérifier que le .gitignore fait son travail.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — plusieurs .gitignore</div>
+    <p>Plusieurs .gitignore répartis dans les sous-dossiers se cumulent, mais la pratique est fortement déconseillée : les motifs peuvent s'annuler les uns les autres. Un .gitignore à la racine, sauf besoin très particulier.</p>
+  </div>
+
+<h2>3. git archive : livrer sans .git</h2>
+
+<p>Pour avoir une archive de la version de votre dépôt <strong>sans les fichiers inutiles</strong> tel le dossier .git :</p>
+<pre><code>cd depot
+git archive --format=tar --prefix=dossier/ HEAD | gzip &gt; v1.4.0.tar.gz</code></pre>
+<p>L'archive <code>v1.4.0.tar.gz</code> contient la dernière version de la branche courante. Décompressée, elle crée un dossier portant le préfixe demandé avec tous les fichiers du dépôt — et rien d'autre : ni historique, ni fichiers ignorés.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le réflexe qualité</div>
+    <p>Une livraison propre = git archive depuis un historique propre = un .gitignore tenu à jour. Les trois outils du semestre se rejoignent : ce qui n'est pas suivi ne part pas dans l'archive.</p>
+  </div>
+
+<h2>4. Publier : README et GitHub Pages</h2>
+
+<p>Le TP4 publie le projet sur GitHub avec une vraie page d'accueil. Les étapes :</p>
+<pre><code>1. créer le dépôt sur GitHub (public)
+2. lier : git remote add origin ... ; git push -u origin main
+3. rédiger un README.md structuré : titre, description, fonctionnalités,
+   installation (git clone + lancement), auteur
+4. créer une page d'accueil index.html minimaliste
+5. Settings → Pages → Source : branch main, dossier /root
+6. l'URL https://&lt;user&gt;.github.io/gestion_taches/ sert la page</code></pre>
+<p>Le README professionnel du TP4 suit un plan fixe : <code># Titre</code>, <code>## Description</code>, <code>## Fonctionnalités</code> (une liste), <code>## Installation</code> (un bloc de code), auteur. Chaque modification passe par le cycle du chapitre 2 : add, commit avec message net, push.</p>
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Ce que l'atelier fait tourner réellement</div>
+    <p>Chaque chapitre de ce cours se termine par trois exercices Bash exécutés dans la page : dépôt et identité (chapitre 1), index et messages (chapitre 2), historique et annulations (chapitre 3), branches et fusions (chapitre 4), distant et rejets (chapitre 5), remises, filtres et rapports de version (chapitre 6). Le même bash que celui du terminal — seule la machine change.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gt-c6-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;modifie&#10;modifie&#10;stash&#10;etat&#10;pop&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op
+  # À compléter : une pile de remises et un compteur de copie.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — stash : remiser et reprendre</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler git stash / stash pop : les modifications partent en attente puis reviennent.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>modifie</code> (une modification de plus sur la copie), <code>stash</code> (empile toute la copie : elle devient propre), <code>pop</code> (dépile : les modifications remises reviennent ; si la pile est vide, affiche <code>rien à reprendre</code>), ou <code>etat</code> (affiche <code>copie : K</code> et <code>remises : K</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+modifie
+modifie
+stash
+etat
+pop
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>copie : 0
+remises : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>stash transfère tout le compteur de copie dans la pile : la copie repart à zéro.</li>
+        <li>pop rend ce qui était remisé : copie + remise dépilée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c6-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;*.log&#10;build/&#10;3&#10;add main.py&#10;add debug.log&#10;index&#10;">
+  <script type="text/plain" data-lab-starter>read -r g
+for ((i=0; i<g; i++)); do
+  read -r motif
+  # À compléter : retenir les motifs.
+done
+read -r n
+for ((i=0; i<n; i++)); do
+  read -r op fichier
+  # À compléter : filtrer puis indexer.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — gitignore : filtrer les adds</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les motifs .gitignore aux fichiers ajoutés à l’index.</p>
+    <div class="lab__brief"><p>Le script lit d’abord <strong>g motifs</strong> (un par ligne : un nom exact comme <code>build/</code> filtre le dossier build ; un suffixe comme <code>*.log</code> filtre tout fichier finissant par .log). Puis <strong>n opérations</strong> : <code>add fichier</code> ou <code>index</code>. Un add d’un fichier filtré est refusé avec <code>ignoré</code> ; l’index affiche ses fichiers, un par ligne, dans l’ordre.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+*.log
+build/
+3
+add main.py
+add debug.log
+index
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ignoré
+main.py</pre></div>
+    </div>
+    <p class="lab__note">debug.log tombe sous le coup de *.log : l'add est refusé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Deux familles de motifs : ceux qui finissent par / (dossier : le fichier commence par ce nom) et ceux qui commencent par * (suffixe).</li>
+        <li>Un motif exact sans * ni / filtre le fichier de ce nom exact.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c6-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;120 main.py&#10;30 README.md&#10;5 logo.png&#10;220 build.o&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r taille nom
+  # À compléter : cumuler, chercher le max, retenir les fichiers.
+done
+# À compléter : le rapport complet.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — archive : le rapport de version</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Produire le récapitulatif d’une version : fichiers versionnés, ignorés exclus, taille totale.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>taille nom</code> (taille en Ko, nom de fichier). Il affiche un rapport : <code>fichiers : K</code>, <code>taille : T</code> (somme des tailles, T en Ko), <code>plus gros : NOM</code> (premier fichier de taille maximale), puis la liste des fichiers de taille strictement supérieure à la moyenne entière (somme ÷ nombre, division entière), un par ligne, dans l’ordre d’entrée — ou rien si aucun.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+120 main.py
+30 README.md
+5 logo.png
+220 build.o
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>fichiers : 4
+taille : 375
+plus gros : build.o
+main.py
+build.o</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La moyenne entière se calcule après la boucle : division entière de la somme par n.</li>
+        <li>Un tableau parallèle noms/tailles permet un second passage pour la liste.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que fait git stash ?</p>
+      <div class="opts">
+        <button class="opt">Il commite</button>
+        <button class="opt" data-correct="1">Il remise les modifications et rend la copie propre</button>
+        <button class="opt">Il pousse</button>
+      </div>
+      <div class="q__exp">stash empile les modifications de la copie : elle redevient propre, rien ne se perd.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">git stash pop fait quoi ?</p>
+      <div class="opts">
+        <button class="opt">Ajoute une remise</button>
+        <button class="opt" data-correct="1">Reprend la remise la plus récente et la retire de la pile</button>
+        <button class="opt">Liste les remises</button>
+      </div>
+      <div class="q__exp">pop dépile : les modifications remises reviennent dans la copie de travail.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">pop sur une pile vide…</p>
+      <div class="opts">
+        <button class="opt">crée une remise vide</button>
+        <button class="opt" data-correct="1">signale qu'il n'y a rien à reprendre</button>
+        <button class="opt">efface la copie</button>
+      </div>
+      <div class="q__exp">Sans remise en attente, pop n'a rien à rendre — l'atelier reproduit ce cas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel .gitignore pour un projet Python du TP1 ?</p>
+      <div class="opts">
+        <button class="opt">*.py seulement</button>
+        <button class="opt" data-correct="1">__pycache__/, *.pyc, venv/</button>
+        <button class="opt">main.py</button>
+      </div>
+      <div class="q__exp">Cache d'exécution, fichiers compilés et environnement virtuel : les trois pollutions du TP1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment vérifier ce que le .gitignore exclut ?</p>
+      <div class="opts">
+        <button class="opt">git status</button>
+        <button class="opt" data-correct="1">git ls-files --other --ignored --exclude-standard</button>
+        <button class="opt">git diff</button>
+      </div>
+      <div class="q__exp">Cette commande liste tous les fichiers exclus du suivi dans le projet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit git archive ?</p>
+      <div class="opts">
+        <button class="opt">Un clone du dépôt</button>
+        <button class="opt" data-correct="1">Une archive de la version courante sans le dossier .git</button>
+        <button class="opt">Un commit spécial</button>
+      </div>
+      <div class="q__exp">archive livre la branche courante en tar/tar.gz, préfixe de dossier au choix.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où active-t-on GitHub Pages ?</p>
+      <div class="opts">
+        <button class="opt">Dans le README</button>
+        <button class="opt" data-correct="1">Settings → Pages, branch main, dossier /root</button>
+        <button class="opt">Dans .gitignore</button>
+      </div>
+      <div class="q__exp">Le service se règle dans Settings → Pages : il sert l'URL user.github.io/depot.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Stash ou commit avant de changer de branche ?</p>
+      <div class="opts">
+        <button class="opt">Toujours commit</button>
+        <button class="opt" data-correct="1">stash si le travail est en cours et ne mérite pas une trace</button>
+        <button class="opt">Aucun des deux</button>
+      </div>
+      <div class="q__exp">stash remise sans polluer l'historique : idéal pour un chantier inachevé.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Commit de chantier par flemme de stash</strong> : l'historique se remplit de traces inutiles.</li>
+      <li><strong>drop au lieu de pop</strong> : la remise la plus récente est détruite au lieu d'être reprise.</li>
+      <li><strong>.gitignore multi-niveaux</strong> : les motifs se cumulent et peuvent s'annuler.</li>
+      <li><strong>Archive d'un historique pollué</strong> : les fichiers ignorés manquent, les suivis encombrants partent.</li>
+      <li><strong>README sans plan</strong> : sans titre, description, installation, la page d'accueil ne raconte rien.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Livrer une version propre</div>
+    <ol>
+      <li><strong>Nettoyer la copie</strong> : status, puis stash ou commit des chantiers.</li>
+      <li><strong>Vérifier les exclusions</strong> : ls-files --other --ignored pour auditer le .gitignore.</li>
+      <li><strong>Archiver</strong> : git archive avec préfixe et version nommée.</li>
+      <li><strong>Documenter</strong> : README au plan fixe, mis à jour à chaque fonctionnalité.</li>
+      <li><strong>Publier</strong> : push, puis Pages pour la page d'accueil.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>stash remise la copie (propre immédiatement) ; pop reprend, list liste, drop détruit.</li>
+      <li>Un .gitignore Python tient en trois lignes : __pycache__/, *.pyc, venv/.</li>
+      <li>Les fichiers déjà suivis sortent du suivi par rm --cached, pas par .gitignore.</li>
+      <li>git archive livre la version courante en tar.gz, sans .git ni fichiers ignorés.</li>
+      <li>GitHub Pages sert l'URL du projet depuis la branche main, dossier /root.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je remise un chantier, je change de branche, je le reprends intact.</li>
+      <li>J'écris et j'audite un .gitignore pour un projet Python.</li>
+      <li>Je produis une archive de version nommée avec git archive.</li>
+      <li>Je décris les six étapes de la publication GitHub Pages.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>stash</li><li>pop</li><li>list</li><li>drop</li><li>remise</li><li>.gitignore</li><li>ls-files</li><li>git archive</li><li>README</li><li>GitHub Pages</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le cycle stash/pop sur un vrai dossier.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Écris un .gitignore complet et audite-le avec ls-files.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : produis une archive et vérifie son contenu.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : le cours est terminé, passe aux examens blancs et au projet.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : l'« Aide-mémoire GitHub Git », le vade-mecum « Travailler avec Git au quotidien » (ENSICAEN) et les TP 1 à 5 du module Git.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

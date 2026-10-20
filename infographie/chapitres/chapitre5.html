@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Éclairage, Shaders Programmables &amp;amp; Rendu PBR | Infographie B2</title>
+<meta name="description" content="Chapitre 5 du cours Infographie B2 : Pipeline graphique programmable (Vertex &amp;amp; Fragment Shaders), modèles d’illumination empiriques (Lambert, Phong, Blinn-Phong), principes du rendu basé sur la physique (PBR), théorie des micro-facettes (Cook-Torrance), approximation de Fresnel (Schlick) et conservation de l’énergie. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/infographie/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Éclairage, Shaders Programmables &amp;amp; Rendu PBR | Infographie B2">
+<meta property="og:description" content="Chapitre 5 du cours Infographie B2 : Pipeline graphique programmable (Vertex &amp;amp; Fragment Shaders), modèles d’illumination empiriques (Lambert, Phong, Blinn-Phong), principes du rendu basé sur la physique (PBR), théorie des micro-facettes (Cook-Torrance), approximation de Fresnel (Schlick) et conservation de l’énergie. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="infographienav"><div class="infographienav__in">
+  <a class="infographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="infographienav__sep" aria-hidden="true">/</span>
+  <a class="infographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-image"></use></svg> Infographie B2</a>
+  <div class="infographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="infographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="infographiewrap">
+<p class="crumb"><a href="../index.html">Infographie B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Éclairage, Shaders Programmables &amp; Rendu PBR</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>À l’ère du pipeline fixe OpenGL 1.x, l’éclairage 3D se résumait à une formule approximative figée dans le silicium. L’introduction des shaders programmables (Vertex Shaders et Fragment/Pixel Shaders) a totalement révolutionné l’infographie, permettant aux développeurs d’écrire des programmes sur-mesure exécutés en parallèle sur des milliers de cœurs GPU. De la loi empirique du cosinus de Lambert jusqu’aux modèles de rendu basé sur la physique (PBR - Physically Based Rendering) utilisés par Unreal Engine, Unity et Blender, l’éclairage numérique simule aujourd’hui fidèlement les interactions réelles entre les photons et la matière. Ce cinquième module explore la physique de la lumière : comprendre les équations d’ombrage, décomposer les flux diffus et spéculaires, appréhender la réflectance de Fresnel et respecter la loi cardinale de conservation de l’énergie.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le rôle respectif du Vertex Shader (transformation des sommets) et du Fragment Shader (coloration des pixels) ;</li>
+      <li>maîtriser la loi du cosinus de Lambert pour le calcul de la diffusion lumineuse idéale (produit scalaire N · L) ;</li>
+      <li>analyser le modèle empirique de Phong et l’amélioration de Blinn-Phong (vecteur mi-chemin H) pour le reflet spéculaire ;</li>
+      <li>comprendre les fondements du PBR (Physically Based Rendering) : modèle de micro-facettes et distribution GGX ;</li>
+      <li>appliquer l’approximation de Schlick pour l’effet de Fresnel (augmentation de la réflectance sous incidence rasante) ;</li>
+      <li>vérifier la règle physique de conservation de l’énergie (la lumière réfléchie ne peut dépasser la lumière incidente).</li>
+    </ol>
+  </div>
+
+<h2>1. Pipeline Graphique Programmable : Vertex vs Fragment Shader</h2>
+
+<p>Le pipeline de rendu moderne confie le traitement visuel à de petits programmes spécialisés exécutés massivement en parallèle sur le processeur graphique :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Vertex Shader (Shader de Sommets)</h4>
+    <ul>
+      <li><strong>Exécution :</strong> Une fois par sommet du maillage 3D.</li>
+      <li><strong>Mission :</strong> Multiplie la position 3D par la matrice Model-View-Projection (MVP) pour projeter le sommet dans l’espace écran (Clip Space).</li>
+      <li><strong>Sortie :</strong> Coordonnées homogènes <code>gl_Position</code>, normales et UVs interpolés pour les pixels.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Fragment / Pixel Shader (Shader de Pixels)</h4>
+    <ul>
+      <li><strong>Exécution :</strong> Une fois pour chaque fragment de pixel couvert par un triangle rasterisé.</li>
+      <li><strong>Mission :</strong> Échantillonne les textures, calcule l’éclairage (Lambert, spéculaire, ombres) et détermine la couleur finale RGBA.</li>
+      <li><strong>Sortie :</strong> Couleur de pixel <code>FragColor</code> transmise au Framebuffer.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Modèles d’Illumination Empiriques : Lambert &amp; Phong</h2>
+
+<p>Avant le PBR, l’industrie s’appuyait sur des approximations visuelles rapides :</p>
+<table class="table">
+  <thead>
+    <tr><th>Composante</th><th>Modèle</th><th>Formule mathématique</th><th>Signification physique</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Diffuse (Mate)</strong></td><td>Loi de Lambert</td><td><code>Id = max(0.0, N · L)</code></td><td>L’énergie reçue dépend du cosinus de l’angle entre la normale <code>N</code> et la lumière <code>L</code>.</td></tr>
+    <tr><td><strong>Spéculaire (Brillante)</strong></td><td>Phong</td><td><code>Is = max(0.0, R · V)^shininess</code></td><td>Reflet brillant le long du rayon réfléchi <code>R = 2(N·L)N - L</code> vu par la caméra <code>V</code>.</td></tr>
+    <tr><td><strong>Spéculaire Optimisé</strong></td><td>Blinn-Phong</td><td><code>Is = max(0.0, N · H)^shininess</code></td><td>Utilise le vecteur mi-chemin <code>H = normalize(L + V)</code>, plus rapide à calculer sur GPU.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Pourquoi Blinn-Phong est-il plus performant que Phong ?</div>
+<p>Le calcul du vecteur réfléchi <code>R</code> chez Phong exige une formule vectorielle coûteuse pour chaque fragment. Blinn-Phong calcule simplement la demi-somme unitaire <code>H = normalize(L + V)</code>, ce qui est quasi instantané lorsque la lumière ou la caméra est directionnelle (infiniment lointaine).</p>
+  </div>
+
+<h2>3. Physically Based Rendering (PBR) &amp; Conservation de l’Énergie</h2>
+
+<p>Le modèle PBR garantit qu’un matériau réagit de manière photoréaliste et cohérente sous n’importe quelle condition d’éclairage :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Conservation de l’Énergie</h4>
+    <p>Une surface ne peut jamais réémettre plus de lumière qu’elle n’en reçoit. L’énergie lumineuse incidente se divise en deux flux exclusifs :</p>    <pre><code>kd * Diffuse + ks * Speculaire <= Lumiere_Incidente
+kd + ks <= 1.0</code></pre>    <p>Un métal parfait (Metallic = 1.0) n’a aucune réfraction interne : <code>kd = 0</code>, toute la couleur provient du reflet spéculaire.</p>
+  </div>
+  <div class="card">
+    <h4>2. Effet Fresnel (Formule de Schlick)</h4>
+    <p>Tout matériau devient un miroir presque parfait lorsqu’il est observé sous un angle très rasant (incidence tangentielle) :</p>    <pre><code>F(θ) = F0 + (1.0 - F0) * (1.0 - cos θ)⁵</code></pre>    <p>Où <code>F0</code> est la réflectance sous incidence normale (environ 0.04 pour les diélectriques/plastiques, et &gt; 0.70 pour les métaux purs).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ig2-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="N=(0,1,0) L=(0,1,0)&#10;N=(0,1,0) L=(0,-1,0)&#10;N=(0,1,0) L=(0.707,0.707,0)">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ig2-c5-e1) — Calculateur d’illumination diffuse de Lambert
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Incidence rasante 90 degrés perpendiculaire]
+# Données : N=(1,0,0) L=(0,1,0)
+A_COMPLETER
+
+[Cas 2 — Vecteurs obliques 3D]
+# Données : N=(0.577,0.577,0.577) L=(0.577,0.577,0.577)
+A_COMPLETER
+
+[Cas 3 — Lumière rasante faible]
+# Données : N=(0,0,1) L=(0.968,0,0.25)
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur d’illumination diffuse de Lambert</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la contribution de lumière diffuse reçue par une surface 3D selon la loi du cosinus de Lambert.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Loi de Lambert :<br>
+1. Produit scalaire : <code>dot = nx * lx + ny * ly + nz * lz</code>.<br>
+2. Intensité diffuse : <code>Id = max(0.0, dot)</code>.<br>
+Afficher :<br>
+<code>LAMBERT: N=(&lt;nx:.2f&gt;,&lt;ny:.2f&gt;,&lt;nz:.2f&gt;) L=(&lt;lx:.2f&gt;,&lt;ly:.2f&gt;,&lt;lz:.2f&gt;) -&gt; INTENSITE: &lt;Id:.3f&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>N=(0,1,0) L=(0,1,0)
+N=(0,1,0) L=(0,-1,0)
+N=(0,1,0) L=(0.707,0.707,0)</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LAMBERT: N=(0.00,1.00,0.00) L=(0.00,1.00,0.00) -&gt; INTENSITE: 1.000
+LAMBERT: N=(0.00,1.00,0.00) L=(0.00,-1.00,0.00) -&gt; INTENSITE: 0.000
+LAMBERT: N=(0.00,1.00,0.00) L=(0.71,0.71,0.00) -&gt; INTENSITE: 0.707</pre></div>
+    </div>
+    <p class="lab__note">Face à face = 1.0, dos à la lumière = 0.0, inclinaison 45 degrés = 0.707.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Si le produit scalaire est négatif, la surface est orientée à l’opposé de la source lumineuse (intensité 0.000).</li>
+        <li>Arrondir à 3 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="R=(0,0,1) V=(0,0,1) ALPHA=32&#10;R=(0,0,1) V=(0,0,-1) ALPHA=32&#10;R=(0.707,0,0.707) V=(0,0,1) ALPHA=16">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ig2-c5-e2) — Calculateur de reflet spéculaire de Phong
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Matériau semi-brillant alpha 8 à 30 degrés]
+# Données : R=(0.5,0,0.866) V=(0,0,1) ALPHA=8
+A_COMPLETER
+
+[Cas 2 — Matériau ultra-brillant chrome alpha 128]
+# Données : R=(0.1,0,0.995) V=(0,0,1) ALPHA=128
+A_COMPLETER
+
+[Cas 3 — Reflet dans le dos de l’observateur]
+# Données : R=(-0.5,-0.5,-0.707) V=(0,0,1) ALPHA=64
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de reflet spéculaire de Phong</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la tâche de brillance spéculaire selon le modèle de Phong à partir du vecteur reflet, du vecteur observateur et du coefficient de rugosité.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Modèle spéculaire de Phong :<br>
+1. Produit scalaire entre le rayon réfléchi R et la direction de vue V : <code>dot = rx*vx + ry*vy + rz*vz</code>.<br>
+2. Si <code>dot &lt;= 0.0</code> : <code>Is = 0.000</code>.<br>
+3. Sinon : <code>Is = (dot) ** ALPHA</code>.<br>
+Afficher :<br>
+<code>PHONG: ALPHA=&lt;ALPHA&gt; -&gt; INTENSITE_SPECULAIRE: &lt;Is:.3f&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>R=(0,0,1) V=(0,0,1) ALPHA=32
+R=(0,0,1) V=(0,0,-1) ALPHA=32
+R=(0.707,0,0.707) V=(0,0,1) ALPHA=16</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PHONG: ALPHA=32 -&gt; INTENSITE_SPECULAIRE: 1.000
+PHONG: ALPHA=32 -&gt; INTENSITE_SPECULAIRE: 0.000
+PHONG: ALPHA=16 -&gt; INTENSITE_SPECULAIRE: 0.004</pre></div>
+    </div>
+    <p class="lab__note">Alignement parfait = 1.0, reflet opposé = 0.0, désalignement modéré avec alpha 16 = quasi nul.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un exposant alpha élevé (ex: 64 ou 128) crée un reflet métallique concentré très net.</li>
+        <li>Un faible alpha (ex: 4 ou 8) diffuse une tâche mate étalée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="MATERIEL=PlastiqueBleu METALLIC=0 DIFFUSE=0.600 SPECULAIRE=0.300&#10;MATERIEL=ChromePur METALLIC=1 DIFFUSE=0.000 SPECULAIRE=0.950&#10;MATERIEL=MateriauMagique METALLIC=0 DIFFUSE=0.800 SPECULAIRE=0.400&#10;MATERIEL=FauxMetal METALLIC=1 DIFFUSE=0.200 SPECULAIRE=0.800">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ig2-c5-e3) — Vérificateur de conservation d’énergie PBR (Roughness & Metallic)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Matériau absorbant noir mat]
+# Données : MATERIEL=Charbon METALLIC=0 DIFFUSE=0.050 SPECULAIRE=0.040
+A_COMPLETER
+
+[Cas 2 — Miroir parfait 100% spéculaire]
+# Données : MATERIEL=Miroir METALLIC=1 DIFFUSE=0.000 SPECULAIRE=1.000
+A_COMPLETER
+
+[Cas 3 — Légère violation d’énergie 1.05]
+# Données : MATERIEL=SurfLumineuse METALLIC=0 DIFFUSE=0.700 SPECULAIRE=0.350
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Vérificateur de conservation d’énergie PBR (Roughness &amp; Metallic)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la cohérence physique des composantes de réflexion selon les lois de l’optique du rendu basé sur la physique (PBR).</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Règles physiques PBR :<br>
+1. <strong>Loi de conservation d'énergie</strong> : la somme de la lumière réfléchie (diffuse + spéculaire) ne peut jamais dépasser la lumière incidente :<br>
+   <code>Total = Diffuse + Speculaire</code>.<br>
+   Si <code>Total &gt; 1.0001</code> : <code>DIAGNOSTIC: VIOLATION_ENERGIE (Creation spontanee de lumiere: &lt;Total:.3f&gt; &gt; 1.0)</code>.<br>
+2. <strong>Règle des métaux (Conducteurs vs Diélectriques)</strong> :<br>
+   Dans la physique des métaux réels (<code>METALLIC=1</code>), la quasi-totalité des électrons libres absorbe la réfraction interne : il n'y a AUCUNE réflexion diffuse sous-surfacique (<code>DIFFUSE == 0.0</code>).<br>
+   Si <code>METALLIC=1</code> et <code>DIFFUSE &gt; 0.0</code> : <code>DIAGNOSTIC: VIOLATION_METALLIC (Un metal pur ne possede aucune reflexion diffuse)</code>.<br>
+3. Si toutes les conditions sont respectées :<br>
+   <code>DIAGNOSTIC: CONFORME_PBR (Bilan d'energie &lt;Total:.3f&gt; &lt;= 1.0)</code>.<br>
+Afficher :<br>
+<code>&lt;Nom&gt; -&gt; &lt;DIAGNOSTIC&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MATERIEL=PlastiqueBleu METALLIC=0 DIFFUSE=0.600 SPECULAIRE=0.300
+MATERIEL=ChromePur METALLIC=1 DIFFUSE=0.000 SPECULAIRE=0.950
+MATERIEL=MateriauMagique METALLIC=0 DIFFUSE=0.800 SPECULAIRE=0.400
+MATERIEL=FauxMetal METALLIC=1 DIFFUSE=0.200 SPECULAIRE=0.800</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PlastiqueBleu -&gt; DIAGNOSTIC: CONFORME_PBR (Bilan d'energie 0.900 &lt;= 1.0)
+ChromePur -&gt; DIAGNOSTIC: CONFORME_PBR (Bilan d'energie 0.950 &lt;= 1.0)
+MateriauMagique -&gt; DIAGNOSTIC: VIOLATION_ENERGIE (Creation spontanee de lumiere: 1.200 &gt; 1.0)
+FauxMetal -&gt; DIAGNOSTIC: VIOLATION_METALLIC (Un metal pur ne possede aucune reflexion diffuse)</pre></div>
+    </div>
+    <p class="lab__note">Validation stricte des lois physiques régissant les shaders PBR modernes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester d’abord la conservation d’énergie globale.</li>
+        <li>Tester ensuite la règle d’absence de composante diffuse pour les métaux purs.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel programme du pipeline graphique GPU s’exécute pour chaque pixel rasterisé afin de calculer sa couleur finale ?</p>
+      <div class="opts">
+        <button class="opt">Le Vertex Shader</button>
+        <button class="opt" data-correct="1">Le Fragment / Pixel Shader</button>
+        <button class="opt">Le BIOS de la carte mère</button>
+        <button class="opt">Le compilateur GCC</button>
+      </div>
+      <div class="q__exp">Le Fragment Shader calcule l’illumination, les ombres et les textures pour chaque fragment de pixel affiché à l’écran.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon la loi du cosinus de Lambert, quelle formule mathématique donne l’intensité de lumière diffuse reçue par une surface ?</p>
+      <div class="opts">
+        <button class="opt">Id = N × L</button>
+        <button class="opt" data-correct="1">Id = max(0.0, N · L)</button>
+        <button class="opt">Id = N + L</button>
+        <button class="opt">Id = ||N|| / ||L||</button>
+      </div>
+      <div class="q__exp">L’intensité dépend du cosinus de l’angle d’incidence calculé par le produit scalaire N · L, borné à zéro pour les angles supérieurs à 90°.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut l’intensité diffuse de Lambert si le vecteur normal N et la direction vers la lumière L forment un angle de 90 degrés (incidence rasante) ?</p>
+      <div class="opts">
+        <button class="opt">1.0</button>
+        <button class="opt">0.5</button>
+        <button class="opt" data-correct="1">0.0</button>
+        <button class="opt">-1.0</button>
+      </div>
+      <div class="q__exp">Le cosinus de 90° vaut 0. Le produit scalaire de deux vecteurs orthogonaux est nul, donc l’intensité reçue est exactement 0.0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel avantage calculatoire majeur présente le modèle de Blinn-Phong par rapport au modèle de Phong classique ?</p>
+      <div class="opts">
+        <button class="opt">Il supprime le besoin de Fragment Shader</button>
+        <button class="opt" data-correct="1">Il utilise le vecteur mi-chemin H = normalize(L + V), éliminant le calcul coûteux du rayon réfléchi R pour chaque pixel</button>
+        <button class="opt">Il double la résolution de la texture</button>
+        <button class="opt">Il désactive les ombres portées</button>
+      </div>
+      <div class="q__exp">Calculer le vecteur mi-chemin H entre la lumière et la vue est bien plus direct et économique pour les GPU que de calculer le reflet R = 2(N·L)N - L.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que stipule le principe fondamental de conservation de l’énergie dans le rendu basé sur la physique (PBR) ?</p>
+      <div class="opts">
+        <button class="opt">La facture d’électricité du serveur ne doit pas dépasser 100 euros</button>
+        <button class="opt" data-correct="1">La quantité totale de lumière réfléchie (diffuse + spéculaire) par une surface ne peut en aucun cas excéder la quantité de lumière qu’elle a reçue</button>
+        <button class="opt">Les objets en métal doivent toujours être froids au toucher</button>
+        <button class="opt">La lumière doit toujours voyager à la même vitesse dans tous les shaders</button>
+      </div>
+      <div class="q__exp">Physiquement, une surface passive ne crée pas d’énergie. La somme des fractions diffuse (Kd) et spéculaire (Ks) doit être inférieure ou égale à 1.0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi un métal pur (comme l’or ou le cuivre avec Metallic = 1.0) ne possède-t-il pratiquement aucune composante de lumière diffuse en PBR ?</p>
+      <div class="opts">
+        <button class="opt">Parce que les métaux sont transparents</button>
+        <button class="opt" data-correct="1">Parce que les métaux conduisent l’électricité et absorbent immédiatement par leurs électrons libres toute lumière réfractée à l’intérieur, toute réflexion visible étant spéculaire</button>
+        <button class="opt">Parce que le GPU refuse de peindre le métal en diffus</button>
+        <button class="opt">Parce que les métaux ne supportent pas la loi de Lambert</button>
+      </div>
+      <div class="q__exp">Chez les métaux conducteurs, la lumière qui pénètre sous la surface est absorbée au lieu d’être rediffusée. Toute la couleur vient donc du reflet spéculaire teinté.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel phénomène physique l’approximation de Fresnel de Schlick modélise-t-elle avec précision ?</p>
+      <div class="opts">
+        <button class="opt">La décoloration des pigments sous le soleil</button>
+        <button class="opt" data-correct="1">L’augmentation spectaculaire de la réflectivité spéculaire d’une surface lorsque le regard de l’observateur devient presque rasant (tangent à la surface)</button>
+        <button class="opt">La vitesse du son dans l’air</button>
+        <button class="opt">Le clignotement des diodes LED</button>
+      </div>
+      <div class="q__exp">L’effet de Fresnel explique pourquoi une vitre ou une flaque d’eau apparaît transparente vue de dessus, mais devient un miroir éclatant vue de biais sous incidence rasante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’équation de Fresnel de Schlick F(θ) = F0 + (1 - F0) * (1 - cos θ)⁵, que représente le paramètre F0 ?</p>
+      <div class="opts">
+        <button class="opt">La distance focale de la caméra</button>
+        <button class="opt" data-correct="1">La réflectance de base de la surface sous un angle de vue perpendiculaire normal (à 0 degré)</button>
+        <button class="opt">Le niveau de charge de la batterie</button>
+        <button class="opt">La rugosité maximale du matériau</button>
+      </div>
+      <div class="q__exp">F0 est la réflectance minimale observée face à la surface. Pour la plupart des non-métaux (eau, verre, plastique), F0 vaut environ 0.04 (4 % de réflexion).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Calculer le produit scalaire de Lambert sans avoir préalablement normalisé les vecteurs N et L, faussant complètement l’intensité.</li>
+      <li>Oublier de brider (clamp) le produit scalaire à 0 avec max(0.0, dot), créant des intensités négatives parasites sur les faces cachées.</li>
+      <li>Additionner des composantes spéculaire et diffuse sans vérifier que leur somme totale n’excède pas 1.0 (violation de la conservation d’énergie).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Programmation de Shader d’Éclairage et Rendu PBR</div>
+    <ol>
+      <li>Étape 1 — Définir le Vertex Shader : Projeter la géométrie en espace écran (gl_Position = MVP * vec4(position, 1.0)) et transmettre la normale interpolée.</li>
+      <li>Étape 2 — Normaliser les vecteurs dans le Fragment Shader : Ré-exécuter normalize() sur N, L et V pour corriger la désynchronisation d’interpolation raster.</li>
+      <li>Étape 3 — Calculer la composante diffuse de Lambert : Évaluer dot(N, L) et brider à zéro avec max(0.0, dot) pour masquer les faces tournées vers l’ombre.</li>
+      <li>Étape 4 — Évaluer le reflet spéculaire : Calculer le vecteur mi-chemin H = normalize(L + V) et élever pow(max(0.0, dot(N, H)), shininess) selon Blinn-Phong.</li>
+      <li>Étape 5 — Intégrer l’effet de Fresnel : Appliquer la formule de Schlick F0 + (1 - F0) * (1 - dot(N, V))^5 pour rehausser les reflets rasants.</li>
+      <li>Étape 6 — Garantir la conservation d’énergie : Ajuster kd = (1.0 - ks) * (1.0 - metallic) pour s’assurer que kd + ks ≤ 1.0 sur toute la surface.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Vertex Shader transforme les sommets dans l’espace écran, tandis que le Fragment Shader calcule la couleur de chaque pixel.</li>
+      <li>La loi de Lambert stipule que l’intensité diffuse est proportionnelle au produit scalaire de la normale et de la direction lumineuse (N · L).</li>
+      <li>Si le produit scalaire N · L est négatif, la face est orientée à l’opposé de la source lumineuse et l’intensité diffuse vaut 0.0.</li>
+      <li>Blinn-Phong remplace le rayon réfléchi par le vecteur mi-chemin H = normalize(L + V).</li>
+      <li>La conservation de l’énergie en PBR impose que la somme de la lumière diffuse et spéculaire ne dépasse jamais 100 % de l’énergie incidente.</li>
+      <li>L’effet de Fresnel (Schlick) montre que la réflectivité d’une surface augmente drastiquement sous un angle de vue rasant.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends le rôle et le point d’entrée de gl_Position dans un Vertex Shader.</li>
+      <li>Je sais calculer la contribution diffuse de Lambert à partir de deux vecteurs unitaires.</li>
+      <li>Je sais expliquer la différence entre le modèle de Phong et le modèle de Blinn-Phong.</li>
+      <li>Je comprends pourquoi un matériau métallique n’a pratiquement aucune composante diffuse.</li>
+      <li>Je maîtrise le principe de conservation de l’énergie et l’approximation de Fresnel de Schlick.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Vertex Shader vs Fragment / Pixel Shader</li><li>Loi du cosinus de Lambert (Lumière diffuse)</li><li>Produit scalaire (Dot product) et clamping max(0, N·L)</li><li>Modèle spéculaire de Phong et vecteur réfléchi R</li><li>Modèle de Blinn-Phong et vecteur mi-chemin H</li><li>Physically Based Rendering (PBR)</li><li>Théorie des micro-facettes (Cook-Torrance, GGX)</li><li>Effet de Fresnel et approximation de Schlick</li><li>Conservation de l’énergie (Kd + Ks ≤ 1.0)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la différence Vertex/Fragment Shader, la loi de Lambert et la conservation d’énergie.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon socle théorique. Approfondissez le vecteur mi-chemin Blinn-Phong et l’effet Fresnel de Schlick.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne compréhension des shaders et des fondements physiques du PBR.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les modèles d’éclairage et l’optique du rendu 3D au niveau expert.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Optimisation Graphique, Compression GPU &amp; Pipeline Temps Réel <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les spécifications Khronos Group (OpenGL, Vulkan), les documentations officielles Blender, Unity et Unreal Engine, et les traités de référence Real-Time Rendering.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

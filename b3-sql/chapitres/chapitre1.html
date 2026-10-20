@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Transactions ACID, Journalisation WAL &amp;amp; Niveaux d’Isolation ANSI | SQL Avancé B3</title>
+<meta name="description" content="Chapitre 1 du cours SQL Avancé B3 : Propriétés ACID (Atomicité, Cohérence, Isolation, Durabilité), mécanisme Write-Ahead Logging (WAL), verrous partagés et exclusifs (S/X locks), interblocages (Deadlocks), 4 niveaux d’isolation ANSI SQL et contrôle de concurrence multiversion (MVCC). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-sql/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Transactions ACID, Journalisation WAL &amp;amp; Niveaux d’Isolation ANSI | SQL Avancé B3">
+<meta property="og:description" content="Chapitre 1 du cours SQL Avancé B3 : Propriétés ACID (Atomicité, Cohérence, Isolation, Durabilité), mécanisme Write-Ahead Logging (WAL), verrous partagés et exclusifs (S/X locks), interblocages (Deadlocks), 4 niveaux d’isolation ANSI SQL et contrôle de concurrence multiversion (MVCC). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-sqlnav"><div class="b3-sqlnav__in">
+  <a class="b3-sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-sqlnav__sep" aria-hidden="true">/</span>
+  <a class="b3-sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL Avancé B3</a>
+  <div class="b3-sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-sqlwrap">
+<p class="crumb"><a href="../index.html">SQL Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Transactions ACID, Journalisation WAL &amp; Niveaux d’Isolation ANSI</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un système d’information moderne gérant des millions de transactions bancaires, de commandes e-commerce ou de dossiers médicaux, plusieurs milliers d’utilisateurs et de services accèdent simultanément aux mêmes tables. Sans garanties strictes de concurrence, des conflits destructeurs se produisent : débits bancaires partiels sur panne réseau, lectures de soldes non validés (Dirty Read), ou pertes irrémédiables de mises à jour (Lost Update). L’ingénieur de données de niveau Bachelor 3 doit maîtriser les fondements mathématiques et architecturaux des transactions ACID, comprendre le rôle vital du journal de réécriture en amont (Write-Ahead Logging - WAL) lors des récupérations après crash, configurer les 4 niveaux d’isolation ANSI SQL selon les compromis de performance, et analyser les graphes d’attente de verrous (Wait-For Graph) pour éradiquer les interblocages (deadlocks).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre les quatre piliers fondamentaux ACID et leur implémentation physique dans le moteur SGBD ;</li>
+      <li>analyser la cinématique du journal Write-Ahead Logging (WAL) et la récupération après panne (Crash Recovery) ;</li>
+      <li>comparer les 4 niveaux d’isolation ANSI SQL et leurs protections contre les anomalies de concurrence ;</li>
+      <li>maîtriser la matrice de compatibilité des verrous à deux phases (2PL) partagés (S) et exclusifs (X) ;</li>
+      <li>détecter et résoudre les cycles d’interblocage (Deadlocks) par exploration de graphes orientés ;</li>
+      <li>développer en Python 3 des simulateurs de niveaux d’isolation, des gestionnaires de verrous S/X et des détecteurs de cycles de transactions.</li>
+    </ol>
+  </div>
+
+<h2>1. Les Fondations ACID & Le Mécanisme de Journalisation WAL (Write-Ahead Logging)</h2>
+
+<p>Une transaction est une unité logique de traitement composée d’une ou plusieurs instructions SQL exécutées de manière atomique (entre <code>BEGIN</code> et <code>COMMIT</code> ou <code>ROLLBACK</code>). Le standard relationnel repose sur quatre propriétés incontournables :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Quatre Propriétés ACID</h4>
+    <ul>
+      <li><strong>Atomicité (Atomicity) :</strong> Tout ou rien. Soit l’intégralité des opérations réussit, soit la base est restaurée dans son état initial sans effet de bord en cas d’erreur.</li>
+      <li><strong>Cohérence (Consistency) :</strong> La transaction fait passer la base d’un état intègre à un autre état intègre en respectant toutes les contraintes (clés étrangères, NOT NULL, CHECK, triggers).</li>
+      <li><strong>Isolation :</strong> Les opérations intermédiaires d’une transaction en cours sont invisibles aux transactions concurrentes selon le niveau d’isolation choisi.</li>
+      <li><strong>Durabilité (Durability) :</strong> Une fois le COMMIT acquitté au client, les modifications sont définitivement pérennisées sur disque, survivant à toute panne matérielle ultérieure.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Principe du Write-Ahead Logging (WAL)</h4>
+    <p>Écrire directement chaque page de données modifiée (8 Ko) de manière synchrone sur disque serait prohibitif pour les performances (accès I/O aléatoires dispersés). Les moteurs modernes (PostgreSQL, InnoDB) appliquent le protocole <strong>ARIES / WAL</strong> :</p>
+    <ol>
+      <li>Les modifications sont enregistrées séquentiellement dans des fichiers de journaux circulaires <code>pg_wal</code> (fichiers de 16 Mo).</li>
+      <li><strong>Règle d’or du WAL :</strong> Aucun bloc de données en mémoire tampon (Buffer Pool) n’est écrit sur disque avant que l’enregistrement WAL correspondant n’ait été synchronisé par un <code>fsync()</code>.</li>
+      <li>Lors d’un crash, le moteur exécute une passe <em>REDO</em> (rejoue les commits) puis une passe <em>UNDO</em> (annule les transactions inachevées).</li>
+    </ol>
+  </div>
+</div>
+
+<h2>2. Niveaux d’Isolation ANSI SQL & Anomalies de Concurrence</h2>
+
+<p>Pour concilier intégrité stricte et parallélisme élevé, le standard ANSI SQL définit quatre niveaux d’isolation hiérarchiques caractérisés par les anomalies qu’ils autorisent ou préviennent :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Lecture Sale (Dirty Read)</h4>
+    <p>La transaction T2 lit des données modifiées par T1 qui n’ont <strong>pas encore été validées</strong> par un COMMIT. Si T1 effectue ensuite un ROLLBACK, T2 aura basé ses calculs sur des données fantaisistes.</p>
+  </div>
+  <div class="card">
+    <h4>Lecture Non Répétable (Non-Repeatable Read)</h4>
+    <p>La transaction T1 lit une ligne, puis T2 modifie ou supprime cette ligne et valide. Lorsque T1 relit la même ligne au sein de la même transaction, <strong>les valeurs ont changé</strong>.</p>
+  </div>
+  <div class="card">
+    <h4>Lecture Fantôme (Phantom Read)</h4>
+    <p>La transaction T1 exécute une requête à plage (ex: <code>WHERE solde &gt; 1000</code>). T2 insère une nouvelle ligne répondant à ce critère et valide. Lorsque T1 réexécute sa requête, <strong>de nouvelles lignes apparaissent</strong>.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Matrice Officielle de Conformité ANSI SQL</div>
+<table class="table">,  <thead><tr><th>Niveau d’Isolation</th><th>Dirty Read</th><th>Non-Repeatable Read</th><th>Phantom Read</th></tr></thead>,  <tbody>,    <tr><td><strong>READ UNCOMMITTED</strong></td><td>Autorisé</td><td>Autorisé</td><td>Autorisé</td></tr>,    <tr><td><strong>READ COMMITTED</strong> (Défaut PostgreSQL/Oracle)</td><td>Empêché</td><td>Autorisé</td><td>Autorisé</td></tr>,    <tr><td><strong>REPEATABLE READ</strong> (Défaut MySQL InnoDB)</td><td>Empêché</td><td>Empêché</td><td>Autorisé (ANSI) / Empêché (PostgreSQL MVCC)</td></tr>,    <tr><td><strong>SERIALIZABLE</strong></td><td>Empêché</td><td>Empêché</td><td>Empêché (Équivalence séquentielle stricte)</td></tr>,  </tbody>,</table>
+  </div>
+
+<h2>3. Verrouillage 2PL, Détection d’Interblocages (Deadlocks) & MVCC</h2>
+
+<p>Pour arbitrer les accès concurrents, les SGBD exploitent le protocole de verrouillage à deux phases (Two-Phase Locking - 2PL) combiné au contrôle de concurrence multiversion (MVCC) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Matrice des Verrous Partagés (S) &amp; Exclusifs (X)</h4>
+    <p>Les verrous protègent les données contre les écritures conflictuelles :</p>
+    <ul>
+      <li><strong>Verrou Partagé (S - Shared) :</strong> Posé par une lecture explicite (<code>SELECT ... FOR SHARE</code>). Plusieurs transactions peuvent détenir un verrou S simultanément sur la même ressource.</li>
+      <li><strong>Verrou Exclusif (X - Exclusive) :</strong> Posé par toute écriture (<code>UPDATE</code>, <code>DELETE</code>, <code>SELECT ... FOR UPDATE</code>). Incompatible avec tout autre verrou (S ou X).</li>
+      <li><strong>Protocole 2PL Strict :</strong> Tous les verrous acquis au cours d’une transaction sont conservés jusqu’à la fin définitive (COMMIT ou ROLLBACK) pour garantir la recouvrabilité.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Interblocages (Deadlocks) &amp; Graphe d'Attente (Wait-For Graph)</h4>
+    <p>Un interblocage survient lorsque deux transactions ou plus se bloquent mutuellement (ex: T1 détient ressource A et attend ressource B détenue par T2, qui attend ressource A) :</p>
+    <ul>
+      <li>Le SGBD maintient un graphe orienté <strong>Wait-For Graph</strong> où chaque arc représente une attente.</li>
+      <li>Un démon en tâche de fond (<code>deadlock_timeout</code>, par défaut 1 seconde dans PostgreSQL) recherche les <strong>cycles orientés</strong> dans ce graphe.</li>
+      <li>Dès qu’un cycle est détecté, le moteur sélectionne une transaction victime (généralement la plus récente) et l’annule par un <code>ROLLBACK</code> avec code d’erreur <code>40P01</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sql3-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ISOLATION READ_COMMITTED&#10;CHECK anomaly=DIRTY_READ&#10;CHECK anomaly=NON_REPEATABLE_READ&#10;CHECK anomaly=PHANTOM_READ">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c1-e1) — Détecteur d’anomalies de concurrence selon le niveau d’isolation ANSI SQL
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Niveau SERIALIZABLE prévenant toutes les anomalies]
+# Données : ISOLATION SERIALIZABLE
+# Données : CHECK anomaly=DIRTY_READ
+# Données : CHECK anomaly=NON_REPEATABLE_READ
+# Données : CHECK anomaly=PHANTOM_READ
+A_COMPLETER
+
+[Cas 2 — Niveau READ UNCOMMITTED autorisant toutes les anomalies]
+# Données : ISOLATION READ_UNCOMMITTED
+# Données : CHECK anomaly=DIRTY_READ
+# Données : CHECK anomaly=NON_REPEATABLE_READ
+# Données : CHECK anomaly=PHANTOM_READ
+A_COMPLETER
+
+[Cas 3 — Niveau REPEATABLE READ prévenant Dirty Read et Non-Repeatable Read]
+# Données : ISOLATION REPEATABLE_READ
+# Données : CHECK anomaly=DIRTY_READ
+# Données : CHECK anomaly=NON_REPEATABLE_READ
+# Données : CHECK anomaly=PHANTOM_READ
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Détecteur d’anomalies de concurrence selon le niveau d’isolation ANSI SQL</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer si une anomalie de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read) est possible sous un niveau d’isolation ANSI SQL donné.</p>
+    <div class="lab__brief">Dans un système de gestion de bases de données relationnelles (SGBDR), les 4 niveaux d’isolation standard ANSI SQL offrent des compromis distincts entre cohérence et performance :
+- READ UNCOMMITTED : autorise Dirty Read, Non-Repeatable Read et Phantom Read.
+- READ COMMITTED : empêche Dirty Read ; autorise Non-Repeatable Read et Phantom Read.
+- REPEATABLE READ : empêche Dirty Read et Non-Repeatable Read ; autorise Phantom Read.
+- SERIALIZABLE : empêche toutes les anomalies de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read).
+
+Entrée :
+- Une ligne `ISOLATION <READ_UNCOMMITTED|READ_COMMITTED|REPEATABLE_READ|SERIALIZABLE>`
+- Des lignes `CHECK anomaly=<DIRTY_READ|NON_REPEATABLE_READ|PHANTOM_READ>`
+
+Sortie :
+- Pour chaque vérification : `ANOMALY name=<NAME> allowed=<TRUE|FALSE> state=<PERMISSIBLE|PREVENTED>`
+- Une ligne de bilan : `SUMMARY isolation=<LEVEL> total=<N> allowed=<N> prevented=<N>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ISOLATION READ_COMMITTED
+CHECK anomaly=DIRTY_READ
+CHECK anomaly=NON_REPEATABLE_READ
+CHECK anomaly=PHANTOM_READ</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ANOMALY name=DIRTY_READ allowed=FALSE state=PREVENTED
+ANOMALY name=NON_REPEATABLE_READ allowed=TRUE state=PERMISSIBLE
+ANOMALY name=PHANTOM_READ allowed=TRUE state=PERMISSIBLE
+SUMMARY isolation=READ_COMMITTED total=3 allowed=2 prevented=1</pre></div>
+    </div>
+    <p class="lab__note">Sous READ COMMITTED, seule la lecture sale est prévenue.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker la matrice d’admissibilité ANSI dans un dictionnaire associant chaque niveau à l’ensemble des anomalies permises.</li>
+        <li>Parcourir les lignes commençant par CHECK et extraire la clé anomaly.</li>
+        <li>Afficher TRUE/PERMISSIBLE si l’anomalie est possible, FALSE/PREVENTED sinon.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ACQUIRE tx=T1 res=table_users mode=S&#10;ACQUIRE tx=T2 res=table_users mode=S&#10;ACQUIRE tx=T3 res=table_users mode=X&#10;RELEASE tx=T1 res=table_users">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c1-e2) — Simulateur de verrous partagés et exclusifs (S/X Locks) et détection de conflit
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Verrou X exclusif bloquant un verrou S ultérieur puis promotion après release]
+# Données : ACQUIRE tx=T1 res=row_42 mode=X
+# Données : ACQUIRE tx=T2 res=row_42 mode=S
+# Données : RELEASE tx=T1 res=row_42
+A_COMPLETER
+
+[Cas 2 — Deux transactions indépendantes sur deux ressources distinctes]
+# Données : ACQUIRE tx=T1 res=res_A mode=X
+# Données : ACQUIRE tx=T2 res=res_B mode=X
+A_COMPLETER
+
+[Cas 3 — Libération complète d une file d attente]
+# Données : ACQUIRE tx=T1 res=account_10 mode=X
+# Données : ACQUIRE tx=T2 res=account_10 mode=X
+# Données : RELEASE tx=T1 res=account_10
+# Données : RELEASE tx=T2 res=account_10
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de verrous partagés et exclusifs (S/X Locks) et détection de conflit</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l’octroi et les conflits de verrous partagés (S) et exclusifs (X) sur des ressources de base de données.</p>
+    <div class="lab__brief">Dans un moteur transactionnel 2PL (Two-Phase Locking) :
+- Un verrou partagé `S` (Shared, lecture) est compatible avec d’autres verrous `S` sur la même ressource, mais incompatible avec un verrou `X`.
+- Un verrou exclusif `X` (Exclusive, écriture) est incompatible avec tout autre verrou (`S` ou `X`) sur la même ressource détenu par une autre transaction.
+- Si une demande est incompatible avec les verrous actuels, elle est mise en attente (`WAITING`).
+- Lorsqu’une transaction libère (`RELEASE`) ses verrous sur une ressource, les requêtes en attente peuvent être octroyées.
+
+Entrée :
+- `ACQUIRE tx=<tx_id> res=<resource_id> mode=<S|X>`
+- `RELEASE tx=<tx_id> res=<resource_id>`
+
+Sortie :
+- Pour chaque ACQUIRE : `LOCK tx=<tx_id> res=<res> mode=<mode> status=<GRANTED|WAITING>`
+- Pour chaque RELEASE : `UNLOCKED tx=<tx_id> res=<res> count_released=<N>` et si une attente est débloquée : `PROMOTED tx=<tx_id> res=<res> mode=<mode>`
+- Bilan : `LOCK_REPORT granted_active=<N> waiting_active=<N>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACQUIRE tx=T1 res=table_users mode=S
+ACQUIRE tx=T2 res=table_users mode=S
+ACQUIRE tx=T3 res=table_users mode=X
+RELEASE tx=T1 res=table_users</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LOCK tx=T1 res=table_users mode=S status=GRANTED
+LOCK tx=T2 res=table_users mode=S status=GRANTED
+LOCK tx=T3 res=table_users mode=X status=WAITING
+UNLOCKED tx=T1 res=table_users count_released=1
+LOCK_REPORT granted_active=1 waiting_active=1</pre></div>
+    </div>
+    <p class="lab__note">T3 attend car T2 détient toujours un verrou S sur table_users.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Maintenir pour chaque ressource la liste des verrous actifs : {res: [(tx, mode), ...]} et la file d’attente : {res: deque([(tx, mode), ...])}.</li>
+        <li>Un mode S est accordé si aucun verrou X d’une autre tx n’est actif.</li>
+        <li>Un mode X est accordé si aucun verrou (S ou X) d’une autre tx n’est actif.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="TX id=T1 start=100&#10;TX id=T2 start=200&#10;WAIT tx=T1 waits_for=T2&#10;WAIT tx=T2 waits_for=T1">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c1-e3) — Détecteur d’interblocage de transactions (Deadlock Graph Cycle Finder)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Graphe sans cycle en chaîne linéaire]
+# Données : TX id=T1 start=10
+# Données : TX id=T2 start=20
+# Données : TX id=T3 start=30
+# Données : WAIT tx=T1 waits_for=T2
+# Données : WAIT tx=T2 waits_for=T3
+A_COMPLETER
+
+[Cas 2 — Cycle de 3 transactions T1 -> T2 -> T3 -> T1]
+# Données : TX id=T1 start=10
+# Données : TX id=T2 start=25
+# Données : TX id=T3 start=40
+# Données : WAIT tx=T1 waits_for=T2
+# Données : WAIT tx=T2 waits_for=T3
+# Données : WAIT tx=T3 waits_for=T1
+A_COMPLETER
+
+[Cas 3 — Graphe avec cycle partiel entre T2 et T4]
+# Données : TX id=T1 start=100
+# Données : TX id=T2 start=200
+# Données : TX id=T3 start=300
+# Données : TX id=T4 start=400
+# Données : WAIT tx=T1 waits_for=T2
+# Données : WAIT tx=T2 waits_for=T4
+# Données : WAIT tx=T4 waits_for=T2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur d’interblocage de transactions (Deadlock Graph Cycle Finder)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire le graphe d’attente des transactions (Wait-For Graph) et détecter les cycles d’interblocage avec désignation de la victime à avorter.</p>
+    <div class="lab__brief">Dans un système de gestion de bases de données, un interblocage (Deadlock) survient lorsqu’un ensemble de transactions forment un cycle d’attente mutuel circulaire (ex: T1 attend T2, et T2 attend T1).
+Le SGBD construit un graphe d’attente orienté $G = (V, E)$ où un arc $T_A \to T_B$ signifie que la transaction $T_A$ attend la libération d’une ressource détenue par $T_B$.
+Pour résoudre le deadlock, le moteur détecte le premier cycle orienté et sélectionne la transaction « victime » ayant le timestamp de démarrage le plus récent (ou identifiant alphabétique le plus grand en cas d’égalité) pour la terminer par un ROLLBACK forcé.
+
+Entrée :
+- Des déclarations de transactions : `TX id=<T1> start=<timestamp_int>`
+- Des dépendances d’attente : `WAIT tx=<T1> waits_for=<T2>`
+
+Sortie :
+- Si un cycle est détecté : `DEADLOCK_DETECTED cycle=<T1->T2->...->T1>`
+- Victime désignée : `VICTIM_SELECTED tx=<VICTIM_ID> action=ROLLBACK reason=YOUNGEST_TRANSACTION`
+- Si aucun cycle : `NO_DEADLOCK status=SAFE edges=<COUNT>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TX id=T1 start=100
+TX id=T2 start=200
+WAIT tx=T1 waits_for=T2
+WAIT tx=T2 waits_for=T1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEADLOCK_DETECTED cycle=T1-&gt;T2-&gt;T1
+VICTIM_SELECTED tx=T2 action=ROLLBACK reason=YOUNGEST_TRANSACTION</pre></div>
+    </div>
+    <p class="lab__note">T1 et T2 forment un cycle. T2 est plus jeune (start=200 &gt; 100) et est avortée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Construire une liste d’adjacence adj[u] = [v, ...] représentant u -&gt; v (u attend v).</li>
+        <li>Utiliser un algorithme DFS avec détection d’arcs retour (Back-edges) à l’aide des états VISITING / VISITED.</li>
+        <li>Reconstituer le chemin du cycle dès qu’un arc retour est trouvé.</li>
+        <li>Parmi les transactions appartenant au cycle, sélectionner celle ayant la valeur start la plus grande.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel principe fondamental régit le mécanisme de Write-Ahead Logging (WAL) dans un moteur SGBD relationnel ?</p>
+      <div class="opts">
+        <button class="opt">Écrire les données sur bande magnétique avant le disque dur</button>
+        <button class="opt" data-correct="1">Enregistrer et synchroniser toute modification dans le journal séquentiel avant d’écrire les pages de données sur disque</button>
+        <button class="opt">Supprimer les tables temporaires toutes les 10 minutes</button>
+        <button class="opt">Chiffrer les requêtes SQL avec une clé symétrique</button>
+      </div>
+      <div class="q__exp">La règle d’or du WAL garantit qu’aucun bloc de données de table n’est écrit sur disque avant que l’enregistrement de journal WAL associé n’ait été persisté.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle anomalie de concurrence se produit lorsqu’une transaction lit des modifications effectuées par une autre transaction qui n’a pas encore commité ?</p>
+      <div class="opts">
+        <button class="opt">Phantom Read (Lecture Fantôme)</button>
+        <button class="opt" data-correct="1">Dirty Read (Lecture Sale)</button>
+        <button class="opt">Non-Repeatable Read (Lecture Non Répétable)</button>
+        <button class="opt">Serialization Failure</button>
+      </div>
+      <div class="q__exp">Le Dirty Read désigne la lecture de données non validées susceptibles d’être annulées par un ROLLBACK ultérieur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le niveau d’isolation par défaut de PostgreSQL pour chaque nouvelle session transactionnelle ?</p>
+      <div class="opts">
+        <button class="opt">READ UNCOMMITTED</button>
+        <button class="opt" data-correct="1">READ COMMITTED</button>
+        <button class="opt">REPEATABLE READ</button>
+        <button class="opt">SERIALIZABLE</button>
+      </div>
+      <div class="q__exp">PostgreSQL utilise par défaut READ COMMITTED, empêchant toute lecture sale grâce à des instantanés (snapshots) de requêtes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la matrice de compatibilité des verrous 2PL, quelle affirmation est rigoureusement exacte ?</p>
+      <div class="opts">
+        <button class="opt">Un verrou exclusif (X) est compatible avec un verrou partagé (S)</button>
+        <button class="opt" data-correct="1">Plusieurs transactions peuvent détenir simultanément un verrou partagé (S) sur la même ressource</button>
+        <button class="opt">Deux verrous exclusifs (X) peuvent coexister sur la même ligne</button>
+        <button class="opt">Un verrou partagé empêche toute autre lecture</button>
+      </div>
+      <div class="q__exp">Les verrous partagés (S) sont conçus pour les lectures concurrentes : ils sont compatibles entre eux, mais bloquent toute demande de verrou exclusif (X).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment le moteur de base de données modélise-t-il les blocages mutuels pour détecter un interblocage (Deadlock) ?</p>
+      <div class="opts">
+        <button class="opt">Sous la forme d’un arbre binaire de recherche</button>
+        <button class="opt" data-correct="1">Sous la forme d’un graphe orienté d’attente (Wait-For Graph) où les cycles représentent les interblocages</button>
+        <button class="opt">Par un comptage de mémoire RAM consommée</button>
+        <button class="opt">Par une file d’attente FIFO sans priorité</button>
+      </div>
+      <div class="q__exp">Le Wait-For Graph relie les transactions en attente de ressources. Un cycle orienté (ex: T1 attend T2 qui attend T1) signe un deadlock irréversible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel niveau d’isolation ANSI SQL garantit l’absence totale de toute anomalie de concurrence au prix d’échecs de sérialisation possibles ?</p>
+      <div class="opts">
+        <button class="opt">READ UNCOMMITTED</button>
+        <button class="opt">READ COMMITTED</button>
+        <button class="opt">REPEATABLE READ</button>
+        <button class="opt" data-correct="1">SERIALIZABLE</button>
+      </div>
+      <div class="q__exp">Le niveau SERIALIZABLE émule une exécution séquentielle stricte des transactions sans aucune anomalie de concurrence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction SQL permet d’acquérir un verrou exclusif pessimiste sur des lignes sélectionnées dès la lecture ?</p>
+      <div class="opts">
+        <button class="opt">SELECT ... LOCK ALL</button>
+        <button class="opt" data-correct="1">SELECT ... FOR UPDATE</button>
+        <button class="opt">SELECT ... WITH NO WAIT</button>
+        <button class="opt">SELECT ... ISOLATE</button>
+      </div>
+      <div class="q__exp">La clause FOR UPDATE verrouille les lignes lues en mode exclusif (X), empêchant toute autre transaction de les modifier ou de poser un verrou concurrent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie l’acronyme MVCC dans les moteurs transactionnels comme PostgreSQL ?</p>
+      <div class="opts">
+        <button class="opt">Maximum Virtual Core Control</button>
+        <button class="opt" data-correct="1">Multi-Version Concurrency Control (Contrôle de Concurrence Multiversion)</button>
+        <button class="opt">Master Volume Cache Check</button>
+        <button class="opt">Minimal Value Commit Clause</button>
+      </div>
+      <div class="q__exp">MVCC maintient plusieurs versions physiques d’un même enregistrement, permettant aux lectures de consulter des instantanés passés sans jamais bloquer les écritures.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Configurer le niveau d’isolation SERIALIZABLE sans implémenter de logique de retry applicatif en cas d’erreur de sérialisation 40001.</li>
+      <li>Garder des transactions ouvertes inutilement longtemps (ex: attendre un appel API réseau externe dans une transaction), provoquant l’accumulation de deadlocks.</li>
+      <li>Acquérir des verrous exclusifs dans des ordres différents selon les requêtes (ex: T1 verrouille A puis B, T2 verrouille B puis A), causant des deadlocks systématiques.</li>
+      <li>Confondre un verrou logique au niveau ligne avec un verrou de table complet bloquant l’ensemble des utilisateurs.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Analyser la criticité métier des flux pour choisir le niveau d’isolation minimal requis (Read Committed par défaut, Serializable pour la facturation).</li>
+      <li>Étape 2 : Encadrer systématiquement les modifications multi-tables dans un bloc transactionnel explicite BEGIN ... COMMIT.</li>
+      <li>Étape 3 : Poser des verrous pessimistes explicites (SELECT ... FOR UPDATE) lors des calculs conditionnels de stock ou de débit bancaire.</li>
+      <li>Étape 4 : Ordonner les acquisitions de verrous dans le même ordre sur toutes les procédures applicatives pour prévenir les deadlocks.</li>
+      <li>Étape 5 : Configurer le paramètre deadlock_timeout (ex: 1000ms) et surveiller les métriques de conflits via pg_stat_database.</li>
+      <li>Étape 6 : Prévoir dans la couche applicative une stratégie de réessai automatique (Retry with Exponential Backoff) sur code d’erreur 40P01 / 40001.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les propriétés ACID garantissent l’atomicité, la cohérence, l’isolation et la durabilité des opérations sur la base.</li>
+      <li>Le Write-Ahead Logging (WAL) sécurise les modifications de données de manière séquentielle avant toute écriture sur les tables.</li>
+      <li>Les 4 niveaux d’isolation ANSI définissent les seuils de tolérance aux lectures sales, lectures non répétables et lectures fantômes.</li>
+      <li>PostgreSQL combine l’isolation avec le mécanisme MVCC où les lectures ne bloquent jamais les écritures.</li>
+      <li>Les verrous partagés (S) sont compatibles entre eux mais incompatibles avec les verrous exclusifs (X).</li>
+      <li>Le moteur résout les interblocages (deadlocks) en détectant les cycles dans le graphe d’attente et en avortant une transaction victime.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliciter les quatre garanties ACID et leur rôle dans la fiabilité des données.</li>
+      <li>Je comprends pourquoi le mécanisme WAL permet une reprise après sinistre (Crash Recovery) sans perte de commit.</li>
+      <li>Je maîtrise la matrice ANSI des anomalies de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read).</li>
+      <li>Je connais la compatibilité croisée entre les verrous S (Shared) et X (Exclusive).</li>
+      <li>Je sais comment le SGBD détecte un cycle d’interblocage via le graphe Wait-For Graph.</li>
+      <li>Je sais expliquer pourquoi PostgreSQL en niveau Read Committed n’autorise aucune lecture sale.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Propriétés ACID Fondamentales</li><li>Write-Ahead Logging (WAL) & ARIES</li><li>Anomalies de Concurrence ANSI</li><li>4 Niveaux d’Isolation (Read Committed, Serializable)</li><li>Contrôle de Concurrence Multiversion (MVCC)</li><li>Verrouillage à Deux Phases (2PL) S & X</li><li>Graphe d’Attente (Wait-For Graph)</li><li>Détection et Résolution de Deadlocks</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à distinguer les propriétés ACID ou confusion entre lecture sale et lecture fantôme.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension des niveaux d’isolation ANSI, de la compatibilité des verrous S/X et du mécanisme WAL.</div>
+      <div class="bandrow bandrow--high">Maîtrise complète de la concurrence MVCC, détection fine de deadlocks, verrouillage pessimiste fin et stratégies de retry haute résilience.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Indexation B-Tree, Hash, GIN &amp; Optimisation Physique du Stockage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

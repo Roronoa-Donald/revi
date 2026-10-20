@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Sécurité des Réseaux, Filtrage &amp;amp; Architecture Périmétrique | Cybersécurité B2</title>
+<meta name="description" content="Chapitre 3 du cours Cybersécurité B2 : Pare-feu stateless et stateful (iptables/nftables), segmentation en DMZ, VPN (IPsec/WireGuard), audit de ports avec Nmap et attaques de couche 2 (ARP Poisoning). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/Cyber%20securite%20B2/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Sécurité des Réseaux, Filtrage &amp;amp; Architecture Périmétrique | Cybersécurité B2">
+<meta property="og:description" content="Chapitre 3 du cours Cybersécurité B2 : Pare-feu stateless et stateful (iptables/nftables), segmentation en DMZ, VPN (IPsec/WireGuard), audit de ports avec Nmap et attaques de couche 2 (ARP Poisoning). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="Cyber securite B2nav"><div class="Cyber securite B2nav__in">
+  <a class="Cyber securite B2nav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="Cyber securite B2nav__sep" aria-hidden="true">/</span>
+  <a class="Cyber securite B2nav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B2</a>
+  <div class="Cyber securite B2nav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="Cyber securite B2nav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="Cyber securite B2wrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Sécurité des Réseaux, Filtrage &amp; Architecture Périmétrique</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L’infrastructure d’une PME connecte ses serveurs de production, sa messagerie, ses postes de travail et ses imprimantes sur un unique réseau plat <code>192.168.1.0/24</code> relié à une box Internet sans pare-feu dédié. Un ordinateur portable d’un visiteur branché sur une prise murale diffuse un malware qui contamine instantanément l’ensemble du parc en quelques minutes. Comment cloisonner les flux au moyen de zones démilitarisées (DMZ) et de VLANs ? Comment configurer un pare-feu Linux iptables avec suivi d’état (stateful inspection) ? Comment anticiper les attaques par scan de ports Nmap et empoisonnement ARP ? Ce module structure la défense périmétrique de vos réseaux.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer le filtrage de paquets sans état (stateless) du filtrage avec suivi de connexion (stateful inspection) ;</li>
+      <li>rédiger des règles de pare-feu robustes avec l’outil Linux iptables (chaînes INPUT, FORWARD, états ESTABLISHED/RELATED) ;</li>
+      <li>concevoir une architecture réseau cloisonnée avec zone démilitarisée (DMZ) et sous-réseaux étanches ;</li>
+      <li>analyser les résultats d’un scan de ports Nmap (SYN scan, connect scan, détection de versions et de failles) ;</li>
+      <li>comprendre le mécanisme de l’usurpation d’adresse ARP (ARP Poisoning) et déployer les contre-mesures adaptées.</li>
+    </ol>
+  </div>
+
+<h2>1. Typologie des pare-feu : Stateless vs Stateful (Inspection d’état)</h2>
+
+<p>Le pare-feu (firewall) est la sentinelle placée à la frontière des réseaux. On distingue deux générations principales de filtrage réseau :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. Pare-feu sans état (Stateless Packet Filtering)</h4>
+    <p>Examine chaque paquet isolément en comparant ses en-têtes (IP source/destination, port, protocole TCP/UDP)     à une liste de règles ordonnées. Très rapide, mais incapable de savoir si un paquet entrant fait suite     à une requête sortante légitime initiée par un client interne.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. Pare-feu avec suivi d’état (Stateful Inspection / SPI)</h4>
+    <p>Maintient en mémoire une table des connexions actives (table d’état). Il reconnaît automatiquement les paquets     appartenant à une session établie (<code>ESTABLISHED</code>) ou liée (<code>RELATED</code>), ce qui permet d’autoriser les réponses     sans ouvrir en grand les ports entrants.</p>
+  </div>
+</div>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le pare-feu applicatif : WAF (Web Application Firewall)</div>
+<p>Tandis qu’un pare-feu réseau opère aux couches 3 (IP) et 4 (TCP/UDP), un <strong>WAF</strong> opère en couche 7 (HTTP/HTTPS). Il inspecte les paramètres d’URL, en-têtes HTTP, cookies et charges utiles JSON/XML pour bloquer en amont les injections SQL et attaques XSS.</p>
+  </div>
+
+<h2>2. Configuration de filtrage Linux avec iptables</h2>
+
+<p>Sous Linux, le sous-système netfilter est historiquement piloté via <code>iptables</code> (et modernisé par <code>nftables</code>). La table <code>filter</code> comporte trois chaînes fondamentales :</p>
+<ul>
+  <li><code>INPUT</code> : Trafic destiné localement à la machine elle-même.</li>
+  <li><code>OUTPUT</code> : Trafic généré par la machine vers l’extérieur.</li>
+  <li><code>FORWARD</code> : Trafic traversant la machine (rôle de routeur / passerelle filtrante).</li>
+</ul>
+<pre><code># --- SCRIPT IPTABLES TYPE POUR UN SERVEUR WEB SÉCURISÉ ---
+# 1. Politique par défaut restrictive (Whitelist : tout fermer par défaut)
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+
+# 2. Autoriser le trafic sur l’interface locale de bouclage (Loopback)
+iptables -A INPUT -i lo -j ACCEPT
+
+# 3. Autoriser les paquets des connexions déjà établies ou apparentées
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# 4. Ouvrir sélectivement les ports des services publics autorisés
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT   ; SSH (administration)
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT   ; HTTP
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT  ; HTTPS
+</code></pre>
+
+<h2>3. Architecture réseau en profondeur : DMZ, VLANs &amp; Tunnels VPN</h2>
+
+<p>Le principe de défense en profondeur interdit de placer des serveurs accessibles depuis Internet dans le même réseau que les postes de travail ou les bases de données internes contenant des données confidentielles.</p>
+<table class="table">
+  <thead><tr><th>Zone réseau</th><th>Équipements hébergés</th><th>Flux autorisés</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Zone Publique (Internet)</strong></td><td>Utilisateurs distants, clients web.</td><td>Accès entrant strictement limité aux ports 80/443 de la DMZ.</td></tr>
+    <tr><td><strong>Zone Démilitarisée (DMZ)</strong></td><td>Serveurs web, relais de messagerie, serveurs DNS publics.</td><td>Peut répondre à Internet ; ne peut JAMAIS initier de connexion vers le réseau interne.</td></tr>
+    <tr><td><strong>Réseau Interne (LAN)</strong></td><td>Postes des employés, stations de travail, imprimantes.</td><td>Peut initier des connexions vers Internet et la DMZ.</td></tr>
+    <tr><td><strong>Zone Sensible (Base de données)</strong></td><td>Bases SQL, annuaires LDAP/AD, serveurs de paie.</td><td>Accessible uniquement depuis les serveurs applicatifs de la DMZ sur un port précis.</td></tr>
+  </tbody>
+</table>
+<p>Pour interconnecter des sites distants ou des télétravailleurs en toute sécurité à travers Internet, on établit des tunnels <strong>VPN</strong> (Virtual Private Network) chiffrés avec <strong>IPsec</strong> (niveau couche réseau 3) ou <strong>WireGuard / OpenVPN</strong>.</p>
+
+<h2>4. Reconnaissance avec Nmap &amp; Attaques de niveau 2 (ARP Poisoning)</h2>
+
+<p>Avant toute attaque, un intrus cartographie les cibles à l’aide d’un scanner de ports comme <strong>Nmap</strong>. Comprendre les sondes Nmap permet d’auditer son propre parc :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Techniques de scan Nmap</h4>
+    <ul>
+      <li><strong>SYN Stealth Scan (<code>-sS</code>) :</strong> Envoie un paquet TCP SYN. Si le serveur répond SYN-ACK, le port est OUVERT ; Nmap envoie immédiatement RST sans terminer le handshake à trois voies (furtif).</li>
+      <li><strong>Connect Scan (<code>-sT</code>) :</strong> Termine la connexion TCP complète (non furtif, journalisé).</li>
+      <li><strong>États de port :</strong> <i>Open</i> (service actif), <i>Closed</i> (port fermé répondant RST), <i>Filtered</i> (paquet bloqué par un pare-feu sans réponse).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Empoisonnement de cache ARP (ARP Poisoning)</h4>
+    <p>Le protocole ARP associe une adresse IP à une adresse MAC sans aucune authentification.     Un attaquant sur le réseau local envoie des réponses ARP falsifiées non sollicitées (Gratuitous ARP) :</p>
+    <p><code>IP_passerelle est à MAC_attaquant</code></p>
+    <p>Les victimes redirigent tout leur trafic vers l’attaquant, qui intercepte les mots de passe et données en clair (Man-in-the-Middle).</p>
+    <p><strong>Contre-mesures :</strong> Inspection ARP dynamique (DAI sur commutateurs gérés), 802.1X, tables ARP statiques.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cs2-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="DROP tcp 23|ACCEPT tcp 80|ACCEPT tcp 443|DROP all all&#10;tcp 80">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c3-e1) — Moteur de filtrage de paquets de pare-feu stateless (First-Match)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : DROP tcp 23|ACCEPT tcp 80|ACCEPT tcp 443|DROP all all
+# Données : tcp 23
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : DROP tcp 23|ACCEPT tcp 80|ACCEPT tcp 443|DROP all all
+# Données : udp 53
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : ACCEPT udp 53|ACCEPT tcp 22|DROP all all
+# Données : tcp 22
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : ACCEPT tcp all|DROP all all
+# Données : tcp 8080
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moteur de filtrage de paquets de pare-feu stateless (First-Match)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Moteur de filtrage de paquets de pare-feu stateless (First-Match)</p>
+    <div class="lab__brief"><p>Un pare-feu sans état (stateless firewall) inspecte chaque paquet individuellement en appliquant la première règle correspondante (politique <i>First-Match</i>).
+
+Entrée :
+- Ligne 1 : Liste de règles ordonnées séparées par des barres verticales <code>|</code>.
+  Format d’une règle : <code>ACTION PROTOCOL PORT</code> (ex. <code>DROP tcp 23|ACCEPT tcp 80|DROP all all</code>).
+- Ligne 2 : Paquet à tester sous la forme <code>PROTOCOL PORT</code> (ex. <code>tcp 80</code>).
+
+Règles de correspondance :
+- Si le protocole de la règle est <code>all</code> ou correspond au protocole du paquet,
+- ET si le port de la règle est <code>all</code> ou correspond au port du paquet,
+- ALORS la règle correspond et l’action s’applique immédiatement sans évaluer les règles suivantes.
+
+Sortie : <code>Action: &lt;ACTION&gt; (regle: &lt;REGLE_MATCHEE&gt;)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DROP tcp 23|ACCEPT tcp 80|ACCEPT tcp 443|DROP all all
+tcp 80</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Action: ACCEPT (regle: ACCEPT tcp 80)</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les règles de pare-feu sont ordonnées : la première règle correspondante (First-Match) détermine le sort du paquet.</li>
+        <li>En l’absence de règle explicite correspondante, appliquez la politique par défaut de filtrage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="21/ftp,22/ssh,80/http,23/telnet,443/https">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c3-e2) — Audit de rapport de scan Nmap et détection de services en clair
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : 22/ssh,443/https,53/dns
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : 23/telnet
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : 80/http,3306/mysql
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : 21/ftp,80/http
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Audit de rapport de scan Nmap et détection de services en clair</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Audit de rapport de scan Nmap et détection de services en clair</p>
+    <div class="lab__brief"><p>L’exposition de protocoles non chiffrés sur un réseau constitue une vulnérabilité critique. Votre programme analyse la liste des ports ouverts issus d’un scan Nmap :
+Entrée : <code>port1/service1,port2/service2,...</code> (ex. <code>21/ftp,22/ssh,80/http,23/telnet</code>).
+
+Services vulnérables à identifier impérativement :
+- Port 21 (ftp) : <code>ALERTE: port 21 (ftp) &rarr; authentification et donnees en clair</code>
+- Port 23 (telnet) : <code>ALERTE: port 23 (telnet) &rarr; console d administration non chiffree</code>
+- Port 80 (http) : <code>ALERTE: port 80 (http) &rarr; absence de chiffrement TLS</code>
+
+Sortie : Afficher chaque alerte détectée (une par ligne dans l’ordre d’apparition).
+Si aucun service vulnérable n’est détecté, afficher : <code>AUCUNE VULNERABILITE CRITIQUE DETECTEE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>21/ftp,22/ssh,80/http,23/telnet,443/https</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALERTE: port 21 (ftp) -&gt; authentification et donnees en clair
+ALERTE: port 80 (http) -&gt; absence de chiffrement TLS
+ALERTE: port 23 (telnet) -&gt; console d administration non chiffree</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Repérez les protocoles non chiffrés vulnérables à l’écoute réseau : Telnet (23), FTP (21) ou HTTP (80).</li>
+        <li>Préconisez la migration systématique vers leurs alternatives chiffrées sécurisées (SSH, SFTP, HTTPS).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="192.168.1.1:aa:bb:cc:dd:ee:ff,192.168.1.10:11:22:33:44:55:66;is-at 192.168.1.1 00:11:22:33:44:55">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c3-e3) — Détecteur d’attaque par empoisonnement de table ARP (ARP Poisoning)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Test de validation 1]
+# Données : 192.168.1.1:aa:bb:cc:dd:ee:ff;is-at 192.168.1.1 aa:bb:cc:dd:ee:ff
+A_COMPLETER
+
+[Cas 2 — Test de validation 2]
+# Données : 192.168.1.1:AA:BB:CC:DD:EE:FF;is-at 192.168.1.1 aa:bb:cc:dd:ee:ff
+A_COMPLETER
+
+[Cas 3 — Test de validation 3]
+# Données : 10.0.0.1:02:42:ac:11:00:02;is-at 10.0.0.1 de:ad:be:ef:00:01
+A_COMPLETER
+
+[Cas 4 — Test de validation 4]
+# Données : 192.168.1.1:aa:bb:cc:dd:ee:ff;is-at 192.168.1.50 99:88:77:66:55:44
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur d’attaque par empoisonnement de table ARP (ARP Poisoning)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecteur d’attaque par empoisonnement de table ARP (ARP Poisoning)</p>
+    <div class="lab__brief"><p>L’attaque par empoisonnement ARP (ARP Spoofing) permet à un attaquant de s’interposer en Man-in-the-Middle en associant son adresse MAC à l’adresse IP légitime de la passerelle ou d’une autre cible.
+
+Entrée : <code>table_arp;reponse_arp</code> où :
+- <code>table_arp</code> est une liste de couples <code>IP:MAC</code> séparés par des virgules (adresses enregistrées de confiance).
+- <code>reponse_arp</code> est un paquet ARP reçu sous la forme <code>is-at IP MAC</code> (ex. <code>is-at 192.168.1.1 00:11:22:33:44:55</code>).
+
+Traitement :
+1. Si l’IP figure dans la table et que la MAC reçue est DIFFERENTE de la MAC enregistrée (insensible à la casse) :
+   Afficher : <code>ALERTE ARP SPOOFING: IP &lt;IP&gt; associee a &lt;ancienne_mac&gt; tente d etre detournee par &lt;nouvelle_mac&gt;</code>.
+2. Si l’IP figure dans la table et que la MAC reçue est identique, ou si l’IP est nouvelle :
+   Afficher : <code>PAQUET ARP LEGITIME</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>192.168.1.1:aa:bb:cc:dd:ee:ff,192.168.1.10:11:22:33:44:55:66;is-at 192.168.1.1 00:11:22:33:44:55</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALERTE ARP SPOOFING: IP 192.168.1.1 associee a aa:bb:cc:dd:ee:ff tente d etre detournee par 00:11:22:33:44:55</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’usurpation ARP (ARP Spoofing) détourne le trafic en associant frauduleusement une IP à une fausse adresse MAC.</li>
+        <li>Détectez les réponses ARP incohérentes ou les conflits d’adresses MAC pour une même passerelle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans un pare-feu Linux iptables, quelle chaîne de la table filter inspecte les paquets qui traversent la machine d’une interface réseau à une autre ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">FORWARD</button>
+        <button class="opt">INPUT</button>
+        <button class="opt">OUTPUT</button>
+        <button class="opt">PREROUTING</button>
+      </div>
+      <div class="q__exp">La chaîne FORWARD traite les paquets qui ne sont ni émis par la machine locale ni destinés à celle-ci, mais qui sont routés d’une interface à une autre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il crucial d’isoler les serveurs web publics dans une zone démilitarisée (DMZ) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour empêcher un pirate qui compromettrait le serveur web d’accéder directement et sans entrave au réseau interne de l’entreprise</button>
+        <button class="opt">Pour accélérer la vitesse de calcul du processeur du serveur web</button>
+        <button class="opt">Parce que le protocole HTTPS ne peut pas fonctionner sur un réseau local standard</button>
+        <button class="opt">Pour éviter d’avoir à installer des antivirus sur les postes de travail</button>
+      </div>
+      <div class="q__exp">En cas de compromission d’un serveur en DMZ, la politique de filtrage interdit à la DMZ d’initier des connexions vers le réseau interne, limitant ainsi la propagation latérale de l’attaque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lors d’un scan Nmap SYN (-sS), quelle réponse du serveur cible indique que le port testé est OUVERT ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un paquet SYN-ACK</button>
+        <button class="opt">Un paquet RST-ACK</button>
+        <button class="opt">Une absence totale de réponse (timeout)</button>
+        <button class="opt">Un paquet ICMP Port Unreachable</button>
+      </div>
+      <div class="q__exp">Si le port est ouvert, la pile réseau du serveur accepte la négociation en répondant SYN-ACK. Nmap envoie alors un RST pour couper la connexion avant qu’elle ne soit loguée par l’application.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole de niveau 2 (Liaison) est dépourvu de mécanisme d’authentification, permettant l’attaque par empoisonnement de cache ARP (ARP Poisoning) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ARP (Address Resolution Protocol)</button>
+        <button class="opt">DNS (Domain Name System)</button>
+        <button class="opt">BGP (Border Gateway Protocol)</button>
+        <button class="opt">DHCP (Dynamic Host Configuration Protocol)</button>
+      </div>
+      <div class="q__exp">Le protocole ARP accepte aveuglément les réponses d’association IP/MAC sans vérifier si elles correspondent à une requête préalable ni contrôler l’identité de l’émetteur.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Configurer un pare-feu avec une politique par défaut permissive (ACCEPT) au lieu d’une politique restrictive (DROP).</li>
+      <li>Ouvrir l’interface loopback (127.0.0.1) aux paquets provenant de l’extérieur sans filtrer l’adresse source.</li>
+      <li>Autoriser la DMZ à initier des requêtes directes vers le réseau interne, ruinant tout l’intérêt du cloisonnement.</li>
+      <li>Considérer que l’usage d’un VPN dispense de chiffrer les flux applicatifs internes sensibles.</li>
+      <li>Négliger la sécurité physique et la couche 2 sous prétexte que le pare-feu périmétrique est inviolable.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour sécuriser l’architecture réseau d’un site</div>
+    <ol>
+      <li>Segmenter physiquement ou logiquement (VLANs 802.1Q) : séparer postes utilisateurs, serveurs DMZ et bases de données.</li>
+      <li>Appliquer la politique du moindre privilège sur le pare-feu : bloquer tout trafic par défaut et n’autoriser que les ports indispensables.</li>
+      <li>Activer le suivi de connexion stateful : accepter systématiquement les paquets ESTABLISHED/RELATED pour fluidifier les flux légitimes.</li>
+      <li>Durcir la couche 2 sur les commutateurs : activer la surveillance DHCP (Snooping) et l’inspection ARP dynamique (DAI).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les pare-feu stateful (SPI) inspectent la légitimité des paquets en fonction de l’état de la session (ESTABLISHED/RELATED).</li>
+      <li>iptables organise ses règles dans les chaînes INPUT (local), OUTPUT (émis) et FORWARD (routé).</li>
+      <li>La DMZ isole les serveurs publics d’Internet tout en protégeant le cœur du réseau interne.</li>
+      <li>Nmap utilise le scan SYN furtif (-sS) pour détecter les ports ouverts sans finaliser la connexion TCP.</li>
+      <li>L’ARP Poisoning exploite l’absence d’authentification d’ARP pour détourner le trafic local vers un pirate (MitM).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer la différence entre un pare-feu stateless, stateful et un WAF.</li>
+      <li>Je maîtrise la syntaxe des commandes iptables pour filtrer les ports entrants et sortants.</li>
+      <li>Je comprends l’architecture de flux d’une zone démilitarisée (DMZ).</li>
+      <li>Je sais interpréter les trois états fondamentaux d’un port Nmap (Open, Closed, Filtered).</li>
+      <li>Je connais le mécanisme d’une attaque par empoisonnement ARP et ses parades au niveau commutateur.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Pare-feu sans état (Stateless) vs avec état (Stateful)</li><li>Table de connexion (conntrack)</li><li>Pare-feu applicatif (WAF)</li><li>Commandes Linux iptables (INPUT, FORWARD, OUTPUT)</li><li>Zone démilitarisée (DMZ) et segmentation VLAN</li><li>Réseau privé virtuel (VPN IPsec / WireGuard)</li><li>Scanner de ports Nmap (SYN scan -sS)</li><li>États de ports (Open, Closed, Filtered)</li><li>Empoisonnement de cache ARP (ARP Poisoning)</li><li>Inspection ARP dynamique (DAI)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les chaînes iptables et le fonctionnement d’une DMZ.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les règles de filtrage stateful et le mécanisme du scan SYN Nmap.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises l’architecture périmétrique et la défense réseau.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux vulnérabilités applicatives et au Top 10 OWASP au module 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Vulnérabilités Applicatives &amp; Top 10 OWASP <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Cybersécurité B2, les guides de l’ANSSI, les référentiels du NIST (SP 800-61), de l’OWASP et les documentations Snort et Nmap.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

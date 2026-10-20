@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Circuits logiques combinatoires | Architecture B1</title>
+<meta name="description" content="Chapitre 4 du cours B1 : Les huit portes (NOT, AND, NAND, OR, NOR, XOR, NXOR) ; règles d'algèbre de Boole ; synthèse depuis une table de vérité ; simplification algébrique et par Karnaugh ; additionneur, comparateur, décodeur, multiplexeur. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-architecture/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Circuits logiques combinatoires | Architecture B1">
+<meta property="og:description" content="Chapitre 4 du cours B1 : Les huit portes (NOT, AND, NAND, OR, NOR, XOR, NXOR) ; règles d'algèbre de Boole ; synthèse depuis une table de vérité ; simplification algébrique et par Karnaugh ; additionneur, comparateur, décodeur, multiplexeur. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="arnav"><div class="arnav__in">
+  <a class="arnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="arnav__sep" aria-hidden="true">/</span>
+  <a class="arnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Architecture B1</a>
+  <div class="arnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="arnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="arwrap">
+<p class="crumb"><a href="../index.html">Architecture B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Circuits logiques combinatoires</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un processeur entier se réduit à des transistors câblés en portes logiques. Tout circuit combinatoire — dont la sortie ne dépend que des entrées présentes — se décrit par une table de vérité, se traduit en équation, puis se simplifie : ce chapitre déroule cette chaîne jusqu'aux blocs que le TP câble (additionneur, décodeur, multiplexeur).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>donner la table de vérité et le symbole des huit portes ;</li>
+      <li>appliquer les règles d'algèbre de Boole pour simplifier une expression ;</li>
+      <li>synthétiser un circuit depuis sa table de vérité (mintermes, SOMME de produits) ;</li>
+      <li>simplifier par Karnaugh avec la règle des bulles ;</li>
+      <li>décrire additionneur, comparateur, décodeur et multiplexeur.</li>
+    </ol>
+  </div>
+
+<h2>1. Les huit portes logiques</h2>
+
+<p>La <strong>NOT</strong> inverse (0→1, 1→0). La <strong>AND</strong> donne 1 si toutes les entrées valent 1 ; la <strong>NAND</strong> est sa négation. La <strong>OR</strong> donne 1 si au moins une entrée vaut 1 ; la <strong>NOR</strong> est sa négation. La <strong>XOR</strong> (OU exclusif) donne 1 si les entrées <em>diffèrent</em> — son équation : S = a·b&#772; + a&#772;·b — et la <strong>NXOR</strong> (équivalence) donne 1 si elles sont égales. Sur les symboles, la négation se marque par une <strong>bulle</strong> sur la sortie (NOT, NAND, NOR, NXOR).</p>
+<p>Règles d'<strong>algèbre de Boole</strong> à connaître : a+0=a, a+1=1, a+a=a, a+a&#772;=1 ; a·0=0, a·1=a, a·a=a, a·a&#772;=0 ; involution (a&#772;)&#772;=a ; De Morgan : (a·b)&#772; = a&#772;+b&#772; et (a+b)&#772; = a&#772;·b&#772; — la barre se coupe et le produit devient somme.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « AND exige tout, OR se contente d'un, XOR aime la différence »</div>
+    <p>Trois portes, trois caractères : l'exigeant, le tolérant, celui qui compare. Les trois autres portent juste une bulle de négation.</p>
+  </div>
+
+<h2>2. Synthèse depuis une table de vérité</h2>
+
+<p>Marche du support : 1) dresser la <strong>table de vérité</strong> (2^k lignes pour k entrées) ; 2) pour chaque ligne où la sortie vaut 1, écrire le <strong>minterme</strong> — produit des variables, complémentées quand elles valent 0 ; 3) faire la <strong>SOMME des produits</strong> ; 4) simplifier. La table définit le comportement : le circuit s'en déduit mécaniquement.</p>
+<p><strong>Simplification algébrique</strong> : factoriser et appliquer Boole. Exemple type : S = ab + ab&#772; = a(b + b&#772;) = a·1 = a. Une variable et son complément se neutralisent dans une somme ; un terme redondant disparaît (a + ab = a).</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Karnaugh : une variable toujours à 0 dans le bloc → complémentée ; toujours à 1 → non complémentée ; qui change → disparaît.</li>
+      <li>Les groupes font 1, 2, 4, 8 cases — jamais 3 ni 6 ; les bords se recollent.</li>
+      <li>De Morgan : couper la barre change ET en OU (et inversement).</li>
+      <li>NXOR donne 1 sur les entrées égales : c'est l'équivalence, pas la différence.</li>
+    </ul>
+  </div>
+
+<h2>3. Karnaugh et les blocs combinatoires</h2>
+
+<p>Le <strong>Karnaugh</strong> place la table dans une grille où deux cases voisines ne diffèrent que d'une variable : on regroupe en rectangles de 1, 2, 4, 8 cases (y compris en recollant les bords), puis on lit chaque groupe — variable constante à 0 → complémentée, constante à 1 → directe, qui change → éliminée. L'ordre de remplissage suit le code Gray : 00, 01, 11, 10.</p>
+<p>Les <strong>blocs</strong> du support : l'<strong>additionneur complet</strong> 1 bit calcule somme S = a ⊕ b ⊕ r (r = retenue entrante) et retenue sortante r&#8321; = ab + r(a ⊕ b) ; le <strong>comparateur</strong> sort a&gt;b, a=b, a&lt;b ; le <strong>décodeur</strong> 2 vers 4 active une sortie par combinaison d'adresse ; le <strong>multiplexeur</strong> aiguille une des 2^k entrées vers la sortie selon k bits de sélection — son inverse, le démultiplexeur, redistribue une entrée vers 2^k sorties.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <ul>
+      <li>L'additionneur de l'atelier : total = a + b + r ; S = total mod 2, retenue = total divisé par 2.</li>
+      <li>Le décodeur : une adresse 2 bits allume une sortie parmi 4 (un seul 1 dans le mot).</li>
+      <li>Les portes s'écrivent avec les opérateurs du shell : && (ET), || (OU), != (différence, XOR).</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="ar-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;1 1 and&#10;1 0 or&#10;1 0 xor&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c4-e1) — Portes logiques de base
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les six portes]
+# Données : 6
+# Données : 1 1 nand
+# Données : 0 0 nor
+# Données : 1 0 nand
+# Données : 0 1 xnor
+# Données : 1 1 nor
+# Données : 0 0 and
+A_COMPLETER
+
+[Cas 2 — Cas extremes]
+# Données : 4
+# Données : 0 0 or
+# Données : 0 1 and
+# Données : 1 0 xnor
+# Données : 1 1 xor
+A_COMPLETER
+
+[Cas 3 — Portes negatrices]
+# Données : 4
+# Données : 1 1 xnor
+# Données : 0 1 nor
+# Données : 0 0 nand
+# Données : 1 0 or
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Portes logiques de base</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Retrouver la sortie des huit portes : NOT, AND, NAND, OR, NOR, XOR, NXOR.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « a b porte » : a et b valent 0 ou 1 et porte est un code parmi <code>and</code>, <code>or</code>, <code>xor</code>, <code>nand</code>, <code>nor</code> ou <code>xnor</code>. Rappel du support : AND donne 1 si les deux entrées valent 1, OR si au moins une vaut 1, XOR si elles diffèrent ; NAND, NOR et NXOR sont les négations des trois premières. Pour chaque ligne il Indiquez <code>a b : porte=X</code>, puis le bilan <code>bilan : n portes</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+1 1 and
+1 0 or
+1 0 xor
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1 1 : and=1
+1 0 : or=1
+1 0 : xor=1
+bilan : 3 portes</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur la porte : and donne 1 si a et b valent 1, or si au moins un vaut 1, xor si a diffère de b.</li>
+        <li>Nand, nor et xnor sont le contraire de and, or et xor.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;0 0 0&#10;1 0 0&#10;1 1 1&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c4-e2) — Additionneur complet 1 bit
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les huit combinaisons partielles]
+# Données : 4
+# Données : 0 0 1
+# Données : 0 1 1
+# Données : 1 0 1
+# Données : 1 1 0
+A_COMPLETER
+
+[Cas 2 — Retour au calme]
+# Données : 3
+# Données : 0 1 0
+# Données : 1 0 0
+# Données : 1 1 1
+A_COMPLETER
+
+[Cas 3 — Sortie du zero]
+# Données : 2
+# Données : 0 0 0
+# Données : 1 1 0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Additionneur complet 1 bit</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'additionneur : somme et retenue sortante à partir de a, b et de la retenue entrante.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « a b c » où a, b sont les deux bits à additionner et c la <strong>retenue entrante</strong>. Rappel du support : la somme vaut 1 quand le nombre de bits à 1 est impair, la retenue sortante vaut 1 dès que deux entrées au moins valent 1. Pour chaque ligne il Indiquez <code>a + b + c : somme=X retenue=Y</code>, puis le bilan <code>additions : n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+0 0 0
+1 0 0
+1 1 1
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0 + 0 + 0 : somme=0 retenue=0
+1 + 0 + 0 : somme=1 retenue=0
+1 + 1 + 1 : somme=1 retenue=1
+additions : 3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Fais le total $((a + b + c)) : la somme est son reste modulo 2, la retenue son quotient par 2.</li>
+        <li>Vérifie avec la table : 1+1+1 donne somme 1 et retenue 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ar-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;0 0&#10;1 0&#10;1 1&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ar-c4-e3) — Decodeur 2 vers 4
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les quatre adresses]
+# Données : 4
+# Données : 0 1
+# Données : 1 1
+# Données : 0 0
+# Données : 1 0
+A_COMPLETER
+
+[Cas 2 — Alternance]
+# Données : 2
+# Données : 1 0
+# Données : 0 1
+A_COMPLETER
+
+[Cas 3 — Adresse haute]
+# Données : 1
+# Données : 1 1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Decodeur 2 vers 4</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Activer une seule sortie parmi quatre selon les deux bits d'entrée.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « a b » : a est le bit de poids faible et b le bit de poids fort d'une adresse de 2 bits. Le décodeur du support active une seule sortie : Y0 quand l'adresse vaut 00, Y1 pour 01, Y2 pour 10 et Y3 pour 11 (a et b lus dans cet ordre : a d'abord, b ensuite). Pour chaque ligne il Indiquez <code>a b : Y3Y2Y1Y0 = XXXX</code> où XXXX est le mot de sortie, puis le bilan <code>decodages : n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+0 0
+1 0
+1 1
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0 0 : Y3Y2Y1Y0 = 0001
+1 0 : Y3Y2Y1Y0 = 0010
+1 1 : Y3Y2Y1Y0 = 1000
+decodages : 3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L'indice de la sortie active vaut 2 fois b plus a.</li>
+        <li>Un if imbrique ou un case sur les deux bits donne le mot de 4 caractères.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">La porte AND donne 1 si…</p>
+      <div class="opts">
+        <button class="opt">au moins une entrée vaut 1</button>
+        <button class="opt" data-correct="1">toutes les entrées valent 1</button>
+        <button class="opt">les entrées diffèrent</button>
+      </div>
+      <div class="q__exp">AND = produit logique : tout à 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La XOR donne 1 si les entrées…</p>
+      <div class="opts">
+        <button class="opt">sont égales</button>
+        <button class="opt" data-correct="1">diffèrent</button>
+        <button class="opt">valent 0</button>
+      </div>
+      <div class="q__exp">OU exclusif : les entrées diffèrent. NXOR = équivalence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">(a·b)&#772; vaut…</p>
+      <div class="opts">
+        <button class="opt">a&#772;·b&#772;</button>
+        <button class="opt" data-correct="1">a&#772;+b&#772;</button>
+        <button class="opt">a+b</button>
+      </div>
+      <div class="q__exp">De Morgan : la barre se coupe, le produit devient somme.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">a + ab simplifie en…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">a</button>
+        <button class="opt">b</button>
+        <button class="opt">ab</button>
+      </div>
+      <div class="q__exp">Absorption : a(1+b) = a.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un groupe Karnaugh de 3 cases est…</p>
+      <div class="opts">
+        <button class="opt">autorisé</button>
+        <button class="opt" data-correct="1">interdit</button>
+        <button class="opt">obligatoire</button>
+      </div>
+      <div class="q__exp">Groupes de 1, 2, 4, 8… puissances de 2 seulement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un groupe où la variable vaut toujours 0, elle est…</p>
+      <div class="opts">
+        <button class="opt">éliminée</button>
+        <button class="opt" data-correct="1">complémentée</button>
+        <button class="opt">directe</button>
+      </div>
+      <div class="q__exp">Règle des bulles du support : toujours 0 → complémentée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La somme d'un additionneur complet vaut…</p>
+      <div class="opts">
+        <button class="opt">a ⊕ b</button>
+        <button class="opt" data-correct="1">a ⊕ b ⊕ r</button>
+        <button class="opt">ab + r</button>
+      </div>
+      <div class="q__exp">XOR des trois entrées, retenue entrante comprise.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un multiplexeur à 4 entrées nécessite…</p>
+      <div class="opts">
+        <button class="opt">1 bit de sélection</button>
+        <button class="opt" data-correct="1">2 bits</button>
+        <button class="opt">4 bits</button>
+      </div>
+      <div class="q__exp">2^k entrées : k bits de sélection, ici k = 2.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre XOR (différence) et NXOR (équivalence).</li>
+      <li>Oublier que NAND et NOR nient leur porte de base : sorties opposées.</li>
+      <li>Faire des groupes Karnaugh de 3 cases ou oublier le recollement des bords.</li>
+      <li>Oublier la retenue entrante dans l'additionneur complet.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — synthétiser un circuit en quatre gestes</div>
+    <ol>
+      <li>Dresser la table de vérité : une ligne par combinaison des entrées.</li>
+      <li>Écrire un minterme par sortie à 1 (variable complémentée si elle vaut 0).</li>
+      <li>Simplifier : algèbre de Boole, puis Karnaugh avec groupes de puissances de 2.</li>
+      <li>Dessiner le circuit : portes AND sur les mintermes, OR pour la somme.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Huit portes : NOT, AND, NAND, OR, NOR, XOR, NXOR — bulle = négation.</li>
+      <li>Boole : a+a&#772;=1, a·a&#772;=0, absorption, De Morgan.</li>
+      <li>Synthèse : table de vérité → mintermes → somme de produits → simplification.</li>
+      <li>Karnaugh : groupes de puissances de 2 ; additionneur, comparateur, décodeur, multiplexeur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je donne tables et symboles des huit portes.</li>
+      <li>J'applique De Morgan et l'absorption sans erreur.</li>
+      <li>Je synthétise une fonction depuis sa table de vérité.</li>
+      <li>Je simplifie par Karnaugh et je connais les blocs usuels.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Porte</strong> : circuit élémentaire à une fonction logique (NOT, AND, OR…).</li><li><strong>XOR</strong> : 1 si les entrées diffèrent ; NXOR : 1 si égales.</li><li><strong>De Morgan</strong> : (a·b)&#772; = a&#772;+b&#772; ; (a+b)&#772; = a&#772;·b&#772;.</li><li><strong>Minterme</strong> : produit des variables pour une ligne de table où la sortie vaut 1.</li><li><strong>Karnaugh</strong> : grille de simplification par groupements adjacents.</li><li><strong>Additionneur complet</strong> : S = a ⊕ b ⊕ r ; retenue = ab + r(a ⊕ b).</li><li><strong>Décodeur</strong> : active une sortie par combinaison des entrées d'adresse.</li><li><strong>Multiplexeur</strong> : aiguille 2^k entrées vers une sortie selon k bits.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les tables des huit portes.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais la synthèse depuis une table simple.</div>
+      <div class="bandrow bandrow--good">70–89 % — cible Karnaugh et les blocs combinatoires.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Circuits séquentiels : bascules, registres et compteurs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Circuit logique & architecture des ordinateurs » (Georges AYIVI-TOGBASSA, Novembre 2024, code B1COM0401).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

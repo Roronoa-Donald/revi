@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Commandes de base : trouver, manipuler, chercher | Linux B1</title>
+<meta name="description" content="Chapitre 3 du cours de Linux B1 : Syntaxe d’une commande, navigation et manipulation de fichiers, liens symboliques, find et ses filtres. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-linux/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Commandes de base : trouver, manipuler, chercher | Linux B1">
+<meta property="og:description" content="Chapitre 3 du cours de Linux B1 : Syntaxe d’une commande, navigation et manipulation de fichiers, liens symboliques, find et ses filtres. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="lxnav"><div class="lxnav__in">
+  <a class="lxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="lxnav__sep" aria-hidden="true">/</span>
+  <a class="lxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux B1</a>
+  <div class="lxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="lxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="lxwrap">
+<p class="crumb"><a href="../index.html">Linux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Commandes de base : trouver, manipuler, chercher</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le terminal est ouvert, l’invite attend. Tout passe par une ligne de commande : se repérer, lister, créer, copier, déplacer, chercher. Ce chapitre installe la boîte à outils du TP — pwd, cd, ls, mkdir, cp, mv, rm, cat, echo, ln, find — et l’habitude de lire une commande comme une phrase : COMMANDE OPTIONS ARGUMENTS.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>écrire une commande avec sa syntaxe COMMANDE OPTIONS ARGUMENTS ;</li>
+      <li>naviguer et manipuler fichiers et répertoires avec les commandes de base ;</li>
+      <li>créer et interpréter un lien symbolique avec ln -s ;</li>
+      <li>filtrer une recherche avec find et ses critères -name, -type, -size, -user.</li>
+    </ol>
+  </div>
+
+<h2>1. La syntaxe d’une commande</h2>
+
+<p>Chaque utilisateur connecté dirige la machine en exécutant des commandes dans un terminal. La syntaxe est immuable :</p>
+<pre><code>COMMANDE OPTIONS ARGUMENTS
+ls      -a      /home
+│        │        │
+│        │        └── objet(s) sur lesquels la commande agit (facultatif)
+│        └── modifie le comportement (facultatif) : -a inclut les fichiers cachés
+└── la commande elle-même : lister les fichiers</code></pre>
+<p>Options et arguments sont tous deux facultatifs : <code>ls</code> seul liste le répertoire courant. Les commandes utiles pour se repérer : <code>pwd</code> affiche l’emplacement courant, <code>cd</code> change de répertoire courant, <code>ls</code> liste les fichiers.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « le verbe, le ton, la cible »</div>
+    <p>Lire une commande comme une phrase : le <strong>verbe</strong> (la commande), le <strong>ton</strong> (les options, avec un tiret), la <strong>cible</strong> (les arguments). pwd = « où suis-je ? », cd = « va à », ls = « montre-moi ».</p>
+  </div>
+
+<h2>2. Créer, copier, déplacer, supprimer</h2>
+
+<p>La panoplie de manipulation :</p>
+<table>
+    <tr><th>Commande</th><th>Rôle</th></tr>
+    <tr><td><code>mkdir</code></td><td>créer un répertoire</td></tr>
+    <tr><td><code>rmdir</code></td><td>supprimer un répertoire</td></tr>
+    <tr><td><code>touch</code></td><td>changer la date de modification d’un fichier — et créer un fichier vide</td></tr>
+    <tr><td><code>cp</code></td><td>copier un fichier ou un répertoire</td></tr>
+    <tr><td><code>mv</code></td><td>renommer ou déplacer un fichier/repertoire en une seule opération</td></tr>
+    <tr><td><code>rm</code></td><td>supprimer un fichier ou un répertoire</td></tr>
+    <tr><td><code>cat</code></td><td>afficher le contenu d’un fichier</td></tr>
+    <tr><td><code>echo</code></td><td>afficher une ligne — et écrire dans un fichier avec &gt; ou &gt;&gt;</td></tr>
+  </table>
+<p><code>echo "texte" &gt; fichier</code> <strong>écrase</strong> le contenu ; <code>echo "texte" &gt;&gt; fichier</code> <strong>suffixe</strong> (ajoute à la fin). Et un avertissement du cours qui ne se négocie pas : <code>rm</code> avec <code>-f</code> ou <code>-rf</code> peut endommager, voire supprimer tout le système de fichiers, de manière <strong>irréversible</strong>.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le > et le >></div>
+    <p>Un seul chevron &gt; écrase tout le fichier ; deux chevrons &gt;&gt; ajoutent à la fin. Confondre les deux, c’est perdre un fichier de configuration en une commande. En cas de doute, relire la ligne avant de valider.</p>
+  </div>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Lire un gros fichier : man, more, head, tail</div>
+    <p><code>man commande</code> affiche le manuel de n’importe quelle commande (essayer <code>man ls</code>). <code>more</code> montre un fichier page à page, <code>head</code> en montre le début (10 premières lignes par défaut), <code>tail</code> la fin (10 dernières lignes par défaut).</p>
+  </div>
+
+<h2>3. Les liens symboliques</h2>
+
+<p>La commande <code>ln</code> crée un <strong>lien matériel</strong> ou <strong>symbolique</strong> (raccourci) vers un fichier ou un répertoire. L’option <code>-s</code> (voir <code>man ln</code>) crée le lien symbolique :</p>
+<pre><code>echo "contenu" &gt; fichiersource
+ln -s fichiersource fichiercible
+cat fichiercible          → contenu
+echo "contenu2" &gt;&gt; fichiersource
+cat fichiercible          → contenu
+                            contenu2</code></pre>
+<p><code>fichiercible</code> n’est <strong>pas un fichier stocké physiquement</strong> sur le disque : c’est juste un lien vers <code>fichiersource</code>. Toute modification de la source se lit à travers la cible — c’est exactement ce que simule l’exercice « liens symboliques » de l’atelier, en suivant la chaîne de liens jusqu’au fichier réel.</p>
+
+<h2>4. find : chercher selon tous les critères</h2>
+
+<p>La commande <code>find</code> cherche un fichier sous Linux. Sa syntaxe :</p>
+<pre><code>find répertoire critères</code></pre>
+<p>Le répertoire est le chemin où la recherche s’exécute ; les critères affinent la recherche. Les options les plus utilisées :</p>
+<table>
+    <tr><th>Critère</th><th>Filtre</th></tr>
+    <tr><td><code>-name</code></td><td>par rapport au nom du fichier</td></tr>
+    <tr><td><code>-type</code></td><td>par rapport au type du fichier</td></tr>
+    <tr><td><code>-size</code></td><td>par rapport à la taille du fichier</td></tr>
+    <tr><td><code>-ctime</code> / <code>-atime</code> / <code>-mtime</code></td><td>création / dernier accès / dernière modification</td></tr>
+    <tr><td><code>-user</code> / <code>-group</code></td><td>propriétaire / groupe du fichier</td></tr>
+    <tr><td><code>-perm</code></td><td>permissions du fichier</td></tr>
+  </table>
+<p>Les exercices du cours de TP s’y entraînent : créer <code>fichier1</code>, <code>fichier2</code> et <code>testfichier1</code> dans <code>/tmp</code> puis trouver ceux qui commencent par « fich » (<code>find /tmp -name "fich*"</code>), trouver ceux qui commencent par « fich » ou « test », trouver tous les fichiers (<code>find /tmp -type f</code>). À la maison, l’atelier rejoue ces filtres en Bash sur une arborescence simulée.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx-c3-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;/tmp/fichier1&#10;/tmp/fichier2&#10;/home/testfichier1&#10;/etc/passwd&#10;prefixe:fichier&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+chemins=()
+for ((i=0; i<n; i++)); do
+  read -r chemin
+  chemins+=("$chemin")
+done
+read -r motif
+# À compléter : filtrer selon le motif, sur le nom de base.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — find -name simulé</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Filtrer des chemins par motif de nom : commencent par, finissent par, contiennent.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n chemins</strong> (une ligne chacun), puis <strong>un motif</strong> : <code>prefixe:X</code> (noms de base commençant par X), <code>suffixe:X</code> (finissant par X) ou <code>contient:X</code>. Il affiche les chemins retenus, dans l'ordre d'entrée, puis la dernière ligne <code>trouves : K</code>. Le motif porte sur le <strong>nom de base</strong> (après le dernier <code>/</code>), jamais sur les répertoires parents.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+/tmp/fichier1
+/tmp/fichier2
+/home/testfichier1
+/etc/passwd
+prefixe:fichier
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>/tmp/fichier1
+/tmp/fichier2
+trouves : 2</pre></div>
+    </div>
+    <p class="lab__note">Le /home/testfichier1 a « test » devant : pas de correspondance de préfixe.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le nom de base s'obtient avec ${chemin##*/} : tout supprimer jusqu'au dernier /.</li>
+        <li>Trois formes de motif : ${base#"$X"} != "$base" (commence), ${base%"$X"} != "$base" (finit), ou un test de sous-chaîne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c3-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="1M&#10;4&#10;gros.txt 3M&#10;moyen.log 500K&#10;petit.txt 100&#10;image.png 2M&#10;">
+  <script type="text/plain" data-lab-starter>read -r seuil
+read -r n
+for ((i=0; i<n; i++)); do
+  read -r nom taille
+  # À compléter : convertir, filtrer, mémoriser.
+done
+# À compléter : afficher le rapport trié puis le total.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — find par taille</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir des tailles en octets, filtrer par seuil et trier le résultat.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>NOM TAILLE</code> où TAILLE s'écrit <code>123</code> (octets), <code>45K</code> (kilo-octets) ou <code>2M</code> (méga-octets). Puis il lit <strong>un seuil</strong> au même format. Il affiche les fichiers dont la taille est <strong>strictement supérieure</strong> au seuil, convertis en octets sous la forme <code>NOM OCTETS</code>, triés de la plus grosse taille à la plus petite (tailles égales : ordre d'entrée). La dernière ligne : <code>total : K fichier(s)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1M
+4
+gros.txt 3M
+moyen.log 500K
+petit.txt 100
+image.png 2M
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>gros.txt 3145728
+image.png 2097152
+total : 2 fichier(s)</pre></div>
+    </div>
+    <p class="lab__note">3M et 2M dépassent 1M ; 500K et 100 octets restent sous le seuil.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le seuil arrive en première ligne : le lire avant n, sinon la boucle le prend pour un fichier.</li>
+        <li>Conversion : si la valeur finit par K, multiplier par 1024 ; par M, par 1024 × 1024 ; sinon octets bruts.</li>
+        <li>Un tri simple à la main : boucler en prenant à chaque tour le maximum restant, ou trier le tableau par insertion.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c3-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;root:0:0:/bin/bash&#10;sys:99:99:/usr/sbin/nologin&#10;alice:1000:1000:/bin/bash&#10;bob:1001:1001:/bin/sh&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+systeme=0
+humains=0
+for ((i=0; i<n; i++)); do
+  read -r ligne
+  # À compléter : découper les champs, compter, mémoriser.
+done
+# À compléter : afficher les trois comptes puis les logins humains.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Squelette de /etc/passwd</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser le format login:x:UID:GID:... du fichier passwd : filtrer, compter, retrouver.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> au format <code>/etc/passwd</code> réduit : <code>login:UID:GID:shell</code> (quatre champs séparés par <code>:</code>). Il affiche trois lignes : <code>utilisateurs : K</code> (total), <code>systeme : S</code> (UID &lt; 1000) et <code>humains : H</code> (UID ≥ 1000), puis la liste des logins humains, un par ligne, dans l'ordre d'entrée.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+root:0:0:/bin/bash
+sys:99:99:/usr/sbin/nologin
+alice:1000:1000:/bin/bash
+bob:1001:1001:/bin/sh
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>utilisateurs : 4
+systeme : 2
+humains : 2
+alice
+bob</pre></div>
+    </div>
+    <p class="lab__note">UID 0 et 99 sont système ; 1000 et 1001 sont humains.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découper par deux-points : IFS=":" read -r login uid gid shell &lt;&lt;&lt; "$ligne".</li>
+        <li>Un test arithmétique [ "$uid" -lt 1000 ] sépare comptes système et comptes humains.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la syntaxe générale d’une commande ?</p>
+      <div class="opts">
+        <button class="opt">COMMANDE ARGUMENTS OPTIONS</button>
+        <button class="opt" data-correct="1">COMMANDE OPTIONS ARGUMENTS</button>
+        <button class="opt">OPTIONS COMMANDE ARGUMENTS</button>
+      </div>
+      <div class="q__exp">La commande, puis les options (facultatives), puis les arguments (facultatifs) : ls -a /home.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait pwd ?</p>
+      <div class="opts">
+        <button class="opt">Change de répertoire</button>
+        <button class="opt" data-correct="1">Affiche l’emplacement courant</button>
+        <button class="opt">Liste les fichiers</button>
+      </div>
+      <div class="q__exp">pwd (print working directory) affiche l’emplacement où l’on se situe dans la hiérarchie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande crée un fichier vide ?</p>
+      <div class="opts">
+        <button class="opt">mkdir</button>
+        <button class="opt" data-correct="1">touch</button>
+        <button class="opt">cat</button>
+      </div>
+      <div class="q__exp">touch change la date de modification d’un fichier — et le crée vide s’il n’existe pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">echo "x" > f et echo "x" >> f : quelle différence ?</p>
+      <div class="opts">
+        <button class="opt">Aucune</button>
+        <button class="opt" data-correct="1">> écrase, >> ajoute à la fin</button>
+        <button class="opt">> ajoute, >> écrase</button>
+      </div>
+      <div class="q__exp">Un chevron écrase le contenu, deux chevrons suffisent au fichier.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait mv fichier3 /home/fichier4 ?</p>
+      <div class="opts">
+        <button class="opt">Copie fichier3</button>
+        <button class="opt" data-correct="1">Renomme et déplace fichier3 en /home/fichier4 en une seule fois</button>
+        <button class="opt">Supprime fichier3</button>
+      </div>
+      <div class="q__exp">mv renomme ou déplace : renommer est un déplacement dans le même répertoire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi rm -rf est-elle dangereuse ?</p>
+      <div class="opts">
+        <button class="opt">Elle est lente</button>
+        <button class="opt" data-correct="1">Elle peut supprimer tout le système de fichiers, irréversiblement</button>
+        <button class="opt">Elle chiffre les fichiers</button>
+      </div>
+      <div class="q__exp">Le cours l’avertit : avec -f ou -rf, rm peut endommager voire détruire le système de fichiers sans retour.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle option de ln crée un lien symbolique ?</p>
+      <div class="opts">
+        <button class="opt">-a</button>
+        <button class="opt" data-correct="1">-s</button>
+        <button class="opt">-l</button>
+      </div>
+      <div class="q__exp">ln -s crée un lien symbolique (raccourci) au lieu d’un lien physique ; c’est documenté dans man ln.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après modification de la source, que voit-on via le lien symbolique ?</p>
+      <div class="opts">
+        <button class="opt">L’ancien contenu</button>
+        <button class="opt" data-correct="1">Le contenu mis à jour de la source</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">La cible n’est pas un fichier stocké : elle pointe vers la source et reflète son contenu courant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait find /tmp -type f ?</p>
+      <div class="opts">
+        <button class="opt">Liste les répertoires de /tmp</button>
+        <button class="opt" data-correct="1">Trouve tous les fichiers de /tmp</button>
+        <button class="opt">Vide /tmp</button>
+      </div>
+      <div class="q__exp">-type f filtre sur les fichiers ordinaires ; sans critère, find listerait tout.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel critère de find filtre par propriétaire ?</p>
+      <div class="opts">
+        <button class="opt">-name</button>
+        <button class="opt" data-correct="1">-user</button>
+        <button class="opt">-perm</button>
+      </div>
+      <div class="q__exp">-user filtre par propriétaire (-group par groupe, -perm par permissions).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre cd et pwd</strong> : l’un déplace, l’autre affiche.</li>
+      <li><strong>Chevron unique par habitude</strong> : > écrase un fichier existant sans avertissement.</li>
+      <li><strong>Supprimer avec rm sans réfléchir</strong> : -f / -rf sont irréversibles.</li>
+      <li><strong>Ln sans -s attendu symbolique</strong> : sans option, ln crée un lien physique.</li>
+      <li><strong>find sans répertoire</strong> : la syntaxe demande le chemin où chercher, puis les critères.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire une ligne de commande fiable</div>
+    <ol>
+      <li><strong>Nommer l’intention</strong> : chercher, créer, copier, déplacer, supprimer, afficher.</li>
+      <li><strong>Choisir le verbe</strong> (la commande) avant les options : find, touch, cp, mv, rm, cat.</li>
+      <li><strong>Ajouter les options</strong> qui affinent : -a pour les cachés, -s pour un lien symbolique.</li>
+      <li><strong>Cibler précisément</strong> : chemin absolu quand le contexte change, relatif sinon.</li>
+      <li><strong>Relire avant de valider</strong> — surtout si la ligne contient rm ou &gt;.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>COMMANDE OPTIONS ARGUMENTS : ls -a /home — verbe, ton, cible.</li>
+      <li>pwd affiche, cd déplace, ls liste ; mkdir/rmdir et touch gèrent répertoires et fichiers vides.</li>
+      <li>cp copie, mv renomme/déplace, rm supprime — -f/-rf sont irréversibles.</li>
+      <li>echo avec &gt; écrase, avec &gt;&gt; il ajoute ; cat, more, head, tail lisent ; man documente tout.</li>
+      <li>ln -s crée un lien symbolique qui reflète la source ; find répertoire critères cherche par -name, -type, -size, -user, -perm.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décompose une commande en commande, options, arguments.</li>
+      <li>Je crée, copie, déplace, supprime sans ambiguïté (touch, cp, mv, rm).</li>
+      <li>Je crée un lien symbolique et j’explique ce qu’il reflète.</li>
+      <li>Je construis une recherche find avec les critères -name, -type, -size, -user.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>commande</li><li>option</li><li>argument</li><li>répertoire courant</li><li>lien symbolique</li><li>find</li><li>critère</li><li>redirection</li><li>manuel</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le tableau des commandes avec un exemple par ligne.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à écrire les commandes des exercices find du TP.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : décris ce que voit cat fichiercible après chaque modification.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, la installation de Debian 12.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Installer Debian 12 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Système Linux B1 ITA &amp; ITB » du Dr Abasse KPEGOUNI (système, fichiers, Debian 12, commandes de base, utilisateurs et groupes, TP droits d’accès).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

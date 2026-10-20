@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Cycle de Vie des Conteneurs, Réseau &amp;amp; Stockage | Docker B2</title>
+<meta name="description" content="Chapitre 4 du cours Docker B2 : Machine à états finis des conteneurs, pilotage en ligne de commande (run, exec, stop, rm), redirection de ports (NAT iptables), modes réseau (bridge, host, none, DNS interne à 127.0.0.11), et stratégies de persistance des données (Volumes nommés, Bind Mounts, Tmpfs). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/docker/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Cycle de Vie des Conteneurs, Réseau &amp;amp; Stockage | Docker B2">
+<meta property="og:description" content="Chapitre 4 du cours Docker B2 : Machine à états finis des conteneurs, pilotage en ligne de commande (run, exec, stop, rm), redirection de ports (NAT iptables), modes réseau (bridge, host, none, DNS interne à 127.0.0.11), et stratégies de persistance des données (Volumes nommés, Bind Mounts, Tmpfs). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="dockernav"><div class="dockernav__in">
+  <a class="dockernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="dockernav__sep" aria-hidden="true">/</span>
+  <a class="dockernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Docker B2</a>
+  <div class="dockernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="dockernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="dockerwrap">
+<p class="crumb"><a href="../index.html">Docker B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Cycle de Vie des Conteneurs, Réseau &amp; Stockage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un développeur junior configure une base de données PostgreSQL dans un conteneur pour une application critique. Au bout de trois semaines de saisie de données par les utilisateurs, le serveur hôte redémarre et l’administrateur exécute la commande « docker rm -f postgres » pour mettre à niveau l’image. Catastrophe absolue : la totalité des données clients est anéantie instantanément car les fichiers résidaient dans la couche Writable volatile du conteneur sans aucun montage de volume persistant ! Au même moment, les autres services de l’entreprise ne parviennent plus à communiquer avec l’API car celle-ci a changé d’adresse IP privée lors du redémarrage sur le bridge par défaut non routé. Ce module forme les étudiants à maîtriser rigoureusement le cycle de vie d’un conteneur, à configurer des réseaux virtuels sécurisés avec découverte automatique par nom d’hôte, et à garantir la persistance intégrale des données d’entreprise à travers les volumes managés.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>modéliser la machine à états finis du cycle de vie d’un conteneur (Created, Running, Paused, Stopped, Removed) ;</li>
+      <li>maîtriser les commandes de pilotage opérationnel (run, exec, stop, kill, restart, logs, inspect, rm) ;</li>
+      <li>comprendre le fonctionnement de la publication de ports via les tables de translation NAT iptables ;</li>
+      <li>distinguer les modes réseau Docker (Bridge, Host, None) et exploiter le DNS interne (127.0.0.11) ;</li>
+      <li>comparer et choisir judicieusement entre Volumes Docker nommés, Bind Mounts et montages Tmpfs ;</li>
+      <li>sécuriser les montages de fichiers sensibles à l’aide du mode lecture seule (:ro).</li>
+    </ol>
+  </div>
+
+<h2>1. Machine à États Finis et Commandes du Cycle de Vie</h2>
+
+<p>Un conteneur Docker traverse des états strictement définis au cours de son existence :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>État</th>
+      <th>Description système</th>
+      <th>Commandes déclenchantes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Created</strong></td>
+      <td>Le conteneur est instancié avec ses couches, son réseau et ses cgroups réservés, mais le processus applicatif n’est pas encore lancé.</td>
+      <td><code>docker create</code></td>
+    </tr>
+    <tr>
+      <td><strong>Running</strong></td>
+      <td>Le processus principal (PID 1) s’exécute activement dans ses namespaces.</td>
+      <td><code>docker run</code>, <code>docker start</code>, <code>docker unpause</code></td>
+    </tr>
+    <tr>
+      <td><strong>Paused</strong></td>
+      <td>Tous les processus du conteneur sont gelés au niveau du cgroup freezer (consommation CPU = 0).</td>
+      <td><code>docker pause</code></td>
+    </tr>
+    <tr>
+      <td><strong>Stopped (Exited)</strong></td>
+      <td>Le processus principal a terminé son exécution ou a été arrêté via un signal. Le système de fichiers est préservé.</td>
+      <td><code>docker stop</code>, <code>docker kill</code></td>
+    </tr>
+    <tr>
+      <td><strong>Dead / Removed</strong></td>
+      <td>Le conteneur et sa couche Writable ont été effacés du système de fichiers de l’hôte.</td>
+      <td><code>docker rm</code></td>
+    </tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Différence Cruciale entre docker stop et docker kill</div>
+<p><code>docker stop</code> envoie d’abord le signal d’arrêt propre <strong>SIGTERM (15)</strong> au processus PID 1, lui laissant un délai de grâce de 10 secondes pour fermer les connexions de base de données et vider ses buffers. Ce n’est qu’après ce délai que Docker envoie <strong>SIGKILL (9)</strong>. À l’inverse, <code>docker kill</code> abat immédiatement le processus par SIGKILL sans aucun préavis, au risque de corrompre des fichiers en cours d’écriture.</p>
+  </div>
+
+<h2>2. Réseaux Docker, Port Mapping et DNS Intégré</h2>
+
+<p>Par défaut, Docker isole le conteneur dans son propre <em>NET Namespace</em>. Pour communiquer avec le monde extérieur et avec d’autres conteneurs, plusieurs modes existent :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Bridge Network (Par Défaut)</h4>
+    <p>Crée une interface pont virtuelle (comme <code>docker0</code>) et attribue une adresse IP privée     (ex: 172.17.0.X) à chaque conteneur. L’accès extérieur s’effectue par translation d’adresses NAT.</p>
+  </div>
+  <div class="card">
+    <h4>Host Network (--network=host)</h4>
+    <p>Désactive l’isolation réseau : le conteneur partage directement la pile réseau et les ports de la machine hôte.     Performances maximales mais suppression du cloisonnement de sécurité.</p>
+  </div>
+  <div class="card">
+    <h4>None Network (--network=none)</h4>
+    <p>Isole totalement le conteneur du réseau : seule l’interface de boucle locale <code>lo</code> est disponible.     Idéal pour des calculs ultra-sécurisés ou des traitements batch fermés.</p>
+  </div>
+</div>
+  <div class="box box--important">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> La Règle d’Or du Réseau Bridge Personnalisé</div>
+<p>Sur le réseau bridge par défaut historique (<code>docker0</code>), les conteneurs ne peuvent pas se joindre par leur nom d’hôte : il faut obligatoirement connaître leur adresse IP changeante. À l’inverse, dès que vous créez un réseau bridge personnalisé (<code>docker network create mon-reseau</code>), Docker active son <strong>serveur DNS interne intégré (127.0.0.11)</strong> : les conteneurs connectés à ce réseau peuvent alors communiquer simplement en utilisant leur nom de conteneur comme nom d’hôte (ex: <code>curl http://api-service:8080</code>).</p>
+  </div>
+
+<h2>3. Persistance des Données : Volumes Nommés vs Bind Mounts vs Tmpfs</h2>
+
+<p>Tout fichier créé à l’intérieur d’un conteneur sans configuration de montage est stocké dans la couche Writable volatile et disparaît définitivement lors de la destruction du conteneur. Docker propose trois architectures de persistance :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Type de Montage</th>
+      <th>Syntaxe CLI</th>
+      <th>Emplacement Physique</th>
+      <th>Cas d’Usage Idéal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Volume Nommé</strong></td>
+      <td><code>-v pgdata:/var/lib/postgresql/data</code></td>
+      <td>Géré entièrement par le démon Docker dans <code>/var/lib/docker/volumes/</code> sur l’hôte.</td>
+      <td><strong>Production &amp; Bases de Données :</strong> Performance optimale, isolation du système hôte, sauvegardes facilitées, survit à la destruction du conteneur.</td>
+    </tr>
+    <tr>
+      <td><strong>Bind Mount</strong></td>
+      <td><code>-v /home/user/app:/app</code></td>
+      <td>Lié directement à un fichier ou répertoire arbitraire existant sur la machine hôte.</td>
+      <td><strong>Développement :</strong> Partage du code source hôte pour rechargement à chaud (Hot Reloading) ou injection de fichiers de configuration hôte.</td>
+    </tr>
+    <tr>
+      <td><strong>Tmpfs Mount</strong></td>
+      <td><code>--tmpfs /tmp</code></td>
+      <td>Alloué exclusivement dans la mémoire vive RAM de la machine hôte.</td>
+      <td><strong>Sécurité &amp; Données Temporaires :</strong> Fichiers éphémères, jetons secrets qui ne doivent jamais toucher le disque dur physique.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. Commandes d’Exécution et Diagnostic en Production</h2>
+
+<p>Pour diagnostiquer et manipuler les conteneurs actifs :</p>
+<ul>
+  <li><code>docker exec -it mon_conteneur /bin/bash</code> : entre dans un conteneur en cours d’exécution sans interrompre son service.</li>
+  <li><code>docker logs -f --tail 50 mon_conteneur</code> : suit en direct les journaux émis sur les flux stdout et stderr.</li>
+  <li><code>docker top mon_conteneur</code> : liste les processus actifs à l’intérieur du conteneur avec leur PID hôte.</li>
+  <li><code>docker stats</code> : moniteur de performances en temps réel affichant la consommation CPU, RAM, réseau et E/S de tous les conteneurs.</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="dk2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="create&#10;start&#10;pause&#10;unpause&#10;stop&#10;rm">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c4-e1) — Gestionnaire d’états du cycle de vie d’un conteneur
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Tentative de rm sur conteneur en cours d’exécution]
+# Données : run
+# Données : rm
+A_COMPLETER
+
+[Cas 2 — Pause puis tentative de start sans unpause]
+# Données : run
+# Données : pause
+# Données : start
+A_COMPLETER
+
+[Cas 3 — Kill et redémarrage]
+# Données : run
+# Données : kill
+# Données : start
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Gestionnaire d’états du cycle de vie d’un conteneur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la machine à états finis du cycle de vie d’un conteneur Docker et valider les transitions de commandes.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+États possibles : <code>ABSENT</code>, <code>CREATED</code>, <code>RUNNING</code>, <code>PAUSED</code>, <code>STOPPED</code>.<br>
+Règles de transition :<br>
+- Depuis <code>ABSENT</code> : <code>create</code> -&gt; <code>CREATED</code>, <code>run</code> -&gt; <code>RUNNING</code>.<br>
+- Depuis <code>CREATED</code> : <code>start</code> -&gt; <code>RUNNING</code>, <code>rm</code> -&gt; <code>ABSENT</code>.<br>
+- Depuis <code>RUNNING</code> : <code>pause</code> -&gt; <code>PAUSED</code>, <code>stop</code> -&gt; <code>STOPPED</code>, <code>restart</code> -&gt; <code>RUNNING</code>, <code>kill</code> -&gt; <code>STOPPED</code>.<br>
+- Depuis <code>PAUSED</code> : <code>unpause</code> -&gt; <code>RUNNING</code>.<br>
+- Depuis <code>STOPPED</code> : <code>start</code> -&gt; <code>RUNNING</code>, <code>rm</code> -&gt; <code>ABSENT</code>.<br>
+- Si une commande <code>rm</code> est tentée sur <code>RUNNING</code> ou <code>PAUSED</code> sans option force : afficher <code>TRANSITION_INVALIDE: Impossible de supprimer un conteneur actif sans --force (Etat: &lt;ETAT&gt;)</code>.<br>
+- Pour toute autre action invalide : afficher <code>TRANSITION_INVALIDE: Action &lt;cmd&gt; impossible depuis l'etat &lt;ETAT&gt;</code>.<br>
+- Si la transition est valide, afficher :<br>
+<code>&lt;CMD&gt; -&gt; NOUVEL_ETAT: &lt;NOUVEL_ETAT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>create
+start
+pause
+unpause
+stop
+rm</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>create -&gt; NOUVEL_ETAT: CREATED
+start -&gt; NOUVEL_ETAT: RUNNING
+pause -&gt; NOUVEL_ETAT: PAUSED
+unpause -&gt; NOUVEL_ETAT: RUNNING
+stop -&gt; NOUVEL_ETAT: STOPPED
+rm -&gt; NOUVEL_ETAT: ABSENT</pre></div>
+    </div>
+    <p class="lab__note">Cycle de vie complet et nominal d’un conteneur.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Initialiser l’état à ABSENT.</li>
+        <li>Gérer scrupuleusement les conditions de rejet.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="web_nginx 8080:80&#10;api_node 3000:3000&#10;autre_nginx 8080:80">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c4-e2) — Simulateur de redirection de ports (Port Mapping NAT) et conflits
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Publications sur interfaces IP distinctes]
+# Données : db1 127.0.0.1:5432:5432
+# Données : db2 192.168.1.10:5432:5432
+A_COMPLETER
+
+[Cas 2 — Conflit 0.0.0.0 avec IP spécifique]
+# Données : app1 8000:80
+# Données : app2 127.0.0.1:8000:80
+A_COMPLETER
+
+[Cas 3 — Multiples conteneurs sur ports conteneur identiques mais ports hôte distincts]
+# Données : c1 8001:80
+# Données : c2 8002:80
+# Données : c3 8003:80
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de redirection de ports (Port Mapping NAT) et conflits</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la table de translation d’adresses NAT et détecter les collisions de ports hôte.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Formulats de publication :<br>
+- <code>HotePort:ConteneurPort</code> -&gt; IP par défaut <code>0.0.0.0</code>.<br>
+- <code>IP:HotePort:ConteneurPort</code>.<br>
+Règles de validation :<br>
+- Une paire (<code>IP_Hote</code>, <code>HotePort</code>) ne peut être allouée qu'à un seul conteneur. (L'IP <code>0.0.0.0</code> entre en conflit avec n'importe quelle IP spécifique sur le même port).<br>
+- Si le port est libre : enregistrer la règle et afficher :<br>
+  <code>PUBLICATION: &lt;Conteneur&gt; -&gt; NAT: &lt;IP&gt;:&lt;HotePort&gt; =&gt; &lt;ConteneurPort&gt;/tcp (SUCCES)</code><br>
+- S'il y a conflit de port sur l'hôte : afficher :<br>
+  <code>CONFLIT_PORT: &lt;Conteneur&gt; -&gt; Port hote &lt;HotePort&gt; deja reserve par &lt;ConteneurPrecedent&gt; (ECHEC)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>web_nginx 8080:80
+api_node 3000:3000
+autre_nginx 8080:80</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PUBLICATION: web_nginx -&gt; NAT: 0.0.0.0:8080 =&gt; 80/tcp (SUCCES)
+PUBLICATION: api_node -&gt; NAT: 0.0.0.0:3000 =&gt; 3000/tcp (SUCCES)
+CONFLIT_PORT: autre_nginx -&gt; Port hote 8080 deja reserve par web_nginx (ECHEC)</pre></div>
+    </div>
+    <p class="lab__note">Le port 8080 est déjà réservé par le premier conteneur.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un dictionnaire associant (port) ou (ip, port) au conteneur propriétaire.</li>
+        <li>0.0.0.0 écoute sur toutes les interfaces.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="-v db_data:/var/lib/mysql&#10;-v /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro&#10;--tmpfs /tmp">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c4-e3) — Audit de persistance des données : Volumes nommés vs Bind Mounts vs Tmpfs
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Bind mount en lecture seule]
+# Données : -v /var/log/app:/app/logs:ro
+A_COMPLETER
+
+[Cas 2 — Volume nommé avec droit par défaut rw]
+# Données : -v redis_persist:/data
+A_COMPLETER
+
+[Cas 3 — Stockage éphémère tmpfs pour sécurité]
+# Données : --tmpfs /run/secrets
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Audit de persistance des données : Volumes nommés vs Bind Mounts vs Tmpfs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Qualifier la nature, la persistance et les droits d’accès des options de stockage Docker (-v, --mount, --tmpfs).</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Règles d'analyse :<br>
+1. <code>--tmpfs &lt;cible&gt;</code> :<br>
+   - Type : <code>TMPFS</code><br>
+   - Localisation : <code>Memoire vive RAM de l'hote</code><br>
+   - Persistance : <code>VOLATILE (detruit a l'arret du conteneur)</code><br>
+   - Droits : <code>LECTURE_ECRITURE</code><br>
+2. <code>-v &lt;source&gt;:&lt;cible&gt;[:&lt;opt&gt;]</code> :<br>
+   - Si source commence par <code>/</code>, <code>./</code> ou <code>../</code> : Type <code>BIND_MOUNT</code>, Localisation <code>Repertoire specifique de la machine hote</code>.<br>
+   - Sinon : Type <code>VOLUME_NOMME</code>, Localisation <code>Espace reserve du daemon (/var/lib/docker/volumes/)</code>.<br>
+   - Persistance : <code>PERSISTANT (survit a docker rm)</code>.<br>
+   - Droits : <code>LECTURE_SEULE</code> si <code>:ro</code> est spécifié, sinon <code>LECTURE_ECRITURE</code>.<br>
+Afficher :<br>
+<code>STOCKAGE: &lt;entree&gt; -&gt; TYPE: &lt;TYPE&gt; | &lt;LOCALISATION&gt; | &lt;PERSISTANCE&gt; | &lt;DROITS&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>-v db_data:/var/lib/mysql
+-v /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+--tmpfs /tmp</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STOCKAGE: -v db_data:/var/lib/mysql -&gt; TYPE: VOLUME_NOMME | Espace reserve du daemon (/var/lib/docker/volumes/) | PERSISTANT (survit a docker rm) | LECTURE_ECRITURE
+STOCKAGE: -v /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro -&gt; TYPE: BIND_MOUNT | Repertoire specifique de la machine hote | PERSISTANT (survit a docker rm) | LECTURE_SEULE
+STOCKAGE: --tmpfs /tmp -&gt; TYPE: TMPFS | Memoire vive RAM de l'hote | VOLATILE (detruit a l'arret du conteneur) | LECTURE_ECRITURE</pre></div>
+    </div>
+    <p class="lab__note">Distinction formelle des 3 mécanismes de stockage sous Docker.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un chemin absolu ou relatif indique un Bind Mount.</li>
+        <li>Un identifiant sans slash indique un volume Docker nommé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel signal UNIX la commande « docker stop » envoie-t-elle initialement au processus principal du conteneur pour demander un arrêt propre ?</p>
+      <div class="opts">
+        <button class="opt">SIGKILL (9)</button>
+        <button class="opt" data-correct="1">SIGTERM (15)</button>
+        <button class="opt">SIGHUP (1)</button>
+        <button class="opt">SIGINT (2)</button>
+      </div>
+      <div class="q__exp">docker stop envoie SIGTERM (signal 15). Si le conteneur ne s’arrête pas dans le délai de grâce (10 secondes par défaut), Docker émet alors un SIGKILL (signal 9).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il fortement recommandé de créer un réseau bridge personnalisé (docker network create) plutôt que d’utiliser le bridge par défaut « docker0 » ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le bridge par défaut désactive la connexion Internet</button>
+        <button class="opt" data-correct="1">Parce que les réseaux personnalisés intègrent un serveur DNS interne permettant la résolution automatique des conteneurs par leur nom</button>
+        <button class="opt">Parce que le bridge personnalisé est deux fois plus rapide en calcul mathématique</button>
+        <button class="opt">Parce que le bridge par défaut est payant</button>
+      </div>
+      <div class="q__exp">Sur un réseau bridge personnalisé, Docker active un serveur DNS embarqué (127.0.0.11) qui résout automatiquement les noms de conteneurs en adresses IP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où sont physiquement stockées les données d’un Volume Nommé Docker (ex: « docker volume create mon_vol ») sur un système Linux ?</p>
+      <div class="opts">
+        <button class="opt">Dans le BIOS de la carte mère</button>
+        <button class="opt" data-correct="1">Dans le répertoire interne géré par le démon Docker à l’emplacement « /var/lib/docker/volumes/ »</button>
+        <button class="opt">Dans le dossier Téléchargements de l’utilisateur</button>
+        <button class="opt">Sur une clé USB externe</button>
+      </div>
+      <div class="q__exp">Docker isole les volumes nommés sous /var/lib/docker/volumes/&lt;nom_volume&gt;/_data, préservant ainsi les données en toute sécurité même si les conteneurs sont supprimés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle option de la commande « docker run » permet de mapper le port 8080 de la machine hôte vers le port 80 à l’intérieur du conteneur ?</p>
+      <div class="opts">
+        <button class="opt">-v 8080:80</button>
+        <button class="opt" data-correct="1">-p 8080:80</button>
+        <button class="opt">--expose 8080:80</button>
+        <button class="opt">-net 8080:80</button>
+      </div>
+      <div class="q__exp">L’option -p 8080:80 (ou --publish) ordonne à Docker de configurer les règles iptables pour transférer les paquets arrivant sur le port 8080 de l’hôte vers le port 80 du conteneur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet d’ouvrir un terminal interactif dans un conteneur déjà en cours d’exécution sans l’arrêter ni le redémarrer ?</p>
+      <div class="opts">
+        <button class="opt">docker run -it mon_conteneur</button>
+        <button class="opt" data-correct="1">docker exec -it mon_conteneur /bin/sh</button>
+        <button class="opt">docker attach mon_conteneur</button>
+        <button class="opt">docker inspect mon_conteneur</button>
+      </div>
+      <div class="q__exp">docker exec lance un nouveau processus fils dans les namespaces du conteneur existant, ce qui est idéal pour inspecter l’environnement en direct.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que caractérise un montage de type « Tmpfs » (--tmpfs /tmp) sous Docker ?</p>
+      <div class="opts">
+        <button class="opt">Les données sont stockées sur un serveur distant en Chine</button>
+        <button class="opt" data-correct="1">Les données sont écrites exclusivement dans la mémoire vive RAM de l’hôte et disparaissent immédiatement à l’arrêt du conteneur</button>
+        <button class="opt">Les données sont compressées au format MP3</button>
+        <button class="opt">Le disque dur est formaté</button>
+      </div>
+      <div class="q__exp">Tmpfs crée un point de montage en RAM pure : les écritures sont ultra-rapides et aucune trace n’est conservée sur le disque physique lors de l’extinction du conteneur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment rendre un point de montage Bind Mount strictement en lecture seule afin que le conteneur ne puisse pas modifier les fichiers hôtes ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En ajoutant le suffixe « :ro » à la fin de la déclaration (ex: -v /etc/config:/app/config:ro)</button>
+        <button class="opt">En supprimant le fichier après l’avoir monté</button>
+        <button class="opt">En désactivant le pare-feu Linux</button>
+        <button class="opt">En passant le conteneur en mode root</button>
+      </div>
+      <div class="q__exp">L’option :ro (read-only) indique au noyau Linux de monter le répertoire avec l’attribut de lecture seule, empêchant tout conteneur compromis d’altérer les fichiers de l’hôte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet de visualiser en direct les flux stdout et stderr émis par une application conteneurisée ?</p>
+      <div class="opts">
+        <button class="opt">docker view</button>
+        <button class="opt" data-correct="1">docker logs -f mon_conteneur</button>
+        <button class="opt">docker journal</button>
+        <button class="opt">docker echo</button>
+      </div>
+      <div class="q__exp">docker logs affiche la journalisation capturée par le driver de logs de Docker, et le drapeau -f (follow) permet de suivre le flux continu en temps réel.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de créer un volume pour une base de données : toutes les données sont perdues au prochain docker rm.</li>
+      <li>Utiliser le bridge par défaut et tenter de contacter un conteneur par son nom : la résolution DNS échoue silencieusement.</li>
+      <li>Utiliser -p 80:80 sur plusieurs conteneurs simultanément, provoquant un conflit de port hôte bloquant.</li>
+      <li>Donner un accès Bind Mount en lecture-écriture à la racine de l’hôte physique (ex: -v /:/host:rw).</li>
+      <li>Faire un docker kill systématique au lieu de docker stop, corrompant les transactions de base de données en cours.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Déploiement d’un Service avec Réseau et Volume Sécurisé</div>
+    <ol>
+      <li>Étape 1 — Créer un réseau bridge dédié : Isoler le trafic en exécutant « docker network create app-network ».</li>
+      <li>Étape 2 — Créer un volume de stockage persistant : Déclarer un volume managé indépendant avec « docker volume create db-data ».</li>
+      <li>Étape 3 — Instancier le conteneur de base de données : Lancer le conteneur sur le réseau privé avec « docker run -d --name database --network app-network -v db-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:15-alpine ».</li>
+      <li>Étape 4 — Instancier l’application cliente : Lancer l’API sur le même réseau « docker run -d --name api --network app-network -p 8080:8080 -e DB_HOST=database mon-api:v1 ».</li>
+      <li>Étape 5 — Valider la résolution DNS et l’accès réseau : Tester la liaison avec « docker exec -it api ping -c 2 database ».</li>
+      <li>Étape 6 — Tester la résilience des données : Supprimer puis recréer le conteneur de base de données et constater que l’intégralité des données est intacte grâce au volume db-data.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un conteneur transite entre les états Created, Running, Paused, Stopped et Removed.</li>
+      <li>docker stop envoie un SIGTERM avec 10s de délai de grâce ; docker kill foudroie immédiatement le processus par SIGKILL.</li>
+      <li>La publication de ports (-p Host:Conteneur) configure les tables NAT iptables de la machine hôte.</li>
+      <li>Les réseaux bridge personnalisés activent un serveur DNS interne à 127.0.0.11 permettant la résolution automatique par nom.</li>
+      <li>Les volumes nommés sont gérés par Docker et garantissent la persistance des bases de données lors des mises à niveau.</li>
+      <li>Les Bind Mounts exposent directement le système de fichiers de l’hôte, idéaux en développement mais risqués en production.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends pourquoi supprimer un conteneur non persistant efface toutes ses données locales.</li>
+      <li>Je sais expliquer la différence entre SIGTERM (15) et SIGKILL (9).</li>
+      <li>Je sais comment fonctionne la translation d’adresse NAT lors de l’usage du flag -p.</li>
+      <li>Je sais pourquoi un réseau bridge personnalisé est indispensable pour que deux conteneurs communiquent par leur nom.</li>
+      <li>Je sais différencier les 3 solutions de stockage : Volume nommé, Bind Mount et Tmpfs.</li>
+      <li>Je sais entrer dans un conteneur en cours d’exécution avec docker exec -it.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Cycle de vie (Created, Running, Paused, Stopped)</li><li>Signaux UNIX SIGTERM (15) vs SIGKILL (9)</li><li>Publication de ports et redirection NAT iptables</li><li>Réseau Bridge par défaut vs personnalisé</li><li>Serveur DNS interne Docker (127.0.0.11)</li><li>Volumes nommés gérés (/var/lib/docker/volumes)</li><li>Bind Mounts et mode lecture seule (:ro)</li><li>Stockage éphémère en mémoire vive Tmpfs</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la différence SIGTERM/SIGKILL, les volumes nommés et le port mapping.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes connaissances du réseau et du stockage. Approfondissez le DNS interne et les Bind Mounts.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise opérationnelle du cycle de vie et de la persistance sous Docker.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous gérez réseaux, volumes et conteneurs avec le niveau de rigueur d’un ingénieur DevOps chevronné.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Orchestration avec Docker Compose <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

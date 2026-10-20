@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Types de données et création de tables | SQL B1</title>
+<meta name="description" content="Chapitre 2 du cours de bases de données et SQL B1 : Types numériques, chaînes CHAR et VARCHAR, types temporels, CREATE TABLE, INSERT, clés. Théorie, requêtes commentées, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-sql/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Types de données et création de tables | SQL B1">
+<meta property="og:description" content="Chapitre 2 du cours de bases de données et SQL B1 : Types numériques, chaînes CHAR et VARCHAR, types temporels, CREATE TABLE, INSERT, clés. Théorie, requêtes commentées, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B1</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Types de données et création de tables</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La base du parc auto ne se remplit pas à la main : on la décrit d’abord. Chaque colonne reçoit un type — un entier, une chaîne, une date — et ce choix engage tout : la place en mémoire, les comparaisons possibles, les erreurs évitées. Déclarer « prix » en texte n’affiche pas d’erreur aujourd’hui, mais interdit toute moyenne demain.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>choisir le type adapté pour une colonne : numérique, chaîne, temporel ;</li>
+      <li>distinguer CHAR et VARCHAR et savoir quand préférer l’un ;</li>
+      <li>écrire une instruction CREATE TABLE complète avec clés ;</li>
+      <li>insérer des lignes avec INSERT et comprendre le rôle de NULL.</li>
+    </ol>
+  </div>
+
+<h2>1. Les types numériques</h2>
+
+<p>Pour les entiers, MySQL propose une gamme de tailles croissantes :</p>
+<table>
+    <tr><th>Type</th><th>Plage (signé)</th><th>Usage typique</th></tr>
+    <tr><td>TINYINT</td><td>−128 à 127</td><td>un âge, un petit compteur</td></tr>
+    <tr><td>SMALLINT</td><td>≈ −32 700 à 32 700</td><td>une année, une quantité</td></tr>
+    <tr><td>MEDIUMINT</td><td>≈ −8,4 M à 8,4 M</td><td>un identifiant interne</td></tr>
+    <tr><td>INT</td><td>≈ −2,1 Md à 2,1 Md</td><td>un prix en francs, un kilométrage</td></tr>
+    <tr><td>BIGINT</td><td>≈ ±9,2 × 10¹⁸</td><td>des identifiants mondiaux, des horodatages</td></tr>
+  </table>
+<p>Deux précisions du support : la notation <code>INT(x)</code> ne change <strong>pas</strong> la capacité de stockage, seulement l’affichage (avec <code>ZEROFILL</code>, elle complète de zéros). Pour les décimaux, on utilise <code>DECIMAL(p, s)</code> — précision p, s décimales — pour l’argent, et <code>FLOAT</code>/<code>DOUBLE</code> pour les mesures scientifiques.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’argent en FLOAT</div>
+    <p><code>FLOAT</code> et <code>DOUBLE</code> arrondissent par nature : une somme de prix peut y perdre un franc. Pour toute valeur monétaire, le type exact est <strong>DECIMAL</strong> — c’est le seul qui calcule en décimal exact, comme un humain pose l’addition.</p>
+  </div>
+
+<h2>2. CHAR et VARCHAR</h2>
+
+<p>Les chaînes de longueur fixe ou variable s’écrivent avec un paramètre de taille :</p>
+<table>
+    <tr><th>Stocké</th><th>CHAR(5)</th><th>VARCHAR(5)</th></tr>
+    <tr><td>« OK »</td><td>« OK&nbsp;&nbsp;&nbsp; » (complété d’espaces)</td><td>« OK » (tel quel)</td></tr>
+    <tr><td>Mémoire</td><td>toujours 5 caractères</td><td>le contenu + 1 octet de longueur</td></tr>
+  </table>
+<p><strong>CHAR(x)</strong> réserve toujours x caractères et complète les plus courts d’espaces : il convient quand la longueur est constante — un code de marque sur trois lettres, un code postal. <strong>VARCHAR(x)</strong> stocke jusqu’à x caractères, sans remplissage : c’est le choix par défaut pour un nom, une adresse, un immatriculé.</p>
+<p>Le support cite aussi les grands textes (<code>TEXT</code>) et les binaires (<code>BLOB</code>) pour les contenus longs — un commentaire, une image stockée en base.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Fixe = CHAR, variable = VARCHAR »</div>
+    <p>Un code de pays à trois lettres naît et meurt à trois lettres : <strong>CHAR(3)</strong>. Un nom de famille va de une lettre à vingt : <strong>VARCHAR(20)</strong>. Se tromper ne casse rien, mais gaspille — et un CHAR qui complète d’espaces surprend les comparaisons.</p>
+  </div>
+
+<h2>3. Les types temporels</h2>
+
+<p>Cinq types pour le temps en MySQL :</p>
+<table>
+    <tr><th>Type</th><th>Contenu</th><th>Format littéral</th></tr>
+    <tr><td>DATE</td><td>une date</td><td>'AAAA-MM-JJ'</td></tr>
+    <tr><td>TIME</td><td>une heure</td><td>'HH:MM:SS'</td></tr>
+    <tr><td>DATETIME</td><td>date et heure</td><td>'AAAA-MM-JJ HH:MM:SS'</td></tr>
+    <tr><td>TIMESTAMP</td><td>date et heure (fuseau géré)</td><td>idem DATETIME</td></tr>
+    <tr><td>YEAR</td><td>une année</td><td>'AAAA' ou AAAA</td></tr>
+  </table>
+<p>Le format littéral n’est pas décoratif : <code>'2014-11-21'</code> est compris partout, mais <code>'21/11/2014'</code> est rejeté ou mal interprété selon le SGBD. On écrit toujours les dates en SQL <strong>année, mois, jour</strong>.</p>
+<p>Le parc auto du support utilise <code>DATETIME</code> pour la mise en circulation — d’où des valeurs comme <code>'2000-01-21 08:00:00'</code> — et des comparaisons directes sont possibles : <code>WHERE datecirc &lt; '2015-01-01'</code>.</p>
+
+<h2>4. CREATE TABLE et INSERT</h2>
+
+<p>La description d’une table passe par <code>CREATE TABLE</code> : chaque colonne reçoit un nom, un type, et des contraintes optionnelles (<code>NOT NULL</code>, <code>PRIMARY KEY</code>).</p>
+<pre><code>CREATE TABLE IF NOT EXISTS Voiture (
+    immat     VARCHAR(10) PRIMARY KEY,
+    marque    VARCHAR(20) NOT NULL,
+    moteur    VARCHAR(10) NOT NULL,
+    datecirc  DATETIME,
+    km        INT DEFAULT 0,
+    pxachat   INT NOT NULL,
+    nbreplace TINYINT NOT NULL
+);</code></pre>
+<p>Les lignes arrivent ensuite par <code>INSERT INTO</code>, en nommant les colonnes renseignées — celles qui manquent reçoivent NULL ou leur valeur par défaut :</p>
+<pre><code>INSERT INTO Voiture (immat, marque, moteur, datecirc, km, pxachat, nbreplace)
+VALUES ('TG-3733-AC', 'TOYOTA', 'HYBRIDE', '2010-01-21 18:00:00', 0, 20000000, 7);
+
+-- plusieurs lignes d’un coup :
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+('TOY', 'TOYOTA', 'JAPON'),
+('BMW', 'BMW', 'ALLEMAGNE');</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le simulateur du cours</div>
+    <p>La page <a href="../atelier.html">atelier — simulateur SQL</a> contient ce schéma et ces données déjà chargés : chaque requête des chapitres suivants s’y exécute en réel. Le moteur est SQLite, qui accepte les mêmes requêtes SELECT que MySQL pour tout ce cours.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="sq-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;immat text&#10;km entier&#10;pxachat entier&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sq-c2-e1) — Le type SQL de chaque colonne
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les sept colonnes]
+# Données : 7
+# Données : immat text
+# Données : marque text
+# Données : moteur text
+# Données : datecirc text
+# Données : km entier
+# Données : pxachat entier
+# Données : nbreplace entier
+A_COMPLETER
+
+[Cas 2 — Trois erreurs de type]
+# Données : 4
+# Données : km text
+# Données : immat entier
+# Données : nbreplace text
+# Données : datecirc text
+A_COMPLETER
+
+[Cas 3 — Schema Voiture]
+# Données : 7
+# Données : nbreplace entier
+# Données : datecirc text
+# Données : pxachat entier
+# Données : moteur text
+# Données : km entier
+# Données : marque text
+# Données : immat text
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Le type SQL de chaque colonne</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider le type du schéma parc_auto colonne par colonne.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « colonne type » : type est un code parmi <code>text</code>, <code>entier</code> ou <code>date</code>. Schéma du support : immat, marque, moteur et datecirc → <code>text</code> (datecirc stocké TEXT sous SQLite, format AAAA-MM-JJ qui se trie comme une chaîne) ; km, pxachat et nbreplace → <code>entier</code>. Pour chaque ligne il Indiquez <code>colonne : OK</code> ou <code>colonne : ERREUR</code>, puis <code>corrects : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+immat text
+km entier
+pxachat entier
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>immat : OK
+km : OK
+pxachat : OK
+corrects : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur la colonne : immat/marque/moteur/datecirc → text, km/pxachat/nbreplace → entier.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sq-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="2&#10;TG-1111-AA TOYOTA DIESEL 0 5000000 5&#10;- BMW ESSENCE 0 10000000 5&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sq-c2-e2) — INSERT : ligne conforme ou rejetée ?
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Trois rejets distincts]
+# Données : 3
+# Données : TG-2222-AA RENAULT DIESEL 0 15000000 5
+# Données : TG-3333-AA - DIESEL 0 15000000 5
+# Données : TG-4444-AA PEUGEOT ESSENCE dix 15000000 5
+A_COMPLETER
+
+[Cas 2 — Lot du stage]
+# Données : 4
+# Données : TG-5555-AA KIA ESSENCE 0 50000000 7
+# Données : TG-6666-AA MG ESSENCE 0 20000000 5
+# Données : TG-7777-AA MAZDA ESSENCE - 17000000 5
+# Données : TG-8888-AA NISSAN ESSENCE 0 10000000 cinq
+A_COMPLETER
+
+[Cas 3 — Reprise du support]
+# Données : 3
+# Données : TG-9999-AA TOYOTA HYBRIDE 0 25000000 7
+# Données : - - - 0 0 0
+# Données : TG-1212-AA HYUNDAI ELECTRIQUE 0 23000000 5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — INSERT : ligne conforme ou rejetée ?</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décider si une insertion respecte les contraintes NOT NULL et PRIMARY KEY.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « immat marque moteur km pxachat nbreplace ». Contraintes de Voiture : immat (clé primaire), marque et moteur (NOT NULL) obligatoires — la valeur <code>-</code> signifie absent ; km, pxachat et nbreplace, entiers. Règles de refus : clé primaire absente, marque ou moteur absent, valeur non numérique dans km/pxachat/nbreplace. Pour chaque ligne il Indiquez <code>immat : inseree</code> ou <code>immat : rejetee (raison)</code> avec raison = <code>cle</code>, <code>obligatoire</code> ou <code>type</code> (dans cet ordre de priorité), puis <code>insertions : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
+TG-1111-AA TOYOTA DIESEL 0 5000000 5
+- BMW ESSENCE 0 10000000 5
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TG-1111-AA : inseree
+- : rejetee (cle)
+insertions : 1/2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Contrôle 1 : immat = "-" → rejetee (cle). Contrôle 2 : marque = "-" ou moteur = "-" → rejetee (obligatoire).</li>
+        <li>Contrôle 3 : case sur km, pxachat, nbreplace — tout motif contenant un caractère autre que 0-9 → rejetee (type).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sq-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="create table&#10;colonne type&#10;cle primaire&#10;insert donnees&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sq-c2-e3) — L’ordre des clauses CREATE TABLE
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Deux dernières inversées]
+# Données : create table
+# Données : colonne type
+# Données : insert donnees
+# Données : cle primaire
+A_COMPLETER
+
+[Cas 2 — Objets échangés]
+# Données : create type
+# Données : colonne table
+# Données : cle primaire
+# Données : insert donnees
+A_COMPLETER
+
+[Cas 3 — Ordre mélangé]
+# Données : colonne type
+# Données : create table
+# Données : cle primaire
+# Données : insert donnees
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — L’ordre des clauses CREATE TABLE</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider l’ordre du cycle : CREATE TABLE, colonnes, INSERT.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Pour chaque ligne il Indiquez <code>etape N : OK</code> quand l’étape ET son objet sont justes, sinon <code>etape N : NON</code>, puis <code>etapes correctes : X/4</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>create table
+colonne type
+cle primaire
+insert donnees
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>etape 1 : OK
+etape 2 : OK
+etape 3 : OK
+etape 4 : OK
+etapes correctes : 4/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le numéro : 1 → create/table, 2 → colonne/type, 3 → cle/primaire, 4 → insert/donnees.</li>
+        <li>Les deux conditions doivent être vraies en même temps : etape ET objet.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel type choisir pour un prix en francs ?</p>
+      <div class="opts">
+        <button class="opt">FLOAT</button>
+        <button class="opt" data-correct="1">DECIMAL</button>
+        <button class="opt">VARCHAR</button>
+      </div>
+      <div class="q__exp">DECIMAL calcule en décimal exact ; FLOAT arrondit et fausse l’argent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">INT(2) limite-t-il la valeur à deux chiffres ?</p>
+      <div class="opts">
+        <button class="opt">Oui</button>
+        <button class="opt" data-correct="1">Non, seule l’affichage change</button>
+        <button class="opt">Cela dépend du SGBD</button>
+      </div>
+      <div class="q__exp">INT(x) ne change pas le stockage, seulement l’affichage éventuel avec ZEROFILL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un code de marque sur 3 lettres : quel type ?</p>
+      <div class="opts">
+        <button class="opt">VARCHAR(3)</button>
+        <button class="opt" data-correct="1">CHAR(3)</button>
+        <button class="opt">TEXT</button>
+      </div>
+      <div class="q__exp">Longueur constante : CHAR(3), qui réserve exactement la place.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment s’écrit le 21 novembre 2014 en littéral SQL ?</p>
+      <div class="opts">
+        <button class="opt">'21/11/2014'</button>
+        <button class="opt" data-correct="1">'2014-11-21'</button>
+        <button class="opt">'11-21-2014'</button>
+      </div>
+      <div class="q__exp">Toujours année, mois, jour : AAAA-MM-JJ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans INSERT INTO … (colonnes) VALUES (…), les colonnes non citées reçoivent…</p>
+      <div class="opts">
+        <button class="opt">une erreur</button>
+        <button class="opt" data-correct="1">NULL ou leur valeur par défaut</button>
+        <button class="opt">des zéros</button>
+      </div>
+      <div class="q__exp">C’est le sens du nommage explicite des colonnes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait IF NOT EXISTS dans CREATE TABLE ?</p>
+      <div class="opts">
+        <button class="opt">Vide la table si elle existe</button>
+        <button class="opt" data-correct="1">Évite une erreur si la table existe déjà</button>
+        <button class="opt">Crée la table en mémoire</button>
+      </div>
+      <div class="q__exp">L’instruction devient sans effet (et sans erreur) si la table existe déjà.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Argent en FLOAT/DOUBLE</strong> : arrondis invisibles qui faussent totaux et moyennes.</li>
+      <li><strong>Dates en format local</strong> : '21/11/2014' n’est pas un littéral SQL valide.</li>
+      <li><strong>CHAR confondu avec VARCHAR</strong> : les espaces de complément surprennent les comparaisons.</li>
+      <li><strong>Clé primaire oubliée</strong> : deux voitures avec la même immatriculation deviennent possibles.</li>
+      <li><strong>INSERT sans colonnes nommées</strong> : tout repose sur l’ordre des colonnes, fragile au moindre changement.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Déclarer une table proprement</div>
+    <ol>
+      <li><strong>Lister les colonnes</strong> et leur contenu réel (est-ce un nombre, un texte, une date ?).</li>
+      <li><strong>Choisir les types</strong> : DECIMAL pour l’argent, CHAR pour le fixe, VARCHAR pour le variable.</li>
+      <li><strong>Poser la clé primaire</strong> et les contraintes NOT NULL indispensables.</li>
+      <li><strong>Insérer des lignes de test</strong> en nommant toujours les colonnes.</li>
+      <li><strong>Vérifier</strong> avec SELECT * que la structure et les NULL sont conformes.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Entiers : TINYINT à BIGINT selon la plage ; INT(x) ne change que l’affichage.</li>
+      <li>L’argent se stocke en DECIMAL, jamais en FLOAT.</li>
+      <li>CHAR pour la longueur fixe (complétée d’espaces), VARCHAR pour la longueur variable.</li>
+      <li>Dates au format 'AAAA-MM-JJ' ; DATETIME ajoute l’heure.</li>
+      <li>CREATE TABLE décrit colonnes, types et clés ; INSERT nomme les colonnes renseignées.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis un type numérique adapté et je justifie DECIMAL pour l’argent.</li>
+      <li>Je distingue CHAR et VARCHAR avec un exemple de chaque.</li>
+      <li>J’écris un CREATE TABLE complet avec clé primaire.</li>
+      <li>J’insère des lignes en nommant les colonnes et je prévois les NULL.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>TINYINT</li><li>INT</li><li>DECIMAL</li><li>FLOAT</li><li>CHAR</li><li>VARCHAR</li><li>DATE</li><li>DATETIME</li><li>CREATE TABLE</li><li>INSERT</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Relis le tableau des types et associe chaque colonne du parc à son type.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Réécris CREATE TABLE Voiture sans regarder le cours.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : insère trois voitures dans le simulateur et vérifie les NULL.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 3, les requêtes SELECT.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Interroger : SELECT, WHERE, tri et restrictions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

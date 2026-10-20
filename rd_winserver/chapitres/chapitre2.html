@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Haute disponibilité | Windows Server B2</title>
+<meta name="description" content="Chapitre 2 du cours Windows Server B2 : Définition, trois piliers (redondance, failover, supervision), SLA, load balancer et HA virtualisée. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_winserver/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Haute disponibilité | Windows Server B2">
+<meta property="og:description" content="Chapitre 2 du cours Windows Server B2 : Définition, trois piliers (redondance, failover, supervision), SLA, load balancer et HA virtualisée. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_winservernav"><div class="rd_winservernav__in">
+  <a class="rd_winservernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_winservernav__sep" aria-hidden="true">/</span>
+  <a class="rd_winservernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B2</a>
+  <div class="rd_winservernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_winservernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_winserverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Haute disponibilité</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pour une banque, un hôpital ou une boutique en ligne, chaque minute d’arrêt coûte. La haute disponibilité organise le système pour qu’une panne d’un composant ne devienne pas une panne du service : on duplique, on surveille, on bascule.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir la haute disponibilité et son objectif ;</li>
+      <li>expliquer les trois piliers : redondance, failover, supervision ;</li>
+      <li>lire un taux de disponibilité (SLA) et son indisponibilité annuelle ;</li>
+      <li>décrire la HA dans un environnement virtualisé.</li>
+    </ol>
+  </div>
+
+<h2>1. Définition et objectif</h2>
+
+<p>La <strong>haute disponibilité</strong> (HA, <em>High Availability</em>) regroupe les mécanismes et configurations qui permettent à un système de <strong>continuer à fonctionner malgré la panne d’un composant</strong> — serveur, disque, réseau.</p>
+<p>L’objectif : minimiser, voire éviter, les interruptions de service, surtout pour les applications critiques. On ne cherche pas à empêcher la panne, mais à la rendre invisible pour l’utilisateur.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Disponibilité n’est pas sauvegarde</div>
+    <p>La HA maintient le service pendant une panne ; la sauvegarde permet de <em>revenir en arrière</em> après une perte de données. Les deux se complètent : l’une ne remplace pas l’autre.</p>
+  </div>
+
+<h2>2. Les trois piliers</h2>
+
+<p>La haute disponibilité repose sur trois mécanismes complémentaires :</p>
+<ul>
+  <li><strong>Redondance</strong> : dupliquer les composants critiques (serveurs, disques, alimentations, liens réseau) pour supprimer le <strong>point unique de défaillance</strong>.</li>
+  <li><strong>Failover (basculement)</strong> : transférer automatiquement l’activité d’un composant défaillant vers un composant redondant, sans intervention humaine.</li>
+  <li><strong>Supervision (monitoring)</strong> : surveiller en temps réel l’état des ressources pour détecter les anomalies et déclencher le basculement.</li>
+</ul>
+<p>Exemple : deux serveurs web en parallèle derrière un <strong>load balancer</strong>. Si l’un tombe, le load balancer détecte l’échec et redirige les utilisateurs vers l’autre — sans interruption perceptible.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Des outils de supervision</div>
+    <p>Des solutions comme <strong>Zabbix</strong> ou <strong>Nagios</strong> surveillent constamment la disponibilité des serveurs et alertent, ou déclenchent une action, dès qu’une panne est détectée.</p>
+  </div>
+
+<h2>3. Les niveaux de disponibilité (SLA)</h2>
+
+<p>La disponibilité s’exprime en pourcentage par an. Plus il y a de « 9 », plus l’indisponibilité tolérée est courte — et plus l’infrastructure coûte cher.</p>
+<table><thead><tr><th>Disponibilité</th><th>Indisponibilité / an</th></tr></thead><tbody>
+<tr><td>99 %</td><td>3 jours 15 h 36 min</td></tr>
+<tr><td>99,9 %</td><td>8 h 45 min 36 s</td></tr>
+<tr><td>99,99 %</td><td>52 min 34 s</td></tr>
+<tr><td>99,999 %</td><td>≈ 5 min 15 s</td></tr>
+</tbody></table>
+<p>Chaque « 9 » supplémentaire est un saut de complexité : redondance, supervision et procédures doivent suivre.</p>
+
+<h2>4. La HA virtualisée</h2>
+
+<p>Dans un environnement comme <strong>Proxmox</strong> ou <strong>VMware vSphere</strong>, on regroupe plusieurs hôtes en <strong>cluster</strong>. Les machines virtuelles peuvent alors être redémarrées automatiquement sur un autre hôte en cas de panne matérielle.</p>
+<p>Si un hyperviseur tombe, ses VM redémarrent ailleurs selon les règles HA configurées. La haute disponibilité devient une propriété de l’infrastructure, plus seulement de l’application.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> La panne est prévue, pas subie</div>
+    <p>On ne parie pas sur la fiabilité d’un composant : on admet qu’il tombera un jour et on prépare automatiquement son remplacement. C’est le renversement de perspective de la HA.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ws2-c2-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="3&#10;1">
+  <script type="text/plain" data-lab-starter>$total = [int][Console]::In.ReadLine()
+$enPanne = [int][Console]::In.ReadLine()
+
+$actifs = $total - $enPanne
+
+# À compléter : afficher "actifs : X", puis "service : maintenu"
+# ou "service : interrompu" selon le nombre de nœuds restants.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Nœuds encore actifs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la capacité restante après une panne et décider si le service tient.</p>
+    <div class="lab__brief"><p>Le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds <strong>en panne</strong>. Affichez d’abord <code>actifs : X</code> (nœuds restants), puis <code>service : maintenu</code> s’il reste au moins un nœud, sinon <code>service : interrompu</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>actifs : 2
+service : maintenu</pre></div>
+    </div>
+    <p class="lab__note">Trois nœuds, un en panne.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le nombre de nœuds restants vaut $total - $enPanne.</li>
+        <li>Affichez sur deux lignes : Write-Output "actifs : $actifs" puis la ligne d’état.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c2-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="3&#10;1200">
+  <script type="text/plain" data-lab-starter>$serveurs = [int][Console]::In.ReadLine()
+$requetes = [int][Console]::In.ReadLine()
+
+# À compléter : calculer la charge entière par serveur, puis afficher
+# "charge : X req/s".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Charge par serveur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Répartir un volume de requêtes entre plusieurs serveurs actifs.</p>
+    <div class="lab__brief"><p>Le script lit le nombre de <strong>serveurs</strong>, puis le nombre total de <strong>requêtes</strong> à répartir. Affichez <code>charge : X req/s</code> où <code>X</code> est le nombre entier de requêtes par serveur (division entière).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1200</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>charge : 400 req/s</pre></div>
+    </div>
+    <p class="lab__note">1200 requêtes sur 3 serveurs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La division entière s’obtient avec [math]::Floor($requetes / $serveurs).</li>
+        <li>Enveloppez le résultat dans [int] pour obtenir un entier propre.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c2-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="3&#10;info&#10;critique&#10;warning">
+  <script type="text/plain" data-lab-starter>$n = [int][Console]::In.ReadLine()
+$critiques = 0
+for ($i = 0; $i -lt $n; $i++) {
+    $sev = [Console]::In.ReadLine()
+    # À compléter : incrémenter $critiques si $sev vaut "critique".
+}
+
+# À compléter : afficher "critiques : X" puis l'état "alerte" ou "normal".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyse des alertes de supervision</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir des événements et déclencher une alerte au bon seuil.</p>
+    <div class="lab__brief"><p>Le script lit un entier <code>n</code>, puis <code>n</code> niveaux de gravité (<code>info</code>, <code>warning</code> ou <code>critique</code>). Comptez les événements <strong>critiques</strong>, affichez <code>critiques : X</code>, puis <code>etat : alerte</code> s’il y en a au moins un, sinon <code>etat : normal</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+info
+critique
+warning</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>critiques : 1
+etat : alerte</pre></div>
+    </div>
+    <p class="lab__note">Un seul événement critique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La comparaison de chaînes utilise -eq : ($sev -eq "critique").</li>
+        <li>Affichez $critiques puis testez ($critiques -gt 0) pour choisir l’état.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que vise la haute disponibilité ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Maintenir le service malgré une panne</button>
+        <button class="opt">Restaurer des fichiers</button>
+        <button class="opt">Accélérer le réseau</button>
+      </div>
+      <div class="q__exp">Elle organise la continuité de service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Citez un pilier de la HA.</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La redondance</button>
+        <button class="opt">La compression</button>
+        <button class="opt">Le chiffrement</button>
+      </div>
+      <div class="q__exp">Redondance, failover et supervision sont les trois piliers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que supprime la redondance ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le point unique de défaillance</button>
+        <button class="opt">Les sauvegardes</button>
+        <button class="opt">Les utilisateurs</button>
+      </div>
+      <div class="q__exp">On duplique pour qu’aucun composant soit seul.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait le failover ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Bascule automatiquement l’activité</button>
+        <button class="opt">Copie les données</button>
+        <button class="opt">Éteint le serveur</button>
+      </div>
+      <div class="q__exp">L’activité passe au composant redondant, sans intervention.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert la supervision ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Détecter les anomalies et déclencher la bascule</button>
+        <button class="opt">Ralentir le système</button>
+        <button class="opt">Supprimer les logs</button>
+      </div>
+      <div class="q__exp">Le monitoring observe l’état et alerte ou agit.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie 99,9 % de disponibilité ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">≈ 8 h 45 min d’arrêt par an</button>
+        <button class="opt">Zéro arrêt</button>
+        <button class="opt">Une journée par mois</button>
+      </div>
+      <div class="q__exp">Le tableau SLA donne l’indisponibilité annuelle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait un load balancer ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Répartit les requêtes entre serveurs</button>
+        <button class="opt">Compresse les images</button>
+        <button class="opt">Sauvegarde les bases</button>
+      </div>
+      <div class="q__exp">Il distribue la charge et écarte un serveur en panne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En virtualisation, que permet la HA ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Redémarrer une VM sur un autre hôte</button>
+        <button class="opt">Effacer les snapshots</button>
+        <button class="opt">Changer l’adresse IP</button>
+      </div>
+      <div class="q__exp">Les VM redémarrent automatiquement ailleurs.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre haute disponibilité et sauvegarde.</li>
+      <li>Laisser un composant unique sans redondance (point unique de défaillance).</li>
+      <li>Configurer la redondance sans supervision : personne ne détecte la panne.</li>
+      <li>Croire qu’un SLA élevé se décrète sans infrastructure adaptée.</li>
+      <li>Oublier de tester la bascule : un failover jamais éprouvé peut échouer.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Concevoir un service hautement disponible</div>
+    <ol>
+      <li><strong>Identifier</strong> les points uniques de défaillance du service.</li>
+      <li><strong>Dupliquer</strong> les composants critiques (redondance).</li>
+      <li><strong>Automatiser</strong> la bascule vers le composant de secours.</li>
+      <li><strong>Superviser</strong> en continu pour détecter et déclencher.</li>
+      <li><strong>Tester</strong> la bascule et mesurer le taux de disponibilité obtenu.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La HA maintient le service malgré la panne d’un composant.</li>
+      <li>Trois piliers : redondance, failover, supervision.</li>
+      <li>Un load balancer répartit la charge et écarte un serveur défaillant.</li>
+      <li>Le SLA exprime la disponibilité annuelle (99 % à 99,999 %).</li>
+      <li>En virtualisation, les VM redémarrent automatiquement sur un autre hôte.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je définis la HA et son objectif.</li>
+      <li>Je cite et explique les trois piliers.</li>
+      <li>Je lis un tableau SLA.</li>
+      <li>Je décris la HA d’un cluster virtualisé.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>haute disponibilité</li><li>HA</li><li>redondance</li><li>point unique de défaillance</li><li>failover</li><li>basculement</li><li>supervision</li><li>monitoring</li><li>SLA</li><li>load balancer</li><li>Zabbix</li><li>Nagios</li><li>Proxmox</li><li>vSphere</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les trois piliers de la HA.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la lecture des SLA.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu conçois une redondance supervisée.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : enchaîne sur le clustering, chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Clustering <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique RD WinServer (modules 1 à 5 : sauvegarde, haute disponibilité, maintenance, virtualisation/VMware, snapshots/clones).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

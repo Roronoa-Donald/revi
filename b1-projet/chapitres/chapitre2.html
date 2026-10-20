@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — La base de données | Projet tutoré B1</title>
+<meta name="description" content="Chapitre 2 du cours B1 : La table produits (id, nom, categorie, quantite, prix) ; la classe Database ; connexion avec try/except ; CREATE TABLE IF NOT EXISTS ; les quatre requêtes CRUD ; commit et déconnexion. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-projet/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — La base de données | Projet tutoré B1">
+<meta property="og:description" content="Chapitre 2 du cours B1 : La table produits (id, nom, categorie, quantite, prix) ; la classe Database ; connexion avec try/except ; CREATE TABLE IF NOT EXISTS ; les quatre requêtes CRUD ; commit et déconnexion. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="prnav"><div class="prnav__in">
+  <a class="prnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="prnav__sep" aria-hidden="true">/</span>
+  <a class="prnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-folder"></use></svg> Projet tutoré B1</a>
+  <div class="prnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="prnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="prwrap">
+<p class="crumb"><a href="../index.html">Projet tutoré B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — La base de données</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La classe Database est le pont vers PostgreSQL : elle se connecte, crée la table produits si elle n'existe pas, et offre quatre méthodes CRUD. Chaque méthode vit dans un try/except — parce qu'un serveur éteint, un mot de passe faux ou une requête maladroite ne demandent qu'à arriver.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire la table produits : id SERIAL, nom et categorie VARCHAR, quantite INTEGER, prix DECIMAL(10,2) ;</li>
+      <li>expliquer la connexion : psycopg2.connect, cursor, gestion des erreurs par try/except ;</li>
+      <li>utiliser CREATE TABLE IF NOT EXISTS et comprendre commit ;</li>
+      <li>relier chaque opération CRUD à sa requête : INSERT, SELECT, UPDATE, DELETE ;</li>
+      <li>fermer proprement : cursor.close, connection.close.</li>
+    </ol>
+  </div>
+
+<h2>1. La table produits</h2>
+
+<p>Cinq colonnes : <strong>id</strong> — identifiant unique, clé primaire auto-incrémentée (<code>SERIAL PRIMARY KEY</code>) ; <strong>nom</strong> — VARCHAR(100) NOT NULL ; <strong>categorie</strong> — VARCHAR(50) ; <strong>quantite</strong> — INTEGER NOT NULL ; <strong>prix</strong> — DECIMAL(10,2) NOT NULL. Le <code>CREATE TABLE IF NOT EXISTS</code> rend le premier lancement idempotent : la table ne se recrée pas à chaque démarrage.</p>
+<p>Pourquoi DECIMAL et non FLOAT pour le prix : DECIMAL(10,2) stocke exactement deux décimales — 2500.50 reste 2500.50, sans arrondi binaire. La précision monétaire n'est pas négociable.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « SERIAL compte, VARCHAR écrit, INTEGER compte en stock, DECIMAL coûte »</div>
+    <p>Cinq colonnes, cinq types : la grille attendue à l'examen.</p>
+  </div>
+
+<h2>2. Connexion et gestion des erreurs</h2>
+
+<p>La méthode <code>connecter()</code> appelle <code>psycopg2.connect(host, database, user, password)</code>, récupère un <strong>cursor</strong>, affiche le succès et renvoie True ; en cas d'<code>Error</code>, elle affiche le problème et renvoie False. Ce pattern try/except recommence dans chaque méthode : le programme ne plante jamais, il rapporte.</p>
+<p>Après toute écriture (INSERT, UPDATE, DELETE), la méthode appelle <code>self.connection.commit()</code> : sans commit, PostgreSQL annule la modification à la déconnexion. La <code>deconnecter()</code> ferme le cursor puis la connexion — dans cet ordre.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>SELECT lit : fetchall ; INSERT/UPDATE/DELETE écrivent : commit.</li>
+      <li>Sans commit, la modification est perdue à la fermeture : piège classique.</li>
+      <li>Le try/except renvoie False : l'application continue, elle ne s'arrête pas.</li>
+      <li>CREATE TABLE IF NOT EXISTS : le second lancement ne duplique rien.</li>
+    </ul>
+  </div>
+
+<h2>3. Les quatre requêtes CRUD</h2>
+
+<p><strong>Create</strong> — <code>INSERT INTO produits (nom, categorie, quantite, prix) VALUES (%s, %s, %s, %s)</code> avec les valeurs passées en paramètre ; <strong>Read</strong> — <code>SELECT * FROM produits ORDER BY id</code> puis <code>fetchall()</code> ; <strong>Update</strong> — <code>UPDATE produits SET nom=%s, categorie=%s, quantite=%s, prix=%s WHERE id=%s</code> ; <strong>Delete</strong> — <code>DELETE FROM produits WHERE id=%s</code>.</p>
+<p>Les <code>%s</code> sont des <strong>requêtes paramétrées</strong> : psycopg2 échappe les valeurs. Concaténer du SQL à la main ouvre la porte à l'injection — le paramétrage n'est pas une option, c'est la seule façon.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <ul>
+      <li>Le schéma : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>
+      <li>La connexion : serveur/mdp/base dans l'ordre, sortie au premier ko.</li>
+      <li>Le cycle CRUD : create→insert, read→select, update→update, delete→delete.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="pr-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;id serial&#10;quantite integer&#10;prix decimal&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c2-e1) — La table produits
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les cinq colonnes]
+# Données : 5
+# Données : id serial
+# Données : nom varchar
+# Données : categorie varchar
+# Données : quantite integer
+# Données : prix decimal
+A_COMPLETER
+
+[Cas 2 — Trois erreurs de type]
+# Données : 4
+# Données : id integer
+# Données : quantite serial
+# Données : prix integer
+# Données : nom varchar
+A_COMPLETER
+
+[Cas 3 — Schema complet]
+# Données : 5
+# Données : prix decimal
+# Données : nom varchar
+# Données : id serial
+# Données : categorie varchar
+# Données : quantite integer
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — La table produits</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider le type PostgreSQL de chaque colonne de la table produits.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « colonne type » : type est un code parmi <code>serial</code>, <code>varchar</code>, <code>integer</code> ou <code>decimal</code>. Table du tutoriel : <code>id</code> clé primaire auto-incrémentée → <code>serial</code> ; <code>nom</code> et <code>categorie</code> → <code>varchar</code> ; <code>quantite</code> → <code>integer</code> ; <code>prix</code> → <code>decimal</code> (10,2). Pour chaque ligne il Indiquez <code>colonne : OK</code> ou <code>colonne : ERREUR</code>, puis <code>corrects : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+id serial
+quantite integer
+prix decimal
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>id : OK
+quantite : OK
+prix : OK
+corrects : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur la colonne : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pr-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="serveur ok&#10;mdp ok&#10;base ok&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c2-e2) — Connexion PostgreSQL : oui ou non ?
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Serveur eteint]
+# Données : serveur ko
+# Données : mdp ok
+# Données : base ok
+A_COMPLETER
+
+[Cas 2 — Base absente]
+# Données : serveur ok
+# Données : mdp ok
+# Données : base ko
+A_COMPLETER
+
+[Cas 3 — Double defaut]
+# Données : serveur ko
+# Données : mdp ko
+# Données : base ok
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Connexion PostgreSQL : oui ou non ?</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décider si la connexion peut s'établir et réagir comme la méthode connecter().</p>
+    <div class="lab__brief"><p>La méthode <code>connecter()</code> du tutoriel tente la connexion et renvoie True en cas de succès, False en cas d'échec (exception Error). Analysez chaque ligne proposée « service etat » : service est un code parmi <code>serveur</code>, <code>mdp</code>, <code>base</code> — etat vaut <code>ok</code> ou <code>ko</code>. Si les trois services sont ok, il Indiquez <code>connexion reussie</code> ; dès qu'un service est ko, il Indiquez <code>erreur : service</code> et s'arrête (comme le try/except qui renvoie False au premier problème).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>serveur ok
+mdp ok
+base ok
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>connexion reussie</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Dès que etat vaut ko : echo "erreur : $service" puis exit 0.</li>
+        <li>Si la boucle se termine sans défaut, afficher le verdict de succès.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pr-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="create insert&#10;read select&#10;update update&#10;delete delete&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c2-e3) — L'ordre des opérations SQL
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Dernieres etapes inversees]
+# Données : create insert
+# Données : read select
+# Données : delete delete
+# Données : update update
+A_COMPLETER
+
+[Cas 2 — Requetes echangees]
+# Données : create select
+# Données : read insert
+# Données : update update
+# Données : delete delete
+A_COMPLETER
+
+[Cas 3 — Operations dans le desordre]
+# Données : read select
+# Données : create insert
+# Données : update update
+# Données : delete delete
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — L'ordre des opérations SQL</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Remettre chaque ordre CRUD devant sa requête SQL et valider l'ordre du cycle.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Pour chaque ligne il Indiquez <code>etape N : OK</code> quand l'opération ET sa requête sont justes, sinon <code>etape N : NON</code>, puis <code>etapes correctes : X/4</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>create insert
+read select
+update update
+delete delete
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>etape 1 : OK
+etape 2 : OK
+etape 3 : OK
+etape 4 : OK
+etapes correctes : 4/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le numéro : 1 → create/insert, 2 → read/select, 3 → update/update, 4 → delete/delete.</li>
+        <li>Les deux conditions doivent être vraies en même temps : operation ET sql.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le type de id dans la table produits :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">SERIAL PRIMARY KEY</button>
+        <button class="opt">VARCHAR(100)</button>
+        <button class="opt">INTEGER simple</button>
+      </div>
+      <div class="q__exp">Auto-incrémenté et clé primaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le type du champ prix :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">DECIMAL(10,2)</button>
+        <button class="opt">FLOAT</button>
+        <button class="opt">INTEGER</button>
+      </div>
+      <div class="q__exp">Deux décimales exactes : la précision monétaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La méthode qui renvoie toutes les lignes :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">fetchall()</button>
+        <button class="opt">commit()</button>
+        <button class="opt">execute()</button>
+      </div>
+      <div class="q__exp">Après SELECT, le cursor livre fetchall().</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La méthode qui valide une écriture :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">commit()</button>
+        <button class="opt">fetchall()</button>
+        <button class="opt">close()</button>
+      </div>
+      <div class="q__exp">Sans commit, PostgreSQL annule à la déconnexion.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La requête de suppression :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">DELETE FROM produits WHERE id=%s</button>
+        <button class="opt">DROP produits</button>
+        <button class="opt">REMOVE id</button>
+      </div>
+      <div class="q__exp">Toujours avec WHERE : sinon tout disparaît.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les %s dans les requêtes servent à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">paramétrer et échapper les valeurs</button>
+        <button class="opt">commenter le SQL</button>
+        <button class="opt">compter les lignes</button>
+      </div>
+      <div class="q__exp">Requêtes paramétrées : protection contre l'injection SQL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">CREATE TABLE IF NOT EXISTS garantit…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la création seulement si la table manque</button>
+        <button class="opt">de vider la table</button>
+        <button class="opt">un index automatique</button>
+      </div>
+      <div class="q__exp">Le premier lancement crée, les suivants passent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Ordre de fermeture :</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">cursor puis connection</button>
+        <button class="opt">connection puis cursor</button>
+        <button class="opt">peu importe</button>
+      </div>
+      <div class="q__exp">deconnecter() ferme le cursor, puis la connexion.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Concaténer les valeurs dans le SQL : requêtes paramétrées obligatoires.</li>
+      <li>Oublier commit après INSERT : la ligne n'est pas vraiment écrite.</li>
+      <li>Mettre FLOAT pour le prix : DECIMAL(10,2) est exact, FLOAT arrondit.</li>
+      <li>Supprimer sans WHERE : la table entière disparaît.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — écrire une méthode Database en trois gestes</div>
+    <ol>
+      <li>Ouvrir un try : exécuter la requête paramétrée avec le cursor.</li>
+      <li>Commit si écriture, fetchall si lecture ; renvoyer le résultat ou True.</li>
+      <li>Except Error : afficher le problème, renvoyer False ou [] — jamais de crash.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Table produits : id SERIAL, nom/categorie VARCHAR, quantite INTEGER, prix DECIMAL(10,2).</li>
+      <li>connecter() : psycopg2.connect + cursor, try/except, True/False.</li>
+      <li>Écritures : commit obligatoire ; lectures : fetchall.</li>
+      <li>CRUD : INSERT, SELECT ORDER BY id, UPDATE SET WHERE, DELETE WHERE.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décris la table produits avec ses cinq types.</li>
+      <li>J'explique try/except et commit.</li>
+      <li>J'écris les quatre requêtes CRUD paramétrées.</li>
+      <li>Je ferme cursor puis connexion dans l'ordre.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>SERIAL</strong> : entier auto-incrémenté de PostgreSQL.</li><li><strong>DECIMAL(10,2)</strong> : décimal exact à deux décimales.</li><li><strong>cursor</strong> : objet qui exécute les requêtes et lit les résultats.</li><li><strong>commit</strong> : validation des écritures sur la connexion.</li><li><strong>fetchall</strong> : récupère toutes les lignes d'un SELECT.</li><li><strong>Requête paramétrée</strong> : %s passés séparément, échappés par psycopg2.</li><li><strong>CREATE TABLE IF NOT EXISTS</strong> : création idempotente.</li><li><strong>Error (psycopg2)</strong> : exception attrapée par chaque try/except.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les cinq colonnes et leurs types.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais la connexion et le commit.</div>
+      <div class="bandrow bandrow--good">70–89 % — cible les requêtes paramétrées.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — L'interface Tkinter <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Tutoriel Projet Tutoré — Application de Gestion de Stock » (Python, Tkinter & PostgreSQL, LAWSON Latevi Sena, Collège de Paris - Campus de Lomé, janvier 2026).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

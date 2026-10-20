@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Collections Génériques &amp;amp; Gestion Avancée des Exceptions | C# B2</title>
+<meta name="description" content="Chapitre 4 du cours C# B2 : System.Collections.Generic, List&amp;lt;T&amp;gt;, Dictionary&amp;lt;TKey, TValue&amp;gt;, HashSet&amp;lt;T&amp;gt;, recherche TryGetValue, gestion robuste des erreurs, filtres catch when et contraintes de généricité where T. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/csharp/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Collections Génériques &amp;amp; Gestion Avancée des Exceptions | C# B2">
+<meta property="og:description" content="Chapitre 4 du cours C# B2 : System.Collections.Generic, List&amp;lt;T&amp;gt;, Dictionary&amp;lt;TKey, TValue&amp;gt;, HashSet&amp;lt;T&amp;gt;, recherche TryGetValue, gestion robuste des erreurs, filtres catch when et contraintes de généricité where T. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="csharpnav"><div class="csharpnav__in">
+  <a class="csharpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="csharpnav__sep" aria-hidden="true">/</span>
+  <a class="csharpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C# B2</a>
+  <div class="csharpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="csharpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="csharpwrap">
+<p class="crumb"><a href="../index.html">C# B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Collections Génériques &amp; Gestion Avancée des Exceptions</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un service de microservices bancaires rencontre de multiples incidents d’interruption de service en production : des exceptions non interceptées provoquent l’effondrement de processus entiers suite à des recherches sur des clés absentes dans des tables de hachage, des ressources mémoire restent verrouillées à cause de blocs finally manquants, et des conteneurs non typés obligent à des conversions de types hasardeuses sources de plantages au runtime. L’équipe doit standardiser l’usage des collections génériques de haute performance (List&lt;T&gt;, Dictionary&lt;TKey, TValue&gt;, HashSet&lt;T&gt;), sécuriser les accès aux dictionnaires via TryGetValue, structurer un pipeline de traitement d’exceptions infaillible avec filtres conditionnels when et bloc finally, et verrouiller les types avec des contraintes génériques strictes (where T). Ce chapitre dote les développeurs d’outils fondamentaux de résilience logicielle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>choisir la collection générique optimale (List, Dictionary, HashSet) selon les complexités algorithmiques O(1) vs O(n) ;</li>
+      <li>sécuriser les accès aux dictionnaires via la méthode TryGetValue pour éliminer les KeyNotFoundException ;</li>
+      <li>structurer des blocs try/catch/finally garantissant la libération des ressources critiques ;</li>
+      <li>filtrer sélectivement les exceptions à la volée grâce aux clauses catch when ;</li>
+      <li>déclarer des classes et méthodes génériques contraintes par la clause where T (class, struct, new(), interfaces).</li>
+    </ol>
+  </div>
+
+<h2>1. Collections Génériques : List&lt;T&gt;, Dictionary&lt;TKey, TValue&gt; &amp; HashSet&lt;T&gt;</h2>
+
+<p>L’introduction des génériques dans le framework .NET a révolutionné la manipulation de données en apportant un <strong>typage strict à la compilation</strong>, éliminant tout coût de boxing pour les types valeur et prévenant les erreurs de cast au runtime :</p>
+<table class="table">
+  <thead><tr><th>Collection</th><th>Structure sous-jacente</th><th>Recherche par clé/valeur</th><th>Usage recommandé</th></tr></thead>
+  <tbody>
+    <tr><td><strong>List&lt;T&gt;</strong></td><td>Tableau dynamique indexé</td><td>O(1) par index, O(n) par valeur</td><td>Listes séquentielles ordonnées avec accès par position</td></tr>
+    <tr><td><strong>Dictionary&lt;TKey, TValue&gt;</strong></td><td>Table de hachage associative</td><td>O(1) en moyenne par clé</td><td>Associations clé-valeur avec recherche ultra-rapide</td></tr>
+    <tr><td><strong>HashSet&lt;T&gt;</strong></td><td>Table de hachage d’éléments uniques</td><td>O(1) en moyenne (Contains)</td><td>Ensembles mathématiques, déduplication et tests d’appartenance</td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Sécurisation des accès aux dictionnaires : TryGetValue</div>
+<p>L’accès direct par indexeur <code>dict[cle]</code> est une cause majeure de plantage d’application : si la clé est absente, la CLR lève immédiatement une <code>KeyNotFoundException</code>.<br>La méthode <code>TryGetValue(cle, out var valeur)</code> teste l’existence et extrait la valeur en une seule opération de hachage sans jamais lever d’exception :</p><pre><code class="language-csharp">if (dictionnaire.TryGetValue("ServeurBD", out int port)) {
+    Console.WriteLine($"Port trouvé : {port}");
+} else {
+    Console.WriteLine("Clé absente : valeur par défaut 0 assignée sans crash.");
+}</code></pre>
+  </div>
+
+<h2>2. Gestion Robuste des Exceptions &amp; Filtres catch ... when</h2>
+
+<p>La gestion des erreurs en C# repose sur la hiérarchie <code>System.Exception</code>. Depuis C# 6, les blocs <code>catch</code> peuvent être filtrés avec une clause conditionnelle <code>when</code> :</p>
+<pre><code class="language-csharp">try {
+    EffectuerRequeteReseau();
+} catch (HttpException ex) when (ex.StatusCode == 404) {
+    // Ne capture QUE les erreurs HTTP 404 (Ressource introuvable)
+    JournaliserAlerte("Ressource manquante", ex);
+} catch (HttpException ex) when (ex.StatusCode &gt;= 500) {
+    // Capture sélectivement les pannes d’infrastructure serveur
+    DeclencherBasculementSecours();
+} catch (Exception ex) {
+    // Filet de capture générique final
+    JournaliserCrashInattendu(ex);
+} finally {
+    // Exécuté dans TOUS les cas (succès ou échec)
+    FermerConnexionsActives();
+}</code></pre>
+<p>Avantage déterminant de la clause <code>when</code> : contrairement à un <code>if</code> placé à l’intérieur du bloc catch, la clause <code>when</code> évalue la condition <em>sans dépiler la pile d’appels</em> (Stack Unwinding). Les informations de débogage restent intactes si l’exception est propagée plus haut.</p>
+
+<h2>3. Contraintes de Généricité : La Clause where T</h2>
+
+<p>Par défaut, un paramètre de type générique <code>T</code> est totalement libre (équivalent à <code>object</code>). Les contraintes de généricité permettent de restreindre les capacités de <code>T</code> pour lui appliquer des règles spécifiques :</p>
+<table class="table">
+  <thead><tr><th>Contrainte</th><th>Signification</th><th>Exemple d’utilisation</th></tr></thead>
+  <tbody>
+    <tr><td><code>where T : class</code></td><td>T doit obligatoirement être un <strong>type référence</strong></td><td>Gestionnaires d’entités, caches d’objets</td></tr>
+    <tr><td><code>where T : struct</code></td><td>T doit obligatoirement être un <strong>type valeur</strong></td><td>Calculateurs mathématiques sans allocation tas</td></tr>
+    <tr><td><code>where T : new()</code></td><td>T doit posséder un <strong>constructeur public sans argument</strong></td><td>Fabriques d’objets génériques (<code>new T()</code>)</td></tr>
+    <tr><td><code>where T : IComparable&lt;T&gt;</code></td><td>T doit implémenter l’interface de comparaison</td><td>Algorithmes de tri et arbres binaires</td></tr>
+    <tr><td><code>where T : BaseClass</code></td><td>T doit dériver obligatoirement de la classe spécifiée</td><td>Référentiels d’accès aux données d’entités</td></tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="csb2-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ADD ServeurWeb 80&#10;ADD ServeurSSH 22&#10;GET ServeurWeb&#10;TRYGET ServeurBD&#10;GET ServeurBD">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (csb2-c4-e1) — Collections génériques C# et recherche sécurisée TryGetValue
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Ajouts simples et récupérations valides]
+# Données : ADD PortHTTP 80
+# Données : GET PortHTTP
+# Données : TRYGET PortHTTP
+A_COMPLETER
+
+[Cas 2 — Mise à jour d une clé existante]
+# Données : ADD MaxThreads 4
+# Données : ADD MaxThreads 8
+# Données : GET MaxThreads
+A_COMPLETER
+
+[Cas 3 — Multiples TryGet sur clés manquantes]
+# Données : TRYGET Inconnu1
+# Données : TRYGET Inconnu2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Collections génériques C# et recherche sécurisée TryGetValue</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Manipuler un Dictionary&lt;TKey, TValue&gt; C# et comparer l'indexeur direct avec la méthode TryGetValue.</p>
+    <div class="lab__brief"><p>Le script gère un dictionnaire générique C# <code>Dictionary&lt;string, int&gt;</code>.<br>
+Il lit dans l’énoncé du cas des instructions :<br>
+- <code>ADD &lt;Cle&gt; &lt;Valeur&gt;</code> : insère ou met à jour la valeur et Indiquez la nouvelle taille ;<br>
+- <code>GET &lt;Cle&gt;</code> : accès par indexeur direct <code>dict[cle]</code>. Si la clé existe, Indiquez sa valeur ; sinon, lève une exception <code>CRASH KeyNotFoundException (Cle absente du dictionnaire)</code> ;<br>
+- <code>TRYGET &lt;Cle&gt;</code> : accès sécurisé via <code>dict.TryGetValue(cle, out int val)</code>. Indiquez <code>Trouve: &lt;val&gt;</code> ou <code>NonTrouve (out val=0)</code> sans lever d'exception.</p>
+<p>Format de sortie :<br><code>ADD: &lt;Cle&gt; =&gt; &lt;Valeur&gt; (Taille=&lt;N&gt;)</code><br><code>GET: &lt;Cle&gt; =&gt; &lt;Valeur&gt;</code> ou <code>GET: &lt;Cle&gt; =&gt; CRASH KeyNotFoundException (Cle absente du dictionnaire)</code><br><code>TRYGET: &lt;Cle&gt; =&gt; Trouve: &lt;Valeur&gt;</code> ou <code>TRYGET: &lt;Cle&gt; =&gt; NonTrouve (out val=0)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ADD ServeurWeb 80
+ADD ServeurSSH 22
+GET ServeurWeb
+TRYGET ServeurBD
+GET ServeurBD</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ADD: ServeurWeb =&gt; 80 (Taille=1)
+ADD: ServeurSSH =&gt; 22 (Taille=2)
+GET: ServeurWeb =&gt; 80
+TRYGET: ServeurBD =&gt; NonTrouve (out val=0)
+GET: ServeurBD =&gt; CRASH KeyNotFoundException (Cle absente du dictionnaire)</pre></div>
+    </div>
+    <p class="lab__note">Démonstration de TryGetValue qui protège contre le crash de l'indexeur sur une clé absente.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L'indexeur C# dictionnaire[cle] lève KeyNotFoundException si la clé est absente.</li>
+        <li>La méthode TryGetValue renvoie false et initialise la variable out à sa valeur par défaut (0 pour int).</li>
+        <li>ADD met à jour la valeur si la clé existe déjà, tout en incrémentant la taille seulement si c'est une nouvelle clé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="THROW HttpException StatusCode=404&#10;THROW HttpException StatusCode=503&#10;THROW TimeoutException StatusCode=408&#10;THROW HttpException StatusCode=401">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (csb2-c4-e2) — Gestion des exceptions avec filtres catch ... when
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Erreur 500 serveur interceptée]
+# Données : THROW HttpException StatusCode=500
+A_COMPLETER
+
+[Cas 2 — Timeout sans code http spécifique]
+# Données : THROW TimeoutException StatusCode=0
+A_COMPLETER
+
+[Cas 3 — Erreur 400 tombant dans le fallback global]
+# Données : THROW HttpException StatusCode=400
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Gestion des exceptions avec filtres catch ... when</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le routage d'exceptions C# grâce aux filtres de clause catch when et garantir l'exécution de finally.</p>
+    <div class="lab__brief"><p>En C# 6+, les blocs <code>catch</code> peuvent être filtrés avec une clause <code>when (condition)</code> :<br>
+1. <code>catch (HttpException ex) when (ex.StatusCode == 404)</code> =&gt; <code>[ClientError]</code> ;<br>
+2. <code>catch (HttpException ex) when (ex.StatusCode &gt;= 500)</code> =&gt; <code>[ServerError]</code> ;<br>
+3. <code>catch (TimeoutException)</code> =&gt; <code>[DelaiDepasse]</code> ;<br>
+4. <code>catch (Exception)</code> =&gt; <code>[FallbackGlobal]</code>.<br>
+Dans tous les cas, le bloc <code>finally</code> est inconditionnellement exécuté (<code>| FINALLY execute</code>).<br>
+Analysez les données fournies pour chaque cas.</p>
+<p>Format de sortie :<br><code>Exception: &lt;Type&gt; (&lt;Code&gt;) =&gt; Intercepte par: &lt;ClauseCatch&gt; &lt;Tag&gt; | FINALLY execute</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>THROW HttpException StatusCode=404
+THROW HttpException StatusCode=503
+THROW TimeoutException StatusCode=408
+THROW HttpException StatusCode=401</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Exception: HttpException (404) =&gt; Intercepte par: catch when (StatusCode == 404) [ClientError] | FINALLY execute
+Exception: HttpException (503) =&gt; Intercepte par: catch when (StatusCode &gt;= 500) [ServerError] | FINALLY execute
+Exception: TimeoutException (408) =&gt; Intercepte par: catch (TimeoutException) [DelaiDepasse] | FINALLY execute
+Exception: HttpException (401) =&gt; Intercepte par: catch (Exception) [FallbackGlobal] | FINALLY execute</pre></div>
+    </div>
+    <p class="lab__note">Démonstration du routage conditionnel d'exceptions en C# via when.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Évalue les conditions dans l'ordre d'apparition des blocs catch.</li>
+        <li>Les clauses when permettent de capturer sélectivement selon l'état interne de l'exception (ex: StatusCode).</li>
+        <li>Le bloc finally s'exécute toujours, que l'exception ait été levée, interceptée ou non.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="CONSTRAINT where T : class, new(), IComparable&#10;Candidate Nom=Client IsClass=True HasDefaultCtor=True ImplementsComparable=True&#10;Candidate Nom=Int32 IsClass=False HasDefaultCtor=True ImplementsComparable=True&#10;Candidate Nom=Singleton IsClass=True HasDefaultCtor=False ImplementsComparable=True">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (csb2-c4-e3) — Validateur de contraintes génériques (where T : ...)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Contrainte struct seule]
+# Données : CONSTRAINT where T : struct
+# Données : Candidate Nom=Point IsClass=False HasDefaultCtor=True ImplementsComparable=False
+# Données : Candidate Nom=Fenetre IsClass=True HasDefaultCtor=True ImplementsComparable=False
+A_COMPLETER
+
+[Cas 2 — Contrainte IComparable seule]
+# Données : CONSTRAINT where T : IComparable
+# Données : Candidate Nom=Chaine IsClass=True HasDefaultCtor=True ImplementsComparable=True
+# Données : Candidate Nom=Stream IsClass=True HasDefaultCtor=False ImplementsComparable=False
+A_COMPLETER
+
+[Cas 3 — Contraintes combinées avec double violation]
+# Données : CONSTRAINT where T : class, IComparable
+# Données : Candidate Nom=Entier IsClass=False HasDefaultCtor=True ImplementsComparable=False
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Validateur de contraintes génériques (where T : ...)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité de types candidats aux contraintes génériques d'une classe ou méthode C#.</p>
+    <div class="lab__brief"><p>En C#, les contraintes génériques (<code>where T : ...</code>) restreignent les types pouvant instancier une classe ou méthode :<br>
+- <code>class</code> : le type doit être un type référence (<code>IsClass=True</code>) ;<br>
+- <code>struct</code> : le type doit être un type valeur non nullable (<code>IsClass=False</code>) ;<br>
+- <code>new()</code> : le type doit avoir un constructeur public sans paramètre (<code>HasDefaultCtor=True</code>) ;<br>
+- <code>IComparable</code> : le type doit implémenter l'interface de comparaison (<code>ImplementsComparable=True</code>).<br>
+Analysez les données fournies pour chaque cas.<br>
+Il doit évaluer chaque type et afficher sa validation ou la liste des violations constatées.</p>
+<p>Format de sortie :<br><code>Type &lt;Nom&gt;: VALIDE (Toutes contraintes respectees)</code><br><code>Type &lt;Nom&gt;: REJETE [Violation: &lt;Motif1&gt;, ...]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONSTRAINT where T : class, new(), IComparable
+Candidate Nom=Client IsClass=True HasDefaultCtor=True ImplementsComparable=True
+Candidate Nom=Int32 IsClass=False HasDefaultCtor=True ImplementsComparable=True
+Candidate Nom=Singleton IsClass=True HasDefaultCtor=False ImplementsComparable=True</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Type Client: VALIDE (Toutes contraintes respectees)
+Type Int32: REJETE [Violation: non-class (struct)]
+Type Singleton: REJETE [Violation: pas de constructeur sans argument new()]</pre></div>
+    </div>
+    <p class="lab__note">Client satisfait les trois contraintes, Int32 est un type valeur, et Singleton n'a pas de constructeur sans argument public.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parse la première ligne pour extraire les mots-clés de contrainte (class, struct, new(), IComparable).</li>
+        <li>Pour chaque type candidat, teste chaque contrainte déclarée.</li>
+        <li>Si aucune violation n'est relevée, le type est VALIDE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi la méthode dict.TryGetValue(cle, out var val) est-elle préférée à l’indexeur direct dict[cle] ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu’elle alloue moins de mémoire sur la pile d’exécution.</button>
+        <button class="opt" data-correct="1">Parce qu’elle évite de lever une KeyNotFoundException si la clé est absente et n’effectue qu’une seule recherche de hachage.</button>
+        <button class="opt">Parce qu’elle trie automatiquement le dictionnaire par ordre croissant.</button>
+        <button class="opt">Parce qu’elle crypte la clé lors de la recherche.</button>
+      </div>
+      <div class="q__exp">TryGetValue évite le coût élevé de la levée d’exception KeyNotFoundException sur les clés absentes et évite le double hachage qu’imposerait un if (dict.ContainsKey(k)) { v = dict[k]; }.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’intérêt de la clause catch (Exception ex) when (condition) introduite en C# 6 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle filtre la capture selon une expression booléenne sans dépiler la pile d’appels si la condition est fausse.</button>
+        <button class="opt">Elle accélère l’exécution du ramasse-miettes pendant l’interception.</button>
+        <button class="opt">Elle remplace obligatoirement le bloc finally.</button>
+        <button class="opt">Elle force l’exécution asynchrone du bloc catch.</button>
+      </div>
+      <div class="q__exp">La clause when permet de n’intercepter l’exception que si la condition est vérifiée, préservant la stack trace intacte si l’exception doit être traitée par un bloc englobant supérieur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que garantit la contrainte générique "where T : new()" sur une classe Repository<T> ?</p>
+      <div class="opts">
+        <button class="opt">Que T est obligatoirement un type référence immuable.</button>
+        <button class="opt" data-correct="1">Que T possède un constructeur public sans paramètre, autorisant l’instruction "new T()".</button>
+        <button class="opt">Que T ne peut être instancié qu’une seule fois (Singleton).</button>
+        <button class="opt">Que T implémente l’interface IDisposable.</button>
+      </div>
+      <div class="q__exp">La contrainte new() indique au compilateur que le type T dispose d’un constructeur public par défaut sans argument, autorisant le code interne à créer des instances avec new T().</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un bloc try/catch/finally, quand le bloc finally est-il exécuté ?</p>
+      <div class="opts">
+        <button class="opt">Uniquement si aucune exception n’a été levée.</button>
+        <button class="opt">Uniquement si une exception a été interceptée par un bloc catch.</button>
+        <button class="opt" data-correct="1">Dans tous les cas, que le bloc try se termine avec succès ou qu’une exception soit survenue.</button>
+        <button class="opt">Seulement si le mot-clé return n’est pas rencontré dans le bloc try.</button>
+      </div>
+      <div class="q__exp">Le bloc finally est garanti d’être exécuté systématiquement, qu’une exception ait été levée, interceptée, propagée, ou qu’un return anticipe la fin de la méthode.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser l’indexeur direct dict[cle] sans certitude préalable de l’existence de la clé, provoquant des KeyNotFoundException intempestives.</li>
+      <li>Capturer System.Exception sans la relancer (catch vide) et étouffer silencieusement des erreurs critiques d’exécution.</li>
+      <li>Faire "throw ex;" au lieu de "throw;" dans un bloc catch, ce qui détruit la trace de pile d’origine (stack trace) et complique le diagnostic.</li>
+      <li>Omettre le bloc finally ou l’instruction using sur des flux ouverts, provoquant des fuites de descripteurs de fichiers sous charge.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour sécuriser les collections et le flux d’exceptions</div>
+    <ol>
+      <li>Choisir la collection générique adaptée à la complexité visée : Dictionary pour O(1) par clé, List pour la séquence, HashSet pour l’unicité.</li>
+      <li>Remplacer systématiquement les indexeurs directs à risque par dict.TryGetValue(cle, out var val).</li>
+      <li>Capturer sélectivement les exceptions applicatives avec des clauses catch when filtrant sur l’état interne de l’erreur.</li>
+      <li>Sécuriser systématiquement la fermeture des fichiers et connexions dans un bloc finally inconditionnel.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les collections génériques System.Collections.Generic garantissent le typage fort sans boxing.</li>
+      <li>TryGetValue est la méthode idiomatique pour interroger un Dictionary sans risque de KeyNotFoundException.</li>
+      <li>La clause catch when (C# 6+) filtre l’interception sans dépiler la pile d’appels si la condition échoue.</li>
+      <li>throw; préserve la trace de pile intégrale, alors que throw ex; détruit le contexte d’origine du bug.</li>
+      <li>La clause where T restreint les types génériques (class, struct, new(), IComparable, etc.).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais choisir entre List, Dictionary et HashSet selon la complexité algorithmique.</li>
+      <li>Je sécurise tous mes accès aux dictionnaires via TryGetValue.</li>
+      <li>Je sais filtrer mes exceptions avec des clauses catch when.</li>
+      <li>Je ne fais jamais throw ex; dans un bloc catch.</li>
+      <li>Je sais poser des contraintes de généricité where T sur une classe ou méthode.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Espace de noms System.Collections.Generic</li><li>Table de hachage Dictionary<TKey, TValue> en O(1)</li><li>Accès sécurisé sans crash avec TryGetValue</li><li>Ensemble unique HashSet<T> et déduplication</li><li>Hiérarchie System.Exception et blocs try/catch/finally</li><li>Filtres conditionnels d’exceptions catch ... when</li><li>Préservation de la stack trace avec throw vs throw ex</li><li>Contraintes de généricité : clause where T (class, struct, new)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les collections génériques et l’accès sécurisé TryGetValue.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les filtres catch when et les contraintes where T.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la résilience logicielle et les collections O(1).</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe à LINQ et au système événementiel au module 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — LINQ, Délégués &amp; Système Événementiel <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Microsoft Learn .NET / C#, les spécifications du standard ECMA-334 (C# Language Specification) et les ouvrages de référence de Jon Skeet et Jeffrey Richter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

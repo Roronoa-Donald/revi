@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — Balayage Réseau, Énumération &amp; Cartographie des Vulnérabilités (Scanning) | Hacking Éthique &amp; Pentest B3</title>
+<meta name="description" content="Module 3 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes réseau de transport TCP/IP et RFC 793, techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération précise des versions logicielles et bannières, énumération de protocoles d'infrastructure critiques (SMB, NetBIOS, SNMP v1/v2c et communautés MIB, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-hacking/chapitres/chapitre3.html">
+<meta property="og:title" content="Module 3 — Balayage Réseau, Énumération &amp; Cartographie des Vulnérabilités (Scanning) | Hacking Éthique &amp; Pentest B3">
+<meta property="og:description" content="Module 3 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes réseau de transport TCP/IP et RFC 793, techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération précise des versions logicielles et bannières, énumération de protocoles d'infrastructure critiques (SMB, NetBIOS, SNMP v1/v2c et communautés MIB, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-hackingnav"><div class="b3-hackingnav__in">
+  <a class="b3-hackingnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-hackingnav__sep" aria-hidden="true">/</span>
+  <a class="b3-hackingnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Hacking Éthique &amp; Pentest B3</a>
+  <div class="b3-hackingnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-hackingnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-hackingwrap">
+<p class="crumb"><a href="../index.html">Hacking Éthique & Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Balayage Réseau, Énumération & Cartographie des Vulnérabilités (Scanning)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une fois la surface d'attaque extérieure identifiée, l'auditeur doit sonder activement chaque service exposé pour déterminer son état exact (ouvert, fermé ou filtré par pare-feu), identifier les versions logicielles précises et détecter les failles connues. Un scan mal paramétré peut faire planter des équipements industriels fragiles ou déclencher les alarmes d'un système IPS/SIEM. En tant qu'expert offensif B3, vous devez maîtriser la mécanique fine des sondes TCP/IP, choisir la technique de balayage la plus adaptée et orchestrer l'énumération des services clés comme SMB et SNMP pour cartographier les vulnérabilités exploitables.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la RFC 793 et le cycle de vie des paquets TCP (SYN, ACK, RST, FIN, PSH, URG) pour le balayage de ports ;</li>
+      <li>différencier et exécuter les scans SYN (-sS), TCP Connect (-sT), UDP (-sU), ACK (-sA) et furtifs (-sF, -sN, -sX) ;</li>
+      <li>analyser les techniques d'OS fingerprinting basées sur le TTL, la taille de fenêtre (Window Size) et les options TCP ;</li>
+      <li>extraire et corréler les bannières réseau pour identifier les versions logicielles obsolètes et failles CVE associées ;</li>
+      <li>conduire l'énumération de protocoles d'infrastructure (sessions nulles SMB, communautés SNMP MIB-2, LDAP) ;</li>
+      <li>automatiser l'audit de sécurité via le Nmap Scripting Engine (NSE) et les scanners de vulnérabilités (OpenVAS/Nessus).</li>
+    </ol>
+  </div>
+
+<h2>1. Mécanismes Réseau TCP/IP et RFC 793 au Cœur du Balayage</h2>
+
+<p>Comprendre le fonctionnement des scanners de ports comme Nmap nécessite de maîtriser la poignée de mains TCP 3-way handshake définie par la RFC 793 :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Connexion TCP Normale (3-Way Handshake)</h4>
+    <ol>
+      <li>Le client émet un paquet avec le drapeau <code>SYN</code> (Synchronize) et un numéro de séquence initial <code>ISN_c</code>.</li>
+      <li>Le serveur récepteur, si le port est à l'écoute (ouvert), répond avec <code>SYN + ACK</code> (Acknowledge) contenant son propre <code>ISN_s</code> et validant <code>ISN_c + 1</code>.</li>
+      <li>Le client finalise la connexion en envoyant un paquet <code>ACK</code>. La session est établie.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Port Fermé ou Non Écouté</h4>
+    <p>Si aucun processus n'est en écoute sur le port ciblé, la RFC 793 impose à la pile TCP de l'hôte cible de répondre immédiatement par un paquet avec le drapeau <code>RST</code> (Reset) ou <code>RST + ACK</code>.</p>
+    <p>Si un pare-feu intermédiaire bloque ou dépose le paquet silencieusement (Drop/Deny), aucun paquet ne revient : l'état est <code>FILTERED</code> (Timeout).</p>
+  </div>
+</div>
+
+<h2>2. Techniques Avancées de Sondes Nmap &amp; Cartographie de Pare-Feu</h2>
+
+<p>Nmap propose un éventail complet de techniques de balayage selon les privilèges de l'auditeur et le comportement des pare-feux :</p>
+<table class="table">
+  <thead><tr><th>Option Nmap</th><th>Nom de la Sonde</th><th>Privilèges Requis</th><th>Comportement Port Ouvert vs Fermé</th></tr></thead>
+  <tbody>
+    <tr><td><code>-sS</code></td><td>SYN Stealth Scan (demi-ouvert)</td><td>Root / Administrateur</td><td>Réponse <code>SYN+ACK</code> -&gt; Port OPEN (Nmap envoie aussitôt un <code>RST</code>). Réponse <code>RST</code> -&gt; CLOSED.</td></tr>
+    <tr><td><code>-sT</code></td><td>TCP Connect Scan</td><td>Utilisateur standard</td><td>Établit la connexion 3-way complète via l'API socket de l'OS. Réponse <code>RST</code> si CLOSED. Plus bruyant dans les logs.</td></tr>
+    <tr><td><code>-sU</code></td><td>UDP Scan</td><td>Root / Administrateur</td><td>Paquet UDP vide. Réponse UDP -&gt; OPEN. Paquet ICMP Port Unreachable (Type 3 Code 3) -&gt; CLOSED. Timeout -&gt; OPEN|FILTERED.</td></tr>
+    <tr><td><code>-sF / -sN / -sX</code></td><td>FIN, Null, Xmas Scans</td><td>Root / Administrateur</td><td>Sonde anormale (Null=aucun flag, Xmas=FIN+PSH+URG). Selon RFC 793 : Port ouvert -&gt; pas de réponse (OPEN|FILTERED). Port fermé -&gt; RST.</td></tr>
+    <tr><td><code>-sA</code></td><td>ACK Scan (Cartographie Pare-feu)</td><td>Root / Administrateur</td><td>Envoie un paquet ACK isolé. Utilisé pour tester les règles de filtrage avec état (RST = UNFILTERED, Timeout = FILTERED).</td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les Limites des Scans Inverses (FIN, Null, Xmas) face à Windows</div>
+<p>Attention en environnement hétérogène : la pile réseau TCP de Microsoft Windows (ainsi que certains équipements Cisco ou BSD anciens) ne respecte pas scrupuleusement la RFC 793 pour les paquets non sollicités. Sous Windows, la machine répond systématiquement par un paquet <code>RST</code> sur TOUS les ports, qu'ils soient ouverts ou fermés. Les scans FIN, Null et Xmas ne fonctionnent donc que face aux systèmes Unix, Linux et conformes RFC.</p>
+  </div>
+
+<h2>3. Empreinte de Système d'Exploitation (OS Fingerprinting) &amp; Détection de Versions</h2>
+
+<p>Nmap ne se contente pas de tester l'ouverture d'un port : il identifie le système d'exploitation sous-jacent et les versions logicielles exactes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>OS Fingerprinting (-O)</h4>
+    <p>Chaque système d'exploitation implémente la pile TCP/IP avec des paramètres par défaut caractéristiques :</p>
+    <ul>
+      <li><strong>TTL initial (Time to Live) :</strong> 64 pour Linux/Unix/Android, 128 pour Windows, 255 pour Cisco/Solaris.</li>
+      <li><strong>TCP Window Size :</strong> taille de la fenêtre de réception lors du SYN/ACK.</li>
+      <li><strong>Options TCP :</strong> ordre et présence des options MSS (Maximum Segment Size), Window Scale, SACK (Selective ACK) et NOP.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Détection de Version de Service (-sV)</h4>
+    <p>Nmap envoie une série de sondes applicatives ciblées définies dans sa base <code>nmap-service-probes</code> pour forcer le service à répondre avec sa bannière.</p>
+    <p>Exemple : envoi d'une commande <code>GET / HTTP/1.0</code> pour extraire l'en-tête <code>Server: Apache/2.4.49</code> ou capture de la bannière SSH <code>SSH-2.0-OpenSSH_7.2p2</code>.</p>
+  </div>
+</div>
+
+<h2>4. Énumération Approfondie des Protocoles d'Infrastructure : SMB &amp; SNMP</h2>
+
+<p>Certains protocoles réseau historiques divulguent des quantités massives de données s'ils sont mal configurés :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Protocole SMB / Samba (Ports 139 / 445)</h4>
+    <p>Partage de fichiers et d'imprimantes sous Windows/Linux. Risques majeurs audités :</p>
+    <ul>
+      <li><strong>Sessions Nulles (Null Sessions) :</strong> connexion anonyme sans identifiants permettant d'énumérer la liste des utilisateurs, des groupes et des partages réseau (via <code>enum4linux</code> ou <code>nmap --script smb-enum-*</code>).</li>
+      <li><strong>Partages IPC$ et C$ accessibles :</strong> fuite de fichiers sensibles ou de scripts de déploiement contenant des mots de passe.</li>
+      <li><strong>Vulnérabilités d'exécution distante :</strong> MS17-010 (EternalBlue) permettant la prise de contrôle root/SYSTEM sans compte.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Protocole SNMP (Port 161 UDP)</h4>
+    <p>Protocole de gestion et supervision réseau (v1, v2c, v3). Risques majeurs :</p>
+    <ul>
+      <li><strong>Communautés par défaut en clair :</strong> utilisation des chaînes <code>public</code> (Read-Only) et <code>private</code> (Read-Write) en SNMP v1/v2c.</li>
+      <li><strong>Divulgation de MIB-2 :</strong> extraction de la liste des processus en cours, des interfaces réseau, des tables de routage, des comptes utilisateurs locaux et des logiciels installés (via <code>snmpwalk</code>).</li>
+      <li><strong>Prise de contrôle en écriture :</strong> modification de la configuration des routeurs ou commutateurs via communauté RW.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>5. Nmap Scripting Engine (NSE) &amp; Cartographie des Vulnérabilités</h2>
+
+<pre><code># Exécution de scripts d'audit de vulnérabilités connues sur un hôte
+$ nmap -sV --script vuln 192.168.1.50
+
+# Audit spécifique SMB et détection EternalBlue
+$ nmap -p 445 --script smb-vuln-ms17-010 192.168.1.50
+
+# Audit des configurations TLS et suites cryptographiques faibles
+$ nmap -p 443 --script ssl-enum-ciphers target.com</code></pre>
+<p>Dans une chaîne d'audit d'entreprise, Nmap est complété par des scanners de vulnérabilités automatisés spécialisés (Nessus, OpenVAS, Qualys) qui maintiennent des bases de données actualisées de signatures de vulnérabilités corrélées aux identifiants CVE et CWE.</p>
+
+<!-- code-labs:start -->
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="hk3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e1) — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Sonde SYN recevant un paquet de réinitialisation RST]
+# Données : TCP_PROBE scan_type=SYN port=21 reply=RST
+A_COMPLETER
+
+[Cas 2 — Sonde furtive XMAS sans réponse face à une pile TCP conforme RFC 793]
+# Données : TCP_PROBE scan_type=XMAS port=80 reply=TIMEOUT
+A_COMPLETER
+
+[Cas 3 — Sonde ACK cartographiant un pare-feu avec paquet RST de retour]
+# Données : TCP_PROBE scan_type=ACK port=8080 reply=RST
+A_COMPLETER
+
+[Cas 4 — Sonde SYN filtrée par pare-feu silencieux (Drop/Timeout)]
+# Données : TCP_PROBE scan_type=SYN port=3389 reply=TIMEOUT
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les paquets de réponse TCP pour déterminer l'état d'un port selon la RFC 793 et le type de scan Nmap.</p>
+    <div class="lab__brief"><p>Nmap utilise différents types de sondes TCP pour sonder l'état des ports et cartographier les pare-feux :<br><br>
+Règles de diagnostic selon le scan et la réponse reçue :<br>
+1. <code>SYN</code> (SYN Stealth scan <code>-sS</code>) :<br>
+   - Réponse <code>SYN+ACK</code> : <code>state=OPEN</code><br>
+   - Réponse <code>RST</code> ou <code>RST+ACK</code> : <code>state=CLOSED</code><br>
+   - Réponse <code>TIMEOUT</code> : <code>state=FILTERED</code><br>
+2. <code>FIN</code>, <code>NULL</code>, <code>XMAS</code> (scans furtifs inverses) :<br>
+   - Réponse <code>RST</code> : <code>state=CLOSED</code><br>
+   - Réponse <code>TIMEOUT</code> : <code>state=OPEN|FILTERED</code><br>
+3. <code>ACK</code> (Window/Firewall scan <code>-sA</code>) :<br>
+   - Réponse <code>RST</code> : <code>state=UNFILTERED</code><br>
+   - Réponse <code>TIMEOUT</code> : <code>state=FILTERED</code><br><br>
+Entrée STDIN : <code>TCP_PROBE scan_type=&lt;SYN|FIN|NULL|XMAS|ACK&gt; port=&lt;p&gt; reply=&lt;SYN+ACK|RST|TIMEOUT|RST+ACK&gt;</code>.<br>
+Sortie : <code>PORT_STATE: port=&lt;p&gt; scan_type=&lt;type&gt; reply=&lt;reply&gt; state=&lt;state&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PORT_STATE: port=443 scan_type=SYN reply=SYN+ACK state=OPEN</pre></div>
+    </div>
+    <p class="lab__note">Port HTTPS ouvert renvoyant un paquet SYN+ACK de synchronisation.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérez les cas selon scan_type (SYN, FIN/NULL/XMAS, ACK).</li>
+        <li>Pour SYN, SYN+ACK signifie OPEN et RST signifie CLOSED.</li>
+        <li>Pour FIN/NULL/XMAS, TIMEOUT signifie OPEN|FILTERED et RST signifie CLOSED.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e2) — Analyseur de Bannières de Services Réseau et Détection de Failles Connues
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Serveur HTTP Apache vulnérable à la traversée de répertoire critique]
+# Données : BANNER_SCAN port=80 service=http banner=Server: Apache/2.4.49 (Unix)
+A_COMPLETER
+
+[Cas 2 — Démon SSH vulnérable à l'énumération de comptes utilisateurs]
+# Données : BANNER_SCAN port=22 service=ssh banner=SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8
+A_COMPLETER
+
+[Cas 3 — Service FTP ProFTPD avec module mod_copy vulnérable]
+# Données : BANNER_SCAN port=2121 service=ftp banner=220 ProFTPD 1.3.5 Server
+A_COMPLETER
+
+[Cas 4 — Version récente sans vulnérabilité connue répertoriée]
+# Données : BANNER_SCAN port=443 service=https banner=Server: nginx/1.24.0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyseur de Bannières de Services Réseau et Détection de Failles Connues</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire les versions logicielles des bannières de services réseau et identifier les vulnérabilités critiques associées.</p>
+    <div class="lab__brief"><p>Le banner grabbing permet de repérer des versions logicielles vulnérables avant toute phase d'exploitation.<br><br>
+Base de signatures connues :<br>
+- <code>vsFTPd 2.3.4</code> -> <code>cve=CVE-2011-2523</code>, <code>severity=CRITICAL</code>, <code>desc=Backdoor_Command_Execution</code><br>
+- <code>Apache/2.4.49</code> -> <code>cve=CVE-2021-41773</code>, <code>severity=CRITICAL</code>, <code>desc=Path_Traversal_RCE</code><br>
+- <code>OpenSSH_7.2p2</code> -> <code>cve=CVE-2016-6210</code>, <code>severity=MEDIUM</code>, <code>desc=User_Enumeration</code><br>
+- <code>ProFTPD 1.3.5</code> -> <code>cve=CVE-2015-3306</code>, <code>severity=HIGH</code>, <code>desc=mod_copy_Arbitrary_Copy</code><br>
+- Autre version -> <code>cve=NONE</code>, <code>severity=INFO</code>, <code>desc=UP_TO_DATE_OR_CUSTOM</code><br><br>
+Entrée STDIN : <code>BANNER_SCAN port=&lt;p&gt; service=&lt;svc&gt; banner=&lt;texte_banniere&gt;</code>.<br>
+Sortie : <code>VULN_MATCH: port=&lt;p&gt; service=&lt;svc&gt; cve=&lt;cve&gt; severity=&lt;sev&gt; desc=&lt;desc&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VULN_MATCH: port=21 service=ftp cve=CVE-2011-2523 severity=CRITICAL desc=Backdoor_Command_Execution</pre></div>
+    </div>
+    <p class="lab__note">Backdoor historique du serveur FTP vsFTPd 2.3.4 permettant l'exécution root.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilisez line.split("banner=", 1) pour préserver les espaces dans le texte de la bannière.</li>
+        <li>Vérifiez la présence des sous-chaînes de versions critiques dans la bannière.</li>
+        <li>Générez la sortie standardisée VULN_MATCH.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e3) — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Chaîne de communauté d'écriture Read-Write découverte au troisième essai]
+# Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300
+A_COMPLETER
+
+[Cas 2 — Cible robuste dont la chaîne n'est pas dans le dictionnaire testé]
+# Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router
+A_COMPLETER
+
+[Cas 3 — Dictionnaire volumineux arrêtant la recherche dès la première correspondance]
+# Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer les chaînes de communauté SNMP d'un commutateur ou routeur et classifier le niveau de compromission.</p>
+    <div class="lab__brief"><p>SNMP v1 et v2c transmettent les chaînes de communauté en clair sans chiffrement.<br><br>
+Règles d'évaluation :<br>
+- On teste successivement chaque chaîne de la liste de dictionnaires <code>wordlist</code> contre la cible.<br>
+- Si une chaîne correspond à <code>target_community</code> :<br>
+  - Si <code>target_perm == 'RW'</code> : <code>status=COMPROMISED</code>, <code>risk=CRITICAL</code> (modification d'équipement possible).<br>
+  - Si <code>target_perm == 'RO'</code> : <code>status=COMPROMISED</code>, <code>risk=HIGH</code> (fuite complète d'arborescence MIB).<br>
+- Si aucune chaîne ne correspond :<br>
+  - <code>status=SECURE</code>, <code>risk=LOW</code>.<br><br>
+Entrée STDIN : <code>SNMP_TEST target=&lt;ip&gt; wordlist=&lt;w1,w2,...&gt; target_community=&lt;comm&gt; target_perm=&lt;RO|RW&gt; sys_descr=&lt;descr&gt;</code>.<br>
+Sortie :<br>
+- Si compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=COMPROMISED matched_community=&lt;comm&gt; perm=&lt;perm&gt; attempts=&lt;N&gt; risk=&lt;risk&gt; sys_descr=&lt;descr&gt;</code><br>
+- Si non compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=SECURE attempts=&lt;N&gt; risk=LOW reason=COMMUNITY_NOT_FOUND</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960</pre></div>
+    </div>
+    <p class="lab__note">Chaîne publique par défaut permettant la lecture intégrale des interfaces et tables ARP.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpez wordlist sur la virgule et itérez dans l'ordre.</li>
+        <li>Dès qu'un mot correspond à target_community, arrêtez-vous et notez le nombre d'essais effectués.</li>
+        <li>Si target_perm == RW -&gt; risk=CRITICAL, sinon risk=HIGH.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi le scan Nmap SYN (-sS) est-il qualifié de "Stealth" ou "demi-ouvert" ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce qu'il envoie un paquet RST immédiatement après avoir reçu le SYN+ACK sans jamais envoyer le ACK final qui finaliserait la connexion</button>
+        <button class="opt">Parce qu'il chiffre l'intégralité des paquets transmis avec une clé AES 256 bits</button>
+        <button class="opt">Parce qu'il masque l'adresse IP de l'auditeur en usurpant automatiquement celle de la passerelle</button>
+        <button class="opt">Parce qu'il utilise exclusivement des ports sources inférieurs à 1024</button>
+      </div>
+      <div class="q__exp">Le scan SYN n'établit jamais la connexion TCP complète : en envoyant un RST dès réception du SYN+ACK, la session n'est pas finalisée et n'était historiquement pas enregistrée par les logs applicatifs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle réponse renvoie un port fermé sur un système d'exploitation conforme à la RFC 793 lorsqu'il reçoit un paquet TCP SYN ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un paquet TCP avec le drapeau RST (ou RST+ACK)</button>
+        <button class="opt">Un paquet ICMP Echo Reply (Type 0)</button>
+        <button class="opt">Aucune réponse (Timeout silencieux)</button>
+        <button class="opt">Un paquet TCP SYN+ACK</button>
+      </div>
+      <div class="q__exp">Selon la RFC 793, tout paquet arrivant sur un port où aucun processus n'écoute doit déclencher l'émission immédiate d'un paquet RST pour réinitialiser la tentative de connexion.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la valeur typique de Time to Live (TTL) initial observée lors d'une capture réseau sur une machine Linux par rapport à Windows ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">TTL 64 pour Linux contre TTL 128 pour Windows</button>
+        <button class="opt">TTL 255 pour Linux contre TTL 32 pour Windows</button>
+        <button class="opt">TTL 128 pour Linux contre TTL 64 pour Windows</button>
+        <button class="opt">Le TTL est strictement identique sur tous les systèmes d'exploitation</button>
+      </div>
+      <div class="q__exp">Par défaut, la pile réseau du noyau Linux initialise le champ TTL à 64, tandis que la pile réseau de Microsoft Windows l'initialise à 128 (et les équipements réseau Cisco/Solaris à 255).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l'objectif principal d'un scan Nmap avec l'option -sA (TCP ACK Scan) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Cartographier les règles de pare-feu et déterminer s'il s'agit d'un pare-feu avec état (Stateful)</button>
+        <button class="opt">Identifier les versions des logiciels serveurs web</button>
+        <button class="opt">Déchiffrer les communications HTTPS en cours</button>
+        <button class="opt">Énumérer les utilisateurs du domaine Active Directory</button>
+      </div>
+      <div class="q__exp">L'ACK scan envoie des paquets ACK hors session pour analyser si le pare-feu filtre les paquets non sollicités (Timeout/Filtered) ou s'il laisse passer les paquets vers l'hôte qui répond RST (Unfiltered).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi les scans furtifs FIN (-sF), Null (-sN) et Xmas (-sX) échouent-ils systématiquement face à des cibles sous Microsoft Windows ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que la pile TCP de Windows ne respecte pas la RFC 793 et répond systématiquement par un RST sur tous les ports</button>
+        <button class="opt">Parce que Windows bloque physiquement la carte réseau dès qu'un paquet suspect est détecté</button>
+        <button class="opt">Parce que ces scans exigent le protocole IPv6 qui est désactivé sous Windows</button>
+        <button class="opt">Parce que Nmap refuse d'exécuter ces scans sur des systèmes Windows</button>
+      </div>
+      <div class="q__exp">Windows ne respecte pas la disposition de la RFC 793 stipulant qu'un port ouvert ne doit pas répondre à un paquet invalide : Windows renvoie un RST que le port soit ouvert ou fermé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel risque critique de sécurité présente un service SNMP v1 ou v2c configuré avec la chaîne de communauté par défaut "public" ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un attaquant peut interroger la base MIB et extraire la liste complète des processus, interfaces réseau, utilisateurs et logiciels installés</button>
+        <button class="opt">Le serveur est immédiatement formaté et rendu inaccessible</button>
+        <button class="opt">Les clés privées SSH du serveur sont écrites en clair sur le port série</button>
+        <button class="opt">Aucun risque, la communauté public est chiffrée par défaut</button>
+      </div>
+      <div class="q__exp">En SNMP v1/v2c, la communauté "public" transmet en clair et accorde un accès en lecture (RO) permettant d'énumérer toute la MIB-2 système (processus, interfaces, tables de routage, utilisateurs).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu'est-ce qu'une "session nulle" (Null Session) dans le protocole SMB (port 445/139) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une connexion établie anonymement sans nom d'utilisateur ni mot de passe permettant d'énumérer les partages et comptes</button>
+        <button class="opt">Une coupure brutale de la connexion réseau par le pare-feu</button>
+        <button class="opt">Une session dont les données ont été corrompues par des zéros binaires</button>
+        <button class="opt">Une commande de redémarrage automatique du contrôleur de domaine</button>
+      </div>
+      <div class="q__exp">Une session nulle SMB permet à un utilisateur anonyme de s'authentifier avec des identifiants vides pour interroger les partages IPC$ et énumérer les comptes d'utilisateurs et de groupes du système.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle catégorie de scripts du Nmap Scripting Engine (NSE) permet d'identifier les vulnérabilités de sécurité connues sur une cible ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">--script vuln</button>
+        <button class="opt">--script discovery</button>
+        <button class="opt">--script broadcast</button>
+        <button class="opt">--script brute</button>
+      </div>
+      <div class="q__exp">La catégorie "--script vuln" regroupe tous les scripts vérifiant la présence de failles de sécurité répertoriées (telles que EternalBlue, Shellshock, Heartbleed, etc.).</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter un scan FIN, Null ou Xmas face à une machine Windows : l'OS renvoie un RST sur tous les ports qu'ils soient ouverts ou fermés.</li>
+      <li>Confondre le statut CLOSED (réponse RST reçue) et FILTERED (absence de réponse causée par un pare-feu).</li>
+      <li>Lancer des scans à cadence agressive (-T5) risquant de saturer ou faire planter des équipements industriels ou routeurs anciens.</li>
+      <li>Négliger le balayage des ports UDP (53, 161, 69) en se limitant uniquement aux 1000 ports TCP les plus fréquents.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Réaliser une découverte préalable des hôtes actifs (Host Discovery avec ping sweep -sn).</li>
+      <li>Lancer un balayage TCP rapide des ports les plus fréquents (SYN scan -sS avec temporisation T4).</li>
+      <li>Effectuer la détection de versions applicatives (-sV) et l'empreinte d'OS (-O) sur les ports découverts ouverts.</li>
+      <li>Auditer les services d'infrastructure spécifiques : énumération SMB (enum4linux) et SNMP (snmpwalk).</li>
+      <li>Exécuter des scripts Nmap NSE ciblés (--script vuln) pour valider la présence de failles répertoriées.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le balayage de ports s'appuie sur la conformité des réponses à la RFC 793 pour qualifier les états OPEN, CLOSED ou FILTERED.</li>
+      <li>Le scan SYN Stealth (-sS) nécessite des privilèges root pour forger des paquets réseau bruts et déchirer la session par RST.</li>
+      <li>L'OS fingerprinting déduit le noyau hôte à partir du TTL initial (64 pour Linux, 128 pour Windows) et des options TCP.</li>
+      <li>Les sessions nulles SMB et les communautés SNMP par défaut (public/private) constituent des vecteurs d'énumération majeurs.</li>
+      <li>Nmap Scripting Engine (NSE) permet d'automatiser la détection de vulnérabilités critiques via des scripts Lua modulaires.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais interpréter l'état d'un port TCP selon la sonde Nmap envoyée et le paquet de réponse reçu.</li>
+      <li>Je maîtrise la détection de versions et de systèmes d'exploitation via les options -sV et -O.</li>
+      <li>Je sais auditer les configurations SMB et SNMP vulnérables.</li>
+      <li>Je sais écrire des analyseurs en Python 3 simulant le décodage de sondes TCP Nmap.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Poignée de Mains TCP (3-Way Handshake) :</strong> Séquence d'établissement de connexion en 3 étapes : SYN, SYN+ACK, puis ACK selon la RFC 793.</li><li><strong>SYN Stealth Scan (-sS) :</strong> Balayage de ports demi-ouvert envoyant un RST dès réception du SYN+ACK sans finaliser la connexion.</li><li><strong>OS Fingerprinting (-O) :</strong> Technique d'identification du système d'exploitation basée sur l'analyse des caractéristiques fines de la pile TCP/IP (TTL, Window Size).</li><li><strong>Session Nulle SMB :</strong> Connexion non authentifiée sur le port 445/139 permettant d'énumérer les partages, utilisateurs et groupes d'un système.</li><li><strong>Communauté SNMP v1/v2c :</strong> Mot de passe transmis en clair régissant l'accès en lecture (public) ou écriture (private) à l'arborescence MIB-2 d'un équipement.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections théoriques et revois les définitions clés.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Pratique les exercices N1 de l'atelier avant de retenter le test.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise d'ingénierie validée : passe au module suivant.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Exploitation des Vulnérabilités Web (OWASP Top 10 & Injection) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins & MITRE ATT&CK.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

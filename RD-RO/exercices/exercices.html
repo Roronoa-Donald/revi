@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banque d'Exercices | Recherche Opérationnelle</title>
+    <meta name="description" content="Banque de 10 exercices corrigés de modélisation en Recherche Opérationnelle.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { background-color: #f5f3f1; color: #141414; font-family: 'JetBrains Mono', monospace; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .nav-link { opacity: 0.7; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { opacity: 1; color: #34d399; }
+        
+        /* Accordion transition */
+        .accordion-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-content.open {
+            max-height: 1000px;
+            opacity: 1;
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 glass-card border-b border-[#e4e4e4]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-[#141414] font-bold">R</div>
+                    <span class="font-bold text-xl tracking-tight text-[#141414]">Recherche <span class="text-[#059669]">Opérationnelle</span></span>
+                </div>
+                <div class="hidden md:block desktop-nav">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="../index.html" class="nav-link">Accueil</a>
+                        <a href="../chapitres/chapitre1.html" class="nav-link text-sm font-medium">Cours</a>
+                        <a href="#" class="nav-link active text-sm font-medium">Exercices</a>
+                        <a href="../chapitres/formules.html" class="nav-link text-sm font-medium">Formules</a>
+                        <a href="../chapitres/simulateur-examen.html" class="nav-link text-sm font-medium text-[#059669] border border-emerald-500/30 px-3 py-1 rounded hover:bg-emerald-500/10">Examen</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="theme-toggle" aria-label="Changer de thème"><i class="fas fa-sun"></i></button>
+                    <button class="hamburger-btn md:hidden" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav-overlay" aria-hidden="true"></div>
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+        <div class="flex justify-between items-center mb-6">
+            <span class="font-bold text-lg">Menu</span>
+            <button onclick="document.querySelector('.mobile-nav-overlay').click()" class="text-[#57534e] hover:text-[#141414]" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="../index.html">Accueil</a>
+        <a href="../chapitres/chapitre1.html">Cours</a>
+        <a href="#">Exercices</a>
+        <a href="../chapitres/formules.html">Formules</a>
+        <a href="../chapitres/simulateur-examen.html">Examen</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-[#141414] mb-4">Banque d'<span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-[#0d9488]">Exercices</span></h1>
+            <p class="text-[#57534e]">Chaque exercice suit la méthodologie universelle en <strong class="text-[#047857]">6 étapes</strong> : Analyser → Variables → Objectif → Contraintes → Non-négativité → Modèle Final.</p>
+            <div class="flex justify-center gap-3 mt-4">
+                <span class="text-xs bg-[#064e3b]/20/30 text-[#047857] border border-emerald-500/20 px-3 py-1 rounded-full">10 Modélisation</span>
+                <span class="text-xs bg-[#b45309]/20/30 text-[#b45309] border border-amber-500/20 px-3 py-1 rounded-full">4 Résolution Simplexe</span>
+            </div>
+        </header>
+
+        <div class="space-y-6" id="exercises-list">
+            <!-- Exercices generated via JS for cleaner HTML -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Optimization Master — Recherche Opérationnelle.</p>
+        </div>
+    </footer>
+
+    <script>
+        const exercises = [
+            {
+                title: "Ex 1 : Production sur deux machines",
+                tags: ["Modélisation", "Maximisation", "Facile"],
+                enonce: "Une usine fabrique des produits <strong>A</strong> et <strong>B</strong> à l'aide de deux machines. La machine 1 fonctionne <strong>10h/jour</strong> et machine 2 <strong>12h/jour</strong>.<br>• Le produit A occupe M1 pendant <strong>2h</strong> et M2 pendant <strong>4h</strong>.<br>• Le produit B occupe M1 pendant <strong>3h</strong> et M2 pendant <strong>2h</strong>.<br>• Bénéfice : <strong>50€ pour A</strong>, <strong>40€ pour B</strong>.<br><br><strong>Objectif :</strong> Maximiser le bénéfice. <em>Appliquez la méthodologie en 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MAXIMISER</strong> le bénéfice → mot-clé "bénéfice" = on veut gagner le plus possible</li>
+                            <li>Limitations : temps disponible sur chaque machine (10h et 12h)</li>
+                            <li>Ce qu'on contrôle : quantités de A et B à produire</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_1$ = nombre de produits A fabriqués par jour<br>
+                        $x_2$ = nombre de produits B fabriqués par jour
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        Chaque A rapporte 50€, chaque B rapporte 40€ :<br>
+                        $$\\text{Max } Z = 50x_1 + 40x_2$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        <table class="w-full text-xs mt-2 border-collapse mb-2"><thead><tr class="text-[#155e75]"><th class="border border-[#d6d3d1] px-2 py-1">Ressource</th><th class="border border-[#d6d3d1] px-2 py-1">A ($x_1$)</th><th class="border border-[#d6d3d1] px-2 py-1">B ($x_2$)</th><th class="border border-[#d6d3d1] px-2 py-1">Dispo</th></tr></thead><tbody><tr><td class="border border-[#d6d3d1] px-2 py-1">Machine 1</td><td class="border border-[#d6d3d1] px-2 py-1 text-center">2h</td><td class="border border-[#d6d3d1] px-2 py-1 text-center">3h</td><td class="border border-[#d6d3d1] px-2 py-1 text-center font-bold">10h</td></tr><tr><td class="border border-[#d6d3d1] px-2 py-1">Machine 2</td><td class="border border-[#d6d3d1] px-2 py-1 text-center">4h</td><td class="border border-[#d6d3d1] px-2 py-1 text-center">2h</td><td class="border border-[#d6d3d1] px-2 py-1 text-center font-bold">12h</td></tr></tbody></table>
+                        $2x_1 + 3x_2 \\leq 10$ &nbsp;(Machine 1 : dispo 10h)<br>
+                        $4x_1 + 2x_2 \\leq 12$ &nbsp;(Machine 2 : dispo 12h)
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x_1, x_2 \\geq 0$
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#047857] font-bold">$\\text{Max } Z = 50x_1 + 40x_2$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad 2x_1 + 3x_2 \\leq 10$ &nbsp;(Machine 1)</div>
+                            <div>$\\quad 4x_1 + 2x_2 \\leq 12$ &nbsp;(Machine 2)</div>
+                            <div>$\\quad x_1, x_2 \\geq 0$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 2 : Mélange Alimentaire (Diète)",
+                tags: ["Minimisation", "Mélange", "Moyen"],
+                enonce: "Un moulin doit mélanger du <strong>blé</strong> (3€/kg) et du <strong>maïs</strong> (2€/kg) pour obtenir une farine (max 100kg).<br>Stocks : <strong>60kg Blé</strong>, <strong>80kg Maïs</strong>.<br>Contrainte qualité : Au moins <strong>40% de blé</strong>, au moins <strong>30% de maïs</strong>.<br><br><strong>Objectif :</strong> Minimiser le coût. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MINIMISER</strong> le coût → mot-clé "coût" = dépense = MIN</li>
+                            <li>Limitations : stocks (60kg blé, 80kg maïs), composition minimale (40% blé, 30% maïs), capacité (100kg)</li>
+                            <li>On contrôle : quantités de blé et maïs à utiliser</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_b$ = quantité de blé utilisée (en kg)<br>
+                        $x_m$ = quantité de maïs utilisée (en kg)
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        $$\\text{Min } Z = 3x_b + 2x_m$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        $x_b \\leq 60$ &nbsp;(Stock Blé disponible)<br>
+                        $x_m \\leq 80$ &nbsp;(Stock Maïs disponible)<br>
+                        $x_b + x_m \\leq 100$ &nbsp;(Capacité broyeur)<br><br>
+                        <div class="p-2 bg-red-500/10 border border-red-500/20 rounded text-xs mt-1">
+                            <strong> Piège pourcentages :</strong><br>
+                            "au moins 40% de blé" → $x_b \\geq 0.40(x_b + x_m)$ → $0.6x_b - 0.4x_m \\geq 0$<br>
+                            "au moins 30% de maïs" → $x_m \\geq 0.30(x_b + x_m)$ → $-0.3x_b + 0.7x_m \\geq 0$
+                        </div>
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x_b, x_m \\geq 0$
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#991b1b] font-bold">$\\text{Min } Z = 3x_b + 2x_m$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad x_b \\leq 60$ &nbsp;(Stock Blé)</div>
+                            <div>$\\quad x_m \\leq 80$ &nbsp;(Stock Maïs)</div>
+                            <div>$\\quad x_b + x_m \\leq 100$ &nbsp;(Capacité)</div>
+                            <div>$\\quad 0.6x_b - 0.4x_m \\geq 0$ &nbsp;(Min 40% blé)</div>
+                            <div>$\\quad -0.3x_b + 0.7x_m \\geq 0$ &nbsp;(Min 30% maïs)</div>
+                            <div>$\\quad x_b, x_m \\geq 0$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 3 : Planification d'Ateliers",
+                tags: ["Production", "Maximisation", "Facile"],
+                enonce: "Une entreprise possède deux ateliers.<br>• Atelier 1 : peut produire max <strong>6 objets/j</strong>, doit produire au min <strong>2 objets/j</strong>. Gain : <strong>30€/objet</strong>.<br>• Atelier 2 : peut produire max <strong>4 objets/j</strong>. Gain : <strong>25€/objet</strong>.<br>• Total journalier : au moins <strong>3 objets</strong>.<br><br><strong>Objectif :</strong> Maximiser les recettes. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MAXIMISER</strong> les recettes → mot-clé "recettes" = gains = MAX</li>
+                            <li>Limitations : capacités max/min par atelier, demande totale minimale</li>
+                            <li>On contrôle : quantités produites par chaque atelier</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_1$ = nombre d'objets produits par l'Atelier 1 par jour<br>
+                        $x_2$ = nombre d'objets produits par l'Atelier 2 par jour
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        $$\\text{Max } Z = 30x_1 + 25x_2$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        $x_1 \\leq 6$ &nbsp;(Capacité max Atelier 1)<br>
+                        $x_1 \\geq 2$ &nbsp;(Production min Atelier 1 — "au minimum 2")<br>
+                        $x_2 \\leq 4$ &nbsp;(Capacité max Atelier 2)<br>
+                        $x_1 + x_2 \\geq 3$ &nbsp;(Demande totale — "au moins 3")<br><br>
+                        <div class="text-xs text-[#854d0e] p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                             <strong>Remarque :</strong> On a ici un mix de $\\leq$ (capacités max) et $\\geq$ (exigences min), ce qui est fréquent en pratique.
+                        </div>
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x_1, x_2 \\geq 0$ (et entiers si on veut des objets)
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#047857] font-bold">$\\text{Max } Z = 30x_1 + 25x_2$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad x_1 \\leq 6$ &nbsp;(Capacité Atelier 1)</div>
+                            <div>$\\quad x_1 \\geq 2$ &nbsp;(Min Atelier 1)</div>
+                            <div>$\\quad x_2 \\leq 4$ &nbsp;(Capacité Atelier 2)</div>
+                            <div>$\\quad x_1 + x_2 \\geq 3$ &nbsp;(Demande totale)</div>
+                            <div>$\\quad x_1, x_2 \\geq 0$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 4 : Affectation d'Ouvriers (Binaire)",
+                tags: ["Affectation", "Binaire", "Moyen"],
+                enonce: "Un responsable doit affecter <strong>4 ouvriers</strong> à <strong>4 tâches</strong> différentes. Chaque ouvrier ne peut être affecté qu'à <strong>une seule tâche</strong> et chaque tâche doit être faite par <strong>un seul ouvrier</strong>. Le coût de chaque affectation ouvrier-tâche est donné dans une matrice $c_{ij}$.<br><br><strong>Objectif :</strong> Minimiser le coût total d'affectation. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MINIMISER</strong> le coût total → mot-clé "coût" = MIN</li>
+                            <li>Limitations : chaque ouvrier fait exactement 1 tâche, chaque tâche est faite par exactement 1 ouvrier</li>
+                            <li>On contrôle : qui affecte-t-on à quelle tâche (décision oui/non)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_{ij} = \\begin{cases} 1 & \\text{si l'ouvrier } i \\text{ est affecté à la tâche } j \\\\ 0 & \\text{sinon} \\end{cases}$<br>
+                        <span class="text-xs text-[#57534e]">pour $i = 1,2,3,4$ et $j = 1,2,3,4$</span><br><br>
+                        <div class="text-xs text-[#854d0e] p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                             <strong>Astuce :</strong> Quand le choix est oui/non (affecter ou pas, sélectionner ou pas), les variables sont <strong>binaires</strong> $\\in \\{0,1\\}$.
+                        </div>
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        Soit $c_{ij}$ le coût d'affectation de l'ouvrier $i$ à la tâche $j$ :<br>
+                        $$\\text{Min } Z = \\sum_{i=1}^{4} \\sum_{j=1}^{4} c_{ij} \\, x_{ij}$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        <em>Chaque ouvrier est affecté à exactement 1 tâche :</em><br>
+                        $\\sum_{j=1}^{4} x_{ij} = 1, \\quad \\forall\\, i = 1,2,3,4$ <br><br>
+                        <em>Chaque tâche est faite par exactement 1 ouvrier :</em><br>
+                        $\\sum_{i=1}^{4} x_{ij} = 1, \\quad \\forall\\, j = 1,2,3,4$ <br><br>
+                        <div class="text-xs text-[#854d0e] p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                             <strong>Astuce :</strong> "exactement" → c'est $=$ (pas $\\leq$ ni $\\geq$).
+                        </div>
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : BINARITÉ</strong><br>
+                        $x_{ij} \\in \\{0, 1\\}, \\quad \\forall\\, i,j$
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#991b1b] font-bold">$\\text{Min } Z = \\sum_{i=1}^{4} \\sum_{j=1}^{4} c_{ij} \\, x_{ij}$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad \\sum_{j=1}^{4} x_{ij} = 1, \\; \\forall i$ &nbsp;(1 tâche/ouvrier)</div>
+                            <div>$\\quad \\sum_{i=1}^{4} x_{ij} = 1, \\; \\forall j$ &nbsp;(1 ouvrier/tâche)</div>
+                            <div>$\\quad x_{ij} \\in \\{0, 1\\}$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 5 : Optimisation de Transport",
+                tags: ["Transport", "Minimisation", "Moyen"],
+                enonce: "3 entrepôts (stocks : <strong>100, 150, 120</strong> unités) doivent livrer 4 magasins (demandes : <strong>80, 70, 90, 50</strong> unités). Le coût unitaire de transport $c_{ij}$ de l'entrepôt $i$ vers le magasin $j$ est donné.<br><br><strong>Objectif :</strong> Minimiser le coût total de transport. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MINIMISER</strong> le coût total de transport → mot-clé "coût" = MIN</li>
+                            <li>Limitations : stocks limités aux entrepôts, demandes à satisfaire aux magasins</li>
+                            <li>On contrôle : quantités à expédier de chaque entrepôt vers chaque magasin</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_{ij}$ = quantité expédiée de l'entrepôt $i$ vers le magasin $j$ (unités)<br>
+                        <span class="text-xs text-[#57534e]">où $i = 1,2,3$ (entrepôts) et $j = 1,2,3,4$ (magasins)</span>
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        $$\\text{Min } Z = \\sum_{i=1}^{3} \\sum_{j=1}^{4} c_{ij} \\, x_{ij}$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        <em>Offre — chaque entrepôt ne peut expédier plus que son stock :</em><br>
+                        $\\sum_{j=1}^{4} x_{1j} \\leq 100$ &nbsp;(Entrepôt 1)<br>
+                        $\\sum_{j=1}^{4} x_{2j} \\leq 150$ &nbsp;(Entrepôt 2)<br>
+                        $\\sum_{j=1}^{4} x_{3j} \\leq 120$ &nbsp;(Entrepôt 3)<br><br>
+                        <em>Demande — chaque magasin doit recevoir au moins sa demande :</em><br>
+                        $\\sum_{i=1}^{3} x_{i1} \\geq 80$ &nbsp;(Magasin 1)<br>
+                        $\\sum_{i=1}^{3} x_{i2} \\geq 70$ &nbsp;(Magasin 2)<br>
+                        $\\sum_{i=1}^{3} x_{i3} \\geq 90$ &nbsp;(Magasin 3)<br>
+                        $\\sum_{i=1}^{3} x_{i4} \\geq 50$ &nbsp;(Magasin 4)<br><br>
+                        <div class="text-xs text-[#854d0e] p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                             <strong>Remarque :</strong> $\\leq$ pour les stocks (on ne peut pas envoyer plus que ce qu'on a), $\\geq$ pour les demandes (on doit livrer au moins ce qui est demandé). C'est la règle classique !
+                        </div>
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x_{ij} \\geq 0, \\quad \\forall\\, i,j$
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#991b1b] font-bold">$\\text{Min } Z = \\sum_{i=1}^{3} \\sum_{j=1}^{4} c_{ij} x_{ij}$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad \\sum_{j} x_{ij} \\leq s_i, \\; \\forall i$ &nbsp;(Offre entrepôts)</div>
+                            <div>$\\quad \\sum_{i} x_{ij} \\geq d_j, \\; \\forall j$ &nbsp;(Demande magasins)</div>
+                            <div>$\\quad x_{ij} \\geq 0$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 6 : Optimisation Matières Premières",
+                tags: ["Production", "Minimisation", "Facile"],
+                enonce: "Une entreprise doit produire au minimum <strong>200 unités</strong>. Chaque unité nécessite <strong>2g de matière A</strong> (4€/g) et <strong>3g de matière B</strong> (2€/g). Approvisionnements max : <strong>500g pour A</strong>, <strong>800g pour B</strong>.<br><br><strong>Objectif :</strong> Minimiser le coût total de production. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MINIMISER</strong> le coût → mot-clé "coût" = MIN</li>
+                            <li>Limitations : stocks de matières (500g A, 800g B), demande minimale (200 unités)</li>
+                            <li>On contrôle : <strong>le nombre d'unités à produire</strong></li>
+                        </ul>
+                        <div class="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-xs text-[#854d0e]">
+                             <strong>Attention :</strong> Ici on ne contrôle PAS les quantités de matières A et B séparément. On contrôle seulement le nombre de produits finis — chaque unité consomme automatiquement 2g de A et 3g de B.
+                        </div>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLE DE DÉCISION</strong><br>
+                        $x$ = nombre d'unités à produire
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        Coût par unité = $(2 \\times 4) + (3 \\times 2) = 8 + 6 = 14$€ par unité.<br>
+                        $$\\text{Min } Z = 14x$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        $2x \\leq 500$ &nbsp;(Stock matière A : 2g/unité, max 500g)<br>
+                        $3x \\leq 800$ &nbsp;(Stock matière B : 3g/unité, max 800g)<br>
+                        $x \\geq 200$ &nbsp;(Demande minimale de production)
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x \\geq 0$
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#991b1b] font-bold">$\\text{Min } Z = 14x$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad 2x \\leq 500$ &nbsp;(Stock A)</div>
+                            <div>$\\quad 3x \\leq 800$ &nbsp;(Stock B)</div>
+                            <div>$\\quad x \\geq 200$ &nbsp;(Demande min)</div>
+                            <div>$\\quad x \\geq 0$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 7 : Budget Publicitaire",
+                tags: ["Marketing", "Maximisation", "Moyen"],
+                enonce: "Budget : <strong>10 000€</strong>.<br>• Pub Type A : <strong>500€/spot</strong>, touche <strong>3 000 personnes</strong>, max <strong>12 spots</strong>.<br>• Pub Type B : <strong>1 000€/spot</strong>, touche <strong>5 000 personnes</strong>, min <strong>5 spots</strong>.<br><br><strong>Objectif :</strong> Maximiser la portée (nombre de personnes touchées). <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MAXIMISER</strong> la portée → mot-clé "personnes touchées" = audience = MAX</li>
+                            <li>Limitations : budget (10 000€), minimum de B (5 spots), maximum de A (12 spots)</li>
+                            <li>On contrôle : nombre de spots de chaque type</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_a$ = nombre de spots publicitaires de type A<br>
+                        $x_b$ = nombre de spots publicitaires de type B
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        Chaque A touche 3000 personnes, chaque B touche 5000 personnes :<br>
+                        $$\\text{Max } Z = 3000x_a + 5000x_b$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        $500x_a + 1000x_b \\leq 10000$ &nbsp;(Budget limité à 10 000€)<br>
+                        $x_b \\geq 5$ &nbsp;(Minimum 5 spots B — "au minimum")<br>
+                        $x_a \\leq 12$ &nbsp;(Maximum 12 spots A — "au maximum")
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x_a, x_b \\geq 0$ (et entiers — on ne peut pas acheter 0.5 spot)
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#047857] font-bold">$\\text{Max } Z = 3000x_a + 5000x_b$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad 500x_a + 1000x_b \\leq 10000$ &nbsp;(Budget)</div>
+                            <div>$\\quad x_b \\geq 5$ &nbsp;(Min B)</div>
+                            <div>$\\quad x_a \\leq 12$ &nbsp;(Max A)</div>
+                            <div>$\\quad x_a, x_b \\geq 0, \\text{ entiers}$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 8 : Affectation Ressources Humaines",
+                tags: ["RH", "Minimisation", "Difficile"],
+                enonce: "Un manager dispose de <strong>5 agents</strong>. <br>• Projet 1 nécessite au min <strong>100h</strong>. Projet 2 nécessite au min <strong>150h</strong>.<br>• Chaque agent peut consacrer max <strong>40h</strong> par projet.<br><br><strong>Objectif :</strong> Minimiser le nombre total d'agents mobilisés. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MINIMISER</strong> le nombre d'agents → MIN</li>
+                            <li>Limitations : 5 agents disponibles, heures minimales par projet, 40h max/agent/projet</li>
+                            <li>On contrôle : combien d'agents affecter à chaque projet</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x$ = nombre d'agents affectés au Projet 1<br>
+                        $y$ = nombre d'agents affectés au Projet 2
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        $$\\text{Min } Z = x + y$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        $x + y \\leq 5$ &nbsp;(Total agents disponibles)<br>
+                        $40x \\geq 100$ soit $x \\geq 2.5$ &nbsp;(Heures min Projet 1)<br>
+                        $40y \\geq 150$ soit $y \\geq 3.75$ &nbsp;(Heures min Projet 2)
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x, y \\in \\mathbb{N}$ (agents entiers)
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL + VÉRIFICATION</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#991b1b] font-bold">$\\text{Min } Z = x + y$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad x + y \\leq 5$</div>
+                            <div>$\\quad x \\geq 2.5 \\Rightarrow x \\geq 3$ (entier)</div>
+                            <div>$\\quad y \\geq 3.75 \\Rightarrow y \\geq 4$ (entier)</div>
+                            <div>$\\quad x, y \\in \\mathbb{N}$</div>
+                        </div>
+                        <div class="mt-3 p-2 bg-red-500/10 border border-red-500/20 rounded text-xs text-[#991b1b]">
+                            <strong> Conclusion :</strong> $x \\geq 3$ et $y \\geq 4$ implique $x + y \\geq 7$, mais on a max 5 agents. <strong>Ce problème n'a PAS de solution réalisable !</strong> C'est un cas classique d'infaisabilité à l'examen — il faut le détecter et le dire.
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 9 : Sélection de Produits (PL Binaire)",
+                tags: ["Binaire", "Maximisation", "Difficile"],
+                enonce: "Un magasin doit sélectionner <strong>exactement 3 articles</strong> parmi 6 disponibles. Budget max : <strong>80€</strong>.<br><table class='w-full text-xs mt-2 border-collapse'><thead><tr class='text-[#155e75]'><th class='border border-[#d6d3d1] px-2 py-1'>Article</th><th class='border border-[#d6d3d1] px-2 py-1'>1</th><th class='border border-[#d6d3d1] px-2 py-1'>2</th><th class='border border-[#d6d3d1] px-2 py-1'>3</th><th class='border border-[#d6d3d1] px-2 py-1'>4</th><th class='border border-[#d6d3d1] px-2 py-1'>5</th><th class='border border-[#d6d3d1] px-2 py-1'>6</th></tr></thead><tbody><tr><td class='border border-[#d6d3d1] px-2 py-1'>Coût (€)</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>20</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>30</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>15</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>25</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>35</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>10</td></tr><tr><td class='border border-[#d6d3d1] px-2 py-1'>Valeur</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>100</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>120</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>80</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>110</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>150</td><td class='border border-[#d6d3d1] px-2 py-1 text-center'>90</td></tr></tbody></table><br><strong>Objectif :</strong> Maximiser la valeur totale. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MAXIMISER</strong> la valeur totale → mot-clé "valeur" = MAX</li>
+                            <li>Limitations : sélectionner exactement 3, budget $\\leq$ 80€, chaque article 1 fois max</li>
+                            <li>On contrôle : quels articles sélectionner (choix oui/non)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_i = \\begin{cases} 1 & \\text{si l'article } i \\text{ est sélectionné} \\\\ 0 & \\text{sinon} \\end{cases}$ pour $i = 1, \\ldots, 6$
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        $$\\text{Max } Z = 100x_1 + 120x_2 + 80x_3 + 110x_4 + 150x_5 + 90x_6$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        $\\sum_{i=1}^{6} x_i = 3$ &nbsp;(Sélectionner <strong>exactement</strong> 3 articles)<br>
+                        $20x_1 + 30x_2 + 15x_3 + 25x_4 + 35x_5 + 10x_6 \\leq 80$ &nbsp;(Budget)
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : BINARITÉ</strong><br>
+                        $x_i \\in \\{0, 1\\}, \\quad \\forall\\, i = 1, \\ldots, 6$
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#047857] font-bold">$\\text{Max } Z = 100x_1 + 120x_2 + 80x_3 + 110x_4 + 150x_5 + 90x_6$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad \\sum_{i=1}^{6} x_i = 3$ &nbsp;(Exactement 3)</div>
+                            <div>$\\quad 20x_1 + 30x_2 + 15x_3 + 25x_4 + 35x_5 + 10x_6 \\leq 80$ &nbsp;(Budget)</div>
+                            <div>$\\quad x_i \\in \\{0, 1\\}$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 10 : Planification Agricole",
+                tags: ["Agriculture", "Maximisation", "Moyen"],
+                enonce: "Un agriculteur dispose de <strong>100 hectares</strong>. Il doit cultiver au min <strong>30 ha de blé</strong> et au min <strong>20 ha de maïs</strong>.<br>Gains : Blé <strong>500€/ha</strong>, Maïs <strong>400€/ha</strong>. Contrainte d'engrais : surface cultivable totale max <strong>90 ha</strong>.<br><br><strong>Objectif :</strong> Maximiser le revenu total. <em>Appliquez les 6 étapes.</em>",
+                correction: `
+                <div class="space-y-4">
+                    <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                        <strong class="text-[#1d4ed8]">Étape 1 : ANALYSER L'ÉNONCÉ</strong><br>
+                        <ul class="text-sm mt-1 space-y-1 list-disc pl-4">
+                            <li>Objectif : <strong>MAXIMISER</strong> le revenu → mot-clé "revenu" = gains = MAX</li>
+                            <li>Limitations : terrain total (100 ha), engrais (90 ha max), minimums de blé (30 ha) et maïs (20 ha)</li>
+                            <li>On contrôle : surfaces allouées à chaque culture</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Étape 2 : VARIABLES DE DÉCISION</strong><br>
+                        $x_1$ = surface cultivée en blé (en hectares)<br>
+                        $x_2$ = surface cultivée en maïs (en hectares)
+                    </div>
+                    <div>
+                        <strong class="text-[#A16207]">Étape 3 : FONCTION OBJECTIF</strong><br>
+                        $$\\text{Max } Z = 500x_1 + 400x_2$$
+                    </div>
+                    <div>
+                        <strong class="text-[#0e7490]">Étape 4 : CONTRAINTES</strong><br>
+                        $x_1 + x_2 \\leq 100$ &nbsp;(Surface totale du terrain)<br>
+                        $x_1 + x_2 \\leq 90$ &nbsp;(Contrainte engrais — limite la surface cultivable)<br>
+                        $x_1 \\geq 30$ &nbsp;(Min blé — "au minimum")<br>
+                        $x_2 \\geq 20$ &nbsp;(Min maïs — "au minimum")<br><br>
+                        <div class="text-xs text-[#854d0e] p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                             <strong>Observation :</strong> La contrainte engrais ($\\leq 90$) est plus restrictive que le terrain ($\\leq 100$). La contrainte terrain est donc <em>dominée</em> — en pratique elle ne sert à rien, mais à l'examen on la garde pour montrer qu'on a tout lu.
+                        </div>
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Étape 5 : NON-NÉGATIVITÉ</strong><br>
+                        $x_1, x_2 \\geq 0$
+                    </div>
+                    <div class="p-3 bg-[#064e3b]/20/30 border border-emerald-500/20 rounded">
+                        <strong class="text-[#e11d48]">Étape 6 : MODÈLE FINAL</strong><br>
+                        <div class="font-mono text-sm mt-2 space-y-1">
+                            <div class="text-[#047857] font-bold">$\\text{Max } Z = 500x_1 + 400x_2$</div>
+                            <div class="text-[#57534e]">s.c.</div>
+                            <div>$\\quad x_1 + x_2 \\leq 100$ &nbsp;(Terrain)</div>
+                            <div>$\\quad x_1 + x_2 \\leq 90$ &nbsp;(Engrais)</div>
+                            <div>$\\quad x_1 \\geq 30$ &nbsp;(Min blé)</div>
+                            <div>$\\quad x_2 \\geq 20$ &nbsp;(Min maïs)</div>
+                            <div>$\\quad x_1, x_2 \\geq 0$</div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            // === EXERCICES DE RESOLUTION SIMPLEXE ===
+            {
+                title: "Ex 11 : Résolution Simplexe — Boulangerie (Style Examen)",
+                tags: ["Simplexe", "Résolution", "Examen"],
+                enonce: "Une boulangerie fabrique du <strong>pain</strong> ($x_1$) et des <strong>sandwichs</strong> ($x_2$) à partir de farine.<br>$$\\text{Max } Z = 3x_1 + 5x_2$$<br>Sous les contraintes :<br>$x_1 + 2x_2 \\leq 12$ (Farine)<br>$2x_1 + x_2 \\leq 10$ (Main-d'œuvre)<br>$x_1, x_2 \\geq 0$<br><br><strong>Résolvez par la méthode du Simplexe.</strong> Donnez chaque tableau, identifiez variable entrante/sortante, et appliquez le test d'optimalité.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-[#b45309]">Forme standard :</strong><br>
+                        $x_1 + 2x_2 + e_1 = 12$<br>
+                        $2x_1 + x_2 + e_2 = 10$<br>
+                        $Z - 3x_1 - 5x_2 = 0$
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Tableau T0 :</strong><br>
+                        <table class="w-full text-xs mt-2 border-collapse"><thead><tr class="text-[#b45309]"><th class="border border-[#d6d3d1] px-2">VDB</th><th class="border border-[#d6d3d1] px-2">$x_1$</th><th class="border border-[#d6d3d1] px-2">$x_2$</th><th class="border border-[#d6d3d1] px-2">$e_1$</th><th class="border border-[#d6d3d1] px-2">$e_2$</th><th class="border border-[#d6d3d1] px-2">RHS</th><th class="border border-[#d6d3d1] px-2">θ</th></tr></thead><tbody><tr><td class="border border-[#d6d3d1] px-2">$e_1$</td><td class="border border-[#d6d3d1] px-2">1</td><td class="border border-[#d6d3d1] px-2 text-[#854d0e]">2</td><td class="border border-[#d6d3d1] px-2">1</td><td class="border border-[#d6d3d1] px-2">0</td><td class="border border-[#d6d3d1] px-2">12</td><td class="border border-[#d6d3d1] px-2 text-[#155e75]">12/2=6 </td></tr><tr><td class="border border-[#d6d3d1] px-2">$e_2$</td><td class="border border-[#d6d3d1] px-2">2</td><td class="border border-[#d6d3d1] px-2">1</td><td class="border border-[#d6d3d1] px-2">0</td><td class="border border-[#d6d3d1] px-2">1</td><td class="border border-[#d6d3d1] px-2">10</td><td class="border border-[#d6d3d1] px-2 text-[#155e75]">10/1=10</td></tr><tr class="text-[#b45309]"><td class="border border-[#d6d3d1] px-2">Z</td><td class="border border-[#d6d3d1] px-2 text-[#b91c1c]">−3</td><td class="border border-[#d6d3d1] px-2 text-[#b91c1c] font-bold">−5 </td><td class="border border-[#d6d3d1] px-2">0</td><td class="border border-[#d6d3d1] px-2">0</td><td class="border border-[#d6d3d1] px-2">0</td><td class="border border-[#d6d3d1] px-2"></td></tr></tbody></table>
+                        <br><strong class="text-[#991b1b]">Test d'optimalité :</strong> −5 < 0 → NON optimal. Variable entrante : $x_2$ (gain marginal = 5). Variable sortante : $e_1$ (θ=6). Pivot = 2.
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Pivotage (It.1) :</strong><br>
+                        L1' = L1/2 → [1/2, 1, 1/2, 0, 6]<br>
+                        L2' = L2 − 1·L1' → [3/2, 0, −1/2, 1, 4]<br>
+                        LZ' = LZ + 5·L1' → [−1/2, 0, 5/2, 0, 30]
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Tableau T1 :</strong><br>
+                        VDB = {$x_2=6$, $e_2=4$}. VHB = {$x_1=0$, $e_1=0$}. Z=30.<br>
+                        <strong class="text-[#991b1b]">Test d'optimalité :</strong> −1/2 < 0 → NON optimal. $x_1$ entre, $e_2$ sort (θ=4/(3/2)=8/3). Pivot = 3/2.
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">Pivotage (It.2) :</strong><br>
+                        L2' = L2/(3/2) → [1, 0, −1/3, 2/3, 8/3]<br>
+                        L1' = L1 − (1/2)·L2' → [0, 1, 2/3, −1/3, 14/3]<br>
+                        LZ' = LZ + (1/2)·L2' → [0, 0, 7/3, 1/3, 94/3]
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">Tableau Final T2 :</strong><br>
+                        <strong class="text-[#047857]">Test d'optimalité :</strong> Tous les $\\bar{c}_j \\geq 0$ → <strong>OPTIMAL !</strong><br><br>
+                        <strong>Solution :</strong> $x_1 = 8/3 \\approx 2.67$, $x_2 = 14/3 \\approx 4.67$<br>
+                        <strong class="text-[#047857]">$Z^* = 94/3 \\approx 31.33$</strong>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 12 : Simplexe — Identifier VDB/VHB",
+                tags: ["Simplexe", "VDB/VHB", "Examen"],
+                enonce: "Soit le tableau simplexe suivant :<br><table class='w-full text-xs mt-2 border-collapse'><thead><tr class='text-[#b45309]'><th class='border border-[#d6d3d1] px-2'>VDB</th><th class='border border-[#d6d3d1] px-2'>$x_1$</th><th class='border border-[#d6d3d1] px-2'>$x_2$</th><th class='border border-[#d6d3d1] px-2'>$e_1$</th><th class='border border-[#d6d3d1] px-2'>$e_2$</th><th class='border border-[#d6d3d1] px-2'>RHS</th></tr></thead><tbody><tr><td class='border border-[#d6d3d1] px-2'>$x_2$</td><td class='border border-[#d6d3d1] px-2'>0</td><td class='border border-[#d6d3d1] px-2'>1</td><td class='border border-[#d6d3d1] px-2'>3</td><td class='border border-[#d6d3d1] px-2'>-1</td><td class='border border-[#d6d3d1] px-2'>8</td></tr><tr><td class='border border-[#d6d3d1] px-2'>$x_1$</td><td class='border border-[#d6d3d1] px-2'>1</td><td class='border border-[#d6d3d1] px-2'>0</td><td class='border border-[#d6d3d1] px-2'>-2</td><td class='border border-[#d6d3d1] px-2'>1</td><td class='border border-[#d6d3d1] px-2'>5</td></tr><tr class='text-[#b45309]'><td class='border border-[#d6d3d1] px-2'>Z</td><td class='border border-[#d6d3d1] px-2'>0</td><td class='border border-[#d6d3d1] px-2'>0</td><td class='border border-[#d6d3d1] px-2'>4</td><td class='border border-[#d6d3d1] px-2'>2</td><td class='border border-[#d6d3d1] px-2'>42</td></tr></tbody></table><br><strong>Questions :</strong><br>a) Identifiez les VDB et les VHB.<br>b) Donnez la solution courante.<br>c) La solution est-elle optimale ? Justifiez par le test d'optimalité.<br>d) Interprétez les valeurs des variables d'écart.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-[#059669]">a) VDB et VHB :</strong><br>
+                        <strong>VDB</strong> (variables dans la base) = {$x_2$, $x_1$} — ce sont les variables qui apparaissent dans la colonne "VDB" du tableau.<br>
+                        <strong>VHB</strong> (variables hors la base) = {$e_1$, $e_2$} — fixées à 0.
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">b) Solution courante :</strong><br>
+                        $x_1 = 5$ (RHS de la ligne $x_1$)<br>
+                        $x_2 = 8$ (RHS de la ligne $x_2$)<br>
+                        $e_1 = 0$ (hors base) — $e_2 = 0$ (hors base)<br>
+                        $Z = 42$
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">c) Test d'optimalité :</strong><br>
+                        Ligne Z : coefficients des VHB sont $\\bar{c}_{e_1} = 4 \\geq 0$ et $\\bar{c}_{e_2} = 2 \\geq 0$.<br>
+                        <strong class="text-[#047857]">Tous positifs ou nuls → la solution EST optimale.</strong>
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">d) Interprétation :</strong><br>
+                        $e_1 = 0$ → la 1ère contrainte est <strong>saturée</strong> (ressource entièrement utilisée).<br>
+                        $e_2 = 0$ → la 2ème contrainte est aussi <strong>saturée</strong>.<br>
+                        Les deux ressources sont utilisées à 100%.
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 13 : Simplexe Complet — Production (3 contraintes)",
+                tags: ["Simplexe", "Résolution", "Difficile"],
+                enonce: "$$\\text{Max } Z = 4x_1 + 3x_2$$<br>$x_1 + x_2 \\leq 10$ &nbsp;(C1)<br>$2x_1 + x_2 \\leq 14$ &nbsp;(C2)<br>$x_1 + 3x_2 \\leq 18$ &nbsp;(C3)<br>$x_1, x_2 \\geq 0$<br><br><strong>Résolvez entièrement par le Simplexe.</strong> Identifiez à chaque itération : test d'optimalité, variable entrante (critère de Dantzig), variable sortante, pivot.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-[#b45309]">Forme standard :</strong> Ajout de $e_1, e_2, e_3$.<br>
+                        Base initiale : {$e_1=10, e_2=14, e_3=18$}. VHB : {$x_1=0, x_2=0$}. Z=0.
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">T0 — Test d'optimalité :</strong> $\\bar{c}_1=-4$, $\\bar{c}_2=-3$ → NON optimal.<br>
+                        Critère de Dantzig : $|{-4}| > |{-3}|$ → $x_1$ entre.<br>
+                        Ratios : 10/1=10, 14/2=7 , 18/1=18 → $e_2$ sort. Pivot = 2.
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">It.1 (Pivot sur $a_{21}=2$) :</strong><br>
+                        L2'=L2/2 → [1, 1/2, 0, 1/2, 0, 7]<br>
+                        L1'=L1−L2' → [0, 1/2, 1, −1/2, 0, 3]<br>
+                        L3'=L3−L2' → [0, 5/2, 0, −1/2, 1, 11]<br>
+                        LZ'=LZ+4·L2' → [0, −1, 0, 2, 0, 28]
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">T1 — Test d'optimalité :</strong> $\\bar{c}_2=-1 < 0$ → NON optimal. $x_2$ entre.<br>
+                        Ratios : 3/(1/2)=6 , 7/(1/2)=14, 11/(5/2)=4.4  → $e_3$ sort (4.4 < 6). Pivot = 5/2.
+                    </div>
+                    <div>
+                        <strong class="text-[#b45309]">It.2 (Pivot sur $a_{32}=5/2$) :</strong><br>
+                        L3'=L3/(5/2) → [0, 1, 0, −1/5, 2/5, 4.4]<br>
+                        L1'=L1−(1/2)·L3' → [0, 0, 1, −2/5, −1/5, 0.8]<br>
+                        L2'=L2−(1/2)·L3' → [1, 0, 0, 3/5, −1/5, 4.8]<br>
+                        LZ'=LZ+1·L3' → [0, 0, 0, 9/5, 2/5, 32.4]
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">T2 — Test d'optimalité :</strong> Tous les $\\bar{c}_j \\geq 0$ → <strong>OPTIMAL !</strong><br><br>
+                        <strong>Solution :</strong> $x_1 = 4.8$, $x_2 = 4.4$, $e_1 = 0.8$<br>
+                        <strong class="text-[#047857]">$Z^* = 32.4$</strong><br>
+                        $e_1 = 0.8$ → il reste 0.8 unités de C1. $e_2 = 0, e_3 = 0$ → C2 et C3 saturées.
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 14 : Test d'Optimalité — Vrai/Faux (Style QCM Examen)",
+                tags: ["Simplexe", "Test d'optimalité", "QCM"],
+                enonce: "Pour chaque affirmation, dites si c'est <strong>VRAI</strong> ou <strong>FAUX</strong> et justifiez :<br><br>a) Dans un problème de maximisation, si la ligne Z contient le coefficient −3 pour une variable hors base, la solution courante n'est pas optimale.<br><br>b) Une variable d'écart égale à zéro signifie que la ressource correspondante n'est pas utilisée.<br><br>c) Le nombre de variables dans la base est toujours égal au nombre de contraintes fonctionnelles.<br><br>d) Le critère de Dantzig choisit comme variable entrante celle de ratio minimum.<br><br>e) Si toutes les variables d'écart sont dans la base, alors $Z=0$.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-[#059669]">a) VRAI.</strong> Un coefficient négatif dans la ligne Z (pour une VHB) en maximisation signifie qu'on peut encore améliorer Z en introduisant cette variable. Le test d'optimalité échoue.
+                    </div>
+                    <div>
+                        <strong class="text-[#b91c1c]">b) FAUX.</strong> C'est l'inverse ! $e_i = 0$ signifie que la ressource est <strong>entièrement utilisée</strong> (contrainte saturée). Si $e_i > 0$, il reste de la ressource inutilisée.
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">c) VRAI.</strong> Par définition, une solution de base a exactement $m$ variables dans la base (autant que de contraintes fonctionnelles) et $n$ variables hors la base.
+                    </div>
+                    <div>
+                        <strong class="text-[#b91c1c]">d) FAUX.</strong> Le critère de Dantzig choisit la variable avec le <strong>coefficient le plus négatif</strong> dans la ligne Z (plus grand gain marginal). Le ratio minimum sert à déterminer la <strong>variable sortante</strong>, pas l'entrante.
+                    </div>
+                    <div>
+                        <strong class="text-[#059669]">e) VRAI (dans le cas standard avec départ au point 0).</strong> Si VDB = {$e_1, \\ldots, e_m$} et VHB = {$x_1, \\ldots, x_n$}, alors $x_j = 0$ pour tout $j$, donc $Z = \\sum c_j \\cdot 0 = 0$.
+                    </div>
+                </div>`
+            }
+        ];
+        
+        // Add more placeholders for demo (since I can't put all 10 in one go efficiently without bloat, I'll put top 3 + generic filler for now then user can ask to expand)
+        
+        const container = document.getElementById('exercises-list');
+        
+        exercises.forEach((ex, idx) => {
+            const card = document.createElement('div');
+            card.className = 'glass-card rounded-xl overflow-hidden';
+            card.innerHTML = `
+                <div class="p-6 cursor-pointer hover:bg-white/5 transition-colors" onclick="toggleEx(${idx})">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-[#141414] flex items-center gap-2">
+                           <span class="bg-[#e4e4e4] text-[#059669] text-xs px-2 py-1 rounded">#${idx+1}</span>
+                           ${ex.title}
+                        </h3>
+                        <i class="fas fa-chevron-down text-[#78716c] transition-transform" id="icon-${idx}"></i>
+                    </div>
+                    <div class="flex gap-2 mb-4">
+                        ${ex.tags.map(t => `<span class="text-xs bg-[#064e3b]/20/30 text-[#047857] border border-emerald-500/20 px-2 py-0.5 rounded-full">${t}</span>`).join('')}
+                    </div>
+                    <div class="text-[#1c1917] text-sm bg-white/50 p-4 rounded border-l-2 border-[#a8a29e]">
+                        ${ex.enonce}
+                    </div>
+                </div>
+                
+                <div class="accordion-content bg-[#f5f3f1]/50 border-t border-[#eceae8]" id="content-${idx}">
+                    <div class="p-6">
+                         <h4 class="text-[#059669] font-bold mb-4 flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i> Correction
+                         </h4>
+                         <div class="text-[#1c1917] text-sm font-light leading-relaxed">
+                            ${ex.correction}
+                         </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        function toggleEx(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('open');
+                icon.style.transform = 'rotate(180deg)';
+                // Re-render mathjax if needed
+            }
+        }
+    </script>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Modèles OSI et TCP/IP, Encapsulation &amp;amp; En-têtes Réseau | CCNA Réseau B2</title>
+<meta name="description" content="Chapitre 1 du cours CCNA Réseau B2 : Architecture en 7 couches OSI vs 4 couches TCP/IP, unités de données (PDU), en-tête Ethernet II, adresses MAC, EtherType, processus d’encapsulation/désencapsulation et protocole ARP. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/ccna/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Modèles OSI et TCP/IP, Encapsulation &amp;amp; En-têtes Réseau | CCNA Réseau B2">
+<meta property="og:description" content="Chapitre 1 du cours CCNA Réseau B2 : Architecture en 7 couches OSI vs 4 couches TCP/IP, unités de données (PDU), en-tête Ethernet II, adresses MAC, EtherType, processus d’encapsulation/désencapsulation et protocole ARP. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnanav"><div class="ccnanav__in">
+  <a class="ccnanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnanav__sep" aria-hidden="true">/</span>
+  <a class="ccnanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA Réseau B2</a>
+  <div class="ccnanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccnawrap">
+<p class="crumb"><a href="../index.html">CCNA Réseau B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Modèles OSI et TCP/IP, Encapsulation &amp; En-têtes Réseau</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une entreprise internationale connecte ses nouveaux centres de données sur une dorsale hybride. Des dégradations de flux applicatifs et des pertes de paquets intermittentes sont observées entre les services web et les bases de données. Pour diagnostiquer avec précision les pannes sans accuser à tort les couches applicatives, les ingénieurs réseau doivent maîtriser l’architecture en couches, l’anatomie précise des unités de données de protocole (PDU), l’agencement des adresses physiques MAC et logiques IP, ainsi que les mécanismes d’encapsulation et de résolution ARP. Ce premier module établit le socle fondamental indispensable à l’obtention de la certification Cisco CCNA et à l’ingénierie réseau.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comparer de manière critique le modèle de référence OSI en 7 couches et le modèle TCP/IP en 4 couches ;</li>
+      <li>identifier le nom et la fonction du PDU à chaque niveau de la pile protocolaire (Data, Segment, Paquet, Trame, Bits) ;</li>
+      <li>décortiquer la structure d’une trame Ethernet II (MAC Destination, MAC Source, EtherType, Payload, FCS) ;</li>
+      <li>distinguer les adresses MAC Unicast, Multicast et Broadcast au niveau binaire ;</li>
+      <li>analyser le cycle complet d’encapsulation ascendante et de désencapsulation descendante ;</li>
+      <li>maîtriser le fonctionnement du protocole ARP, la gestion du cache et la résolution d’adresses locales.</li>
+    </ol>
+  </div>
+
+<h2>1. Modèle OSI (7 couches) vs Modèle TCP/IP (4 couches)</h2>
+
+<p>Pour structurer l’interopérabilité entre constructeurs et systèmes hétérogènes, deux modèles conceptuels coexistent dans les réseaux informatiques :</p>
+<ol>
+  <li><strong>Le Modèle de référence OSI (Open Systems Interconnection) :</strong> Élaboré par l’ISO, il décompose la communication en 7 couches formelles et indépendantes, de la couche physique jusqu’à l’application.</li>
+  <li><strong>Le Modèle TCP/IP (modèle Internet) :</strong> Conçu par le DARPA, orienté vers la mise en œuvre pratique, il regroupe les fonctions en 4 couches opérationnelles dominant l’ensemble d’Internet.</li>
+</ol>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Correspondance des Couches</h4>
+    <ul>
+      <li><strong>L7 (Application), L6 (Présentation), L5 (Session) :</strong> Fusionnées en Couche Application TCP/IP (HTTP, DNS, SSH, DHCP).</li>
+      <li><strong>L4 (Transport) :</strong> Couche Transport (TCP orienté connexion fiable, UDP orienté datagramme rapide).</li>
+      <li><strong>L3 (Réseau) :</strong> Couche Internet (IPv4, IPv6, ICMP, routage logique).</li>
+      <li><strong>L2 (Liaison de données) &amp; L1 (Physique) :</strong> Couche Accès Réseau (Ethernet IEEE 802.3, Wi-Fi 802.11, câbles cuivre et fibre optique).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Bénéfices de l’Approche en Couches</h4>
+    <ul>
+      <li><strong>Encapsulation et modularité :</strong> Une couche supérieure consomme les services de la couche inférieure sans se soucier de son implémentation matérielle.</li>
+      <li><strong>Dépannage méthodique (Troubleshooting) :</strong> Approches Bottom-Up (de L1 vers L7) ou Top-Down (de L7 vers L1) préconisées par Cisco.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Unités de Données de Protocole (PDU) &amp; Processus d’Encapsulation</h2>
+
+<p>Chaque couche ajoute ses propres métadonnées de contrôle sous forme d’un <strong>en-tête (header)</strong> lors de l’émission, transformant la donnée en une <strong>Protocol Data Unit (PDU)</strong> spécifique :</p>
+<table class="table">
+  <thead>
+    <tr><th>Couche</th><th>PDU</th><th>Adresses / Identifiants</th><th>Exemples d’En-têtes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Couche 7 (Application)</td><td><strong>Donnée (Data)</strong></td><td>Identifiant de session, URI</td><td>En-tête HTTP (Host, User-Agent)</td></tr>
+    <tr><td>Couche 4 (Transport)</td><td><strong>Segment (TCP) / Datagramme (UDP)</strong></td><td>Numéros de ports (0 à 65535)</td><td>Port source, Port dest, Sequence Number</td></tr>
+    <tr><td>Couche 3 (Réseau)</td><td><strong>Paquet (Packet)</strong></td><td>Adresses IP logiques (32 bits IPv4)</td><td>IP source, IP dest, TTL, Protocole L4</td></tr>
+    <tr><td>Couche 2 (Liaison)</td><td><strong>Trame (Frame)</strong></td><td>Adresses MAC physiques (48 bits)</td><td>MAC dest, MAC source, EtherType, FCS</td></tr>
+    <tr><td>Couche 1 (Physique)</td><td><strong>Bits</strong></td><td>Tension électrique, impulsions lumineuses</td><td>Codage Manchester, signaux NRZ</td></tr>
+  </tbody>
+</table>
+<p><strong>Le voyage d’un paquet :</strong> À la réception, l’équipement effectue la <strong>désencapsulation</strong> : la couche 2 vérifie la validité du FCS et de la MAC de destination, retire l’en-tête Ethernet et passe la charge utile (paquet) à la couche 3. La couche 3 vérifie l’IP de destination, décrémente le TTL, puis passe le segment à la couche 4 en fonction du champ protocole (TCP=6, UDP=17).</p>
+
+<h2>3. Anatomie de la Trame Ethernet II &amp; Adressage MAC</h2>
+
+<p>La norme <strong>Ethernet II</strong> (DIX Ethernet) est le standard omniprésent sur les réseaux locaux filaires. Une trame Ethernet II classique comporte au minimum 64 octets et au maximum 1518 octets (hors préambule) :</p>
+<ul>
+  <li><strong>Préambule &amp; SFD (8 octets) :</strong> 7 octets de synchronisation (<code>0xAA</code>) + 1 octet Start Frame Delimiter (<code>0xAB</code>).</li>
+  <li><strong>MAC Destination (6 octets, 48 bits) :</strong> Adresse de la carte réseau (NIC) réceptrice.</li>
+  <li><strong>MAC Source (6 octets, 48 bits) :</strong> Adresse de la carte réseau émettrice.</li>
+  <li><strong>EtherType (2 octets) :</strong> Identifie le protocole encapsulé dans le payload (<code>0x0800</code> pour IPv4, <code>0x0806</code> pour ARP, <code>0x86DD</code> pour IPv6).</li>
+  <li><strong>Charge utile (Payload) :</strong> De 46 à 1500 octets (MTU standard). Si inférieur à 46 octets, un padding (bourrage) est ajouté.</li>
+  <li><strong>FCS (Frame Check Sequence, 4 octets) :</strong> Somme de contrôle CRC-32 pour détecter les erreurs de transmission sur le support physique.</li>
+</ul>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Typologie des Adresses MAC au niveau binaire</div>
+<p>Une adresse MAC s’écrit sous forme de 12 caractères hexadécimaux (ex: <code>00:1A:2B:3C:4D:5E</code>). Les 3 premiers octets représentent l’<strong>OUI</strong> (Organizationally Unique Identifier) attribué au constructeur par l’IEEE.</p>
+<ul>
+  <li><strong>Unicast :</strong> Bit de poids faible du premier octet à 0 (bit I/G = 0). Cible une interface matérielle unique.</li>
+  <li><strong>Multicast :</strong> Bit de poids faible du premier octet à 1 (bit I/G = 1). Exemples : <code>01:00:5E:...</code> (IPv4 multicast) ou <code>33:33:...</code> (IPv6 multicast).</li>
+  <li><strong>Broadcast (diffusion) :</strong> Tous les 48 bits à 1 (<code>FF:FF:FF:FF:FF:FF</code>). Reçue et traitée par l’ensemble des hôtes du domaine de diffusion.</li>
+</ul>
+  </div>
+
+<h2>4. Résolution d’Adresses avec le Protocole ARP</h2>
+
+<p>Pour envoyer un paquet IP sur un réseau local, un terminal connaît l’adresse IP de destination mais ignore l’adresse MAC du destinataire. Le protocole <strong>ARP (Address Resolution Protocol)</strong> résout cette correspondance :</p>
+<ol>
+  <li><strong>Consultation de la table ARP locale :</strong> L’hôte émetteur vérifie si l’adresse IP figure déjà dans son cache ARP (<code>arp -a</code>). Si oui, la trame Ethernet est immédiatement construite.</li>
+  <li><strong>Émission d’une requête ARP Request :</strong> Si l’entrée est absente, l’hôte génère un paquet ARP encapsulé dans une trame Ethernet de <em>Broadcast</em> (MAC Destination <code>FF:FF:FF:FF:FF:FF</code>) demandant : <em>« Qui possède l’adresse IP X.X.X.X ? Répondez à MAC_SRC »</em>.</li>
+  <li><strong>Apprentissage passif par tous les hôtes :</strong> Tous les hôtes du segment reçoivent la trame et apprennent la correspondance IP-MAC de l’émetteur.</li>
+  <li><strong>Émission de la réponse ARP Reply :</strong> Seul l’hôte détenteur de l’IP répond en <em>Unicast</em> directement à l’émetteur avec son adresse MAC physique.</li>
+  <li><strong>Mise en cache dynamique :</strong> L’émetteur enregistre la MAC dans son cache ARP avec une durée de vie (TTL) typique de 300 secondes.</li>
+</ol>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="na2-c1-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ff:ff:ff:ff:ff:ff 00:1a:2b:3c:4d:5e 0806 28">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c1-e1) — Décodeur d'en-tête Ethernet II
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Trame IPv4 unicast]
+# Données : 00:11:22:33:44:55 00:aa:bb:cc:dd:ee 0800 64
+A_COMPLETER
+
+[Cas 2 — Trame IPv6 multicast]
+# Données : 33:33:00:00:00:01 02:42:ac:11:00:02 86dd 120
+A_COMPLETER
+
+[Cas 3 — Trame protocole inconnu]
+# Données : 00:50:56:c0:00:08 00:0c:29:12:34:56 88cc 40
+A_COMPLETER
+
+[Cas 4 — Trame multicast IPv4 standard]
+# Données : 01:00:5e:00:00:05 00:10:94:ab:cd:ef 0800 80
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Décodeur d'en-tête Ethernet II</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les champs d'une trame Ethernet II : adresses MAC source et destination, EtherType et classification du trafic.</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas. <code>01:00:5e:...</code> ou <code>33:33:...</code>, Unicast sinon)<br>
+- <code>SRC: &lt;MAC&gt;</code><br>
+- <code>TYPE: 0x&lt;HEX&gt; (&lt;IPv4|ARP|IPv6|Inconnu&gt;)</code> (0800=IPv4, 0806=ARP, 86dd=IPv6)<br>
+- <code>TAILLE: &lt;TOTAL&gt; octets</code> (Payload + 14 octets d'en-tête Ethernet)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ff:ff:ff:ff:ff:ff 00:1a:2b:3c:4d:5e 0806 28</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEST: ff:ff:ff:ff:ff:ff (BROADCAST)
+SRC: 00:1a:2b:3c:4d:5e
+TYPE: 0x0806 (ARP)
+TAILLE: 42 octets</pre></div>
+    </div>
+    <p class="lab__note">Trame de requête ARP en diffusion.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L'en-tête Ethernet II standard fait 14 octets (6 octets MAC Dest + 6 octets MAC Src + 2 octets EtherType).</li>
+        <li>Le premier octet d'une MAC s'obtient par int(mac.split(":")[0], 16). Le bit 0 indique multicast/broadcast.</li>
+        <li>La MAC ff:ff:ff:ff:ff:ff est spécifiquement BROADCAST.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c1-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ENCAPSULER&#10;GET /api/status&#10;TCP 49152 443&#10;10.0.0.5 10.0.0.1&#10;00:11:22:33:44:55 aa:bb:cc:dd:ee:ff">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c1-e2) — Simulateur d'encapsulation et désencapsulation PDU OSI
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Encapsulation requête UDP DNS]
+# Données : ENCAPSULER
+# Données : query:example.com
+# Données : UDP 53000 53
+# Données : 192.168.1.50 8.8.8.8
+# Données : 11:22:33:44:55:66 cc:dd:ee:ff:00:11
+A_COMPLETER
+
+[Cas 2 — Désencapsulation trame Web]
+# Données : DESENCAPSULER
+# Données : ETH[aa:11:bb:22:cc:33->dd:44:ee:55:ff:66]|IP[172.16.0.2->172.16.0.1]|TCP[5000->80]|DATA[PING]
+A_COMPLETER
+
+[Cas 3 — Désencapsulation paquet Syslog UDP]
+# Données : DESENCAPSULER
+# Données : ETH[00:aa:bb:cc:dd:ee->11:22:33:44:55:66]|IP[192.168.0.200->192.168.0.1]|UDP[514->514]|DATA[AUTH_FAIL]
+A_COMPLETER
+
+[Cas 4 — Encapsulation commande SSH]
+# Données : ENCAPSULER
+# Données : ls -la /var/log
+# Données : TCP 60100 22
+# Données : 10.20.30.40 10.20.30.1
+# Données : fa:16:3e:01:02:03 fa:16:3e:aa:bb:cc
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur d'encapsulation et désencapsulation PDU OSI</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Modéliser la pile protocolaire OSI/TCP-IP en empilant (encapsulation) ou en retirant (désencapsulation) les en-têtes.</p>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
+Pour <code>ENCAPSULER</code>, les 4 lignes suivantes fournissent :<br>
+- Ligne 2 : Donnée applicative (L7 Data)<br>
+- Ligne 3 : <code>&lt;PROTO_L4&gt; &lt;PORT_SRC&gt; &lt;PORT_DST&gt;</code> (ex: <code>TCP 54321 80</code>)<br>
+- Ligne 4 : <code>&lt;IP_SRC&gt; &lt;IP_DST&gt;</code> (ex: <code>192.168.1.10 93.184.216.34</code>)<br>
+- Ligne 5 : <code>&lt;MAC_SRC&gt; &lt;MAC_DST&gt;</code><br>
+Indiquez chaque étape avec son nom de PDU :<br>
+<code>[L7 Data] &lt;donnee&gt;</code><br>
+<code>[L4 Segment &lt;proto&gt;] Port &lt;src&gt;-&gt;&lt;dst&gt; | Payload: &lt;donnee&gt;</code><br>
+<code>[L3 Paquet IP] &lt;ip_src&gt;-&gt;&lt;ip_dst&gt; | Proto: &lt;proto&gt;</code><br>
+<code>[L2 Trame Eth] &lt;mac_src&gt;-&gt;&lt;mac_dst&gt; | EtherType: 0x0800</code></p>
+<p>Pour <code>DESENCAPSULER</code>, Analysez les données fournies pour chaque cas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ENCAPSULER
+GET /api/status
+TCP 49152 443
+10.0.0.5 10.0.0.1
+00:11:22:33:44:55 aa:bb:cc:dd:ee:ff</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[L7 Data] GET /api/status
+[L4 Segment TCP] Port 49152-&gt;443 | Payload: GET /api/status
+[L3 Paquet IP] 10.0.0.5-&gt;10.0.0.1 | Proto: TCP
+[L2 Trame Eth] 00:11:22:33:44:55-&gt;aa:bb:cc:dd:ee:ff | EtherType: 0x0800</pre></div>
+    </div>
+    <p class="lab__note">Encapsulation complète du message HTTP GET.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En encapsulation, on descend de L7 vers L2 en ajoutant successivement les métadonnées de transport, réseau puis liaison.</li>
+        <li>En désencapsulation, chaque couche analyse et retire son propre en-tête avant de passer la charge utile à la couche supérieure.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c1-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="REQUEST 192.168.1.1 192.168.1.10 00:11:22:33:44:55&#10;REPLY 192.168.1.1 aa:bb:cc:dd:ee:01&#10;REQUEST 192.168.1.1 192.168.1.20 00:22:33:44:55:66&#10;SHOW">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c1-e3) — Simulateur de table et résolution ARP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Expiration de TTL par TICK]
+# Données : REPLY 10.0.0.1 00:aa:bb:cc:dd:01
+# Données : TICK 250
+# Données : SHOW
+# Données : TICK 60
+# Données : SHOW
+A_COMPLETER
+
+[Cas 2 — Rafraîchissement TTL sur nouvelle annonce]
+# Données : REPLY 172.16.0.5 aa:bb:cc:00:11:22
+# Données : TICK 200
+# Données : REQUEST 172.16.0.1 172.16.0.5 aa:bb:cc:00:11:22
+# Données : SHOW
+A_COMPLETER
+
+[Cas 3 — Résolution immédiate sans broadcast]
+# Données : REPLY 192.168.1.254 00:00:0c:07:ac:01
+# Données : REQUEST 192.168.1.254 192.168.1.50 11:11:11:11:11:11
+A_COMPLETER
+
+[Cas 4 — Tri numérique correct des adresses IP]
+# Données : REPLY 192.168.1.10 00:00:00:00:00:10
+# Données : REPLY 192.168.1.2 00:00:00:00:00:02
+# Données : REPLY 192.168.1.100 00:00:00:00:01:00
+# Données : SHOW
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de table et résolution ARP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter la table de correspondance IP vers MAC (cache ARP) avec gestion de requêtes, apprentissage et expiration TTL.</p>
+    <div class="lab__brief"><p>Le script gère une table ARP initialement vide. Il Analysez les paramètres du problème pour chaque cas. La table apprend immédiatement la correspondance <code>IP_EMETTEUR -> MAC_EMETTEUR</code> avec un TTL de 300s. Si l'IP demandée est connue dans le cache, afficher <code>REPLY: &lt;IP_DEMANDEE&gt; est a &lt;MAC_CONNUE&gt;</code>, sinon afficher <code>BROADCAST: Qui a &lt;IP_DEMANDEE&gt; ?</code>.<br>
+- <code>REPLY &lt;IP_CIBLE&gt; &lt;MAC_CIBLE&gt;</code> : réponse ARP reçue, enregistrée avec TTL de 300s.<br>
+- <code>TICK &lt;SECONDES&gt;</code> : fait avancer le temps de N secondes. Les entrées dont le TTL tombe à 0 ou moins sont purgées.<br>
+- <code>SHOW</code> : Indiquez les entrées du cache triées par IP croissante au format :<br>
+<code>&lt;IP&gt; -> &lt;MAC&gt; (TTL: &lt;ttl&gt;s)</code>. Si vide, Indiquez <code>CACHE VIDE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQUEST 192.168.1.1 192.168.1.10 00:11:22:33:44:55
+REPLY 192.168.1.1 aa:bb:cc:dd:ee:01
+REQUEST 192.168.1.1 192.168.1.20 00:22:33:44:55:66
+SHOW</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BROADCAST: Qui a 192.168.1.1 ?
+REPLY: 192.168.1.1 est a aa:bb:cc:dd:ee:01
+192.168.1.1 -&gt; aa:bb:cc:dd:ee:01 (TTL: 300s)
+192.168.1.10 -&gt; 00:11:22:33:44:55 (TTL: 300s)
+192.168.1.20 -&gt; 00:22:33:44:55:66 (TTL: 300s)</pre></div>
+    </div>
+    <p class="lab__note">Apprentissage des émetteurs et réponse au second demandeur.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Toute requête ARP permet à la cible d'apprendre la MAC de l'émetteur (gratuitous ARP / learning).</li>
+        <li>Le tri par adresse IP s'effectue idéalement sur les 4 entiers numériques du tuple pour éviter l'ordre alphabétique faux (ex: 192.168.1.2 avant 192.168.1.10).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le nom correct de l’unité de données de protocole (PDU) manipulée au niveau de la couche 3 (Réseau) ?</p>
+      <div class="opts">
+        <button class="opt">Le segment</button>
+        <button class="opt" data-correct="1">Le paquet</button>
+        <button class="opt">La trame</button>
+        <button class="opt">Le datagramme physique</button>
+      </div>
+      <div class="q__exp">Au niveau de la couche 3 (Réseau / Internet), le PDU s’appelle un paquet (packet). En couche 4 on parle de segment (ou datagramme UDP), et en couche 2 de trame (frame).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle valeur hexadécimale contient le champ EtherType d’une trame Ethernet II transportant un paquet IPv4 ?</p>
+      <div class="opts">
+        <button class="opt">0x0806</button>
+        <button class="opt">0x86DD</button>
+        <button class="opt" data-correct="1">0x0800</button>
+        <button class="opt">0x8100</button>
+      </div>
+      <div class="q__exp">La valeur standard de l’EtherType pour IPv4 est 0x0800. 0x0806 correspond au protocole ARP, 0x86DD à IPv6, et 0x8100 au balisage VLAN 802.1Q.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle adresse MAC correspond à une diffusion générale (Broadcast) de niveau 2 ?</p>
+      <div class="opts">
+        <button class="opt">00:00:00:00:00:00</button>
+        <button class="opt" data-correct="1">FF:FF:FF:FF:FF:FF</button>
+        <button class="opt">01:00:5E:00:00:01</button>
+        <button class="opt">33:33:00:00:00:01</button>
+      </div>
+      <div class="q__exp">L’adresse de diffusion générale Ethernet est FF:FF:FF:FF:FF:FF (les 48 bits fixés à 1). Elle est traitée par toutes les cartes réseau du même domaine de broadcast.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lorsqu’un paquet IP transite d’un réseau local vers Internet à travers une passerelle par défaut (routeur), quelles adresses sont modifiées dans la trame transmise sur le second lien ?</p>
+      <div class="opts">
+        <button class="opt">Les adresses IP source et destination uniquement</button>
+        <button class="opt" data-correct="1">Les adresses MAC source et destination uniquement (hors NAT)</button>
+        <button class="opt">Toutes les adresses IP et MAC sont impérativement conservées</button>
+        <button class="opt">Seule l’adresse MAC source est modifiée</button>
+      </div>
+      <div class="q__exp">Sur chaque lien de couche 2 traversé, le routeur réécrit les adresses MAC source (sa propre interface de sortie) et destination (prochain saut ou hôte). Les adresses IP d’origine restent inchangées (hors mécanisme spécifique de translation NAT).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment est transmise une requête initiale ARP (ARP Request) sur le réseau local ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En diffusion générale Broadcast avec la MAC destination FF:FF:FF:FF:FF:FF</button>
+        <button class="opt">En Unicast direct vers la passerelle par défaut</button>
+        <button class="opt">En Multicast réservé 224.0.0.1</button>
+        <button class="opt">En Anycast à travers le routeur le plus proche</button>
+      </div>
+      <div class="q__exp">Puisque l’émetteur ignore l’adresse MAC de la cible, il transmet la requête en broadcast (FF:FF:FF:FF:FF:FF). Tous les hôtes reçoivent la requête, mais seule la machine possédant l’IP demandée répondra en unicast.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’octets mesure l’en-tête Ethernet II standard (sans compter le préambule ni le FCS) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">14 octets</button>
+        <button class="opt">20 octets</button>
+        <button class="opt">12 octets</button>
+        <button class="opt">32 octets</button>
+      </div>
+      <div class="q__exp">L’en-tête Ethernet II comprend 6 octets de MAC destination + 6 octets de MAC source + 2 octets d’EtherType, soit exactement 14 octets.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle couche du modèle OSI se situent les numéros de port (ex: port 80 pour HTTP, port 443 pour HTTPS) ?</p>
+      <div class="opts">
+        <button class="opt">Couche 2 — Liaison de données</button>
+        <button class="opt">Couche 3 — Réseau</button>
+        <button class="opt" data-correct="1">Couche 4 — Transport</button>
+        <button class="opt">Couche 7 — Application</button>
+      </div>
+      <div class="q__exp">Les numéros de port (TCP et UDP) sont définis au niveau de la couche 4 (Transport). Ils permettent de multiplexer et démultiplexer les flux applicatifs sur une même adresse IP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si la charge utile (payload) d’une trame Ethernet II fait moins de 46 octets ?</p>
+      <div class="opts">
+        <button class="opt">La trame est rejetée pour erreur de taille minimale</button>
+        <button class="opt" data-correct="1">Un bourrage (padding) d’octets à zéro est automatiquement ajouté pour atteindre 64 octets avec le FCS</button>
+        <button class="opt">La carte réseau découpe la trame en demi-segments</button>
+        <button class="opt">L’EtherType est remplacé par le code 0x0000</button>
+      </div>
+      <div class="q__exp">Pour que la détection de collision CSMA/CD fonctionne sur Ethernet historique, la taille minimale d’une trame est de 64 octets. Si le payload fait moins de 46 octets, des octets de bourrage (padding) sont insérés.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre un paquet (couche 3 réseau, adresses IP) avec une trame (couche 2 liaison, adresses MAC).</li>
+      <li>Oublier que la requête ARP est envoyée en broadcast (FF:FF:FF:FF:FF:FF) tandis que la réponse est en unicast.</li>
+      <li>Penser que l’adresse MAC du destinataire final reste identique lorsque le paquet traverse un routeur : la MAC change à chaque saut L3.</li>
+      <li>Négliger le champ EtherType lors de l’analyse de capture de paquets : il est indispensable pour router le payload vers la bonne pile L3.</li>
+      <li>Confondre le bit I/G (Unicast vs Multicast) avec le bit U/L (Universellement administré vs Localement administré) de l’adresse MAC.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d’Analyse Réseau &amp; Troubleshooting L1 à L3</div>
+    <ol>
+      <li>Étape 1 — Analyse de la couche physique L1 : Vérifier la connectivité des câbles, la vitesse négociée et l’état du voyant de liaison (Link LED).</li>
+      <li>Étape 2 — Contrôle de la liaison L2 : Inspecter l’adresse MAC émettrice, la MAC réceptrice et s’assurer de l’absence d’erreurs CRC (FCS) sur l’interface.</li>
+      <li>Étape 3 — Vérification ARP : Consulter la table ARP (show ip arp) pour confirmer que l’adresse IP de la passerelle ou de l’hôte distant est bien résolue.</li>
+      <li>Étape 4 — Contrôle de l’adressage L3 : Confirmer l’adresse IP, le masque et la route par défaut de la machine émettrice.</li>
+      <li>Étape 5 — Validation de transport L4 : Vérifier que le port de destination est en écoute et non bloqué par un pare-feu intermédiaire.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le modèle OSI comporte 7 couches théoriques tandis que le modèle TCP/IP structure Internet en 4 couches pratiques.</li>
+      <li>Chaque couche associe un PDU spécifique : Donnée en L7-L5, Segment en L4, Paquet en L3, Trame en L2 et Bits en L1.</li>
+      <li>L’encapsulation ajoute des en-têtes du haut vers le bas ; la désencapsulation analyse et retire les en-têtes du bas vers le haut.</li>
+      <li>La trame Ethernet II standard comporte une MAC destination (48 bits), une MAC source (48 bits), un EtherType (2 octets) et un FCS (4 octets).</li>
+      <li>Le bit de poids faible du premier octet d’une adresse MAC distingue le trafic Unicast (0) du trafic Multicast/Broadcast (1).</li>
+      <li>Le protocole ARP permet à un hôte de découvrir dynamiquement l’adresse MAC associée à une adresse IPv4 locale par diffusion broadcast puis réponse unicast.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais par cœur les 7 couches du modèle OSI et leur correspondance avec les 4 couches TCP/IP.</li>
+      <li>Je sais nommer le PDU exact manipulé à chaque couche (Donnée, Segment, Paquet, Trame, Bit).</li>
+      <li>Je maîtrise la structure et la taille en octets des champs d’une trame Ethernet II.</li>
+      <li>Je sais identifier si une adresse MAC est Unicast, Multicast ou Broadcast en inspectant son premier octet.</li>
+      <li>Je peux expliquer le cycle complet d’une requête et d’une réponse ARP avec mise à jour du cache.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Modèle OSI en 7 couches</li><li>Modèle TCP/IP en 4 couches</li><li>PDU (Data, Segment, Paquet, Trame)</li><li>En-tête Ethernet II (14 octets)</li><li>Adresses MAC (OUI et identifiant NIC)</li><li>EtherType (0x0800, 0x0806, 0x86DD)</li><li>Encapsulation et désencapsulation</li><li>Résolution d’adresses ARP et cache</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la numérotation des 7 couches OSI, leurs PDU et la structure d’une trame Ethernet.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes notions de base. Approfondissez le rôle des adresses MAC et le cycle de requête/réponse ARP.</div>
+      <div class="bandrow bandrow--good">7/8 : Excellente maîtrise des modèles de référence et des mécanismes d’encapsulation réseau.</div>
+      <div class="bandrow bandrow--top">8/8 : Parfaite compréhension du socle fondamental CCNA ! Vous êtes prêt pour le module d’adressage IPv4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Adressage IPv4, Masquage, CIDR &amp; Découpage VLSM <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les guides officiels Cisco Press CCNA 200-301 (Wendell Odom), les RFC de l’IETF (RFC 791, RFC 1918, RFC 3021) et les standards IEEE 802.1D, 802.1w et 802.1Q.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

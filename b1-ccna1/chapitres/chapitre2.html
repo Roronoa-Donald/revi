@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Les modèles TCP/IP et OSI | CCNA 1 B1</title>
+<meta name="description" content="Chapitre 2 du cours de CCNA 1 B1 : Le modèle TCP/IP à 4 couches et à 5 couches (d'actualité) ; le modèle OSI en 7 couches, de la physique à l'application ; les unités de données par couche. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-ccna1/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Les modèles TCP/IP et OSI | CCNA 1 B1">
+<meta property="og:description" content="Chapitre 2 du cours de CCNA 1 B1 : Le modèle TCP/IP à 4 couches et à 5 couches (d'actualité) ; le modèle OSI en 7 couches, de la physique à l'application ; les unités de données par couche. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnav"><div class="ccnav__in">
+  <a class="ccnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnav__sep" aria-hidden="true">/</span>
+  <a class="ccnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA 1 B1</a>
+  <div class="ccnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccwrap">
+<p class="crumb"><a href="../index.html">CCNA 1 B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Les modèles TCP/IP et OSI</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Impossible de faire communiquer des machines de fabricants différents sans un accord : l'ISO a bâti le modèle <strong>OSI</strong> en sept couches, référentiel de toutes les discussions. Mais c'est le <strong>TCP/IP</strong> — à 4 couches, ou à 5 couches « modèle d'actualité » — qui fait tourner les réseaux réels.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>ranger les protocoles dans les 4 couches TCP/IP : accès réseau, internet, transport, application ;</li>
+      <li>expliquer le modèle à 5 couches : la couche physique est séparée de l'accès réseau ;</li>
+      <li>réciter les 7 couches OSI avec leur rôle et leur unité de données ;</li>
+      <li>associer équipements et couches : hub (1), switch (2), routeur (3).</li>
+    </ol>
+  </div>
+
+<h2>1. TCP/IP : 4 puis 5 couches</h2>
+
+<p>Le modèle <strong>TCP/IP à 4 couches</strong> : <strong>accès réseau</strong> (Ethernet, câbles), <strong>internet</strong> (IP, routage), <strong>transport</strong> (TCP, UDP), <strong>application</strong>. Le modèle <strong>à 5 couches</strong> — « le modèle d'actualité » selon le support — sépare la <strong>couche physique</strong> de la couche accès réseau : physique, liaison de données, réseau, transport, application.</p>
+<p>Ce découpage hérite d'OSI : les couches hautes fusionnent en « application », la couche réseau devient « internet », et les deux basses se partagent entre « liaison de données » et « physique ».</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « TCP/IP 4 : AITA ; OSI 7 : PLR-TSPA »</div>
+    <p>Accès, Internet, Transport, Application pour TCP/IP ; Physique, Liaison, Réseau, Transport, Session, Présentation, Application pour OSI.</p>
+  </div>
+
+<h2>2. OSI : les sept couches</h2>
+
+<p><strong>7-Application</strong> : point d'accès aux services réseau (messagerie, transfert de fichiers) — le lien entre l'utilisateur et la machine. <strong>6-Présentation</strong> : codage et décodage des données (ASCII, Unicode, HTML), représentation commune. <strong>5-Session</strong> : ouvre, gère et ferme les sessions, synchronise le dialogue (RPC, NetBIOS). <strong>4-Transport</strong> : découpe en segments, fiabilité (renvoi des données manquantes), contrôle de flux, ports. <strong>3-Réseau</strong> : adressage logique (IP), acheminements de réseau en réseau par routeurs — chaque segment devient un paquet. <strong>2-Liaison de données</strong> : méthodes de transmission dans un même LAN, détection d'erreurs, Ethernet — chaque paquet devient une trame (en-tête + queue ajoutés). <strong>1-Physique</strong> : transmission des bits sur les supports (cuivre, fibre, ondes) — le hub vit ici.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>La couche 6 code (ASCII) ; la couche 7 parle à l'utilisateur : deux rôles distincts.</li>
+      <li>Segment (4), paquet (3), trame (2), bits (1) : l'unité trahit la couche.</li>
+      <li>Le modèle d'actualité est TCP/IP à 5 couches, pas à 4.</li>
+      <li>Le hub est de couche 1 : il ne lit ni MAC ni IP.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="cc-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;cable tcp5 physique&#10;cable tcp4 physique&#10;ip tcp4 internet&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c2-e1) — Couches TCP/IP à 4 ou 5
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Modèle 4]
+# Données : 4
+# Données : trame tcp4 acces
+# Données : segment tcp4 transport
+# Données : page tcp4 application
+# Données : bits tcp4 physique
+A_COMPLETER
+
+[Cas 2 — Modèle 5]
+# Données : 4
+# Données : bits tcp5 physique
+# Données : trame tcp5 acces
+# Données : segment tcp5 transport
+# Données : page tcp5 application
+A_COMPLETER
+
+[Cas 3 — Comparaison]
+# Données : 4
+# Données : bits tcp4 physique
+# Données : bits tcp5 physique
+# Données : internet tcp4 internet
+# Données : internet tcp5 internet
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Couches TCP/IP à 4 ou 5</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les éléments dans le modèle TCP/IP à 4 couches puis à 5 couches (modèle d'actualité).</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « element modele couche » : modele est un code parmi <code>tcp4</code> ou <code>tcp5</code>. Dans le modèle à 4 couches, les couches sont <code>acces</code>, <code>internet</code>, <code>transport</code> et <code>application</code> ; dans le modèle à 5 couches (d'actualité), la couche <code>physique</code> est séparée de l'accès réseau. Pour chaque ligne il Indiquez <code>element : OK</code> si la couche existe dans ce modèle, sinon <code>element : ABSENT</code> (physique est absent du modèle 4 couches). Il termine par <code>conformes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+cable tcp5 physique
+cable tcp4 physique
+ip tcp4 internet
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>cable : OK
+cable : ABSENT
+ip : OK
+conformes : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le modèle 4 couches n'a pas de couche physique : seule la 5 couches l'a.</li>
+        <li>Le verdict porte sur la couche, pas sur l'élément.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;bits 1&#10;trame 3&#10;paquet 3&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c2-e2) — Les sept couches OSI
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les sept]
+# Données : 7
+# Données : bits 1
+# Données : trame 2
+# Données : paquet 3
+# Données : segment 4
+# Données : session 5
+# Données : codage 6
+# Données : appli 7
+A_COMPLETER
+
+[Cas 2 — Trois erreurs]
+# Données : 3
+# Données : trame 1
+# Données : paquet 2
+# Données : segment 3
+A_COMPLETER
+
+[Cas 3 — Basse et haute]
+# Données : 2
+# Données : bits 1
+# Données : appli 7
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Les sept couches OSI</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Placer chaque unité de données dans sa couche OSI, du bit (1) à la donnée applicative (7).</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « unite couche » : couche est un numéro de 1 à 7. Correspondances du support : bits (1), trame (2), paquet (3), segment (4), donnée de session (5), donnée codée (6), donnée applicative (7). Pour chaque ligne il Indiquez <code>unite : couche N</code> — ou <code>unite : NON</code> quand l'unité ne correspond pas à la couche annoncée — puis <code>justes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+bits 1
+trame 3
+paquet 3
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>bits : couche 1
+trame : NON
+paquet : couche 3
+justes : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>bits=1, trame=2, paquet=3, segment=4, session=5, codage=6, appli=7.</li>
+        <li>Le numéro affiché est celui de la couche attendue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="2&#10;codage osi&#10;routage osi&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c2-e3) — Qui fait quoi entre OSI et TCP/IP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Le référentiel]
+# Données : 2
+# Données : codage osi
+# Données : session osi
+A_COMPLETER
+
+[Cas 2 — L'actualité]
+# Données : 3
+# Données : routage tcp5
+# Données : ports tcp5
+# Données : cables tcp5
+A_COMPLETER
+
+[Cas 3 — Tout inversé]
+# Données : 2
+# Données : ports osi
+# Données : session tcp5
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Qui fait quoi entre OSI et TCP/IP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Relier chaque tâche au modèle qui la porte : OSI 7 couches (référentiel) ou TCP/IP 5 couches (actualité).</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « tache modele » : modele est un code parmi <code>osi</code> ou <code>tcp5</code>. Tâches du référentiel OSI : <code>codage</code> (couche 6), <code>session</code> (couche 5). Tâches du modèle d'actualité TCP/IP 5 couches : <code>routage</code> (internet), <code>ports</code> (transport), <code>cables</code> (physique). Pour chaque ligne il Indiquez <code>tache : conforme</code> ou <code>tache : a revoir</code>, puis <code>conformes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
+codage osi
+routage osi
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>codage : conforme
+routage : a revoir
+conformes : 1/2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>codage et session → OSI ; routage, ports, cables → TCP/IP 5 couches.</li>
+        <li>Le bilan sort après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le modèle TCP/IP d'actualité compte…</p>
+      <div class="opts">
+        <button class="opt">4 couches</button>
+        <button class="opt" data-correct="1">5 couches</button>
+        <button class="opt">7 couches</button>
+      </div>
+      <div class="q__exp">Le support : « le modèle TCP/IP à 5 couches est le modèle d'actualité ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La couche présentation OSI gère…</p>
+      <div class="opts">
+        <button class="opt">le routage</button>
+        <button class="opt" data-correct="1">le codage des données (ASCII…)</button>
+        <button class="opt">les sessions</button>
+      </div>
+      <div class="q__exp">Couche 6 : codage/décodage, représentation commune.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La couche session s'occupe…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">des ouvertures et fermetures de sessions</button>
+        <button class="opt">des bits</button>
+        <button class="opt">des ports</button>
+      </div>
+      <div class="q__exp">RPC et NetBIOS vivent en couche 5.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La couche transport découpe les données en…</p>
+      <div class="opts">
+        <button class="opt">paquets</button>
+        <button class="opt" data-correct="1">segments</button>
+        <button class="opt">trames</button>
+      </div>
+      <div class="q__exp">Segments en 4 ; paquets en 3 ; trames en 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Chaque paquet devient une trame en couche…</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">2</button>
+        <button class="opt">3</button>
+      </div>
+      <div class="q__exp">Liaison de données : en-tête + queue de trame ajoutés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le hub travaille en couche…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">1 physique</button>
+        <button class="opt">2 liaison</button>
+        <button class="opt">3 réseau</button>
+      </div>
+      <div class="q__exp">Il transmet sans cibler MAC ni IP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'adressage logique (IP) est de la couche…</p>
+      <div class="opts">
+        <button class="opt">2</button>
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">4</button>
+      </div>
+      <div class="q__exp">Réseau : routeurs et protocoles de routage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La couche application OSI est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la plus proche de l'utilisateur</button>
+        <button class="opt">la couche des câbles</button>
+        <button class="opt">celle des ports</button>
+      </div>
+      <div class="q__exp">Couche 7 : messagerie, transfert de fichiers, pages web.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Mettre « physique » dans le modèle TCP/IP à 4 couches : il n'y est pas.</li>
+      <li>Confondre segment (4) et paquet (3) : l'unité suit la couche.</li>
+      <li>Chercher le codage ASCII en couche 7 : c'est la couche 6.</li>
+      <li>Réciter OSI de haut en bas sans les numéros : l'examen demande les deux sens.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — classer une tâche en trois gestes</div>
+    <ol>
+      <li>Identifier l'unité : bits, trame, paquet, segment, donnée — elle nomme la couche.</li>
+      <li>Regarder le périmètre : même LAN (2), entre réseaux (3), bout en bout (4).</li>
+      <li>Choisir le modèle : OSI 7 pour décrire, TCP/IP 5 pour pratiquer.</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>TCP/IP 4 couches : accès réseau, internet, transport, application.</li>
+      <li>TCP/IP 5 couches (actualité) : la physique est séparée.</li>
+      <li>OSI 7 : application, présentation, session, transport, réseau, liaison, physique.</li>
+      <li>Unités : bits, trame, paquet, segment — du câble vers l'utilisateur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais réciter les deux modèles dans les deux sens.</li>
+      <li>Je sais associer unité de données et couche.</li>
+      <li>Je sais expliquer le rôle de chaque couche OSI.</li>
+      <li>Je sais dire pourquoi TCP/IP 5 est le modèle d'actualité.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>TCP/IP 4</strong> : accès réseau, internet, transport, application.</li><li><strong>TCP/IP 5</strong> : le modèle d'actualité — physique séparée.</li><li><strong>Couche 6</strong> : présentation — codage ASCII, Unicode.</li><li><strong>Couche 5</strong> : session — RPC, NetBIOS, synchronisation.</li><li><strong>Couche 3</strong> : réseau — IP, routeurs, paquets.</li><li><strong>Couche 2</strong> : liaison — Ethernet, trames, switch.</li><li><strong>Couche 1</strong> : physique — bits, câbles, hub.</li><li><strong>Segment / paquet / trame</strong> : les unités des couches 4/3/2.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les sept couches et leurs unités.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais le classement des deux modèles TCP/IP.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, cible les exemples de protocoles par couche.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Les réseaux locaux Ethernet <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « B1-IT : CCNA 1 » (Essowaba AHOULOUMI, Collège de Paris, d'après le programme CCNA 200-301).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Introduction à la virtualisation | Admin VM B2</title>
+<meta name="description" content="Chapitre 1 du cours Admin VM B2 : Définition, avantages, grands types, hyperviseur type 1/2, panorama des solutions et vocabulaire. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/admin-vm/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Introduction à la virtualisation | Admin VM B2">
+<meta property="og:description" content="Chapitre 1 du cours Admin VM B2 : Définition, avantages, grands types, hyperviseur type 1/2, panorama des solutions et vocabulaire. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="admin-vmnav"><div class="admin-vmnav__in">
+  <a class="admin-vmnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="admin-vmnav__sep" aria-hidden="true">/</span>
+  <a class="admin-vmnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Admin VM B2</a>
+  <div class="admin-vmnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="admin-vmnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="admin-vmwrap">
+<p class="crumb"><a href="../index.html">Admin VM B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Introduction à la virtualisation</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur physique coûte cher, consomme et se remplace. La virtualisation permet d’exécuter plusieurs ordinateurs complets sur une seule machine, comme des appartements dans un immeuble : chacun a ses règles, sans partager ses murs.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir la virtualisation et ses avantages ;</li>
+      <li>distinguer hyperviseur de type 1 et de type 2 ;</li>
+      <li>situer les grands types de virtualisation ;</li>
+      <li>employer le vocabulaire : hôte, invité, vCPU, snapshot, template, cluster.</li>
+    </ol>
+  </div>
+
+<h2>1. Qu’est-ce que la virtualisation</h2>
+
+<p>La virtualisation permet d’exécuter plusieurs <strong>machines virtuelles</strong> (VM) sur un seul serveur physique. Chaque VM fonctionne comme un ordinateur complet : son propre système, ses logiciels, ses ressources (CPU, RAM, disque).</p>
+<p>L’image de l’immeuble aide : le serveur physique est le bâtiment, chaque VM est un appartement indépendant, avec ses règles et ses occupants.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Une évaluation théorique</div>
+    <p>L’évaluation de ce module est <strong>100 % théorique</strong> : on attend des définitions claires, des comparaisons justes et la capacité à relier les notions — pas de manipulation d’outil.</p>
+  </div>
+
+<h2>2. Pourquoi virtualiser</h2>
+
+<p>Quatre bénéfices structurent la décision :</p>
+<ul>
+  <li><strong>Consolidation</strong> : un serveur physique héberge 5 à 20 VM selon la charge.</li>
+  <li><strong>Économies</strong> : moins d’achats matériels, moins d’énergie, moins de maintenance.</li>
+  <li><strong>Disponibilité</strong> : snapshots, sauvegardes et restauration rapide.</li>
+  <li><strong>Agilité</strong> : une VM se crée en quelques minutes pour un projet ou un cours.</li>
+</ul>
+<p>Exemple : une PME qui avait quatre serveurs physiques (fichiers, application, base de données, sauvegarde) passe à un serveur plus un NAS. Elle réduit ses coûts d’énergie et son temps d’administration.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Mutualiser sans mélanger</div>
+    <p>La virtualisation donne l’illusion de machines séparées sur un matériel unique. L’isolation est la garantie : si une VM tombe, les autres continuent — à condition de bien dimensionner les ressources partagées.</p>
+  </div>
+
+<h2>3. Les grands types de virtualisation</h2>
+
+<table><thead><tr><th>Type</th><th>Objectif</th><th>Exemples</th></tr></thead><tbody>
+<tr><td>Serveur</td><td>Héberger plusieurs OS sur un serveur</td><td>Proxmox, ESXi, Hyper-V</td></tr>
+<tr><td>Poste (VDI)</td><td>Postes virtuels centralisés</td><td>VMware Horizon, Citrix</td></tr>
+<tr><td>Stockage</td><td>Pool de disques mutualisé</td><td>NAS/SAN, Ceph</td></tr>
+<tr><td>Réseau</td><td>Segmentation et routeurs virtuels</td><td>VLAN, pfSense</td></tr>
+</tbody></table>
+<p>La virtualisation de serveurs est la plus répandue : c’est elle qui transforme une salle machine en une plateforme souple.</p>
+
+<h2>4. Hyperviseurs : type 1 et type 2</h2>
+
+<table><thead><tr><th>Type</th><th>Fonctionnement</th><th>Pour qui ?</th><th>Exemples</th></tr></thead><tbody>
+<tr><td>Type 1 (bare-metal)</td><td>Installe directement sur le serveur</td><td>Production, entreprises</td><td>Proxmox VE, ESXi</td></tr>
+<tr><td>Type 2 (hébergé)</td><td>Installe sur un OS existant</td><td>Tests, formation</td><td>VMware Workstation, VirtualBox</td></tr>
+</tbody></table>
+<p>Règle simple : <strong>type 1 pour la production, type 2 pour apprendre et tester</strong>. Parmi les solutions : Proxmox VE (open-source, KVM + LXC), VMware ESXi (référence entreprise), Workstation et VirtualBox (poste de travail).</p>
+<p>Vocabulaire à connaître : <code>host</code> (serveur physique), <code>guest</code> (OS de la VM), <code>vCPU</code> (cœur virtuel), <code>snapshot</code> (photo d’une VM), <code>template</code> (modèle réutilisable), <code>cluster</code> (groupe de serveurs pour la HA et la migration).</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Hyperviseur n’est pas OS hôte</div>
+    <p>Un hyperviseur de type 1 <strong>pilote directement le matériel</strong> : il n’y a pas d’« OS hôte » sous lui. Confondre les deux mène à un mauvais choix d’architecture.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vm2-c1-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="4&#10;5">
+  <script type="text/plain" data-lab-starter>$serveurs = [int][Console]::In.ReadLine()
+$parServeur = [int][Console]::In.ReadLine()
+
+# À compléter : calculer le total et afficher "vms : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Total de VM à héberger</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Consolider plusieurs serveurs virtuels : premier calcul d’infrastructure.</p>
+    <div class="lab__brief"><p>Le script lit le nombre de <strong>serveurs</strong>, puis le nombre de <strong>VM par serveur</strong>. Affichez <code>vms : X</code> où <code>X</code> est le total de machines virtuelles hébergées.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>vms : 20</pre></div>
+    </div>
+    <p class="lab__note">4 serveurs de 5 VM.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le total vaut $serveurs * $parServeur.</li>
+        <li>PowerShell affiche avec Write-Output ; concaténez texte et valeur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c1-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="1&#10;ESXi">
+  <script type="text/plain" data-lab-starter>$type = [int][Console]::In.ReadLine()
+$nom = [Console]::In.ReadLine()
+
+# À compléter : afficher "solution : NOM (production)" ou
+# "solution : NOM (test)" selon le type.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Type d’hyperviseur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer une solution selon qu’elle vise la production ou les tests.</p>
+    <div class="lab__brief"><p>Le script lit le <strong>type</strong> de l’hyperviseur (<code>1</code> ou <code>2</code>), puis le <strong>nom</strong> de la solution. Affichez <code>solution : NOM (production)</code> pour le type 1 et <code>solution : NOM (test)</code> pour le type 2.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1
+ESXi</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>solution : ESXi (production)</pre></div>
+    </div>
+    <p class="lab__note">ESXi vise la production.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le type 1 (bare-metal) vise la production.</li>
+        <li>Le type 2 (hébergé) sert surtout aux tests et à la formation.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c1-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="serveur">
+  <script type="text/plain" data-lab-starter>$domaine = [Console]::In.ReadLine()
+
+# À compléter : avec un switch sur $domaine, afficher l'exemple correspondant.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Grands types de virtualisation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer un domaine de virtualisation à son exemple.</p>
+    <div class="lab__brief"><p>Le script lit un <strong>domaine</strong> : <code>serveur</code>, <code>poste</code>, <code>stockage</code> ou <code>reseau</code>. Affichez l’exemple correspondant : <code>exemple : Proxmox</code>, <code>exemple : VMware Horizon</code>, <code>exemple : NAS/SAN</code> ou <code>exemple : pfSense</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>serveur</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>exemple : Proxmox</pre></div>
+    </div>
+    <p class="lab__note">La virtualisation de serveurs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Serveur → Proxmox ; Poste (VDI) → VMware Horizon.</li>
+        <li>Stockage → NAS/SAN ; Réseau → pfSense.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que permet la virtualisation ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Exécuter plusieurs VM sur un serveur</button>
+        <button class="opt">Compresser des fichiers</button>
+        <button class="opt">Chiffrer le réseau</button>
+      </div>
+      <div class="q__exp">Plusieurs machines virtuelles sur un seul matériel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un hyperviseur de type 1 s’installe…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Directement sur le matériel</button>
+        <button class="opt">Sur un OS existant</button>
+        <button class="opt">Dans une VM</button>
+      </div>
+      <div class="q__exp">C’est un hyperviseur bare-metal.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Exemple de type 2 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">VirtualBox</button>
+        <button class="opt">ESXi</button>
+        <button class="opt">Proxmox VE</button>
+      </div>
+      <div class="q__exp">Les hyperviseurs hébergés s’installent sur un OS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type pour la production ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Type 1</button>
+        <button class="opt">Type 2</button>
+        <button class="opt">Aucun des deux</button>
+      </div>
+      <div class="q__exp">Le bare-metal vise la production.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne le « host » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le serveur physique</button>
+        <button class="opt">L’OS de la VM</button>
+        <button class="opt">Le disque virtuel</button>
+      </div>
+      <div class="q__exp">Le host héberge les invités (guests).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne le « guest » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’OS installé dans la VM</button>
+        <button class="opt">Le serveur physique</button>
+        <button class="opt">Le switch virtuel</button>
+      </div>
+      <div class="q__exp">L’invité s’exécute dans la machine virtuelle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait la consolidation ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Regrouper plusieurs serveurs sur un seul</button>
+        <button class="opt">Supprimer des VM</button>
+        <button class="opt">Chiffrer les sauvegardes</button>
+      </div>
+      <div class="q__exp">Moins de machines physiques, plus de VM.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est un type de virtualisation ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Stockage</button>
+        <button class="opt">Compilation</button>
+        <button class="opt">Impression</button>
+      </div>
+      <div class="q__exp">Serveur, poste, stockage et réseau.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre hyperviseur de type 1 et OS hôte.</li>
+      <li>Choisir un hyperviseur de type 2 pour de la production critique.</li>
+      <li>Croire que la consolidation se fait sans dimensionner les ressources.</li>
+      <li>Négliger la disponibilité lors du passage à la virtualisation.</li>
+      <li>Mélanger le vocabulaire host / guest.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Décider d’une plateforme virtualisée</div>
+    <ol>
+      <li><strong>Lister</strong> les serveurs à consolider et leurs charges.</li>
+      <li><strong>Choisir</strong> le type d’hyperviseur selon production ou test.</li>
+      <li><strong>Comparer</strong> les solutions (coût, compétence, haute disponibilité).</li>
+      <li><strong>Dimensionner</strong> CPU, RAM, stockage et réseau.</li>
+      <li><strong>Prévoir</strong> snapshots, sauvegardes et vocabulaire commun.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La virtualisation exécute plusieurs VM sur un serveur physique.</li>
+      <li>Avantages : consolidation, économies, disponibilité, agilité.</li>
+      <li>Type 1 pour la production, type 2 pour les tests.</li>
+      <li>Types : serveur, poste, stockage, réseau.</li>
+      <li>Vocabulaire : host, guest, vCPU, snapshot, template, cluster.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je définis la virtualisation et ses avantages.</li>
+      <li>Je distingue type 1 et type 2.</li>
+      <li>Je cite les grands types de virtualisation.</li>
+      <li>Je maîtrise le vocabulaire essentiel.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>virtualisation</li><li>VM</li><li>consolidation</li><li>hyperviseur</li><li>type 1</li><li>bare-metal</li><li>type 2</li><li>Proxmox</li><li>ESXi</li><li>Hyper-V</li><li>VirtualBox</li><li>host</li><li>guest</li><li>vCPU</li><li>snapshot</li><li>template</li><li>cluster</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends la différence type 1 / type 2.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le vocabulaire.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu justifies un choix d’hyperviseur.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux prérequis et à l’architecture, chapitre 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Prérequis et architecture des hyperviseurs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique Admin VM (modules 1 à 7 : introduction, prérequis, architecture, cycle de vie, stockage, réseau, administration avancée).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

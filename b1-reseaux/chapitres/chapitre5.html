@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — L'adressage réseau | Architecture des réseaux B1</title>
+<meta name="description" content="Chapitre 5 du cours d'Architecture des réseaux B1 : L'adresse MAC (48 bits, OUI, non routée) ; l'adresse IP (réseau + hôte, IPv4/IPv6) ; ARP et le routage ; le masque ; les classes A, B, C. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-reseaux/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — L'adressage réseau | Architecture des réseaux B1">
+<meta property="og:description" content="Chapitre 5 du cours d'Architecture des réseaux B1 : L'adresse MAC (48 bits, OUI, non routée) ; l'adresse IP (réseau + hôte, IPv4/IPv6) ; ARP et le routage ; le masque ; les classes A, B, C. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="renav"><div class="renav__in">
+  <a class="renav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="renav__sep" aria-hidden="true">/</span>
+  <a class="renav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Architecture des réseaux B1</a>
+  <div class="renav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="renav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rewrap">
+<p class="crumb"><a href="../index.html">Architecture des réseaux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — L'adressage réseau</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Deux adresses identifient chaque machine : la MAC, numéro de série de la carte réseau, et l'IP, adresse logique routable. Le support les fait collaborer — « l'adresse IP dirige le paquet de réseau en réseau, la MAC de dispositif en dispositif » — puis introduit le masque et les classes A, B, C.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire l'adresse MAC : 48 bits, OUI du fabricant, portée limitée au LAN ;</li>
+      <li>décomposer l'adresse IPv4 en partie réseau et partie hôte grâce au masque ;</li>
+      <li>expliquer la coopération ARP (même réseau) et routage (réseaux distants) ;</li>
+      <li>classifier une adresse par son premier octet : classes A, B, C, D, E.</li>
+    </ol>
+  </div>
+
+<h2>1. MAC, IP, ARP</h2>
+
+<p>L'<strong>adresse MAC</strong> (Media Access Control) opère en couche 2 : elle identifie  unique la carte réseau (NIC). Format : <strong>48 bits</strong>, soit 12 chiffres hexadécimaux (00:1A:2B:3C:4D:5E). Les 6 premiers chiffres (24 bits) forment l'<strong>OUI</strong> (Organizationally Unique Identifier) du fabricant ; les 6 derniers sont le numéro de série du fabricant. Portée : le segment local uniquement — <strong>une MAC n'est jamais routée au-delà d'un routeur</strong>.</p>
+<p>L'<strong>adresse IP</strong> opère en couche 3 : identité logique et routable. <strong>IPv4</strong> : 32 bits en quatre octets décimaux (192.168.1.10), composée d'une partie <strong>réseau</strong> et d'une partie <strong>hôte</strong>, séparées par le masque ; dynamique (DHCP) ou statique. <strong>IPv6</strong> : 128 bits en huit groupes hexadécimaux, créée contre la pénurie d'IPv4.</p>
+<p>La coopération : sur le <strong>même réseau</strong>, A résout l'IP de B en MAC via <strong>ARP</strong> (Address Resolution Protocol) et envoie directement. À <strong>distance</strong>, A encapsule le paquet avec la MAC du routeur local ; le routeur désencapsule, lit l'IP de C, consulte sa table de routage, et réencapsule vers la MAC du routeur suivant — et ainsi de suite.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « IP navigue, MAC rame »</div>
+    <p>IP traverse les réseaux de routeur en routeur ; MAC ne rame que sur son segment local. ARP est le traducteur entre les deux.</p>
+  </div>
+
+<h2>2. Masque et classes</h2>
+
+<p>Le <strong>masque de sous-réseau</strong> répond à la question « où finit le réseau, où commence l'hôte ? ». 32 bits comme l'adresse : les bits à 1 marquent la partie réseau, les bits à 0 la partie hôte. Exemple : 255.255.255.0 — les 24 premiers bits (trois octets) sont réseau, le dernier octet identifie les machines.</p>
+<p>Les <strong>classes</strong> historiques, déterminées par les premiers bits du premier octet : <strong>A</strong> (1er bit 0, adresses 1 à 126, masque 255.0.0.0, ~16 millions d'hôtes) ; <strong>B</strong> (10, 128 à 191, 255.255.0.0, ~65 000 hôtes) ; <strong>C</strong> (110, 192 à 223, 255.255.255.0, 254 hôtes). Les classes <strong>D</strong> (224-239) servent au multicast, <strong>E</strong> (240-254) est expérimentale. 127 est la <strong>boucle locale</strong>.</p>
+<p>Ce système, remplacé par le <strong>CIDR</strong>, reste « essentiel à comprendre » selon le support — et c'est lui qui rend le sous-réseautage lisible au chapitre suivant.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Une MAC n'est jamais routée : elle ne sort pas du LAN, contrairement à l'IP.</li>
+      <li>Classe B : 128 à 191 — pas 127 (boucle locale) ni 192 (classe C).</li>
+      <li>Bits du masque : 1 = réseau, 0 = hôte — jamais l'inverse.</li>
+      <li>ARP traduit IP en MAC sur le segment local ; à distance, c'est la table de routage qui parle.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="re-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="3&#10;pc1 aabbccddeeff&#10;pc2 aabbccdd&#10;pc3 aabbccddeexf&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c5-e1) — Lire une adresse MAC
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule valide]
+# Données : 1
+# Données : srv 001A2B3C4D5E
+A_COMPLETER
+
+[Cas 2 — Trop longue]
+# Données : 2
+# Données : pc1 aabbccddeeff1
+# Données : pc2 aabbccddeeff
+A_COMPLETER
+
+[Cas 3 — Cinq cartes]
+# Données : 5
+# Données : a aabbccddeeff
+# Données : b AABBCCDDEEFF
+# Données : c aabbccddeegf
+# Données : d aabbccddee
+# Données : e zzbccddeeff1
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Lire une adresse MAC</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider une adresse MAC : 48 bits, soit exactement 12 chiffres hexadécimaux.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « carte mac » : mac est une suite de caractères prétendant être une adresse MAC (sans séparateurs, par exemple <code>aabbccddeeff</code>). Une MAC valide compte <strong>exactement 12 chiffres hexadécimaux</strong> (0-9, a-f, A-F) : les 6 premiers forment l'OUI du fabricant, les 6 derniers le numéro de série. Pour chaque ligne il Indiquez <code>carte : mac valide</code> ou <code>carte : mac invalide</code>. Il termine par <code>invalides : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
+pc1 aabbccddeeff
+pc2 aabbccdd
+pc3 aabbccddeexf
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>pc1 : mac valide
+pc2 : mac invalide
+pc3 : mac invalide
+invalides : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case avec douze classes [0-9a-fA-F] de suite valide la forme : le motif doit couvrir tout le mot.</li>
+        <li>Trop courte, trop longue ou avec un caractère étranger : tout tombe dans le cas invalide.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="5&#10;c o1&#10;c o2&#10;c o4&#10;a o2&#10;b o2&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c5-e2) — Réseau ou hôte
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Classe A, premier octet]
+# Données : 1
+# Données : a o1
+A_COMPLETER
+
+[Cas 2 — Classe C, tout le dernier]
+# Données : 2
+# Données : c o3
+# Données : c o4
+A_COMPLETER
+
+[Cas 3 — Six lignes]
+# Données : 6
+# Données : b o1
+# Données : b o3
+# Données : b o4
+# Données : a o4
+# Données : a o1
+# Données : c o2
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Réseau ou hôte</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Découper une adresse IP selon sa classe : quel octet appartient à la partie réseau, lequel à la partie hôte.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « classe octet » : classe vaut <code>a</code> (1 octet réseau), <code>b</code> (2 octets réseau) ou <code>c</code> (3 octets réseau) ; octet vaut <code>o1</code>, <code>o2</code>, <code>o3</code> ou <code>o4</code>. Pour chaque ligne il Indiquez <code>octet : reseau</code> si l'octet appartient à la partie réseau de cette classe, <code>octet : hote</code> sinon. Il termine par <code>reseau : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5
+c o1
+c o2
+c o4
+a o2
+b o2
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>o1 : reseau
+o2 : reseau
+o4 : hote
+o2 : hote
+o2 : reseau
+reseau : 3/5</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur la classe fixe le nombre d'octets réseau : a 1, b 2, c 3.</li>
+        <li>Un second case sur l'octet (o1 à o4) compare son rang à ce nombre.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="4&#10;rc 10&#10;uni 172&#10;pmi 192&#10;groupe 224&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c5-e3) — La classe de l'adresse
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Boucle locale]
+# Données : 1
+# Données : localhost 127
+A_COMPLETER
+
+[Cas 2 — Classe E]
+# Données : 2
+# Données : labo 240
+# Données : pmi 193
+A_COMPLETER
+
+[Cas 3 — Six adresses]
+# Données : 6
+# Données : a 1
+# Données : b 126
+# Données : c 128
+# Données : d 191
+# Données : e 255
+# Données : f 0
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — La classe de l'adresse</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier la classe IPv4 par le premier octet : A (1-126), B (128-191), C (192-223), D et E réservées.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « adresse premieroctet » : premieroctet est un entier (0 à 255). Pour chaque ligne il Indiquez : <code>adresse : classe A</code> (1-126), <code>adresse : classe B</code> (128-191), <code>adresse : classe C</code> (192-223), <code>adresse : classe D</code> (224-239, multicast), <code>adresse : classe E</code> (240-254, expérimentale), <code>adresse : boucle locale</code> (127) ou <code>adresse : reservee</code> (0 et 255). Il termine par <code>speciales : X/n</code> (boucle locale et réservées).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
+rc 10
+uni 172
+pmi 192
+groupe 224
+</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>rc : classe A
+uni : classe B
+pmi : classe C
+groupe : classe D
+speciales : 0/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une suite de if/elif avec -le et -ge évite le case : les tranches sont numériques.</li>
+        <li>Boucle locale (127), 0 et 255 sont les cas « speciales » à compter.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Une adresse MAC compte…</p>
+      <div class="opts">
+        <button class="opt">32 bits</button>
+        <button class="opt" data-correct="1">48 bits (12 hexadécimaux)</button>
+        <button class="opt">128 bits</button>
+      </div>
+      <div class="q__exp">12 chiffres hexadécimaux : 6 OUI + 6 série.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'OUI d'une MAC identifie…</p>
+      <div class="opts">
+        <button class="opt">le réseau</button>
+        <button class="opt" data-correct="1">le fabricant de la carte</button>
+        <button class="opt">l'utilisateur</button>
+      </div>
+      <div class="q__exp">Organizationally Unique Identifier : 24 premiers bits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une MAC est routée…</p>
+      <div class="opts">
+        <button class="opt">sur Internet</button>
+        <button class="opt" data-correct="1">jamais au-delà d'un routeur</button>
+        <button class="opt">dans toute l'entreprise</button>
+      </div>
+      <div class="q__exp">Portée : le segment local uniquement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">IPv4 fait 32 bits, IPv6 fait…</p>
+      <div class="opts">
+        <button class="opt">48 bits</button>
+        <button class="opt">64 bits</button>
+        <button class="opt" data-correct="1">128 bits</button>
+      </div>
+      <div class="q__exp">Huit groupes hexadécimaux, contre la pénurie IPv4.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">ARP sert à…</p>
+      <div class="opts">
+        <button class="opt">router les paquets</button>
+        <button class="opt" data-correct="1">traduire une IP en MAC locale</button>
+        <button class="opt">attribuer des IP</button>
+      </div>
+      <div class="q__exp">Address Resolution Protocol, sur le même réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans 255.255.255.0, les bits à 0 marquent…</p>
+      <div class="opts">
+        <button class="opt">le réseau</button>
+        <button class="opt" data-correct="1">l'hôte</button>
+        <button class="opt">la diffusion</button>
+      </div>
+      <div class="q__exp">1 = réseau, 0 = hôte : ici le dernier octet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'adresse 172.16.0.1 est de classe…</p>
+      <div class="opts">
+        <button class="opt">A</button>
+        <button class="opt" data-correct="1">B</button>
+        <button class="opt">C</button>
+      </div>
+      <div class="q__exp">Premier octet 172 : classe B (128-191).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La classe C offre environ…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">254 hôtes</button>
+        <button class="opt">65 000 hôtes</button>
+        <button class="opt">16 millions d'hôtes</button>
+      </div>
+      <div class="q__exp">255.255.255.0 : un octet d'hôte, moins réseau et diffusion.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Router une adresse MAC : elle s'arrête au premier routeur.</li>
+      <li>Ranger 127 en classe B : c'est la boucle locale.</li>
+      <li>Inverser réseau et hôte dans le masque.</li>
+      <li>Oublier l'étape ARP avant l'envoi local : l'IP seule ne suffit pas.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — lire une adresse en trois gestes</div>
+    <ol>
+      <li>Regarder le premier octet : 1-126 (A), 128-191 (B), 192-223 (C), 224-239 (D), 240-254 (E).</li>
+      <li>Appliquer le masque par défaut : /8, /16 ou /24 — séparer réseau et hôte.</li>
+      <li>Décider du chemin : même réseau (ARP + MAC), réseau distant (MAC du routeur).</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>MAC : 48 bits, OUI + série, couche 2, jamais routée.</li>
+      <li>IP : 32 bits (IPv4) réseau + hôte ; IPv6 : 128 bits.</li>
+      <li>ARP traduit IP en MAC localement ; le routeur enchaîne à distance.</li>
+      <li>Masque : bits 1 = réseau, 0 = hôte. Classes A (1-126), B (128-191), C (192-223).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais décomposer une MAC et nommer l'OUI.</li>
+      <li>Je sais séparer réseau et hôte avec un masque par défaut.</li>
+      <li>Je sais dérouler un envoi local (ARP) et distant (routage).</li>
+      <li>Je sais classifier dix adresses par leur premier octet.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>MAC</strong> : 48 bits hexadécimaux, identité physique de la carte.</li><li><strong>OUI</strong> : 24 premiers bits, fabricant de la carte.</li><li><strong>IPv4</strong> : 32 bits, quatre octets décimaux, réseau + hôte.</li><li><strong>IPv6</strong> : 128 bits, huit groupes hexadécimaux.</li><li><strong>ARP</strong> : traduction IP en MAC sur le segment local.</li><li><strong>Masque</strong> : 32 bits, 1 = réseau, 0 = hôte.</li><li><strong>Classe A</strong> : 1-126, /8, 16 millions d'hôtes.</li><li><strong>Classe C</strong> : 192-223, /24, 254 hôtes.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis MAC, IP et le tableau des classes.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais la classification par premier octet et les masques par défaut.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, raconte le chemin complet d'un paquet distant.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Le sous-réseautage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

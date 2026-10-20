@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — VLANs, Trunking 802.1Q &amp;amp; Routage Inter-VLAN (ROAS) | CCNA Réseau B2</title>
+<meta name="description" content="Chapitre 6 du cours CCNA Réseau B2 : Segmentation logique par VLANs (1 à 4094), ports d’accès (Access) vs liens d’agrégation (Trunk), balise Ethernet IEEE 802.1Q (TPID, PCP, VID), VLAN natif, routage inter-VLAN avec Router-on-a-Stick (sous-interfaces dot1Q), et diagnostic d’anomalies de Trunk. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/ccna/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — VLANs, Trunking 802.1Q &amp;amp; Routage Inter-VLAN (ROAS) | CCNA Réseau B2">
+<meta property="og:description" content="Chapitre 6 du cours CCNA Réseau B2 : Segmentation logique par VLANs (1 à 4094), ports d’accès (Access) vs liens d’agrégation (Trunk), balise Ethernet IEEE 802.1Q (TPID, PCP, VID), VLAN natif, routage inter-VLAN avec Router-on-a-Stick (sous-interfaces dot1Q), et diagnostic d’anomalies de Trunk. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnanav"><div class="ccnanav__in">
+  <a class="ccnanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnanav__sep" aria-hidden="true">/</span>
+  <a class="ccnanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA Réseau B2</a>
+  <div class="ccnanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccnawrap">
+<p class="crumb"><a href="../index.html">CCNA Réseau B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — VLANs, Trunking 802.1Q &amp; Routage Inter-VLAN (ROAS)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une clinique médicale réaménage son réseau local. Les ordinateurs des salles d’attente, les postes administratifs et les équipements biomédicaux critiques sont tous branchés sur les mêmes commutateurs physiques sans isolation. Une infection par rançongiciel survenue sur un PC invité menace de se propager aux moniteurs de réanimation. L’équipe d’ingénierie réseau doit cloisonner immédiatement les flux en créant des réseaux locaux virtuels (VLANs), configurer des liens Trunk 802.1Q sécurisés entre les commutateurs d’étage et déployer un routeur configuré en Router-on-a-Stick (ROAS) avec des sous-interfaces étiquetées pour filtrer rigoureusement les communications inter-VLAN. Ce sixième module couronne le programme CCNA par la maîtrise de la segmentation et de l’interconnexion L2/L3.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre les bénéfices fonctionnels et sécuritaires des VLANs (Virtual Local Area Networks) pour partitionner les domaines de diffusion ;</li>
+      <li>distinguer les plages de numérotation de VLANs : standard (1 à 1005) et étendue (1006 à 4094) ;</li>
+      <li>différencier un port en mode Access (non balisé) d’un port en mode Trunk (balisé 802.1Q) ;</li>
+      <li>analyser la structure de la balise Ethernet IEEE 802.1Q de 4 octets (TPID, PCP CoS, DEI, VLAN ID) ;</li>
+      <li>comprendre le rôle du VLAN natif, les risques du Native VLAN Mismatch et les bonnes pratiques de sécurité ;</li>
+      <li>mettre en œuvre le routage inter-VLAN Router-on-a-Stick (ROAS) avec sous-interfaces routeur (encapsulation dot1Q) ;</li>
+      <li>diagnostiquer et dépanner les problèmes de négociation DTP, de VLANs autorisés et de configuration Trunk.</li>
+    </ol>
+  </div>
+
+<h2>1. Segmentation Logique par VLANs (Virtual LANs)</h2>
+
+<p>Sans VLAN, tous les ports d’un commutateur appartiennent au même domaine de diffusion (broadcast domain). Un <strong>VLAN (Virtual Local Area Network)</strong> permet de partitionner logiquement un commutateur physique en plusieurs commutateurs virtuels indépendants. Les machines d’un même VLAN peuvent communiquer entre elles en couche 2, mais le trafic entre deux VLANs différents est <strong>strictement impossible sans équipement de routage de couche 3</strong>.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Avantages Clés des VLANs</h4>
+    <ul>
+      <li><strong>Sécurité renforcée :</strong> Cloisonnement strict des flux sensibles (RH, direction, invités, biomédical).</li>
+      <li><strong>Réduction des domaines de diffusion :</strong> Le trafic broadcast (ARP, DHCP) est confiné à son propre VLAN, préservant la bande passante.</li>
+      <li><strong>Flexibilité géographique :</strong> Deux postes du même service peuvent être sur le même VLAN bien que connectés à des switches d’étages différents.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Plages de Numéros de VLANs</h4>
+    <ul>
+      <li><strong>VLAN 1 :</strong> VLAN par défaut Cisco (non supprimable, transporte CDP, VTP, STP).</li>
+      <li><strong>VLAN 2 à 1001 :</strong> Plage standard (création normale, stockée dans <code>vlan.dat</code> en mémoire flash).</li>
+      <li><strong>VLAN 1002 à 1005 :</strong> Réservés historiques pour Token Ring et FDDI.</li>
+      <li><strong>VLAN 1006 à 4094 :</strong> Plage étendue (Extended VLANs, stockée dans la running-config).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Ports Access vs Liens Trunk &amp; Balise IEEE 802.1Q</h2>
+
+<p>Sur un commutateur Cisco, un port Ethernet peut fonctionner selon deux modes fondamentaux :</p>
+<ul>
+  <li><strong>Port d’accès (Access Port) :</strong> Raccordé à un équipement terminal (PC, imprimante, serveur standard). Il n’appartient qu’à <strong>un seul VLAN de données</strong>. Les trames envoyées sur ce port sont ordinaires (untagged, non balisées).</li>
+  <li><strong>Lien Trunk (Agrégation 802.1Q) :</strong> Interconnecte deux switches ou un switch et un routeur. Il est capable de transporter le trafic de <strong>multiples VLANs simultanément</strong> sur un seul câble physique. Pour distinguer à quel VLAN appartient chaque trame, le switch insère une <strong>balise (tag) IEEE 802.1Q de 4 octets</strong>.</li>
+</ul>
+<table class="table">
+  <thead>
+    <tr><th>Champ de la Balise 802.1Q</th><th>Taille</th><th>Description Technique</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>TPID (Tag Protocol Identifier)</strong></td><td>16 bits (2 octets)</td><td>Valeur fixe <code>0x8100</code> identifiant la présence d’une balise dot1Q.</td></tr>
+    <tr><td><strong>PCP (Priority Code Point)</strong></td><td>3 bits (valeurs 0 à 7)</td><td>Indicateur de classe de service QoS (CoS) pour prioriser la voix (5) ou la vidéo (4).</td></tr>
+    <tr><td><strong>DEI (Drop Eligible Indicator)</strong></td><td>1 bit (0 ou 1)</td><td>Indique si la trame peut être éliminée en priorité lors d’une congestion de buffer.</td></tr>
+    <tr><td><strong>VID (VLAN Identifier)</strong></td><td>12 bits (valeurs 1 à 4094)</td><td>Numéro d’identification du VLAN auquel appartient la trame.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le VLAN Natif et le Piège du Native VLAN Mismatch</div>
+<p>Sur un lien Trunk 802.1Q, le <strong>VLAN natif</strong> est le seul VLAN dont les trames circulent <strong>sans aucune balise (untagged)</strong>. Par défaut sur Cisco, c’est le VLAN 1.</p>
+<p><strong>Règle de sécurité impérative :</strong> Les deux extrémités du lien Trunk doivent impérativement avoir le <strong>même VLAN natif configuré</strong>. En cas de discordance (<em>Native VLAN Mismatch</em>), le commutateur émet des alertes CDP constantes et le trafic d’un VLAN fuite accidentellement dans un autre VLAN, créant une faille de sécurité majeure et des boucles STP.</p>
+  </div>
+
+<h2>3. Configuration d’un Trunk 802.1Q sous Cisco IOS</h2>
+
+<p>Pour configurer et durcir un lien Trunk entre deux commutateurs sous Cisco IOS :</p>
+<pre><code>Switch(config)# interface GigabitEthernet0/1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk native vlan 99
+Switch(config-if)# switchport trunk allowed vlan 10,20,30,99
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# description LIEN-TRUNK-VERS-SW-CORE</code></pre>
+<ul>
+  <li><code>switchport trunk native vlan 99</code> : Déplace le VLAN natif hors du VLAN 1 par défaut pour neutraliser les attaques par double étiquetage (Double Tagging VLAN Hopping).</li>
+  <li><code>switchport trunk allowed vlan</code> : Liste explicitement les seuls VLANs autorisés à franchir le trunk, réduisant l’inondation inutile.</li>
+  <li><code>switchport nonegotiate</code> : Désactive le protocole DTP (Dynamic Trunking Protocol) pour figer le port en trunk permanent.</li>
+</ul>
+
+<h2>4. Routage Inter-VLAN : La Méthode Router-on-a-Stick (ROAS)</h2>
+
+<p>Puisque chaque VLAN est un sous-réseau IP isolé, faire communiquer deux machines situées sur des VLANs différents (ex: VLAN 10 et VLAN 20) requiert un équipement de niveau 3. La solution classique et économique est le <strong>Router-on-a-Stick (ROAS)</strong> :</p>
+<p>Un unique câble physique relie le commutateur au routeur. Le port du commutateur est configuré en <strong>Trunk</strong>. L’interface physique du routeur est subdivisée logiquement en <strong>sous-interfaces (subinterfaces)</strong> virtuelles, chacune dédiée à un VLAN spécifique avec la commande <code>encapsulation dot1Q &lt;vlan_id&gt;</code> et portant l’adresse IP de la passerelle par défaut :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Configuration Switch (L2)</h4>
+    <pre><code>Switch(config)# interface Gi0/24
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk allowed vlan 10,20
+Switch(config-if)# no shutdown</code></pre>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Configuration Routeur (L3 ROAS)</h4>
+    <pre><code>Router(config)# interface Gi0/0
+Router(config-if)# no shutdown
+Router(config-if)# exit
+Router(config)# interface Gi0/0.10
+Router(config-subif)# encapsulation dot1Q 10
+Router(config-subif)# ip address 192.168.10.254 255.255.255.0
+Router(config-subif)# exit
+Router(config)# interface Gi0/0.20
+Router(config-subif)# encapsulation dot1Q 20
+Router(config-subif)# ip address 192.168.20.254 255.255.255.0</code></pre>
+  </div>
+</div>
+<p><strong>Cheminement d’un paquet Inter-VLAN :</strong></p>
+<ol>
+  <li>L’hôte A (192.168.10.1) envoie un paquet pour l’hôte B (192.168.20.1) à sa passerelle 192.168.10.254.</li>
+  <li>Le switch reçoit la trame sur le port access VLAN 10, lui ajoute la balise 802.1Q avec VID=10 et l’envoie sur le Trunk Gi0/24.</li>
+  <li>Le routeur reçoit la trame sur la sous-interface Gi0/0.10, retire la balise dot1Q, consulte sa table de routage, décrémente le TTL.</li>
+  <li>Le routeur détermine que le réseau 192.168.20.0/24 est accessible via Gi0/0.20. Il ré-encapsule le paquet avec une nouvelle balise VID=20 et la MAC de l’hôte B.</li>
+  <li>Le switch reçoit la trame balisée VID=20, retire la balise et la remet en clair sur le port access de l’hôte B.</li>
+</ol>
+
+<!-- code-labs:start -->
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="na2-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="8100a00a">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c6-e1) — Décodeur de balise Ethernet IEEE 802.1Q (VLAN Tagging)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — VLAN étendu avec vidéo et drop eligible]
+# Données : 81009800
+A_COMPLETER
+
+[Cas 2 — VLAN 1 par défaut sans priorité]
+# Données : 81000001
+A_COMPLETER
+
+[Cas 3 — TPID invalide avec protocole non-standard]
+# Données : 88a8201e
+A_COMPLETER
+
+[Cas 4 — Contrôle réseau haute priorité PCP 7]
+# Données : 8100e064
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Décodeur de balise Ethernet IEEE 802.1Q (VLAN Tagging)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décoder la balise 802.1Q de 4 octets insérée dans la trame Ethernet (TPID, PCP, DEI, VID).</p>
+    <div class="lab__brief"><p>Une balise 802.1Q fait 4 octets (32 bits) :<br>
+- <code>TPID</code> (16 bits) : Tag Protocol Identifier, doit valoir <code>0x8100</code> pour 802.1Q standard.<br>
+- <code>TCI</code> (16 bits) : Tag Control Information, décomposé en :<br>
+  * <code>PCP</code> (3 bits, 0-7) : Priority Code Point (classe de service CoS).<br>
+  * <code>DEI</code> (1 bit, 0 ou 1) : Drop Eligible Indicator (éligible au rejet en cas de congestion).<br>
+  * <code>VID</code> (12 bits, 1-4094) : VLAN ID.<br>
+Analysez les paramètres du problème pour chaque cas.<br>
+Il décode et Indiquez :<br>
+- <code>TPID: 0x&lt;HEX&gt; (&lt;VALIDE|INVALIDE&gt;)</code><br>
+- <code>VLAN ID: &lt;VID&gt; (&lt;STANDARD|ETENDU|RESERVE&gt;)</code> (1-1005: STANDARD, 1006-4094: ETENDU, 0 ou 4095: RESERVE)<br>
+- <code>Priorite CoS (PCP): &lt;PCP&gt; (&lt;QOS_DESCRIPTION&gt;)</code> (0: Best Effort, 1: Background, 2: Spare, 3: Critical, 4: Video, 5: Voice, 6: Internetwork Control, 7: Network Control)<br>
+- <code>Drop Eligible (DEI): &lt;OUI|NON&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>8100a00a</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TPID: 0x8100 (VALIDE)
+VLAN ID: 10 (STANDARD)
+Priorite CoS (PCP): 5 (Voice)
+Drop Eligible (DEI): NON</pre></div>
+    </div>
+    <p class="lab__note">VLAN 10 avec priorité voix (PCP 5) et TPID standard.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les deux premiers octets (4 caractères hex) correspondent au TPID.</li>
+        <li>Les 4 caractères suivants correspondent au TCI sur 16 bits : PCP = (TCI &gt;&gt; 13) &amp; 7, DEI = (TCI &gt;&gt; 12) &amp; 1, VID = TCI &amp; 0x0FFF.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01&#10;SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01&#10;PACKET 192.168.10.5 192.168.20.15 10 64 SALUT">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c6-e2) — Simulateur de Router-on-a-Stick (ROAS) et sous-interfaces
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — TTL expiré à 1]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01
+# Données : PACKET 192.168.10.2 192.168.20.2 10 1 PING
+A_COMPLETER
+
+[Cas 2 — IP source non conforme au VLAN annoncé]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01
+# Données : PACKET 10.0.0.1 192.168.20.2 10 64 SPOOF
+A_COMPLETER
+
+[Cas 3 — Destination sur le même VLAN sans besoin de routage L3]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : PACKET 192.168.10.1 192.168.10.2 10 64 LOCAL_MSG
+A_COMPLETER
+
+[Cas 4 — Destination inconnue dans les sous-interfaces]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : PACKET 192.168.10.1 8.8.8.8 10 64 DNS_QUERY
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de Router-on-a-Stick (ROAS) et sous-interfaces</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Modéliser le routage inter-VLAN par sous-interfaces dot1Q sur un lien trunk unique.</p>
+    <div class="lab__brief"><p>Le script configure d'abord les sous-interfaces d'un routeur à partir de l'entrée standard :<br>
+<code>SUBIF &lt;INTERFACE&gt; &lt;VLAN_ID&gt; &lt;IP_PASSERELLE&gt;/&lt;CIDR&gt; &lt;MAC_ROUTEUR&gt;</code><br>
+(ex: <code>SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01</code>).<br>
+Puis il traite des paquets de données transmis sur le lien Trunk au format :<br>
+<code>PACKET &lt;SRC_IP&gt; &lt;DST_IP&gt; &lt;VLAN_IN&gt; &lt;TTL&gt; &lt;DATA&gt;</code>.<br>
+Pour chaque paquet :<br>
+1. Vérifier si <code>SRC_IP</code> appartient bien au sous-réseau associé à <code>VLAN_IN</code>. Si non : <code>REJET: IP source incoherente avec VLAN &lt;VLAN_IN&gt;</code>.<br>
+2. Vérifier si <code>TTL &lt;= 1</code> : <code>REJET: TTL expire en transit</code>.<br>
+3. Trouver la sous-interface de destination dont le sous-réseau englobe <code>DST_IP</code>. Si aucune : <code>REJET: Pas de route vers &lt;DST_IP&gt;</code>.<br>
+4. Si la sous-interface trouvée a <code>VLAN_OUT == VLAN_IN</code> : <code>REJET: Destination sur le meme VLAN (commutation locale requise)</code>.<br>
+5. Si routage réussi : afficher :<br>
+<code>ROUTAGE ROAS: [VLAN &lt;VLAN_IN&gt; -&gt; VLAN &lt;VLAN_OUT&gt; via &lt;SUBIF_OUT&gt;] TTL: &lt;TTL-1&gt; | Data: &lt;DATA&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01
+PACKET 192.168.10.5 192.168.20.15 10 64 SALUT</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTAGE ROAS: [VLAN 10 -&gt; VLAN 20 via g0/0.20] TTL: 63 | Data: SALUT</pre></div>
+    </div>
+    <p class="lab__note">Routage inter-VLAN classique entre le VLAN 10 et le VLAN 20.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque sous-interface dot1q correspond à un VLAN ID et à une passerelle par défaut.</li>
+        <li>Le routeur décrémente le TTL de 1 et remplace la balise VLAN d'entrée par la balise du VLAN cible.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="SWITCH_A trunk NATIVE=1 ALLOWED=10,20,30&#10;SWITCH_B trunk NATIVE=1 ALLOWED=10,20,40">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c6-e3) — Validateur et détecteur d'anomalies de Trunk 802.1Q
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Incompatibilité de VLAN natif]
+# Données : SWITCH_A trunk NATIVE=10 ALLOWED=10,20
+# Données : SWITCH_B trunk NATIVE=20 ALLOWED=10,20
+A_COMPLETER
+
+[Cas 2 — Incompatibilité de mode trunk contre access]
+# Données : SWITCH_A trunk NATIVE=1 ALLOWED=ALL
+# Données : SWITCH_B access NATIVE=1 ALLOWED=1
+A_COMPLETER
+
+[Cas 3 — Aucun VLAN commun autorisé]
+# Données : SWITCH_A trunk NATIVE=1 ALLOWED=10,20
+# Données : SWITCH_B trunk NATIVE=1 ALLOWED=30,40
+A_COMPLETER
+
+[Cas 4 — Trunk avec mot clé ALL d un côté]
+# Données : SWITCH_A trunk NATIVE=99 ALLOWED=ALL
+# Données : SWITCH_B trunk NATIVE=99 ALLOWED=10,99,200
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Validateur et détecteur d'anomalies de Trunk 802.1Q</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la cohérence de configuration entre les deux extrémités d'un lien Trunk (mode, VLAN natif, VLANs autorisés).</p>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+Règles de validation :<br>
+1. <strong>Mode de port</strong> : Les deux ports doivent être en mode <code>trunk</code>. Si l'un est <code>access</code> : <code>ANOMALIE: Mode mismatch (A=&lt;modeA&gt;, B=&lt;modeB&gt;) -&gt; LIEN BLOQUE</code>.<br>
+2. <strong>VLAN Natif</strong> : Les deux extrémités doivent avoir le même VLAN natif (Native VLAN Mismatch). Si différent : <code>ANOMALIE: Native VLAN Mismatch (A=&lt;natA&gt;, B=&lt;natB&gt;) -&gt; RISQUE FUITE TRAFIC</code>.<br>
+3. <strong>VLANs autorisés</strong> : Calculer l'intersection des VLANs autorisés qui circuleront réellement sur le trunk. Si disjoint : <code>AVERTISSEMENT: Aucun VLAN commun autorise</code>.<br>
+Si aucune anomalie critique :<br>
+<code>TRUNK OPERATIONNEL: Native VLAN=&lt;nat&gt; | VLANs actifs communs: &lt;LISTE_TRIEE&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SWITCH_A trunk NATIVE=1 ALLOWED=10,20,30
+SWITCH_B trunk NATIVE=1 ALLOWED=10,20,40</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TRUNK OPERATIONNEL: Native VLAN=1 | VLANs actifs communs: 10,20</pre></div>
+    </div>
+    <p class="lab__note">Trunk valide avec passage des VLANs 10 et 20 communs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Si un côté autorise "ALL", tous les VLANs de 1 à 4094 sont acceptés.</li>
+        <li>Le Native VLAN Mismatch génère des messages CDP d'erreur et des boucles de trafic dans les environnements Spanning Tree PVST+.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien de bits compte le champ VLAN Identifier (VID) dans l’en-tête de la balise IEEE 802.1Q, et combien de VLANs distincts permet-il d’adresser au maximum ?</p>
+      <div class="opts">
+        <button class="opt">8 bits permettant 256 VLANs</button>
+        <button class="opt" data-correct="1">12 bits permettant 4096 VLANs (de 0 à 4095)</button>
+        <button class="opt">16 bits permettant 65536 VLANs</button>
+        <button class="opt">10 bits permettant 1024 VLANs</button>
+      </div>
+      <div class="q__exp">Le champ VID de la balise 802.1Q fait 12 bits, ce qui autorise 2^12 = 4096 valeurs (de 0 à 4095). Les VLANs exploitables s’étendent de 1 à 4094 (0 et 4095 étant réservés).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la particularité fondamentale du VLAN natif sur une liaison Trunk IEEE 802.1Q ?</p>
+      <div class="opts">
+        <button class="opt">Ses trames sont chiffrées en AES-256</button>
+        <button class="opt" data-correct="1">Ses trames circulent sur le trunk sans aucune balise 802.1Q (untagged)</button>
+        <button class="opt">Il ne peut transporter que du trafic de gestion SSH</button>
+        <button class="opt">Il est automatiquement désactivé si plus de 10 VLANs sont présents</button>
+      </div>
+      <div class="q__exp">Sur un trunk 802.1Q, les trames appartenant au VLAN natif ne reçoivent aucune balise (untagged). Tous les autres VLANs reçoivent la balise 802.1Q de 4 octets.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un routeur configuré en Router-on-a-Stick, quelle commande doit être impérativement saisie sur la sous-interface AVANT de lui attribuer une adresse IP ?</p>
+      <div class="opts">
+        <button class="opt">no switchport</button>
+        <button class="opt" data-correct="1">encapsulation dot1Q <vlan_id></button>
+        <button class="opt">ip routing</button>
+        <button class="opt">switchport mode trunk</button>
+      </div>
+      <div class="q__exp">Cisco IOS exige d’abord de définir le protocole d’encapsulation et le VLAN associé avec « encapsulation dot1Q <vlan_id> » avant d’autoriser la saisie de la commande « ip address » sur une sous-interface.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet de vérifier sur un commutateur Cisco la liste des ports d’accès et les VLANs auxquels ils sont assignés ?</p>
+      <div class="opts">
+        <button class="opt">show ip route</button>
+        <button class="opt" data-correct="1">show vlan brief</button>
+        <button class="opt">show mac address-table</button>
+        <button class="opt">show interfaces trunk</button>
+      </div>
+      <div class="q__exp">La commande « show vlan brief » fournit un tableau récapitulatif de tous les VLANs configurés avec leur nom, leur statut et la liste des interfaces d’accès membres.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si deux commutateurs reliés par un trunk ont un VLAN natif différent (ex: VLAN 1 d’un côté et VLAN 99 de l’autre) ?</p>
+      <div class="opts">
+        <button class="opt">Le lien trunk s’éteint électriquement</button>
+        <button class="opt" data-correct="1">Un Native VLAN Mismatch survient : le trafic du VLAN 1 fuite dans le VLAN 99 et des alertes CDP d’erreur sont générées</button>
+        <button class="opt">Les commutateurs négocient automatiquement le plus petit numéro sans conséquence</button>
+        <button class="opt">Toutes les trames 802.1Q sont converties en trames IPv6</button>
+      </div>
+      <div class="q__exp">C’est une anomalie grave : la trame non balisée émise sur le VLAN 1 est reçue sans étiquette par l’autre switch qui l’attribue à son propre VLAN natif (le 99). Cela cause des fuites de trafic entre VLANs et des dysfonctionnements Spanning Tree.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole propriétaire Cisco négocie automatiquement le mode Trunk ou Access entre deux ports de switches interconnectés ?</p>
+      <div class="opts">
+        <button class="opt">VTP (VLAN Trunking Protocol)</button>
+        <button class="opt" data-correct="1">DTP (Dynamic Trunking Protocol)</button>
+        <button class="opt">CDP (Cisco Discovery Protocol)</button>
+        <button class="opt">STP (Spanning Tree Protocol)</button>
+      </div>
+      <div class="q__exp">DTP (Dynamic Trunking Protocol) négocie automatiquement la mise en trunk ou access. En environnement sécurisé, les bonnes pratiques recommandent de désactiver DTP avec « switchport nonegotiate ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la taille totale de l’en-tête de balisage IEEE 802.1Q inséré dans une trame Ethernet ?</p>
+      <div class="opts">
+        <button class="opt">2 octets</button>
+        <button class="opt" data-correct="1">4 octets (32 bits)</button>
+        <button class="opt">8 octets</button>
+        <button class="opt">14 octets</button>
+      </div>
+      <div class="q__exp">La balise 802.1Q fait exactement 4 octets (32 bits) : 2 octets pour le TPID (0x8100) et 2 octets pour le champ TCI (PCP 3 bits + DEI 1 bit + VID 12 bits).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il nécessaire d’activer la commande « no shutdown » sur l’interface physique principale (ex: GigabitEthernet0/0) d’un routeur dans une architecture Router-on-a-Stick ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que si l’interface physique parent est éteinte, toutes ses sous-interfaces logiques sont obligatoirement inactives</button>
+        <button class="opt">Pour lui attribuer une adresse IP par défaut</button>
+        <button class="opt">Pour activer le serveur DHCP sur le routeur</button>
+        <button class="opt">Pour désactiver le protocole Spanning Tree sur le routeur</button>
+      </div>
+      <div class="q__exp">Les sous-interfaces héritent de l’état physique de l’interface mère. Si l’interface GigabitEthernet0/0 reste sous shutdown, aucune sous-interface (.10, .20) ne pourra émettre ou recevoir de trafic.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de créer le VLAN sur le commutateur (« vlan 10 ») : un port affecté à un VLAN inexistant reste inactif.</li>
+      <li>Oublier de taper « no shutdown » sur l’interface physique principale du routeur supportant les sous-interfaces ROAS.</li>
+      <li>Configurer l’adresse IP sur une sous-interface AVANT d’avoir saisi « encapsulation dot1Q <vlan> » (Cisco IOS refuse la commande).</li>
+      <li>Avoir un Native VLAN Mismatch entre deux switches, provoquant des fuites de paquets et des alertes CDP en boucle.</li>
+      <li>Oublier d’inclure le VLAN dans la liste « switchport trunk allowed vlan », bloquant silencieusement tout son trafic sur le trunk.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Déploiement &amp; Dépannage des VLANs et du ROAS</div>
+    <ol>
+      <li>Étape 1 — Création des VLANs : Déclarer chaque VLAN sur tous les commutateurs (vlan 10, name Ventes) et vérifier avec « show vlan brief ».</li>
+      <li>Étape 2 — Affectation des ports Access : Configurer chaque port terminal avec « switchport mode access » et « switchport access vlan <id> ».</li>
+      <li>Étape 3 — Mise en place des Trunks : Configurer les liaisons inter-switches en « switchport mode trunk », fixer le VLAN natif et vérifier avec « show interfaces trunk ».</li>
+      <li>Étape 4 — Configuration ROAS : Activer l’interface physique du routeur (no shutdown), créer les sous-interfaces, lier l’encapsulation dot1Q et assigner les IPs de passerelle.</li>
+      <li>Étape 5 — Test de connectivité : Vérifier le ping local au sein du même VLAN, puis tester le ping inter-VLAN vers la passerelle et vers un hôte d’un autre VLAN.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un VLAN partitionne logiquement un réseau L2 en domaines de diffusion indépendants et étanches.</li>
+      <li>La communication entre deux VLANs différents exige impérativement un équipement de niveau 3 (routeur ou switch L3).</li>
+      <li>Un port Access véhicule du trafic non balisé pour un seul VLAN ; un port Trunk achemine plusieurs VLANs grâce à la balise 802.1Q.</li>
+      <li>La balise IEEE 802.1Q (4 octets) comprend le TPID (0x8100), le PCP (QoS 3 bits), le DEI (1 bit) et le VID (VLAN ID 12 bits de 1 à 4094).</li>
+      <li>Le VLAN natif transite sans balise sur le lien Trunk ; les deux extrémités doivent obligatoirement partager le même VLAN natif.</li>
+      <li>Le Router-on-a-Stick (ROAS) mutualise une interface routeur physique via des sous-interfaces logiques (encapsulation dot1Q) pour router entre VLANs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais la différence fonctionnelle entre un port Access et un port Trunk.</li>
+      <li>Je maîtrise la structure et la signification des 4 champs de la balise IEEE 802.1Q.</li>
+      <li>Je sais configurer et vérifier un lien Trunk sous Cisco IOS (show interfaces trunk).</li>
+      <li>Je comprends les dangers d’un Native VLAN Mismatch et sais comment le corriger.</li>
+      <li>Je suis capable d’écrire sans erreur la configuration complète d’un routeur en Router-on-a-Stick.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>VLANs (plages 1-1005 et 1006-4094)</li><li>Ports Access vs Liens Trunk</li><li>Balise IEEE 802.1Q (TPID, PCP, DEI, VID)</li><li>VLAN natif et risques de Native VLAN Mismatch</li><li>Sécurisation de Trunk (allowed vlan, nonegotiate)</li><li>Routage Inter-VLAN Router-on-a-Stick (ROAS)</li><li>Sous-interfaces routeur (encapsulation dot1Q)</li><li>Commandes de vérification (show vlan brief, show interfaces trunk)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la différence entre port Access et Trunk, ainsi que la configuration des sous-interfaces ROAS.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes connaissances de base. Approfondissez la structure de la balise 802.1Q et la sécurité du VLAN natif.</div>
+      <div class="bandrow bandrow--good">7/8 : Excellente maîtrise de la segmentation VLAN et du routage inter-VLAN Router-on-a-Stick.</div>
+      <div class="bandrow bandrow--top">8/8 : Ingénieur Réseau CCNA accompli ! Félicitations pour la validation des 6 modules théoriques et pratiques.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les guides officiels Cisco Press CCNA 200-301 (Wendell Odom), les RFC de l’IETF (RFC 791, RFC 1918, RFC 3021) et les standards IEEE 802.1D, 802.1w et 802.1Q.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

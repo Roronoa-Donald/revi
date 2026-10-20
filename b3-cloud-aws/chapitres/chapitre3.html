@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — Calcul &amp; Conteneurs — EC2, EBS, ELB, Auto Scaling &amp; Fargate | Services Cloud AWS B3</title>
+<meta name="description" content="Module 3 du cours Services Cloud AWS B3 : Instances EC2, familles de calcul, modèles d'achat (Spot/Reserved), stockage EBS, Elastic Load Balancing, Auto Scaling et Fargate. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-aws/chapitres/chapitre3.html">
+<meta property="og:title" content="Module 3 — Calcul &amp; Conteneurs — EC2, EBS, ELB, Auto Scaling &amp; Fargate | Services Cloud AWS B3">
+<meta property="og:description" content="Module 3 du cours Services Cloud AWS B3 : Instances EC2, familles de calcul, modèles d'achat (Spot/Reserved), stockage EBS, Elastic Load Balancing, Auto Scaling et Fargate. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-awsnav"><div class="b3-cloud-awsnav__in">
+  <a class="b3-cloud-awsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-awsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-awsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Services Cloud AWS B3</a>
+  <div class="b3-cloud-awsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-awsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-awswrap">
+<p class="crumb"><a href="../index.html">Services Cloud AWS B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Calcul & Conteneurs — EC2, EBS, ELB, Auto Scaling & Fargate</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Votre entreprise prépare le lancement d'une nouvelle plateforme applicative à fort trafic. Vous devez concevoir une architecture de calcul hautement disponible et élastique : dimensionner les instances Amazon EC2 avec la stratégie d'achat optimale (Reserved + Spot), configurer des volumes EBS gp3 performants, déployer un Application Load Balancer (ALB) répartissant le trafic sur plusieurs zones de disponibilité, et automatiser l'élasticité via un Auto Scaling Group.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Identifier et sélectionner les familles d'instances Amazon EC2 et optimiser les coûts via les modèles d'achat (On-Demand, Reserved, Savings Plans, Spot).</li>
+      <li>Dimensionner et administrer les volumes de stockage bloc Amazon EBS (gp3, io2), gérer les snapshots incrémentaux et le chiffrement.</li>
+      <li>Déployer et configurer les répartiteurs de charge Elastic Load Balancing (ALB, NLB) avec leurs Target Groups et contrôles de santé.</li>
+      <li>Configurer un Auto Scaling Group (ASG) avec Launch Template et politiques de Target Tracking pour garantir une haute disponibilité Multi-AZ équilibrée.</li>
+    </ol>
+  </div>
+
+<h2>1. Amazon EC2 : Familles de Calcul &amp; Modèles d'Achat</h2>
+
+<p>Amazon Elastic Compute Cloud (EC2) fournit une capacité de calcul redimensionnable dans le cloud sous forme de machines virtuelles sécurisées :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Familles d'Instances EC2</h4>
+    <ul>
+      <li><strong>Usage général (General Purpose - T4g, M6i) :</strong> équilibre idéal entre calcul, mémoire et réseau pour les serveurs web et microservices.</li>
+      <li><strong>Optimisées pour le calcul (Compute - C6i, C7g) :</strong> forte puissance CPU pour le traitement batch, l'encodage vidéo et le calcul scientifique.</li>
+      <li><strong>Optimisées pour la mémoire (Memory - R6i, X2gd) :</strong> volumétrie RAM élevée pour les bases de données en mémoire (Redis, SAP HANA).</li>
+      <li><strong>Optimisées pour le stockage (Storage - I3en, D3) :</strong> disques NVMe locaux ultra-rapides pour les entrepôts de données et clusters Elasticsearch.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Les 4 Modèles d'Achat d'Instances</h4>
+    <ul>
+      <li><strong>À la demande (On-Demand) :</strong> flexibilité totale, facturation à la seconde sans engagement. Idéal pour le développement et charges imprévisibles.</li>
+      <li><strong>Instances Réservées &amp; Savings Plans :</strong> engagement de 1 ou 3 ans en échange d'une réduction jusqu'à 72%. Optimal pour la charge socle continue.</li>
+      <li><strong>Instances Spot :</strong> surplus de capacité AWS vendu jusqu'à 90% moins cher, mais interruptible avec un préavis de 2 minutes si AWS réclame la capacité.</li>
+      <li><strong>Hôtes Dédiés (Dedicated Hosts) :</strong> serveur physique complet dédié pour conformité réglementaire ou licences logicielles complexes (BYOL).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Stockage Bloc Amazon EBS (Elastic Block Store) &amp; Snapshots</h2>
+
+<p>Amazon EBS fournit des volumes de stockage bloc persistants rattachables aux instances EC2 au sein d'une même Availability Zone :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Types de Volumes SSD &amp; Métriques Clés</h4>
+    <ul>
+      <li><strong>General Purpose SSD (gp3) :</strong> volume par défaut moderne. Offre 3 000 IOPS et 125 MB/s de base inclus sans frais, modulables jusqu'à 16 000 IOPS et 1 000 MB/s indépendamment de la taille de stockage.</li>
+      <li><strong>Provisioned IOPS SSD (io2 Block Express) :</strong> performance extrême jusqu'à 256 000 IOPS et 4 000 MB/s avec une durabilité de 99.999% pour bases de données critiques.</li>
+      <li><strong>Throughput Optimized HDD (st1) / Cold HDD (sc1) :</strong> stockage magnétique économique pour les charges séquentielles volumineuses (Big Data, logs).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Snapshots Incrémentaux &amp; Chiffrement KMS</h4>
+    <ul>
+      <li><strong>Snapshots incrémentaux :</strong> sauvegardes point-in-time stockées de manière redondante dans Amazon S3. Seuls les blocs modifiés depuis le dernier snapshot sont sauvegardés et facturés.</li>
+      <li><strong>Chiffrement au repos :</strong> activable en un clic via <strong>AWS KMS</strong> (AES-256). Les données du volume, les I/O en transit vers l'instance et tous les snapshots dérivés sont automatiquement chiffrés sans impact sur les performances.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Elastic Load Balancing (ELB) : ALB, NLB &amp; Health Checks</h2>
+
+<p>Elastic Load Balancing distribue automatiquement le trafic entrant sur plusieurs cibles (instances EC2, conteneurs, adresses IP) réparties sur plusieurs AZs :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Application Load Balancer (ALB)</h4>
+    <p>Opère au niveau de la <strong>couche 7 (HTTP/HTTPS)</strong> du modèle OSI.</p>
+    <p>Routage intelligent basé sur le chemin d'URL (<code>/api/*</code> vs <code>/images/*</code>), les en-têtes HTTP, les cookies et les méthodes de requête. Supporte WebSockets et gère la terminaison SSL/TLS avec certificats AWS ACM gratuits.</p>
+  </div>
+  <div class="card">
+    <h4>Network Load Balancer (NLB)</h4>
+    <p>Opère au niveau de la <strong>couche 4 (TCP/UDP/TLS)</strong>.</p>
+    <p>Ultra-haute performance capable de traiter des millions de requêtes par seconde avec une latence ultra-faible (&lt; 1 ms). Fournit une adresse IP statique ou Elastic IP par Availability Zone.</p>
+  </div>
+  <div class="card">
+    <h4>Target Groups &amp; Health Checks</h4>
+    <p>Les cibles sont regroupées dans des Target Groups.</p>
+    <p>L'équilibreur de charge sonde régulièrement chaque instance (Health Checks). Si une instance ne répond pas (ex: code HTTP 500 ou timeout), le trafic est immédiatement dérouté vers les instances saines restantes.</p>
+  </div>
+</div>
+
+<h2>4. Auto Scaling Groups (ASG) &amp; Équilibre Multi-AZ</h2>
+
+<p>Un <strong>Auto Scaling Group (ASG)</strong> ajuste automatiquement la taille de la flotte d'instances pour répondre aux variations de charge tout en garantissant la résilience :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Paramètres de Capacité &amp; Launch Templates</h4>
+    <ul>
+      <li><strong>Capacité minimale (Min) :</strong> nombre d'instances plancher garantissant le service même en creux de trafic.</li>
+      <li><strong>Capacité souhaitée (Desired) :</strong> nombre d'instances actives en régime nominal.</li>
+      <li><strong>Capacité maximale (Max) :</strong> plafond d'instances pour borner les coûts en cas de pic ou d'attaque.</li>
+      <li><strong>Launch Template :</strong> modèle de lancement moderne définissant l'AMI, le type d'instance, le Security Group, l'Instance Profile et le script de démarrage (User Data).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Politiques d'Échelle &amp; Répartition Multi-AZ</h4>
+    <ul>
+      <li><strong>Target Tracking Scaling :</strong> ajuste dynamiquement le nombre d'instances pour maintenir une métrique cible (ex: maintenir l'utilisation CPU globale à 50%).</li>
+      <li><strong>Step Scaling &amp; Simple Scaling :</strong> réagit par paliers en cas d'alerte CloudWatch.</li>
+      <li><strong>Équilibrage Multi-AZ :</strong> l'ASG distribue toujours les nouvelles instances dans la zone qui en compte le moins, garantissant une répartition géographique homogène.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>5. Conteneurs Managés : Amazon ECS, EKS &amp; AWS Fargate</h2>
+
+<p>Pour exécuter des applications conteneurisées Docker sans administrer manuellement de serveurs virtuels :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Amazon ECS</h4>
+    <p>Service d'orchestration de conteneurs hautement performant natif AWS, simple et profondément intégré avec IAM, VPC et CloudWatch.</p>
+  </div>
+  <div class="card">
+    <h4>Amazon EKS</h4>
+    <p>Service Kubernetes entièrement managé certifié conforme, garantissant la portabilité des charges de travail conteneurisées avec l'écosystème open-source K8s.</p>
+  </div>
+  <div class="card">
+    <h4>AWS Fargate (Serverless)</h4>
+    <p>Moteur d'exécution serverless pour ECS et EKS. Vous définissez le CPU et la RAM de la tâche conteneur, AWS alloue l'infrastructure sous-jacente sans aucune VM à gérer ni patcher.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" data-lab
+     data-exercise="aws3-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="EC2_COST BASELINE=4 SPIKE=6 HOURS=720 RATE=0.10 SPOT_DISC=70 RES_DISC=40">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c3-e1) — Optimiseur de Coûts & Stratégie d'Achat EC2 (On-Demand, Reserved, Spot)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Petite flotte continue (2 baseline, 0 spike sur 1 mois)]
+# Données : EC2_COST BASELINE=2 SPIKE=0 HOURS=720 RATE=0.05 SPOT_DISC=70 RES_DISC=35
+A_COMPLETER
+
+[Cas 2 — Batch processing 100% Spot (0 baseline, 10 spike sur 24h)]
+# Données : EC2_COST BASELINE=0 SPIKE=10 HOURS=24 RATE=0.20 SPOT_DISC=75 RES_DISC=40
+A_COMPLETER
+
+[Cas 3 — Forte charge de production avec pic nocturne]
+# Données : EC2_COST BASELINE=10 SPIKE=20 HOURS=100 RATE=0.50 SPOT_DISC=65 RES_DISC=50
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Optimiseur de Coûts &amp; Stratégie d'Achat EC2 (On-Demand, Reserved, Spot)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le coût total et l'économie réalisée en panachant les modèles d'achat d'instances EC2 pour une charge avec pic.</p>
+    <div class="lab__brief"><p>Une architecture cloud moderne optimise ses coûts en combinant plusieurs modèles d'achat EC2 :<br><br>
+1. <strong>Charge de base stable (Baseline)</strong> :<br>
+Tourne 100% du temps. Elle bénéficie d'instances réservées (Reserved Instances) ou d'un Savings Plan offrant un rabais contractuel (ex: 40%).<br>
+<code>Cout_baseline = Baseline_instances * Heures * Taux_OnDemand * (1.0 - Rabais_Reserved / 100)</code>.<br><br>
+2. <strong>Pic variable (Spike)</strong> :<br>
+Charge additionnelle tolérante aux pannes couverte par des instances Spot avec un rabais agressif (ex: 70%).<br>
+<code>Cout_spike = Spike_instances * Heures * Taux_OnDemand * (1.0 - Rabais_Spot / 100)</code>.<br><br>
+3. <strong>Scénario de référence 100% On-Demand</strong> :<br>
+<code>Cout_ref = (Baseline_instances + Spike_instances) * Heures * Taux_OnDemand</code>.<br><br>
+Entrée STDIN :<br>
+<code>EC2_COST BASELINE=&lt;n&gt; SPIKE=&lt;n&gt; HOURS=&lt;h&gt; RATE=&lt;$/h&gt; SPOT_DISC=&lt;pct&gt; RES_DISC=&lt;pct&gt;</code>.<br><br>
+Sortie :<br>
+<code>BUDGET: baseline_cost=&lt;b:.2f&gt;$ spike_cost=&lt;s:.2f&gt;$ total_cost=&lt;t:.2f&gt;$ savings_pct=&lt;p:.2f&gt;%</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EC2_COST BASELINE=4 SPIKE=6 HOURS=720 RATE=0.10 SPOT_DISC=70 RES_DISC=40</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BUDGET: baseline_cost=172.80$ spike_cost=129.60$ total_cost=302.40$ savings_pct=58.00%</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="EBS_CHECK TYPE=gp3 SIZE_GIB=100 IOPS=3000 MBPS=125">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c3-e2) — Dimensionneur de Volumes de Stockage EBS (gp3 vs io2 Block Express)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Volume gp3 valide avec IOPS et débit augmentés]
+# Données : EBS_CHECK TYPE=gp3 SIZE_GIB=200 IOPS=10000 MBPS=500
+A_COMPLETER
+
+[Cas 2 — Erreur ratio IOPS/GiB dépassé sur gp3 (500 IOPS/GiB max)]
+# Données : EBS_CHECK TYPE=gp3 SIZE_GIB=10 IOPS=6000 MBPS=125
+A_COMPLETER
+
+[Cas 3 — Erreur débit MBps supérieur au plafond de 1 000 MB/s pour gp3]
+# Données : EBS_CHECK TYPE=gp3 SIZE_GIB=500 IOPS=10000 MBPS=1200
+A_COMPLETER
+
+[Cas 4 — Volume io2 Block Express haute performance valide]
+# Données : EBS_CHECK TYPE=io2 SIZE_GIB=500 IOPS=64000 MBPS=2000
+A_COMPLETER
+
+[Cas 5 — Erreur taille minimale io2 (inférieure à 4 GiB)]
+# Données : EBS_CHECK TYPE=io2 SIZE_GIB=2 IOPS=1000 MBPS=125
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Dimensionneur de Volumes de Stockage EBS (gp3 vs io2 Block Express)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider et calculer les paramètres d'un volume EBS en respectant les plafonds et ratios officiels d'AWS.</p>
+    <div class="lab__brief"><p>Amazon Elastic Block Store (EBS) propose différents types de volumes SSD :<br><br>
+1. <strong>gp3 (General Purpose SSD)</strong> :<br>
+- Taille : 1 GiB à 16 384 GiB.<br>
+- Base incluse gratuite : 3 000 IOPS et 125 MB/s de débit.<br>
+- Maximum provisionnable : 16 000 IOPS et 1 000 MB/s.<br>
+- Règle de cohérence : le ratio max est de 500 IOPS par GiB.<br><br>
+2. <strong>io2 Block Express (Provisioned IOPS SSD)</strong> :<br>
+- Taille : 4 GiB à 65 536 GiB.<br>
+- Maximum provisionnable : 256 000 IOPS et 4 000 MB/s.<br>
+- Règle de cohérence : le ratio max est de 1 000 IOPS par GiB.<br><br>
+Entrée STDIN :<br>
+<code>EBS_CHECK TYPE=&lt;gp3|io2&gt; SIZE_GIB=&lt;n&gt; IOPS=&lt;n&gt; MBPS=&lt;n&gt;</code>.<br><br>
+Sortie :<br>
+Si conforme : <code>EBS_VERDICT: type=&lt;t&gt; size=&lt;s&gt;GiB iops=&lt;i&gt; mbps=&lt;m&gt; status=VALID</code>.<br>
+Si non conforme : <code>EBS_VERDICT: type=&lt;t&gt; size=&lt;s&gt;GiB status=INVALID reason=&lt;BAD_SIZE|EXCEEDED_IOPS|EXCEEDED_MBPS|RATIO_IOPS_EXCEEDED&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EBS_CHECK TYPE=gp3 SIZE_GIB=100 IOPS=3000 MBPS=125</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EBS_VERDICT: type=gp3 size=100GiB iops=3000 mbps=125 status=VALID</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="ASG_DISTRIB ZONES=eu-west-3a:1,eu-west-3b:1,eu-west-3c:1 TARGET=6 MIN=2 MAX=10">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c3-e3) — Simulateur d'Auto Scaling Group & Répartition Équilibrée Multi-AZ
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Scale Out de 2 à 5 instances sur 3 zones déséquilibrées]
+# Données : ASG_DISTRIB ZONES=us-east-1a:1,us-east-1b:0,us-east-1c:1 TARGET=5 MIN=1 MAX=8
+A_COMPLETER
+
+[Cas 2 — Scale In de 7 à 3 instances]
+# Données : ASG_DISTRIB ZONES=eu-central-1a:3,eu-central-1b:2,eu-central-1c:2 TARGET=3 MIN=2 MAX=10
+A_COMPLETER
+
+[Cas 3 — Target plafonné par MAX]
+# Données : ASG_DISTRIB ZONES=ap-southeast-1a:2,ap-southeast-1b:2 TARGET=12 MIN=2 MAX=6
+A_COMPLETER
+
+[Cas 4 — Capacité déjà atteinte (delta = 0)]
+# Données : ASG_DISTRIB ZONES=eu-west-1a:2,eu-west-1b:2 TARGET=4 MIN=2 MAX=6
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur d'Auto Scaling Group &amp; Répartition Équilibrée Multi-AZ</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'algorithme de répartition équilibrée d'un Auto Scaling Group lors d'un événement de mise à l'échelle (Scale Out ou Scale In).</p>
+    <div class="lab__brief"><p>Un <strong>Auto Scaling Group (ASG)</strong> garantit que les instances sont toujours réparties le plus équitablement possible entre les Availability Zones (AZs) configurées :<br><br>
+Algorithme de répartition :<br>
+1. <strong>Scale Out (Ajout d'instances)</strong> :<br>
+À chaque nouvelle instance à ajouter, l'ASG sélectionne la zone qui possède actuellement <strong>le moins d'instances</strong>. En cas d'égalité, il choisit la première zone par ordre alphabétique.<br>
+2. <strong>Scale In (Suppression d'instances)</strong> :<br>
+À chaque instance à supprimer, l'ASG sélectionne la zone qui possède <strong>le plus d'instances</strong>. En cas d'égalité, il choisit la première zone par ordre alphabétique.<br>
+3. <strong>Bornes Min/Max</strong> : La capacité cible (Desired) ne peut pas descendre sous <code>MIN</code> ni dépasser <code>MAX</code> (tronquer si nécessaire).<br><br>
+Entrée STDIN :<br>
+<code>ASG_DISTRIB ZONES=&lt;az1:count,az2:count,...&gt; TARGET=&lt;n&gt; MIN=&lt;min&gt; MAX=&lt;max&gt;</code>.<br><br>
+Sortie :<br>
+<code>ASG_PLAN: target=&lt;t&gt; current=&lt;c&gt; delta=&lt;+n|-n|0&gt; final_distribution=&lt;az1:count,az2:count,...&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ASG_DISTRIB ZONES=eu-west-3a:1,eu-west-3b:1,eu-west-3c:1 TARGET=6 MIN=2 MAX=10</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ASG_PLAN: target=6 current=3 delta=+3 final_distribution=eu-west-3a:2,eu-west-3b:2,eu-west-3c:2</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel modèle d'achat EC2 permet d'obtenir jusqu'à 90% de réduction par rapport au tarif On-Demand, sous réserve d'accepter des interruptions potentielles avec 2 minutes de préavis ?</p>
+      <div class="opts">
+        <button class="opt">Instances Réservées (Reserved Instances)</button>
+        <button class="opt">Savings Plans</button>
+        <button class="opt" data-correct="1">Instances Spot</button>
+        <button class="opt">Hôtes Dédiés (Dedicated Hosts)</button>
+      </div>
+      <div class="q__exp">Les instances Spot exploitent le surplus de capacité matérielle inutilisée d'AWS avec jusqu'à 90% de rabais, mais AWS peut les réclamer avec un préavis d'interruption de 2 minutes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle caractéristique technique distingue les volumes EBS gp3 par rapport aux anciens volumes gp2 ?</p>
+      <div class="opts">
+        <button class="opt">Les volumes gp3 ne peuvent pas être chiffrés</button>
+        <button class="opt" data-correct="1">Les volumes gp3 permettent d'augmenter les IOPS et le débit MB/s indépendamment de la taille du disque de stockage</button>
+        <button class="opt">Les volumes gp3 sont accessibles simultanément par 100 instances</button>
+        <button class="opt">Les volumes gp3 sont stockés sur bande magnétique</button>
+      </div>
+      <div class="q__exp">Contrairement à gp2 dont les performances dépendaient strictement du nombre de Go alloués, gp3 permet de provisionner les IOPS et le débit indépendamment de la capacité de stockage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle couche du modèle OSI l'Application Load Balancer (ALB) opère-t-il pour inspecter les requêtes HTTP/HTTPS ?</p>
+      <div class="opts">
+        <button class="opt">Couche 2 (Liaison de données)</button>
+        <button class="opt">Couche 3 (Réseau)</button>
+        <button class="opt">Couche 4 (Transport)</button>
+        <button class="opt" data-correct="1">Couche 7 (Application)</button>
+      </div>
+      <div class="q__exp">L'Application Load Balancer opère au niveau de la couche 7 (Application), ce qui lui permet d'inspecter les en-têtes HTTP, les URLs, les cookies et d'effectuer des redirections intelligentes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment un Auto Scaling Group réagit-il lors d'un événement de Scale Out pour maintenir une haute disponibilité optimale ?</p>
+      <div class="opts">
+        <button class="opt">Il lance toutes les instances dans la première zone alphabétique</button>
+        <button class="opt" data-correct="1">Il lance l'instance dans l'Availability Zone qui compte actuellement le moins d'instances</button>
+        <button class="opt">Il supprime aléatoirement une instance dans une autre zone</button>
+        <button class="opt">Il attend que toutes les zones soient pleines</button>
+      </div>
+      <div class="q__exp">Pour garantir la tolérance aux pannes, l'Auto Scaling Group veille à toujours équilibrer la flotte en allouant les nouvelles instances dans la zone de disponibilité la moins chargée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel service d'orchestration AWS permet d'exécuter des conteneurs Docker sans avoir à gérer, dimensionner ni patcher de machines virtuelles EC2 sous-jacentes ?</p>
+      <div class="opts">
+        <button class="opt">Amazon EC2 Dedicated Hosts</button>
+        <button class="opt" data-correct="1">AWS Fargate</button>
+        <button class="opt">Amazon EBS multi-attach</button>
+        <button class="opt">AWS Storage Gateway</button>
+      </div>
+      <div class="q__exp">AWS Fargate est une technologie de calcul serverless pour conteneurs (utilisable avec ECS et EKS) qui abstrait totalement l'infrastructure et les serveurs sous-jacents.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle métrique un volume EBS gp3 inclut-il gratuitement de base, sans frais additionnels ?</p>
+      <div class="opts">
+        <button class="opt">1 000 IOPS et 50 MB/s</button>
+        <button class="opt" data-correct="1">3 000 IOPS et 125 MB/s</button>
+        <button class="opt">10 000 IOPS et 500 MB/s</button>
+        <button class="opt">50 000 IOPS et 1 000 MB/s</button>
+      </div>
+      <div class="q__exp">Tout volume EBS gp3 inclut gratuitement 3 000 IOPS et 125 MB/s de débit de base, quelle que soit sa taille en GiB.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu'advient-il d'une instance EC2 membre d'un Auto Scaling Group qui échoue de manière répétée aux sondes de santé (Health Checks) de son Load Balancer ?</p>
+      <div class="opts">
+        <button class="opt">L'ASG ignore l'échec</button>
+        <button class="opt" data-correct="1">L'ASG termine automatiquement l'instance défaillante et lance une nouvelle instance saine de remplacement (Auto-healing)</button>
+        <button class="opt">L'ASG arrête toutes les autres instances de la région</button>
+        <button class="opt">L'ASG passe en mode dégradé manuel</button>
+      </div>
+      <div class="q__exp">L'ASG intègre l'auto-healing : dès qu'une instance est déclarée Unhealthy par le Load Balancer, il la termine et en instancie une nouvelle pour préserver la capacité désirée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi les snapshots Amazon EBS sont-ils qualifiés d'incrémentaux ?</p>
+      <div class="opts">
+        <button class="opt">Car chaque snapshot copie l'intégralité du disque à chaque fois</button>
+        <button class="opt" data-correct="1">Car seuls les blocs de données modifiés depuis le dernier snapshot sont enregistrés dans Amazon S3</button>
+        <button class="opt">Car leur prix augmente avec le temps</button>
+        <button class="opt">Car ils ne fonctionnent que sur des fichiers texte</button>
+      </div>
+      <div class="q__exp">Les snapshots EBS sont incrémentaux : seule la différence (les blocs modifiés depuis la sauvegarde précédente) est stockée dans S3, ce qui réduit considérablement les coûts et le temps de sauvegarde.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter de rattacher un volume EBS à une instance EC2 située dans une Availability Zone différente (EBS est lié à une seule AZ, sauf réplication via snapshot).</li>
+      <li>Utiliser des instances Spot pour des bases de données d'état critiques non répliquées qui ne peuvent pas tolérer une interruption abrupte.</li>
+      <li>Oublier de configurer des Health Checks réalistes sur le Load Balancer, entraînant le maintien en ligne d'instances défaillantes.</li>
+      <li>Utiliser les anciennes Launch Configurations dépréciées au lieu des Launch Templates modernes recommandés par AWS.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche de Dimensionnement & Résilience de Calcul</div>
+    <ol>
+      <li>Analyse du profil de charge : séparer la charge socle continue (à couvrir par des Savings Plans / Reserved Instances) des variations de trafic imprévisibles (gérées par l'Auto Scaling).</li>
+      <li>Création d'un Launch Template standardisé : configurer l'AMI durcie, le Security Group minimal, le rattachement d'Instance Profile IAM et le script User Data automatisant l'installation.</li>
+      <li>Mise en place de l'équilibreur de charge ALB multi-AZ : déclarer au minimum deux sous-réseaux publics dans des zones distinctes et paramétrer des sondes de santé HTTP précises.</li>
+      <li>Configuration de l'Auto Scaling Group : attacher le Target Group de l'ALB, fixer les capacités Min/Desired/Max et activer une politique de mise à l'échelle Target Tracking (CPU à 50%).</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Amazon EC2 propose des familles d'instances adaptées (General Purpose, Compute, Memory, Storage) et des modèles d'achat permettant d'optimiser jusqu'à 90% des coûts (Reserved, Spot).</li>
+      <li>Amazon EBS fournit du stockage bloc persistant hautement disponible au sein d'une AZ, avec les volumes gp3 (performances modulables) et des snapshots incrémentaux vers S3.</li>
+      <li>L'Application Load Balancer (ALB) opère en couche 7 (HTTP/HTTPS, routage d'URL, SSL), tandis que le Network Load Balancer (NLB) traite des millions de requêtes en couche 4 à latence ultra-faible.</li>
+      <li>L'Auto Scaling Group (ASG) ajuste automatiquement le nombre d'instances entre les bornes Min et Max, tout en assurant une répartition rigoureusement équilibrée entre les Availability Zones.</li>
+      <li>AWS Fargate élimine la gestion de serveurs physiques en fournissant un moteur de calcul serverless pour conteneurs Docker sous Amazon ECS et EKS.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous choisir le modèle d'achat EC2 le plus économique selon la nature et la prévisibilité d'une charge ?</li>
+      <li>Comprenez-vous le fonctionnement des volumes EBS gp3 et le rôle des snapshots incrémentaux ?</li>
+      <li>Distinguez-vous parfaitement les cas d'usage d'un Application Load Balancer (ALB) par rapport à un Network Load Balancer (NLB) ?</li>
+      <li>Savez-vous comment un Auto Scaling Group réagit lors d'un événement de mise à l'échelle pour maintenir l'équilibre Multi-AZ ?</li>
+      <li>Pouvez-vous expliquer le concept de serverless containers apporté par AWS Fargate ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Amazon EC2 :</strong> Elastic Compute Cloud : service de machines virtuelles sécurisées et redimensionnables dans le cloud AWS.</li><li><strong>Spot Instance :</strong> Instance EC2 achetée avec jusqu'à 90% de remise sur le surplus de capacité AWS, interruptible avec 2 minutes de préavis.</li><li><strong>Amazon EBS :</strong> Elastic Block Store : volumes de stockage bloc montables sur une instance EC2 dans la même zone de disponibilité.</li><li><strong>Volume gp3 :</strong> Volume SSD standard offrant 3 000 IOPS et 125 MB/s inclus sans surcoût, extensibles indépendamment de la taille.</li><li><strong>ALB (Application Load Balancer) :</strong> Répartiteur de charge couche 7 supportant le routage avancé basé sur le chemin d'URL, les cookies et WebSockets.</li><li><strong>Auto Scaling Group (ASG) :</strong> Groupe d'instances EC2 ajustant automatiquement sa capacité pour maintenir la disponibilité et l'équilibre zonal.</li><li><strong>Target Tracking :</strong> Politique d'auto-scaling maintenant une métrique cible (ex: utilisation CPU moyenne à 50%) en ajustant la flotte.</li><li><strong>AWS Fargate :</strong> Moteur de calcul serverless exécutant des conteneurs Docker (ECS/EKS) sans provisionner ni administrer de serveurs EC2.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions de calcul et modèles d'achat imprécis. Révisez les familles EC2 et les types EBS.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Bases acquises. Approfondissez les différences architecturales entre ALB et NLB.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à simuler l'équilibrage multi-AZ dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez le dimensionnement EBS et les stratégies d'auto-scaling.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte calcul AWS. Prêt pour l'ingénierie réseau Amazon VPC du Module 4 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Réseau Avancé — Amazon VPC, Sous-réseaux, Routage & Pare-feux (SG / NACL) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AWS L3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja, 2025/2026), Documentation officielle Amazon Web Services (AWS Architecture Center), Référentiels des certifications AWS Certified Cloud Practitioner (CLF-C02) et Solutions Architect - Associate (SAA-C03).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>
