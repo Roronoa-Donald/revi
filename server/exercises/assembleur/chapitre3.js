@@ -53,7 +53,7 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Comprendre l’ordonnancement des octets en mémoire vive selon l’architecture matérielle.",
-    "brief": "<p>L’architecture <strong>x86</strong> utilise l’ordre <strong>Little-Endian</strong> (l’octet de poids faible est placé à l’adresse la plus basse en mémoire), tandis que les protocoles réseau et certains processeurs RISC utilisent le <strong>Big-Endian</strong>.</p><p>Analysez les paramètres du problème pour chaque cas. <code>0x12345678</code>) ;</li>  <li><code>FORMAT</code> est <code>LITTLE</code> ou <code>BIG</code>.</li></ul><p>Indiquez la séquence des 4 octets en mémoire au format :<br><code>FORMAT=&lt;LITTLE|BIG&gt; OCTETS=&lt;XX XX XX XX&gt;</code>.</p>",
+    "brief": "<p>L’architecture <strong>x86</strong> utilise l’ordre <strong>Little-Endian</strong> (l’octet de poids faible est placé à l’adresse la plus basse en mémoire), tandis que les protocoles réseau et certains processeurs RISC utilisent le <strong>Big-Endian</strong>.</p><p>Pour chaque cas, observez :</p><ul><li><code>VAL_HEX</code> : la valeur hexadécimale 32 bits (ex. <code>0x12345678</code>) ;</li><li><code>FORMAT</code> : le format demandé (<code>LITTLE</code> ou <code>BIG</code>).</li></ul><p>Indiquez la séquence des 4 octets en mémoire au format :<br><code>FORMAT=&lt;LITTLE|BIG&gt; OCTETS=&lt;XX XX XX XX&gt;</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c3-e2) — Gestion de l’Endianness (Little-Endian vs Big-Endian)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Décomposition Big-Endian standard]\n# Données : 0x12345678;BIG\nA_COMPLETER\n\n[Cas 2 — Mot 32 bits avec octets nuls en Little-Endian]\n# Données : 0x00000001;LITTLE\nA_COMPLETER\n\n[Cas 3 — Mot 32 bits avec octets nuls en Big-Endian]\n# Données : 0x00000001;BIG\nA_COMPLETER\n\n[Cas 4 — Mot hexadécimal symétrique]\n# Données : 0xAABBCCDD;LITTLE\nA_COMPLETER\n",
     "hints": [
       "Un entier 32 bits 0x12345678 contient les octets b0=0x78 (faible), b1=0x56, b2=0x34, b3=0x12 (fort).",
@@ -101,8 +101,8 @@ module.exports = [
     "brief": "<p>En mode réel (processeur 8086 et phase d’amorçage du BIOS PC), le processeur accède à 1 Mo de mémoire sur un bus 20 bits en combinant deux registres 16 bits :</p><pre><code>Adresse_Physique = (Segment &lt;&lt; 4) + Offset</code></pre><p>Analysez les paramètres du problème pour chaque cas. <code>0x07C0;0x0000</code>). Indiquez l’adresse physique 20 bits en hexadécimal et en décimal au format :<br><code>PHY=0xXXXXX DEC=&lt;valeur&gt;</code> (où XXXXX est formaté sur 5 chiffres hexadécimaux majuscules).</p>",
     "starter": "# Grille d'analyse (asm2-c3-e3) — Calcul d’adresse physique en mode réel x86 (Segment:Offset)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vecteur d’interruption du BIOS]\n# Données : 0x0000;0x0080\nA_COMPLETER\n\n[Cas 2 — Segment de données avec offset non nul]\n# Données : 0x1000;0x0250\nA_COMPLETER\n\n[Cas 3 — Adresse maximale accessible en mode réel sans A20]\n# Données : 0xFFFF;0x0010\nA_COMPLETER\n\n[Cas 4 — Pointeur de pile initial]\n# Données : 0x9000;0xFFFE\nA_COMPLETER\n",
     "hints": [
-      "Multiplie le segment par 16 (équivalent à segment << 4), puis ajoute l’offset.",
-      "Formate avec f\"PHY=0x{phy:05X} DEC={phy}\"."
+      "En mode réel x86, l’adresse physique 20 bits se calcule par la formule : Adresse_Physique = (Segment × 16) + Déplacement.",
+      "Multiplier un nombre hexadécimal par 16 équivaut à lui ajouter un zéro à droite (décalage de 4 bits)."
     ],
     "examples": [
       {

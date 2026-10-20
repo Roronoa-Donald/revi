@@ -11,9 +11,8 @@ module.exports = [
     "brief": "<p>Dans la gestion des risques selon la norme ISO 27005, le niveau de risque brut est calculé par le produit de la Menace (M, de 1 à 5), de la Vulnérabilité (V, de 1 à 5) et de l’Impact financier/opérationnel (I, de 1 à 5) : <code>Score = M * V * I</code> (variant de 1 à 125).\n\nLes seuils de criticité sont définis ainsi :\n- Score &lt; 20 : <code>FAIBLE</code>\n- 20 &le; Score &lt; 50 : <code>MOYEN</code>\n- 50 &le; Score &lt; 80 : <code>ELEVE</code>\n- Score &ge; 80 : <code>CRITIQUE</code>\n\nEntrée : Trois entiers séparés par des virgules <code>M,V,I</code>.\nSortie : <code>Score: &lt;Score&gt; | Niveau: &lt;Niveau&gt;</code>.</p>",
     "starter": "# Grille d'analyse (cs2-c1-e1) — Évaluation quantitative du niveau de risque informatique\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 2,2,3\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 3,3,3\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 3,4,5\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 5,4,4\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "Appliquez la formule de calcul de risque brut : Score = M × V × I (produit des trois facteurs de 1 à 5).",
+      "Comparez le score aux seuils ISO 27005 : Faible (< 20), Moyen (20 à 49), Élevé (50 à 79) ou Critique (>= 80)."
     ],
     "examples": [
       {
@@ -56,9 +55,8 @@ module.exports = [
     "brief": "<p>La sécurité de l’information repose sur la triade CIA : Confidentialité, Intégrité, Disponibilité. Votre programme reçoit un code d’incident et doit déterminer le principe majeur violé ainsi que l’impact :\n- <code>DIVULGATION</code> : <code>Principe: Confidentialite | Impact: Fuite de donnees</code>\n- <code>RANSOMWARE</code> : <code>Principe: Disponibilite | Impact: Chiffrement malveillant des fichiers</code>\n- <code>DDOS</code> : <code>Principe: Disponibilite | Impact: Saturation de la bande passante</code>\n- <code>ALTERATION_BASE</code> : <code>Principe: Integrite | Impact: Modification frauduleuse d enregistrements</code>\n- <code>VOL_SESSION</code> : <code>Principe: Confidentialite | Impact: Usurpation de session utilisateur</code>\n- <code>DEFIGURATION_WEB</code> : <code>Principe: Integrite | Impact: Remplacement non autorise du contenu</code>\n\nSi le code est inconnu, afficher : <code>INCIDENT INCONNU</code>.</p>",
     "starter": "# Grille d'analyse (cs2-c1-e2) — Classification d’incidents selon la triade CIA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : RANSOMWARE\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : DDOS\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : ALTERATION_BASE\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : AUTRE_CHOSE\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "Identifiez quel pilier (Confidentialité, Intégrité ou Disponibilité) est directement compromis par l’incident.",
+      "Associez la conséquence opérationnelle exacte : fuite de données, chiffrement malveillant ou altération."
     ],
     "examples": [
       {
@@ -101,9 +99,8 @@ module.exports = [
     "brief": "<p>Pour se prémunir des attaques par dictionnaire et force brute, vérifiez si un mot de passe respecte les 5 critères essentiels :\n1. <code>longueur</code> : au moins 12 caractères\n2. <code>majuscule</code> : au moins une lettre majuscule (A-Z)\n3. <code>minuscule</code> : au moins une lettre minuscule (a-z)\n4. <code>chiffre</code> : au moins un chiffre (0-9)\n5. <code>special</code> : au moins un caractère spécial parmi <code>!@#$%^&*()_+-=[]{}|;:,.<>?</code>\n\nSortie :\n- Si valide : <code>ROBUSTE</code>\n- Si invalide : <code>VULNERABLE (manque: crit1, crit2, ...)</code> dans l’ordre exact ci-dessus.</p>",
     "starter": "# Grille d'analyse (cs2-c1-e3) — Audit de robustesse de mot de passe (Politique ANSSI / NIST)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : admin123\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : MotDePasseTresLongMaisSansChiffreNiSymbole\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : Court1@\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : Cyber_Secu_B2#2026\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "Vérifiez les critères ANSSI/NIST : longueur minimale, diversité des classes de caractères et absence de motifs triviaux.",
+      "Un mot de passe non conforme sur l’un des critères obligatoires doit être rejeté immédiatement."
     ],
     "examples": [
       {

@@ -18,12 +18,22 @@ function toggleTheme() {
   var html = document.documentElement;
   var current = html.getAttribute('data-theme') || 'light';
   var next = current === 'dark' ? 'light' : 'dark';
+
+  // Active temporairement la transition fluide (150ms) pour la bascule interactive
+  html.classList.add('theme-transitioning');
   html.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
-  // Update toggle button icon visibility
+
+  // Update toggle button icon visibility & accessibility label
   var btn = document.getElementById('themeToggle');
   if (btn) btn.setAttribute('aria-label', next === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre');
+
+  // Retire la classe après l'animation pour libérer les performances de rendu
+  setTimeout(function() {
+    html.classList.remove('theme-transitioning');
+  }, 220);
 }
+window.toggleTheme = toggleTheme;
 
 /* Init: set initial aria-label on toggle button */
 (function() {

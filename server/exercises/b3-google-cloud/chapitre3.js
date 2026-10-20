@@ -89,8 +89,8 @@ module.exports = [
     "brief": "<p>Google Cloud Run permet de répartir le trafic HTTP entre plusieurs révisions (Canary Release / Blue-Green) :<br><br>\nCommandes lues sur STDIN :<br>\n1. <code>VALIDATE_SPLIT revs=&lt;r1:p1,r2:p2,...&gt;</code> :<br>\n   - Vérifie que la somme des pourcentages vaut exactement 100.<br>\n   - Si valide : <code>SPLIT: status=VALID revs_count=&lt;N&gt; allocation=&lt;revs&gt;</code><br>\n   - Si somme != 100 : <code>SPLIT: status=INVALID reason=SUM_MUST_BE_100 current_sum=&lt;S&gt;</code><br>\n2. <code>ROUTE_REQUEST req_id=&lt;id&gt; revs=&lt;r1:p1,r2:p2,...&gt;</code> :<br>\n   - Calcule <code>hash_val = sum(ord(c) for c in req_id) % 100</code>.<br>\n   - Parcourt les révisions dans l'ordre de gauche à droite. La requête est attribuée à la première révision dont le cumul des pourcentages dépasse strictement <code>hash_val</code>.<br>\n   - <code>ROUTE: req_id=&lt;id&gt; bucket=&lt;hash_val&gt; target_revision=&lt;rev&gt;</code></p>",
     "starter": "# Grille d'analyse (gcp3-c3-e3) — Déployeur Serverless Cloud Run et Répartition de Trafic Multi-Révisions\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Rejet somme de pourcentages différente de 100]\n# Données : VALIDATE_SPLIT revs=v1:70,v2:20\nA_COMPLETER\n\n[Cas 2 — Routage tombant dans la seconde révision canary]\n# Données : ROUTE_REQUEST req_id=REQ-CANARY-XYZ revs=v1:10,v2:90\nA_COMPLETER\n\n[Cas 3 — Répartition multi-révisions à 3 versions]\n# Données : VALIDATE_SPLIT revs=v1:50,v2:30,v3:20\n# Données : ROUTE_REQUEST req_id=USER-ABC revs=v1:50,v2:30,v3:20\nA_COMPLETER\n",
     "hints": [
-      "Pour VALIDATE_SPLIT, découpez revs sur virgule puis chaque terme sur deux-points pour sommer int(p).",
-      "Pour ROUTE_REQUEST, calculez hash_val et faites un parcours cumulatif : cumul += pct ; si hash_val < cumul: return rev."
+      "La répartition de trafic Cloud Run Traffic Split affecte des pourcentages stricts entre les différentes révisions du conteneur.",
+      "Vérifiez que la somme des quotas de trafic alloués aux révisions déployées atteint exactement 100%."
     ],
     "examples": [
       {

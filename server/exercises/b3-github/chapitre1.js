@@ -11,8 +11,8 @@ module.exports = [
     "brief": "<p>En interne, Git stocke tous les contenus dans sa base de données orientée objets (<code>.git/objects/</code>) adressée par le contenu (Content-Addressable Storage).<br><br>\nPour calculer l'empreinte SHA-1 d'un objet (équivalent de la commande de plomberie <code>git hash-object</code>), Git préfixe le contenu brut avec une chaîne d'en-tête standard suivie d'un octet nul <code>\\0</code> :<br>\n<code>en-tete = f\"{type_objet} {taille_octets}\\0\"</code><br>\nPuis il calcule le condensat SHA-1 (40 caractères hexadécimaux en minuscules) de la concaténation de l'en-tête et du contenu.<br><br>\nAnalysez les paramètres du problème pour chaque cas.<br><br>\nPour chaque ligne, afficher :<br>\n<code>GIT_HASH type={type} size={taille} sha1={hash_hex}</code></p>",
     "starter": "# Grille d'analyse (gh3-c1-e1) — Calculateur de hachage SHA-1 d’objet Git (Plomberie git hash-object)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Blob avec texte standard sans saut de ligne final]\n# Données : OBJECT type=blob content=Architecture logicielle B3\nA_COMPLETER\n\n[Cas 2 — Commit fictif et tag annoté]\n# Données : OBJECT type=commit content=tree a1b2c3d4e5\\nauthor Alice\\n\\nInitial commit\n# Données : OBJECT type=tag content=object 123456\\ntype commit\\ntag v1.0.0\nA_COMPLETER\n\n[Cas 3 — Objet avec contenu vide]\n# Données : OBJECT type=blob content=\nA_COMPLETER\n",
     "hints": [
-      "L’en-tête Git s’écrit f\"{obj_type} {len(content_bytes)}\\0\".",
-      "Encoder l’en-tête et le contenu en UTF-8 avant de passer à hashlib.sha1()."
+      "L’en-tête d’un objet Git se compose du type d’objet, d’un espace, de la taille en octets et d’un octet nul.",
+      "L’empreinte SHA-1 de 40 caractères hexadécimaux est calculée sur la concaténation de l’en-tête et du contenu brut."
     ],
     "examples": [
       {

@@ -51,9 +51,8 @@ module.exports = [
     "brief": "Dans la clause `OVER (ORDER BY date ROWS BETWEEN k PRECEDING AND CURRENT ROW)` :\n- Pour chaque ligne courante, la fenêtre d’agrégation englobe au maximum les $k$ lignes précédentes plus la ligne courante (soit jusqu’à $k+1$ éléments).\n- On calcule la somme cumulée de la fenêtre et la moyenne mobile arithmétique associée arrondie à 2 décimales.\n\nEntrée :\n- Une ligne définissant la taille de l’historique : `CONFIG preceding=<K>`\n- Des lignes de données : `ROW id=<step> val=<float_val>`\n\nSortie :\n- Pour chaque ligne : `WINDOW_AGG id=<step> val=<V.2f> sum=<SUM.2f> avg=<AVG.2f> window_size=<COUNT>`\n- En fin de série : `FINAL_METRIC total_rows=<N> last_avg=<LAST_AVG.2f>`",
     "starter": "# Grille d'analyse (sql3-c4-e2) — Calculateur de moyennes et sommes glissantes avec clause d’encadrement\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Fenêtre cumulée depuis le début (preceding infini / très grand)]\n# Données : CONFIG preceding=100\n# Données : ROW id=1 val=5\n# Données : ROW id=2 val=15\n# Données : ROW id=3 val=25\nA_COMPLETER\n\n[Cas 2 — Fenêtre de 1 ligne précédente (preceding=1)]\n# Données : CONFIG preceding=1\n# Données : ROW id=1 val=100\n# Données : ROW id=2 val=200\n# Données : ROW id=3 val=50\nA_COMPLETER\n\n[Cas 3 — Fenêtre stricte preceding=0 (uniquement current row)]\n# Données : CONFIG preceding=0\n# Données : ROW id=1 val=12.5\n# Données : ROW id=2 val=25.0\nA_COMPLETER\n",
     "hints": [
-      "Maintenir une liste ou deque des k+1 dernières valeurs observées.",
-      "Pour chaque ligne, sommer les éléments de la fenêtre et diviser par len(fenetre).",
-      "Formater avec :.2f pour les sommes et moyennes."
+      "Une fonction de fenêtrage (OVER (...)) applique un calcul d’agrégation sur une partition sans regrouper les lignes.",
+      "Définissez la fenêtre glissante (ROWS BETWEEN ... PRECEDING AND CURRENT ROW) pour calculer la moyenne mobile."
     ],
     "examples": [
       {

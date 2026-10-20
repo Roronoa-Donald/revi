@@ -16,7 +16,7 @@ module.exports = [
     "starter": "# Grille de calcul (pb2-c1-e1) — Probabilité d’un événement\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux sur huit]\n# Données : 8\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Sept sur dix]\n# Données : 10\n# Données : 7\nA_COMPLETER\n\n[Cas 3 — Deux sur quatre]\n# Données : 4\n# Données : 2\nA_COMPLETER\n",
     "hints": [
       "Réduire une fraction demande de diviser numérateur et dénominateur par leur pgcd : gcd(k, n).",
-      "Une fois le pgcd g obtenu, affiche f\"{k // g}/{n // g}\"."
+      "Simplifiez la fraction jusqu'à obtenir des entiers premiers entre eux."
     ],
     "examples": [
       {
@@ -55,7 +55,7 @@ module.exports = [
     "starter": "# Grille de calcul (pb2-c1-e2) — Formule de la réunion\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Événements symétriques]\n# Données : 0.3\n# Données : 0.3\n# Données : 0.1\nA_COMPLETER\n\n[Cas 2 — Fort recouvrement]\n# Données : 0.9\n# Données : 0.8\n# Données : 0.75\nA_COMPLETER\n\n[Cas 3 — Intersection faible]\n# Données : 0.2\n# Données : 0.5\n# Données : 0.1\nA_COMPLETER\n",
     "hints": [
       "Additionne pA et pB, puis retranche une seule fois pAB : sans cela, on compte deux fois l’intersection.",
-      "Arrondissez le résultat à 4 décimales.4f}\")."
+      "Arrondissez le résultat final à 4 décimales."
     ],
     "examples": [
       {

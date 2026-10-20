@@ -1,3 +1,6 @@
+/**
+ * Exercices mis à jour — remédiation pédagogique
+ */
 'use strict';
 
 module.exports = [
@@ -239,8 +242,8 @@ module.exports = [
     "brief": "<p>Analysez les données fournies pour chaque cas. Il cumule le total, puis Indiquez le nombre de clés secrètes nécessaires : <code>symétrique : k(k-1)/2 clés</code> contre <code>asymétrique : 2×k(k-1)/2 clés</code> — soit une paire de clés par machine, avec k le total de machines.</p>",
     "starter": "# Grille d'analyse (cy-c3-e1) — Compteur de clés\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul groupe]\n# Données : 1\n# Données : 4\nA_COMPLETER\n\n[Cas 2 — Trois groupes]\n# Données : 3\n# Données : 2\n# Données : 10\n# Données : 6\nA_COMPLETER\n\n[Cas 3 — Deux gros groupes]\n# Données : 2\n# Données : 25\n# Données : 50\nA_COMPLETER\n",
     "hints": [
-      "Accumule d’abord : somme=$((somme + machines)), la formule vient après la boucle.",
-      "k(k-1)/2 s’écrit en Bash : paire=$((somme * (somme - 1) / 2)). L’asymétrique en vaut le double."
+      "Pour un réseau de N machines en chiffrement symétrique, le nombre de clés partagées nécessaires vaut N × (N - 1) / 2.",
+      "En chiffrement asymétrique, chaque machine dispose d’une paire de clés (publique et privée), soit 2 × N clés au total."
     ],
     "examples": [
       {
@@ -429,8 +432,8 @@ module.exports = [
     "brief": "<p>Le script gère une ACL vide au départ et lit <strong>n lignes</strong> « action fichier » : <code>add fichier</code> l’ajoute et Indiquez <code>add fichier : ok</code> ; <code>remove fichier</code> la retire si présente (<code>remove fichier : ok</code>) ou échoue (<code>remove fichier : introuvable</code>). Enfin <code>bilan : K éléments</code> avec K le nombre d’entrées <em>distinctes</em> restantes — ajouter deux fois le même fichier ne le compte qu’une fois, et un add sur un nom présent est refusé.</p>",
     "starter": "# Grille d'analyse (cy-c4-e3) — ACL du serveur de fichiers\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Ajout puis retrait]\n# Données : 2\n# Données : add rapports\n# Données : remove rapports\nA_COMPLETER\n\n[Cas 2 — Retrait à vide, double ajout]\n# Données : 3\n# Données : remove archivage\n# Données : add factures\n# Données : add factures\nA_COMPLETER\n\n[Cas 3 — Quatre opérations]\n# Données : 4\n# Données : add notes.txt\n# Données : add notes.txt\n# Données : remove notes.txt\n# Données : add paie\nA_COMPLETER\n",
     "hints": [
-      "Pour savoir si le fichier est présent, balaie le tableau avec ${#noms[@]} et compare chaque case.",
-      "Le retrait se fait en reconstruisant le tableau sans la valeur visée, puis noms=(\"${liste[@]}\")."
+      "Vérifiez la présence du fichier dans la liste des ressources sensibles avant de modifier les permissions.",
+      "Mettez à jour le journal d’audit de sécurité pour consigner l’opération de retrait."
     ],
     "examples": [
       {
@@ -505,8 +508,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « resultat heure ip » (resultat = SUCCES ou ECHEC). Il réIndiquez chaque ligne au format <code>heure ip : resultat</code>, puis deux lignes finales : <code>bilan : X echecs sur IP</code> (IP la plus fautive, échecs cumulés) et <code>alerte : oui</code> si elle en totalise 3 ou plus, <code>alerte : non</code> sinon. Sans aucun échec, l’IP rapportée est celle de la première ligne.</p>",
     "starter": "# Grille d'analyse (cy-c5-e2) — Journal d’authentification\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul échec]\n# Données : 2\n# Données : SUCCES 08:00:01 10.0.4.15\n# Données : ECHEC 08:00:10 10.0.4.15\nA_COMPLETER\n\n[Cas 2 — Que des succès]\n# Données : 3\n# Données : SUCCES 08:00:01 10.0.4.15\n# Données : SUCCES 08:00:02 10.0.4.15\n# Données : SUCCES 08:00:03 10.0.4.15\nA_COMPLETER\n\n[Cas 3 — Deux IP concurrentes]\n# Données : 5\n# Données : ECHEC 23:59:01 198.51.100.7\n# Données : SUCCES 23:59:30 198.51.100.7\n# Données : ECHEC 23:59:45 198.51.100.7\n# Données : ECHEC 23:59:50 198.51.100.7\n# Données : SUCCES 00:00:10 10.0.4.15\nA_COMPLETER\n",
     "hints": [
-      "declare -A echecs=() doit venir AVANT la boucle : echecs[\"$ip\"]=$((${echecs[$ip]:-0} + 1)) compte par IP.",
-      "Balaye ensuite ${!echecs[@]} pour trouver le maximum, et garde l’IP de la première ligne pour le cas zéro échec."
+      "Comptabilisez le nombre d’échecs d’authentification pour chaque adresse IP source.",
+      "Identifiez l’adresse IP présentant le nombre maximal de tentatives infructueuses."
     ],
     "examples": [
       {

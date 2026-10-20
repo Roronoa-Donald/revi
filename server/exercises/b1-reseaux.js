@@ -1,3 +1,6 @@
+/**
+ * Exercices mis à jour — remédiation pédagogique
+ */
 'use strict';
 
 module.exports = [
@@ -581,8 +584,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « reseau emprunt » : emprunt est le nombre de bits empruntés à la partie hôte d'un /24 (entier de 1 à 6). Pour chaque ligne il Indiquez <code>reseau : /C (S sous-reseaux, H hotes)</code>, où C = 24 + emprunt, S = 2^emprunt et H = 2^(8-emprunt) - 2. Si l'emprunt vaut 7 ou plus, afficher <code>reseau : emprunt trop grand</code>.</p>",
     "starter": "# Grille d'analyse (re-c6-e1) — Emprunter des bits\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Emprunt d un bit]\n# Données : 1\n# Données : res1 1\nA_COMPLETER\n\n[Cas 2 — Emprunt trop grand]\n# Données : 2\n# Données : res1 7\n# Données : res2 3\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a 1\n# Données : b 2\n# Données : c 3\n# Données : d 4\n# Données : e 5\nA_COMPLETER\n",
     "hints": [
-      "La puissance de deux se calcule en Bash avec le décalage : (1 << e) vaut 2 puissance e.",
-      "Les hôtes valides retirent l'adresse réseau et l'adresse de diffusion : 2^k - 2."
+      "Le nombre d’adresses IP d’un bloc CIDR de préfixe /p vaut 2^(32 - p).",
+      "Le nombre d’adresses utilisables pour les hôtes retire l’adresse réseau (première) et l’adresse de diffusion (dernière) : N_hôtes = 2^k - 2."
     ],
     "examples": [
       {

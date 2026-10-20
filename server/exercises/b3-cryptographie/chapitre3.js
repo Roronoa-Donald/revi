@@ -89,8 +89,8 @@ module.exports = [
     "brief": "<p>Pour un espace d'empreintes de taille <code>N = 2^b</code>, la probabilité d'avoir au moins une collision après <code>k</code> essais vaut :<br>\n<code>P(collision) = 1 - exp(- (k * (k - 1)) / (2 * N))</code>.<br>\nLe seuil de probabilité 50% est atteint dès <code>k_{50%} = ceil(sqrt(2 * ln(2) * N))</code>.<br><br>\nCommandes lues sur STDIN :<br>\n1. <code>COLLISION PROB bits=&lt;b&gt; attempts=&lt;k&gt;</code> :<br>\n   <code>PROB: bits=&lt;b&gt; N=&lt;N&gt; attempts=&lt;k&gt; prob=&lt;P:.4f&gt; threshold_50=&lt;k_50&gt;</code><br>\n2. <code>COLLISION SEARCH prefix=&lt;pref&gt; bits=&lt;b&gt; max_attempts=&lt;M&gt;</code> :<br>\n   Teste séquentiellement les messages <code>&lt;pref&gt;-0</code>, <code>&lt;pref&gt;-1</code>, etc. sur les <code>b // 4</code> premiers caractères hexadécimaux de SHA-256.<br>\n   - Si collision trouvée : <code>COLLISION_FOUND: hash=&lt;h&gt; msg1=&lt;pref&gt;-&lt;j&gt; msg2=&lt;pref&gt;-&lt;i&gt; attempts=&lt;total&gt;</code><br>\n   - Si non trouvée : <code>NO_COLLISION: tested=&lt;M&gt;</code></p>",
     "starter": "# Grille d'analyse (cr3-c3-e3) — Simulateur d'Attaque des Anniversaires et Détection de Collision\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Calcul probabilité collision 32 bits]\n# Données : COLLISION PROB bits=32 attempts=50000\nA_COMPLETER\n\n[Cas 2 — Recherche effective de collision sur 12 bits]\n# Données : COLLISION SEARCH prefix=NONCE bits=12 max_attempts=500\nA_COMPLETER\n\n[Cas 3 — Pas de collision détectée sous la limite max]\n# Données : COLLISION SEARCH prefix=NONCE bits=16 max_attempts=10\nA_COMPLETER\n",
     "hints": [
-      "Pour COLLISION PROB, utilisez math.exp(-(k*(k-1))/(2.0*N)) et math.ceil(math.sqrt(2.0*math.log(2)*N)).",
-      "Pour COLLISION SEARCH, tronquez hexdigest()[:b//4] et indexez dans un dictionnaire vu[h] = index."
+      "Appliquez la formule du paradoxe des anniversaires P = 1 - exp(-k(k-1)/(2N)) et déterminez le seuil à 50%.",
+      "Pour la recherche de collision, extrayez le préfixe hexadécimal tronqué et détectez le premier doublon d'empreinte."
     ],
     "examples": [
       {

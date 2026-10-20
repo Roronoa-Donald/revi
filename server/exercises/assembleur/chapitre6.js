@@ -11,10 +11,8 @@ module.exports = [
     "brief": "<p>En architecture x86, la pile grandit vers les adresses basses :</p><ul>  <li><code>PUSH valeur</code> : décrémente <code>ESP</code> de 4 octets et écrit la valeur 32 bits au sommet de la pile ;</li>  <li><code>POP</code> : lit la valeur au sommet de la pile et incrémente <code>ESP</code> de 4 octets.</li></ul><p>Le pointeur <code>ESP</code> est initialisé à <code>0x1000</code> avec une pile vide. Analysez les paramètres du problème pour chaque cas. <code>PUSH 10, PUSH 20, POP, PUSH 30</code>). Indiquez l’état final de la pile au format :<br><code>ESP=0x&lt;4 chiffres HEX&gt; SOMMET=&lt;valeur ou VIDE&gt; TAILLE=&lt;nb_elements&gt;</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c6-e1) — Simulateur de pile x86 (PUSH & POP avec pointeur ESP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois empilements successifs]\n# Données : PUSH 100, PUSH 200, PUSH 300\nA_COMPLETER\n\n[Cas 2 — Dépilement complet ramenant la pile à zéro]\n# Données : PUSH 42, POP\nA_COMPLETER\n\n[Cas 3 — Multiples push et pop alternés]\n# Données : PUSH 1, PUSH 2, POP, PUSH 3, PUSH 4, POP\nA_COMPLETER\n\n[Cas 4 — Un seul push]\n# Données : PUSH 999\nA_COMPLETER\n",
     "hints": [
-      "Initialise esp = 0x1000 et stack = [].",
-      "PUSH x : esp -= 4, stack.append(x).",
-      "POP : esp += 4, stack.pop().",
-      "Le sommet est stack[-1] si stack n’est pas vide, sinon \"VIDE\"."
+      "La pile x86 grandit vers le bas : chaque PUSH décrémente ESP de 4 octets et écrit au sommet.",
+      "Chaque POP lit la valeur au sommet et incrémente ESP de 4 octets."
     ],
     "examples": [
       {

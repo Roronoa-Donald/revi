@@ -1,7 +1,3 @@
-/**
- * Chapitre 5 — Recherche Opérationnelle B2.
- * Mode d'évaluation mathématique structurée (language: 'analyse').
- */
 'use strict';
 
 module.exports = [
@@ -15,8 +11,8 @@ module.exports = [
     "brief": "<p>Dans un problème de transport équilibré (somme des offres = somme des demandes), la règle du <strong>Coin Nord-Ouest</strong> commence en haut à gauche $(i=0, j=0)$ :</p><ul>  <li>Alloue $x_{ij} = \\min(offre_i, demande_j)$ ;</li>  <li>Soustrait cette quantité de $offre_i$ et $demande_j$ ;</li>  <li>Si $offre_i = 0$, avance vers le bas ($i \\leftarrow i + 1$) ; si $demande_j = 0$, avance vers la droite ($j \\leftarrow j + 1$).</li></ul><p>Analysez les paramètres du problème pour chaque cas...;d1,d2,...;cout11,cout12,...|cout21,cout22,...|...</code>.<br>Calcule les flux non nuls alloués et le coût total de transport $C = \\sum x_{ij} \\times c_{ij}$.<br>Indiquez :<br><code>FLUX: (i,j)=qte,... COUT_TOTAL=&lt;C à 1 décimale&gt;</code><br>(les indices $i, j$ sont 1-indexés).</p>",
     "starter": "# Grille de calcul (ro2-c5-e1) — Méthode du Coin Nord-Ouest (Transport)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux origines deux destinations]\n# Données : 25,25;30,20;2,4|3,5\nA_COMPLETER\n\n[Cas 2 — Trois origines deux destinations]\n# Données : 10,20,30;25,35;4,6|2,5|3,1\nA_COMPLETER\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\n# Données : 20,30;20,30;5,8|4,2\nA_COMPLETER\n",
     "hints": [
-      "Garde deux pointeurs i = 0 et j = 0.",
-      "Tant que i < len(offres) et j < len(demandes), calcule q = min(offres[i], demandes[j])."
+      "La méthode du coin Nord-Ouest initialise la matrice de transport en saturant d’abord la case (1, 1).",
+      "À chaque étape, allouez min(offre restante, demande restante) et déplacez-vous vers la droite ou vers le bas selon la saturation."
     ],
     "examples": [
       {

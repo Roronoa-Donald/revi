@@ -1,3 +1,6 @@
+/**
+ * Exercices mis à jour — remédiation pédagogique
+ */
 'use strict';
 
 module.exports = [
@@ -125,8 +128,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée contenant chacune un <strong>binaire</strong> (10 bits au plus). Pour chaque ligne il convertit en décimal — le bit de poids le plus fort (MSB) porte le poids 2 puissance 9, le bit de poids le plus faible (LSB) porte 2 puissance 0 — et Indiquez <code>binaire : decimal=X</code>, puis le bilan <code>conversions : n</code>.</p>",
     "starter": "# Grille d'analyse (ar-c2-e1) — Du binaire au decimal\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Du plus petit au plus grand]\n# Données : 5\n# Données : 1\n# Données : 1011\n# Données : 10000\n# Données : 11111\n# Données : 11001100\nA_COMPLETER\n\n[Cas 2 — Trois bits]\n# Données : 4\n# Données : 10\n# Données : 110\n# Données : 111\n# Données : 1001\nA_COMPLETER\n\n[Cas 3 — Mots de huit bits]\n# Données : 3\n# Données : 101010\n# Données : 110000\n# Données : 11111110\nA_COMPLETER\n",
     "hints": [
-      "Bash sait convertir une base : $((2#1010)) vaut 10.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Chaque chiffre binaire (bit) de position k (en partant de 0 à droite) représente une puissance de 2 : 2^k.",
+      "Additionnez les puissances de 2 correspondant aux bits valant 1 pour obtenir la valeur décimale."
     ],
     "examples": [
       {
@@ -201,8 +204,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée contenant chacune un nombre <strong>hexadécimal</strong> (chiffres 0 à 9 et lettres A à F). Pour chaque ligne il passe par le décimal — comme dans la série d'exercices du support — puis fournit l'octal : <code>hexa : octal=X</code>, suivi du bilan <code>conversions : n</code>.</p>",
     "starter": "# Grille d'analyse (ar-c2-e3) — De l'hexadecimal a l'octal\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Serie de revision]\n# Données : 4\n# Données : A\n# Données : 7F\n# Données : 100\n# Données : C0\nA_COMPLETER\n\n[Cas 2 — Petites valeurs]\n# Données : 3\n# Données : B\n# Données : 20\n# Données : 3E\nA_COMPLETER\n\n[Cas 3 — Autres motifs]\n# Données : 3\n# Données : 1A\n# Données : 55\n# Données : 6C\nA_COMPLETER\n",
     "hints": [
-      "Bash lit aussi l'hexa : $((16#FF)) vaut 255.",
-      "printf '%o' valeur affiche l'octal correspondant."
+      "Chaque chiffre hexadécimal (0 à F) correspond exactement à un groupe de 4 bits (un quartet).",
+      "Un chiffre octal (0 à 7) correspond à un groupe de 3 bits."
     ],
     "examples": [
       {
@@ -315,8 +318,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « a b » où a et b sont deux <strong>binaires de 4 bits</strong>. Pour chaque ligne il pose l'addition binaire — 0+0 donne 0, 1+0 donne 1, 1+1 donne 0 avec retenue 1, 1+1+1 donne 1 avec retenue 1 — et Indiquez le total sur 4 ou 5 bits : <code>a + b : somme=X</code>, puis le bilan <code>additions : n</code>. Le résultat dépasse parfois 4 bits : c'est le débordement à observer.</p>",
     "starter": "# Grille d'analyse (ar-c3-e3) — Addition binaire\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Avec retenues en chaine]\n# Données : 4\n# Données : 0001 0001\n# Données : 1101 0110\n# Données : 1000 1000\n# Données : 0000 0000\nA_COMPLETER\n\n[Cas 2 — Puissances de deux]\n# Données : 3\n# Données : 0111 0001\n# Données : 1010 1010\n# Données : 0011 0100\nA_COMPLETER\n\n[Cas 3 — Debordements]\n# Données : 3\n# Données : 1110 0010\n# Données : 0101 0110\n# Données : 1001 0111\nA_COMPLETER\n",
     "hints": [
-      "Bash additionne les bases : $((2#1010 + 2#0101)).",
-      "Reconstruis le binaire du total par divisions successives, comme pour la conversion décimal vers binaire."
+      "L’addition binaire s’effectue de droite à gauche avec propagation de la retenue (1 + 1 = 0 avec retenue 1).",
+      "Convertissez les valeurs en décimal pour vérifier la cohérence du résultat final."
     ],
     "examples": [
       {

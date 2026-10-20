@@ -16,7 +16,7 @@ module.exports = [
     "starter": "# Grille de calcul (pb2-c3-e1) — Espérance d’une loi discrète\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois valeurs]\n# Données : 3\n# Données : 1 0.2\n# Données : 2 0.3\n# Données : 3 0.5\nA_COMPLETER\n\n[Cas 2 — Valeur certaine]\n# Données : 1\n# Données : 5 1.0\nA_COMPLETER\n\n[Cas 3 — Valeurs opposées]\n# Données : 2\n# Données : -1 0.5\n# Données : 1 0.5\nA_COMPLETER\n",
     "hints": [
       "Chaque ligne contient une valeur et une probabilité : convertis la valeur avec float (une valeur négative est possible).",
-      "Accumule la somme des produits valeur × probabilité, puis affiche f\"{esperance:.4f}\"."
+      "Calculez la somme des produits valeur × probabilité et arrondissez l'espérance mathématique à 4 décimales."
     ],
     "examples": [
       {

@@ -88,6 +88,7 @@ function sommaire(course, chapterList) {
     crumb(course, [{ href: 'index.html', label: course.brand }, { label: 'Sommaire' }]),
     '  <h1>Sommaire complet du cours</h1>',
     '  <p class="lead">Six modules d’enseignement approfondis pour maîtriser la programmation linéaire, l’algorithme du simplexe, la dualité, les matrices de transport et l’ordonnancement de projet.</p>',
+    '  <h2>Programme des chapitres</h2>',
     '  <ul class="summary-list">\n' + rows + '\n  </ul>',
     '',
     '  <h2>Ressources transversales</h2>',

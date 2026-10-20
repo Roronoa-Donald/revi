@@ -1,6 +1,5 @@
 /**
- * Algèbre linéaire B1 — 18 exercices de calcul et raisonnement vectoriel/matriciel.
- * Mode d'évaluation mathématique structurée (language: 'analyse').
+ * Exercices mis à jour — remédiation pédagogique
  */
 'use strict';
 
@@ -15,8 +14,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> composantes du vecteur <code>a</code> (une par ligne), puis les <code>n</code> composantes du vecteur <code>b</code> (une par ligne). Affichez la somme <code>a + b</code> sur une seule ligne, ses composantes séparées par un espace.</p>",
     "starter": "# Grille de calcul (al-c1-e1) — Somme de deux vecteurs\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Composantes négatives]\n# Données : 2\n# Données : 10\n# Données : -5\n# Données : 3\n# Données : 7\nA_COMPLETER\n\n[Cas 2 — Vecteur nul au second membre]\n# Données : 4\n# Données : 0\n# Données : 0\n# Données : 0\n# Données : 0\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\nA_COMPLETER\n\n[Cas 3 — Taille un]\n# Données : 1\n# Données : 7\n# Données : 8\nA_COMPLETER\n",
     "hints": [
-      "L’addition de deux vecteurs se fait composante par composante : la i-ième composante du résultat vaut a[i] + b[i].",
-      "range(n) te donne les indices de 0 à n − 1, exactement ceux des listes Python."
+      "L’addition de deux vecteurs s’effectue composante par composante : pour u = (u_1, ..., u_n) et v = (v_1, ..., v_n), la somme vaut (u_1+v_1, ..., u_n+v_n).",
+      "Les deux vecteurs doivent impérativement appartenir au même espace vectoriel (même dimension n)."
     ],
     "examples": [
       {
@@ -93,8 +92,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis <code>n</code> lignes contenant chacune <code>n</code> entiers séparés par des espaces (la matrice). Affichez la <strong>trace</strong> de la matrice : <code>a₁₁ + a₂₂ + … + aₙₙ</code>.</p>",
     "starter": "# Grille de calcul (al-c1-e3) — Trace d’une matrice carrée\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 2 × 2]\n# Données : 2\n# Données : 4 1\n# Données : 9 6\nA_COMPLETER\n\n[Cas 2 — Matrice 4 × 4 diagonale]\n# Données : 4\n# Données : 1 0 0 0\n# Données : 0 2 0 0\n# Données : 0 0 3 0\n# Données : 0 0 0 4\nA_COMPLETER\n\n[Cas 3 — Matrice 1 × 1]\n# Données : 1\n# Données : 42\nA_COMPLETER\n",
     "hints": [
-      "Les coefficients diagonaux sont matrice[0][0], matrice[1][1], matrice[2][2], … : les deux indices sont égaux.",
-      "En Python, les indices commencent à 0 : la diagonale, c’est matrice[i][i] pour i allant de 0 à n − 1."
+      "Les coefficients diagonaux d’une matrice carrée sont les termes a_{i,i} où l’indice de ligne est égal à l’indice de colonne : a_{1,1}, a_{2,2}, ..., a_{n,n}.",
+      "La diagonale principale ne se définit que pour une matrice carrée (m = n)."
     ],
     "examples": [
       {
@@ -171,8 +170,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère une ligne <code>m n</code> (dimensions), puis <code>m</code> lignes de <code>n</code> entiers. Affichez la <strong>transposée</strong> : <code>n</code> lignes de <code>m</code> entiers séparés par un espace.</p>",
     "starter": "# Grille de calcul (al-c2-e2) — Transposée d’une matrice\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 3 × 2 à coefficients 0 et 1]\n# Données : 3 2\n# Données : 1 0\n# Données : 0 1\n# Données : 1 1\nA_COMPLETER\n\n[Cas 2 — Matrice ligne]\n# Données : 1 4\n# Données : 7 8 9 10\nA_COMPLETER\n\n[Cas 3 — Matrice 2 × 2]\n# Données : 2 2\n# Données : 5 6\n# Données : 7 8\nA_COMPLETER\n",
     "hints": [
-      "La transposée, c’est matrice[i][j] rangé à la place matrice[j][i] : les deux indices s’inversent.",
-      "La boucle extérieure parcourt les colonnes (0 à n − 1), la boucle intérieure les lignes (0 à m − 1)."
+      "La transposée d’une matrice M de dimension m × n est la matrice M^T de dimension n × m obtenue en échangeant les lignes et les colonnes.",
+      "Le coefficient situé à la ligne i et colonne j de M devient le coefficient ligne j et colonne i de M^T."
     ],
     "examples": [
       {

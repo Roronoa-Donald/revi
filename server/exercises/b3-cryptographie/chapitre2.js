@@ -50,8 +50,8 @@ module.exports = [
     "brief": "<p>La norme PKCS#7 (RFC 5652) complète un message pour que sa taille en octets soit un multiple exact du bloc <code>B</code>.<br>\n- Nombre d'octets ajoutés : <code>p = B - (len(M) mod B)</code> (si multiple exact, <code>p = B</code>).<br>\n- Chaque octet de padding a pour valeur <code>p</code>.<br><br>\nCommandes lues sur STDIN :<br>\n1. <code>PAD block_size=&lt;B&gt; text=&lt;texte&gt;</code> :<br>\n   <code>PADDED: len=&lt;L&gt; pad=&lt;p&gt; hex=&lt;hex&gt;</code><br>\n2. <code>UNPAD block_size=&lt;B&gt; hex=&lt;hex&gt;</code> :<br>\n   - Si taille non multiple de B : <code>ERROR: INVALID_BLOCK_ALIGNMENT</code><br>\n   - Si les p derniers octets ne valent pas tous p : <code>ERROR: INVALID_PADDING</code><br>\n   - Sinon : <code>UNPADDED: len=&lt;L&gt; text=&lt;texte&gt;</code></p>",
     "starter": "# Grille d'analyse (cr3-c2-e2) — Validateur et Applicateur de Bourrage PKCS#7 (Padding & Unpadding)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Débourrage PKCS#7 valide]\n# Données : UNPAD block_size=16 hex=434F4E464944454E5449414C04040404\nA_COMPLETER\n\n[Cas 2 — Bourrage bloc complet quand longueur multiple de B]\n# Données : PAD block_size=16 text=EXACT16BYTESMSG!\nA_COMPLETER\n\n[Cas 3 — Rejet octet de bourrage corrompu]\n# Données : UNPAD block_size=16 hex=434F4E464944454E5449414C04040405\nA_COMPLETER\n\n[Cas 4 — Rejet bloc non aligné sur la taille de bloc]\n# Données : UNPAD block_size=16 hex=434F4E4649\nA_COMPLETER\n",
     "hints": [
-      "Calculez p = B - (len(data) % B) pour le padding.",
-      "Pour l unpad, vérifiez data[-p:] == bytes([p] * p)."
+      "Le bourrage PKCS#7 complète un bloc de taille B en ajoutant P octets valant chacun la valeur numérique P.",
+      "Pour valider le débourrage, vérifiez que tous les P derniers octets correspondent bien à la valeur P."
     ],
     "examples": [
       {

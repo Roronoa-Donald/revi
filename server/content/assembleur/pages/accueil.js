@@ -89,6 +89,7 @@ function sommaire(course, chapterList) {
     '  <h1>Sommaire complet du cours</h1>',
     '  <p class="lead">Six modules d’enseignement approfondis pour maîtriser les registres x86_64, les drapeaux EFLAGS, les modes d’adressage LEA et la pile d’exécution.</p>',
     '',
+    '  <h2>Programme des chapitres</h2>',
     '  <ol class="summary-list">' + rows + '  </ol>',
     '',
     '  <h2>Ressources &amp; Révisions</h2>',

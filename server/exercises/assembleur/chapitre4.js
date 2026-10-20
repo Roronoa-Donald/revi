@@ -53,12 +53,11 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Calculer l’adresse virtuelle absolue d’un symbole dans un exécutable ELF.",
-    "brief": "<p>Lors de l’étape d’édition de liens (linkage), l’éditeur de liens fusionne les sections des fichiers objets et leur attribue une <strong>adresse virtuelle (Virtual Address, VA)</strong> en mémoire.</p><p>Analysez les paramètres du problème pour chaque cas. <code>.text</code>, <code>.data</code>, <code>.rodata</code>) ;</li>  <li><code>BASE_HEX</code> est l’adresse virtuelle de base de la section (ex. <code>0x00401000</code>) ;</li>  <li><code>OFFSET_HEX</code> est le déplacement du symbole dans la section (ex. <code>0x00000050</code>).</li></ul><p>Indiquez :<br><code>SECTION=&lt;NOM&gt; VA=0x&lt;8 chiffres HEX majuscules&gt; DEC=&lt;valeur&gt;</code>.</p>",
+    "brief": "<p>Lors de l’étape d’édition de liens (linkage), l’éditeur de liens fusionne les sections des fichiers objets et leur attribue une <strong>adresse virtuelle (Virtual Address, VA)</strong> en mémoire.</p><p>Pour chaque cas, observez :</p><ul><li><code>SECTION</code> : le nom de la section (ex. <code>.text</code>, <code>.data</code>, <code>.rodata</code>) ;</li><li><code>BASE_HEX</code> : l’adresse virtuelle de base de la section (ex. <code>0x00401000</code>) ;</li><li><code>OFFSET_HEX</code> : le déplacement du symbole dans la section (ex. <code>0x00000050</code>).</li></ul><p>Indiquez :<br><code>SECTION=&lt;NOM&gt; VA=0x&lt;8 chiffres HEX majuscules&gt; DEC=&lt;valeur&gt;</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c4-e2) — Résolution d’adresses virtuelles de sections ELF\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Section de données initialisées .data]\n# Données : .data;0x00403000;0x00000100\nA_COMPLETER\n\n[Cas 2 — Section en lecture seule .rodata]\n# Données : .rodata;0x00402000;0x00000018\nA_COMPLETER\n\n[Cas 3 — Symbole en tout début de section text (offset 0)]\n# Données : .text;0x00400000;0x00000000\nA_COMPLETER\n\n[Cas 4 — Section .bss des variables globales non initialisées]\n# Données : .bss;0x00404000;0x000002A0\nA_COMPLETER\n",
     "hints": [
-      "Convertis BASE_HEX et OFFSET_HEX en entiers avec int(s, 16).",
-      "L’adresse virtuelle finale vaut base + offset.",
-      "Formate avec f\"SECTION={sec} VA=0x{va:08X} DEC={va}\"."
+      "L’adresse virtuelle (VA) d’un symbole correspond à l’addition de l’adresse de base de la section et de son déplacement relatif.",
+      "Vérifiez la concordance entre la valeur décimale et la notation hexadécimale sur 32 bits."
     ],
     "examples": [
       {
@@ -101,9 +100,8 @@ module.exports = [
     "brief": "<p>Pour optimiser les accès au bus mémoire et éviter les pénalités de cycle CPU, les processeurs requièrent souvent que les données soient alignées sur des multiples de 2, 4, 8 ou 16 octets.</p><p>Analysez les paramètres du problème pour chaque cas. Indiquez le nombre d’octets de bourrage ajoutés et la nouvelle adresse alignée :<br><code>PADDING=&lt;nb_octets&gt; ALIGNEE=0x&lt;HEX&gt;</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c4-e3) — Alignement mémoire & calcul de Padding (Directive ALIGN)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Adresse déjà parfaitement alignée sur 16 octets]\n# Données : 0x2000;16\nA_COMPLETER\n\n[Cas 2 — Alignement de pile sur 16 octets (convention x86_64 ABI)]\n# Données : 0x7FFF1008;16\nA_COMPLETER\n\n[Cas 3 — Alignement mot 32 bits (4 octets)]\n# Données : 0x00401001;4\nA_COMPLETER\n\n[Cas 4 — Alignement 8 octets sur petit offset]\n# Données : 0x1005;8\nA_COMPLETER\n",
     "hints": [
-      "Si adr % n == 0, aucun padding n’est requis (padding = 0).",
-      "Sinon, padding = n - (adr % n), et la nouvelle adresse vaut adr + padding.",
-      "Formate l’adresse avec au moins 4 chiffres : f\"0x{alignee:04X}\"."
+      "Pour aligner une adresse A sur une frontière de N octets, calculez le padding requis : (N - (A mod N)) mod N.",
+      "La nouvelle adresse alignée est égale à A + padding et doit être strictement divisible par N."
     ],
     "examples": [
       {

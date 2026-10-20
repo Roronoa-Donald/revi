@@ -11,9 +11,8 @@ module.exports = [
     "brief": "<p>L’injection SQL permet à un attaquant de modifier la structure d’une requête exécutée par la base de données. Votre programme analyse une chaîne de saisie utilisateur à la recherche de signatures SQLi classiques (insensible à la casse) :\n- <code>' or </code>\n- <code>' and </code>\n- <code> union select </code>\n- <code>--</code>\n- <code>/*</code>\n- <code> sleep(</code>\n- <code>'='</code>\n\nSortie :\n- Si un motif est trouvé : <code>INJECTION SQL DETECTEE (motif: &lt;motif&gt;)</code> (afficher le premier motif trouvé dans l’ordre de la liste ci-dessus).\n- Sinon : <code>ENTREE VALIDEE</code>.</p>",
     "starter": "# Grille d'analyse (cs2-c4-e1) — Détecteur de motifs d’injection SQL (SQLi)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : jean.dupont@entreprise.fr\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 1 UNION SELECT username, password FROM users\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 1; DROP TABLE clients; -- commentaire\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : '='\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "Identifiez les caractères syntaxiques d’échappement SQL (guillemets, double tiret de commentaire, clauses OR 1=1).",
+      "La parade absolue contre l’injection SQL est l’utilisation exclusive de requêtes préparées paramétrées."
     ],
     "examples": [
       {
@@ -56,9 +55,8 @@ module.exports = [
     "brief": "<p>Les failles Cross-Site Scripting (XSS) surviennent lorsqu’une application web réinjecte des données utilisateur non filtrées dans le code HTML servi au navigateur. Pour neutraliser l’exécution de scripts, les cinq caractères critiques doivent être échappés en entités HTML dans l’ordre rigoureux suivant :\n1. <code>&amp;</code> &rarr; <code>&amp;amp;</code>\n2. <code>&lt;</code> &rarr; <code>&amp;lt;</code>\n3. <code>&gt;</code> &rarr; <code>&amp;gt;</code>\n4. <code>\"</code> &rarr; <code>&amp;quot;</code>\n5. <code>'</code> &rarr; <code>&amp;#x27;</code>\n\nEntrée : Une chaîne de caractères contenant potentiellement des balises ou du JavaScript.\nSortie : La chaîne neutralisée.</p>",
     "starter": "# Grille d'analyse (cs2-c4-e2) — Neutralisateur de charge utile XSS (HTML Sanitizer)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : Bonjour & bienvenue !\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : <img src=x onerror='alert(1)'>\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : Texte normal sans caracteres speciaux 123\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : \"A & B\" < \"C & D\"\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "La faille XSS injecte des balises de script ou des attributs d’événements dynamiques dans le code HTML affiché.",
+      "L’assainissement convertit les chevrons et caractères réservés en entités HTML inoffensives."
     ],
     "examples": [
       {
@@ -101,9 +99,8 @@ module.exports = [
     "brief": "<p>Une faille IDOR (Insecure Direct Object Reference) permet à un utilisateur d’accéder aux ressources privées d’autrui simplement en modifiant un identifiant dans l’URL ou la requête.\n\nEntrée : <code>user_id;user_role;requested_doc_id;owner_doc_id</code>\nRègles d’autorisation :\n1. Si <code>user_role == \"admin\"</code> : l’accès est accordé avec le motif <code>ACCES AUTORISE (admin override)</code>.\n2. Sinon, si <code>user_id == owner_doc_id</code> : l’utilisateur est le propriétaire légitime, accès accordé : <code>ACCES AUTORISE (proprietaire)</code>.\n3. Sinon : refus d’accès et alerte sécurité : <code>ALERTE IDOR: utilisateur &lt;user_id&gt; non autorise sur document &lt;requested_doc_id&gt; de &lt;owner_doc_id&gt;</code>.</p>",
     "starter": "# Grille d'analyse (cs2-c4-e3) — Contrôleur d’accès contre les failles IDOR (Broken Object Level Auth)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : u101;client;doc42;u101\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : u999;admin;doc42;u101\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : u202;client;facture_88;u303\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : u505;user;profil_505;u505\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "La vulnérabilité IDOR survient lorsqu’un contrôle d’autorisation omet de vérifier le propriétaire légitime de l’objet.",
+      "Validez que le jeton de session de l’utilisateur correspond formellement au compte propriétaire de la ressource."
     ],
     "examples": [
       {

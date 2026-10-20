@@ -1,3 +1,6 @@
+/**
+ * Exercices mis à jour — remédiation pédagogique
+ */
 'use strict';
 
 module.exports = [
@@ -11,8 +14,8 @@ module.exports = [
     "brief": "<p>Analysez les données soumises pour chaque cas.</p>",
     "starter": "# Grille d'analyse (rb-c1-e1) — Carte d’identité du programme\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Autre membre]\n# Données : Zack\nA_COMPLETER\n\n[Cas 2 — Nom composé]\n# Données : Linus T\nA_COMPLETER\n\n[Cas 3 — Une lettre]\n# Données : A\nA_COMPLETER\n",
     "hints": [
-      "Un programme s’exécute ligne par ligne, dans l’ordre : trois print donnent trois lignes.",
-      "Pour mélanger du texte et une variable, la f-string f\"...{nom}...\" évite les conversions."
+      "Suivez la séquence logique d’instructions du robot pas à pas.",
+      "Chaque commande programmée produit une action distincte dans l’ordre strict d’exécution."
     ],
     "examples": [
       {
@@ -206,8 +209,8 @@ module.exports = [
     "brief": "<p>Le carrefour du robot : rouge 3 s, orange 1 s, verte 3 s, orange 1 s. Analysez les données soumises pour chaque cas. Il termine par <code>termine apres X cycle(s)</code> — le mot prend un <strong>s</strong> seulement si c dépasse 1.</p>",
     "starter": "# Grille d'analyse (rb-c2-e3) — Séquence de feux tricolores\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois cycles]\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Cinq cycles]\n# Données : 5\nA_COMPLETER\n\n[Cas 3 — Sept cycles]\n# Données : 7\nA_COMPLETER\n",
     "hints": [
-      "La séquence est identique à chaque cycle : une boucle externe contient les quatre print dans l’ordre.",
-      "Pour l’accord du pluriel : \"s\" if c > 1 else \"\" dans une f-string fait le travail en une ligne."
+      "Répétez la séquence cyclique du robot selon le nombre d’itérations paramétré.",
+      "Adaptez la notification d’état selon le nombre d’obstacles recensés."
     ],
     "examples": [
       {
@@ -635,8 +638,8 @@ module.exports = [
     "brief": "<p>Analysez les données soumises pour chaque cas. Pour chaque relevé t il Indiquez <code>t C : ALERTE CHALEUR</code> si t est <strong>strictement supérieur</strong> à 30, <code>t C : ALERTE FROID</code> si t est <strong>strictement inférieur</strong> à 15, sinon <code>t C : normale</code>. La température se réIndiquez sans zéros inutiles (30.0 s’écrit <code>30</code>). La dernière ligne compte toutes les alertes confondues : <code>alertes : A</code>.</p>",
     "starter": "# Grille d'analyse (rb-c6-e2) — Station météo — états et alertes\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Autour de 30]\n# Données : 3\n# Données : 30\n# Données : 30.1\n# Données : -2\nA_COMPLETER\n\n[Cas 2 — Autour de 15]\n# Données : 2\n# Données : 15\n# Données : 14.9\nA_COMPLETER\n\n[Cas 3 — Tout normal]\n# Données : 3\n# Données : 20\n# Données : 15\n# Données : 30\nA_COMPLETER\n",
     "hints": [
-      "Deux if / else imbriqués ou une chaîne if / elif / else : trois états possibles, une seule ligne par relevé.",
-      "Le format :g dans une f-string affiche le nombre sans zéros inutiles : f\"{t:g} C : ...\"."
+      "Évaluez les seuils de température relevés par les capteurs thermiques : normal, alerte ou critique.",
+      "Associez le niveau d’alarme approprié à la plage thermique mesurée."
     ],
     "examples": [
       {

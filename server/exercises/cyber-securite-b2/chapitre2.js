@@ -11,9 +11,8 @@ module.exports = [
     "brief": "<p>Le masque jetable (One-Time Pad) inventé par Gilbert Vernam repose sur l’opération logique XOR bit à bit. Votre programme reçoit une chaîne hexadécimale représentant le texte en clair (ou chiffré) et une clé ASCII séparées par un point-virgule : <code>flux_hex;cle_ascii</code>.\n\nTraitement :\n1. Convertir le flux hexadécimal en liste d’octets (valeurs 0..255).\n2. Convertir la clé ASCII en liste d’octets de ses codes ASCII.\n3. Pour chaque octet $i$ du flux, calculer $octet_i \\oplus cle_{i \\pmod L}$ où $L$ est la longueur de la clé.\n4. Afficher le résultat sous forme de chaîne hexadécimale en minuscules (2 chiffres par octet).\n\nExemple : <code>48656c6c6f;KEY</code> &rarr; <code>032035272a</code></p>",
     "starter": "# Grille d'analyse (cs2-c2-e1) — Chiffrement symétrique par masque jetable XOR (Vernam)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 032035272a;KEY\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : ffff;AB\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 00112233;CYBER\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 41424344;Z\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "Le masque jetable (chiffre de Vernam) applique un OU exclusif (XOR) bit à bit entre le message clair et la clé.",
+      "L’opération XOR est involutive : le chiffrement et le déchiffrement utilisent exactement la même opération."
     ],
     "examples": [
       {
@@ -56,9 +55,8 @@ module.exports = [
     "brief": "<p>Les fonctions de hachage cryptographique comme SHA-256 garantissent l’intégrité d’un message : la moindre modification d’un seul bit produit une empreinte radicalement différente (effet avalanche).\n\nEntrée : <code>message_texte;hash_attendu</code>\nTraitement :\n1. Calculer l’empreinte SHA-256 du texte en minuscules hexadécimales.\n2. Comparer avec le <code>hash_attendu</code> (insensible à la casse).\n3. Sortie :\n- Si identique : <code>INTEGRE (&lt;hash_calcule&gt;)</code>\n- Si différent : <code>FALSIFIE (&lt;hash_calcule&gt; != &lt;hash_attendu&gt;)</code>.</p>",
     "starter": "# Grille d'analyse (cs2-c2-e2) — Contrôle d’intégrité et détection de falsification SHA-256\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : Transfert de 500 EUR;0000000000000000000000000000000000000000000000000000000000000000\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : Cybersecurite B2;4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : Cybersecurite B2;4F488E082C757C61D3E1AC9961723EA2C83A5C80595E6432800739ADEA006A0A\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : Message legitime;1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "La moindre altération d’un octet produit une empreinte de hachage radicalement différente (effet avalanche).",
+      "Comparez l’empreinte calculée avec l’empreinte de référence certifiée pour attester de l’intégrité."
     ],
     "examples": [
       {
@@ -101,9 +99,8 @@ module.exports = [
     "brief": "<p>Dans le schéma de signature RSA, l’émetteur signe un condensat $m$ avec sa clé privée $d$ : $s = m^d \\pmod n$. Le récepteur vérifie la signature à l’aide de la clé publique de l’émetteur $(e, n)$ en calculant : $m’ = s^e \\pmod n$.\n\nEntrée : Quatre entiers séparés par des points-virgules <code>m;s;e;n</code>.\nTraitement : Calculer $m’ = pow(s, e, n)$ grâce à l’exponentiation modulaire efficace.\nSortie :\n- Si $m’ == m$ : <code>VALIDE (m = &lt;m&gt;)</code>\n- Si $m’ <br>e m$ : <code>INVALIDE (obtenu: &lt;m’&gt;, attendu: &lt;m&gt;)</code>.</p>",
     "starter": "# Grille d'analyse (cs2-c2-e3) — Vérification de signature numérique asymétrique RSA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 42;89;7;187\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 123;2746;17;3233\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 123;999;17;3233\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 7;4;3;33\nA_COMPLETER\n",
     "hints": [
-      "Lis l entrée standard avec input().strip() ou sys.stdin.",
-      "Traite les cas selon la spécification de l exercice.",
-      "Affiche le résultat exactement sous la forme attendue."
+      "La signature numérique garantit l’authenticité de l’émetteur et la non-répudiation du message.",
+      "La signature se vérifie avec la clé publique de l’émetteur sur l’empreinte cryptographique du document."
     ],
     "examples": [
       {

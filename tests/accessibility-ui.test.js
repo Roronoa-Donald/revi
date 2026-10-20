@@ -287,3 +287,58 @@ describe('PROD-001 & SEO-001 — Intégrité du catalogue, de index.html et de b
     assert.ok(!cliOut.includes('[warn]'), `Sortie CLI contient [warn] : ${cliOut}`);
   });
 });
+
+describe('POLISH-001 — Typographie locale hors-ligne et transition de thème fluide', () => {
+  test('Typographie locale : les fichiers WOFF2 sont présents et référencés dans tokens.css', () => {
+    const fontsDir = path.join(ROOT, 'assets', 'fonts');
+    assert.ok(fs.existsSync(fontsDir), 'Le dossier assets/fonts doit exister');
+
+    const expectedFiles = [
+      'jetbrains-mono-latin.woff2',
+      'jetbrains-mono-latin-ext.woff2',
+      'jetbrains-mono-italic-latin.woff2',
+      'jetbrains-mono-italic-latin-ext.woff2'
+    ];
+
+    for (const f of expectedFiles) {
+      const p = path.join(fontsDir, f);
+      assert.ok(fs.existsSync(p), `Le fichier de police ${f} doit exister dans assets/fonts/`);
+      const stat = fs.statSync(p);
+      assert.ok(stat.size > 10000, `Le fichier de police ${f} doit être non vide (> 10 Ko)`);
+    }
+
+    const tokensCss = fs.readFileSync(path.join(ROOT, 'assets', 'css', 'tokens.css'), 'utf8');
+    assert.match(
+      tokensCss,
+      /@font-face\s*\{[^}]*font-family:\s*'JetBrains Mono'[^}]*url\('\/assets\/fonts\/jetbrains-mono-latin\.woff2'\)/s,
+      'tokens.css doit déclarer @font-face pour JetBrains Mono avec /assets/fonts/jetbrains-mono-latin.woff2'
+    );
+  });
+
+  test('Transition fluide : theme.js gère la classe .theme-transitioning avec timeout et support a11y', () => {
+    const themeJs = fs.readFileSync(path.join(ROOT, 'assets', 'js', 'theme.js'), 'utf8');
+    assert.match(
+      themeJs,
+      /html\.classList\.add\(['"]theme-transitioning['"]\)/,
+      'theme.js doit ajouter la classe theme-transitioning lors de la bascule'
+    );
+    assert.match(
+      themeJs,
+      /html\.classList\.remove\(['"]theme-transitioning['"]\)/,
+      'theme.js doit retirer la classe theme-transitioning après timeout'
+    );
+
+    const tokensCss = fs.readFileSync(path.join(ROOT, 'assets', 'css', 'tokens.css'), 'utf8');
+    assert.match(
+      tokensCss,
+      /html\.theme-transitioning/,
+      'tokens.css doit définir les règles de transition sur html.theme-transitioning'
+    );
+    assert.match(
+      tokensCss,
+      /@media\s*\(\s*prefers-reduced-motion:\s*reduce\s*\)\s*\{[^}]*html\.theme-transitioning[^}]*transition:\s*none/s,
+      'tokens.css doit annuler la transition si prefers-reduced-motion: reduce'
+    );
+  });
+});
+

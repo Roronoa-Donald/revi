@@ -1,3 +1,6 @@
+/**
+ * Exercices mis à jour — remédiation pédagogique
+ */
 'use strict';
 
 module.exports = [
@@ -543,8 +546,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « immat moteur prix » puis une ligne <code>seuil</code>. Il rejoue <code>SELECT moteur, SUM(pxachat), AVG(pxachat) GROUP BY moteur HAVING SUM(pxachat) &gt;= seuil</code> : après les lignes, il Indiquez pour chaque moteur <strong>dans l’ordre de première apparition</strong> et dont la somme des prix atteint le seuil <code>moteur : somme=X moyenne=Y</code> (moyenne arrondie à l’entier inférieur), puis <code>groupes : X</code>.</p>",
     "starter": "# Grille d'analyse (sq-c5-e3) — Analyse complète du parc : HAVING\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Seuil intermédiaire]\n# Données : 4\n# Données : TG-0001-AA DIESEL 15000000\n# Données : TG-0002-AA ESSENCE 50000000\n# Données : TG-0003-AA DIESEL 10000000\n# Données : TG-0004-AA HYBRIDE 25000000\n# Données : 50000000\nA_COMPLETER\n\n[Cas 2 — Seuil exact : deux groupes]\n# Données : 3\n# Données : TG-0001-AA ESSENCE 10000000\n# Données : TG-0002-AA ESSENCE 20000000\n# Données : TG-0003-AA DIESEL 6000000\n# Données : 6000000\nA_COMPLETER\n\n[Cas 3 — Seuil élevé : aucun groupe]\n# Données : 2\n# Données : TG-0001-AA ELECTRIQUE 11600000\n# Données : TG-0002-AA ELECTRIQUE 21600000\n# Données : 100000000\nA_COMPLETER\n",
     "hints": [
-      "Division entière bash : $(( somme / nb )) tronque déjà vers zéro — pas d’outil externe.",
-      "Le filtre HAVING porte sur la somme : sommer d’abord, afficher seulement les groupes à somme >= seuil."
+      "La clause GROUP BY regroupe les enregistrements partageant la même modalité.",
+      "La clause HAVING filtre les groupes formés en évaluant une condition sur une fonction d’agrégation (SUM, AVG, COUNT)."
     ],
     "examples": [
       {

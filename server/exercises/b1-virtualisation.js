@@ -1,3 +1,6 @@
+/**
+ * Exercices mis à jour — remédiation pédagogique
+ */
 'use strict';
 
 module.exports = [
@@ -49,8 +52,8 @@ module.exports = [
     "brief": "<p>Dans l’histoire, le serveur fainéant « n’héberge qu’un seul système et un seul service ». Analysez chaque ligne proposée « serveur services cout » (services hébergés, coût mensuel en francs). Un serveur est <code>faineant</code> s’il héberge moins de 2 services. Pour chaque ligne il Indiquez <code>serveur : verdict</code> (faineant ou sature si plus de 4 services, sinon <code>equilibre</code>), puis <code>faineants : X</code> et <code>gaspillage : Y FCFA</code> (80 % du coût de chaque fainéant, arrondi à l’entier inférieur).</p>",
     "starter": "# Grille d'analyse (vt-c1-e2) — Un service par serveur : le constat\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Salle serveur]\n# Données : 4\n# Données : srv1 1 80000\n# Données : srv2 5 300000\n# Données : srv3 3 150000\n# Données : srv4 1 100000\nA_COMPLETER\n\n[Cas 2 — Que du farniente]\n# Données : 3\n# Données : a 1 50000\n# Données : b 1 50000\n# Données : c 1 50000\nA_COMPLETER\n\n[Cas 3 — Frontières]\n# Données : 4\n# Données : a 0 100000\n# Données : b 1 100000\n# Données : c 4 100000\n# Données : d 5 100000\nA_COMPLETER\n",
     "hints": [
-      "Trois cas : services -lt 2 → faineant ; services -gt 4 → sature ; sinon equilibre.",
-      "Le gaspillage d’un fainéant : cout * 80 / 100 (division entière bash = arrondi inférieur)."
+      "Qualifiez l’état du serveur : sous-utilisé (< 2 services), saturé (> 4 services) ou équilibré.",
+      "Pour un serveur sous-utilisé, évaluez le coût de gaspillage des ressources allouées non consommées."
     ],
     "examples": [
       {
@@ -619,8 +622,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « serveur avant apres » (taux d’utilisation %). Il Indiquez pour chaque serveur <code>serveur : avant=A% apres=B%</code>, puis trois bilans : <code>reveilles : X</code> (passés de moins de 30 % à 80 % ou plus), <code>moyenne avant : Y%</code> et <code>moyenne apres : Z%</code> (moyennes arrondies à l’entier inférieur).</p>",
     "starter": "# Grille d'analyse (vt-c6-e2) — Le bilan avant/après du parc\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Parc du support]\n# Données : 4\n# Données : a 10 95\n# Données : b 20 80\n# Données : c 40 45\n# Données : d 50 55\nA_COMPLETER\n\n[Cas 2 — Tout réveillé]\n# Données : 3\n# Données : a 5 90\n# Données : b 10 85\n# Données : c 0 100\nA_COMPLETER\n\n[Cas 3 — Rien ne bouge]\n# Données : 2\n# Données : a 60 60\n# Données : b 70 65\nA_COMPLETER\n",
     "hints": [
-      "Réveillé : avant -lt 30 ET apres -ge 80.",
-      "Moyennes : somme_avant / n et somme_apres / n (division entière bash)."
+      "Identifiez les machines virtuelles réveillées dont la charge passe d’un niveau faible (< 30%) à un niveau actif (>= 80%).",
+      "Comparez la moyenne de consommation avant et après réallocation dynamique des vCPU."
     ],
     "examples": [
       {

@@ -91,9 +91,8 @@ module.exports = [
     "brief": "<p>Le modèle Cyber Kill Chain (Lockheed Martin) formalise les étapes successives d'une cyberattaque ciblée (APT) :<br>\n1. <code>RECON</code> (Reconnaissance)<br>\n2. <code>WEAPON</code> (Weaponization)<br>\n3. <code>DELIVERY</code> (Delivery)<br>\n4. <code>EXPLOIT</code> (Exploitation)<br>\n5. <code>INSTALL</code> (Installation / Persistance)<br>\n6. <code>C2</code> (Command & Control)<br>\n7. <code>ACTIONS</code> (Actions on Objectives / Exfiltration)<br><br>\nEntrée STDIN : <code>KILLCHAIN_EVAL events=&lt;e1:p1,e2:p2,...&gt;</code>.<br>\nSortie :<br>\n<code>KILLCHAIN: total_events=&lt;N&gt; phases_identified=&lt;count&gt;/7 highest_phase=&lt;phase&gt; coverage_pct=&lt;pct&gt;% status=&lt;COMPLETE_KILL_CHAIN|PARTIAL_ATTACK&gt;</code>.</p>",
     "starter": "# Grille d'analyse (hk3-c1-e3) — Moteur de Corrélation Cyber Kill Chain & Détection d'Attaque\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Attaque stoppée à la phase d'exploitation]\n# Données : KILLCHAIN_EVAL events=osint_scan:RECON,spear_phish:DELIVERY,buffer_overflow:EXPLOIT\nA_COMPLETER\n\n[Cas 2 — Événements répétés sur phases initiales de reconnaissance]\n# Données : KILLCHAIN_EVAL events=shodan_query:RECON,subdomain_fuzz:RECON,port_scan:RECON\nA_COMPLETER\n\n[Cas 3 — Attaque atteignant le canal de commande et contrôle C2]\n# Données : KILLCHAIN_EVAL events=nmap_scan:RECON,malicious_pdf:DELIVERY,cve_exploit:EXPLOIT,reverse_shell:C2\nA_COMPLETER\n",
     "hints": [
-      "Définissez les 7 phases ordonnées dans une liste et calculez l'indice maximum atteint.",
-      "Identifiez les phases uniques observées pour calculer coverage_pct = int((len(unique_phases) / 7.0) * 100).",
-      "Si len(unique_phases) == 7 : status = COMPLETE_KILL_CHAIN sinon PARTIAL_ATTACK."
+      "Le modèle Cyber Kill Chain de Lockheed Martin décompose une cyberattaque en 7 phases séquentielles strictes.",
+      "Analysez les preuves d’activité pour déterminer la phase la plus avancée atteinte par l’attaquant et évaluer la couverture de l’attaque."
     ],
     "examples": [
       {

@@ -1,6 +1,5 @@
 /**
- * Statistique descriptive B1 — 18 exercices de calcul statistique.
- * Mode d'évaluation mathématique structurée (language: 'analyse').
+ * Exercices mis à jour — remédiation pédagogique
  */
 'use strict';
 
@@ -15,8 +14,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs de la série (une par ligne, des entiers). Indiquez l’effectif total, la plus petite valeur et la plus grande, séparés par des espaces.</p>",
     "starter": "# Grille de calcul (st-c1-e1) — Effectif, minimum et maximum\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série constante]\n# Données : 3\n# Données : 5\n# Données : 5\n# Données : 5\nA_COMPLETER\n\n[Cas 2 — Valeurs négatives]\n# Données : 6\n# Données : -4\n# Données : 0\n# Données : 7\n# Données : 7\n# Données : 3\n# Données : -1\nA_COMPLETER\n\n[Cas 3 — Valeur unique]\n# Données : 1\n# Données : 42\nA_COMPLETER\n",
     "hints": [
-      "L’effectif total est le nombre de valeurs reçues : c’est n, mais tu peux aussi le compter avec len().",
-      "Les valeurs extrêmes s’obtiennent avec min() et max() — la série n’a pas besoin d’être triée pour cela."
+      "L’effectif total N est le nombre total d’observations recensées dans la série.",
+      "Les valeurs extrêmes s’obtiennent en identifiant la plus petite valeur (minimum) et la plus grande (maximum)."
     ],
     "examples": [
       {
@@ -54,8 +53,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Affichez la <strong>série ordonnée</strong> par valeurs croissantes, sur une seule ligne, séparée par des espaces.</p>",
     "starter": "# Grille de calcul (st-c1-e2) — Série ordonnée\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série déjà presque ordonnée]\n# Données : 4\n# Données : 5\n# Données : 4\n# Données : 3\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Valeurs négatives et positives]\n# Données : 3\n# Données : 100\n# Données : -100\n# Données : 0\nA_COMPLETER\n\n[Cas 3 — Répétitions]\n# Données : 5\n# Données : 2\n# Données : 2\n# Données : 2\n# Données : 1\n# Données : 1\nA_COMPLETER\n",
     "hints": [
-      "Trier une liste en Python se fait en un appel : sorted(serie) renvoie une nouvelle liste ordonnée.",
-      "Pour l’affichage, joins les valeurs converties en texte avec le séparateur \" \"."
+      "Ordonner la série par ordre croissant permet de faire apparaître immédiatement les valeurs extrêmes et la médiane.",
+      "Inscrivez les valeurs réordonnées de la plus petite à la plus grande."
     ],
     "examples": [
       {
@@ -93,8 +92,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Affichez le nombre de <strong>modalités</strong>, c’est-à-dire de valeurs distinctes.</p>",
     "starter": "# Grille de calcul (st-c1-e3) — Nombre de modalités\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série constante]\n# Données : 4\n# Données : 1\n# Données : 1\n# Données : 1\n# Données : 1\nA_COMPLETER\n\n[Cas 2 — Toutes distinctes]\n# Données : 5\n# Données : -1\n# Données : 0\n# Données : 1\n# Données : 2\n# Données : 3\nA_COMPLETER\n\n[Cas 3 — Modalités par paires]\n# Données : 6\n# Données : 7\n# Données : 7\n# Données : 8\n# Données : 8\n# Données : 9\n# Données : 9\nA_COMPLETER\n",
     "hints": [
-      "Un ensemble (set) en Python ne garde qu’une seule copie de chaque valeur.",
-      "La taille de cet ensemble est exactement le nombre de modalités."
+      "Le nombre de modalités distinctes est le nombre de valeurs uniques différentes prises par le caractère statistique.",
+      "Plusieurs observations portant la même valeur correspondent à une seule et même modalité."
     ],
     "examples": [
       {
@@ -249,8 +248,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Affichez la moyenne, arrondie à deux décimales.</p>",
     "starter": "# Grille de calcul (st-c3-e1) — Moyenne d’une série\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cinq valeurs consécutives]\n# Données : 5\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\n# Données : 5\nA_COMPLETER\n\n[Cas 2 — Série constante]\n# Données : 3\n# Données : 7\n# Données : 7\n# Données : 7\nA_COMPLETER\n\n[Cas 3 — Moyenne non entière]\n# Données : 4\n# Données : 10\n# Données : 11\n# Données : 12\n# Données : 13\nA_COMPLETER\n",
     "hints": [
-      "La moyenne est la somme des valeurs divisée par leur nombre.",
-      "Attention en Python 3 : la division / donne un flottant, ce qui est exactement ce qu’on veut ici."
+      "La moyenne arithmétique est le quotient de la somme de toutes les valeurs par l’effectif total N : x̄ = (∑ x_i) / N.",
+      "Exprimez le résultat sous forme d’un nombre décimal."
     ],
     "examples": [
       {
