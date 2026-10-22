@@ -98,7 +98,7 @@ module.exports = {
   questions: [
     { stem: 'Quel code HTTP est retourné lors de la création réussie d’une nouvelle ressource ?', opts: ['201 Created', '200 OK', '204 No Content'], correct: 0, exp: '201 Created est le statut standard pour signaler une création réussie.' },
     { stem: 'Quel code de statut indique un succès sans aucun contenu dans le corps de réponse ?', opts: ['204 No Content', '200 OK', '202 Accepted'], correct: 0, exp: '204 No Content est couramment employé après une suppression (DELETE).' },
-    { stem: 'Quelle est la différence entre 401 Unauthorized et 403 Forbidden ?', opts: ['401 concerne l’authentification (qui es-tu ?), 403 concerne les permissions (as-tu le droit ?)', '401 est une erreur serveur, 403 une erreur client', 'Il n’y a aucune différence, ils sont synonymes'], correct: 0, exp: '401 = non identifié ou jeton manquant ; 403 = identifié mais accès interdit.' },
+    { stem: 'Quelle est la différence entre 401 Unauthorized et 403 Forbidden ?', opts: ['401 concerne l’authentification (qui es-vous ?), 403 concerne les permissions (as-vous le droit ?)', '401 est une erreur serveur, 403 une erreur client', 'Il n’y a aucune différence, ils sont synonymes'], correct: 0, exp: '401 = non identifié ou jeton manquant ; 403 = identifié mais accès interdit.' },
     { stem: 'Quelle fonction Flask sérialise un dictionnaire en réponse HTTP JSON ?', opts: ['jsonify()', 'json.dumps()', 'flask.encode()'], correct: 0, exp: 'jsonify() génère un objet Response complet avec le Content-Type application/json.' },
     { stem: 'Quel code signale une ressource introuvable sur le serveur ?', opts: ['404 Not Found', '400 Bad Request', '502 Bad Gateway'], correct: 0, exp: '404 Not Found indique que la ressource demandée n’existe pas.' },
     { stem: 'Quel code HTTP utilise-t-on lorsqu’un email à inscrire existe déjà en base ?', opts: ['409 Conflict', '404 Not Found', '500 Server Error'], correct: 0, exp: '409 Conflict signale une violation de contrainte d’intégrité ou d’unicité.' },
@@ -143,8 +143,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la signification des codes 200, 201, 204 et 404.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les nuances 401/403 et l’écriture des tuples Flask.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les codes et le formatage des réponses.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les nuances 401/403 et l’écriture des tuples Flask.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les codes et le formatage des réponses.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la validation des données au chapitre 5.' }
   ],
 

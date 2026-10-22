@@ -20,7 +20,7 @@ module.exports = {
     'détecter formellement les anomalies de configuration d’ACLs : Rule Shadowing, redondance, exception mal ordonnée ;',
     'comprendre le fonctionnement théorique et pratique de la translation d’adresses source (SNAT / Masquerade) ;',
     'configurer la translation d’adresses destination (DNAT / Port Forwarding) pour publier des services sécurisés ;',
-    'développer en Python 3 des évaluateurs d’ACLs, des détecteurs d’anomalies de masquage et un simulateur de moteur NAT.'
+    'analyser et résoudre méthodologiquement des évaluateurs d’ACLs, des détecteurs d’anomalies de masquage et un simulateur de moteur NAT.'
   ],
   sections: [
     {
@@ -105,7 +105,7 @@ module.exports = {
     'La différence entre Rule Shadowing (masquage néfaste) et Redundancy (règle inutile) est claire.',
     'La distinction entre SNAT (sortant) et DNAT (entrant) est assimilée.',
     'Le mécanisme de réécriture des ports en PAT est compris.',
-    'Les 3 ateliers de programmation interactive en Python 3 (fw3-c3-e1 à fw3-c3-e3) sont validés.'
+    'Les 3 études de cas pratiques et méthodologiques (fw3-c3-e1 à fw3-c3-e3) sont validés.'
   ],
   notions: [
     'Listes de contrôle d’accès (ACL)',

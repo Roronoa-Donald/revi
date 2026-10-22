@@ -163,9 +163,9 @@ module.exports = [
     notions: ['étendue', 'écart interquartile', 'variance', 'formule de König', 'écart-type', 'coefficient de variation', 'valeur aberrante', 'homogénéité'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends le calcul de la moyenne du chapitre 3 avant la variance.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 3 de l’atelier du chapitre 4.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible la formule de König et l’unité de la variance.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez le calcul de la moyenne du chapitre 3 avant la variance.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 3 de l’atelier du chapitre 4.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible la formule de König et l’unité de la variance.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, les représentations graphiques.' }
     ],
 
@@ -329,9 +329,9 @@ module.exports = [
     notions: ['diagramme en bâtons', 'diagramme en barres', 'diagramme circulaire', 'histogramme', 'densité', 'amplitude de classe', 'boîte à moustaches', 'valeur aberrante'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends les conventions de la section 1 (axe à zéro, largeurs égales).' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 2 de l’atelier du chapitre 5.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible la densité et les cinq valeurs.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez les conventions de la section 1 (axe à zéro, largeurs égales).' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 2 de l’atelier du chapitre 5.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible la densité et les cinq valeurs.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, corrélation et régression.' }
     ],
 
@@ -464,7 +464,7 @@ module.exports = [
     questions: [
       { stem: 'Quel est le point moyen d’une série double ?', opts: ['(0 ; 0)', '(x̄ ; ȳ)', '(x<sub>max</sub> ; y<sub>max</sub>)'], correct: 1, exp: 'C’est le centre de gravité du nuage : les deux moyennes.' },
       { stem: 'Une covariance positive signifie…', opts: ['que x et y varient dans le même sens', 'que x et y varient en sens inverse', 'qu’il n’y a pas de liaison'], correct: 0, exp: 'Les contributions positives dominent : les deux caractères augmentent ensemble.' },
-      { stem: 'Entre quelles valeurs le coefficient de corrélation r varie-t-il ?', opts: ['0 et 1', '−1 et 1', '−∞ et +∞'], correct: 1, exp: 'C’est un nombre sans unité borné par −1 et 1.' },
+      { stem: 'Entrez quelles valeurs le coefficient de corrélation r varie-t-il ?', opts: ['0 et 1', '−1 et 1', '−∞ et +∞'], correct: 1, exp: 'C’est un nombre sans unité borné par −1 et 1.' },
       { stem: 'r = 0,05 pour une série où y = x². Conclusion ?', opts: ['Aucune liaison', 'Pas de liaison linéaire, mais une liaison existe', 'Erreur de calcul'], correct: 1, exp: 'r ne mesure que la liaison linéaire : il faut regarder le nuage.' },
       { stem: 'Comment calcule-t-on la pente a de la droite des moindres carrés ?', opts: ['a = cov(x, y)/V(x)', 'a = ȳ/x̄', 'a = V(x)/cov(x, y)'], correct: 0, exp: 'a = cov(x,y)/V(x), puis b = ȳ − a·x̄.' },
       { stem: 'La droite des moindres carrés passe par…', opts: ['l’origine', 'le point moyen (x̄ ; ȳ)', 'le premier point du nuage'], correct: 1, exp: 'Propriété de contrôle : ȳ = a·x̄ + b.' }
@@ -505,9 +505,9 @@ module.exports = [
     notions: ['série double', 'nuage de points', 'point moyen', 'covariance', 'coefficient de corrélation', 'droite des moindres carrés', 'prévision', 'corrélation et causalité'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends le calcul de la variance du chapitre 4 avant la régression.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 4 de l’atelier du chapitre 6.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible l’interprétation de r et l’ordre a puis b.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez le calcul de la variance du chapitre 4 avant la régression.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 4 de l’atelier du chapitre 6.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible l’interprétation de r et l’ordre a puis b.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise du cours : revois les examens blancs et le projet intégrateur.' }
     ],
 

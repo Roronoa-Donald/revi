@@ -12,10 +12,10 @@ module.exports = [
     language: 'analyse',
     title: "Planificateur de cycles Pomodoro",
     goal: "Déterminer le découpage optimal d’une séance d’étude en blocs de concentration et pauses régénératrices.",
-    brief: "<p>La technique Pomodoro (Francesco Cirillo) rythme le travail par cycles de <strong>25 minutes de focus</strong> suivis de <strong>5 minutes de pause courte</strong>. Après 4 cycles consécutifs, une <strong>pause longue de 20 minutes</strong> est obligatoire.</p><p>Lit la durée totale disponible en minutes sur l’entrée standard (ex. <code>120</code>).<br>Calcule le nombre de cycles complets de 25 minutes possibles et le temps total de pause accordé.<br>Règle : chaque cycle réalisé donne droit à une pause de 5 minutes, sauf le 4e cycle qui donne droit à 20 minutes.<br>Affiche : <code>Cycles complets: &lt;N&gt; | Temps de travail: &lt;N*25&gt; min | Temps de pause: &lt;P&gt; min</code>.</p>",
+    brief: "<p>La technique Pomodoro (Francesco Cirillo) rythme le travail par cycles de <strong>25 minutes de focus</strong> suivis de <strong>5 minutes de pause courte</strong>. Après 4 cycles consécutifs, une <strong>pause longue de 20 minutes</strong> est obligatoire.</p><p>Analyse la durée totale disponible en minutes fourni(e) dans les données du cas (ex. <code>120</code>).<br>Calcule le nombre de cycles complets de 25 minutes possibles et le temps total de pause accordé.<br>Règle : chaque cycle réalisé donne droit à une pause de 5 minutes, sauf le 4e cycle qui donne droit à 20 minutes.<br>Affiche : <code>Cycles complets: &lt;N&gt; | Temps de travail: &lt;N*25&gt; min | Temps de pause: &lt;P&gt; min</code>.</p>",
     starter: "# Grille d'analyse (mc2-c6-e1) — Planificateur de cycles Pomodoro\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Séance courte d une demi-heure]\n# Données : 30\nA_COMPLETER\n\n[Cas 2 — Quatre cycles avec pause longue]\n# Données : 140\nA_COMPLETER\n\n[Cas 3 — Trois cycles]\n# Données : 90\nA_COMPLETER\n",
     hints: [
-          "Utilise une boucle tant que le temps restant permet au moins un bloc de 25 min.",
+          "Utilisez une boucle tant que le temps restant permet au moins un bloc de 25 min.",
           "Si c est le 4e cycle, la pause vaut 20 min au lieu de 5 min."
     ],
     examples: [
@@ -54,7 +54,7 @@ module.exports = [
     brief: "<p>En psychologie cognitive, le <strong>score de Brier</strong> évalue l’étalonnage d’un individu : $$BS = \\frac{1}{N} \\sum_{i=1}^N (c_i - o_i)^2$$ où $c_i \\in [0, 1]$ est la probabilité de réussite estimée par l’élève et $o_i \\in \\{0, 1\\}$ est le résultat réel (1 si juste, 0 si faux).</p><p>Un score proche de 0 indique une calibration parfaite ; un score supérieur à 0.25 indique une métacognition défaillante.</p><p>Lit une ligne contenant une suite de paires <code>confiance,resultat</code> séparées par des points-virgules (ex. <code>0.9,1;0.8,0;0.6,1</code>).<br>Calcule le score de Brier moyen arrondi à 3 décimales.<br>Affiche : <code>Score Brier: &lt;BS&gt; | Metacognition: &lt;Qualite&gt;</code><br>avec Qualite : <code>Excellente</code> si $BS \\le 0{,}100$, <code>Correcte</code> si $0{,}100 &lt; BS \\le 0{,}250$, et <code>Médiocre (A réétalonner)</code> si $BS &gt; 0{,}250$.</p>",
     starter: "# Grille d'analyse (mc2-c6-e2) — Indice de calibration métacognitive (Score de Brier)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Surconfiance massive avec échecs]\n# Données : 0.9,0;0.8,0;0.7,0\nA_COMPLETER\n\n[Cas 2 — Calibration modérée]\n# Données : 0.8,1;0.4,0;0.7,1;0.5,0\nA_COMPLETER\n\n[Cas 3 — Calibration parfaite 100%]\n# Données : 1.0,1;0.0,0\nA_COMPLETER\n",
     hints: [
-          "Découpe avec split(\";\") puis chaque élément avec split(\",\").",
+          "Découpez avec l’extraction des champs puis chaque élément avec l’extraction des champs.",
           "Somme (c - o)**2 et divise par le nombre total de paires."
     ],
     examples: [
@@ -93,7 +93,7 @@ module.exports = [
     brief: "<p>Pour mémoriser durablement sans bachotage de dernière minute, les révisions doivent suivre les jalons de rappel espacé standardisés : <strong>J+1</strong>, <strong>J+3</strong>, <strong>J+7</strong> et <strong>J+14</strong> après l’apprentissage initial (J0).</p><p>Lit une ligne au format <code>chapitre;jour_apprentissage_J0</code> (où jour_apprentissage est un entier, ex. <code>1</code>).<br>Affiche le calendrier des rappels programmés sous la forme :<br><code>Planning [&lt;chapitre&gt;] : J0=&lt;j0&gt; -&gt; R1=J&lt;j0+1&gt; -&gt; R2=J&lt;j0+3&gt; -&gt; R3=J&lt;j0+7&gt; -&gt; R4=J&lt;j0+14&gt;</code>.</p>",
     starter: "# Grille d'analyse (mc2-c6-e3) — Rétroplanning de révision espacée avant examen\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Chapitre appris au jour 5]\n# Données : Ebbinghaus;5\nA_COMPLETER\n\n[Cas 2 — Chapitre appris au jour 10]\n# Données : Metacognition;10\nA_COMPLETER\n\n[Cas 3 — Chapitre appris au jour 0]\n# Données : Feynman;0\nA_COMPLETER\n",
     hints: [
-          "Parse avec split(\";\"). Convertis le jour J0 en entier.",
+          "Parse avec l’extraction des champs. Convertissez le jour J0 en entier.",
           "R1 = j0 + 1, R2 = j0 + 3, R3 = j0 + 7, R4 = j0 + 14."
     ],
     examples: [

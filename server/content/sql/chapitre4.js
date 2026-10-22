@@ -51,8 +51,8 @@ module.exports = {
         '  <div class="card">',
         '    <h4 class="card-title">WHERE vs HAVING</h4>',
         '    <ul>',
-        '      <li><strong>WHERE :</strong> Filtre les lignes <em>avant</em> tout regroupement et calcul d’agrégat. Les fonctions d’agrégation y sont strictement <strong>interdites</strong>.</li>',
-        '      <li><strong>HAVING :</strong> Filtre les groupes <em>après</em> le calcul des agrégats (ex: <code>HAVING COUNT(*) &gt; 5</code> ou <code>HAVING SUM(montant) &ge; 1000</code>).</li>',
+        '      <li><strong>WHERE :</strong> Filtrez les lignes <em>avant</em> tout regroupement et calcul d’agrégat. Les fonctions d’agrégation y sont strictement <strong>interdites</strong>.</li>',
+        '      <li><strong>HAVING :</strong> Filtrez les groupes <em>après</em> le calcul des agrégats (ex: <code>HAVING COUNT(*) &gt; 5</code> ou <code>HAVING SUM(montant) &ge; 1000</code>).</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -216,8 +216,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise impérativement la distinction entre WHERE et HAVING.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la clause OVER et la fonction ROW_NUMBER().' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les subtilités du fenêtrage et des fonctions analytiques.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la clause OVER et la fonction ROW_NUMBER().' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les subtilités du fenêtrage et des fonctions analytiques.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe aux transactions ACID, à la concurrence et aux verrous au module 5.' }
   ],
 

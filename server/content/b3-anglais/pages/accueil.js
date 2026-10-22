@@ -77,7 +77,7 @@ function index(course, chapterList) {
     '    </div>',
     '    <div class="card">',
     '      <h3>Catalogue des 18 Exercices de Code</h3>',
-    '      <p>Inventaire détaillé des 18 exercices de code Python 3 automatisés permettant de valider vos algorithmes d’analyse de texte et de calcul technique.</p>',
+    '      <p>Inventaire détaillé des 18 exercices interactifs d’études de cas automatisés permettant de valider vos algorithmes d’analyse de texte et de calcul technique.</p>',
     '      <a class="btn btn--sm" href="chapitres/exercices.html">Explorer le catalogue</a>',
     '    </div>',
     '  </div>',
@@ -149,7 +149,7 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Anglais Technique B3</h1>',
-    '  <p class="lead">Expérimentez et validez vos scripts d’analyse linguistique et d’automatisation en Python 3 : détection d’acronymes, linter RFC 2119, calculs de SLA, analyseur STAR et balisage de présentations.</p>',
+    '  <p class="lead">Expérimentez et validez vos scripts d’analyse linguistique et d’automatisation de manière méthodique : détection d’acronymes, linter RFC 2119, calculs de SLA, analyseur STAR et balisage de présentations.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
@@ -178,7 +178,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Linguistique libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos scripts d’audit linguistique et calculs de SLA.',
+      description: 'Bac à sable interactif de manière méthodiquepour tester vos scripts d’audit linguistique et calculs de SLA.',
       active: 'atelier',
       body
     }

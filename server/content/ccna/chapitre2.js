@@ -37,8 +37,8 @@ module.exports = {
         '<p>Une adresse IPv4 est un identifiant logique de <strong>32 bits</strong>, classiquement représenté sous forme décimale pointée ' +
         'en 4 octets séparés par des points (ex: <code>192.168.1.10</code>). Elle est composée de deux parties :</p>',
         '<ul>',
-        '  <li><strong>La partie réseau (Network ID) :</strong> Identifie le réseau ou sous-réseau auquel appartient l’hôte.</li>',
-        '  <li><strong>La partie hôte (Host ID) :</strong> Identifie l’interface réseau spécifique au sein de ce sous-réseau.</li>',
+        '  <li><strong>La partie réseau (Network ID) :</strong> Identifiez le réseau ou sous-réseau auquel appartient l’hôte.</li>',
+        '  <li><strong>La partie hôte (Host ID) :</strong> Identifiez l’interface réseau spécifique au sein de ce sous-réseau.</li>',
         '</ul>',
 
         '<div class="grid grid-2">',

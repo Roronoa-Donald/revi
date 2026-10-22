@@ -253,6 +253,21 @@ module.exports = {
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « Amazon Nitro System » ?', a: "Amazon Nitro System : Hyperviseur matériel moderne d'AWS déchargeant la virtualisation, le réseau et le stockage pour allouer 100% du CPU/RAM à l'instance." },
+      { q: 'Qu’est-ce que « ARN (Amazon Resource Name) » ?', a: "ARN (Amazon Resource Name) : Chaîne standardisée identifiant de manière univoque toute ressource à travers les comptes et régions d'AWS." },
+      { q: 'Qu’est-ce que « AWS STS » ?', a: "AWS STS : Security Token Service : service générant des jetons d'accès temporaires signés d'une durée de vie limitée." },
+      { q: 'Qu’est-ce que « Moindre Privilège » ?', a: "Moindre Privilège : Principe de sécurité consistant à n'accorder que les permissions strictement nécessaires à l'accomplissement d'une tâche." },
+      { q: 'Qu’est-ce que « IMDSv2 » ?', a: 'IMDSv2 : Instance Metadata Service version 2 : API locale (169.254.169.254) sécurisée par jeton de session contre les failles SSRF.' },
+      { q: 'Qu’est-ce que « Credential Report » ?', a: "Credential Report : Rapport téléchargeable d'audit listant l'état, l'âge et l'utilisation des identifiants et clés de tous les utilisateurs du compte." },
+      { q: 'Qu’est-ce que « Amazon EBS » ?', a: 'Amazon EBS : Elastic Block Store : volumes de stockage bloc montables sur une instance EC2 dans la même zone de disponibilité.' },
+      { q: 'Qu’est-ce que « Target Tracking » ?', a: "Target Tracking : Politique d'auto-scaling maintenant une métrique cible (ex: utilisation CPU moyenne à 50%) en ajustant la flotte." },
+      { q: 'Qu’est-ce que « Adresses Réservées AWS » ?', a: "Adresses Réservées AWS : Les 5 premières et dernière adresses de tout sous-réseau (.0, .1, .2, .3, .255) réservées pour l'infrastructure interne." },
+      { q: 'Qu’est-ce que « Amazon EFS » ?', a: 'Amazon EFS : Elastic File System : système de fichiers partagé NFS v4 multi-AZ pour instances Linux et conteneurs.' },
+      { q: 'Qu’est-ce que « Amazon Aurora » ?', a: "Amazon Aurora : Base de données relationnelle cloud native répliquant 6 copies sur 3 AZs avec jusqu'à 5x les performances de MySQL." },
+      { q: 'Qu’est-ce que « Cold Start » ?', a: "Cold Start : Temps d'initialisation du conteneur et du runtime lors de la première invocation d'une fonction serverless." },
+      { q: 'Qu’est-ce que « Fan-out Pattern » ?', a: "Fan-out Pattern : Patron d'architecture publiant un message dans un topic SNS qui le duplique vers plusieurs files SQS en parallèle." },
+      { q: 'Qu’est-ce que « Amazon CloudWatch » ?', a: 'Amazon CloudWatch : Plateforme centralisée de surveillance collectant métriques, logs et pilotant des alarmes opérationnelles.' },
+      { q: 'Qu’est-ce que « AWS CloudTrail » ?', a: "AWS CloudTrail : Service d'audit et de traçabilité consignant l'historique complet de tous les appels API émis sur un compte AWS." },
     {
       q: 'Qu\'est-ce qu\'une Région AWS ?',
       a: 'Un emplacement géographique autonome mondial regroupant au moins 3 Availability Zones isolées reliées par fibre privée.'

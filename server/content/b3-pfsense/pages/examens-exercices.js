@@ -48,7 +48,7 @@ function examens(course) {
       '<h4>Corrigé Partie 2 (7 points)</h4>',
       '<ul>',
       '  <li><strong>Aliases et tables en mémoire (3 pts) :</strong> Les Aliases permettent de regrouper sous un identifiant unique des adresses IP (Host), des sous-réseaux (Network) ou des ports TCP/UDP. Avantages : maintenance centralisée (modifier l\'alias met à jour toutes les règles associées) et compacité du jeu de règles. Au niveau du noyau BSD, pf compile les listes d\'IP sous forme de structures en arbre radix (tables pf), garantissant une recherche en $O(1)$ ou $O(\\log N)$ indépendamment du nombre d\'adresses.</li>',
-      '  <li><strong>Traffic Shaper et Limiters (4 pts) :</strong> L\'administrateur crée deux pipes Dummynet : un Pipe de téléchargement à 5 Mbps et un Pipe d\'envoi à 1 Mbps. Il applique ensuite ces pipes via une règle de filtrage (ou Floating Rule avec direction In/Out) sur le sous-réseau Guest en spécifiant l\'assignation dans le volet <em>Advanced Options &gt; In / Out pipe</em>. Pour la VoIP, il configure une queue prioritaire avec ordonnanceur CBQ ou HFSC pour garantir la bande passante requise sans gigue.</li>',
+      '  <li><strong>Traffic Shaper et Limiters (4 pts) :</strong> L\'administrateur crée deux pipes Dummynet : un Pipe de téléchargement à 5 Mbps et un Pipe d\'envoi à 1 Mbps. Il applique ensuite ces pipes via une règle de filtrage (ou Floating Rule avec direction In/Out) sur le sous-réseau Guest en spécifiant l\'assignation dans le volet <em>Advanced Options &gt; In / Out pipe</em>. Pour la VoIP, il configure une file enfant (Child Queue) Dummynet à poids prioritaire (Weight élevé) associée à une Floating Rule dédiée aux flux VoIP (RTP/SIP) pour garantir la bande passante requise sans gigue.</li>',
       '</ul>',
       '<h4>Corrigé Partie 3 (7 points)</h4>',
       '<ul>',
@@ -129,29 +129,29 @@ function exercices(course) {
   ]);
 
   const exercises = [
-    { id: 'pf3-c1-e1', ch: 1, title: 'Calculateur de sous-réseaux et validation d’adresses CIDR', level: 'n1', lang: 'Python', desc: 'Calculer l’adresse réseau, le masque et la plage d’adresses utilisables d’une interface pfSense.' },
-    { id: 'pf3-c1-e2', ch: 1, title: 'Convertisseur de règles d’interface WebGUI vers syntaxe pf.conf', level: 'n2', lang: 'Python', desc: 'Traduire les paramètres de filtrage de l’interface web pfSense en directives réelles du moteur pf.' },
-    { id: 'pf3-c1-e3', ch: 1, title: 'Auditeur de configuration de pool DHCP et réservations statiques', level: 'n3', lang: 'Python', desc: 'Contrôler la validité de la plage DHCP et détecter les collisions avec les baux statiques.' },
+    { id: 'pf3-c1-e1', ch: 1, title: 'Calculateur de sous-réseaux et validation d’adresses CIDR', level: 'n1', lang: 'Étude de cas', desc: 'Calculer l’adresse réseau, le masque et la plage d’adresses utilisables d’une interface pfSense.' },
+    { id: 'pf3-c1-e2', ch: 1, title: 'Convertisseur de règles d’interface WebGUI vers syntaxe pf.conf', level: 'n2', lang: 'Étude de cas', desc: 'Traduire les paramètres de filtrage de l’interface web pfSense en directives réelles du moteur pf.' },
+    { id: 'pf3-c1-e3', ch: 1, title: 'Auditeur de configuration de pool DHCP et réservations statiques', level: 'n3', lang: 'Étude de cas', desc: 'Contrôler la validité de la plage DHCP et détecter les collisions avec les baux statiques.' },
 
-    { id: 'pf3-c2-e1', ch: 2, title: 'Résolveur d’Aliases pfSense récursif (Host, Network, Port)', level: 'n1', lang: 'Python', desc: 'Déployer la résolution imbriquée d’Aliases pour générer les listes d’adresses finales.' },
-    { id: 'pf3-c2-e2', ch: 2, title: 'Moteur d’évaluation de filtrage First-Match Wins', level: 'n2', lang: 'Python', desc: 'Appliquer l’évaluation séquentielle ordonnée des règles pfSense avec politique Default Deny.' },
-    { id: 'pf3-c2-e3', ch: 2, title: 'Parseur de table d’états pfctl et détection d’attaques SYN_SENT', level: 'n3', lang: 'Python', desc: 'Auditer les sessions actives dans la table d’états et identifier les anomalies de connexion semi-ouvertes.' },
+    { id: 'pf3-c2-e1', ch: 2, title: 'Résolveur d’Aliases pfSense récursif (Host, Network, Port)', level: 'n1', lang: 'Étude de cas', desc: 'Déployer la résolution imbriquée d’Aliases pour générer les listes d’adresses finales.' },
+    { id: 'pf3-c2-e2', ch: 2, title: 'Moteur d’évaluation de filtrage First-Match Wins', level: 'n2', lang: 'Étude de cas', desc: 'Appliquer l’évaluation séquentielle ordonnée des règles pfSense avec politique Default Deny.' },
+    { id: 'pf3-c2-e3', ch: 2, title: 'Parseur de table d’états pfctl et détection d’attaques SYN_SENT', level: 'n3', lang: 'Étude de cas', desc: 'Auditer les sessions actives dans la table d’états et identifier les anomalies de connexion semi-ouvertes.' },
 
-    { id: 'pf3-c3-e1', ch: 3, title: 'Simulateur de redirection de ports (Port Forwarding / DNAT)', level: 'n1', lang: 'Python', desc: 'Appliquer les règles de NAT entrant (DNAT) pour rediriger les requêtes vers les serveurs internes.' },
-    { id: 'pf3-c3-e2', ch: 3, title: 'Moteur de NAT sortant hybride (Outbound NAT) et IP virtuelles', level: 'n2', lang: 'Python', desc: 'Mettre en œuvre les règles manuelles prioritaires de translation sortante avec pool de VIPs.' },
-    { id: 'pf3-c3-e3', ch: 3, title: 'Ordonnanceur Multi-WAN Gateway Groups (Load Balancing & Failover)', level: 'n3', lang: 'Python', desc: 'Simuler le basculement dynamique et la répartition de charge entre liaisons WAN selon la santé des liens.' },
+    { id: 'pf3-c3-e1', ch: 3, title: 'Simulateur de redirection de ports (Port Forwarding / DNAT)', level: 'n1', lang: 'Étude de cas', desc: 'Appliquer les règles de NAT entrant (DNAT) pour rediriger les requêtes vers les serveurs internes.' },
+    { id: 'pf3-c3-e2', ch: 3, title: 'Moteur de NAT sortant hybride (Outbound NAT) et IP virtuelles', level: 'n2', lang: 'Étude de cas', desc: 'Mettre en œuvre les règles manuelles prioritaires de translation sortante avec pool de VIPs.' },
+    { id: 'pf3-c3-e3', ch: 3, title: 'Ordonnanceur Multi-WAN Gateway Groups (Load Balancing & Failover)', level: 'n3', lang: 'Étude de cas', desc: 'Simuler le basculement dynamique et la répartition de charge entre liaisons WAN selon la santé des liens.' },
 
-    { id: 'pf3-c4-e1', ch: 4, title: 'Validateur d’encapsulation 802.1Q et calcul de sous-interfaces VLAN', level: 'n1', lang: 'Python', desc: 'Valider les trames 802.1Q et les mapper vers la sous-interface pfSense correspondante.' },
-    { id: 'pf3-c4-e2', ch: 4, title: 'Contrôleur de matrice de flux inter-VLANs et filtrage DMZ', level: 'n2', lang: 'Python', desc: 'Simuler le pare-feu à état entre zones réseau et bloquer l’initiation illégitime DMZ vers LAN.' },
-    { id: 'pf3-c4-e3', ch: 4, title: 'Auditeur de fuite d’isolation réseau (VLAN Hopping & Double Tagging)', level: 'n3', lang: 'Python', desc: 'Détecter les attaques par double étiquetage 802.1Q visant à contourner l’isolation VLAN.' },
+    { id: 'pf3-c4-e1', ch: 4, title: 'Validateur d’encapsulation 802.1Q et calcul de sous-interfaces VLAN', level: 'n1', lang: 'Étude de cas', desc: 'Valider les trames 802.1Q et les mapper vers la sous-interface pfSense correspondante.' },
+    { id: 'pf3-c4-e2', ch: 4, title: 'Contrôleur de matrice de flux inter-VLANs et filtrage DMZ', level: 'n2', lang: 'Étude de cas', desc: 'Simuler le pare-feu à état entre zones réseau et bloquer l’initiation illégitime DMZ vers LAN.' },
+    { id: 'pf3-c4-e3', ch: 4, title: 'Auditeur de fuite d’isolation réseau (VLAN Hopping & Double Tagging)', level: 'n3', lang: 'Étude de cas', desc: 'Détecter les attaques par double étiquetage 802.1Q visant à contourner l’isolation VLAN.' },
 
-    { id: 'pf3-c5-e1', ch: 5, title: 'Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN', level: 'n1', lang: 'Python', desc: 'Vérifier la validité cryptographique et l’état de révocation des certificats pour OpenVPN.' },
-    { id: 'pf3-c5-e2', ch: 5, title: 'Validateur de proposition cryptographique IPsec (IKEv2 & ESP)', level: 'n2', lang: 'Python', desc: 'Auditer la conformité ANSSI/NIST des propositions IKEv2 Phase 1 et Phase 2 dans pfSense.' },
-    { id: 'pf3-c5-e3', ch: 5, title: 'Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)', level: 'n3', lang: 'Python', desc: 'Déterminer la passerelle de sortie selon la configuration VPN Full ou Split Tunnel.' },
+    { id: 'pf3-c5-e1', ch: 5, title: 'Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN', level: 'n1', lang: 'Étude de cas', desc: 'Vérifier la validité cryptographique et l’état de révocation des certificats pour OpenVPN.' },
+    { id: 'pf3-c5-e2', ch: 5, title: 'Validateur de proposition cryptographique IPsec (IKEv2 & ESP)', level: 'n2', lang: 'Étude de cas', desc: 'Auditer la conformité ANSSI/NIST des propositions IKEv2 Phase 1 et Phase 2 dans pfSense.' },
+    { id: 'pf3-c5-e3', ch: 5, title: 'Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)', level: 'n3', lang: 'Étude de cas', desc: 'Déterminer la passerelle de sortie selon la configuration VPN Full ou Split Tunnel.' },
 
-    { id: 'pf3-c6-e1', ch: 6, title: 'Simulateur d’élection de maître CARP (Common Address Redundancy Protocol)', level: 'n1', lang: 'Python', desc: 'Simuler l’élection du pare-feu MASTER dans un cluster pfSense en comparant les paramètres advskew.' },
-    { id: 'pf3-c6-e2', ch: 6, title: 'Parseur d’alertes IDS/IPS Snort/Suricata et blocage IP dynamique', level: 'n2', lang: 'Python', desc: 'Analyser les alertes Snort dans pfSense et alimenter dynamiquement la table de blocage snort2c.' },
-    { id: 'pf3-c6-e3', ch: 6, title: 'Auditeur de synchronisation d’états pfsync et dérive de configuration XMLRPC', level: 'n3', lang: 'Python', desc: 'Contrôler la cohérence de la table d’états pfsync et détecter la dérive de configuration XMLRPC.' }
+    { id: 'pf3-c6-e1', ch: 6, title: 'Simulateur d’élection de maître CARP (Common Address Redundancy Protocol)', level: 'n1', lang: 'Étude de cas', desc: 'Simuler l’élection du pare-feu MASTER dans un cluster pfSense en comparant les paramètres advskew.' },
+    { id: 'pf3-c6-e2', ch: 6, title: 'Parseur d’alertes IDS/IPS Snort/Suricata et blocage IP dynamique', level: 'n2', lang: 'Étude de cas', desc: 'Analyser les alertes Snort dans pfSense et alimenter dynamiquement la table de blocage snort2c.' },
+    { id: 'pf3-c6-e3', ch: 6, title: 'Auditeur de synchronisation d’états pfsync et dérive de configuration XMLRPC', level: 'n3', lang: 'Étude de cas', desc: 'Contrôler la cohérence de la table d’états pfsync et détecter la dérive de configuration XMLRPC.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -172,7 +172,7 @@ function exercices(course) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — pfSense &amp; Routage B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 études de cas pratiques d’ingénierie et d’audit pfSense intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',
@@ -184,7 +184,7 @@ function exercices(course) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Répertoire complet des 18 exercices de programmation en Python 3 du cours pfSense & Routage B3.',
+      description: 'Répertoire complet des 18 exercices de programmation de manière méthodique du cours pfSense & Routage B3.',
       active: 'exercices',
       body
     }

@@ -39,7 +39,7 @@ const course = {
     'et haute disponibilité et détection d’intrusion (clustering actif/passif avec IP virtuelles CARP, calcul des intervalles advskew, réplication en temps réel de la table d’états via pfsync, synchronisation XMLRPC de configuration et blocage automatique Snort/Suricata via la table snort2c).',
   lead:
     'Maîtrisez le moteur de filtrage Packet Filter (pf), le routage Multi-WAN résilient, la segmentation par VLANs 802.1Q, les passerelles VPN d’entreprise et le clustering haute disponibilité CARP/pfsync. ' +
-    'Six modules approfondis combinant rigueur d’ingénierie sécurité, 18 ateliers de code interactifs en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant rigueur d’ingénierie sécurité, 18 ateliers de code interactifs de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Documentation officielle Netgate pfSense, Architecture FreeBSD Packet Filter (pf), RFC 5798 (CARP/VRRP), RFC 7296 (IKEv2) et Guides de durcissement ANSSI',
 

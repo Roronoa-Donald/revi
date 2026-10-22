@@ -39,7 +39,7 @@ const course = {
     'et administration avancée en ligne de commande (PowerShell Remoting sécurisé sous WinRM ports 5985/5986, exécution distribuée 1:N avec Invoke-Command, architecture de sauvegarde bare-metal VSS avec Requestor/Writer/Provider et outil wbadmin, et clusters de basculement Windows Server Failover Clustering avec calcul mathématique de quorum et prévention absolue du Split-Brain).',
   lead:
     'Maîtrisez l’ingénierie des serveurs d’entreprise : noyau NT, Active Directory AD DS, modèle AGDLP, stratégies de groupe GPO, sécurité NTFS/SMB, virtualisation Hyper-V et clusters WSFC haute disponibilité. ' +
-    'Six modules approfondis combinant rigueur d’architecture Microsoft, 18 ateliers de code interactifs en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant rigueur d’architecture Microsoft, 18 ateliers de code interactifs de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris)',
 

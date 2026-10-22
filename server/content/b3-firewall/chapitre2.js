@@ -20,7 +20,7 @@ module.exports = {
     'différencier précisément les 4 états logiques d’un paquet : NEW, ESTABLISHED, RELATED et INVALID ;',
     'configurer et auditer les délais d’expiration (timeouts) pour prévenir l’épuisement de la mémoire vive (RAM) ;',
     'détecter et neutraliser les balayages de ports furtifs et anomalies de drapeaux TCP (Xmas Tree, Null Scan, FIN Scan) ;',
-    'développer en Python 3 des simulateurs de table conntrack, des gestionnaires de purge temporelle et des détecteurs d’anomalies.'
+    'analyser et résoudre méthodologiquement des simulateurs de table conntrack, des gestionnaires de purge temporelle et des détecteurs d’anomalies.'
   ],
   sections: [
     {
@@ -109,7 +109,7 @@ module.exports = {
     'Le calcul de dimensionnement de la table conntrack et des buckets de hachage est assimilé.',
     'La gestion des timeouts par protocole (TCP, UDP, ICMP) est comprise.',
     'La détection des scans furtifs Nmap (Xmas, Null, FIN) est implémentée.',
-    'Les 3 ateliers de programmation interactive en Python 3 (fw3-c2-e1 à fw3-c2-e3) sont validés.'
+    'Les 3 études de cas pratiques et méthodologiques (fw3-c2-e1 à fw3-c2-e3) sont validés.'
   ],
   notions: [
     'Stateful Packet Inspection',

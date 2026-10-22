@@ -17,7 +17,7 @@ module.exports = {
     "analyser les protocoles de messagerie SPF, DKIM et DMARC et détecter les faiblesses exploitables en spoofing ;",
     "détecter et exploiter les failles de transfert de zone DNS (AXFR) révélant l'arborescence réseau interne ;",
     "automatiser l'énumération de sous-domaines par dictionnaire et via les Certificate Transparency logs (crt.sh) ;",
-    "implémenter en Python 3 des filtres de détection de faux positifs provoqués par les résolutions DNS wildcard."
+    "analyser et résoudre méthodologiquement des filtres de détection de faux positifs provoqués par les résolutions DNS wildcard."
   ],
   "sections": [
     {
@@ -59,7 +59,7 @@ module.exports = {
     "Je sais concevoir des requêtes Google Dorks complexes pour trouver des fichiers de configuration exposés.",
     "Je sais tester et interpréter un transfert de zone DNS AXFR avec dig.",
     "Je maîtrise l'analyse des syntaxes SPF, DKIM et DMARC et leurs impacts en ingénierie sociale.",
-    "Je sais implémenter un algorithme de détection et d'élimination des faux positifs DNS wildcard en Python 3."
+    "Je sais implémenter un algorithme de détection et d'élimination des faux positifs DNS wildcard de manière méthodique."
   ],
   "notions": [
     {
@@ -182,7 +182,7 @@ module.exports = {
   "mastery": [
     {
       "cls": "low",
-      "text": "&lt; 50 % — Reprends les sections théoriques et revois les définitions clés."
+      "text": "&lt; 50 % — Reprenez les sections théoriques et revois les définitions clés."
     },
     {
       "cls": "mid",
@@ -190,7 +190,7 @@ module.exports = {
     },
     {
       "cls": "good",
-      "text": "70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
+      "text": "70–94 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
     },
     {
       "cls": "top",
@@ -198,6 +198,9 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": "Qu’est-ce que « L'OSINT permet de cartographier la surface d'attaque d'une entreprise sans émettre un seul paquet suspect vers ses infrastructures. » ?", "a": "L'OSINT permet de cartographier la surface d'attaque d'une entreprise sans émettre un seul paquet suspect vers ses infrastructures." },
+    { "q": "Qu’est-ce que « Shodan et Censys indexent les bannières de millions d'équipements exposés sur Internet (RDP, caméras, bases de données, WAF). » ?", "a": "Shodan et Censys indexent les bannières de millions d'équipements exposés sur Internet (RDP, caméras, bases de données, WAF)." },
+    { "q": 'Qu’est-ce que « Une faille de transfert de zone DNS AXFR permet de télécharger instantanément la cartographie complète des sous-domaines. » ?', "a": 'Une faille de transfert de zone DNS AXFR permet de télécharger instantanément la cartographie complète des sous-domaines.' },
     {
       "q": "Quelle est la différence fondamentale entre reconnaissance passive et active ?",
       "a": "La reconnaissance passive n'interagit jamais directement avec la cible (OSINT, Shodan, DNS). La reconnaissance active envoie des sondes directes (pings, scans de ports, requêtes web)."

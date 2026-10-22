@@ -54,7 +54,7 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis <code>n</code> lignes <code>valeur probabilité</code>. Indiquez la <strong>variance</strong> <code>V(X) = E(X²) − E(X)²</code> arrondie à 4 décimales.</p>",
     "starter": "# Grille de calcul (pb2-c3-e2) — Variance d’une loi discrète\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Déséquilibré]\n# Données : 2\n# Données : 0 0.3\n# Données : 1 0.7\nA_COMPLETER\n\n[Cas 2 — Trois valeurs]\n# Données : 3\n# Données : 1 0.2\n# Données : 2 0.5\n# Données : 3 0.3\nA_COMPLETER\n\n[Cas 3 — Valeur certaine]\n# Données : 1\n# Données : 2 1.0\nA_COMPLETER\n",
     "hints": [
-      "Calcule E(X) et E(X²) dans la même boucle : E(X²) = Σ xᵢ² · pᵢ.",
+      "Calculez E(X) et E(X²) dans la même boucle : E(X²) = Σ xᵢ² · pᵢ.",
       "La variance est E(X²) − E(X)² ; attention, il faut élever E(X) au carré après l’avoir calculé."
     ],
     "examples": [

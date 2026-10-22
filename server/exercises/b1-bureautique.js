@@ -91,7 +91,7 @@ module.exports = [
     "starter": "# Grille d'analyse (bu-c1-e3) — Sélectionner sans la souris\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Les quatre gestes]\n# Données : doubleclic mot\n# Données : ctrlclic phrase\n# Données : tripleclic paragraphe\n# Données : ctrla document\nA_COMPLETER\n\n[Cas 2 — Deux confusions]\n# Données : ctrlclic mot\n# Données : doubleclic phrase\n# Données : tripleclic paragraphe\nA_COMPLETER\n\n[Cas 3 — Document entier]\n# Données : ctrla document\n# Données : tripleclic document\nA_COMPLETER\n",
     "hints": [
       "Les quatre gestes du support : doubleclic-mot, ctrlclic-phrase, tripleclic-paragraphe, ctrla-document.",
-      "Compare la cible annoncée à la cible attendue du geste."
+      "Comparez la cible annoncée à la cible attendue du geste."
     ],
     "examples": [
       {
@@ -466,11 +466,11 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "title": "La fonction SI",
-    "goal": "Transposer la commission du support : le SI d'Excel devient un if en Bash.",
+    "goal": "Transposer la commission du support : appliquez la logique conditionnelle SI d'Excel palier par palier.",
     "brief": "<p>L’analyse porte sur d'abord <strong>n</strong>, puis <strong>n lignes</strong> « agent ca » (chiffre d'affaires entier). Commission du support : <code>10%</code> si CA &lt; 10000, <code>15%</code> si 10000 &lt;= CA &lt; 50000, <code>20%</code> si CA &gt;= 50000. Pour chaque agent Indiquez <code>agent : X%</code> ; Concluez par <code>commission moyenne : P%</code> (moyenne entière des taux).</p>",
     "starter": "# Grille d'analyse (bu-c5-e1) — La fonction SI\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Aux seuils]\n# Données : ana 10000\n# Données : ben 50000\nA_COMPLETER\n\n[Cas 2 — Petits CA]\n# Données : ana 9999\n# Données : ben 0\nA_COMPLETER\n\n[Cas 3 — Trois zones]\n# Données : ana 15000\n# Données : ben 45000\n# Données : cleo 55000\nA_COMPLETER\n",
     "hints": [
-      "Teste d'abord le plus grand seuil : >= 50000, puis >= 10000, sinon 10.",
+      "Testez d'abord le plus grand seuil : >= 50000, puis >= 10000, sinon 10.",
       "Cumule les taux pour la moyenne entière."
     ],
     "examples": [
@@ -569,10 +569,10 @@ module.exports = [
       {
         "label": "Classe complète",
         "stdin": "cas:3",
-        "expected": "a : tres bien\nb : passe\nc : passe\nd : rattrapage\ne : tres bien\nrecales : 1"
+        "expected": "a : tres bien\nb : passe\nc : passe\nd : rattrapage≠ : tres bien\nrecales : 1"
       }
     ],
-    "solution": "[Exemple]\nana : tres bien\nben : bien\ncleo : passe\ndan : rattrapage\nrecales : 1\n\n[Cas 1 — Frontières]\nana : tres bien\nben : bien\ncleo : bien\nrecales : 0\n\n[Cas 2 — Tous recales]\nana : rattrapage\nben : rattrapage\nrecales : 2\n\n[Cas 3 — Classe complète]\na : tres bien\nb : passe\nc : passe\nd : rattrapage\ne : tres bien\nrecales : 1\n"
+    "solution": "[Exemple]\nana : tres bien\nben : bien\ncleo : passe\ndan : rattrapage\nrecales : 1\n\n[Cas 1 — Frontières]\nana : tres bien\nben : bien\ncleo : bien\nrecales : 0\n\n[Cas 2 — Tous recales]\nana : rattrapage\nben : rattrapage\nrecales : 2\n\n[Cas 3 — Classe complète]\na : tres bien\nb : passe\nc : passe\nd : rattrapage≠ : tres bien\nrecales : 1\n"
   },
   {
     "id": "bu-c6-e1",

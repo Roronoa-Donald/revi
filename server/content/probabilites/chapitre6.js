@@ -130,8 +130,8 @@ module.exports = {
   notions: ['inégalité de Markov', 'inégalité de Bienaymé-Tchebychev', 'majorant', 'loi des grands nombres', 'moyenne empirique', 'convergence', 'théorème central limite', 'standardisation', 'écart-type de la somme', 'variables i.i.d.', 'approximation normale'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les hypothèses de Markov et Tchebychev.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à distinguer variance de la moyenne et de la somme.' },
-    { cls: 'good', text: '70–89 % — Solide : tu standardises puis approximes sans erreur.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à distinguer variance de la moyenne et de la somme.' },
+    { cls: 'good', text: '70–94 % — Solide : vous standardisez puis approximes sans erreur.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.' }
   ],
 

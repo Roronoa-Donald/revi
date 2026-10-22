@@ -217,7 +217,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Exercices Pratiques de Document Technique</h1>',
-    '  <p class="lead">Tous les ateliers interactifs en Python 3 intégrés au cours, couvrant la structuration Markdown, les contrats OpenAPI, la traçabilité RTM et l’audit de qualité.</p>',
+    '  <p class="lead">Tous les ateliers interactifs de manière méthodique intégrés au cours, couvrant la structuration Markdown, les contrats OpenAPI, la traçabilité RTM et l’audit de qualité.</p>',
     '',
     sectionsHtml,
     '',

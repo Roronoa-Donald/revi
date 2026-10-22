@@ -32,7 +32,7 @@ function index(course, chapterList) {
     '    <div class="hero__actions">',
     '      <a class="btn btn--primary btn--lg" href="chapitres/chapitre1.html">' + ic('play') + ' Démarrer le cours</a>',
     '      <a class="btn btn--lg" href="sommaire.html">' + ic('layers') + ' Voir le sommaire</a>',
-    '      <a class="btn btn--lg" href="atelier.html">' + ic('terminal') + ' Bac à sable OpenSSL &amp; Python 3</a>',
+    '      <a class="btn btn--lg" href="atelier.html">' + ic('terminal') + ' Bac à sable OpenSSL &amp; Études de Cas</a>',
     '    </div>',
     '  </header>',
     '',

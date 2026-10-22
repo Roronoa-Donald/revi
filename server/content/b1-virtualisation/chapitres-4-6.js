@@ -152,7 +152,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — refais l’exemple des 2,5 VM jusqu’à comprendre le plafond.' },
       { cls: 'mid', text: '50–69 % — rejoue les trois exercices avec un parc fictif différent.' },
-      { cls: 'good', text: '70–89 % — solide : chiffre la consolidation d’un parc de 8 serveurs.' },
+      { cls: 'good', text: '70–94 % — solide : chiffre la consolidation d’un parc de 8 serveurs.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe aux risques de la surcharge.' }
     ],
 
@@ -306,7 +306,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la question finale de l’histoire et refais l’exemple de saturation.' },
       { cls: 'mid', text: '50–69 % — rejoue l’exercice des symptômes jusqu’au sans-faute.' },
-      { cls: 'good', text: '70–89 % — solide : simule une montée en charge et nomme chaque symptôme.' },
+      { cls: 'good', text: '70–94 % — solide : simule une montée en charge et nomme chaque symptôme.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe à l’argumentaire final.' }
     ],
 
@@ -466,7 +466,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — rejoue le pitch de l’histoire à voix haute, puis les exercices.' },
       { cls: 'mid', text: '50–69 % — refais le bilan avant/après jusqu’au sans-faute.' },
-      { cls: 'good', text: '70–89 % — solide : construis un plan v/e/s complet pour un parc fictif.' },
+      { cls: 'good', text: '70–94 % — solide : construis un plan v/e/s complet pour un parc fictif.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : le cours entier est prêt pour l’épreuve.' }
     ],
 

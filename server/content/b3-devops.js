@@ -48,7 +48,7 @@ const course = {
   lead:
     'Maîtrisez la chaîne complète d’ingénierie DevOps, l’automatisation CI/CD, l’optimisation de conteneurs Docker, ' +
     'le pilotage par les métriques DORA et la fiabilité opérationnelle SRE de niveau Bachelor 3. ' +
-    'Six modules approfondis combinant formalisme théorique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant formalisme théorique, 18 études de cas pratiques et méthodologiques et 48 QCM d’évaluation.',
 
   sources: 'le cours CC_Devops.docx, les principes de Continuous Delivery (Jez Humble, David Farley), The Phoenix Project (Gene Kim), les recherches DORA (Accelerate) et les référentiels Site Reliability Engineering de Google',
 

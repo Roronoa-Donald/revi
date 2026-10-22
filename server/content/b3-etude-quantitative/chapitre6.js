@@ -20,7 +20,7 @@ module.exports = {
     'mesurer les co-occurrences de concepts et calculer l’indice de similarité thématique de Jaccard au sein d’un corpus de verbatim ;',
     'structurer un mémoire professionnel de fin d’études selon les 6 piliers canoniques du guide officiel CDP Sup (40 à 100 pages) ;',
     'distinguer avec rigueur scientifique la présentation des résultats factuels, la discussion critique confrontée à la littérature et les préconisations managériales ;',
-    'développer en Python 3 des analyseurs de fréquences de codes, des matrices de co-occurrence de Jaccard et des auditeurs de conformité académique de mémoire.'
+    'analyser et résoudre méthodologiquement des analyseurs de fréquences de codes, des matrices de co-occurrence de Jaccard et des auditeurs de conformité académique de mémoire.'
   ],
   sections: [
     {

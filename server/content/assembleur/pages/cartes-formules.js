@@ -17,7 +17,7 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique sur une carte pour révéler la réponse. Objectif : répondre sans hésiter dans ' +
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter dans ' +
     'les deux sens pour ancrer durablement les concepts clés des registres, de la pile, des instructions et des architectures x86 et AVR.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo des instructions Assembleur' })
@@ -97,10 +97,10 @@ function formules(course) {
       '  <thead><tr><th>Instruction</th><th>Description</th><th>Effet sur les drapeaux</th></tr></thead>',
       '  <tbody>',
       '    <tr><td><code>MOV dest, src</code></td><td>Copie src vers dest (registre, mémoire ou immédiat)</td><td>Aucun drapeau modifié</td></tr>',
-      '    <tr><td><code>LEA dest, [adr]</code></td><td>Calcule l’adresse arithmétique et la charge dans dest</td><td>Aucun drapeau modifié</td></tr>',
-      '    <tr><td><code>ADD dest, src</code></td><td>dest &larr; dest + src</td><td>Modifie ZF, CF, SF, OF</td></tr>',
-      '    <tr><td><code>SUB dest, src</code></td><td>dest &larr; dest - src</td><td>Modifie ZF, CF, SF, OF</td></tr>',
-      '    <tr><td><code>CMP op1, op2</code></td><td>Calcule op1 - op2 pour maj des drapeaux (jette le résultat)</td><td>Modifie ZF, CF, SF, OF</td></tr>',
+      '    <tr><td><code>LEA dest, [adr]</code></td><td>Calculez l’adresse arithmétique et la charge dans dest</td><td>Aucun drapeau modifié</td></tr>',
+      '    <tr><td><code>ADD dest, src</code></td><td>dest &larr; dest + src</td><td>Modifiez ZF, CF, SF, OF</td></tr>',
+      '    <tr><td><code>SUB dest, src</code></td><td>dest &larr; dest - src</td><td>Modifiez ZF, CF, SF, OF</td></tr>',
+      '    <tr><td><code>CMP op1, op2</code></td><td>Calculez op1 - op2 pour maj des drapeaux (jette le résultat)</td><td>Modifiez ZF, CF, SF, OF</td></tr>',
       '    <tr><td><code>AND / OR / XOR</code></td><td>Opérations logiques bit à bit (XOR reg, reg remet à 0)</td><td>ZF=1 si nul, CF=0, OF=0</td></tr>',
       '    <tr><td><code>SHL / SHR</code></td><td>Décalage binaire logique gauche/droite (insère des 0)</td><td>Le bit éjecté entre dans CF</td></tr>',
       '    <tr><td><code>SAR dest, n</code></td><td>Décalage arithmétique droite (réplique le bit de signe)</td><td>Conserve le signe des entiers relatifs</td></tr>',

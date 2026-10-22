@@ -11,7 +11,7 @@ module.exports = [
     "brief": "<p>Analysez les paramètres du problème pour chaque cas.m.p&gt; type=&lt;BREAKING|FEAT|FIX&gt;</code>.<br>\nRègles de transition SemVer :<br>\n- <code>BREAKING</code> (rupture de compatibilité descendante) : $MAJOR = M + 1$, $MINOR = 0$, $PATCH = 0$<br>\n- <code>FEAT</code> (nouvelle fonctionnalité rétro-compatible) : $MAJOR = M$, $MINOR = m + 1$, $PATCH = 0$<br>\n- <code>FIX</code> (correction de bogue rétro-compatible) : $MAJOR = M$, $MINOR = m$, $PATCH = p + 1$<br><br>\nAfficher :<br>\n<code>SEMVER_BUMP: &lt;M.m.p&gt; + &lt;type&gt; -&gt; &lt;nouvelle_version&gt;</code></p>",
     "starter": "# Grille d'analyse (do3-c2-e1) — Incrémenteur de versioning sémantique SemVer 2.0.0 selon Conventional Commits\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Passage de version majeure sur socle zéro]\n# Données : RELEASE version=0.9.12 type=BREAKING\nA_COMPLETER\n\n[Cas 2 — Fonctionnalité mineure sur version stabilisée]\n# Données : RELEASE version=2.10.5 type=FEAT\nA_COMPLETER\n\n[Cas 3 — Correction de bogue simple]\n# Données : RELEASE version=3.0.0 type=FIX\nA_COMPLETER\n",
     "hints": [
-      "Découper la version avec .split(\".\") pour manipuler les entiers M, m, p.",
+      "Découper la version avec l’extraction des champs pour manipuler les entiers M, m, p.",
       "Un changement BREAKING réinitialise à zéro MINOR et PATCH."
     ],
     "examples": [

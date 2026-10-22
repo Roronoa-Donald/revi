@@ -8,12 +8,12 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Calculer le nombre d'adresses IP totales et utilisables dans un sous-réseau VPC Google Cloud en tenant compte des 4 adresses réservées.",
-    "brief": "<p>Dans un sous-réseau Google Cloud VPC, 4 adresses IP sont systématiquement réservées par l'infrastructure :<br>\n- <code>première (.0)</code> : Adresse réseau (Network)<br>\n- <code>seconde (.1)</code> : Passerelle par défaut du sous-réseau (Default Gateway)<br>\n- <code>troisième (.2)</code> : Réservée par Google (DNS interne)<br>\n- <code>dernière (.255 pour /24)</code> : Réservée par Google (Diffusion/Broadcast)<br><br>\nAdresses utilisables pour les instances = <code>2^(32 - prefix) - 4</code>.<br><br>\nCommande STDIN :<br>\n<code>SUBNET_CALC cidr=&lt;IP/prefix&gt;</code>.<br>\nSortie :<br>\n<code>SUBNET: cidr=&lt;cidr&gt; total_ips=&lt;T&gt; usable_ips=&lt;U&gt; gateway=&lt;gw_ip&gt;</code>.</p>",
+    "brief": "<p>Dans un sous-réseau Google Cloud VPC, 4 adresses IP sont systématiquement réservées par l'infrastructure :<br>\n- <code>première (.0)</code> : Adresse réseau (Network)<br>\n- <code>seconde (.1)</code> : Passerelle par défaut du sous-réseau (Default Gateway)<br>\n- <code>troisième (.2)</code> : Réservée par Google (DNS interne)<br>\n- <code>dernière (.255 pour /24)</code> : Réservée par Google (Diffusion/Broadcast)<br><br>\nAdresses utilisables pour les instances = <code>2^(32 - prefix) - 4</code>.<br><br>\nParamètres soumis à l’analyse :<br>\n<code>SUBNET_CALC cidr=&lt;IP/prefix&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n<code>SUBNET: cidr=&lt;cidr&gt; total_ips=&lt;T&gt; usable_ips=&lt;U&gt; gateway=&lt;gw_ip&gt;</code>.</p>",
     "starter": "# Grille d'analyse (gcp3-c4-e1) — Calculateur de Sous-réseaux VPC et Adresses IP Réservées GCP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-réseau de production plus large /20]\n# Données : SUBNET_CALC cidr=172.16.0.0/20\nA_COMPLETER\n\n[Cas 2 — Sous-réseau compact /28]\n# Données : SUBNET_CALC cidr=192.168.1.32/28\nA_COMPLETER\n",
     "hints": [
-      "Utilisez le module standard ipaddress.ip_network(cidr, strict=False).",
-      "Le total d adresses vaut 2**(32 - net.prefixlen).",
-      "L adresse de passerelle gateway est net[1]."
+      "Utilisez le module standard la notation CIDR du réseau.",
+      "Le nombre total d’adresses du bloc CIDR /n vaut 2^(32 - n).",
+      "L’adresse de passerelle par défaut (gateway) est la deuxième adresse du sous-réseau (.1)."
     ],
     "examples": [
       {

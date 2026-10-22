@@ -132,8 +132,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Revois la validation octet par octet d’une adresse.' },
-      { cls: 'mid', text: '50–69 % — Mémorise les trois plages privées et le piège du 172.' },
-      { cls: 'good', text: '70–89 % — Solide : décode cinq cibles SSH d’affilée.' },
+      { cls: 'mid', text: '50–69 % — Mémorisez les trois plages privées et le piège du 172.' },
+      { cls: 'good', text: '70–94 % — Solide : décode cinq cibles SSH d’affilée.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, scripts Bash.' }
     ],
 
@@ -286,7 +286,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Réécris la boucle de lecture de n lignes, dix fois.' },
       { cls: 'mid', text: '50–69 % — Entraîne les opérateurs -ge -lt et les tests entre guillemets.' },
-      { cls: 'good', text: '70–89 % — Solide : écris un case qui classe par extension.' },
+      { cls: 'good', text: '70–94 % — Solide : écris un case qui classe par extension.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, services et planification.' }
     ],
 
@@ -430,8 +430,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Revois les trois états d’un service et l’action associée.' },
-      { cls: 'mid', text: '50–69 % — Entraîne-toi à lire ps aux et à repérer les zombies.' },
-      { cls: 'good', text: '70–89 % — Solide : écris trois entrées crontab correctes.' },
+      { cls: 'mid', text: '50–69 % — Entraînez-vous à lire ps aux et à repérer les zombies.' },
+      { cls: 'good', text: '70–94 % — Solide : écris trois entrées crontab correctes.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est acquis, place au projet intégrateur.' }
     ],
 

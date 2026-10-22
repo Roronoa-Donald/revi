@@ -19,7 +19,7 @@ module.exports = {
     'calculer et faire respecter les fenêtres de réponse et de résolution contractuelles associées à chaque niveau de sévérité ;',
     'conduire une analyse causale approfondie selon la méthode des 5 Pourquoi (5-Whys Root Cause Analysis) ;',
     'rédiger un post-mortem d’ingénierie conforme aux principes Blameless, en substituant le blâme individuel par des garde-fous techniques automatisés ;',
-    'développer en Python 3 des traducteurs d’erreurs, des matrices d’évaluation ITIL et des validateurs de post-mortems.'
+    'analyser et résoudre méthodologiquement des traducteurs d’erreurs, des matrices d’évaluation ITIL et des validateurs de post-mortems.'
   ],
   sections: [
     {

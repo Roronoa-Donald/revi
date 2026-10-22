@@ -198,7 +198,7 @@ module.exports = {
         '≠ (différent de zéro)'
       ],
       correct: 0,
-      exp: 'Un apport nutritionnel ou un seuil de qualité minimale impose d’apporter au moins une quantité spécifiée, ce qui se traduit par l’opérateur $\\ge$. L’opérateur $\\le$ s’applique aux capacités limitées de ressources, $=$ aux équilibres stricts, et $\\ne$ définit un ensemble non convexe interdit en programmation linéaire.'
+      exp: 'Un apport nutritionnel ou un seuil de qualité minimale impose d’apporter au moins une quantité spécifiée, ce qui se traduit par l’opérateur $\\ge$. L’opérateur $\\le$ s’applique aux capacités limitées de ressources, $=$ aux équilibres stricts, et $≠$ définit un ensemble non convexe interdit en programmation linéaire.'
     },
     {
       q: 'Dans le problème du menuisier (3*x1 + 1*x2 ≤ 90), si le plan candidat est x1 = 20 tables et x2 = 10 chaises, quelle est la consommation de bois ?',
@@ -319,12 +319,33 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les définitions de variables de décision, la règle de positivité et les 4 étapes de modélisation.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à formaliser les inéquations de ressources, les contraintes d’égalité et le calcul de la fonction objectif.' },
-    { cls: 'good', text: '70–94 % — Solide : tu maîtrises les fondamentaux de la modélisation de programmes linéaires et les 4 hypothèses de Dantzig.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à formaliser les inéquations de ressources, les contraintes d’égalité et le calcul de la fonction objectif.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les fondamentaux de la modélisation de programmes linéaires et les 4 hypothèses de Dantzig.' },
     { cls: 'top', text: '≥ 95 % — Parfait (10/10) : passe aux formes canoniques, standards et à la résolution graphique au chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « Variables de décision » ?', a: 'identifier sans ambiguïté les variables de décision et leurs unités physiques en posant impérativement $x_j \\ge 0$ ;' },
+      { q: 'Qu’est-ce que « Contraintes de ressources » ?', a: "Objectif : Traduire un énoncé verbal industriel en composantes formelles : fonction objectif, contraintes de ressources, contrainte d'égalité stricte et positivité." },
+      { q: 'Qu’est-ce que « Contraintes de demande » ?', a: 'Contraintes de demande : Une menuiserie industrielle fabrique des tables et des chaises à partir de bois de chêne et d’heures d’assemblage limitées. Chaque table rapporte 50 € de marge et consomme 3 m² de bois et 2 heures d’ouvrier. Chaque chaise rapporte 30 € de marge et consomme 1 m² de bois et 2 heure' },
+      { q: 'Qu’est-ce que « Contraintes d’égalité » ?', a: 'Contraintes d’égalité : Une menuiserie industrielle fabrique des tables et des chaises à partir de bois de chêne et d’heures d’assemblage limitées. Chaque table rapporte 50 € de marge et consomme 3 m² de bois et 2 heures d’ouvrier. Chaque chaise rapporte 30 € de marge et consomme 1 m² de bois et 2 heure' },
+      { q: 'Qu’est-ce que « Variable d’excès (Surplus) » ?', a: 'Variable d’excès (Surplus)' },
+      { q: 'Qu’est-ce que « Droite d’iso-profit » ?', a: 'La droite d’iso-profit touche le polyèdre en exactement un sommet.' },
+      { q: 'Qu’est-ce que « Critère de Dantzig » ?', a: 'appliquer le critère de Dantzig pour désigner la variable entrante (colonne pivot) ;' },
+      { q: 'Qu’est-ce que « Variable entrante / sortante » ?', a: 'Variable entrante / sortante' },
+      { q: 'Qu’est-ce que « Règle de Bland » ?', a: 'Sinon, la variable entrante est celle qui possède le coût réduit le plus strictement positif $\\max \\bar{c}_j$ (règle de Dantzig). En cas d’égalité, on choisit l’indice le plus petit (règle de Bland pour éviter le cyclage).' },
+      { q: 'Qu’est-ce que « Méthode des Deux Phases » ?', a: 'Méthode des Deux Phases : Lorsque toutes les contraintes sont de type $\\le$ avec des seconds membres positifs, les variables d’écart forment immédiatement une base de départ triviale à l’origine ($s = b$). Mais dès qu’il existe des contraintes de type $\\ge$ ou $=$, l’origine n’est pas réalisable et aucune' },
+      { q: 'Qu’est-ce que « Programme Dual » ?', a: 'construire systématiquement le programme dual à partir de n’importe quel programme primal canonique ;' },
+      { q: 'Qu’est-ce que « Théorème faible de la dualité » ?', a: '1. Théorème faible de la dualité : pour toute solution réalisable $x$ du primal et toute solution réalisable $y$ du dual : $$Z(x) = c^T x \\le b^T y = W(y)$$ La valeur de tout plan primal réalisable est une borne inférieure pour le dual, et tout plan dual est un plafond pour le pr' },
+      { q: 'Qu’est-ce que « Coût d’opportunité » ?', a: 'Coût d’opportunité : Construire les contraintes duales en transposant la matrice $A$ : la colonne $j$ de $A$ devient les coefficients de la contrainte duale $j$, et le second membre est le coût primal $c_j$.' },
+      { q: 'Qu’est-ce que « Matrice équilibrée » ?', a: 'Matrice équilibrée : modéliser un réseau d’approvisionnement sous forme de matrice de transport équilibrée ($\\sum O_i = \\sum D_j$) ;' },
+      { q: 'Qu’est-ce que « Origine / Destination fictive » ?', a: 'Origine / Destination fictive' },
+      { q: 'Qu’est-ce que « Cycle du marchepied (Stepping-stone) » ?', a: 'comprendre le cycle du marchepied (stepping-stone) pour faire pivoter un flux vers une cellule améliorante ;' },
+      { q: 'Qu’est-ce que « Problème d’affectation » ?', a: 'Le problème d’affectation est le cas particulier où $m = n$ et toutes les offres et demandes valent exactement 1 (une personne par tâche, une tâche par personne). Les variables valent $x_{ij} \\in \\{0, 1\\}$.' },
+      { q: 'Qu’est-ce que « Graphe d’ordonnancement DAG » ?', a: 'Graphe d’ordonnancement DAG' },
+      { q: 'Qu’est-ce que « Méthode PERT / CPM » ?', a: 'Méthode PERT / CPM : Le déploiement d’une infrastructure cloud ou la construction d’un data center mobilise des dizaines d’équipes soumises à des contraintes d’antériorité strictes : impossible de couler la dalle avant d’avoir creusé, impossible d’installer les baies de serveurs avant d’avoir raccord' },
+      { q: 'Qu’est-ce que « Forward Pass / Backward Pass » ?', a: 'Forward Pass / Backward Pass' },
+      { q: 'Qu’est-ce que « Marge libre (ML) » ?', a: 'Marge Libre ($ML$) : retard maximal permis sans décaler le début au plus tôt d’aucun de ses successeurs immédiats : $$ML(i) = \\min_{s \\in Succ(i)} ES(s) - ES(i) - d_i$$' },
     { q: 'Qu’est-ce que la Recherche Opérationnelle ?', a: 'Une discipline scientifique appliquant des méthodes mathématiques et algorithmiques pour optimiser la prise de décision face à des ressources limitées.' },
     { q: 'Qu’est-ce qu’une variable de décision ?', a: 'Une quantité contrôlable inconnue (ex. unités produites/jour) dont on cherche la valeur optimale ($x_j \\ge 0$).' },
     { q: 'Quelle est la différence entre fonction objectif et contrainte ?', a: 'La fonction objectif mesure le critère de performance globale (profit ou coût), tandis que les contraintes délimitent ce qui est physiquement ou contractuellement possible.' },

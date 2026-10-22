@@ -225,12 +225,19 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les propriétés du XOR et la distinction entre clé publique et clé privée.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les modes opératoires (ECB vs GCM) et le mécanisme de signature.' },
-    { cls: 'good', text: '70–89 % — Très bon niveau : tu maîtrises l’ensemble des briques cryptographiques modernes.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les modes opératoires (ECB vs GCM) et le mécanisme de signature.' },
+    { cls: 'good', text: '70–94 % — Très bon niveau : vous maîtrisez l’ensemble des briques cryptographiques modernes.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe à la sécurité des réseaux et au filtrage périmétrique au module 3.' }
   ],
 
   flashcards: [
+    { "q": 'Qu’est-ce que « Chiffrement symétrique vs asymétrique » ?', "a": 'Chiffrement symétrique vs asymétrique' },
+    { "q": 'Qu’est-ce que « Standard AES (Rijndael) » ?', "a": 'Standard AES (Rijndael) : Le théorème de Shannon prouve que si la clé est parfaitement aléatoire, aussi longue que le texte et utilisée une seule fois, le cryptogramme ne contient aucune information sur le clair (sécurité inconditionnelle). En pratique, l’industrie utilise l’ AES (Advanced Encryption Stan' },
+    { "q": 'Qu’est-ce que « Modes de bloc » ?', "a": 'Modes de bloc : ECB, CBC, GCM' },
+    { "q": 'Qu’est-ce que « Vecteur d’initialisation (IV) » ?', "a": 'Réutiliser le même vecteur d’initialisation (IV) ou le même masque de Vernam avec la même clé.' },
+    { "q": 'Qu’est-ce que « Algorithme RSA (factorisation) » ?', "a": 'Algorithme RSA (factorisation)' },
+    { "q": 'Qu’est-ce que « Échange de clés Diffie-Hellman » ?', "a": 'Dans un échange de clés Diffie-Hellman, que représente le secret final K calculé par Alice et Bob ?' },
+    { "q": 'Qu’est-ce que « Hachage cryptographique (SHA-256) » ?', "a": 'Hachage cryptographique (SHA-256)' },
     { q: 'Pourquoi le masque jetable de Vernam est-il inviolable ?', a: 'Parce que si la clé est parfaitement aléatoire, utilisée une seule fois et aussi longue que le texte, le cryptogramme ne fournit aucune information mathématique sur le clair.' },
     { q: 'Que signifie l’acronyme AES ?', a: 'Advanced Encryption Standard (standard de chiffrement symétrique par blocs de 128 bits).' },
     { q: 'Quelle est la vulnérabilité majeure du mode de chiffrement ECB ?', a: 'Des blocs de clair identiques produisent des blocs chiffrés identiques, révélant la structure des données.' },

@@ -20,7 +20,7 @@ module.exports = {
     'exploiter le différentiel sémantique d’Osgood pour évaluer le positionnement perçu d’un produit ou service informatique ;',
     'détecter et éradiquer les biais majeurs de formulation : questions suggestives (leading), à double détente (double-barrelled) et doubles négations ;',
     'optimiser l’entonnoir de passation (mode d’administration en ligne CAWI, taux d’ouverture, d’initiation, de complétion et d’abandon) ;',
-    'développer en Python 3 des analyseurs statistiques de Likert, des détecteurs de formulations biaisées et des calculateurs d’entonnoir d’attrition.'
+    'analyser et résoudre méthodologiquement des analyseurs statistiques de Likert, des détecteurs de formulations biaisées et des calculateurs d’entonnoir d’attrition.'
   ],
   sections: [
     {

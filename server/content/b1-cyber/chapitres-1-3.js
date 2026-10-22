@@ -25,7 +25,7 @@ module.exports = [
     free: true,
 
     situation:
-      'Tu entres en salle de supervision : un serveur de paie, un Wi-Fi visiteurs, une clé USB perdue. ' +
+      'Vous entrez en salle de supervision : un serveur de paie, un Wi-Fi visiteurs, une clé USB perdue. ' +
       'Tout le monde parle de « risque » sans le calculer. Ce chapitre donne le vocabulaire et la formule ' +
       'qui permettent de dire « autorisé » ou « refusé » — et pourquoi la triade CIA est le premier bilan ' +
       'qu\'un analyste dresse.',
@@ -173,11 +173,23 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Redéfinis les six notions de base sans notes, puis refais la formule du risque.' },
       { cls: 'mid', text: '50–69 % — Classe dix incidents par composante CIA violee en cinq minutes.' },
-      { cls: 'good', text: '70–89 % — Solide : rédige une analyse de risque complète pour un actif de ton choix.' },
+      { cls: 'good', text: '70–94 % — Solide : rédige une analyse de risque complète pour un actif de ton choix.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, les menaces et les attaques.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « malware » ?', a: 'décrire les familles de malwares et leur mode de propagation ;' },
+      { q: 'Qu’est-ce que « spyware » ?', a: "Le virus attend qu'un humain exécute le fichier infecté ; le ver (worm) voyage tout seul de machine en machine. Le ransomware chiffre, le spyware espionne — et la parade suit la famille, pas l'instinct." },
+      { q: 'Qu’est-ce que « DDoS » ?', a: "Le déni de service (DoS) sature un service ; sa version distribuée ( DDoS ) le fait depuis des milliers de machines compromises — un botnet. C'est l'attaque active par excellence : elle vise la disponibilité, pas le secret." },
+      { q: 'Qu’est-ce que « man-in-the-middle » ?', a: 'décrire rogue AP, MAC spoofing et man-in-the-middle.' },
+      { q: 'Qu’est-ce que « IAM » ?', a: "L' IAM (Identity and Access Management) gouverne le cycle de vie des identités : authentification (qui es-vous ?) puis autorisation (qu'as-vous le droit de faire ?). Les solutions citées en cours : AWS IAM pour le cloud Amazon, Azure Active Directory dans les environnements Microsoft" },
+      { q: 'Qu’est-ce que « chiffrement symétrique » ?', a: 'Le chiffrement symétrique (AES) utilise la même clé pour chiffrer et déchiffrer : rapide, mais chaque paire de machines doit partager un secret. Pour k machines, il faut k(k-1)/2 clés — 6 clés pour 4 machines, plus de 350 pour 27. Le chiffrement asymétrique (RSA, ECC) remplace ce' },
+      { q: 'Qu’est-ce que « clé publique » ?', a: 'clé publique : Le chiffrement symétrique (AES) utilise la même clé pour chiffrer et déchiffrer : rapide, mais chaque paire de machines doit partager un secret. Pour k machines, il faut k(k-1)/2 clés — 6 clés pour 4 machines, plus de 350 pour 27. Le chiffrement asymétrique (RSA, ECC) remplace ce' },
+      { q: 'Qu’est-ce que « patch management » ?', a: 'patch management : Un correctif (patch) est une mise à jour publiée par le fournisseur pour corriger une vulnérabilité, un bug ou ajouter une fonction. Ignorer les correctifs expose aux attaques connues : Heartbleed (OpenSSL), Shellshock (Bash), EternalBlue (SMB Windows, moteur de WannaCry) ont tou' },
+      { q: 'Qu’est-ce que « corrélation » ?', a: 'SIEM = collecte + corrélation + alertes en temps réel ; sources : pare-feu, serveurs, annuaires, EDR.' },
+      { q: "Qu’est-ce que « log d'authentification » ?", a: "log d'authentification : Le SIEM réveille l'équipe à 3 h : 300 échecs de connexion depuis une même IP, puis un succès. La question n'est pas « qui ? » mais « dans quel ordre agir ? ». Ce chapitre donne la méthode : détecter dans les logs, contenir avant de comprendre, éradiquer, rétablir, puis apprendre." },
+      { q: 'Qu’est-ce que « NIST CSF » ?', a: 'RGPD = données personnelles (UE) ; NIS2 = infrastructures essentielles (UE) ; PCI DSS = cartes bancaires ; HIPAA = santé (US) ; ISO 27001 = certification du SMSI ; NIST CSF = cadre de gestion des risques . À chaque secteur son référentiel.' },
+      { q: 'Qu’est-ce que « PoLP » ?', a: 'appliquer le PoLP, le gestionnaire de mots de passe et la sensibilisation ;' },
       { q: 'Cybersécurité vs sécurité informatique ?', a: 'La sécurité informatique est le volet technique (systèmes, réseaux, applications) ; la cybersécurité englobe tout : actifs numériques, organisation, humain, conformité.' },
       { q: 'La formule du risque ?', a: 'Risque = Menace × Vulnérabilité × Impact. Un facteur nul donne un risque nul.' },
       { q: 'Les trois composantes de la triade CIA ?', a: 'Confidentialité (accès réservé), intégrité (pas d\'altération non autorisée), disponibilité (accessible au moment voulu).' },
@@ -342,16 +354,16 @@ module.exports = [
     notions: ['malware', 'virus', 'ver', 'ransomware', 'spyware', 'phishing', 'DDoS', 'man-in-the-middle'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais le tableau des malwares de mémoire, famille par famille.' },
-      { cls: 'mid', text: '50–69 % — Prends dix courriels réels et traque les indices de phishing.' },
-      { cls: 'good', text: '70–89 % — Solide : qualifie chaque attaque en famille, axe et composante CIA.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites le tableau des malwares de mémoire, famille par famille.' },
+      { cls: 'mid', text: '50–69 % — Prenez dix courriels réels et traquez les indices de phishing.' },
+      { cls: 'good', text: '70–94 % — Solide : qualifie chaque attaque en famille, axe et composante CIA.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, l\'authentification et la cryptographie.' }
     ],
 
     flashcards: [
       { q: 'Virus vs ver ?', a: 'Le virus s\'attache à un fichier et attend une action humaine ; le ver se réplique seul par le réseau.' },
       { q: 'La parade au ransomware ?', a: 'Restaurer une sauvegarde hors ligne testée — jamais payer la rançon.' },
-      { q: 'Cinq indices de phishing ?', a: 'Domaine presque correct, URL en IP ou exotique, absence de HTTPS, urgence artificielle, fautes et ton générique.' },
+      { q: 'Cinq indices de phishing ?', a: 'Domaine presque correct, URL en IP ou exotique, absence de HTTPS, urgence artificielle, fautes et votre générique.' },
       { q: 'Rogue AP, MAC spoofing, MITM : le trio ?', a: 'Rogue AP s\'installe (porte dérobée), spoofing imite une MAC autorisée, MITM s\'intercale et intercepte.' }
     ]
   },
@@ -407,8 +419,8 @@ module.exports = [
         title: 'IAM : identités et accès',
         html: [
           '<p>L\'<strong>IAM</strong> (Identity and Access Management) gouverne le cycle de vie des ' +
-          'identités : <strong>authentification</strong> (qui es-tu ?) puis <strong>autorisation</strong> ' +
-          '(qu\'as-tu le droit de faire ?). Les solutions citées en cours : AWS IAM pour le cloud Amazon, ' +
+          'identités : <strong>authentification</strong> (qui es-vous ?) puis <strong>autorisation</strong> ' +
+          '(qu\'as-vous le droit de faire ?). Les solutions citées en cours : AWS IAM pour le cloud Amazon, ' +
           'Azure Active Directory dans les environnements Microsoft, Okta pour le SaaS, Keycloak en open ' +
           'source.</p>',
           '<p>Le principe directeur est le <strong>moindre privilège</strong> (PoLP) : chaque utilisateur ' +
@@ -508,8 +520,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Rejoue le tableau des trois facteurs et la formule des clés.' },
-      { cls: 'mid', text: '50–69 % — Audit ton propre compte : longueur, unicité, second facteur.' },
-      { cls: 'good', text: '70–89 % — Solide : explique symétrique vs asymétrique en quatre phrases.' },
+      { cls: 'mid', text: '50–69 % — Audit votre propre compte : longueur, unicité, second facteur.' },
+      { cls: 'good', text: '70–94 % — Solide : explique symétrique vs asymétrique en quatre phrases.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, la sécurité des systèmes et applications.' }
     ],
 

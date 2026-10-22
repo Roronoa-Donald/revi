@@ -21,7 +21,7 @@ module.exports = [
     free: true,
 
     situation:
-      'Le service scolarité te remet tes notes : trois contrôles par matière, cinq matières. Sur la feuille, ' +
+      'Le service scolarité te remet vos notes : trois contrôles par matière, cinq matières. Sur la feuille, ' +
       'ce ne sont que des nombres alignés. Dès qu’on veut calculer une moyenne pondérée, comparer deux ' +
       'étudiants ou transformer une image, il faut une notation qui décrive ces tableaux de nombres et les ' +
       'opérations qu’on peut leur appliquer. C’est exactement ce que font les vecteurs et les matrices.',
@@ -117,7 +117,7 @@ module.exports = [
           '     [1 2]   [3  6]\n' +
           '3 ·  [0 4] = [0 12]</code></pre>',
           '<p>Ces deux opérations donnent à l’ensemble des matrices <code>m × n</code> une structure ' +
-          'd’espace vectoriel — la notion du chapitre 4. Retiens dès maintenant leurs propriétés :</p>',
+          'd’espace vectoriel — la notion du chapitre 4. Retenez dès maintenant leurs propriétés :</p>',
           '<ul>\n' +
           '    <li><code>A + B = B + A</code> (commutative) ;</li>\n' +
           '    <li><code>(A + B) + C = A + (B + C)</code> (associative) ;</li>\n' +
@@ -143,7 +143,7 @@ module.exports = [
       '<strong>Addition impossible</strong> : additionner une <code>2 × 3</code> et une <code>3 × 2</code> parce qu’elles « font 6 » chacune.',
       '<strong>Scalaire appliqué à une seule case</strong> : oublier des coefficients dans <code>k · A</code>.',
       '<strong>Trace sur une matrice rectangle</strong> : <code>tr(A)</code> n’existe que si A est carrée.',
-      '<strong>Indice 1 en Python</strong> : écrire <code>A[1][1]</code> en croyant lire <code>a₁₁</code> — c’est en réalité <code>a₂₂</code>.'
+      '<strong>Indice 1 de manière méthodique</strong> : écrire <code>A[1][1]</code> en croyant lire <code>a₁₁</code> — c’est en réalité <code>a₂₂</code>.'
     ],
 
     methodTitle: 'Lire et manipuler une matrice',
@@ -173,16 +173,31 @@ module.exports = [
     notions: ['vecteur de ℝⁿ', 'composante', 'matrice m × n', 'coefficient a<sub>ij</sub>', 'matrice carrée', 'matrice identité', 'trace', 'combinaison linéaire'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends les sections 2 et 3 en recopiant les exemples à la main.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 1 de l’atelier du chapitre 1.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible l’ordre des indices et les dimensions.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez les sections 2 et 3 en recopiant les exemples à la main.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 1 de l’atelier du chapitre 1.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible l’ordre des indices et les dimensions.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, le produit matriciel.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « composante » ?', a: 'Les nombres $u_1, u_2, \\dots$ sont les composantes (ou coordonnées) de $u$. L’ordre compte : dans $\\mathbb{R}^3$, le vecteur $(1, 2, 3)$ n’est pas le vecteur $(3, 2, 1)$.' },
+      { q: 'Qu’est-ce que « non-commutativité » ?', a: 'non-commutativité : énoncer les propriétés du produit : associatif, distributif, non commutatif ;' },
+      { q: 'Qu’est-ce que « transposée » ?', a: 'calculer une transposée et appliquer ses propriétés ;' },
+      { q: 'Qu’est-ce que « symétrique » ?', a: 'calculer une trace et reconnaître une matrice symétrique.' },
+      { q: 'Qu’est-ce que « matrice échelonnée » ?', a: 'matrice échelonnée : définir l’inverse d’une matrice et sa condition d’existence ;' },
+      { q: 'Qu’est-ce que « remontée » ?', a: 'Objectif. Faire apparaître des zéros sous la diagonale : la matrice est alors échelonnée , et un système échelonné se résout par une simple remontée (on part de la dernière équation).' },
+      { q: 'Qu’est-ce que « sous-espace engendré » ?', a: 'décrire le sous-espace engendré par une famille de vecteurs.' },
+      { q: 'Qu’est-ce que « somme directe » ?', a: 'somme directe : Exemples. Le plan z = 0 est un sous-espace de ℝ³ : la somme de deux vecteurs à troisième coordonnée nulle reste à troisième coordonnée nulle. En revanche l’ensemble { (x, y, z) | z = 1 } n’en est pas un : il ne contient pas le vecteur nul, et la somme de deux de ses vecteurs donn' },
+      { q: 'Qu’est-ce que « famille liée » ?', a: 'Comparer au nombre de vecteurs : égalité ⇒ famille libre ; strictement inférieur ⇒ famille liée.' },
+      { q: 'Qu’est-ce que « rang d’une famille » ?', a: 'calculer le rang d’une famille de vecteurs et d’une matrice.' },
+      { q: 'Qu’est-ce que « règle de Sarrus » ?', a: 'Pour une matrice 3 × 3, la règle de Sarrus évite le développement : on recopie les deux premières colonnes à droite, puis on additionne les trois diagonales « descendantes » et on retranche les trois « montantes ».' },
+      { q: 'Qu’est-ce que « application linéaire » ?', a: 'Un logiciel de vision par ordinateur fait pivoter une image : géométriquement, c’est une transformation du plan. Cette transformation est une application linéaire, elle se code par une matrice, et deux questions se posent immédiatement : garde-t-elle l’information (déterminant no' },
+      { q: 'Qu’est-ce que « noyau » ?', a: 'définir une application linéaire et déterminer noyau et image ;' },
+      { q: 'Qu’est-ce que « théorème du rang » ?', a: 'Calculer le rang : il donne dim(Im f) , et le théorème du rang donne dim(ker f) .' },
+      { q: 'Qu’est-ce que « vecteur propre » ?', a: 'Le vecteur X est alors un vecteur propre associé à λ. Géométriquement, dans la direction de X, la transformation A se réduit à une homothétie de rapport λ : elle ne change pas la direction, seulement la longueur (et éventuellement le sens).' },
       { q: 'Quelles sont les dimensions d’une matrice ?', a: '<code>m × n</code> : m lignes et n colonnes, toujours dans cet ordre.' },
       { q: 'Que note <code>a<sub>ij</sub></code> ?', a: 'Le coefficient de la ligne i et de la colonne j — « Ligne Avant Colonne ».' },
-      { q: 'Définis la matrice identité I<sub>n</sub>.', a: 'Des 1 sur la diagonale, des 0 partout ailleurs. Elle vérifie A · I = A.' },
+      { q: 'Définissez la matrice identité I<sub>n</sub>.', a: 'Des 1 sur la diagonale, des 0 partout ailleurs. Elle vérifie A · I = A.' },
       { q: 'Que vaut la trace d’une matrice diagonale ?', a: 'La somme de ses coefficients diagonaux, c’est-à-dire la somme des valeurs posées sur la diagonale.' }
     ]
   },
@@ -221,7 +236,7 @@ module.exports = [
           box('intuition', 'La seule condition à retenir', 'compass',
             '    <p>Le produit <code>A · B</code> n’existe que si <strong>le nombre de colonnes de A égale le ' +
             'nombre de lignes de B</strong>. La taille du résultat est alors ' +
-            '<code>(lignes de A) × (colonnes de B)</code>. Écris-le avant de calculer : ' +
+            '<code>(lignes de A) × (colonnes de B)</code>. Écrivez-le avant de calculer : ' +
             '<code>(m × n) · (n × p) = (m × p)</code> — les n se « téléscopent ».</p>'),
           '<p><strong>Exemple.</strong> Calculons le produit de deux matrices 2 × 2 :</p>',
           '<div class="math-block">$\\\\begin{pmatrix} 1 & 2 \\[4pt] 3 & 4 \\\\end{pmatrix} \\\\begin{pmatrix} 5 & 6 \\[4pt] 7 & 8 \\\\end{pmatrix} = \\\\begin{pmatrix} 1\\\\cdot 5 + 2\\\\cdot 7 & 1\\\\cdot 6 + 2\\\\cdot 8 \\[4pt] 3\\\\cdot 5 + 4\\\\cdot 7 & 3\\\\cdot 6 + 4\\\\cdot 8 \\\\end{pmatrix} = \\\\begin{pmatrix} 19 & 22 \\[4pt] 43 & 50 \\\\end{pmatrix}$</div>',
@@ -279,7 +294,7 @@ module.exports = [
           '  </table>',
           box('mnemo', 'Mnémotechnique — « la transposée du produit retourne la file »', 'pin',
             '    <p>Pour <code><sup>t</sup>(A · B)</code>, l’ordre <strong>s’inverse</strong> : ' +
-            '<code><sup>t</sup>B · <sup>t</sup>A</code>. Retiens « la transposée du produit <em>retourne ' +
+            '<code><sup>t</sup>B · <sup>t</sup>A</code>. Retenez « la transposée du produit <em>retourne ' +
             'la file</em> » : le dernier devient le premier. C’est l’erreur la plus fréquente à l’examen.</p>')
         ].join('\n')
       },
@@ -356,9 +371,9 @@ module.exports = [
     notions: ['produit matriciel', 'condition colonnes = lignes', 'associativité', 'non-commutativité', 'transposée', 'symétrique', 'trace', 'matrice identité'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends le calcul du produit pas à pas, section 1.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 2 de l’atelier du chapitre 2.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible la transposée du produit et la non-commutativité.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez le calcul du produit pas à pas, section 1.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 2 de l’atelier du chapitre 2.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible la transposée du produit et la non-commutativité.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, l’inverse et la méthode de Gauss.' }
     ],
 
@@ -411,7 +426,7 @@ module.exports = [
             '« a ≠ 0 » des nombres.</p>'),
           box('mnemo', 'Mnémotechnique — « det zéro, zéro inverse »', 'pin',
             '    <p>La règle se retient en cinq mots : <strong>« det zéro, zéro inverse »</strong>. ' +
-            'Dès que tu calcules un déterminant nul, arrête-toi : ni inverse, ni solution unique.</p>')
+            'Dès que vous calculez un déterminant nul, arrête-vous : ni inverse, ni solution unique.</p>')
         ].join('\n')
       },
       {
@@ -542,9 +557,9 @@ module.exports = [
     notions: ['matrice inverse', 'matrice singulière', 'det(A) ≠ 0', 'formule 2 × 2', 'opérations élémentaires', 'pivot', 'matrice échelonnée', 'remontée'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends l’exemple complet de la section 4, ligne à ligne.' },
-      { cls: 'mid', text: '50–69 % — Refais deux systèmes de l’atelier du chapitre 3.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible les signes de la formule 2 × 2.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez l’exemple complet de la section 4, ligne à ligne.' },
+      { cls: 'mid', text: '50–69 % — Refaites deux systèmes de l’atelier du chapitre 3.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible les signes de la formule 2 × 2.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, les espaces vectoriels.' }
     ],
 

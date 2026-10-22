@@ -157,7 +157,7 @@ function atelier(course) {
     ].join('\n')),
     '',
     '  <div class="lab" data-lab',
-    '       data-language="analyse"',
+    '       data-language="sql"',
     '       data-height="420"',
     '       data-stdin="PARIS,LYON,MARSEILLE">',
     '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — sql\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',

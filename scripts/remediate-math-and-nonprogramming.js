@@ -3,7 +3,7 @@
 /**
  * Script de remédiation méthodique :
  * 1. Élimination totale du code Python / Bash dans tous les cours non-informatiques (server/content)
- * 2. Correction des symboles $ et commandes LaTeX mal échappés (double backslash pour \frac, \begin, \sum...)
+ * 2. Correction des symboles $ et commandes LaTeX mal échappés (double backslash pour \\frac, \begin, \\sum...)
  * 3. Remplacement des "div noir" <pre><code> dans les corrigés mathématiques et d'analyse par des blocs .sol clairs
  * 4. Mise à niveau du style .sol dans scripts/templates/cours.css
  */
@@ -39,7 +39,7 @@ function fixLatexEscapesInFile(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   let original = content;
 
-  // Remplacer les échappements \begin, \end, \frac, \cdot, \times, \dots, \sum, \le, \ge, \sigma, etc. quand ils ont un seul antislash dans une chaîne JS
+  // Remplacer les échappements \begin, \end, \\frac, \\cdot, \\times, \dots, \\sum, \\le, \\ge, \sigma, etc. quand ils ont un seul antislash dans une chaîne JS
   // Liste des commandes LaTeX problématiques
   const cmds = [
     'begin', 'end', 'frac', 'cdot', 'times', 'le', 'ge', 'ne', 'in', 'notin', 'subset',

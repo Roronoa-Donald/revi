@@ -20,7 +20,7 @@ module.exports = {
     'appliquer les techniques d’animation et de relance non directives (miroir, écho, clarification, relance interrogative sans influence) ;',
     'organiser et modérer un Focus Group (table ronde qualitative) : sélection du panel (6 à 10 participants), gestion des temps de parole et régulation du leader dominant ;',
     'déployer des grilles d’observation in situ (participante vs non participante) et mesurer l’accord inter-observateurs (critère de Miles &amp; Huberman) ;',
-    'développer en Python 3 des auditeurs de guides d’entretien, des analyseurs de monopole de parole et des calculateurs de taux de concordance d’observation.'
+    'analyser et résoudre méthodologiquement des auditeurs de guides d’entretien, des analyseurs de monopole de parole et des calculateurs de taux de concordance d’observation.'
   ],
   sections: [
     {

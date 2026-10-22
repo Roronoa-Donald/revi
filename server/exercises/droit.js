@@ -2,7 +2,7 @@
  * Catalogue des 18 exercices de droit informatique du cours « Droit
  * Informatique » B2 (dossier `droit/`).
  *
- * Chaque fiche est un script Bash lu sur l'entrée standard : la logique
+ * Chaque fiche est un script Bash lu dans les données du cas : la logique
  * juridique (classification, comptage, verdict, sanctions) est simulée et
  * réellement exécutée, comme pour `b1-droit`.
  *

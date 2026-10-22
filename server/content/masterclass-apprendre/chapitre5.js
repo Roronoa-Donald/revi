@@ -139,8 +139,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les 4 piliers de la pratique délibérée et les bénéfices de l’entrelacement.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la règle des 85 % et la taxonomie des erreurs cognitives.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les principes de l’entraînement d’expertise.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la règle des 85 % et la taxonomie des erreurs cognitives.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes de l’entraînement d’expertise.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la métacognition et aux routines durables au chapitre 6.' }
   ],
 

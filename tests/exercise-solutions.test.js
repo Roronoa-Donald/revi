@@ -46,6 +46,7 @@ const NODE = findTool([process.env.NODE_BIN, 'node']);
 // Bash est présent sur les systèmes Unix (Git Bash sous Windows) : les labs
 // shell s'exécutent en réel comme les autres langages.
 const BASH = findTool([process.env.BASH_BIN, '/bin/bash', 'bash']);
+const SqlWasmEngine = require('../assets/js/engines/sql-wasm-engine');
 
 /** Outil disponible pour un langage donné, ou null. */
 function toolFor(language) {
@@ -55,8 +56,23 @@ function toolFor(language) {
   if (language === 'cpp') return CXX && { kind: 'compile', bin: CXX, std: 'c++17', ext: 'cpp' };
   if (language === 'php') return PHP && { kind: 'php', bin: PHP };
   if (language === 'javascript') return NODE && { kind: 'node', bin: NODE };
+  if (language === 'sql') return { kind: 'sql' };
   if (language === 'analyse') return { kind: 'analyse' };
   return null;
+}
+
+function prepareSql(code) {
+  return {
+    run: async stdin => {
+      const res = await SqlWasmEngine.execute(code, stdin);
+      return {
+        ok: res && res.status === 'success',
+        stdout: (res && res.stdout) || '',
+        stderr: (res && res.stderr) || '',
+        exitCode: res && res.status === 'success' ? 0 : 1
+      };
+    }
+  };
 }
 
 const TEMP_DIRS = [];
@@ -118,6 +134,9 @@ function prepare(language, code) {
 
   if (tool.kind === 'analyse') {
     return prepareAnalyse(code);
+  }
+  if (tool.kind === 'sql') {
+    return prepareSql(code);
   }
 
   if (tool.kind === 'script') {
@@ -222,8 +241,8 @@ test('corrigés : chaque solution passe ses propres tests', async t => {
     assert.ok(!prepared.compileError, `${exercise.id} : échec de compilation — ${prepared.compileError}`);
 
     for (const testCase of exercise.tests) {
-      await t.test(`${exercise.id} · ${testCase.label}`, () => {
-        const run = prepared.run(testCase.stdin);
+      await t.test(`${exercise.id} · ${testCase.label}`, async () => {
+        const run = await prepared.run(testCase.stdin);
         assert.ok(run.ok, `échec d'exécution : ${run.stderr.split('\n').slice(-3).join(' ')}`);
         assert.strictEqual(
           normalizeOutput(run.stdout),
@@ -235,13 +254,13 @@ test('corrigés : chaque solution passe ses propres tests', async t => {
     }
 
     for (const example of exercise.examples) {
-      await t.test(`${exercise.id} · exemple visible`, () => {
+      await t.test(`${exercise.id} · exemple visible`, async () => {
         if (exercise.language === 'analyse') {
           assert.ok(typeof example.expected === 'string' && example.expected.trim().length > 0);
           checks++;
           return;
         }
-        const run = prepared.run(example.stdin);
+        const run = await prepared.run(example.stdin);
         assert.ok(run.ok, `échec d'exécution : ${run.stderr.split('\n').slice(-3).join(' ')}`);
         assert.strictEqual(normalizeOutput(run.stdout), normalizeOutput(example.expected));
         checks++;
@@ -255,15 +274,14 @@ test('corrigés : chaque solution passe ses propres tests', async t => {
 test('corrigés : le code de départ échoue au moins un test', async t => {
   for (const exercise of CATALOGUE) {
     if (!toolFor(exercise.language)) continue;
-    await t.test(`${exercise.id} · code de départ incomplet`, () => {
-      // Le code de départ peut passer le premier test par accident, mais il doit
-      // échouer quelque part : sinon l'exercice n'a aucune valeur pédagogique.
+    await t.test(`${exercise.id} · code de départ incomplet`, async () => {
       const prepared = prepare(exercise.language, exercise.starter);
       assert.ok(!prepared.compileError, `${exercise.id} : le code de départ ne compile pas — ${prepared.compileError}`);
-      const outcomes = exercise.tests.map(testCase => {
-        const run = prepared.run(testCase.stdin);
-        return run.ok && normalizeOutput(run.stdout) === normalizeOutput(testCase.expected);
-      });
+      const outcomes = [];
+      for (const testCase of exercise.tests) {
+        const run = await prepared.run(testCase.stdin);
+        outcomes.push(run.ok && normalizeOutput(run.stdout) === normalizeOutput(testCase.expected));
+      }
       assert.ok(
         outcomes.some(ok => !ok),
         `tous les tests passent avec le code de départ (${outcomes.length} tests)`
@@ -280,11 +298,11 @@ test('corrigés : le code de départ se termine normalement (pas d’erreur bloq
   for (const exercise of CATALOGUE) {
     if (!toolFor(exercise.language)) continue;
     if (accepted.has(exercise.id)) continue;
-    await t.test(`${exercise.id} · démarrage propre`, () => {
+    await t.test(`${exercise.id} · démarrage propre`, async () => {
       const prepared = prepare(exercise.language, exercise.starter);
       assert.ok(!prepared.compileError, `le code de départ ne compile pas : ${prepared.compileError}`);
       for (const example of exercise.examples) {
-        const run = prepared.run(example.stdin);
+        const run = await prepared.run(example.stdin);
         assert.ok(run.ok, `le code de départ plante : ${run.stderr.split('\n').slice(-3).join(' ')}`);
       }
     });

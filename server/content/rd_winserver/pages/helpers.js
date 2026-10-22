@@ -17,7 +17,7 @@ function chnav(back, forward) {
 
 /** Mention de bas de page partagée. */
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 

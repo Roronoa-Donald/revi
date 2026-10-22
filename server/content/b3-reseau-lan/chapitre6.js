@@ -19,7 +19,7 @@ module.exports = {
     'définir la frontière de confiance (Trust Boundary) et configurer les politiques de re-marquage d’accès ;',
     'comparer les ordonnanceurs de sortie matériels : Strict Priority (SP) et Weighted Round Robin (WRR) / DWRR ;',
     'analyser les mécanismes de prévention de congestion par rejet aléatoire précoce (WRED) ;',
-    'développer en Python 3 des convertisseurs de marquage CoS vers DSCP, des simulateurs d’ordonnanceurs de files et des parseurs TLV LLDP.'
+    'analyser et résoudre méthodologiquement des convertisseurs de marquage CoS vers DSCP, des simulateurs d’ordonnanceurs de files et des parseurs TLV LLDP.'
   ],
   sections: [
     {

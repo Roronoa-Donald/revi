@@ -19,7 +19,7 @@ module.exports = {
     'comparer Cloud SQL (MySQL, PostgreSQL, SQL Server) et Cloud Spanner (NewSQL mondial avec SLA 99.999% et horloges TrueTime) ;',
     'différencier les moteurs NoSQL managés : Firestore (documents temps réel) versus Cloud Bigtable (large-colonne sub-milliseconde) ;',
     'concevoir une architecture d\'ingestion asynchrone découplée avec Cloud Pub/Sub (Topics, Subscriptions Pull/Push et Ack Deadlines) ;',
-    'développer en Python 3 des moteurs de cycle de vie GCS, des matrices de sélection de bases de données et des simulateurs Pub/Sub.'
+    'analyser et résoudre méthodologiquement des moteurs de cycle de vie GCS, des matrices de sélection de bases de données et des simulateurs Pub/Sub.'
   ],
   sections: [
     {

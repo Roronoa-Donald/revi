@@ -19,7 +19,7 @@ module.exports = {
     'comprendre la structure JSON d\'un rôle RBAC (Actions, NotActions, DataActions, NotDataActions et AssignableScopes) ;',
     'définir et assigner des règles de gouvernance Azure Policy avec effets Audit et Deny ;',
     'sécuriser les secrets, clés et certificats d\'entreprise dans Azure Key Vault avec Soft-Delete et Purge Protection ;',
-    'développer en Python 3 des évaluateurs de permissions RBAC, des moteurs de conformité Policy et des auditeurs de secrets Key Vault.'
+    'analyser et résoudre méthodologiquement des évaluateurs de permissions RBAC, des moteurs de conformité Policy et des auditeurs de secrets Key Vault.'
   ],
   sections: [
     {
@@ -236,7 +236,7 @@ module.exports = {
       desc: 'Automatiser la rotation des secrets, auditer les dates d\'expiration et verrouiller la purge protection contre les menaces de ransomware.'
     },
     {
-      title: 'Conception d\'outils d\'audit de sécurité en Python 3',
+      title: 'Conception d\'outils d\'audit de sécurité de manière méthodique',
       desc: 'Développer des scripts évaluant automatiquement la conformité des assignations RBAC et des configurations de coffres-forts.'
     }
   ]

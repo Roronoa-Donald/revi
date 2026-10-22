@@ -22,7 +22,7 @@ module.exports = [
       'Le club te prête une carte programmable. Branchée, elle n’affiche rien : ce n’est pas qu’elle est ' +
       'cassée, c’est qu’elle attend un programme. Avant de brancher la moindre LED, il faut comprendre ' +
       'ce qu’un programme pour carte a toujours : des lectures d’entrées, des calculs, des affichages ' +
-      'exactement ordonnés. On écrit ce premier programme en Python, parce que MicroPython — la variante ' +
+      'exactement ordonnés. On écrit ce premier programme de manière méthodique, parce que MicroPython — la variante ' +
       'qui tourne sur les cartes du club — en est la copie presque conforme.',
 
     objectives: [
@@ -34,6 +34,10 @@ module.exports = [
 
     sections: [
       {
+        "title": "Pont pédagogique : Du cycle Capteur → Traitement → Actionneur au programme Arduino (setup / loop)",
+        "html": "<div class=\"box box--tech\"><div class=\"box__title\">Correspondance avec les travaux pratiques sur carte Arduino (C/C++)</div><p>Sur une carte microcontrôleur <strong>Arduino Uno</strong> (étudiée dans les fiches de TP du Club de Robotique), tout programme comporte deux fonctions obligatoires qui reflètent directement la boucle de commande d’un robot :</p><ul><li><code>void setup() { ... }</code> : exécutée <strong>une seule fois</strong> à la mise sous tension pour configurer les broches en entrée ou en sortie (<code>pinMode(pin, INPUT/OUTPUT)</code>) et ouvrir la liaison série (<code>Serial.begin(9600)</code>) ;</li><li><code>void loop() { ... }</code> : répétée <strong>indéfiniment</strong> pour lire les capteurs (<code>digitalRead()</code>, <code>analogRead()</code>), décider du comportement et commander les actionneurs (<code>digitalWrite()</code>, <code>analogWrite()</code>).</li></ul></div>"
+      },
+      {
         title: 'La boucle qui anime tout robot',
         html: [
           '<p>Un robot, une machine à laver, un drone : sous les différences, le même squelette de programme, ' +
@@ -42,7 +46,7 @@ module.exports = [
           'décider   comparer ces lectures à des seuils ou des règles\n' +
           'agir      commander les sorties (moteur, LED, buzzer)</code></pre>',
           '<p>Sur une carte Arduino, cette boucle tourne dans une fonction <code>loop()</code> réécrite sans ' +
-          'arrêt. En simulation Python, on l’écrit explicitement : le programme lit, décide, agit — puis le ' +
+          'arrêt. En simulation Python, on l’écrit explicitement : l’étude de cas comporte, décide, agit — puis le ' +
           'programme s’arrête, parce qu’un affichage texte a une fin. La logique, elle, est la même.</p>',
           box('mnemo', 'Mnémotechnique — « Entrées, décisions, sorties »', 'pin',
             '    <p>Tout exercice de ce cours se pose dans cet ordre : <strong>quelles entrées</strong> lis-je, ' +
@@ -89,13 +93,13 @@ module.exports = [
             '    <p><code>a // 0</code> arrête le programme avec une erreur. Sur une carte réelle, la ' +
             'conséquence est pire : le robot fige. Toute division dont le dénominateur vient d’une entrée ' +
             'doit être précédée d’un test <code>if b == 0</code>. L’énoncé du TP le demandait déjà en bonus.</p>'),
-          box('tech', 'En Python', 'terminal',
-            '    <pre><code>a, b = (int(x) for x in donnees_capteur.split())\n' +
+          box('tech', 'de manière méthodique', 'terminal',
+            '    <pre><code>a, b = (int(x) for x in l’extraction des champs)\n' +
             '\n' +
             'print(f"somme : {a + b}")\n' +
             'print(f"reste : {a % b}")</code></pre>\n' +
             '    <p>La première ligne lit <strong>une seule ligne</strong> contenant « 10 5 » et la découpe : ' +
-            '<code>split()</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>')
+            '<code>l’extraction des champs</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>')
         ].join('\n')
       },
       {
@@ -158,16 +162,35 @@ module.exports = [
     notions: ['boucle principale', 'entrée', 'sortie', 'instruction', 'f-string', 'quotient entier', 'modulo', 'formatage'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais les trois exercices en relisant chaque ligne à voix haute.' },
-      { cls: 'mid', text: '50–69 % — Travaille les f-strings de mise en forme sur tes propres rapports.' },
-      { cls: 'good', text: '70–89 % — Solide : rejoue le calculatrice de bord avec des valeurs négatives.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites les trois exercices en relisant chaque ligne à voix haute.' },
+      { cls: 'mid', text: '50–69 % — Travaille les f-strings de mise en forme sur vos propres rapports.' },
+      { cls: 'good', text: '70–94 % — Solide : rejoue le calculatrice de bord avec des valeurs négatives.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, les boucles et temporisations.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « boucle principale » ?', a: 'boucle principale : décrire la boucle capter, décider, agir qui anime tout robot ;' },
+      { q: 'Qu’est-ce que « instruction » ?', a: 'Un programme s’exécute ligne par ligne, de haut en bas . Chaque ligne est une instruction achevée : une lecture, un calcul, un affichage.' },
+      { q: 'Qu’est-ce que « f-string » ?', a: 'mettre en forme un rapport lisible avec des f-strings alignées.' },
+      { q: 'Qu’est-ce que « formatage » ?', a: 'formatage : Robotique B1 › Sommaire › Chapitre 1' },
+      { q: 'Qu’est-ce que « indentation » ?', a: 'L’ indentation dessine le bloc : les deux print font partie de la boucle, le print("Fin.") — aligné au même niveau que le for — s’exécute une seule fois, après la boucle. C’est la première cause de bug du débutant : une ligne mal alignée sort de la boucle ou y entre par erreur.' },
+      { q: 'Qu’est-ce que « cas limite » ?', a: 'traiter le cas limite k = 0 sans qu’il casse le programme.' },
+      { q: 'Qu’est-ce que « expression conditionnelle » ?', a: 'L’expression conditionnelle A if condition else B choisit le texte sans écrire de bloc if complet. C’est le détail qui distingue un rapport soigné d’un rapport approximatif — et les tests le vérifient au caractère près.' },
+      { q: 'Qu’est-ce que « return » ?', a: 'La comparaison x % 2 == 0 est déjà un booléen : pas besoin d’écrire if ... : return True else: return False . Un return direct est plus court et dit la même chose.' },
+      { q: 'Qu’est-ce que « elif » ?', a: 'Dans une chaîne if / elif / else, combien de branches s’exécutent ?' },
+      { q: 'Qu’est-ce que « échange » ?', a: 'Le principe : parcourir le tableau en comparant chaque couple de voisins, et échanger quand ils sont mal ordonnés. À chaque passage complet, la plus grande valeur restante « bulle » jusqu’à sa place définitive, en fin de tableau.' },
+      { q: 'Qu’est-ce que « porte logique » ?', a: 'porte logique : Dans CircuitVerse, on câble des portes à la souris ; sur la carte, on écrit des expressions bit à bit. C’est la même logique dans deux habits : ET, OU, NON d’un côté, &, |, ~ de l’autre. Et parce qu’un ordinateur ne sait manipuler que des bits, le chiffre de César — décaler des l' },
+      { q: 'Qu’est-ce que « table de vérité » ?', a: 'Écrire la table de vérité de ce que l’on veut construire, avant le code.' },
+      { q: 'Qu’est-ce que « retenue » ?', a: 'Un bit, ça s’additionne : l’additionneur complet reçoit trois bits (a, b, retenue entrante cin) et rend la somme S et la retenue sortante Cout.' },
+      { q: 'Qu’est-ce que « chr » ?', a: 'ord convertit une lettre en code, chr fait le retour. Le modulo 26 est le rebond : pour z (position 25) et k = 1, (25 + 1) % 26 = 0 — on retombe sur a.' },
+      { q: 'Qu’est-ce que « afficheur 7 segments » ?', a: 'Le robot est équipé : afficheur 7 segments pour compter, capteur de distance pour freiner, capteur de température pour alerter. Le matériel se branche en une heure ; le programme qui le pilote demande trois qualités : une table de correspondance claire, des seuils stricts assumés' },
+      { q: 'Qu’est-ce que « trois états » ?', a: 'classer des relevés par seuils stricts avec trois états ;' },
+      { q: 'Qu’est-ce que « division entière » ?', a: 'La division entière // est imposée par l’énoncé : 135 / 6 vaut 22,5 mais 135 // 6 vaut 22. Le min() d’une liste non vide ne plante jamais ; c’est une liste vide qui le ferait — et l’énoncé garantit n ≥ 1.' },
+      { q: 'Qu’est-ce que « minimum » ?', a: 'agréger une série en minimum et moyenne entière.' },
+      { q: 'Qu’est-ce que « agrégation » ?', a: 'agrégation : Robotique B1 › Sommaire › Chapitre 6' },
       { q: 'Quelles sont les trois phases de la boucle d’un robot ?', a: 'Capter (lire les entrées), décider (comparer), agir (commander les sorties).' },
       { q: 'Que renvoie donnees_capteur et comment obtenir un entier ?', a: 'Une ligne de texte ; int(donnees_capteur) la convertit en entier.' },
-      { q: 'Différence entre / et // en Python ?', a: '/ donne un décimal ; // donne le quotient entier (la division euclidienne).' },
+      { q: 'Différence entre / et // de manière méthodique ?', a: '/ donne un décimal ; // donne le quotient entier (la division euclidienne).' },
       { q: 'À quoi sert le modulo % ?', a: 'À donner le reste d’une division : tester la parité, boucler sur un alphabet, cadencer un compteur.' }
     ]
   },
@@ -210,8 +233,8 @@ module.exports = [
           'la boucle ou y entre par erreur.</p>',
           box('pitfall', 'Piège — le trait de soulignement', 'warning',
             '    <p><code>for _ in range(k)</code> : la variable de boucle existe mais on ne l’utilise pas — ' +
-            'le trait bas la nomme « sans importance ». Dès que tu comptes quelque chose ou que le numéro du ' +
-            'passage sert, donne-lui un vrai nom : <code>for tour in range(k)</code>.</p>')
+            'le trait bas la nomme « sans importance ». Dès que vous comptez quelque chose ou que le numéro du ' +
+            'passage sert, donnez-lui un vrai nom : <code>for tour in range(k)</code>.</p>')
         ].join('\n')
       },
       {
@@ -317,9 +340,9 @@ module.exports = [
     notions: ['for', 'range', 'indentation', 'compteur', 'séquence', 'cas limite', 'expression conditionnelle', 'bilan'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Écris la boucle LED dix fois sur papier avant l’atelier.' },
-      { cls: 'mid', text: '50–69 % — Refais le clignotement dirigé en comptant aussi les extinctions.' },
-      { cls: 'good', text: '70–89 % — Solide : ajoute le compte des oranges au carrefour.' },
+      { cls: 'low', text: '&lt; 50 % — Écrivez la boucle LED dix fois sur papier avant l’atelier.' },
+      { cls: 'mid', text: '50–69 % — Refaites le clignotement dirigé en comptant aussi les extinctions.' },
+      { cls: 'good', text: '70–94 % — Solide : ajoute le compte des oranges au carrefour.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, les conditions et fonctions.' }
     ],
 
@@ -472,14 +495,14 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Réécris est_pair et est_premier sans regarder le corrigé.' },
-      { cls: 'mid', text: '50–69 % — Ajoute le compte des nombres composés pairs de la série.' },
-      { cls: 'good', text: '70–89 % — Solide : passe le contrôle de seuil en fonction aussi.' },
+      { cls: 'mid', text: '50–69 % — Ajoutez le compte des nombres composés pairs de la série.' },
+      { cls: 'good', text: '70–94 % — Solide : passe le contrôle de seuil en fonction aussi.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, les tableaux et algorithmes.' }
     ],
 
     flashcards: [
       { q: 'Quel est le contrat d’une fonction de test ?', a: 'Recevoir une valeur, renvoyer True ou False, ne rien afficher.' },
-      { q: 'Comment teste-t-on la parité en Python ?', a: 'x % 2 == 0 — la comparaison renvoie directement le booléen.' },
+      { q: 'Comment teste-t-on la parité de manière méthodique ?', a: 'x % 2 == 0 — la comparaison renvoie directement le booléen.' },
       { q: 'Quels nombres sont exclus du test de primalité et pourquoi ?', a: 'Ceux inférieurs à 2 : 0 et 1 n’ont pas exactement deux diviseurs.' },
       { q: 'Jusqu’où cherche-t-on un diviseur et pourquoi ?', a: 'Jusqu’à la racine carrée : un diviseur au-delà en suppose un plus petit déjà testé.' }
     ]

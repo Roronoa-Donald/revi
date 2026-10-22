@@ -12,10 +12,10 @@ module.exports = [
     language: 'analyse',
     title: "Analyseur syntaxique de User Story",
     goal: "Découper et valider une User Story selon le gabarit canonique Connextra.",
-    brief: "<p>Le format standard d’une <strong>User Story</strong> s’énonce :<br><code>En tant que &lt;Role&gt;, je veux &lt;Action&gt;, afin de &lt;Benefice&gt;.</code> (la ponctuation finale peut être un point ou absente).</p><p>Lit une ligne sur l’entrée standard et extrait les 3 composantes :<br>- Si la syntaxe est respectée et que les trois éléments sont non vides, affiche :<br><code>ROLE: &lt;Role&gt; | ACTION: &lt;Action&gt; | BENEFICE: &lt;Benefice&gt;</code>.<br>- Si l’un des motifs ou éléments manque, affiche :<br><code>ERREUR: Format User Story non respecte</code>.</p>",
+    brief: "<p>Le format standard d’une <strong>User Story</strong> s’énonce :<br><code>En tant que &lt;Role&gt;, je veux &lt;Action&gt;, afin de &lt;Benefice&gt;.</code> (la ponctuation finale peut être un point ou absente).</p><p>Analyse une ligne fourni(e) dans les données du cas et extrait les 3 composantes :<br>- Si la syntaxe est respectée et que les trois éléments sont non vides, affiche :<br><code>ROLE: &lt;Role&gt; | ACTION: &lt;Action&gt; | BENEFICE: &lt;Benefice&gt;</code>.<br>- Si l’un des motifs ou éléments manque, affiche :<br><code>ERREUR: Format User Story non respecte</code>.</p>",
     starter: "# Grille d'analyse (ib2-c4-e1) — Analyseur syntaxique de User Story\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : En tant qu administrateur, je veux bannir un spammeur, afin de proteger la communaute\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : Je veux exporter mes factures en PDF directement.\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : En tant que comptable, je veux cloturer l exercice, afin d eviter les retards fiscaux.\nA_COMPLETER\n",
     hints: [
-          "Utilise une expression régulière avec re.search() ou re.match() insensible à la casse.",
+          "Utilisez une expression régulière avec re.search() ou re.match() insensible à la casse.",
           "Pattern suggéré : r\"en tant qu[e']\\s*(.+?),?\\s*je veux\\s*(.+?),?\\s*afin d[e']?\\s*(.+?)\\.?$\""
     ],
     examples: [
@@ -51,12 +51,12 @@ module.exports = [
     language: 'analyse',
     title: "Priorisation MoSCoW d’un Backlog",
     goal: "Calculer la répartition des points d’effort par catégorie MoSCoW dans un sprint ou une release.",
-    brief: "<p>La méthode <strong>MoSCoW</strong> classe les exigences en 4 catégories : <code>Must</code>, <code>Should</code>, <code>Could</code> et <code>Won't</code>.</p><p>Lit sur l’entrée standard :<br>- Première ligne : le nombre <code>N</code> d’exigences.<br>- Les <code>N</code> lignes suivantes : <code>ID;Titre;MoSCoW;Points</code> (Points est un entier &ge; 0).<br>Affiche un dictionnaire JSON avec les totaux par catégorie et le total général au format strict :<br><code>{\"Must\": X, \"Should\": Y, \"Could\": Z, \"Wont\": W, \"Total\": T}</code>.</p>",
+    brief: "<p>La méthode <strong>MoSCoW</strong> classe les exigences en 4 catégories : <code>Must</code>, <code>Should</code>, <code>Could</code> et <code>Won't</code>.</p><p>À partir des données du cas :<br>- Première ligne : le nombre <code>N</code> d’exigences.<br>- Les <code>N</code> lignes suivantes : <code>ID;Titre;MoSCoW;Points</code> (Points est un entier &ge; 0).<br>Affiche un dictionnaire JSON avec les totaux par catégorie et le total général au format strict :<br><code>{\"Must\": X, \"Should\": Y, \"Could\": Z, \"Wont\": W, \"Total\": T}</code>.</p>",
     starter: "# Grille d'analyse (ib2-c4-e2) — Priorisation MoSCoW d’un Backlog\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : REQ-01;Paiement;Must;8\n# Données : REQ-02;Remboursement;Must;5\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : US-10;Export;Could;3\n# Données : US-11;Audit;Wont;5\n# Données : US-12;SSO;Must;8\n# Données : US-13;PDF;Should;5\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : US-99;Refonte globale;Won't;13\nA_COMPLETER\n",
     hints: [
-          "Initialise un dictionnaire avec {\"Must\": 0, \"Should\": 0, \"Could\": 0, \"Wont\": 0}.",
+          "Initialisez un dictionnaire avec {\"Must\": 0, \"Should\": 0, \"Could\": 0, \"Wont\": 0}.",
           "Attention à mapper \"Won't\" ou \"Wont\" vers la clé \"Wont\" dans la sortie JSON.",
-          "Utilise json.dumps(res) pour afficher le JSON sur une seule ligne."
+          "Utilisez json.dumps(res) pour afficher le JSON sur une seule ligne."
     ],
     examples: [
           {
@@ -94,8 +94,8 @@ module.exports = [
     brief: "<p>En méthodologie agile à l’échelle (SAFe), l’algorithme <strong>WSJF</strong> priorise les fonctionnalités maximisant la valeur par unité de temps :<br>1. <strong>CoD (Cost of Delay / Coût du retard)</strong> = <code>Valeur_Metier + Criticite_Temporelle + Reduction_Risque</code>.<br>2. <strong>Score WSJF</strong> = <code>CoD / Taille_Job</code>.</p><p>Lit une ligne au format <code>ID;Valeur;Temps;Risque;Taille</code> (les 4 métriques sont des entiers &gt; 0).<br>Affiche : <code>ID: &lt;ID&gt; | CoD: &lt;CoD&gt; | WSJF: &lt;Score arrondi à 2 décimales&gt;</code>.</p>",
     starter: "# Grille d'analyse (ib2-c4-e3) — Ordonnancement WSJF (Weighted Shortest Job First)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : FEAT-202;10;8;6;5\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : FEAT-303;3;2;1;3\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : FEAT-404;13;8;5;8\nA_COMPLETER\n",
     hints: [
-          "Découpe la ligne avec split(\";\").",
-          "Calcule cod = val + temps + risque, puis wsjf = cod / taille.",
+          "Découpez la ligne avec l’extraction des champs.",
+          "Calculez cod = val + temps + risque, puis wsjf = cod / taille.",
           "Formate le score avec f\"{wsjf:.2f}\"."
     ],
     examples: [

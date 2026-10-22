@@ -44,7 +44,7 @@ const course = {
     'et structuration formelle du mémoire professionnel de fin d’études selon les 6 piliers canoniques du guide officiel CDP Sup).',
   lead:
     'Maîtrisez la démarche scientifique complète, le dimensionnement statistique rigoureux, les enquêtes de terrain et la rédaction académique de niveau Bachelor 3. ' +
-    'Six modules approfondis combinant formalisme théorique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant formalisme théorique, 18 études de cas pratiques et méthodologiques et 48 QCM d’évaluation.',
 
   sources: 'le cours PRESENTATION DE COURS - ETUDE QUANTITATIVE ET QUALITATIVE.pptx, le Guide de Rédaction de Mémoire Professionnel (CDP Sup), les ouvrages d’Alan Bryman (Social Research Methods) et de Laurence Bardin (L’Analyse de Contenu)',
 

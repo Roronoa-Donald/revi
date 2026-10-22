@@ -19,7 +19,7 @@ module.exports = {
     'concevoir une politique de sauvegarde bare-metal d’entreprise avec Windows Server Backup (wbadmin) et dimensionner le stockage de rétention ;',
     'disséquer le fonctionnement tripartite de l’architecture VSS (Volume Shadow Copy Service : Requestor, Writer et Provider) ;',
     'calculer mathématiquement le quorum d’un cluster de basculement (WSFC) et arbitrer le choix du témoin (Disk, File Share, Cloud Witness) ;',
-    'implémenter en Python 3 des parseurs de syntaxe PowerShell, des calculateurs de quorum de cluster et des planificateurs de volumétrie de sauvegarde.'
+    'analyser et résoudre méthodologiquement des parseurs de syntaxe PowerShell, des calculateurs de quorum de cluster et des planificateurs de volumétrie de sauvegarde.'
   ],
   sections: [
     {

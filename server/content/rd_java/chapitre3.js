@@ -75,7 +75,7 @@ module.exports = {
   questions: [
     { stem: 'Un tableau a…', opts: ['une taille fixe', 'une taille variable', 'aucune taille'], correct: 0, exp: 'new int[n] alloue exactement n cases.' },
     { stem: 'Premier indice d’un tableau ?', opts: ['0', '1', '−1'], correct: 0, exp: 'Les indices vont de 0 à length−1.' },
-    { stem: 'Que fait valeurs.length ?', opts: ['Renvoie la taille', 'Trie', 'Copie'], correct: 0, exp: 'length donne le nombre de cases du tableau.' },
+    { stem: 'Que fait valeurs.length ?', opts: ['Renvoie la taille', 'Triez', 'Copie'], correct: 0, exp: 'length donne le nombre de cases du tableau.' },
     { stem: 'Quand préférer ArrayList ?', opts: ['Quand la taille varie', 'Quand elle est fixe', 'Jamais'], correct: 0, exp: 'ArrayList s’agrandit dynamiquement.' },
     { stem: 'Quel type stocke une ArrayList de nombres ?', opts: ['int', 'Integer', 'double'], correct: 1, exp: 'Les collections stockent des objets : Integer pour les entiers.' },
     { stem: 'Comment renvoyer un résultat ?', opts: ['return', 'break', 'print'], correct: 0, exp: 'return transmet la valeur à l’appelant.' },
@@ -118,8 +118,8 @@ module.exports = {
   notions: ['tableau', 'indice', 'length', 'ArrayList', 'Integer', 'for-each', 'méthode', 'paramètre', 'return', 'void', 'maximum', 'parcours inversé'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Réécris un parcours de tableau avec sa borne correcte.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à extraire une méthode de somme.' },
-    { cls: 'good', text: '70–89 % — Solide : tu choisis la bonne structure et tu la parcours.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à extraire une méthode de somme.' },
+    { cls: 'good', text: '70–94 % — Solide : vous choisissez la bonne structure et vous la parcours.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux classes, chapitre 4.' }
   ],
 

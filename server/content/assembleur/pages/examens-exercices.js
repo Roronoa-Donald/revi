@@ -59,7 +59,7 @@ function examens(course) {
       '      - <strong>SF = 0</strong> car le bit 7 du résultat vaut 0.<br>' +
       '      - <strong>OF = 0</strong> : en signé, $0\\text{x90} = -112$, $0\\text{x70} = +112$. Somme : $-112 + 112 = 0$ (dans la plage $-128..+127$, aucun overflow).</li>',
       '    <li>3. Pour <code>SUB AL, BL</code> : $144 - 112 = 32 = 0\\text{x20}$. (2 pts)<br>' +
-      '      - Drapeaux : <strong>ZF = 0</strong> ($0\\text{x20} \\neq 0$), <strong>CF = 0</strong> (pas d’emprunt car $144 \\ge 112$), <strong>SF = 0</strong> (bit 7 à 0), <strong>OF = 1</strong> car en signé $-112 - (+112) = -224 &lt; -128$ (débordement négatif !). (2 pts)</li>',
+      '      - Drapeaux : <strong>ZF = 0</strong> ($0\\text{x20} ≠ 0$), <strong>CF = 0</strong> (pas d’emprunt car $144 \\ge 112$), <strong>SF = 0</strong> (bit 7 à 0), <strong>OF = 1</strong> car en signé $-112 - (+112) = -224 &lt; -128$ (débordement négatif !). (2 pts)</li>',
       '  </ul>',
       '</details>'
     ].join('\n')),

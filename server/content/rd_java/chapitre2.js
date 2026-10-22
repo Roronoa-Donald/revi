@@ -65,7 +65,7 @@ module.exports = {
         '<p><code>break</code> sort immédiatement de la boucle ; <code>continue</code> passe à l’itération ' +
         'suivante. On construit aussi des suites en gardant deux variables (par exemple Fibonacci).</p>',
         '<pre><code>int a = 0;\nint b = 1;\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < n; i++) {\n    if (i &gt; 0) sb.append(\' \');\n    sb.append(a);\n    int suivant = a + b;\n    a = b;\n    b = suivant;\n}</code></pre>',
-        box('intuition', 'Garde l’état dans des variables', 'lightbulb',
+        box('intuition', 'Gardez l’état dans des variables', 'lightbulb',
           '    <p>Beaucoup de suites se calculent sans tableau : il suffit de retenir les derniers termes ' +
           'dans des variables et de les décaler à chaque tour. C’est plus économe et tout aussi clair.</p>')
       ].join('\n')
@@ -74,11 +74,11 @@ module.exports = {
 
   questions: [
     { stem: 'Que renvoie une comparaison en Java ?', opts: ['Un entier', 'Un boolean', 'Une chaîne'], correct: 1, exp: 'Les comparaisons produisent un boolean (true/false).' },
-    { stem: 'Que fait l’opérateur ternaire ?', opts: ['Répète', 'Choisit une valeur selon une condition', 'Compare deux chaînes'], correct: 1, exp: 'condition ? a : b choisit a ou b.' },
+    { stem: 'Que fait l’opérateur ternaire ?', opts: ['Répète', 'Choisit une valeur selon une condition', 'Comparez deux chaînes'], correct: 1, exp: 'condition ? a : b choisit a ou b.' },
     { stem: 'Quand préférer switch ?', opts: ['Pour comparer une valeur à plusieurs cas', 'Pour boucler', 'Pour déclarer un type'], correct: 0, exp: 'switch évite une longue cascade de else if.' },
     { stem: 'À quoi sert break dans un switch ?', opts: ['À sortir du cas', 'À relancer', 'À ignorer'], correct: 0, exp: 'break empêche le fall-through vers le cas suivant.' },
     { stem: 'Quelle boucle pour un nombre d’itérations connu ?', opts: ['for', 'while', 'switch'], correct: 0, exp: 'for exprime directement initialisation, condition et incrément.' },
-    { stem: 'Que fait continue ?', opts: ['Sort de la boucle', 'Passe à l’itération suivante', 'Arrête le programme'], correct: 1, exp: 'continue saute le reste du corps et repart au tour suivant.' },
+    { stem: 'Que fait continue ?', opts: ['Sort de la boucle', 'Passez à l’itération suivante', 'Arrête le programme'], correct: 1, exp: 'continue saute le reste du corps et repart au tour suivant.' },
     { stem: 'Que fait i++ ?', opts: ['i = i + 1', 'i = i − 1', 'i × 2'], correct: 0, exp: 'L’opérateur ++ incrémente la variable de 1.' },
     { stem: 'Comment calcule-t-on une suite sans tableau ?', opts: ['En gardant les derniers termes dans des variables', 'Impossible', 'En triant'], correct: 0, exp: 'On retient deux valeurs et on les décale à chaque itération.' }
   ],
@@ -118,8 +118,8 @@ module.exports = {
   notions: ['if', 'else', 'opérateur ternaire', 'comparaison', '&&', '||', 'switch', 'case', 'break', 'continue', 'for', 'while', 'incrément', 'imbrication'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Réécris une boucle qui somme de 1 à n.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les bornes et le break du switch.' },
-    { cls: 'good', text: '70–89 % — Solide : tu contrôles le flux sans erreur de borne.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les bornes et le break du switch.' },
+    { cls: 'good', text: '70–94 % — Solide : vous contrôlez le flux sans erreur de borne.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux tableaux et méthodes, chapitre 3.' }
   ],
 

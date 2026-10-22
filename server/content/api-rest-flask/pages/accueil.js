@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>maîtriser le protocole HTTP et le cycle requête/réponse client-serveur ;</li>',
       '      <li>concevoir des architectures d’API RESTful propres avec URI canoniques et verbes adaptés ;</li>',
@@ -37,7 +37,7 @@ function index(course, chapterList) {
       '    <p>Ce cours aborde les API REST de manière progressive en six chapitres : des fondations HTTP ' +
       'jusqu’à l’architecture modulaire d’un CRUD complet en production. Le chapitre 1 est en accès libre.</p>',
       '    <p>Chaque chapitre se termine par <strong>trois exercices de code interactifs</strong> en ' +
-      '<strong>Python</strong> : tu écris la logique de traitement, de validation et de sérialisation, ' +
+      '<strong>Python</strong> : vous écrivez la logique de traitement, de validation et de sérialisation, ' +
       'exécutée directement dans la page et validée par une batterie de tests réels.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -118,8 +118,8 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de code Python / API REST</h1>',
-    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écris ton script, ' +
-    'exécute-le et observe immédiatement la sortie : l’outil idéal pour prototyper la logique de tes endpoints.</p>',
+    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écrivez votre script, ' +
+    'exécutez-le et observez immédiatement la sortie : l’outil idéal pour prototyper la logique de vos endpoints.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code Python 3 et affiche sa sortie standard et ses éventuelles erreurs.</li>',
@@ -162,11 +162,11 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écris une fonction de validation, ' +
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écrivez une fonction de validation, ' +
       'simule une table de routage ou teste un algorithme de sérialisation JSON sur des données personnalisées.</p>',
       '    <div class="lab__brief">',
       '      <p>Le code d’exemple simule l’assemblage d’une réponse d’API formatée en JSON à partir de l’entrée standard. ' +
-      'Modifie l’entrée standard ci-dessous et clique sur <strong>Exécuter</strong> pour voir le résultat.</p>',
+      'Modifiez l’entrée standard ci-dessous et clique sur <strong>Exécuter</strong> pour voir le résultat.</p>',
       '    </div>',
       '    <div class="lab__sample">',
       '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Alice;Développeuse</pre></div>',

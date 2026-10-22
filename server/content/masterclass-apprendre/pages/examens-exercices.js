@@ -179,7 +179,7 @@ function exercices(course) {
       '<p><strong>Critère de réussite :</strong> L’explication doit être immédiatement comprise par une personne non-technique sans créer de contre-sens scientifique.</p>'
     ].join('\n')),
 
-    box('warning', 'Atelier 3 — Implémentation d’un Planificateur SM-2 en Python', [
+    box('warning', 'Atelier 3 — Implémentation d’un Planificateur SM-2 de manière méthodique', [
       '<p><strong>Énoncé :</strong> Écrivez un grille d’analyse qui prend en entrée une collection de cartes avec leur historique de révisions (intervalles, facteurs EF, notes attribuées) ' +
       'et calcule automatiquement la date exacte de la prochaine révision pour chaque carte selon l’algorithme SM-2.</p>',
       '<p><strong>Extension :</strong> Ajoutez une alerte automatique si le nombre de cartes prévues un même jour dépasse la capacité attentionnelle maximale (seuil fixé à 50 cartes/jour).</p>'

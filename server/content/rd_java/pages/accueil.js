@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>écrire un programme Java complet (classe, main, types, Scanner) ;</li>',
       '      <li>contrôler le flux avec conditions, switch et boucles ;</li>',
@@ -37,8 +37,8 @@ function index(course, chapterList) {
       '    <p>Le cours historique de Java couvre douze modules, de la syntaxe aux exceptions. Ce cours les ' +
       'condense en six chapitres et fait manipuler chaque mécanisme <strong>en Java</strong> : un ' +
       '<code>public class Main</code> compilé et exécuté, comme sur une machine réelle.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment le ' +
-      'programme, il est réellement compilé et exécuté, puis corrigé par des tests que tu ne vois pas. ' +
+      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
+      'programme, il est réellement compilé et exécuté, puis corrigé par des tests que vous ne voyez pas. ' +
       'L’exercice peut se rejouer tel quel dans un projet Java.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -87,7 +87,7 @@ function sommaire(course, chapterList) {
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B2 ou supérieur (et un ' +
     'abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois exercices en Java</strong> à écrire et à exécuter ' +
-    'dans la page : ton programme est réellement compilé, lancé, puis corrigé par des tests que tu ne vois ' +
+    'dans la page : votre programme est réellement compilé, lancé, puis corrigé par des tests que vous ne voyez ' +
     'pas. L’<a href="atelier.html">atelier de code</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -120,8 +120,8 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de code</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai compilateur Java derrière. Écris une classe, exécute-la ' +
-    'et lis ce qu’elle affiche : c’est ici qu’une règle du langage devient un programme qui tourne.</p>',
+    '  <p class="lead">Un éditeur dans la page, un vrai compilateur Java derrière. Écrivez une classe, exécutez-la ' +
+    'et lisez ce qu’elle affiche : c’est ici qu’une règle du langage devient un programme qui tourne.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait compiler et tourner votre programme Java tel quel, et affiche sa sortie, ses erreurs et son code de sortie.</li>',
@@ -159,11 +159,11 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Reprends un ' +
-      'mécanisme du cours (boucle, tableau, classe, exception) et programme-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Reprenez un ' +
+      'mécanisme du cours (boucle, tableau, classe, exception) et programmez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le programme proposé calcule le carré d’un entier lu en entrée. Modifie-le, ajoute une boucle, ' +
-      'une méthode, une classe personnalisée, ou remplace tout le programme par le mécanisme que tu veux ' +
+      '      <p>Le programme proposé calcule le carré d’un entier lu en entrée. Modifiez-le, ajoute une boucle, ' +
+      'une méthode, une classe personnalisée, ou remplace tout le programme par le mécanisme que vous voulez ' +
       'vérifier — une ArrayList triée, un héritage, un try/catch.</p>',
       '      <p>Dans un vrai projet, ce sera une classe métier, un service, un point d’entrée : la structure ' +
       'du programme — lire, traiter, afficher — reste exactement la même.</p>',
@@ -179,7 +179,7 @@ function atelier(course) {
     '  <h2>De la page au vrai projet</h2>',
     '  <p>La simulation a une limite assumée : rien n’est envoyé ni stocké durablement. Elle a une force : ' +
     '<strong>toute la logique se vérifie sans projet local</strong>. Quand le programme affiche les bons ' +
-    'résultats sur tes cas limites, le portage est mécanique : la même classe, la même boucle, la même ' +
+    'résultats sur vos cas limites, le portage est mécanique : la même classe, la même boucle, la même ' +
     'exception.</p>',
     box('pitfall', 'Les trois erreurs que l’atelier révèle immédiatement', 'warning', [
       '    <ul>',

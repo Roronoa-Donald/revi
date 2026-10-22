@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-githubnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>comprendre la différence mathématique et topologique entre une fusion Fast-Forward et un 3-Way Merge ;</li>
       <li>analyser l’algorithme de recherche du Lowest Common Ancestor (LCA) au sein du graphe orienté acyclique (DAG) ;</li>
@@ -107,7 +107,12 @@
 <p>Historiquement, Git utilisait la stratégie de fusion <code>recursive</code>. Cependant, dans les topologies complexes où deux branches ont divergé et se sont croisées plusieurs fois (fusions croisées ou criss-cross merges), il peut exister <strong>plusieurs LCA concurrents</strong>. La stratégie recursive devait alors synthétiser récursivement un ancêtre virtuel intermédiaire.</p>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> La Révolution du Moteur ORT (Git 2.33+)</div>
-<p>Depuis Git 2.33, le moteur par défaut est <strong>ORT (Ostensibly Recursive’s Twin)</strong> :</p>,<ul>,  <li><strong>Performances décuplées :</strong> Jusqu’à 500 fois plus rapide sur les dépôts massifs en éliminant les lectures inutiles sur le disque dur.</li>,  <li><strong>Gestion parfaite des renommages :</strong> ORT détecte avec une précision mathématique les fichiers renommés et déplacés simultanément par les deux branches, évitant de faux conflits insolubles.</li>,  <li><strong>Résolution de conflits en mémoire :</strong> ORT calcule le résultat directement en mémoire sans toucher à la copie de travail tant que la fusion n’est pas prête à être validée.</li>,</ul>
+<p>Depuis Git 2.33, le moteur par défaut est <strong>ORT (Ostensibly Recursive’s Twin)</strong> :</p>
+<ul>
+  <li><strong>Performances décuplées :</strong> Jusqu’à 500 fois plus rapide sur les dépôts massifs en éliminant les lectures inutiles sur le disque dur.</li>
+  <li><strong>Gestion parfaite des renommages :</strong> ORT détecte avec une précision mathématique les fichiers renommés et déplacés simultanément par les deux branches, évitant de faux conflits insolubles.</li>
+  <li><strong>Résolution de conflits en mémoire :</strong> ORT calcule le résultat directement en mémoire sans toucher à la copie de travail tant que la fusion n’est pas prête à être validée.</li>
+</ul>
   </div>
 
 <h2>3. Le Rebase Interactif : Nettoyage d’Historique &amp; la Règle d’Or</h2>
@@ -124,12 +129,13 @@
     <tr><td><code>edit</code></td><td><code>e</code></td><td>Met en pause le rebase pour amender le contenu du commit (fichiers).</td></tr>
     <tr><td><code>squash</code></td><td><code>s</code></td><td>Fond le commit dans le commit précédent et concatène les messages.</td></tr>
     <tr><td><code>fixup</code></td><td><code>f</code></td><td>Fond le commit dans le précédent en éliminant silencieusement son message.</td></tr>
-    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprime purement et simplement le commit de l’historique.</td></tr>
+    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprimez purement et simplement le commit de l’historique.</td></tr>
   </tbody>
 </table>
   <div class="box box--danger">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> La Règle d’Or Absolue du Rebase</div>
-<p><strong>« Ne rebasez JAMAIS une branche publique partagée avec d’autres développeurs. »</strong></p>,<p>Puisque le rebase réapplique chaque commit sur une nouvelle base, le parent de chaque commit change : <strong>tous les identifiants SHA-1/SHA-256 sont irrémédiablement modifiés</strong>. Si la branche est déjà présente sur GitHub, cela obligera un <code>git push --force</code> qui écrasera le travail des collaborateurs et sèmera la confusion.</p>
+<p><strong>« Ne rebasez JAMAIS une branche publique partagée avec d’autres développeurs. »</strong></p>
+<p>Puisque le rebase réapplique chaque commit sur une nouvelle base, le parent de chaque commit change : <strong>tous les identifiants SHA-1/SHA-256 sont irrémédiablement modifiés</strong>. Si la branche est déjà présente sur GitHub, cela obligera un <code>git push --force</code> qui écrasera le travail des collaborateurs et sèmera la confusion.</p>
   </div>
 
 <h2>4. Résolution Formelle des Conflits de Fusion Tridirectionnelle</h2>
@@ -143,51 +149,27 @@ const PORT = 3000;
 <p>L’ingénieur doit analyser le contexte, supprimer les marqueurs, conserver la valeur appropriée, indexer le fichier via <code>git add</code> puis finaliser la fusion via <code>git commit</code> (ou <code>git rebase --continue</code>).</p>
 
 <!-- code-labs:start -->
-  <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="gh3-c2-e1" data-lab
      data-exercise="gh3-c2-e1"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="COMMIT id=C1 parents=NONE&#10;COMMIT id=C2 parents=C1&#10;COMMIT id=C3 parents=C2&#10;BRANCH name=main commit=C1&#10;BRANCH name=feature commit=C3&#10;MERGE_REQUEST current=main incoming=feature">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c2-e1) — Détecteur de stratégie de fusion : Fast-Forward vs 3-Way Merge
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Branches divergentes nécessitant un Three-Way Merge]
-# Données : COMMIT id=C1 parents=NONE
-# Données : COMMIT id=C2 parents=C1
-# Données : COMMIT id=C3 parents=C1
-# Données : BRANCH name=main commit=C2
-# Données : BRANCH name=feature commit=C3
-# Données : MERGE_REQUEST current=main incoming=feature
-A_COMPLETER
-
-[Cas 2 — Arborescence plus profonde avec Fast-Forward valide]
-# Données : COMMIT id=A parents=NONE
-# Données : COMMIT id=B parents=A
-# Données : COMMIT id=C parents=B
-# Données : COMMIT id=D parents=C
-# Données : BRANCH name=prod commit=B
-# Données : BRANCH name=release commit=D
-# Données : MERGE_REQUEST current=prod incoming=release
-A_COMPLETER
-
-[Cas 3 — Divergence après plusieurs commits communs]
-# Données : COMMIT id=R1 parents=NONE
-# Données : COMMIT id=R2 parents=R1
-# Données : COMMIT id=M1 parents=R2
-# Données : COMMIT id=M2 parents=M1
-# Données : COMMIT id=F1 parents=R2
-# Données : BRANCH name=main commit=M2
-# Données : BRANCH name=hotfix commit=F1
-# Données : MERGE_REQUEST current=main incoming=hotfix
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (gh3-c2-e1) — Détecteur de stratégie de fusion : Fast-Forward vs 3-Way Merge
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Détecteur de stratégie de fusion : Fast-Forward vs 3-Way Merge</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -196,7 +178,7 @@ A_COMPLETER
     <div class="lab__brief"><p>Dans le graphe orienté acyclique (DAG) des commits de Git :<br>
 - Si le commit de tête de la branche courante (<code>base</code>) est un <strong>ancêtre direct</strong> de la branche à intégrer (<code>target</code>), Git avance simplement le pointeur sans créer de nouveau commit : c'est un <strong>Fast-Forward (FF)</strong>.<br>
 - Si les deux branches ont divergé depuis un ancêtre commun (Lowest Common Ancestor - LCA), un <strong>Three-Way Merge</strong> est nécessaire et un commit de fusion à 2 parents doit être généré.<br><br>
-Analysez les paramètres du problème pour chaque cas. La déclaration des commits et de leurs parents :<br>
+Le script Bash lit les paramètres sur l’entrée standard (stdin). La déclaration des commits et de leurs parents :<br>
    <code>COMMIT id=&lt;id&gt; parents=&lt;p1,p2...|NONE&gt;</code>.<br>
 2. La position des branches :<br>
    <code>BRANCH name=&lt;nom&gt; commit=&lt;id&gt;</code>.<br>
@@ -205,17 +187,17 @@ Analysez les paramètres du problème pour chaque cas. La déclaration des commi
 Afficher :<br>
 <code>MERGE_STRATEGY from={incoming} into={current} type={FAST_FORWARD|THREE_WAY_MERGE} lca={lca_id}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>COMMIT id=C1 parents=NONE
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>COMMIT id=C1 parents=NONE
 COMMIT id=C2 parents=C1
 COMMIT id=C3 parents=C2
 BRANCH name=main commit=C1
 BRANCH name=feature commit=C3
 MERGE_REQUEST current=main incoming=feature</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MERGE_STRATEGY from=feature into=main type=FAST_FORWARD lca=C1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MERGE_STRATEGY from=feature into=main type=FAST_FORWARD lca=C1</pre></div>
     </div>
     <p class="lab__note">C1 est un ancêtre direct de C3 : avance rapide du pointeur main vers C3.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Construire la liste de tous les ancêtres de chaque commit en remontant les parents.</li>
         <li>Si base_commit fait partie des ancêtres de incoming_commit, la fusion est FAST_FORWARD.</li>
@@ -225,36 +207,21 @@ MERGE_REQUEST current=main incoming=feature</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="gh3-c2-e2" data-lab
      data-exercise="gh3-c2-e2"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="TODO action=pick commit=C1 msg=feat: ajout login&#10;TODO action=squash commit=C2 msg=fix: correction typo&#10;TODO action=reword commit=C3 msg=feat: ajout logout propre">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c2-e2) — Simulateur de Rebase Interactif (git rebase -i)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Suppression de commit avec drop]
-# Données : TODO action=pick commit=A1 msg=Initial skeleton
-# Données : TODO action=drop commit=A2
-# Données : TODO action=pick commit=A3 msg=Ajout module BDD
-A_COMPLETER
-
-[Cas 2 — Plusieurs squashs consécutifs]
-# Données : TODO action=pick commit=10 msg=Feature base
-# Données : TODO action=squash commit=11 msg=WIP test 1
-# Données : TODO action=squash commit=12 msg=WIP test 2
-# Données : TODO action=pick commit=13 msg=Docs
-A_COMPLETER
-
-[Cas 3 — Tous les commits conservés sans modification]
-# Données : TODO action=pick commit=K1 msg=Premier commit
-# Données : TODO action=pick commit=K2 msg=Second commit
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (gh3-c2-e2) — Simulateur de Rebase Interactif (git rebase -i)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Simulateur de Rebase Interactif (git rebase -i)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -266,17 +233,17 @@ Actions supportées :<br>
 - <code>reword &lt;id&gt; &lt;nouveau_msg&gt;</code> : conserve les modifications mais remplace le message du commit.<br>
 - <code>drop &lt;id&gt;</code> : supprime purement et simplement le commit de l’historique.<br>
 - <code>squash &lt;id&gt; &lt;msg&gt;</code> : fusionne ce commit dans le commit précédent en concaténant les messages sous la forme <code>{msg_precedent} + {msg_squashe}</code>.<br><br>
-Analysez les données fournies pour chaque cas.<br><br>
+Le script Bash lit les données sur l’entrée standard (stdin).<br><br>
 À l’issue de la réécriture, afficher le nouvel historique résultant :<br>
 Pour chaque commit conservé :<br>
 <code>REBASED_COMMIT id={id} msg="{message}"</code><br>
 Et la ligne finale :<br>
 <code>REBASE_SUMMARY total_commits={n}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TODO action=pick commit=C1 msg=feat: ajout login
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TODO action=pick commit=C1 msg=feat: ajout login
 TODO action=squash commit=C2 msg=fix: correction typo
 TODO action=reword commit=C3 msg=feat: ajout logout propre</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REBASED_COMMIT id=C1 msg="feat: ajout login + fix: correction typo"
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REBASED_COMMIT id=C1 msg="feat: ajout login + fix: correction typo"
 REBASED_COMMIT id=C3 msg="feat: ajout logout propre"
 REBASE_SUMMARY total_commits=2</pre></div>
     </div>
@@ -291,33 +258,21 @@ REBASE_SUMMARY total_commits=2</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="gh3-c2-e3" data-lab
      data-exercise="gh3-c2-e3"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="LINE idx=1 base=port = 80 ours=port = 443 theirs=port = 80&#10;LINE idx=2 base=timeout = 30 ours=timeout = 60 theirs=timeout = 120">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c2-e3) — Moteur de résolution de conflits à 3 voies (Base, Ours, Theirs)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Adoption unilatérale de theirs et ligne inchangée]
-# Données : LINE idx=10 base=debug = False ours=debug = False theirs=debug = True
-# Données : LINE idx=11 base=host = 0.0.0.0 ours=host = 0.0.0.0 theirs=host = 0.0.0.0
-A_COMPLETER
-
-[Cas 2 — Même modification adoptée des deux côtés]
-# Données : LINE idx=5 base=v1.0.0 ours=v1.1.0 theirs=v1.1.0
-A_COMPLETER
-
-[Cas 3 — Série mixte de résolutions et conflits]
-# Données : LINE idx=1 base=A ours=A theirs=B
-# Données : LINE idx=2 base=X ours=Y theirs=Z
-# Données : LINE idx=3 base=M ours=N theirs=M
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (gh3-c2-e3) — Moteur de résolution de conflits à 3 voies (Base, Ours, Theirs)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Moteur de résolution de conflits à 3 voies (Base, Ours, Theirs)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -330,14 +285,14 @@ Règles de décision pour chaque ligne :<br>
 3. Si <code>ours == base</code> et <code>theirs != base</code> : modification unilatérale par la branche distante -> adopter <code>theirs</code> (statut <code>RESOLVED_THEIRS</code>).<br>
 4. Si <code>ours == theirs</code> : les deux branches ont fait exactement le même changement -> adopter <code>ours</code> (statut <code>RESOLVED_SAME</code>).<br>
 5. Si <code>ours != theirs</code> et les deux diffèrent de <code>base</code> : conflit de fusion réel (statut <code>CONFLICT</code>).<br><br>
-Analysez les paramètres du problème pour chaque cas.<br><br>
+Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Afficher :<br>
 - Si pas de conflit : <code>MERGE idx={n} status={CLEAN|RESOLVED_OURS|RESOLVED_THEIRS|RESOLVED_SAME} val="{val}"</code><br>
 - Si conflit : <code>MERGE idx={n} status=CONFLICT ours="{ours}" theirs="{theirs}"</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LINE idx=1 base=port = 80 ours=port = 443 theirs=port = 80
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LINE idx=1 base=port = 80 ours=port = 443 theirs=port = 80
 LINE idx=2 base=timeout = 30 ours=timeout = 60 theirs=timeout = 120</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MERGE idx=1 status=RESOLVED_OURS val="port = 443"
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MERGE idx=1 status=RESOLVED_OURS val="port = 443"
 MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></div>
     </div>
     <p class="lab__note">Ligne 1 résolue en faveur de ours, ligne 2 en conflit.</p>
@@ -495,12 +450,13 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
 <h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Difficultés à identifier les conditions d’un Fast-Forward ou hésitations lors de la résolution de conflits tridirectionnels.</div>
-      <div class="bandrow bandrow--medium">Bonne compréhension du LCA, maîtrise des commandes rebase interactives simples et respect rigoureux de la règle d’or.</div>
-      <div class="bandrow bandrow--high">Excellente maîtrise topologique du DAG, utilisation avancée des directives de rebase interactif et arbitrage expert des fusions complexes avec le moteur ORT.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à identifier les conditions d’un Fast-Forward ou hésitations lors de la résolution de conflits tridirectionnels.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne compréhension du LCA, maîtrise des commandes rebase interactives simples et respect rigoureux de la règle d’or.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellente maîtrise topologique du DAG, utilisation avancée des directives de rebase interactif et arbitrage expert des fusions complexes avec le moteur ORT.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -510,7 +466,7 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
     <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Diagnostic, Reflog &amp; Sauvetage de Données <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
 </main>
 

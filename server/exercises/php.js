@@ -27,7 +27,7 @@ module.exports = [
     title: 'Premier objet',
     goal: 'Créer une classe, un constructeur et une méthode, puis instancier.',
     brief: '<p>Le programme reçoit deux lignes : <code>x</code> puis <code>y</code> (entiers). ' +
-      'Écris une classe <code>Point</code> avec un constructeur qui range les deux coordonnées et une ' +
+      'Écrivez une classe <code>Point</code> avec un constructeur qui range les deux coordonnées et une ' +
       'méthode <code>afficher()</code> qui renvoie la chaîne <code>(x, y)</code>. Instancie le point et ' +
       'affiche le résultat.</p>',
     starter: `<?php
@@ -84,9 +84,9 @@ echo $point->afficher() . "\\n";
     language: 'php',
     title: 'Enchaîner les appels',
     goal: 'Faire renvoyer $this par une méthode pour enchaîner les appels.',
-    brief: '<p>Le programme reçoit <code>n</code>, puis <code>n</code> prix (entiers). Écris une classe ' +
+    brief: '<p>Le programme reçoit <code>n</code>, puis <code>n</code> prix (entiers). Écrivez une classe ' +
       '<code>Panier</code> dont la méthode <code>ajouter(int $prix)</code> cumule le prix et renvoie ' +
-      '<code>$this</code>, et dont la méthode <code>total()</code> renvoie le total. Ajoute les prix, ' +
+      '<code>$this</code>, et dont la méthode <code>total()</code> renvoie le total. Ajoutez les prix, ' +
       'puis affiche <code>total : X</code>.</p>',
     starter: `<?php
 class Panier {
@@ -140,9 +140,9 @@ echo 'total : ' . $panier->total() . "\\n";
     language: 'php',
     title: 'Constructeur qui valide',
     goal: 'Assainir une valeur dans le constructeur.',
-    brief: '<p>Le programme reçoit un âge (entier, éventuellement négatif). Écris une classe ' +
+    brief: '<p>Le programme reçoit un âge (entier, éventuellement négatif). Écrivez une classe ' +
       '<code>Age</code> dont le constructeur ramène toute valeur négative à <code>0</code>, et une ' +
-      'méthode <code>valeur()</code> qui renvoie l’âge. Affiche <code>age : X</code>.</p>',
+      'méthode <code>valeur()</code> qui renvoie l’âge. Affichez <code>age : X</code>.</p>',
     starter: `<?php
 class Age {
     private $valeur;
@@ -190,7 +190,7 @@ echo 'age : ' . (new Age($age))->valeur() . "\\n";
     language: 'php',
     title: 'Propriété privée et setter',
     goal: 'Protéger une propriété derrière un setter qui valide.',
-    brief: '<p>Le programme reçoit <code>n</code> puis <code>n</code> montants (entiers). Écris une classe <code>Compte</code> avec une propriété <strong>privée</strong> <code>$solde</code> valant 0 et une méthode <code>deposer(int $montant)</code> qui n’ajoute que les montants strictement positifs. Affiche <code>solde : X</code>.</p>',
+    brief: '<p>Le programme reçoit <code>n</code> puis <code>n</code> montants (entiers). Écrivez une classe <code>Compte</code> avec une propriété <strong>privée</strong> <code>$solde</code> valant 0 et une méthode <code>deposer(int $montant)</code> qui n’ajoute que les montants strictement positifs. Affichez <code>solde : X</code>.</p>',
     starter: `<?php
 class Compte {
     private $solde = 0;
@@ -244,7 +244,7 @@ echo 'solde : ' . $compte->solde() . "\\n";
     language: 'php',
     title: 'Constante de classe',
     goal: 'Utiliser une constante et une méthode statique.',
-    brief: '<p>Le programme reçoit un prix hors taxe (entier). Écris une classe <code>Config</code> avec la constante <code>TVA = 18</code> (pour cent) et une méthode <strong>statique</strong> <code>ttc(int $ht)</code> qui renvoie le prix TTC arrondi à l’entier inférieur. Affiche <code>ttc : X</code>.</p>',
+    brief: '<p>Le programme reçoit un prix hors taxe (entier). Écrivez une classe <code>Config</code> avec la constante <code>TVA = 18</code> (pour cent) et une méthode <strong>statique</strong> <code>ttc(int $ht)</code> qui renvoie le prix TTC arrondi à l’entier inférieur. Affichez <code>ttc : X</code>.</p>',
     starter: `<?php
 class Config {
     public const TVA = 18;
@@ -287,7 +287,7 @@ echo 'ttc : ' . Config::ttc($ht) . "\\n";
     language: 'php',
     title: 'Méthode statique',
     goal: 'Appeler une méthode sans instancier la classe.',
-    brief: '<p>Le programme reçoit un entier. Écris une classe <code>Maths</code> avec une méthode statique <code>estPair(int $n)</code> qui renvoie vrai si le nombre est pair. Affiche <code>pair : oui</code> ou <code>pair : non</code>.</p>',
+    brief: '<p>Le programme reçoit un entier. Écrivez une classe <code>Maths</code> avec une méthode statique <code>estPair(int $n)</code> qui renvoie vrai si le nombre est pair. Affichez <code>pair : oui</code> ou <code>pair : non</code>.</p>',
     starter: `<?php
 class Maths {
     // À compléter : estPair() renvoie un booléen.
@@ -326,7 +326,7 @@ echo 'pair : ' . (Maths::estPair($n) ? 'oui' : 'non') . "\\n";
     language: 'php',
     title: 'Héritage et classe abstraite',
     goal: 'Implémenter une méthode abstraite dans une classe fille.',
-    brief: '<p>Le programme reçoit le côté d’un carré (entier). Écris une classe <strong>abstraite</strong> <code>Forme</code> déclarant <code>aire()</code>, puis <code>Carre</code> qui hérite de <code>Forme</code> et calcule <code>côté × côté</code>. Affiche <code>aire : X</code>.</p>',
+    brief: '<p>Le programme reçoit le côté d’un carré (entier). Écrivez une classe <strong>abstraite</strong> <code>Forme</code> déclarant <code>aire()</code>, puis <code>Carre</code> qui hérite de <code>Forme</code> et calcule <code>côté × côté</code>. Affichez <code>aire : X</code>.</p>',
     starter: `<?php
 abstract class Forme {
     // À compléter : declarer la methode abstraite aire().
@@ -379,7 +379,7 @@ echo 'aire : ' . (new Carre($c))->aire() . "\\n";
     language: 'php',
     title: 'Polymorphisme',
     goal: 'Traiter des objets de types différents derrière une même méthode.',
-    brief: '<p>Le programme reçoit <code>n</code>, puis <code>n</code> lignes « type a [b] » : <code>carre a</code> ou <code>rectangle l h</code>. Écris <code>Forme</code> (abstraite), <code>Carre</code> et <code>Rectangle</code>, puis calcule la somme des aires. Affiche <code>total : X</code>.</p>',
+    brief: '<p>Le programme reçoit <code>n</code>, puis <code>n</code> lignes « type a [b] » : <code>carre a</code> ou <code>rectangle l h</code>. Écrivez <code>Forme</code> (abstraite), <code>Carre</code> et <code>Rectangle</code>, puis calcule la somme des aires. Affichez <code>total : X</code>.</p>',
     starter: `<?php
 // À compléter : Forme abstraite, Carre (a*a), Rectangle (l*h).
 
@@ -387,7 +387,7 @@ $n = (int) trim(fgets(STDIN));
 // À compléter : lire chaque forme, additionner les aires, afficher "total : X".
 `,
     hints: [
-      'Découpe chaque ligne avec explode(\' \', trim(fgets(STDIN))).',
+      'Découpez chaque ligne avec explode(\' \', trim(fgets(STDIN))).',
       'Les deux classes exposent aire() : la somme s’écrit sans connaître leur type.'
     ],
     examples: [
@@ -449,7 +449,7 @@ echo 'total : ' . $total . "\\n";
     language: 'php',
     title: 'Implémenter une interface',
     goal: 'Garantir un contrat commun avec une interface.',
-    brief: '<p>Le programme reçoit un nom d’article puis son prix (entier). Écris une interface <code>Affichable</code> déclarant <code>afficher(): string</code>, puis <code>Produit</code> qui l’implémente et renvoie <code>nom (prix EUR)</code>. Affiche le résultat.</p>',
+    brief: '<p>Le programme reçoit un nom d’article puis son prix (entier). Écrivez une interface <code>Affichable</code> déclarant <code>afficher(): string</code>, puis <code>Produit</code> qui l’implémente et renvoie <code>nom (prix EUR)</code>. Affichez le résultat.</p>',
     starter: `<?php
 // À compléter : interface Affichable, puis classe Produit implements Affichable.
 
@@ -501,7 +501,7 @@ echo $produit->afficher() . "\\n";
     language: 'php',
     title: 'Réutiliser du code avec un trait',
     goal: 'Composer une méthode réutilisable via un trait.',
-    brief: '<p>Le programme reçoit un prénom. Écris un <strong>trait</strong> <code>Salutation</code> qui fournit <code>saluer(string $nom): string</code> renvoyant <code>Bonjour nom</code>, puis une classe <code>Accueil</code> qui l’utilise. Affiche le message.</p>',
+    brief: '<p>Le programme reçoit un prénom. Écrivez un <strong>trait</strong> <code>Salutation</code> qui fournit <code>saluer(string $nom): string</code> renvoyant <code>Bonjour nom</code>, puis une classe <code>Accueil</code> qui l’utilise. Affichez le message.</p>',
     starter: `<?php
 // À compléter : trait Salutation, puis class Accueil { use Salutation; }
 
@@ -639,9 +639,9 @@ namespace {
     language: 'php',
     title: 'Attraper une exception',
     goal: 'Protéger un calcul risqué par un bloc try/catch.',
-    brief: '<p>Le programme reçoit deux entiers <code>a</code> puis <code>b</code>. Écris une fonction ' +
+    brief: '<p>Le programme reçoit deux entiers <code>a</code> puis <code>b</code>. Écrivez une fonction ' +
       '<code>diviser(int $a, int $b): int</code> qui lève une <code>Exception</code> de message ' +
-      '<code>division par zéro</code> quand <code>b</code> vaut 0. Affiche <code>resultat : X</code> au succès, ' +
+      '<code>division par zéro</code> quand <code>b</code> vaut 0. Affichez <code>resultat : X</code> au succès, ' +
       'ou <code>erreur : division par zéro</code> si l’exception est attrapée.</p>',
     starter: `<?php
 function diviser(int $a, int $b): int {
@@ -690,7 +690,7 @@ try {
     goal: 'Étendre Exception et intercepter précisément son type.',
     brief: '<p>Déclare une exception <code>SoldeInsuffisant</code> qui étend <code>Exception</code>. Le programme ' +
       'reçoit un solde puis un montant (entiers). La fonction <code>retirer</code> renvoie le solde restant ou lève ' +
-      '<code>SoldeInsuffisant</code>. Affiche <code>reste : X</code> ou <code>erreur : solde insuffisant</code>.</p>',
+      '<code>SoldeInsuffisant</code>. Affichez <code>reste : X</code> ou <code>erreur : solde insuffisant</code>.</p>',
     starter: `<?php
 // À compléter : class SoldeInsuffisant extends Exception {}
 
@@ -791,7 +791,7 @@ try {
     language: 'php',
     title: 'Insérer avec une requête préparée',
     goal: 'Ouvrir une base sqlite en mémoire, créer une table et insérer sans concaténation.',
-    brief: '<p>Le programme reçoit un nom. Ouvre une connexion <code>sqlite::memory:</code> (mode erreur par ' +
+    brief: '<p>Le programme reçoit un nom. Ouvrez une connexion <code>sqlite::memory:</code> (mode erreur par ' +
       'exception), crée la table <code>contacts(id, nom)</code>, insère le nom avec une ' +
       '<strong>requête préparée</strong>, puis relis-le et affiche <code>contact : nom</code>.</p>',
     starter: `<?php
@@ -833,7 +833,7 @@ echo 'contact : ' . $enregistre . "\\n";
     title: 'Un dépôt en mémoire',
     goal: 'Isoler l’accès aux données dans une classe de dépôt.',
     brief: '<p>La première ligne donne un entier <code>n</code>, puis <code>n</code> lignes donnent des ' +
-      'entiers. Écris une classe <code>Depot</code> qui expose <code>ajouter(int $valeur): void</code> et ' +
+      'entiers. Écrivez une classe <code>Depot</code> qui expose <code>ajouter(int $valeur): void</code> et ' +
       '<code>somme(): int</code>. Range les valeurs reçues puis affiche <code>somme : total</code>.</p>',
     starter: `<?php
 class Depot {
@@ -892,8 +892,8 @@ echo 'somme : ' . $depot->somme() . "\\n";
     title: 'Mini projet : liste de tâches',
     goal: 'Assembler une classe de service et une mise en forme numérotée.',
     brief: '<p>Mini application ToDo : la première ligne donne un entier <code>n</code>, puis <code>n</code> ' +
-      'lignes donnent des tâches. Écris une classe <code>TodoList</code> exposant ' +
-      '<code>ajouter(string $tache): void</code> et <code>lister(): array</code>. Affiche chaque tâche ' +
+      'lignes donnent des tâches. Écrivez une classe <code>TodoList</code> exposant ' +
+      '<code>ajouter(string $tache): void</code> et <code>lister(): array</code>. Affichez chaque tâche ' +
       'numérotée à partir de 1, au format <code>1. tâche</code>.</p>',
     starter: `<?php
 class TodoList {

@@ -1,691 +1,708 @@
-/**
- * Exercices mis à jour — remédiation pédagogique
- */
 'use strict';
 
-module.exports = [
+const SQ_EXERCISES = [
   {
     "id": "sq-c1-e1",
     "chapter": 1,
     "level": "n1",
-    "language": "analyse",
-    "title": "Le vocabulaire des bases de données",
-    "goal": "Associer chaque terme du chapitre à sa définition exacte.",
-    "brief": "<p>Analysez chaque ligne proposée « terme definition » : definition est un code parmi <code>contenu</code>, <code>logiciel</code>, <code>langage</code> ou <code>modele</code>. Vocabulaire du chapitre : la <strong>base de données</strong> est le contenu organisé → <code>contenu</code> ; le <strong>SGBD</strong> est le logiciel qui la gère → <code>logiciel</code> ; <strong>SQL</strong> est le langage d’interrogation → <code>langage</code> ; le <strong>modèle relationnel</strong> organise les données en tables → <code>modele</code>. Pour chaque ligne il Indiquez <code>terme : OK</code> ou <code>terme : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c1-e1) — Le vocabulaire des bases de données\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les quatre termes]\n# Données : 4\n# Données : base contenu\n# Données : sgbd logiciel\n# Données : sql langage\n# Données : relationnel modele\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : base logiciel\n# Données : sgbd contenu\n# Données : sql modele\n# Données : relationnel modele\nA_COMPLETER\n\n[Cas 3 — Interro écrite]\n# Données : 5\n# Données : relationnel modele\n# Données : sql langage\n# Données : base contenu\n# Données : sgbd logiciel\n# Données : base logiciel\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Lister toutes les colonnes d’une table",
+    "goal": "Écrire une requête SELECT * pour afficher l’ensemble des lignes d’une table relationnelle.",
+    "brief": "<p>La table <code>etudiants(id, nom, filiere)</code> est créée dans la base. Écrivez une requête SQL qui sélectionne toutes les colonnes et toutes les lignes de la table <code>etudiants</code> triées par <code>id</code> croissant (<code>ORDER BY id ASC</code>).</p>",
+    "starter": "-- Affichez toutes les colonnes de la table etudiants triées par id\nSELECT nom FROM etudiants;",
     "hints": [
-      "Un case sur le terme : base → contenu, sgbd → logiciel, sql → langage, relationnel → modele.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Utilisez SELECT * FROM etudiants pour récupérer toutes les colonnes.",
+      "Ajoutez ORDER BY id ASC à la fin de la requête."
     ],
     "examples": [
       {
-        "stdin": "3\nbase contenu\nsgbd logiciel\nsql langage\n",
-        "expected": "base : OK\nsgbd : OK\nsql : OK\ncorrects : 3/3"
+        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (1, 'Amina', 'Reseaux'), (2, 'Koffi', 'Developpement');\n-- exemple",
+        "expected": "+----+-------+---------------+\n| id | nom   | filiere       |\n+----+-------+---------------+\n| 1  | Amina | Reseaux       |\n| 2  | Koffi | Developpement |\n+----+-------+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les quatre termes",
-        "stdin": "cas:1",
-        "expected": "base : OK\nsgbd : OK\nsql : OK\nrelationnel : OK\ncorrects : 4/4"
+        "label": "Deux étudiants",
+        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (1, 'Amina', 'Reseaux'), (2, 'Koffi', 'Developpement');",
+        "expected": "+----+-------+---------------+\n| id | nom   | filiere       |\n+----+-------+---------------+\n| 1  | Amina | Reseaux       |\n| 2  | Koffi | Developpement |\n+----+-------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Trois confusions",
-        "stdin": "cas:2",
-        "expected": "base : ERREUR\nsgbd : ERREUR\nsql : ERREUR\nrelationnel : OK\ncorrects : 1/4"
+        "label": "Trois étudiants",
+        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (1, 'Afi', 'Cyber'), (2, 'Yao', 'Cloud'), (3, 'Sena', 'Algo');",
+        "expected": "+----+------+---------+\n| id | nom  | filiere |\n+----+------+---------+\n| 1  | Afi  | Cyber   |\n| 2  | Yao  | Cloud   |\n| 3  | Sena | Algo    |\n+----+------+---------+\n(3 lignes retournées)"
       },
       {
-        "label": "Interro écrite",
-        "stdin": "cas:3",
-        "expected": "relationnel : OK\nsql : OK\nbase : OK\nsgbd : OK\nbase : ERREUR\ncorrects : 4/5"
+        "label": "Ordre d’insertion inversé",
+        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (10, 'Binta', 'SQL'), (5, 'Kodjo', 'Linux');",
+        "expected": "+----+-------+---------+\n| id | nom   | filiere |\n+----+-------+---------+\n| 5  | Kodjo | Linux   |\n| 10 | Binta | SQL     |\n+----+-------+---------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nbase : OK\nsgbd : OK\nsql : OK\ncorrects : 3/3\n\n[Cas 1 — Les quatre termes]\nbase : OK\nsgbd : OK\nsql : OK\nrelationnel : OK\ncorrects : 4/4\n\n[Cas 2 — Trois confusions]\nbase : ERREUR\nsgbd : ERREUR\nsql : ERREUR\nrelationnel : OK\ncorrects : 1/4\n\n[Cas 3 — Interro écrite]\nrelationnel : OK\nsql : OK\nbase : OK\nsgbd : OK\nbase : ERREUR\ncorrects : 4/5"
+    "solution": "-- Corrigé officiel sq-c1-e1\nSELECT * FROM etudiants ORDER BY id ASC;"
   },
   {
     "id": "sq-c1-e2",
     "chapter": 1,
-    "level": "n1",
-    "language": "analyse",
-    "title": "Les six fonctions d’une base",
-    "goal": "Valider la fonction FIQSCP cochée pour chaque besoin exprimé.",
-    "brief": "<p>Analysez chaque ligne proposée « besoin fonction » : fonction est un code parmi <code>fiable</code>, <code>volumes</code>, <code>rapide</code>, <code>sur</code>, <code>coherent</code> ou <code>partage</code>. Besoins du cours : restituer l’information à l’identique → <code>fiable</code> ; absorber de grands volumes → <code>volumes</code> ; répondre vite → <code>rapide</code> ; autoriser selon l’utilisateur → <code>sur</code> ; rester conforme au modèle → <code>coherent</code> ; servir plusieurs applications et métiers → <code>partage</code>. Pour chaque ligne il Indiquez <code>besoin : OK</code> ou <code>besoin : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c1-e2) — Les six fonctions d’une base\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les six fonctions]\n# Données : 6\n# Données : restitution fiable\n# Données : masse volumes\n# Données : reponse rapide\n# Données : acces sur\n# Données : qualite coherent\n# Données : metiers partage\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : restitution rapide\n# Données : masse fiable\n# Données : acces partage\n# Données : reponse rapide\nA_COMPLETER\n\n[Cas 3 — Support de cours]\n# Données : 5\n# Données : qualite coherent\n# Données : metiers partage\n# Données : acces sur\n# Données : masse volumes\n# Données : restitution fiable\nA_COMPLETER\n",
+    "level": "n2",
+    "language": "sql",
+    "title": "Projection de colonnes ciblées",
+    "goal": "Sélectionner uniquement certaines colonnes (projection relationnelle) avec SELECT.",
+    "brief": "<p>La table <code>cours(code, intitule, credits)</code> contient la liste des matières. Écrivez une requête SQL qui affiche uniquement les colonnes <code>code</code> et <code>intitule</code> (dans cet ordre), triées par <code>code</code> croissant.</p>",
+    "starter": "-- Sélectionnez uniquement code et intitule de la table cours\nSELECT * FROM cours;",
     "hints": [
-      "Un case sur le besoin : restitution → fiable, masse → volumes, reponse → rapide, acces → sur, qualite → coherent, metiers → partage.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Séparez les noms des colonnes souhaitées par une virgule après SELECT.",
+      "Terminez par ORDER BY code ASC;"
     ],
     "examples": [
       {
-        "stdin": "3\nrestitution fiable\nmasse volumes\nmetiers partage\n",
-        "expected": "restitution : OK\nmasse : OK\nmetiers : OK\ncorrects : 3/3"
+        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('INF101', 'Algorithmique', 6), ('INF102', 'Bases de donnees', 5);\n-- exemple",
+        "expected": "+--------+------------------+\n| code   | intitule         |\n+--------+------------------+\n| INF101 | Algorithmique    |\n| INF102 | Bases de donnees |\n+--------+------------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les six fonctions",
-        "stdin": "cas:1",
-        "expected": "restitution : OK\nmasse : OK\nreponse : OK\nacces : OK\nqualite : OK\nmetiers : OK\ncorrects : 6/6"
+        "label": "Deux cours d’informatique",
+        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('INF101', 'Algorithmique', 6), ('INF102', 'Bases de donnees', 5);",
+        "expected": "+--------+------------------+\n| code   | intitule         |\n+--------+------------------+\n| INF101 | Algorithmique    |\n| INF102 | Bases de donnees |\n+--------+------------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Trois confusions",
-        "stdin": "cas:2",
-        "expected": "restitution : ERREUR\nmasse : ERREUR\nacces : ERREUR\nreponse : OK\ncorrects : 1/4"
+        "label": "Trois matières",
+        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('RES201', 'Routage', 4), ('MAT101', 'Algebre', 4), ('SEC105', 'Cybersecurite', 5);",
+        "expected": "+--------+---------------+\n| code   | intitule      |\n+--------+---------------+\n| MAT101 | Algebre       |\n| RES201 | Routage       |\n| SEC105 | Cybersecurite |\n+--------+---------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Support de cours",
-        "stdin": "cas:3",
-        "expected": "qualite : OK\nmetiers : OK\nacces : OK\nmasse : OK\nrestitution : OK\ncorrects : 5/5"
+        "label": "Matière unique",
+        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('SYS101', 'Linux', 5);",
+        "expected": "+--------+----------+\n| code   | intitule |\n+--------+----------+\n| SYS101 | Linux    |\n+--------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nrestitution : OK\nmasse : OK\nmetiers : OK\ncorrects : 3/3\n\n[Cas 1 — Les six fonctions]\nrestitution : OK\nmasse : OK\nreponse : OK\nacces : OK\nqualite : OK\nmetiers : OK\ncorrects : 6/6\n\n[Cas 2 — Trois confusions]\nrestitution : ERREUR\nmasse : ERREUR\nacces : ERREUR\nreponse : OK\ncorrects : 1/4\n\n[Cas 3 — Support de cours]\nqualite : OK\nmetiers : OK\nacces : OK\nmasse : OK\nrestitution : OK\ncorrects : 5/5"
+    "solution": "-- Corrigé officiel sq-c1-e2\nSELECT code, intitule FROM cours ORDER BY code ASC;"
   },
   {
     "id": "sq-c1-e3",
     "chapter": 1,
-    "level": "n2",
-    "language": "analyse",
-    "title": "Clé primaire ou clé étrangère ?",
-    "goal": "Classer les contraintes de clés des tables Marque et Voiture.",
-    "brief": "<p>Analysez chaque ligne proposée « colonne role » : role est un code parmi <code>primaire</code>, <code>etrangere</code>, <code>attribut</code> ou <code>calcule</code>. Schéma du parc_auto : <code>codemarque</code> dans Marque → <code>primaire</code> ; <code>immat</code> dans Voiture → <code>primaire</code> ; <code>marque</code> dans Voiture (copie de codemarque) → <code>etrangere</code> ; <code>pxachat</code> dans Voiture → <code>attribut</code> ; <code>nb</code> issu d’un COUNT → <code>calcule</code>. Pour chaque ligne il Indiquez <code>colonne : OK</code> ou <code>colonne : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c1-e3) — Clé primaire ou clé étrangère ?\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les cinq colonnes]\n# Données : 5\n# Données : codemarque primaire\n# Données : immat primaire\n# Données : marque etrangere\n# Données : pxachat attribut\n# Données : nb calcule\nA_COMPLETER\n\n[Cas 2 — Trois erreurs de rôle]\n# Données : 4\n# Données : marque primaire\n# Données : immat etrangere\n# Données : nb attribut\n# Données : pxachat attribut\nA_COMPLETER\n\n[Cas 3 — Schema du parc]\n# Données : 5\n# Données : pxachat attribut\n# Données : nb calcule\n# Données : marque etrangere\n# Données : immat primaire\n# Données : codemarque primaire\nA_COMPLETER\n",
+    "level": "n3",
+    "language": "sql",
+    "title": "Éliminer les doublons avec DISTINCT",
+    "goal": "Extraire la liste sans doublons des valeurs d’une colonne avec SELECT DISTINCT.",
+    "brief": "<p>La table <code>enseignants(id, nom, departement)</code> contient plusieurs professeurs par département. Écrivez une requête SQL qui renvoie la liste sans doublon des départements (colonne <code>departement</code>), triée par ordre alphabétique croissant.</p>",
+    "starter": "-- Affichez les départements distincts triés par ordre alphabétique\nSELECT departement FROM enseignants;",
     "hints": [
-      "Un case sur la colonne : codemarque/immat → primaire, marque → etrangere, pxachat → attribut, nb → calcule.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Placez le mot-clé DISTINCT juste après SELECT.",
+      "Ajoutez ORDER BY departement ASC pour trier les résultats."
     ],
     "examples": [
       {
-        "stdin": "3\ncodemarque primaire\nimmat primaire\nmarque etrangere\n",
-        "expected": "codemarque : OK\nimmat : OK\nmarque : OK\ncorrects : 3/3"
+        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'Dr Edoh', 'Informatique'), (2, 'Mme Agbegnan', 'Informatique'), (3, 'M. Lawson', 'Mathematiques');\n-- exemple",
+        "expected": "+---------------+\n| departement   |\n+---------------+\n| Informatique  |\n| Mathematiques |\n+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les cinq colonnes",
-        "stdin": "cas:1",
-        "expected": "codemarque : OK\nimmat : OK\nmarque : OK\npxachat : OK\nnb : OK\ncorrects : 5/5"
+        "label": "Doublons simples",
+        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'Dr Edoh', 'Informatique'), (2, 'Mme Agbegnan', 'Informatique'), (3, 'M. Lawson', 'Mathematiques');",
+        "expected": "+---------------+\n| departement   |\n+---------------+\n| Informatique  |\n| Mathematiques |\n+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Trois erreurs de rôle",
-        "stdin": "cas:2",
-        "expected": "marque : ERREUR\nimmat : ERREUR\nnb : ERREUR\npxachat : OK\ncorrects : 1/4"
+        "label": "Trois départements répétés",
+        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'A', 'Reseaux'), (2, 'B', 'Droit'), (3, 'C', 'Reseaux'), (4, 'D', 'Gestion'), (5, 'E', 'Droit');",
+        "expected": "+-------------+\n| departement |\n+-------------+\n| Droit       |\n| Gestion     |\n| Reseaux     |\n+-------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Schema du parc",
-        "stdin": "cas:3",
-        "expected": "pxachat : OK\nnb : OK\nmarque : OK\nimmat : OK\ncodemarque : OK\ncorrects : 5/5"
+        "label": "Tous dans le même département",
+        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'A', 'Cyber'), (2, 'B', 'Cyber');",
+        "expected": "+-------------+\n| departement |\n+-------------+\n| Cyber       |\n+-------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\ncodemarque : OK\nimmat : OK\nmarque : OK\ncorrects : 3/3\n\n[Cas 1 — Les cinq colonnes]\ncodemarque : OK\nimmat : OK\nmarque : OK\npxachat : OK\nnb : OK\ncorrects : 5/5\n\n[Cas 2 — Trois erreurs de rôle]\nmarque : ERREUR\nimmat : ERREUR\nnb : ERREUR\npxachat : OK\ncorrects : 1/4\n\n[Cas 3 — Schema du parc]\npxachat : OK\nnb : OK\nmarque : OK\nimmat : OK\ncodemarque : OK\ncorrects : 5/5"
+    "solution": "-- Corrigé officiel sq-c1-e3\nSELECT DISTINCT departement FROM enseignants ORDER BY departement ASC;"
   },
   {
     "id": "sq-c2-e1",
     "chapter": 2,
     "level": "n1",
-    "language": "analyse",
-    "title": "Le type SQL de chaque colonne",
-    "goal": "Valider le type du schéma parc_auto colonne par colonne.",
-    "brief": "<p>Analysez chaque ligne proposée « colonne type » : type est un code parmi <code>text</code>, <code>entier</code> ou <code>date</code>. Schéma du support : immat, marque, moteur et datecirc → <code>text</code> (datecirc stocké TEXT sous SQLite, format AAAA-MM-JJ qui se trie comme une chaîne) ; km, pxachat et nbreplace → <code>entier</code>. Pour chaque ligne il Indiquez <code>colonne : OK</code> ou <code>colonne : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c2-e1) — Le type SQL de chaque colonne\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les sept colonnes]\n# Données : 7\n# Données : immat text\n# Données : marque text\n# Données : moteur text\n# Données : datecirc text\n# Données : km entier\n# Données : pxachat entier\n# Données : nbreplace entier\nA_COMPLETER\n\n[Cas 2 — Trois erreurs de type]\n# Données : 4\n# Données : km text\n# Données : immat entier\n# Données : nbreplace text\n# Données : datecirc text\nA_COMPLETER\n\n[Cas 3 — Schema Voiture]\n# Données : 7\n# Données : nbreplace entier\n# Données : datecirc text\n# Données : pxachat entier\n# Données : moteur text\n# Données : km entier\n# Données : marque text\n# Données : immat text\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Créer une table avec clé primaire",
+    "goal": "Écrire une instruction CREATE TABLE définissant des colonnes typées et une clé primaire.",
+    "brief": "<p>Écrivez une instruction SQL <code>CREATE TABLE salles</code> comportant trois colonnes : <code>numero</code> (type <code>INT PRIMARY KEY</code>), <code>batiment</code> (type <code>TEXT NOT NULL</code>) et <code>capacite</code> (type <code>INT</code>), puis insérez les lignes fournies par le test.</p>",
+    "starter": "-- Créez la table salles(numero, batiment, capacite)\nCREATE TABLE salles (\n  numero INT\n);",
     "hints": [
-      "Un case sur la colonne : immat/marque/moteur/datecirc → text, km/pxachat/nbreplace → entier.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Déclarez numero INT PRIMARY KEY comme première colonne.",
+      "Déclarez batiment TEXT NOT NULL et capacite INT."
     ],
     "examples": [
       {
-        "stdin": "3\nimmat text\nkm entier\npxachat entier\n",
-        "expected": "immat : OK\nkm : OK\npxachat : OK\ncorrects : 3/3"
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les sept colonnes",
-        "stdin": "cas:1",
-        "expected": "immat : OK\nmarque : OK\nmoteur : OK\ndatecirc : OK\nkm : OK\npxachat : OK\nnbreplace : OK\ncorrects : 7/7"
+        "label": "Deux salles de cours",
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)"
       },
       {
-        "label": "Trois erreurs de type",
-        "stdin": "cas:2",
-        "expected": "km : ERREUR\nimmat : ERREUR\nnbreplace : ERREUR\ndatecirc : OK\ncorrects : 1/4"
+        "label": "Amphithéâtre et labo",
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;\n-- cas 2",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)"
       },
       {
-        "label": "Schema Voiture",
-        "stdin": "cas:3",
-        "expected": "nbreplace : OK\ndatecirc : OK\npxachat : OK\nmoteur : OK\nkm : OK\nmarque : OK\nimmat : OK\ncorrects : 7/7"
+        "label": "Trois salles",
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;\n-- cas 3",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nimmat : OK\nkm : OK\npxachat : OK\ncorrects : 3/3\n\n[Cas 1 — Les sept colonnes]\nimmat : OK\nmarque : OK\nmoteur : OK\ndatecirc : OK\nkm : OK\npxachat : OK\nnbreplace : OK\ncorrects : 7/7\n\n[Cas 2 — Trois erreurs de type]\nkm : ERREUR\nimmat : ERREUR\nnbreplace : ERREUR\ndatecirc : OK\ncorrects : 1/4\n\n[Cas 3 — Schema Voiture]\nnbreplace : OK\ndatecirc : OK\npxachat : OK\nmoteur : OK\nkm : OK\nmarque : OK\nimmat : OK\ncorrects : 7/7"
+    "solution": "-- Corrigé officiel sq-c2-e1\nCREATE TABLE salles (\n  numero INT PRIMARY KEY,\n  batiment TEXT NOT NULL,\n  capacite INT\n);"
   },
   {
     "id": "sq-c2-e2",
     "chapter": 2,
     "level": "n2",
-    "language": "analyse",
-    "title": "INSERT : ligne conforme ou rejetée ?",
-    "goal": "Décider si une insertion respecte les contraintes NOT NULL et PRIMARY KEY.",
-    "brief": "<p>Analysez chaque ligne proposée « immat marque moteur km pxachat nbreplace ». Contraintes de Voiture : immat (clé primaire), marque et moteur (NOT NULL) obligatoires — la valeur <code>-</code> signifie absent ; km, pxachat et nbreplace, entiers. Règles de refus : clé primaire absente, marque ou moteur absent, valeur non numérique dans km/pxachat/nbreplace. Pour chaque ligne il Indiquez <code>immat : inseree</code> ou <code>immat : rejetee (raison)</code> avec raison = <code>cle</code>, <code>obligatoire</code> ou <code>type</code> (dans cet ordre de priorité), puis <code>insertions : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c2-e2) — INSERT : ligne conforme ou rejetée ?\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois rejets distincts]\n# Données : 3\n# Données : TG-2222-AA RENAULT DIESEL 0 15000000 5\n# Données : TG-3333-AA - DIESEL 0 15000000 5\n# Données : TG-4444-AA PEUGEOT ESSENCE dix 15000000 5\nA_COMPLETER\n\n[Cas 2 — Lot du stage]\n# Données : 4\n# Données : TG-5555-AA KIA ESSENCE 0 50000000 7\n# Données : TG-6666-AA MG ESSENCE 0 20000000 5\n# Données : TG-7777-AA MAZDA ESSENCE - 17000000 5\n# Données : TG-8888-AA NISSAN ESSENCE 0 10000000 cinq\nA_COMPLETER\n\n[Cas 3 — Reprise du support]\n# Données : 3\n# Données : TG-9999-AA TOYOTA HYBRIDE 0 25000000 7\n# Données : - - - 0 0 0\n# Données : TG-1212-AA HYUNDAI ELECTRIQUE 0 23000000 5\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Valeur par défaut (DEFAULT) et contrainte NOT NULL",
+    "goal": "Utiliser la clause DEFAULT lors de la création d’une table SQL.",
+    "brief": "<p>Créez la table <code>comptes(id INT PRIMARY KEY, login TEXT NOT NULL, actif INT DEFAULT 1)</code> pour que toute insertion omettant la colonne <code>actif</code> reçoive automatiquement la valeur <code>1</code>.</p>",
+    "starter": "-- Créez la table comptes avec actif INT DEFAULT 1\nCREATE TABLE comptes (id INT PRIMARY KEY, login TEXT NOT NULL, actif INT);",
     "hints": [
-      "Contrôle 1 : immat = \"-\" → rejetee (cle). Contrôle 2 : marque = \"-\" ou moteur = \"-\" → rejetee (obligatoire).",
-      "Contrôle 3 : case sur km, pxachat, nbreplace — tout motif contenant un caractère autre que 0-9 → rejetee (type)."
+      "Utilisez la syntaxe actif INT DEFAULT 1 dans la définition de colonne.",
+      "Assurez-vous que id est PRIMARY KEY et login est NOT NULL."
     ],
     "examples": [
       {
-        "stdin": "2\nTG-1111-AA TOYOTA DIESEL 0 5000000 5\n- BMW ESSENCE 0 10000000 5\n",
-        "expected": "TG-1111-AA : inseree\n- : rejetee (cle)\ninsertions : 1/2"
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Trois rejets distincts",
-        "stdin": "cas:1",
-        "expected": "TG-2222-AA : inseree\nTG-3333-AA : rejetee (obligatoire)\nTG-4444-AA : rejetee (type)\ninsertions : 1/3"
+        "label": "Insertion avec valeur par défaut",
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)"
       },
       {
-        "label": "Lot du stage",
-        "stdin": "cas:2",
-        "expected": "TG-5555-AA : inseree\nTG-6666-AA : inseree\nTG-7777-AA : rejetee (type)\nTG-8888-AA : rejetee (type)\ninsertions : 2/4"
+        "label": "Deux comptes actifs par défaut",
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;\n-- cas 2",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)"
       },
       {
-        "label": "Reprise du support",
-        "stdin": "cas:3",
-        "expected": "TG-9999-AA : inseree\n- : rejetee (cle)\nTG-1212-AA : inseree\ninsertions : 2/3"
+        "label": "Mélange implicite et explicite",
+        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;\n-- cas 3",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nTG-1111-AA : inseree\n- : rejetee (cle)\ninsertions : 1/2\n\n[Cas 1 — Trois rejets distincts]\nTG-2222-AA : inseree\nTG-3333-AA : rejetee (obligatoire)\nTG-4444-AA : rejetee (type)\ninsertions : 1/3\n\n[Cas 2 — Lot du stage]\nTG-5555-AA : inseree\nTG-6666-AA : inseree\nTG-7777-AA : rejetee (type)\nTG-8888-AA : rejetee (type)\ninsertions : 2/4\n\n[Cas 3 — Reprise du support]\nTG-9999-AA : inseree\n- : rejetee (cle)\nTG-1212-AA : inseree\ninsertions : 2/3"
+    "solution": "-- Corrigé officiel sq-c2-e2\nCREATE TABLE comptes (\n  id INT PRIMARY KEY,\n  login TEXT NOT NULL,\n  actif INT DEFAULT 1\n);"
   },
   {
     "id": "sq-c2-e3",
     "chapter": 2,
     "level": "n3",
-    "language": "analyse",
-    "title": "L’ordre des clauses CREATE TABLE",
-    "goal": "Valider l’ordre du cycle : CREATE TABLE, colonnes, INSERT.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Pour chaque ligne il Indiquez <code>etape N : OK</code> quand l’étape ET son objet sont justes, sinon <code>etape N : NON</code>, puis <code>etapes correctes : X/4</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c2-e3) — L’ordre des clauses CREATE TABLE\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux dernières inversées]\n# Données : create table\n# Données : colonne type\n# Données : insert donnees\n# Données : cle primaire\nA_COMPLETER\n\n[Cas 2 — Objets échangés]\n# Données : create type\n# Données : colonne table\n# Données : cle primaire\n# Données : insert donnees\nA_COMPLETER\n\n[Cas 3 — Ordre mélangé]\n# Données : colonne type\n# Données : create table\n# Données : cle primaire\n# Données : insert donnees\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Ajouter une colonne avec ALTER TABLE",
+    "goal": "Faire évoluer le schéma d’une table existante avec ALTER TABLE ADD COLUMN.",
+    "brief": "<p>La table <code>materiels(id INT PRIMARY KEY, designation TEXT)</code> existe déjà. Écrivez l’instruction SQL permettant de lui ajouter une colonne <code>garantie_mois INT DEFAULT 12</code>.</p>",
+    "starter": "-- Ajoutez la colonne garantie_mois INT DEFAULT 12 à la table materiels\nSELECT * FROM materiels;",
     "hints": [
-      "Un case sur le numéro : 1 → create/table, 2 → colonne/type, 3 → cle/primaire, 4 → insert/donnees.",
-      "Les deux conditions doivent être vraies en même temps : etape ET objet."
+      "Utilisez la commande ALTER TABLE materiels ADD COLUMN ...",
+      "Précisez le type INT suivi de DEFAULT 12."
     ],
     "examples": [
       {
-        "stdin": "create table\ncolonne type\ncle primaire\ninsert donnees\n",
-        "expected": "etape 1 : OK\netape 2 : OK\netape 3 : OK\netape 4 : OK\netapes correctes : 4/4"
+        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Deux dernières inversées",
-        "stdin": "cas:1",
-        "expected": "etape 1 : OK\netape 2 : OK\netape 3 : NON\netape 4 : NON\netapes correctes : 2/4"
+        "label": "Équipements réseau existants",
+        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)"
       },
       {
-        "label": "Objets échangés",
-        "stdin": "cas:2",
-        "expected": "etape 1 : NON\netape 2 : NON\netape 3 : OK\netape 4 : OK\netapes correctes : 2/4"
+        "label": "Postes de travail",
+        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;\n-- cas 2",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)"
       },
       {
-        "label": "Ordre mélangé",
-        "stdin": "cas:3",
-        "expected": "etape 1 : NON\netape 2 : NON\netape 3 : OK\netape 4 : OK\netapes correctes : 2/4"
+        "label": "Insertion après ALTER TABLE",
+        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;\n-- cas 3",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\netape 1 : OK\netape 2 : OK\netape 3 : OK\netape 4 : OK\netapes correctes : 4/4\n\n[Cas 1 — Deux dernières inversées]\netape 1 : OK\netape 2 : OK\netape 3 : NON\netape 4 : NON\netapes correctes : 2/4\n\n[Cas 2 — Objets échangés]\netape 1 : NON\netape 2 : NON\netape 3 : OK\netape 4 : OK\netapes correctes : 2/4\n\n[Cas 3 — Ordre mélangé]\netape 1 : NON\netape 2 : NON\netape 3 : OK\netape 4 : OK\netapes correctes : 2/4"
+    "solution": "-- Corrigé officiel sq-c2-e3\nALTER TABLE materiels ADD COLUMN garantie_mois INT DEFAULT 12;"
   },
   {
     "id": "sq-c3-e1",
     "chapter": 3,
     "level": "n1",
-    "language": "analyse",
-    "title": "Clause ou mot-clé SQL ?",
-    "goal": "Associer chaque mot du SELECT à sa famille.",
-    "brief": "<p>Analysez chaque ligne proposée « mot famille » : famille est un code parmi <code>projection</code>, <code>filtrage</code>, <code>tri</code> ou <code>limite</code>. Vocabulaire du chapitre : SELECT et les colonnes affichées → <code>projection</code> ; WHERE et DISTINCT → <code>filtrage</code> ; ORDER BY → <code>tri</code> ; LIMIT → <code>limite</code>. Pour chaque ligne il Indiquez <code>mot : OK</code> ou <code>mot : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c3-e1) — Clause ou mot-clé SQL ?\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les cinq mots]\n# Données : 5\n# Données : select projection\n# Données : where filtrage\n# Données : distinct filtrage\n# Données : order tri\n# Données : limit limite\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : where tri\n# Données : select filtrage\n# Données : order limite\n# Données : limit limite\nA_COMPLETER\n\n[Cas 3 — Requête complète]\n# Données : 5\n# Données : limit limite\n# Données : order tri\n# Données : distinct filtrage\n# Données : where filtrage\n# Données : select projection\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Filtrer les lignes avec WHERE",
+    "goal": "Sélectionner les enregistrements vérifiant une condition numérique avec WHERE.",
+    "brief": "<p>La table <code>notes(etudiant, matiere, note)</code> contient les résultats du semestre. Écrivez une requête SQL affichant <code>etudiant</code> et <code>note</code> pour les lignes où <code>note &gt;= 12</code>, triées par <code>note</code> décroissante puis <code>etudiant</code> croissant.</p>",
+    "starter": "-- Sélectionnez etudiant et note lorsque note >= 12\nSELECT etudiant, note FROM notes;",
     "hints": [
-      "Un case sur le mot : select → projection, where/distinct → filtrage, order → tri, limit → limite.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Ajoutez la clause WHERE note >= 12 après FROM notes.",
+      "Triez avec ORDER BY note DESC, etudiant ASC."
     ],
     "examples": [
       {
-        "stdin": "3\nselect projection\nwhere filtrage\nlimit limite\n",
-        "expected": "select : OK\nwhere : OK\nlimit : OK\ncorrects : 3/3"
+        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Amina', 'SQL', 16), ('Koffi', 'SQL', 9), ('Yao', 'SQL', 14);\n-- exemple",
+        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Amina    | 16   |\n| Yao      | 14   |\n+----------+------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les cinq mots",
-        "stdin": "cas:1",
-        "expected": "select : OK\nwhere : OK\ndistinct : OK\norder : OK\nlimit : OK\ncorrects : 5/5"
+        "label": "Trois notes dont une sous la moyenne",
+        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Amina', 'SQL', 16), ('Koffi', 'SQL', 9), ('Yao', 'SQL', 14);",
+        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Amina    | 16   |\n| Yao      | 14   |\n+----------+------+\n(2 lignes retournées)"
       },
       {
-        "label": "Trois confusions",
-        "stdin": "cas:2",
-        "expected": "where : ERREUR\nselect : ERREUR\norder : ERREUR\nlimit : OK\ncorrects : 1/4"
+        "label": "Cas limite à 12 pile",
+        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Sena', 'Algo', 12), ('Binta', 'Algo', 11), ('Kodjo', 'Algo', 18), ('Afi', 'Algo', 12);",
+        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Kodjo    | 18   |\n| Afi      | 12   |\n| Sena     | 12   |\n+----------+------+\n(3 lignes retournées)"
       },
       {
-        "label": "Requête complète",
-        "stdin": "cas:3",
-        "expected": "limit : OK\norder : OK\ndistinct : OK\nwhere : OK\nselect : OK\ncorrects : 5/5"
+        "label": "Toutes les notes excellentes",
+        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Léa', 'Web', 15), ('Marc', 'Web', 19);",
+        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Marc     | 19   |\n| Léa      | 15   |\n+----------+------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nselect : OK\nwhere : OK\nlimit : OK\ncorrects : 3/3\n\n[Cas 1 — Les cinq mots]\nselect : OK\nwhere : OK\ndistinct : OK\norder : OK\nlimit : OK\ncorrects : 5/5\n\n[Cas 2 — Trois confusions]\nwhere : ERREUR\nselect : ERREUR\norder : ERREUR\nlimit : OK\ncorrects : 1/4\n\n[Cas 3 — Requête complète]\nlimit : OK\norder : OK\ndistinct : OK\nwhere : OK\nselect : OK\ncorrects : 5/5"
+    "solution": "-- Corrigé officiel sq-c3-e1\nSELECT etudiant, note FROM notes WHERE note >= 12 ORDER BY note DESC, etudiant ASC;"
   },
   {
     "id": "sq-c3-e2",
     "chapter": 3,
     "level": "n2",
-    "language": "analyse",
-    "title": "Diesels de luxe : filtrer le parc",
-    "goal": "Appliquer un filtre WHERE à deux conditions avec comparaisons numériques.",
-    "brief": "<p>Analysez chaque ligne proposée « immat moteur prix » et rejoue la mission « Diesels de luxe » : afficher les voitures dont <code>moteur</code> vaut DIESEL et dont le prix dépasse 20 millions (strictement). Le nom de marque ne fait pas partie des données. Pour chaque voiture il Indiquez <code>immat : retient</code> si les deux conditions sont vraies, sinon <code>immat : ecarte</code>, puis <code>retenues : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c3-e2) — Diesels de luxe : filtrer le parc\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Moteur seul]\n# Données : 3\n# Données : TG-2222-BC DIESEL 15000000\n# Données : TG-7854-Z DIESEL 6000000\n# Données : TG-4444-BC DIESEL 30000000\nA_COMPLETER\n\n[Cas 2 — Prix seul]\n# Données : 3\n# Données : TG-9420-AF ESSENCE 50000000\n# Données : TG-5420-AL ESSENCE 50000000\n# Données : TG-2540-AW ESSENCE 50000000\nA_COMPLETER\n\n[Cas 3 — Sélection complète]\n# Données : 4\n# Données : TG-9420-AF DIESEL 50000000\n# Données : TG-9420-AK DIESEL 50000000\n# Données : TG-0020-AL DIESEL 50000000\n# Données : TG-6733-AC DIESEL 9600000\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Recherche par motif avec LIKE et intervalle BETWEEN",
+    "goal": "Combiner les opérateurs BETWEEN et LIKE dans une clause WHERE.",
+    "brief": "<p>Dans la table <code>produits(id, nom, prix)</code>, sélectionnez <code>nom</code> et <code>prix</code> des produits dont le <code>prix</code> est compris entre <code>1000</code> et <code>50000</code> inclus (<code>BETWEEN 1000 AND 50000</code>) et dont le <code>nom</code> commence par <code>'Cable'</code> (<code>LIKE 'Cable%'</code>), triés par <code>prix</code> croissant.</p>",
+    "starter": "-- Filtrez avec BETWEEN et LIKE\nSELECT nom, prix FROM produits;",
     "hints": [
-      "Les deux conditions en ET : moteur = DIESEL et prix -gt 20000000.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Utilisez WHERE prix BETWEEN 1000 AND 50000 AND nom LIKE 'Cable%'.",
+      "Terminez par ORDER BY prix ASC;"
     ],
     "examples": [
       {
-        "stdin": "3\nTG-9420-AF ESSENCE 50000000\nTG-6733-AC DIESEL 9600000\nTG-0020-AL DIESEL 50000000\n",
-        "expected": "TG-9420-AF : ecarte\nTG-6733-AC : ecarte\nTG-0020-AL : retient\nretenues : 1/3"
+        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable RJ45', 2500), (2, 'Cable HDMI', 5000), (3, 'Switch Pro', 15000), (4, 'Cable Fibre Bobine', 85000);\n-- exemple",
+        "expected": "+------------+------+\n| nom        | prix |\n+------------+------+\n| Cable RJ45 | 2500 |\n| Cable HDMI | 5000 |\n+------------+------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Moteur seul",
-        "stdin": "cas:1",
-        "expected": "TG-2222-BC : ecarte\nTG-7854-Z : ecarte\nTG-4444-BC : retient\nretenues : 1/3"
+        "label": "Câbles dans la fourchette de prix",
+        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable RJ45', 2500), (2, 'Cable HDMI', 5000), (3, 'Switch Pro', 15000), (4, 'Cable Fibre Bobine', 85000);",
+        "expected": "+------------+------+\n| nom        | prix |\n+------------+------+\n| Cable RJ45 | 2500 |\n| Cable HDMI | 5000 |\n+------------+------+\n(2 lignes retournées)"
       },
       {
-        "label": "Prix seul",
-        "stdin": "cas:2",
-        "expected": "TG-9420-AF : ecarte\nTG-5420-AL : ecarte\nTG-2540-AW : ecarte\nretenues : 0/3"
+        "label": "Bornes exactes 1000 et 50000",
+        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable USB', 1000), (2, 'Cable Blindé', 50000), (3, 'Cable Mini', 500);",
+        "expected": "+--------------+-------+\n| nom          | prix  |\n+--------------+-------+\n| Cable USB    | 1000  |\n| Cable Blindé | 50000 |\n+--------------+-------+\n(2 lignes retournées)"
       },
       {
-        "label": "Sélection complète",
-        "stdin": "cas:3",
-        "expected": "TG-9420-AF : retient\nTG-9420-AK : retient\nTG-0020-AL : retient\nTG-6733-AC : ecarte\nretenues : 3/4"
+        "label": "Un seul câble éligible",
+        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Souris', 4000), (2, 'Cable Console', 8000);",
+        "expected": "+---------------+------+\n| nom           | prix |\n+---------------+------+\n| Cable Console | 8000 |\n+---------------+------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nTG-9420-AF : ecarte\nTG-6733-AC : ecarte\nTG-0020-AL : retient\nretenues : 1/3\n\n[Cas 1 — Moteur seul]\nTG-2222-BC : ecarte\nTG-7854-Z : ecarte\nTG-4444-BC : retient\nretenues : 1/3\n\n[Cas 2 — Prix seul]\nTG-9420-AF : ecarte\nTG-5420-AL : ecarte\nTG-2540-AW : ecarte\nretenues : 0/3\n\n[Cas 3 — Sélection complète]\nTG-9420-AF : retient\nTG-9420-AK : retient\nTG-0020-AL : retient\nTG-6733-AC : ecarte\nretenues : 3/4"
+    "solution": "-- Corrigé officiel sq-c3-e2\nSELECT nom, prix FROM produits WHERE prix BETWEEN 1000 AND 50000 AND nom LIKE 'Cable%' ORDER BY prix ASC;"
   },
   {
     "id": "sq-c3-e3",
     "chapter": 3,
     "level": "n3",
-    "language": "analyse",
-    "title": "Le TOP 3 des prix : LIMIT après tri",
-    "goal": "Trier par prix décroissant puis retenir les trois premières lignes.",
-    "brief": "<p>Analysez chaque ligne proposée « immat prix », trie mentalement par prix décroissant (égalité : la ligne lue en premier reste devant) et retient les <strong>3 premiers</strong> — comme <code>ORDER BY pxachat DESC LIMIT 3</code>. Il Indiquez d’abord chaque ligne <code>immat : prix</code> triée (du plus cher au moins cher, tout le lot), puis <code>top3 : immat1,immat2,immat3</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c3-e3) — Le TOP 3 des prix : LIMIT après tri\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cinq voitures]\n# Données : 5\n# Données : TG-0001-AA 25000000\n# Données : TG-0002-AA 50000000\n# Données : TG-0003-AA 10000000\n# Données : TG-0004-AA 20000000\n# Données : TG-0005-AA 17000000\nA_COMPLETER\n\n[Cas 2 — Égalité de prix]\n# Données : 4\n# Données : TG-0001-AA 50000000\n# Données : TG-0002-AA 50000000\n# Données : TG-0003-AA 6000000\n# Données : TG-0004-AA 20000000\nA_COMPLETER\n\n[Cas 3 — Ordre déjà trié]\n# Données : 3\n# Données : TG-0001-AA 50000000\n# Données : TG-0002-AA 25000000\n# Données : TG-0003-AA 10000000\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Valeurs absentes IS NULL et pagination LIMIT",
+    "goal": "Identifier les enregistrements dont une colonne vaut NULL avec IS NULL.",
+    "brief": "<p>Dans la table <code>livraisons(id_commande, client, date_livraison)</code>, les commandes non encore livrées ont <code>date_livraison</code> à <code>NULL</code>. Affichez <code>id_commande</code> et <code>client</code> des commandes non livrées, triées par <code>id_commande</code> croissant.</p>",
+    "starter": "-- Sélectionnez les commandes dont date_livraison est NULL\nSELECT id_commande, client FROM livraisons;",
     "hints": [
-      "Tri par sélection : à chaque tour, chercher le plus grand prix restant et l’échanger avec la position courante.",
-      "L’échange ne se fait que si le prix est STRICTEMENT supérieur : l’égalité conserve l’ordre de lecture."
+      "En SQL, on teste l’absence de valeur avec IS NULL (et jamais avec = NULL).",
+      "Ajoutez ORDER BY id_commande ASC."
     ],
     "examples": [
       {
-        "stdin": "3\nTG-0001-AA 25000000\nTG-0002-AA 50000000\nTG-0003-AA 10000000\n",
-        "expected": "TG-0002-AA : 50000000\nTG-0001-AA : 25000000\nTG-0003-AA : 10000000\ntop3 : TG-0002-AA,TG-0001-AA,TG-0003-AA"
+        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (101, 'Amina', '2026-03-01'), (102, 'Koffi', NULL), (103, 'Yao', NULL);\n-- exemple",
+        "expected": "+-------------+--------+\n| id_commande | client |\n+-------------+--------+\n| 102         | Koffi  |\n| 103         | Yao    |\n+-------------+--------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Cinq voitures",
-        "stdin": "cas:1",
-        "expected": "TG-0002-AA : 50000000\nTG-0001-AA : 25000000\nTG-0004-AA : 20000000\nTG-0005-AA : 17000000\nTG-0003-AA : 10000000\ntop3 : TG-0002-AA,TG-0001-AA,TG-0004-AA"
+        "label": "Deux commandes en attente",
+        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (101, 'Amina', '2026-03-01'), (102, 'Koffi', NULL), (103, 'Yao', NULL);",
+        "expected": "+-------------+--------+\n| id_commande | client |\n+-------------+--------+\n| 102         | Koffi  |\n| 103         | Yao    |\n+-------------+--------+\n(2 lignes retournées)"
       },
       {
-        "label": "Égalité de prix",
-        "stdin": "cas:2",
-        "expected": "TG-0001-AA : 50000000\nTG-0002-AA : 50000000\nTG-0004-AA : 20000000\nTG-0003-AA : 6000000\ntop3 : TG-0001-AA,TG-0002-AA,TG-0004-AA"
+        "label": "Une seule commande non livrée",
+        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (1, 'Societe A', '2026-01-10'), (2, 'Societe B', NULL), (3, 'Societe C', '2026-01-12');",
+        "expected": "+-------------+-----------+\n| id_commande | client    |\n+-------------+-----------+\n| 2           | Societe B |\n+-------------+-----------+\n(1 ligne retournée)"
       },
       {
-        "label": "Ordre déjà trié",
-        "stdin": "cas:3",
-        "expected": "TG-0001-AA : 50000000\nTG-0002-AA : 25000000\nTG-0003-AA : 10000000\ntop3 : TG-0001-AA,TG-0002-AA,TG-0003-AA"
+        "label": "Trois commandes en attente",
+        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (10, 'Client X', NULL), (20, 'Client Y', NULL), (30, 'Client Z', NULL);",
+        "expected": "+-------------+----------+\n| id_commande | client   |\n+-------------+----------+\n| 10          | Client X |\n| 20          | Client Y |\n| 30          | Client Z |\n+-------------+----------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nTG-0002-AA : 50000000\nTG-0001-AA : 25000000\nTG-0003-AA : 10000000\ntop3 : TG-0002-AA,TG-0001-AA,TG-0003-AA\n\n[Cas 1 — Cinq voitures]\nTG-0002-AA : 50000000\nTG-0001-AA : 25000000\nTG-0004-AA : 20000000\nTG-0005-AA : 17000000\nTG-0003-AA : 10000000\ntop3 : TG-0002-AA,TG-0001-AA,TG-0004-AA\n\n[Cas 2 — Égalité de prix]\nTG-0001-AA : 50000000\nTG-0002-AA : 50000000\nTG-0004-AA : 20000000\nTG-0003-AA : 6000000\ntop3 : TG-0001-AA,TG-0002-AA,TG-0004-AA\n\n[Cas 3 — Ordre déjà trié]\nTG-0001-AA : 50000000\nTG-0002-AA : 25000000\nTG-0003-AA : 10000000\ntop3 : TG-0001-AA,TG-0002-AA,TG-0003-AA"
+    "solution": "-- Corrigé officiel sq-c3-e3\nSELECT id_commande, client FROM livraisons WHERE date_livraison IS NULL ORDER BY id_commande ASC;"
   },
   {
     "id": "sq-c4-e1",
     "chapter": 4,
     "level": "n1",
-    "language": "analyse",
-    "title": "Jointure ou pas ?",
-    "goal": "Décider quelle jointure porte chaque besoin du rapport.",
-    "brief": "<p>Analysez chaque ligne proposée « besoin jointure » : jointure est un code parmi <code>inner</code>, <code>left</code> ou <code>aucune</code>. Règles du cours : les deux tables ont des lignes correspondantes → <code>inner</code> ; garder toutes les lignes de gauche même sans correspondance → <code>left</code> ; une seule table suffit → <code>aucune</code>. Pour chaque ligne il Indiquez <code>besoin : OK</code> ou <code>besoin : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c4-e1) — Jointure ou pas ?\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les trois cas]\n# Données : 3\n# Données : rapprochement inner\n# Données : complets left\n# Données : une_table aucune\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : rapprochement left\n# Données : complets inner\n# Données : une_table inner\n# Données : complets left\nA_COMPLETER\n\n[Cas 3 — Rapport du parc]\n# Données : 5\n# Données : complets left\n# Données : rapprochement inner\n# Données : une_table aucune\n# Données : rapprochement inner\n# Données : complets left\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Jointure interne (INNER JOIN) entre deux tables",
+    "goal": "Associer chaque ligne d’une table enfant à sa table parente via INNER JOIN ... ON.",
+    "brief": "<p>Soient les tables <code>departements(id, nom_dep)</code> et <code>employes(id, nom_emp, dep_id)</code>. Écrivez une requête SQL affichant <code>nom_emp</code> et <code>nom_dep</code> pour chaque employé affecté à un département, triée par <code>nom_emp</code> croissant.</p>",
+    "starter": "-- Joignez employes et departements\nSELECT nom_emp FROM employes;",
     "hints": [
-      "Un case sur le besoin : rapprochement → inner, complets → left, une_table → aucune.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Utilisez INNER JOIN departements d ON e.dep_id = d.id.",
+      "Sélectionnez e.nom_emp, d.nom_dep et triez par e.nom_emp ASC."
     ],
     "examples": [
       {
-        "stdin": "3\ncomplets left\nrapprochement inner\nune_table aucune\n",
-        "expected": "complets : OK\nrapprochement : OK\nune_table : OK\ncorrects : 3/3"
+        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (1, 'Informatique'), (2, 'Reseaux'); INSERT INTO employes VALUES (10, 'Amina', 1), (11, 'Koffi', 2);\n-- exemple",
+        "expected": "+---------+--------------+\n| nom_emp | nom_dep      |\n+---------+--------------+\n| Amina   | Informatique |\n| Koffi   | Reseaux      |\n+---------+--------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les trois cas",
-        "stdin": "cas:1",
-        "expected": "rapprochement : OK\ncomplets : OK\nune_table : OK\ncorrects : 3/3"
+        "label": "Deux employés dans deux départements",
+        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (1, 'Informatique'), (2, 'Reseaux'); INSERT INTO employes VALUES (10, 'Amina', 1), (11, 'Koffi', 2);",
+        "expected": "+---------+--------------+\n| nom_emp | nom_dep      |\n+---------+--------------+\n| Amina   | Informatique |\n| Koffi   | Reseaux      |\n+---------+--------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Trois confusions",
-        "stdin": "cas:2",
-        "expected": "rapprochement : ERREUR\ncomplets : ERREUR\nune_table : ERREUR\ncomplets : OK\ncorrects : 1/4"
+        "label": "Trois employés avec département commun",
+        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (1, 'Securite'), (2, 'Cloud'); INSERT INTO employes VALUES (1, 'Yao', 2), (2, 'Afi', 1), (3, 'Sena', 1);",
+        "expected": "+---------+----------+\n| nom_emp | nom_dep  |\n+---------+----------+\n| Afi     | Securite |\n| Sena    | Securite |\n| Yao     | Cloud    |\n+---------+----------+\n(3 lignes retournées)"
       },
       {
-        "label": "Rapport du parc",
-        "stdin": "cas:3",
-        "expected": "complets : OK\nrapprochement : OK\nune_table : OK\nrapprochement : OK\ncomplets : OK\ncorrects : 5/5"
+        "label": "Employé non affecté exclu par INNER JOIN",
+        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (10, 'Support'); INSERT INTO employes VALUES (1, 'Binta', 10), (2, 'Stagiaire', NULL);",
+        "expected": "+---------+---------+\n| nom_emp | nom_dep |\n+---------+---------+\n| Binta   | Support |\n+---------+---------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\ncomplets : OK\nrapprochement : OK\nune_table : OK\ncorrects : 3/3\n\n[Cas 1 — Les trois cas]\nrapprochement : OK\ncomplets : OK\nune_table : OK\ncorrects : 3/3\n\n[Cas 2 — Trois confusions]\nrapprochement : ERREUR\ncomplets : ERREUR\nune_table : ERREUR\ncomplets : OK\ncorrects : 1/4\n\n[Cas 3 — Rapport du parc]\ncomplets : OK\nrapprochement : OK\nune_table : OK\nrapprochement : OK\ncomplets : OK\ncorrects : 5/5"
+    "solution": "-- Corrigé officiel sq-c4-e1\nSELECT e.nom_emp, d.nom_dep FROM employes e INNER JOIN departements d ON e.dep_id = d.id ORDER BY e.nom_emp ASC;"
   },
   {
     "id": "sq-c4-e2",
     "chapter": 4,
     "level": "n2",
-    "language": "analyse",
-    "title": "Marque et voitures : la jointure pas à pas",
-    "goal": "Rapprocher chaque voiture de sa marque et signaler les orphelines.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Il rejoue <code>FROM Voiture JOIN Marque ON Voiture.marque = Marque.code</code> : pour chaque voiture, si son code existe dans Marque, il Indiquez <code>immat : marque</code> (jointure INNER réussie) et compte la marque ; sinon il Indiquez <code>immat : orpheline</code> (LEFT JOIN sans correspondance). À la fin il Indiquez <code>orinelles : X/n</code> puis une ligne <code>code : voitures</code> pour chaque marque dont le compteur vaut au moins 1, dans l’ordre de lecture de Marque.</p>",
-    "starter": "# Grille d'analyse (sq-c4-e2) — Marque et voitures : la jointure pas à pas\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une orpheline]\n# Données : 2\n# Données : TOY\n# Données : BMW\n# Données : 3\n# Données : TG-3733-AC TOY\n# Données : TG-0099-ZZ FIAT\n# Données : TG-0480-AV BMW\nA_COMPLETER\n\n[Cas 2 — Plusieurs voitures par marque]\n# Données : 2\n# Données : TOY\n# Données : KIA\n# Données : 4\n# Données : TG-3733-AC TOY\n# Données : TG-9420-AF TOY\n# Données : TG-2540-AW KIA\n# Données : TG-9420-AK TOY\nA_COMPLETER\n\n[Cas 3 — Marque jamais servie]\n# Données : 3\n# Données : TOY\n# Données : MG\n# Données : REN\n# Données : 2\n# Données : TG-2222-BC REN\n# Données : TG-0099-ZZ FIAT\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Jointure externe gauche (LEFT JOIN)",
+    "goal": "Conserver toutes les lignes de la table de gauche même sans correspondance à droite.",
+    "brief": "<p>Soient <code>clients(id, nom)</code> et <code>commandes(id, client_id, montant)</code>. Affichez <code>clients.nom</code> et <code>commandes.montant</code> pour <strong>tous</strong> les clients (même ceux n’ayant passé aucune commande, pour lesquels <code>montant</code> vaudra <code>NULL</code>), triés par <code>clients.id</code> croissant.</p>",
+    "starter": "-- Conservez tous les clients avec LEFT JOIN\nSELECT nom FROM clients;",
     "hints": [
-      "Test de correspondance : [ -n \"${compte[$marque]+x}\" ] dit si le code existe dans Marque.",
-      "Les bilans sortent après les deux boucles : d’abord orphelines, puis les marques dans l’ordre de lecture."
+      "Utilisez LEFT JOIN commandes cmd ON c.id = cmd.client_id.",
+      "Triez par c.id ASC, cmd.id ASC."
     ],
     "examples": [
       {
-        "stdin": "2\nTOY\nBMW\n2\nTG-3733-AC TOY\nTG-5420-AL BMW\n",
-        "expected": "TG-3733-AC : TOY\nTG-5420-AL : BMW\norphelines : 0/2\nTOY : 1\nBMW : 1"
+        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO commandes VALUES (100, 1, 25000);\n-- exemple",
+        "expected": "+-------+---------+\n| nom   | montant |\n+-------+---------+\n| Amina | 25000   |\n| Koffi | NULL    |\n+-------+---------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Une orpheline",
-        "stdin": "cas:1",
-        "expected": "TG-3733-AC : TOY\nTG-0099-ZZ : orpheline\nTG-0480-AV : BMW\norphelines : 1/3\nTOY : 1\nBMW : 1"
+        "label": "Un client avec commande et un client sans commande",
+        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO commandes VALUES (100, 1, 25000);",
+        "expected": "+-------+---------+\n| nom   | montant |\n+-------+---------+\n| Amina | 25000   |\n| Koffi | NULL    |\n+-------+---------+\n(2 lignes retournées)"
       },
       {
-        "label": "Plusieurs voitures par marque",
-        "stdin": "cas:2",
-        "expected": "TG-3733-AC : TOY\nTG-9420-AF : TOY\nTG-2540-AW : KIA\nTG-9420-AK : TOY\norphelines : 0/4\nTOY : 3\nKIA : 1"
+        "label": "Trois clients dont deux sans commande",
+        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Alpha'), (2, 'Beta'), (3, 'Gamma'); INSERT INTO commandes VALUES (50, 2, 12000);",
+        "expected": "+-------+---------+\n| nom   | montant |\n+-------+---------+\n| Alpha | NULL    |\n| Beta  | 12000   |\n| Gamma | NULL    |\n+-------+---------+\n(3 lignes retournées)"
       },
       {
-        "label": "Marque jamais servie",
-        "stdin": "cas:3",
-        "expected": "TG-2222-BC : REN\nTG-0099-ZZ : orpheline\norphelines : 1/2\nREN : 1"
+        "label": "Client avec deux commandes",
+        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Sena'), (2, 'Yao'); INSERT INTO commandes VALUES (1, 1, 5000), (2, 1, 8000);",
+        "expected": "+------+---------+\n| nom  | montant |\n+------+---------+\n| Sena | 5000    |\n| Sena | 8000    |\n| Yao  | NULL    |\n+------+---------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nTG-3733-AC : TOY\nTG-5420-AL : BMW\norphelines : 0/2\nTOY : 1\nBMW : 1\n\n[Cas 1 — Une orpheline]\nTG-3733-AC : TOY\nTG-0099-ZZ : orpheline\nTG-0480-AV : BMW\norphelines : 1/3\nTOY : 1\nBMW : 1\n\n[Cas 2 — Plusieurs voitures par marque]\nTG-3733-AC : TOY\nTG-9420-AF : TOY\nTG-2540-AW : KIA\nTG-9420-AK : TOY\norphelines : 0/4\nTOY : 3\nKIA : 1\n\n[Cas 3 — Marque jamais servie]\nTG-2222-BC : REN\nTG-0099-ZZ : orpheline\norphelines : 1/2\nREN : 1"
+    "solution": "-- Corrigé officiel sq-c4-e2\nSELECT c.nom, cmd.montant FROM clients c LEFT JOIN commandes cmd ON c.id = cmd.client_id ORDER BY c.id ASC, cmd.id ASC;"
   },
   {
     "id": "sq-c4-e3",
     "chapter": 4,
     "level": "n3",
-    "language": "analyse",
-    "title": "Catalogue croisé : jointure par pays",
-    "goal": "Rapprocher chaque voiture de la marque au pays demandé, comme une jointure avec condition.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Il rejoue la jointure <code>Voiture JOIN Marque</code> : pour chaque voiture dont la marque appartient à un code de pays égal à cible, il Indiquez <code>immat : marque</code>, pour les autres <code>immat : hors cible</code>, puis <code>jointes : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c4-e3) — Catalogue croisé : jointure par pays\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes du pays]\n# Données : 1\n# Données : TOY JAPON\n# Données : JAPON\n# Données : 3\n# Données : TG-3733-AC TOY HYBRIDE\n# Données : TG-9420-AF TOY ESSENCE\n# Données : TG-0020-AL TOY DIESEL\nA_COMPLETER\n\n[Cas 2 — Marque absente de Marque]\n# Données : 1\n# Données : TOY JAPON\n# Données : JAPON\n# Données : 2\n# Données : TG-0099-ZZ FIAT ESSENCE\n# Données : TG-3733-AC TOY HYBRIDE\nA_COMPLETER\n\n[Cas 3 — Cible sans voiture]\n# Données : 2\n# Données : TOY JAPON\n# Données : REN FRANCE\n# Données : ALLEMAGNE\n# Données : 2\n# Données : TG-3733-AC TOY HYBRIDE\n# Données : TG-2222-BC REN DIESEL\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Jointure sur table d’association (N-N)",
+    "goal": "Relier trois tables (étudiants, inscriptions, cours) via une double jointure.",
+    "brief": "<p>Soient <code>etudiants(id, nom)</code>, <code>cours(id, titre)</code> et la table d’association <code>inscriptions(etudiant_id, cours_id)</code>. Affichez <code>etudiants.nom</code> et <code>cours.titre</code> pour chaque inscription, triés par <code>nom</code> croissant puis <code>titre</code> croissant.</p>",
+    "starter": "-- Reliez etudiants, inscriptions et cours\nSELECT nom FROM etudiants;",
     "hints": [
-      "Le pays d’une marque : ${payscode[$marque]} — absent si le code n’est pas dans Marque.",
-      "Une jointure réussie exige un code connu ET un pays égal à la cible."
+      "Enchaînez deux INNER JOIN : etudiants -> inscriptions puis inscriptions -> cours.",
+      "Triez par e.nom ASC, c.titre ASC."
     ],
     "examples": [
       {
-        "stdin": "2\nTOY JAPON\nBMW ALLEMAGNE\nJAPON\n3\nTG-3733-AC TOY DIESEL\nTG-5420-AL BMW ESSENCE\nTG-2222-BC REN DIESEL\n",
-        "expected": "TG-3733-AC : TOY\nTG-5420-AL : hors cible\nTG-2222-BC : hors cible\njointes : 1/3"
+        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO cours VALUES (10, 'SQL'), (20, 'Reseaux'); INSERT INTO inscriptions VALUES (1, 10), (1, 20), (2, 10);\n-- exemple",
+        "expected": "+-------+---------+\n| nom   | titre   |\n+-------+---------+\n| Amina | Reseaux |\n| Amina | SQL     |\n| Koffi | SQL     |\n+-------+---------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Toutes du pays",
-        "stdin": "cas:1",
-        "expected": "TG-3733-AC : TOY\nTG-9420-AF : TOY\nTG-0020-AL : TOY\njointes : 3/3"
+        "label": "Inscriptions multiples",
+        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO cours VALUES (10, 'SQL'), (20, 'Reseaux'); INSERT INTO inscriptions VALUES (1, 10), (1, 20), (2, 10);",
+        "expected": "+-------+---------+\n| nom   | titre   |\n+-------+---------+\n| Amina | Reseaux |\n| Amina | SQL     |\n| Koffi | SQL     |\n+-------+---------+\n(3 lignes retournées)"
       },
       {
-        "label": "Marque absente de Marque",
-        "stdin": "cas:2",
-        "expected": "TG-0099-ZZ : hors cible\nTG-3733-AC : TOY\njointes : 1/2"
+        "label": "Deux étudiants sur deux matières",
+        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Afi'), (2, 'Yao'); INSERT INTO cours VALUES (1, 'Algo'), (2, 'Linux'); INSERT INTO inscriptions VALUES (1, 2), (2, 1);",
+        "expected": "+-----+-------+\n| nom | titre |\n+-----+-------+\n| Afi | Linux |\n| Yao | Algo  |\n+-----+-------+\n(2 lignes retournées)"
       },
       {
-        "label": "Cible sans voiture",
-        "stdin": "cas:3",
-        "expected": "TG-3733-AC : hors cible\nTG-2222-BC : hors cible\njointes : 0/2"
+        "label": "Un étudiant inscrit à trois cours",
+        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Sena'); INSERT INTO cours VALUES (1, 'C'), (2, 'PHP'), (3, 'Python'); INSERT INTO inscriptions VALUES (1, 1), (1, 2), (1, 3);",
+        "expected": "+------+--------+\n| nom  | titre  |\n+------+--------+\n| Sena | C      |\n| Sena | PHP    |\n| Sena | Python |\n+------+--------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nTG-3733-AC : TOY\nTG-5420-AL : hors cible\nTG-2222-BC : hors cible\njointes : 1/3\n\n[Cas 1 — Toutes du pays]\nTG-3733-AC : TOY\nTG-9420-AF : TOY\nTG-0020-AL : TOY\njointes : 3/3\n\n[Cas 2 — Marque absente de Marque]\nTG-0099-ZZ : hors cible\nTG-3733-AC : TOY\njointes : 1/2\n\n[Cas 3 — Cible sans voiture]\nTG-3733-AC : hors cible\nTG-2222-BC : hors cible\njointes : 0/2"
+    "solution": "-- Corrigé officiel sq-c4-e3\nSELECT e.nom, c.titre FROM etudiants e INNER JOIN inscriptions i ON e.id = i.etudiant_id INNER JOIN cours c ON c.id = i.cours_id ORDER BY e.nom ASC, c.titre ASC;"
   },
   {
     "id": "sq-c5-e1",
     "chapter": 5,
     "level": "n1",
-    "language": "analyse",
-    "title": "Les cinq agrégats",
-    "goal": "Associer chaque agrégat à son rôle.",
-    "brief": "<p>Analysez chaque ligne proposée « agrégat role » : role est un code parmi <code>compte</code>, <code>somme</code>, <code>moyenne</code>, <code>min</code> ou <code>max</code>. Rôles du cours : COUNT compte les lignes → <code>compte</code> ; SUM additionne → <code>somme</code> ; AVG fait la moyenne → <code>moyenne</code> ; MIN donne la plus petite valeur → <code>min</code> ; MAX la plus grande → <code>max</code>. Pour chaque ligne il Indiquez <code>agrégat : OK</code> ou <code>agrégat : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c5-e1) — Les cinq agrégats\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les cinq agrégats]\n# Données : 5\n# Données : count compte\n# Données : sum somme\n# Données : avg moyenne\n# Données : min min\n# Données : max max\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : count somme\n# Données : avg compte\n# Données : min max\n# Données : max max\nA_COMPLETER\n\n[Cas 3 — Fiche de révision]\n# Données : 5\n# Données : max max\n# Données : min min\n# Données : avg moyenne\n# Données : sum somme\n# Données : count compte\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Compter et sommer par catégorie avec GROUP BY",
+    "goal": "Utiliser COUNT(*) et SUM() associés à GROUP BY.",
+    "brief": "<p>Dans la table <code>ventes(id, categorie, montant)</code>, calculez pour chaque <code>categorie</code> le nombre de ventes (alias <code>nb_ventes</code>) et la somme des montants (alias <code>total_montant</code>), triés par <code>categorie</code> croissante.</p>",
+    "starter": "-- Regroupez par categorie avec COUNT(*) et SUM(montant)\nSELECT categorie FROM ventes;",
     "hints": [
-      "Un case sur l’agrégat : count → compte, sum → somme, avg → moyenne, min → min, max → max.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Utilisez COUNT(*) AS nb_ventes, SUM(montant) AS total_montant.",
+      "Regroupez avec GROUP BY categorie et triez par categorie ASC."
     ],
     "examples": [
       {
-        "stdin": "3\ncount compte\nsum somme\nmax max\n",
-        "expected": "count : OK\nsum : OK\nmax : OK\ncorrects : 3/3"
+        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Clavier', 5000), (2, 'Clavier', 7000), (3, 'Souris', 3000);\n-- exemple",
+        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Clavier   | 2         | 12000         |\n| Souris    | 1         | 3000          |\n+-----------+-----------+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les cinq agrégats",
-        "stdin": "cas:1",
-        "expected": "count : OK\nsum : OK\navg : OK\nmin : OK\nmax : OK\ncorrects : 5/5"
+        "label": "Deux catégories de périphériques",
+        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Clavier', 5000), (2, 'Clavier', 7000), (3, 'Souris', 3000);",
+        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Clavier   | 2         | 12000         |\n| Souris    | 1         | 3000          |\n+-----------+-----------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Trois confusions",
-        "stdin": "cas:2",
-        "expected": "count : ERREUR\navg : ERREUR\nmin : ERREUR\nmax : OK\ncorrects : 1/4"
+        "label": "Trois familles de produits",
+        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Cable', 2000), (2, 'Ecran', 45000), (3, 'Cable', 3000), (4, 'Routeur', 25000), (5, 'Ecran', 50000);",
+        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Cable     | 2         | 5000          |\n| Ecran     | 2         | 95000         |\n| Routeur   | 1         | 25000         |\n+-----------+-----------+---------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Fiche de révision",
-        "stdin": "cas:3",
-        "expected": "max : OK\nmin : OK\navg : OK\nsum : OK\ncount : OK\ncorrects : 5/5"
+        "label": "Catégorie unique",
+        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Serveur', 500000), (2, 'Serveur', 700000);",
+        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Serveur   | 2         | 1200000       |\n+-----------+-----------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\ncount : OK\nsum : OK\nmax : OK\ncorrects : 3/3\n\n[Cas 1 — Les cinq agrégats]\ncount : OK\nsum : OK\navg : OK\nmin : OK\nmax : OK\ncorrects : 5/5\n\n[Cas 2 — Trois confusions]\ncount : ERREUR\navg : ERREUR\nmin : ERREUR\nmax : OK\ncorrects : 1/4\n\n[Cas 3 — Fiche de révision]\nmax : OK\nmin : OK\navg : OK\nsum : OK\ncount : OK\ncorrects : 5/5"
+    "solution": "-- Corrigé officiel sq-c5-e1\nSELECT categorie, COUNT(*) AS nb_ventes, SUM(montant) AS total_montant FROM ventes GROUP BY categorie ORDER BY categorie ASC;"
   },
   {
     "id": "sq-c5-e2",
     "chapter": 5,
     "level": "n2",
-    "language": "analyse",
-    "title": "Comptage par marque : GROUP BY",
-    "goal": "Reproduire COUNT(*) GROUP BY marque avec les bilans du cours.",
-    "brief": "<p>Analysez chaque ligne proposée « immat marque » (23 voitures au support). Pour chaque ligne il Indiquez <code>immat : marque</code>, puis une ligne <code>marque : X</code> par marque présente <strong>dans l’ordre de première apparition</strong> avec son compte — c’est <code>SELECT marque, COUNT(*) GROUP BY marque</code> — et enfin <code>marques : X</code> (nombre de groupes).</p>",
-    "starter": "# Grille d'analyse (sq-c5-e2) — Comptage par marque : GROUP BY\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Parc réduit]\n# Données : 4\n# Données : TG-7854-Z BNZ\n# Données : TG-3733-AC TOY\n# Données : TG-6733-AC BNZ\n# Données : TG-9420-AK TOY\nA_COMPLETER\n\n[Cas 2 — Six voitures du support]\n# Données : 6\n# Données : TG-9420-AF TOY\n# Données : TG-5420-AF SUZ\n# Données : TG-1200-AK SUZ\n# Données : TG-0020-AL TOY\n# Données : TG-4444-AL HYU\n# Données : TG-5420-AL BMW\nA_COMPLETER\n\n[Cas 3 — Une seule marque]\n# Données : 3\n# Données : TG-2222-BC REN\n# Données : TG-2222-BC REN\n# Données : TG-2222-BC REN\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Filtrer les groupes après agrégation avec HAVING",
+    "goal": "Sélectionner uniquement les groupes dont l’agrégat dépasse un seuil via HAVING.",
+    "brief": "<p>Dans la table <code>commandes(id, client, montant)</code>, affichez le <code>client</code> et le total de ses commandes (<code>SUM(montant) AS total</code>) uniquement pour les clients dont le total est supérieur ou égal à <code>20000</code>, triés par <code>total</code> décroissant.</p>",
+    "starter": "-- Filtrez les groupes ayant SUM(montant) >= 20000 avec HAVING\nSELECT client, SUM(montant) AS total FROM commandes GROUP BY client;",
     "hints": [
-      "Nouvelle marque : [ -z \"${compte[$marque]+x}\" ] → ordre[$g]=$marque et g=$((g+1)).",
-      "Les bilans sortent après la boucle : marques dans l’ordre du tableau ordre, puis g."
+      "WHERE filtre les lignes avant GROUP BY, tandis que HAVING filtre les groupes après GROUP BY.",
+      "Écrivez HAVING SUM(montant) >= 20000 ORDER BY total DESC;"
     ],
     "examples": [
       {
-        "stdin": "3\nTG-3733-AC TOY\nTG-5420-AL BMW\nTG-9420-AF TOY\n",
-        "expected": "TG-3733-AC : TOY\nTG-5420-AL : BMW\nTG-9420-AF : TOY\nTOY : 2\nBMW : 1\nmarques : 2"
+        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Amina', 15000), (2, 'Amina', 10000), (3, 'Koffi', 8000);\n-- exemple",
+        "expected": "+--------+-------+\n| client | total |\n+--------+-------+\n| Amina  | 25000 |\n+--------+-------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Parc réduit",
-        "stdin": "cas:1",
-        "expected": "TG-7854-Z : BNZ\nTG-3733-AC : TOY\nTG-6733-AC : BNZ\nTG-9420-AK : TOY\nBNZ : 2\nTOY : 2\nmarques : 2"
+        "label": "Deux clients dont un seul dépasse 20000",
+        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Amina', 15000), (2, 'Amina', 10000), (3, 'Koffi', 8000);",
+        "expected": "+--------+-------+\n| client | total |\n+--------+-------+\n| Amina  | 25000 |\n+--------+-------+\n(1 ligne retournée)"
       },
       {
-        "label": "Six voitures du support",
-        "stdin": "cas:2",
-        "expected": "TG-9420-AF : TOY\nTG-5420-AF : SUZ\nTG-1200-AK : SUZ\nTG-0020-AL : TOY\nTG-4444-AL : HYU\nTG-5420-AL : BMW\nTOY : 2\nSUZ : 2\nHYU : 1\nBMW : 1\nmarques : 4"
+        "label": "Cas limite à 20000",
+        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Yao', 12000), (2, 'Yao', 8000), (3, 'Sena', 35000), (4, 'Afi', 19000);",
+        "expected": "+--------+-------+\n| client | total |\n+--------+-------+\n| Sena   | 35000 |\n| Yao    | 20000 |\n+--------+-------+\n(2 lignes retournées)"
       },
       {
-        "label": "Une seule marque",
-        "stdin": "cas:3",
-        "expected": "TG-2222-BC : REN\nTG-2222-BC : REN\nTG-2222-BC : REN\nREN : 3\nmarques : 1"
+        "label": "Plusieurs gros clients",
+        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Entreprise A', 50000), (2, 'Entreprise B', 25000), (3, 'Particulier', 5000);",
+        "expected": "+--------------+-------+\n| client       | total |\n+--------------+-------+\n| Entreprise A | 50000 |\n| Entreprise B | 25000 |\n+--------------+-------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nTG-3733-AC : TOY\nTG-5420-AL : BMW\nTG-9420-AF : TOY\nTOY : 2\nBMW : 1\nmarques : 2\n\n[Cas 1 — Parc réduit]\nTG-7854-Z : BNZ\nTG-3733-AC : TOY\nTG-6733-AC : BNZ\nTG-9420-AK : TOY\nBNZ : 2\nTOY : 2\nmarques : 2\n\n[Cas 2 — Six voitures du support]\nTG-9420-AF : TOY\nTG-5420-AF : SUZ\nTG-1200-AK : SUZ\nTG-0020-AL : TOY\nTG-4444-AL : HYU\nTG-5420-AL : BMW\nTOY : 2\nSUZ : 2\nHYU : 1\nBMW : 1\nmarques : 4\n\n[Cas 3 — Une seule marque]\nTG-2222-BC : REN\nTG-2222-BC : REN\nTG-2222-BC : REN\nREN : 3\nmarques : 1"
+    "solution": "-- Corrigé officiel sq-c5-e2\nSELECT client, SUM(montant) AS total FROM commandes GROUP BY client HAVING SUM(montant) >= 20000 ORDER BY total DESC;"
   },
   {
     "id": "sq-c5-e3",
     "chapter": 5,
     "level": "n3",
-    "language": "analyse",
-    "title": "Analyse complète du parc : HAVING",
-    "goal": "Grouper par moteur, appliquer SUM et AVG, puis filtrer les groupes avec HAVING.",
-    "brief": "<p>Analysez chaque ligne proposée « immat moteur prix » puis une ligne <code>seuil</code>. Il rejoue <code>SELECT moteur, SUM(pxachat), AVG(pxachat) GROUP BY moteur HAVING SUM(pxachat) &gt;= seuil</code> : après les lignes, il Indiquez pour chaque moteur <strong>dans l’ordre de première apparition</strong> et dont la somme des prix atteint le seuil <code>moteur : somme=X moyenne=Y</code> (moyenne arrondie à l’entier inférieur), puis <code>groupes : X</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c5-e3) — Analyse complète du parc : HAVING\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Seuil intermédiaire]\n# Données : 4\n# Données : TG-0001-AA DIESEL 15000000\n# Données : TG-0002-AA ESSENCE 50000000\n# Données : TG-0003-AA DIESEL 10000000\n# Données : TG-0004-AA HYBRIDE 25000000\n# Données : 50000000\nA_COMPLETER\n\n[Cas 2 — Seuil exact : deux groupes]\n# Données : 3\n# Données : TG-0001-AA ESSENCE 10000000\n# Données : TG-0002-AA ESSENCE 20000000\n# Données : TG-0003-AA DIESEL 6000000\n# Données : 6000000\nA_COMPLETER\n\n[Cas 3 — Seuil élevé : aucun groupe]\n# Données : 2\n# Données : TG-0001-AA ELECTRIQUE 11600000\n# Données : TG-0002-AA ELECTRIQUE 21600000\n# Données : 100000000\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Statistiques complètes par matière (MIN, MAX, COUNT)",
+    "goal": "Combiner plusieurs fonctions d’agrégation sur chaque groupe.",
+    "brief": "<p>Dans la table <code>evaluations(matiere, note)</code>, affichez pour chaque <code>matiere</code> : <code>matiere</code>, le nombre de copies (<code>COUNT(*) AS effectif</code>), la note minimale (<code>MIN(note) AS note_min</code>) et la note maximale (<code>MAX(note) AS note_max</code>), triés par <code>matiere</code> croissante.</p>",
+    "starter": "-- Calculez effectif, note_min et note_max par matiere\nSELECT matiere FROM evaluations GROUP BY matiere;",
     "hints": [
-      "La clause GROUP BY regroupe les enregistrements partageant la même modalité.",
-      "La clause HAVING filtre les groupes formés en évaluant une condition sur une fonction d’agrégation (SUM, AVG, COUNT)."
+      "Appelez COUNT(*), MIN(note) et MAX(note) dans la clause SELECT.",
+      "Regroupez avec GROUP BY matiere ORDER BY matiere ASC;"
     ],
     "examples": [
       {
-        "stdin": "3\nTG-0001-AA DIESEL 15000000\nTG-0002-AA DIESEL 25000000\nTG-0003-AA ESSENCE 10000000\n40000000\n",
-        "expected": "DIESEL : somme=40000000 moyenne=20000000\ngroupes : 1"
+        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Algo', 12), ('Algo', 18), ('SQL', 14), ('SQL', 10), ('SQL', 16);\n-- exemple",
+        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Algo    | 2        | 12       | 18       |\n| SQL     | 3        | 10       | 16       |\n+---------+----------+----------+----------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Seuil intermédiaire",
-        "stdin": "cas:1",
-        "expected": "ESSENCE : somme=50000000 moyenne=50000000\ngroupes : 1"
+        "label": "Deux matières évaluées",
+        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Algo', 12), ('Algo', 18), ('SQL', 14), ('SQL', 10), ('SQL', 16);",
+        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Algo    | 2        | 12       | 18       |\n| SQL     | 3        | 10       | 16       |\n+---------+----------+----------+----------+\n(2 lignes retournées)"
       },
       {
-        "label": "Seuil exact : deux groupes",
-        "stdin": "cas:2",
-        "expected": "ESSENCE : somme=30000000 moyenne=15000000\nDIESEL : somme=6000000 moyenne=6000000\ngroupes : 2"
+        "label": "Trois matières",
+        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Linux', 15), ('Linux', 11), ('Reseaux', 9), ('Reseaux', 17), ('Web', 14);",
+        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Linux   | 2        | 11       | 15       |\n| Reseaux | 2        | 9        | 17       |\n| Web     | 1        | 14       | 14       |\n+---------+----------+----------+----------+\n(3 lignes retournées)"
       },
       {
-        "label": "Seuil élevé : aucun groupe",
-        "stdin": "cas:3",
-        "expected": "groupes : 0"
+        "label": "Notes identiques",
+        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Anglais', 13), ('Anglais', 13);",
+        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Anglais | 2        | 13       | 13       |\n+---------+----------+----------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nDIESEL : somme=40000000 moyenne=20000000\ngroupes : 1\n\n[Cas 1 — Seuil intermédiaire]\nESSENCE : somme=50000000 moyenne=50000000\ngroupes : 1\n\n[Cas 2 — Seuil exact : deux groupes]\nESSENCE : somme=30000000 moyenne=15000000\nDIESEL : somme=6000000 moyenne=6000000\ngroupes : 2\n\n[Cas 3 — Seuil élevé : aucun groupe]\ngroupes : 0"
+    "solution": "-- Corrigé officiel sq-c5-e3\nSELECT matiere, COUNT(*) AS effectif, MIN(note) AS note_min, MAX(note) AS note_max FROM evaluations GROUP BY matiere ORDER BY matiere ASC;"
   },
   {
     "id": "sq-c6-e1",
     "chapter": 6,
     "level": "n1",
-    "language": "analyse",
-    "title": "UPDATE, DELETE ou GRANT ?",
-    "goal": "Associer chaque opération de fin de cours à sa famille.",
-    "brief": "<p>Analysez chaque ligne proposée « operation famille » : famille est un code parmi <code>maj</code>, <code>suppression</code>, <code>structure</code> ou <code>droits</code>. Familles du chapitre : UPDATE → <code>maj</code> ; DELETE → <code>suppression</code> ; ALTER TABLE → <code>structure</code> ; GRANT et REVOKE → <code>droits</code>. Pour chaque ligne il Indiquez <code>operation : OK</code> ou <code>operation : ERREUR</code>, puis <code>corrects : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c6-e1) — UPDATE, DELETE ou GRANT ?\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les cinq opérations]\n# Données : 5\n# Données : update maj\n# Données : delete suppression\n# Données : alter structure\n# Données : grant droits\n# Données : revoke droits\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : update suppression\n# Données : delete maj\n# Données : alter droits\n# Données : grant droits\nA_COMPLETER\n\n[Cas 3 — Fiche mémo]\n# Données : 5\n# Données : revoke droits\n# Données : grant droits\n# Données : alter structure\n# Données : delete suppression\n# Données : update maj\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Mettre à jour des lignes ciblées avec UPDATE ... WHERE",
+    "goal": "Modifier la valeur d’une colonne sur un sous-ensemble de lignes avec UPDATE.",
+    "brief": "<p>Dans la table <code>stocks(id, article, quantite)</code>, augmentez de <code>10</code> la <code>quantite</code> (<code>quantite = quantite + 10</code>) uniquement pour les articles dont la quantité actuelle est strictement inférieure à <code>5</code> (<code>WHERE quantite &lt; 5</code>).</p>",
+    "starter": "-- Réapprovisionnez de +10 les articles ayant quantite < 5\nUPDATE stocks SET quantite = quantite;",
     "hints": [
-      "Un case sur l’opération : update → maj, delete → suppression, alter → structure, grant/revoke → droits.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Utilisez UPDATE stocks SET quantite = quantite + 10.",
+      "Filtrez impérativement avec WHERE quantite < 5 pour ne pas modifier tout le stock."
     ],
     "examples": [
       {
-        "stdin": "3\nupdate maj\ndelete suppression\ngrant droits\n",
-        "expected": "update : OK\ndelete : OK\ngrant : OK\ncorrects : 3/3"
+        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Clavier', 2), (2, 'Souris', 12), (3, 'Ecran', 4);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | Clavier | 12       |\n| 2  | Souris  | 12       |\n| 3  | Ecran   | 14       |\n+----+---------+----------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Les cinq opérations",
-        "stdin": "cas:1",
-        "expected": "update : OK\ndelete : OK\nalter : OK\ngrant : OK\nrevoke : OK\ncorrects : 5/5"
+        "label": "Deux articles en alerte de stock",
+        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Clavier', 2), (2, 'Souris', 12), (3, 'Ecran', 4);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | Clavier | 12       |\n| 2  | Souris  | 12       |\n| 3  | Ecran   | 14       |\n+----+---------+----------+\n(3 lignes retournées)"
       },
       {
-        "label": "Trois confusions",
-        "stdin": "cas:2",
-        "expected": "update : ERREUR\ndelete : ERREUR\nalter : ERREUR\ngrant : OK\ncorrects : 1/4"
+        "label": "Stock à zéro (rupture)",
+        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Routeur', 0), (2, 'Switch', 5), (3, 'Cable', 20);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | Routeur | 10       |\n| 2  | Switch  | 5        |\n| 3  | Cable   | 20       |\n+----+---------+----------+\n(3 lignes retournées)"
       },
       {
-        "label": "Fiche mémo",
-        "stdin": "cas:3",
-        "expected": "revoke : OK\ngrant : OK\nalter : OK\ndelete : OK\nupdate : OK\ncorrects : 5/5"
+        "label": "Tous les articles sous le seuil",
+        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'SSD', 1), (2, 'RAM', 3);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | SSD     | 11       |\n| 2  | RAM     | 13       |\n+----+---------+----------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nupdate : OK\ndelete : OK\ngrant : OK\ncorrects : 3/3\n\n[Cas 1 — Les cinq opérations]\nupdate : OK\ndelete : OK\nalter : OK\ngrant : OK\nrevoke : OK\ncorrects : 5/5\n\n[Cas 2 — Trois confusions]\nupdate : ERREUR\ndelete : ERREUR\nalter : ERREUR\ngrant : OK\ncorrects : 1/4\n\n[Cas 3 — Fiche mémo]\nrevoke : OK\ngrant : OK\nalter : OK\ndelete : OK\nupdate : OK\ncorrects : 5/5"
+    "solution": "-- Corrigé officiel sq-c6-e1\nUPDATE stocks SET quantite = quantite + 10 WHERE quantite < 5;"
   },
   {
     "id": "sq-c6-e2",
     "chapter": 6,
     "level": "n2",
-    "language": "analyse",
-    "title": "UPDATE ciblé : condition WHERE obligatoire",
-    "goal": "Appliquer une hausse de prix uniquement aux voitures du moteur demandé.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Il rejoue <code>UPDATE Voiture SET pxachat = pxachat * (100 + hausse) / 100 WHERE moteur = moteur</code> : pour chaque voiture du moteur demandé il Indiquez <code>immat : ancien -&gt; nouveau</code> (prix recalculé, arrondi à l’entier inférieur), pour les autres <code>immat : inchangé</code>, puis <code>lignes modifiees : X</code> — le nombre que renverrait l’UPDATE.</p>",
-    "starter": "# Grille d'analyse (sq-c6-e2) — UPDATE ciblé : condition WHERE obligatoire\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Hausse zéro]\n# Données : 3\n# Données : TG-0001-AA DIESEL 20000000\n# Données : TG-0002-AA ESSENCE 10000000\n# Données : TG-0003-AA DIESEL 15000000\n# Données : DIESEL 0\nA_COMPLETER\n\n[Cas 2 — Baisse de 20 %]\n# Données : 3\n# Données : TG-0001-AA HYBRIDE 25000000\n# Données : TG-0002-AA HYBRIDE 20000000\n# Données : TG-0003-AA DIESEL 15000000\n# Données : HYBRIDE -20\nA_COMPLETER\n\n[Cas 3 — Moteur absent du lot]\n# Données : 3\n# Données : TG-0001-AA DIESEL 20000000\n# Données : TG-0002-AA ESSENCE 10000000\n# Données : TG-0003-AA DIESEL 15000000\n# Données : ELECTRIQUE 5\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Supprimer les enregistrements obsolètes avec DELETE ... WHERE",
+    "goal": "Supprimer uniquement les lignes répondant à un critère précis avec DELETE FROM.",
+    "brief": "<p>Dans la table <code>sessions(id, utilisateur, expiree)</code>, supprimez toutes les sessions expirées pour lesquelles <code>expiree = 1</code>.</p>",
+    "starter": "-- Supprimez uniquement les sessions où expiree = 1\nSELECT * FROM sessions;",
     "hints": [
-      "Nouveau prix : $(( prix * (100 + hausse) / 100 )) — la division entière tronque, c’est l’arrondi demandé.",
-      "Le compteur ne progresse que pour les lignes réellement modifiées : c’est le « X rows affected »."
+      "Utilisez DELETE FROM sessions WHERE expiree = 1;",
+      "Vérifiez la présence de la clause WHERE pour conserver les sessions actives (expiree = 0)."
     ],
     "examples": [
       {
-        "stdin": "3\nTG-0001-AA DIESEL 20000000\nTG-0002-AA ESSENCE 10000000\nTG-0003-AA DIESEL 15000000\nDIESEL 10\n",
-        "expected": "TG-0001-AA : 20000000 -> 22000000\nTG-0002-AA : inchangé\nTG-0003-AA : 15000000 -> 16500000\nlignes modifiees : 2"
+        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'amina', 0), (2, 'koffi', 1), (3, 'yao', 1);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 1  | amina       | 0       |\n+----+-------------+---------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Hausse zéro",
-        "stdin": "cas:1",
-        "expected": "TG-0001-AA : 20000000 -> 20000000\nTG-0002-AA : inchangé\nTG-0003-AA : 15000000 -> 15000000\nlignes modifiees : 2"
+        "label": "Deux sessions expirées sur trois",
+        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'amina', 0), (2, 'koffi', 1), (3, 'yao', 1);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 1  | amina       | 0       |\n+----+-------------+---------+\n(1 ligne retournée)"
       },
       {
-        "label": "Baisse de 20 %",
-        "stdin": "cas:2",
-        "expected": "TG-0001-AA : 25000000 -> 20000000\nTG-0002-AA : 20000000 -> 16000000\nTG-0003-AA : inchangé\nlignes modifiees : 2"
+        "label": "Une seule session expirée",
+        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (10, 'admin', 0), (20, 'guest', 1), (30, 'dev', 0);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 10 | admin       | 0       |\n| 30 | dev         | 0       |\n+----+-------------+---------+\n(2 lignes retournées)"
       },
       {
-        "label": "Moteur absent du lot",
-        "stdin": "cas:3",
-        "expected": "TG-0001-AA : inchangé\nTG-0002-AA : inchangé\nTG-0003-AA : inchangé\nlignes modifiees : 0"
+        "label": "Aucune session expirée",
+        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'alice', 0), (2, 'bob', 0);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 1  | alice       | 0       |\n| 2  | bob         | 0       |\n+----+-------------+---------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nTG-0001-AA : 20000000 -> 22000000\nTG-0002-AA : inchangé\nTG-0003-AA : 15000000 -> 16500000\nlignes modifiees : 2\n\n[Cas 1 — Hausse zéro]\nTG-0001-AA : 20000000 -> 20000000\nTG-0002-AA : inchangé\nTG-0003-AA : 15000000 -> 15000000\nlignes modifiees : 2\n\n[Cas 2 — Baisse de 20 %]\nTG-0001-AA : 25000000 -> 20000000\nTG-0002-AA : 20000000 -> 16000000\nTG-0003-AA : inchangé\nlignes modifiees : 2\n\n[Cas 3 — Moteur absent du lot]\nTG-0001-AA : inchangé\nTG-0002-AA : inchangé\nTG-0003-AA : inchangé\nlignes modifiees : 0"
+    "solution": "-- Corrigé officiel sq-c6-e2\nDELETE FROM sessions WHERE expiree = 1;"
   },
   {
     "id": "sq-c6-e3",
     "chapter": 6,
     "level": "n3",
-    "language": "analyse",
-    "title": "Le journal d’administration : audit de session",
-    "goal": "Vérifier les autorisations avant chaque opération, comme GRANT/REVOKE le décident.",
-    "brief": "<p>Analysez chaque ligne proposée « role operation » : role est un code parmi <code>admin</code>, <code>ecriture</code> ou <code>lecture</code> ; operation est un code parmi <code>select</code>, <code>insert</code>, <code>update</code>, <code>delete</code> ou <code>grant</code>. Droits du cours : admin peut tout ; ecriture peut select, insert, update et delete ; lecture ne peut que select ; personne d’autre ne peut grant. Pour chaque ligne il Indiquez <code>role/operation : autorise</code> ou <code>role/operation : refuse</code>, puis <code>autorisations : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (sq-c6-e3) — Le journal d’administration : audit de session\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — La matrice complète]\n# Données : 6\n# Données : admin grant\n# Données : admin delete\n# Données : ecriture insert\n# Données : ecriture grant\n# Données : lecture select\n# Données : lecture update\nA_COMPLETER\n\n[Cas 2 — Revue de droits]\n# Données : 5\n# Données : lecture insert\n# Données : ecriture update\n# Données : ecriture select\n# Données : admin grant\n# Données : lecture grant\nA_COMPLETER\n\n[Cas 3 — Session mixte]\n# Données : 6\n# Données : ecriture delete\n# Données : lecture select\n# Données : admin update\n# Données : admin grant\n# Données : ecriture grant\n# Données : lecture delete\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Sous-requête dans WHERE (supprimer ou filtrer selon une autre table)",
+    "goal": "Utiliser une sous-requête (IN / SELECT) pour filtrer selon les données d’une seconde table.",
+    "brief": "<p>Soient <code>utilisateurs(id, login, role)</code> et <code>journal_connexions(id_log, user_id, action)</code>. Affichez <code>id_log</code> et <code>action</code> du journal uniquement pour les utilisateurs dont le <code>role</code> est <code>'admin'</code> dans la table <code>utilisateurs</code>, triés par <code>id_log</code> croissant.</p>",
+    "starter": "-- Sélectionnez id_log et action des utilisateurs ayant role = 'admin'\nSELECT id_log, action FROM journal_connexions;",
     "hints": [
-      "Un case sur le rôle qui fixe la liste des opérations permises : admin → toutes, ecriture → les quatre CRUD, lecture → select.",
-      "grant est refusé à tout le monde sauf admin ; le bilan sort après la boucle."
+      "Utilisez WHERE user_id IN (SELECT id FROM utilisateurs WHERE role = 'admin') ou un INNER JOIN.",
+      "Triez par id_log ASC."
     ],
     "examples": [
       {
-        "stdin": "3\nadmin grant\nlecture select\necriture delete\n",
-        "expected": "admin/grant : autorise\nlecture/select : autorise\necriture/delete : autorise\nautorisations : 3/3"
+        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'root', 'admin'), (2, 'invite', 'lecteur'); INSERT INTO journal_connexions VALUES (100, 1, 'GRANT SELECT'), (101, 2, 'SELECT'), (102, 1, 'BACKUP');\n-- exemple",
+        "expected": "+--------+--------------+\n| id_log | action       |\n+--------+--------------+\n| 100    | GRANT SELECT |\n| 102    | BACKUP       |\n+--------+--------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "La matrice complète",
-        "stdin": "cas:1",
-        "expected": "admin/grant : autorise\nadmin/delete : autorise\necriture/insert : autorise\necriture/grant : refuse\nlecture/select : autorise\nlecture/update : refuse\nautorisations : 4/6"
+        "label": "Actions d’un administrateur et d’un lecteur",
+        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'root', 'admin'), (2, 'invite', 'lecteur'); INSERT INTO journal_connexions VALUES (100, 1, 'GRANT SELECT'), (101, 2, 'SELECT'), (102, 1, 'BACKUP');",
+        "expected": "+--------+--------------+\n| id_log | action       |\n+--------+--------------+\n| 100    | GRANT SELECT |\n| 102    | BACKUP       |\n+--------+--------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Revue de droits",
-        "stdin": "cas:2",
-        "expected": "lecture/insert : refuse\necriture/update : autorise\necriture/select : autorise\nadmin/grant : autorise\nlecture/grant : refuse\nautorisations : 3/5"
+        "label": "Deux administrateurs distincts",
+        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'amina', 'admin'), (2, 'koffi', 'editeur'), (3, 'yao', 'admin'); INSERT INTO journal_connexions VALUES (1, 1, 'CREATE USER'), (2, 2, 'UPDATE'), (3, 3, 'REVOKE');",
+        "expected": "+--------+-------------+\n| id_log | action      |\n+--------+-------------+\n| 1      | CREATE USER |\n| 3      | REVOKE      |\n+--------+-------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Session mixte",
-        "stdin": "cas:3",
-        "expected": "ecriture/delete : autorise\nlecture/select : autorise\nadmin/update : autorise\nadmin/grant : autorise\necriture/grant : refuse\nlecture/delete : refuse\nautorisations : 4/6"
+        "label": "Un seul événement admin",
+        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (10, 'secops', 'admin'); INSERT INTO journal_connexions VALUES (50, 10, 'AUDIT_OK');",
+        "expected": "+--------+----------+\n| id_log | action   |\n+--------+----------+\n| 50     | AUDIT_OK |\n+--------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nadmin/grant : autorise\nlecture/select : autorise\necriture/delete : autorise\nautorisations : 3/3\n\n[Cas 1 — La matrice complète]\nadmin/grant : autorise\nadmin/delete : autorise\necriture/insert : autorise\necriture/grant : refuse\nlecture/select : autorise\nlecture/update : refuse\nautorisations : 4/6\n\n[Cas 2 — Revue de droits]\nlecture/insert : refuse\necriture/update : autorise\necriture/select : autorise\nadmin/grant : autorise\nlecture/grant : refuse\nautorisations : 3/5\n\n[Cas 3 — Session mixte]\necriture/delete : autorise\nlecture/select : autorise\nadmin/update : autorise\nadmin/grant : autorise\necriture/grant : refuse\nlecture/delete : refuse\nautorisations : 4/6"
+    "solution": "-- Corrigé officiel sq-c6-e3\nSELECT id_log, action FROM journal_connexions WHERE user_id IN (SELECT id FROM utilisateurs WHERE role = 'admin') ORDER BY id_log ASC;"
   }
 ];
+
+module.exports = SQ_EXERCISES;

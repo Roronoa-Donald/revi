@@ -222,8 +222,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise impérativement la signification des 4 lettres d’ACID et le rôle du ROLLBACK.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les anomalies de concurrence et les 4 niveaux d’isolation ANSI.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les transactions et les mécanismes de verrouillage concurrentiel.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les anomalies de concurrence et les 4 niveaux d’isolation ANSI.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les transactions et les mécanismes de verrouillage concurrentiel.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe aux vues, procédures stockées, déclencheurs et optimisation au module 6.' }
   ],
 

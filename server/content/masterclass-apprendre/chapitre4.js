@@ -132,8 +132,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la théorie du double codage et la différence Mind Map / Concept Map.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la méthode des Loci et la verbalisation des liens.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les outils d’organisation visuo-spatiale.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la méthode des Loci et la verbalisation des liens.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les outils d’organisation visuo-spatiale.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la pratique délibérée et à l’entrelacement au chapitre 5.' }
   ],
 

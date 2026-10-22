@@ -116,7 +116,7 @@ function atelier(course) {
     '  <p class="lead">Expérimentez vos algorithmes C#, validez vos manipulations de types, structures LINQ et simulations POO directement dans l’interpréteur embarqué.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="analyse"',
+    '       data-language="csharp"',
     '       data-height="420"',
     '       data-stdin="int a = 10; object o = a;">',
     '    <script type="text/plain" data-lab-starter># Zone libre : simulez, expérimentez avec C# ou les algorithmes POO.\nprint("Zone libre C# B2 : pret a executer.")\n</script>',

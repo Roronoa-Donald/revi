@@ -19,7 +19,7 @@ module.exports = {
     'analyser le cycle de vie d’une adjacence OSPF et les rôles de Designated Router (DR) et BDR ;',
     'structurer une architecture hiérarchique multi-aires autour de l’Aire 0 (Backbone Area) ;',
     'différencier précisément les caractéristiques des aires Stub, Totally Stubby et NSSA ;',
-    'développer en Python 3 des calculateurs d’arbres SPF, des parseurs d’en-têtes LSA et des simulateurs de filtrage d’aires.'
+    'analyser et résoudre méthodologiquement des calculateurs d’arbres SPF, des parseurs d’en-têtes LSA et des simulateurs de filtrage d’aires.'
   ],
   sections: [
     {

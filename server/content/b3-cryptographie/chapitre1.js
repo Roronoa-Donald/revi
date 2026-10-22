@@ -23,7 +23,7 @@ module.exports = {
     'analyser le fonctionnement mathématique des chiffrements de César et de substitution affine modulo 26 ;',
     'comprendre le chiffre polyalphabétique de Vigenère et caractériser les conditions de confidentialité parfaite du masque jetable (One-Time Pad) ;',
     'maîtriser la cryptanalyse fréquentielle et le calcul de l\'Indice de Coïncidence (IC) de William Friedman pour identifier la longueur de clé ;',
-    'développer en Python 3 des chiffreurs/déchiffreurs de César, de substitution affine, de Vigenère et des analyseurs d\'Indice de Coïncidence.'
+    'analyser et résoudre méthodologiquement des chiffreurs/déchiffreurs de César, de substitution affine, de Vigenère et des analyseurs d\'Indice de Coïncidence.'
   ],
   sections: [
     {
@@ -176,6 +176,37 @@ module.exports = {
     }
   ],
   flashcards: [
+      { q: "Qu’est-ce que « La sécurité de l'information repose sur quatre piliers » ?", a: "La sécurité de l'information repose sur quatre piliers : confidentialité, intégrité, authenticité et non-répudiation." },
+      { q: "Qu’est-ce que « Le principe de Kerckhoffs stipule que la sécurité d'un cryptosystème repose uniquement sur le secret de sa clé et jamais sur le secret de son algorithme. » ?", a: "Le principe de Kerckhoffs stipule que la sécurité d'un cryptosystème repose uniquement sur le secret de sa clé et jamais sur le secret de son algorithme." },
+      { q: "Qu’est-ce que « Les chiffrements de César et affine sont monoalphabétiques et vulnérables à l'analyse statistique et à la force brute. » ?", a: "Les chiffrements de César et affine sont monoalphabétiques et vulnérables à l'analyse statistique et à la force brute." },
+      { q: 'Qu’est-ce que « LFSR » ?', a: 'LFSR : Registre à décalage à rétroaction linéaire utilisant des portes XOR pour générer une séquence de bits pseudo-aléatoire périodique.' },
+      { q: 'Qu’est-ce que « Réseau de Feistel » ?', a: 'Réseau de Feistel : Structure de chiffrement par bloc scindant les données en deux moitiés où le déchiffrement utilise la même fonction interne avec les clés inversées (ex: DES).' },
+      { q: 'Qu’est-ce que « Réseau SPN (AES) » ?', a: 'Réseau SPN (AES) : Substitution-Permutation Network appliquant des couches alternées de confusion (S-Box) et de diffusion linéaire (ShiftRows, MixColumns).' },
+      { q: 'Qu’est-ce que « Le chiffrement par flux opère en continu par XOR avec un keystream (LFSR, ChaCha20), tandis que le chiffrement par bloc traite des blocs fixes (AES 128 bits). » ?', a: 'Le chiffrement par flux opère en continu par XOR avec un keystream (LFSR, ChaCha20), tandis que le chiffrement par bloc traite des blocs fixes (AES 128 bits).' },
+      { q: 'Qu’est-ce que « AES Rijndael repose sur un réseau de substitution-permutation (SPN) combinant SubBytes, ShiftRows, MixColumns et AddRoundKey. » ?', a: 'AES Rijndael repose sur un réseau de substitution-permutation (SPN) combinant SubBytes, ShiftRows, MixColumns et AddRoundKey.' },
+      { q: 'Qu’est-ce que « Le mode ECB est formellement interdit en production car il préserve les motifs des blocs clairs identiques. » ?', a: 'Le mode ECB est formellement interdit en production car il préserve les motifs des blocs clairs identiques.' },
+      { q: 'Qu’est-ce que « Une fonction de hachage cryptographique doit garantir la résistance à la préimage ($2^n$), à la seconde préimage ($2^n$) et aux collisions ($2^{n/2}$). » ?', a: 'Une fonction de hachage cryptographique doit garantir la résistance à la préimage ($2^n$), à la seconde préimage ($2^n$) et aux collisions ($2^{n/2}$).' },
+      { q: "Qu’est-ce que « L'effet d'avalanche assure qu'une modification d'un bit d'entrée bouleverse environ la moitié des bits de l'empreinte finale. » ?", a: "L'effet d'avalanche assure qu'une modification d'un bit d'entrée bouleverse environ la moitié des bits de l'empreinte finale." },
+      { q: 'Qu’est-ce que « MD5 et SHA-1 sont formellement obsolètes et dépréciés suite à des attaques par collision pratiques ; SHA-256 et SHA-3 sont les standards actuels. » ?', a: 'MD5 et SHA-1 sont formellement obsolètes et dépréciés suite à des attaques par collision pratiques ; SHA-256 et SHA-3 sont les standards actuels.' },
+      { q: "Qu’est-ce que « Algorithme d'Euclide Étendu » ?", a: "Algorithme d'Euclide Étendu : Algorithme arithmétique déterminant le plus grand commun diviseur de deux entiers et les coefficients de l'identité de Bézout au + bv = pgcd(a, b)." },
+      { q: 'Qu’est-ce que « Inverse Modulaire » ?', a: 'Inverse Modulaire : Entier x tel que (a * x) mod m = 1, existant si et seulement si pgcd(a, m) = 1.' },
+      { q: 'Qu’est-ce que « Cryptosystème RSA » ?', a: 'Cryptosystème RSA : Algorithme asymétrique basé sur la difficulté de factoriser n = p * q, utilisant une paire de clés publique (e, n) et privée (d, n).' },
+      { q: 'Qu’est-ce que « Cryptographie sur Courbes Elliptiques (ECC) » ?', a: "Cryptographie sur Courbes Elliptiques (ECC) : Cryptographie à clé publique exploitant la loi de groupe des points d'une courbe elliptique sur corps fini, offrant des clés très courtes." },
+      { q: "Qu’est-ce que « L'algorithme d'Euclide étendu calcule les coefficients de Bézout $a \\cdot u + b \\cdot v = \\text{pgcd}(a, b)$ et permet de déterminer l'inverse modulaire si $\\text{pgcd}(a, m) = 1$. » ?", a: "L'algorithme d'Euclide étendu calcule les coefficients de Bézout $a \\cdot u + b \\cdot v = \\text{pgcd}(a, b)$ et permet de déterminer l'inverse modulaire si $\\text{pgcd}(a, m) = 1$." },
+      { q: "Qu’est-ce que « L'échange de clés Diffie-Hellman permet à deux pairs de construire un secret commun sur un canal public grâce à la difficulté du logarithme discret. » ?", a: "L'échange de clés Diffie-Hellman permet à deux pairs de construire un secret commun sur un canal public grâce à la difficulté du logarithme discret." },
+      { q: "Qu’est-ce que « Diffie-Hellman pur est vulnérable à l'attaque de l'homme du milieu (MITM) et nécessite impérativement une authentification des clés par signature ou certificat. » ?", a: "Diffie-Hellman pur est vulnérable à l'attaque de l'homme du milieu (MITM) et nécessite impérativement une authentification des clés par signature ou certificat." },
+      { q: 'Qu’est-ce que « Infrastructure à Clés Publiques (PKI) » ?', a: 'Infrastructure à Clés Publiques (PKI) : Ensemble de matériels, logiciels, politiques et procédures nécessaires pour créer, gérer, distribuer et révoquer des certificats numériques.' },
+      { q: 'Qu’est-ce que « Certificat X.509 » ?', a: "Certificat X.509 : Document numérique standardisé liant l'identité d'une entité à sa clé publique, signé par une autorité de certification reconnue." },
+      { q: 'Qu’est-ce que « Subject Alternative Name (SAN) » ?', a: "Subject Alternative Name (SAN) : Extension X.509 spécifiant l'ensemble des noms de domaine, adresses IP ou URI légitimes couverts par le certificat." },
+      { q: 'Qu’est-ce que « OCSP Stapling » ?', a: 'OCSP Stapling : Technique TLS où le serveur web fournit lui-même au client une preuve signée et horodatée de non-révocation émise par la CA.' },
+      { q: "Qu’est-ce que « La signature numérique certifie l'authenticité, l'intégrité et la non-répudiation en chiffrant l'empreinte du message avec la clé privée de l'émetteur. » ?", a: "La signature numérique certifie l'authenticité, l'intégrité et la non-répudiation en chiffrant l'empreinte du message avec la clé privée de l'émetteur." },
+      { q: 'Qu’est-ce que « Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux). » ?', a: 'Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux).' },
+      { q: "Qu’est-ce que « La norme X.509 v3 (RFC 5280) structure les certificats et impose l'extension SAN (Subject Alternative Name) pour la validation des noms de domaine. » ?", a: "La norme X.509 v3 (RFC 5280) structure les certificats et impose l'extension SAN (Subject Alternative Name) pour la validation des noms de domaine." },
+      { q: 'Qu’est-ce que « IPsec ESP (Encapsulating Security Payload) » ?', a: "IPsec ESP (Encapsulating Security Payload) : Protocole IPsec fournissant l'authentification, l'intégrité et le chiffrement des paquets réseau en mode Transport ou Tunnel." },
+      { q: 'Qu’est-ce que « Algorithme de Shor » ?', a: 'Algorithme de Shor : Algorithme quantique résolvant la factorisation et le logarithme discret en temps polynomial, cassant RSA et les courbes elliptiques.' },
+      { q: 'Qu’est-ce que « TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire. » ?', a: 'TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire.' },
+      { q: "Qu’est-ce que « Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats. » ?", a: "Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats." },
+      { q: "Qu’est-ce que « SSHv2 sécurise l'administration système via des clés publiques (Ed25519 recommandée), tandis qu'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel. » ?", a: "SSHv2 sécurise l'administration système via des clés publiques (Ed25519 recommandée), tandis qu'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel." },
     {
       q: 'Qu\'est-ce que le principe de Kerckhoffs ?',
       a: 'Le principe selon lequel la sécurité d\'un système cryptographique doit reposer uniquement sur le secret de la clé et jamais sur le secret de l\'algorithme.'
@@ -208,7 +239,7 @@ module.exports = {
     },
     {
       title: 'Cryptanalyse de chiffrements monoalphabétiques',
-      desc: 'Casser des chiffrements par substitution à l\'aide de dictionnaires statistiques et d\'alignement fréquentiel en Python.'
+      desc: 'Casser des chiffrements par substitution à l\'aide de dictionnaires statistiques et d\'alignement fréquentiel de manière méthodique.'
     },
     {
       title: 'Implémentation de l\'Indice de Coïncidence de Friedman',
@@ -219,7 +250,7 @@ module.exports = {
       desc: 'Mettre en place des protocoles d\'effacement mémoire sécurisé pour garantir l\'unicité stricte des flux de clés.'
     },
     {
-      title: 'Programmation d\'outils d\'analyse cryptographique en Python 3',
+      title: 'Programmation d\'outils d\'analyse cryptographique de manière méthodique',
       desc: 'Concevoir des scripts robustes de déchiffrement modulaire, d\'analyse polyalphabétique et de détection de motifs répétés.'
     }
   ]

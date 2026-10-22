@@ -27,6 +27,8 @@ Ce document formalise les principes, tokens sémantiques, composants d’interfa
    - Aucune information véhiculée exclusivement par la couleur.
    - Respect strict de `prefers-reduced-motion`.
 
+5. **Registre d’Adresse par Niveau (B1, B2, B3)** : Sur l’ensemble des trois niveaux du cursus (Licence 1 B1, Licence 2 B2 et Licence 3 B3), toutes les pages de cours, d’ateliers, de cartes et d’examens adoptent uniformément le vouvoiement (« vous ») et l’infinitif de consigne, sans aucun pronom ni impératif au tutoiement.
+
 ---
 
 ## 2. Système de Tokens Sémantiques
@@ -151,3 +153,5 @@ Aucun élément ne doit provoquer de débordement horizontal involontaire sur le
 2. **Accessibilité** : Contraste de tout texte supérieur ou égal à 4.5:1, navigation clavier complète avec anneau de focus net, hiérarchie de titres sans saut.
 3. **Responsivité** : Aucun défilement horizontal parasite sur les 4 viewports de référence (`1440x900`, `768x1024`, `390x844`, `360x800`).
 4. **Intégrité** : 100% de réussite sur les tests automatisés du catalogue (`npm test`), aucune régression de code ou de données.
+
+6. **Échelle Unique du Test de Maîtrise (`0–100 %`)** : Sur l’ensemble des 416 chapitres et des simulateurs d’examen, les bandeaux d’auto-évaluation (`.bands`) et le moteur JS (`cours.js`) utilisent une seule et unique échelle continue à 4 paliers sans trou ni chevauchement ni mélange `/8` : **`< 50 %`** (Notions insuffisamment maîtrisées), **`50–69 %`** (Compréhension partielle), **`70–94 %`** (Bonne maîtrise) et **`≥ 95 %`** (Maîtrise recherchée).

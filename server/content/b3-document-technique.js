@@ -41,7 +41,7 @@ const course = {
     'détection algorithmique des stale docs et intégration dans la Definition of Done).',
   lead:
     'Maîtrisez la conception, la formalisation rigoureuse et l’industrialisation automatisée des livrables techniques en entreprise. ' +
-    'Six modules complets combinant fondements méthodologiques, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.',
+    'Six modules complets combinant fondements méthodologiques, 18 études de cas pratiques et méthodologiques et 48 QCM d’évaluation.',
 
   sources: 'le cours Support_Elaboration Document Technique.pdf (Yan NYAKU), document_technique.docx, la spécification OpenAPI 3.0, la norme CommonMark et les référentiels Docs-as-Code',
 

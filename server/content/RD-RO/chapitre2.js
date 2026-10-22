@@ -89,7 +89,7 @@ module.exports = {
           '<div class="math-block">',
           '$$\\Delta = \\begin{vmatrix} a_1 & b_1 \\\\[4pt] a_2 & b_2 \\end{vmatrix} = a_1 b_2 - a_2 b_1$$',
           '</div>',
-          '<p>Si $\\Delta \\ne 0$, le point d’intersection unique $(x_1, x_2)$ du sommet s’écrit :</p>',
+          '<p>Si $\\Delta ≠ 0$, le point d’intersection unique $(x_1, x_2)$ du sommet s’écrit :</p>',
           '<div class="math-block">',
           '$$x_1 = \\frac{c_1 b_2 - c_2 b_1}{\\Delta}, \\qquad x_2 = \\frac{a_1 c_2 - a_2 c_1}{\\Delta}$$',
           '</div>',
@@ -254,8 +254,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la transformation en forme standard et les variables d’écart/excès.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul d’intersection par la règle de Cramer.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la géométrie des polyèdres et l’évaluation des sommets.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul d’intersection par la règle de Cramer.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la géométrie des polyèdres et l’évaluation des sommets.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à l’algorithme matriciel du Simplexe au chapitre 3.' }
   ],
 

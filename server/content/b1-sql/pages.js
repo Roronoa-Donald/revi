@@ -20,7 +20,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -41,7 +41,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li> employer le vocabulaire exact : base, SGBD, modèle relationnel, clés ;</li>',
       '      <li> choisir les types de données et écrire un CREATE TABLE complet ;</li>',
@@ -107,8 +107,8 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire des bases de données jusqu’aux ' +
     'utilisateurs et privilèges. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de ' +
     'niveau B1 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices de code corrigés</strong> : tu écris ' +
-    'vraiment le script, il est réellement exécuté, puis corrigé par des tests que tu ne vois pas. Toutes ' +
+    '  <p>Chaque chapitre se termine par <strong>trois exercices de code corrigés</strong> : vous écrivez ' +
+    'vraiment le script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. Toutes ' +
     'les requêtes du cours s’essaient aussi dans le <a href="atelier.html">simulateur SQL intégré</a> ' +
     '— base parc_auto déjà chargée, résultats affichés en tableau. L’<a href="exercices/exercices.html">page ' +
     'exercices</a> propose en plus huit missions graduées avec leurs requêtes de référence.</p>',
@@ -206,7 +206,7 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="analyse"',
+      '     data-language="sql"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="">',
@@ -218,33 +218,33 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends une règle ' +
-      'du cours (filtre WHERE, jointure, GROUP BY, privilèges GRANT et REVOKE), programme-la en Bash et ' +
-      'teste-la sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez une règle ' +
+      'du cours (filtre WHERE, jointure, GROUP BY, privilèges GRANT et REVOKE), programmez-la en Bash et ' +
+      'testez-la sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé rejoue la matrice des privilèges du chapitre 6 : lecture, écriture, ' +
       'administration. Transforme-le : ajoute un rôle, refuse grant à l’écriture, journalise chaque refus, ' +
-      'ou remplace tout le script par la règle SQL que tu veux vérifier.</p>',
+      'ou remplace tout le script par la règle SQL que vous voulez vérifier.</p>',
       '      <p>Dans le vrai SGBD, ces décisions vivent dans GRANT et REVOKE : la structure du script — ' +
       'lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',
-      '    <p class="lab__note">Le simulateur SQL plus bas exécute les requêtes elles-mêmes : utilise-le pour voir le résultat réel d’un SELECT.</p>',
+      '    <p class="lab__note">Le simulateur SQL plus bas exécute les requêtes elles-mêmes : utilisez-le pour voir le résultat réel d’un SELECT.</p>',
       '  </div>',
       '</div>'
     ].join('\n'),
 
     '  <h2>Simulateur SQL</h2>',
     '  <p class="lead">Une base <strong>parc_auto</strong> complète est déjà chargée dans cette page : ' +
-    '12 marques, 23 voitures, le jeu de données du support. Écris tes requêtes, exécute-les d’un clic, ' +
-    'lis le résultat en tableau — un vrai moteur SQL tourne dans ton navigateur, rien n’est envoyé nulle part.</p>',
+    '12 marques, 23 voitures, le jeu de données du support. Écrivez vos requêtes, exécutez-les d’un clic, ' +
+    'lisez le résultat en tableau — un vrai moteur SQL tourne dans votre navigateur, rien n’est envoyé nulle part.</p>',
 
     box('objectifs', 'Comment fonctionne le simulateur', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> (ou Ctrl + Entrée) lance tout ce qui est écrit dans l’éditeur, requête par requête, et affiche le résultat de la dernière.</li>',
       '      <li><strong>Réinitialiser</strong> reconstruit la base parc_auto à l’état initial — après un UPDATE ou un DELETE trop large, c’est le bouton magique.</li>',
-      '      <li><strong>Historique</strong> garde tes requêtes de la session ; <strong>Exporter</strong> copie le résultat en CSV.</li>',
+      '      <li><strong>Historique</strong> garde vos requêtes de la session ; <strong>Exporter</strong> copie le résultat en CSV.</li>',
       '      <li>Le moteur est <strong>SQLite</strong> (WebAssembly) : toutes les requêtes du cours y fonctionnent. Les commandes d’administration (CREATE USER, GRANT) restent du papier.</li>',
-      '      <li>Ton script est conservé dans ce navigateur ; aucune donnée ne quitte ta machine.</li>',
+      '      <li>Votre script est conservé dans ce navigateur ; aucune donnée ne quitte votre machine.</li>',
       '    </ul>'
     ].join('\n')),
 
@@ -289,19 +289,19 @@ function atelier(course) {
 
     '  <h2>Missions guidées</h2>',
     '  <p>Huit missions, de la lecture simple à l’analyse groupée : la validation se fait dans le ' +
-    'simulateur, en comparant ton résultat au résultat de référence — chaque mission note le nombre de ' +
+    'simulateur, en comparant votre résultat au résultat de référence — chaque mission note le nombre de ' +
     'lignes et la première ligne attendue.</p>',
     box('method', 'Démarche conseillée', 'compass', [
       '    <ol>',
-      '      <li><strong>Lis la question</strong> et formule-la en français : quelles colonnes, quelles lignes, quel ordre ?</li>',
-      '      <li><strong>Écris le squelette</strong> (SELECT…FROM…WHERE…) puis complète la condition.</li>',
-      '      <li><strong>Exécute</strong> et compare au résultat de référence affiché sous le simulateur.</li>',
+      '      <li><strong>Lisez la question</strong> et formulez-la en français : quelles colonnes, quelles lignes, quel ordre ?</li>',
+      '      <li><strong>Écrivez le squelette</strong> (SELECT…FROM…WHERE…) puis complétez la condition.</li>',
+      '      <li><strong>Exécutez</strong> et comparez au résultat de référence affiché sous le simulateur.</li>',
       '      <li><strong>Corrige</strong> : nombre de lignes différent ? La condition WHERE ou le GROUP BY est en cause.</li>',
       '      <li><strong>Réinitialise</strong> la base entre deux essais de mission qui modifient les données.</li>',
       '    </ol>'
     ].join('\n')),
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Bases de données' }),
-    disclaimer(course, 'Le simulateur s’exécute intégralement dans ton navigateur : aucune requête n’est ' +
+    disclaimer(course, 'Le simulateur s’exécute intégralement dans votre navigateur : aucune requête n’est ' +
       'envoyée au serveur. ')
   ].join('\n\n');
 
@@ -330,8 +330,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo SQL' })
   ].join('\n\n');
@@ -540,13 +540,13 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’épreuve (durée 2 h, /20). ' +
-    'Écris les requêtes <strong>dans le simulateur</strong> pour vérifier tes réponses, puis corrige-toi ' +
+    'Écrivez les requêtes <strong>dans le simulateur</strong> pour vérifier vos réponses, puis corrigez-vous ' +
     'sévèrement avec les corrigés.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu’à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : ordre des clauses, chaînes quotées, WHERE vs HAVING.</p>',
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu’à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : ordre des clauses, chaînes quotées, WHERE vs HAVING.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
       '  </div>'
@@ -558,7 +558,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les requêtes des chapitres faibles dans le simulateur.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les jointures externes et HAVING.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les jointures externes et HAVING.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l’épreuve réelle.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices guidés' }),

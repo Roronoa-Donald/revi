@@ -154,7 +154,7 @@ function atelier(course) {
     '  <p class="lead">Expérimentez et automatisez vos outils de plomberie Git selon les grilles d’analyse : hachage d’objets, parcours de graphes DAG, résolution de conflits et validation de workflows CI/CD.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="analyse"',
+    '       data-language="shell"',
     '       data-height="420"',
     '       data-stdin="GIT_BLOB\nBonjour Git B3!">',
     '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',

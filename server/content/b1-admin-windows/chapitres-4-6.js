@@ -166,7 +166,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — redessine l’exemple cdp.org du support à la main.' },
       { cls: 'mid', text: '50–69 % — rejoue le classement domaine/arbre/forêt sur des cas nouveaux.' },
-      { cls: 'good', text: '70–89 % — solide : construis l’arborescence d’une entreprise fictive.' },
+      { cls: 'good', text: '70–94 % — solide : construis l’arborescence d’une entreprise fictive.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe à l’installation du contrôleur de domaine.' }
     ],
 
@@ -340,7 +340,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la section « nouvelle forêt », c’est le cœur de l’épreuve.' },
       { cls: 'mid', text: '50–69 % — refais l’exercice des informations requises jusqu’au sans-faute.' },
-      { cls: 'good', text: '70–89 % — solide : déroule l’installation sur une VM de TP.' },
+      { cls: 'good', text: '70–94 % — solide : déroule l’installation sur une VM de TP.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe à la gestion des objets.' }
     ],
 
@@ -499,7 +499,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — rejoue le cycle d’un compte neuf sur une VM de TP.' },
       { cls: 'mid', text: '50–69 % — refais les exercices UPN/groupes jusqu’au sans-faute.' },
-      { cls: 'good', text: '70–89 % — solide : structure un domaine fictif complet (UO, comptes, groupes).' },
+      { cls: 'good', text: '70–94 % — solide : structure un domaine fictif complet (UO, comptes, groupes).' },
       { cls: 'top', text: '≥ 95 % — maîtrise : le cours est acquis, enchaîne les examens blancs.' }
     ],
 

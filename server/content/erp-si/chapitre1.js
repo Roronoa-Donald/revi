@@ -153,12 +153,28 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les 5 composantes du SI et la définition d’un ERP.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les caractéristiques d’un PGI et le calcul du TCO.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les principes architecturaux et économiques du SI.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les caractéristiques d’un PGI et le calcul du TCO.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes architecturaux et économiques du SI.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à l’automatisation des processus au chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « Silos d’information » ?', a: 'identifier les inconvénients majeurs des silos d’information applicatifs ;' },
+      { q: 'Qu’est-ce que « Master Data » ?', a: 'Référentiel unique ( Master Data / Données de référence partagées).' },
+      { q: 'Qu’est-ce que « Modularité » ?', a: 'Modularité : ERP & SI B2 › Sommaire › Chapitre 1' },
+      { q: 'Qu’est-ce que « Circuit d’approbation » ?', a: 'Circuit d’approbation : concevoir des circuits de workflow d’approbation avec règles d’aiguillage hiérarchiques ;' },
+      { q: 'Qu’est-ce que « EAI » ?', a: 'L’ERP ne vit jamais seul : il doit dialoguer avec les banques, les sites e-commerce, les applications logistiques des transporteurs et les logiciels RH. Concevoir ces passerelles de façon anarchique mène à une « architecture spaghetti » indémêlable. Les architectures EAI et ESB s' },
+      { q: 'Qu’est-ce que « iPaaS » ?', a: 'comparer les topologies d’intégration (Point-à-Point, Hub & Spoke, ESB, iPaaS) ;' },
+      { q: 'Qu’est-ce que « XML » ?', a: 'maîtriser le concept de format pivot pour la transformation des messages (EDI, XML, JSON) ;' },
+      { q: 'Qu’est-ce que « Chaîne de valeur » ?', a: 'analyser la chaîne de valeur de Michael Porter et distinguer activités principales et de soutien ;' },
+      { q: 'Qu’est-ce que « P2P » ?', a: 'maîtriser le déroulement complet du cycle Procure-to-Pay (P2P / Achats) ;' },
+      { q: 'Qu’est-ce que « O2C » ?', a: 'maîtriser le déroulement complet du cycle Order-to-Cash (O2C / Ventes) ;' },
+      { q: 'Qu’est-ce que « CBN » ?', a: 'CBN : ERP & SI B2 › Sommaire › Chapitre 4' },
+      { q: 'Qu’est-ce que « PMP » ?', a: 'comprendre les mécanismes de valorisation des stocks (CMUP / PMP et FIFO) ;' },
+      { q: 'Qu’est-ce que « LIFO » ?', a: 'LIFO (Last In, First Out / DEPS) : les derniers articles entrés sortent les premiers (interdit par les normes IFRS et la fiscalité française car sous-évaluant les stocks en période d’inflation).' },
+      { q: 'Qu’est-ce que « EOQ » ?', a: 'La formule de Wilson calcule la quantité économique de commande ( EOQ - Economic Order Quantity ) qui minimise la somme des coûts de commande et des coûts de possession du stock :' },
+      { q: 'Qu’est-ce que « SaaS » ?', a: 'Le choix d’un ERP et son implémentation constituent l’un des investissements les plus stratégiques et risqués pour une organisation. Du modèle d’hébergement (SaaS vs On-Premise) à la gestion des risques projet (conduite du changement, dépassements budgétaires), en passant par l’u' },
+      { q: 'Qu’est-ce que « Phasing » ?', a: 'Déploiement par étapes (Phasing / Pilote) : mise en production progressive par module (ex. d’abord la Finance, puis les Stocks) ou par entité géographique (filiale pilote). Risque opérationnel maîtrisé, mais gestion transitoire complexe d’interfaces temporaires entre l’ancien et ' },
     { q: 'Quelles sont les 5 composantes du SI ?', a: 'Matériel, Logiciel, Données, Humain et Processus.' },
     { q: 'Quelle est la caractéristique technique centrale d’un ERP ?', a: 'Une base de données unique partagée entre tous les modules métiers.' },
     { q: 'Qu’est-ce qu’un PGI ?', a: 'Progiciel de Gestion Intégré (traduction française d’ERP).' },

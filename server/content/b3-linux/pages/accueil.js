@@ -154,7 +154,7 @@ function atelier(course) {
     '  <p class="lead">Expérimentez et automatisez vos outils d’ingénierie système selon les grilles d’analyse : analyse de métriques /proc, simulation de Cgroups v2, audit de politiques de routage et décodage de journaux auditd.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="analyse"',
+    '       data-language="shell"',
     '       data-height="420"',
     '       data-stdin="PROC_INFO pid=1\nname=systemd">',
     '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',

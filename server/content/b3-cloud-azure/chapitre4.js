@@ -19,7 +19,7 @@ module.exports = {
     'configurer des Network Security Groups (NSG) et évaluer l\'ordre de priorité des règles personnalisées et règles par défaut ;',
     'sécuriser l\'administration des serveurs Linux/Windows sans adresse IP publique avec Azure Bastion ;',
     'interconnecter des réseaux virtuels via VNet Peering (local et global) et valider la non-collision des plages CIDR ;',
-    'développer en Python 3 des calculateurs de sous-réseaux Azure, des moteurs d\'évaluation de règles NSG et des validateurs de peering.'
+    'analyser et résoudre méthodologiquement des calculateurs de sous-réseaux Azure, des moteurs d\'évaluation de règles NSG et des validateurs de peering.'
   ],
   sections: [
     {
@@ -198,7 +198,7 @@ module.exports = {
       stem: 'Quelle est la portée géographique du service Global VNet Peering sous Azure ?',
       opts: [
         'Uniquement entre deux datacenters de la même ville',
-        'Entre n\'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft',
+        'Entrez n\'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft',
         'Uniquement au sein de l\'Union Européenne',
         'Uniquement entre régions jumelées'
       ],
@@ -250,7 +250,7 @@ module.exports = {
       desc: 'Bannir totalement les adresses IP publiques et interconnecter les services PaaS (Azure SQL, Storage) via des points de terminaison privés dans le VNet.'
     },
     {
-      title: 'Automatisation d\'évaluation réseau en Python 3',
+      title: 'Automatisation d\'évaluation réseau de manière méthodique',
       desc: 'Programmer des calculateurs de sous-réseaux CIDR, des simulateurs d\'évaluation de paquets par NSG et des vérificateurs de topologie peering.'
     }
   ]

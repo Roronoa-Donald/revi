@@ -221,7 +221,7 @@ module.exports = [
     "brief": "<p>Pour préparer un programme linéaire à l’algorithme du simplexe, chaque contrainte d’inégalité doit être transformée en égalité avec second membre positif :</p><ul>  <li>Une contrainte $\\le$ reçoit une variable d’écart positive : $a_1 x_1 + a_2 x_2 + s_k = b$ ;</li>  <li>Une contrainte $\\ge$ reçoit une variable d’excès soustraite : $a_1 x_1 + a_2 x_2 - e_k = b$.</li></ul><p>Analysez les paramètres du problème pour chaque cas. <code>1</code>, <code>2</code>) ;<br>- <code>a1,a2</code> sont les coefficients de $x_1$ et $x_2$ ;<br>- <code>SENS</code> vaut <code>LE</code> (pour $\\le$) ou <code>GE</code> (pour $\\ge$) ;<br>- <code>b</code> est le second membre.</p><p>Indiquez l’équation résultante sous la forme canonique :<br>Pour <code>LE</code> : <code>&lt;a1&gt;*x1 + &lt;a2&gt;*x2 + s&lt;num&gt; = &lt;b&gt;</code>.<br>Pour <code>GE</code> : <code>&lt;a1&gt;*x1 + &lt;a2&gt;*x2 - e&lt;num&gt; = &lt;b&gt;</code>.<br>(Les nombres entiers ou flottants conservent leur écriture naturelle).</p>",
     "starter": "# Grille de calcul (ro2-c2-e1) — Conversion en forme standard (Écart & Excès)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Contrainte <= standard]\n# Données : 2;2,5;LE;30\nA_COMPLETER\n\n[Cas 2 — Contrainte >= avec variable d excès]\n# Données : 1;1,3;GE;15\nA_COMPLETER\n\n[Cas 3 — Coefficients décimaux]\n# Données : 3;0.5,1.5;LE;12\nA_COMPLETER\n",
     "hints": [
-      "Découpe la ligne par \";\".",
+      "Découpez la ligne par \";\".",
       "Selon que SENS == \"LE\" ou \"GE\", choisis \"+ s{num}\" ou \"- e{num}\"."
     ],
     "examples": [
@@ -257,10 +257,10 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "goal": "Calculer le point d’intersection de deux droites de frontière dans le plan.",
-    "brief": "<p>Deux droites de contrainte du plan $(x_1, x_2)$ sont données sous forme d’équations :<br>$$a_1 x_1 + b_1 x_2 = c_1 \\quad \\text{et} \\quad a_2 x_1 + b_2 x_2 = c_2$$</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calcule le déterminant du système $\\Delta = a_1 b_2 - a_2 b_1$.<br>Si $|\\Delta| < 10^{-6}$, les droites sont parallèles ou confondues, Indiquez :<br><code>PARALLELES DELTA=0.0</code>.<br>Sinon, applique la règle de Cramer :<br>$$x_1 = \\frac{c_1 b_2 - c_2 b_1}{\\Delta}, \\quad x_2 = \\frac{a_1 c_2 - a_2 c_1}{\\Delta}$$<br>Indiquez : <code>INTERSECTION x1=&lt;x1 à 2 décimales&gt; x2=&lt;x2 à 2 décimales&gt; DELTA=&lt;Delta à 2 décimales&gt;</code>.</p>",
+    "brief": "<p>Deux droites de contrainte du plan $(x_1, x_2)$ sont données sous forme d’équations :<br>$$a_1 x_1 + b_1 x_2 = c_1 \\quad \\text{et} \\quad a_2 x_1 + b_2 x_2 = c_2$$</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calculez le déterminant du système $\\Delta = a_1 b_2 - a_2 b_1$.<br>Si $|\\Delta| < 10^{-6}$, les droites sont parallèles ou confondues, Indiquez :<br><code>PARALLELES DELTA=0.0</code>.<br>Sinon, applique la règle de Cramer :<br>$$x_1 = \\frac{c_1 b_2 - c_2 b_1}{\\Delta}, \\quad x_2 = \\frac{a_1 c_2 - a_2 c_1}{\\Delta}$$<br>Indiquez : <code>INTERSECTION x1=&lt;x1 à 2 décimales&gt; x2=&lt;x2 à 2 décimales&gt; DELTA=&lt;Delta à 2 décimales&gt;</code>.</p>",
     "starter": "# Grille de calcul (ro2-c2-e2) — Intersection de deux droites par la règle de Cramer\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Intersection nette à coordonnées entières]\n# Données : 3,1,15;1,2,10\nA_COMPLETER\n\n[Cas 2 — Droites parallèles (pentes identiques)]\n# Données : 2,4,12;1,2,9\nA_COMPLETER\n\n[Cas 3 — Intersection avec coordonnées décimales]\n# Données : 2,3,13;4,1,11\nA_COMPLETER\n",
     "hints": [
-      "Calcule delta = a1 * b2 - a2 * b1.",
+      "Calculez delta = a1 * b2 - a2 * b1.",
       "Si abs(delta) < 1e-6, affiche le cas des droites parallèles."
     ],
     "examples": [
@@ -296,7 +296,7 @@ module.exports = [
     "level": "n3",
     "language": "analyse",
     "goal": "Identifier le sommet optimal maximisant la fonction objectif dans la région réalisable.",
-    "brief": "<p>D’après le théorème fondamental de la programmation linéaire, si un programme linéaire admet une solution optimale finie, au moins un des <strong>sommets du polyèdre réalisable</strong> est optimal.</p><p>Analysez les paramètres du problème pour chaque cas...</code> contenant :</p><ul>  <li>Les coefficients de la fonction objectif MAX $Z = c_1 x_1 + c_2 x_2$ ;</li>  <li>Les contraintes $a_{i1} x_1 + a_{i2} x_2 \\le b_i$ séparées par <code>|</code> ;</li>  <li>Une liste de sommets candidats $(x_1, x_2)$ séparés par <code>|</code>.</li></ul><p>Filtre les sommets réalisables (vérifiant $x_1 \\ge 0$, $x_2 \\ge 0$ et toutes les contraintes $\\le$).<br>Sélectionne le sommet réalisable qui maximise $Z$ et Indiquez :<br><code>OPTIMUM: (x1=&lt;x1&gt;, x2=&lt;x2&gt;) Z=&lt;Z max à 1 décimale&gt;</code>.<br>Si aucun sommet n’est réalisable, Indiquez : <code>REGION_VIDE</code>.</p>",
+    "brief": "<p>D’après le théorème fondamental de la programmation linéaire, si un programme linéaire admet une solution optimale finie, au moins un des <strong>sommets du polyèdre réalisable</strong> est optimal.</p><p>Analysez les paramètres du problème pour chaque cas...</code> contenant :</p><ul>  <li>Les coefficients de la fonction objectif MAX $Z = c_1 x_1 + c_2 x_2$ ;</li>  <li>Les contraintes $a_{i1} x_1 + a_{i2} x_2 \\le b_i$ séparées par <code>|</code> ;</li>  <li>Une liste de sommets candidats $(x_1, x_2)$ séparés par <code>|</code>.</li></ul><p>Filtrez les sommets réalisables (vérifiant $x_1 \\ge 0$, $x_2 \\ge 0$ et toutes les contraintes $\\le$).<br>Sélectionne le sommet réalisable qui maximise $Z$ et Indiquez :<br><code>OPTIMUM: (x1=&lt;x1&gt;, x2=&lt;x2&gt;) Z=&lt;Z max à 1 décimale&gt;</code>.<br>Si aucun sommet n’est réalisable, Indiquez : <code>REGION_VIDE</code>.</p>",
     "starter": "# Grille de calcul (ro2-c2-e3) — Résolution graphique par évaluation des sommets\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Quatre sommets avec optimum intérieur]\n# Données : 4,3;1,1,8|2,1,12;0,0|6,0|0,8|4,4\nA_COMPLETER\n\n[Cas 2 — Optimum situé sur un axe]\n# Données : 10,2;1,1,5|3,1,9;0,0|3,0|0,5|2,3\nA_COMPLETER\n\n[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]\n# Données : 5,5;1,1,4|2,1,6;10,10|5,5|0,8\nA_COMPLETER\n",
     "hints": [
       "Parse les contraintes dans une liste de tuples (a1, a2, b).",
@@ -338,7 +338,7 @@ module.exports = [
     "brief": "<p>Dans un problème de maximisation, la ligne d’indicateurs (coûts réduits $\\bar{c}_j$) du tableau du simplexe guide l’amélioration de la solution :</p><ul>  <li>Si tous les $\\bar{c}_j \\le 0$, la solution de base courante est <strong>optimale</strong> ;</li>  <li>Sinon, la variable entrante est celle qui possède le coût réduit le plus strictement positif $\\max \\bar{c}_j$ (règle de Dantzig). En cas d’égalité, on choisit l’indice le plus petit (règle de Bland pour éviter le cyclage).</li></ul><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>Si toutes les valeurs sont $\\le 0$, Indiquez : <code>OPTIMALITE_ATTEINTE</code>.<br>Sinon, Indiquez : <code>ENTRANTE: &lt;nom_variable&gt; COUT_REDUIT=&lt;valeur à 2 décimales&gt;</code>.</p>",
     "starter": "# Grille de calcul (ro2-c3-e1) — Critère de Dantzig (Choix de la variable entrante)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux variables candidates positives]\n# Données : x1:3.5,x2:2.0,x3:5.8,s1:0.0\nA_COMPLETER\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\n# Données : x1:0.0,x2:-2.5,s1:-1.2,s2:0.0\nA_COMPLETER\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\n# Données : x1:4.0,x2:4.0,s1:0.0\nA_COMPLETER\n",
     "hints": [
-      "Découpe par virgule puis chaque couple par deux-points.",
+      "Découpez par virgule puis chaque couple par deux-points.",
       "Cherche le maximum strictement positif. S’il n’y en a aucun, c’est optimal."
     ],
     "examples": [
@@ -378,7 +378,7 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e2) — Règle du ratio minimum & variable sortante\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Minimum en première ligne]\n# Données : 10,20,30;5,2,1\nA_COMPLETER\n\n[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]\n# Données : 15,25;0,-2\nA_COMPLETER\n\n[Cas 3 — Un seul coefficient strictement positif]\n# Données : 12,8,20;-3,4,-1\nA_COMPLETER\n",
     "hints": [
       "Ignore les lignes où aik <= 0.",
-      "Parcours les ratios et retiens le minimum strictement positif."
+      "Parcourez les ratios et retiens le minimum strictement positif."
     ],
     "examples": [
       {
@@ -413,10 +413,10 @@ module.exports = [
     "level": "n3",
     "language": "analyse",
     "goal": "Effectuer un pivot complet de Gauss-Jordan sur une matrice de simplexe.",
-    "brief": "<p>Le pivot de Gauss-Jordan sur l’élément de pivot $(r, c)$ d’une matrice $M$ s’effectue en deux étapes :</p><ol>  <li>Normaliser la ligne de pivot $r$ en divisant chaque coefficient par le pivot $p = M[r][c]$ ;</li>  <li>Pour chaque autre ligne $i \\neq r$, éliminer le coefficient de la colonne $c$ en effectuant :<br>  $M[i][j] \\leftarrow M[i][j] - M[i][c] \\times M[r][j]$.</li></ol><p>Analysez les paramètres du problème pour chaque cas...|L2_coeff1,L2_coeff2,...|...</code><br>où $r, c$ sont les indices 1-indexés du pivot (ligne $r$, colonne $c$).<br>Indiquez chaque ligne de la matrice résultante séparée par <code> | </code> avec les coefficients arrondis à 2 décimales séparés par des virgules :<br><code>&lt;val11&gt;,&lt;val12&gt;,... | &lt;val21&gt;,&lt;val22&gt;,...</code>.</p>",
+    "brief": "<p>Le pivot de Gauss-Jordan sur l’élément de pivot $(r, c)$ d’une matrice $M$ s’effectue en deux étapes :</p><ol>  <li>Normaliser la ligne de pivot $r$ en divisant chaque coefficient par le pivot $p = M[r][c]$ ;</li>  <li>Pour chaque autre ligne $i ≠ r$, éliminer le coefficient de la colonne $c$ en effectuant :<br>  $M[i][j] \\leftarrow M[i][j] - M[i][c] \\times M[r][j]$.</li></ol><p>Analysez les paramètres du problème pour chaque cas...|L2_coeff1,L2_coeff2,...|...</code><br>où $r, c$ sont les indices 1-indexés du pivot (ligne $r$, colonne $c$).<br>Indiquez chaque ligne de la matrice résultante séparée par <code> | </code> avec les coefficients arrondis à 2 décimales séparés par des virgules :<br><code>&lt;val11&gt;,&lt;val12&gt;,... | &lt;val21&gt;,&lt;val22&gt;,...</code>.</p>",
     "starter": "# Grille de calcul (ro2-c3-e3) — Opération de pivotage de Gauss-Jordan\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 2x3 avec pivot à 3.0]\n# Données : 1,2;1,3,9|2,1,8\nA_COMPLETER\n\n[Cas 2 — Pivot en deuxième ligne]\n# Données : 2,1;3,2,12|2,4,16\nA_COMPLETER\n\n[Cas 3 — Matrice 3x3 avec ligne identité]\n# Données : 2,2;1,2,5|0,4,8|2,1,6\nA_COMPLETER\n",
     "hints": [
-      "Convertis r et c en indices 0-indexés (r-1, c-1).",
+      "Convertissez r et c en indices 0-indexés (r-1, c-1).",
       "Sauvegarde bien la ligne pivot normalisée avant de modifier les autres lignes."
     ],
     "examples": [
@@ -491,10 +491,10 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "goal": "Vérifier l’égalité des optimums primal et dual et calculer le gap de dualité.",
-    "brief": "<p>D’après le <strong>théorème fort de la dualité</strong>, si le problème primal admet une solution optimale $x^*$, alors le problème dual admet une solution optimale $y^*$ telle que :<br>$$Z(x^*) = c^T x^* = b^T y^* = W(y^*)$$<br>Si les points testés ne sont pas encore optimaux, le <em>théorème faible</em> garantit que $Z(x) \\le W(y)$, l’écart $W(y) - Z(x) \\ge 0$ formant le <strong>gap de dualité</strong>.</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calcule $Z = c_1 x_1 + c_2 x_2$, $W = b_1 y_1 + b_2 y_2$ et l’écart $gap = W - Z$.<br>Si $|gap| < 10^{-5}$, Indiquez :<br><code>OPTIMUM_ATTEINT Z=W=&lt;valeur à 2 décimales&gt; GAP=0.00</code>.<br>Sinon, Indiquez :<br><code>NON_OPTIMAL Z=&lt;Z à 2 décimales&gt; W=&lt;W à 2 décimales&gt; GAP=&lt;gap à 2 décimales&gt;</code>.</p>",
+    "brief": "<p>D’après le <strong>théorème fort de la dualité</strong>, si le problème primal admet une solution optimale $x^*$, alors le problème dual admet une solution optimale $y^*$ telle que :<br>$$Z(x^*) = c^T x^* = b^T y^* = W(y^*)$$<br>Si les points testés ne sont pas encore optimaux, le <em>théorème faible</em> garantit que $Z(x) \\le W(y)$, l’écart $W(y) - Z(x) \\ge 0$ formant le <strong>gap de dualité</strong>.</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calculez $Z = c_1 x_1 + c_2 x_2$, $W = b_1 y_1 + b_2 y_2$ et l’écart $gap = W - Z$.<br>Si $|gap| < 10^{-5}$, Indiquez :<br><code>OPTIMUM_ATTEINT Z=W=&lt;valeur à 2 décimales&gt; GAP=0.00</code>.<br>Sinon, Indiquez :<br><code>NON_OPTIMAL Z=&lt;Z à 2 décimales&gt; W=&lt;W à 2 décimales&gt; GAP=&lt;gap à 2 décimales&gt;</code>.</p>",
     "starter": "# Grille de calcul (ro2-c4-e2) — Théorème fort de la dualité & Gap de dualité\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\n# Données : 3,5;7,2;16,11;0.333333,2.333333\nA_COMPLETER\n\n[Cas 2 — Points sous-optimaux avec gap net]\n# Données : 2,3;2,1;10,8;1.5,1.0\nA_COMPLETER\n\n[Cas 3 — Autre optimum parfait]\n# Données : 10,12;5,5;50,30;1.0,2.0\nA_COMPLETER\n",
     "hints": [
-      "Calcule z = c1*x1 + c2*x2 et w = b1*y1 + b2*y2.",
+      "Calculez z = c1*x1 + c2*x2 et w = b1*y1 + b2*y2.",
       "Si abs(w - z) < 1e-5, le gap est nul et l’optimum est prouvé."
     ],
     "examples": [
@@ -533,7 +533,7 @@ module.exports = [
     "brief": "<p>Le théorème des écarts complémentaires (Karush-Kuhn-Tucker) stipule qu’à l’optimum :</p><ul>  <li>Pour toute contrainte de ressource $i$ : $y_i^* \\times s_i^* = 0$.<br>  (Si une ressource est excédentaire $s_i > 0$, son prix d’ombre est nul $y_i = 0$ ; si $y_i > 0$, la ressource est saturée $s_i = 0$).</li>  <li>Pour toute variable de décision $j$ : $x_j^* \\times e_j^* = 0$ (où $e_j$ est l’écart sur la contrainte duale).</li></ul><p>Analysez les paramètres du problème pour chaque cas...;y1,y2,...</code> représentant les écarts primaux $s_i$ et les variables duales associées $y_i$.<br>Pour chaque couple $(s_i, y_i)$, vérifie si $s_i \\times y_i = 0$ (avec tolérance $10^{-5}$).<br>Si toutes les conditions sont respectées, Indiquez :<br><code>COMPLEMENTARITE_VERIFIEE</code>.<br>Sinon, liste les indices des contraintes en violation :<br><code>VIOLATION_CONTRAINTE_&lt;i&gt;</code> (séparés par un espace).</p>",
     "starter": "# Grille de calcul (ro2-c4-e3) — Théorème des écarts complémentaires (Slackness)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les conditions respectées]\n# Données : 0.0,0.0,2.0,0.0;3.0,1.5,0.0,4.2\nA_COMPLETER\n\n[Cas 2 — Violation sur la deuxième contrainte]\n# Données : 0.0,3.0,0.0;2.0,1.0,4.0\nA_COMPLETER\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\n# Données : 1.5,0.0,2.0;2.0,0.0,1.0\nA_COMPLETER\n",
     "hints": [
-      "Découpe par \";\" puis sépare les valeurs s et y.",
+      "Découpez par \";\" puis sépare les valeurs s et y.",
       "Une violation apparaît si abs(s * y) > 1e-5."
     ],
     "examples": [
@@ -569,7 +569,7 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Construire une solution de base réalisable initiale par la règle du coin Nord-Ouest.",
-    "brief": "<p>Dans un problème de transport équilibré (somme des offres = somme des demandes), la règle du <strong>Coin Nord-Ouest</strong> commence en haut à gauche $(i=0, j=0)$ :</p><ul>  <li>Alloue $x_{ij} = \\min(offre_i, demande_j)$ ;</li>  <li>Soustrait cette quantité de $offre_i$ et $demande_j$ ;</li>  <li>Si $offre_i = 0$, avance vers le bas ($i \\leftarrow i + 1$) ; si $demande_j = 0$, avance vers la droite ($j \\leftarrow j + 1$).</li></ul><p>Analysez les paramètres du problème pour chaque cas...;d1,d2,...;cout11,cout12,...|cout21,cout22,...|...</code>.<br>Calcule les flux non nuls alloués et le coût total de transport $C = \\sum x_{ij} \\times c_{ij}$.<br>Indiquez :<br><code>FLUX: (i,j)=qte,... COUT_TOTAL=&lt;C à 1 décimale&gt;</code><br>(les indices $i, j$ sont 1-indexés).</p>",
+    "brief": "<p>Dans un problème de transport équilibré (somme des offres = somme des demandes), la règle du <strong>Coin Nord-Ouest</strong> commence en haut à gauche $(i=0, j=0)$ :</p><ul>  <li>Alloue $x_{ij} = \\min(offre_i, demande_j)$ ;</li>  <li>Soustrait cette quantité de $offre_i$ et $demande_j$ ;</li>  <li>Si $offre_i = 0$, avance vers le bas ($i \\leftarrow i + 1$) ; si $demande_j = 0$, avance vers la droite ($j \\leftarrow j + 1$).</li></ul><p>Analysez les paramètres du problème pour chaque cas...;d1,d2,...;cout11,cout12,...|cout21,cout22,...|...</code>.<br>Calculez les flux non nuls alloués et le coût total de transport $C = \\sum x_{ij} \\times c_{ij}$.<br>Indiquez :<br><code>FLUX: (i,j)=qte,... COUT_TOTAL=&lt;C à 1 décimale&gt;</code><br>(les indices $i, j$ sont 1-indexés).</p>",
     "starter": "# Grille de calcul (ro2-c5-e1) — Méthode du Coin Nord-Ouest (Transport)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux origines deux destinations]\n# Données : 25,25;30,20;2,4|3,5\nA_COMPLETER\n\n[Cas 2 — Trois origines deux destinations]\n# Données : 10,20,30;25,35;4,6|2,5|3,1\nA_COMPLETER\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\n# Données : 20,30;20,30;5,8|4,2\nA_COMPLETER\n",
     "hints": [
       "La méthode du coin Nord-Ouest initialise la matrice de transport en saturant d’abord la case (1, 1).",
@@ -690,7 +690,7 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c6-e1) — Dates au plus tôt (Forward Pass PERT/CPM)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne linéaire simple]\n# Données : A:AUCUN,4 | B:A,5 | C:B,6\nA_COMPLETER\n\n[Cas 2 — Deux branches parallèles convergeant vers une tâche]\n# Données : A:AUCUN,5 | B:AUCUN,8 | C:A-B,3\nA_COMPLETER\n\n[Cas 3 — Graphe à 5 nœuds]\n# Données : A:AUCUN,2 | B:A,3 | C:A,5 | D:B,4 | E:C-D,2\nA_COMPLETER\n",
     "hints": [
       "Parse chaque tâche dans un dictionnaire avec sa durée et ses prédécesseurs.",
-      "Parcours les tâches dans l'ordre de dépendance (ou itère jusqu'à stabilisation des dates ES)."
+      "Parcourez les tâches dans l'ordre de dépendance (ou itère jusqu'à stabilisation des dates ES)."
     ],
     "examples": [
       {
@@ -725,11 +725,11 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "goal": "Calculer la marge totale de chaque tâche et identifier le chemin critique du projet.",
-    "brief": "<p>La <strong>marge totale</strong> d’une tâche $i$ mesure le retard maximal qu’elle peut prendre sans retarder la date de fin globale du projet :<br>$$MT(i) = LF(i) - ES(i) - d_i$$où $ES$ est la date au plus tôt, $LF$ la date au plus tard d’achèvement, et $d_i$ la durée de la tâche.<br>Une tâche est dite <strong>critique</strong> si sa marge totale est nulle ($MT = 0$).</p><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>Calcule la marge totale de chaque tâche.<br>Indiquez :<br><code>MARGES: nom=MT,... CRITIQUES: &lt;liste des tâches critiques séparées par des tirets&gt;</code>.</p>",
+    "brief": "<p>La <strong>marge totale</strong> d’une tâche $i$ mesure le retard maximal qu’elle peut prendre sans retarder la date de fin globale du projet :<br>$$MT(i) = LF(i) - ES(i) - d_i$$où $ES$ est la date au plus tôt, $LF$ la date au plus tard d’achèvement, et $d_i$ la durée de la tâche.<br>Une tâche est dite <strong>critique</strong> si sa marge totale est nulle ($MT = 0$).</p><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>Calculez la marge totale de chaque tâche.<br>Indiquez :<br><code>MARGES: nom=MT,... CRITIQUES: &lt;liste des tâches critiques séparées par des tirets&gt;</code>.</p>",
     "starter": "# Grille de calcul (ro2-c6-e2) — Marges totales & Chemin critique\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les tâches sont critiques (projet mono-branche)]\n# Données : A:0,4,4 | B:4,9,5 | C:9,12,3\nA_COMPLETER\n\n[Cas 2 — Deux tâches avec marge positive]\n# Données : A:0,5,5 | B:0,5,2 | C:2,8,3 | D:5,10,5\nA_COMPLETER\n\n[Cas 3 — Projet à 4 tâches avec bifurcation]\n# Données : X:0,2,2 | Y:2,6,4 | Z:2,6,1 | W:6,8,2\nA_COMPLETER\n",
     "hints": [
       "Pour chaque tâche, mt = lf - es - duree.",
-      "Filtre les tâches avec mt == 0 pour former la chaîne critique."
+      "Filtrez les tâches avec mt == 0 pour former la chaîne critique."
     ],
     "examples": [
       {
@@ -764,10 +764,10 @@ module.exports = [
     "level": "n3",
     "language": "analyse",
     "goal": "Calculer la capacité résiduelle d’une chaîne augmentante et mettre à jour le flot dans un réseau.",
-    "brief": "<p>Dans l’algorithme de Ford-Fulkerson pour la recherche du <strong>flot maximal</strong>, chaque arc $(u, v)$ possède une capacité $c(u, v)$ et un flot actuel $f(u, v)$. La capacité résiduelle est $r(u, v) = c(u, v) - f(u, v)$.</p><p>Pour une chaîne augmentante $P = (s, v_1, v_2, \\dots, t)$, la valeur maximale de flot que l’on peut pousser est déterminée par le <strong>goulot d’étranglement</strong> (bottleneck capacity) :<br>$$\\Delta = \\min_{(u, v) \\in P} r(u, v)$$</p><p>Analysez les paramètres du problème pour chaque cas... ; CHAINE: s-v1-v2-...-t</code>.<br>Calcule $\\Delta$ et les nouvelles capacités résiduelles des arcs de la chaîne.<br>Indiquez :<br><code>DELTA=&lt;Delta&gt; ARCS_MAJ: u1-v1=&lt;nouveau_flot&gt;,...</code>.</p>",
+    "brief": "<p>Dans l’algorithme de Ford-Fulkerson pour la recherche du <strong>flot maximal</strong>, chaque arc $(u, v)$ possède une capacité $c(u, v)$ et un flot actuel $f(u, v)$. La capacité résiduelle est $r(u, v) = c(u, v) - f(u, v)$.</p><p>Pour une chaîne augmentante $P = (s, v_1, v_2, \\dots, t)$, la valeur maximale de flot que l’on peut pousser est déterminée par le <strong>goulot d’étranglement</strong> (bottleneck capacity) :<br>$$\\Delta = \\min_{(u, v) \\in P} r(u, v)$$</p><p>Analysez les paramètres du problème pour chaque cas... ; CHAINE: s-v1-v2-...-t</code>.<br>Calculez $\\Delta$ et les nouvelles capacités résiduelles des arcs de la chaîne.<br>Indiquez :<br><code>DELTA=&lt;Delta&gt; ARCS_MAJ: u1-v1=&lt;nouveau_flot&gt;,...</code>.</p>",
     "starter": "# Grille de calcul (ro2-c6-e3) — Goulot d’étranglement de Ford-Fulkerson\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne à trois arcs avec saturation exacte]\n# Données : s-1:15,5 | 1-2:10,2 | 2-t:8,4 ; CHAINE: s-1-2-t\nA_COMPLETER\n\n[Cas 2 — Chaîne saturée dès le premier arc]\n# Données : s-A:6,3 | A-t:12,1 ; CHAINE: s-A-t\nA_COMPLETER\n\n[Cas 3 — Graphe avec réseau maillé]\n# Données : s-u:20,10 | u-v:14,4 | v-t:18,12 ; CHAINE: s-u-v-t\nA_COMPLETER\n",
     "hints": [
-      "Découpe par \";\" pour séparer le réseau de la chaîne à augmenter.",
+      "Découpez par \";\" pour séparer le réseau de la chaîne à augmenter.",
       "Pour chaque arc consécutif de la chaîne, calcule r = cap - flot et trouve min(r)."
     ],
     "examples": [

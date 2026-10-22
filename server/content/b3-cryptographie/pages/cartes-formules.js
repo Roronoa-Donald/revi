@@ -111,7 +111,7 @@ function formules(course) {
     '      <tr><td><code>Validity</code></td><td>Not Before / Not After (dates ISO UTC)</td><td>La date de validation T doit satisfaire <code>NotBefore &lt;= T &lt;= NotAfter</code></td></tr>',
     '      <tr><td><code>SAN (Subject Alt Name)</code></td><td>Noms DNS alternatifs (ex: <code>*.cloud.corp</code>, <code>api.cloud.corp</code>)</td><td>Prend le pas sur le CN pour la correspondance d\'hôte TLS</td></tr>',
     '      <tr><td><code>Basic Constraints</code></td><td><code>cA=TRUE/FALSE</code>, <code>pathLenConstraint</code></td><td>Obligatoirement <code>cA=TRUE</code> pour signer d\'autres certificats</td></tr>',
-    '      <tr><td><code>CRL / OCSP</code></td><td>Liste de révocation périodique / Protocole en ligne</td><td>Vérifie que le numéro de série n\'a pas été invalidé avant terme</td></tr>',
+    '      <tr><td><code>CRL / OCSP</code></td><td>Liste de révocation périodique / Protocole en ligne</td><td>Vérifiez que le numéro de série n\'a pas été invalidé avant terme</td></tr>',
     '    </tbody>',
     '  </table>',
     '',

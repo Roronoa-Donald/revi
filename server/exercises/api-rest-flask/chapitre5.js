@@ -22,12 +22,12 @@ module.exports = [
       '2. Le payload JSON brut reçu (ex: <code>{"titre": "Guide", "prix": 25}</code>)<br>' +
       'Si tous les champs requis sont présents dans l’objet JSON, affiche :<br>' +
       '<code>200 OK: Payload valide</code><br>' +
-      'Sinon, affiche les champs manquants <strong>triés alphabétiquement</strong> au format :<br>' +
+      'Sinon, affichez les champs manquants <strong>triés alphabétiquement</strong> au format :<br>' +
       '<code>400 Bad Request: Champs manquants: &lt;champs séparés par des virgules&gt;</code>.</p>',
     starter: `import json\n\nrequis = [c.strip() for c in input().strip().split(',') if c.strip()]\npayload = json.loads(input().strip())\n\n# À compléter : vérifier les clés manquantes et afficher le statut.\n`,
     hints: [
-      'Identifie les clés manquantes avec [c for c in requis if c not in payload].',
-      'Trie la liste des clés manquantes avec sorted() avant de la joindre avec ",".'
+      'Identifiez les clés manquantes avec [c for c in requis if c not in payload].',
+      'Triez la liste des clés manquantes avec sorted() avant de la joindre avec ",".'
     ],
     examples: [
       {
@@ -78,7 +78,7 @@ else:
       '<p>Lit deux lignes sur l’entrée standard :<br>' +
       '1. Les spécifications de schéma séparées par des virgules (ex: <code>nom:str,age:int,actif:bool</code>)<br>' +
       '2. Le payload JSON reçu (ex: <code>{"nom": "Alice", "age": "vingt", "actif": true}</code>)<br>' +
-      'Vérifie chaque champ spécifié. Si le type correspond exactement (en Python, attention : <code>bool</code> dérive de <code>int</code>, ' +
+      'Vérifiez chaque champ spécifié. Si le type correspond exactement (en Python, attention : <code>bool</code> dérive de <code>int</code>, ' +
       'donc vérifier <code>isinstance(val, bool)</code> en premier pour <code>bool</code>, et <code>type(val) is int</code> pour <code>int</code>).<br>' +
       'Si un champ a un type erroné, affiche la première erreur rencontrée (selon l’ordre du schéma) :<br>' +
       '<code>Erreur type: champ &lt;nom&gt; attendu &lt;type&gt;</code>.<br>' +
@@ -157,11 +157,11 @@ else:
       '1. La liste blanche des clés autorisées séparées par des virgules (ex: <code>titre,description,prix</code>)<br>' +
       '2. Le payload JSON reçu pouvant contenir des clés non autorisées.<br>' +
       'Ne conserve dans le résultat que les clés autorisées qui sont présentes dans le payload. ' +
-      'Affiche le dictionnaire assaini sérialisé en JSON avec les clés triées (<code>json.dumps(..., sort_keys=True)</code>).</p>',
+      'Affichez le dictionnaire assaini sérialisé en JSON avec les clés triées (<code>json.dumps(..., sort_keys=True)</code>).</p>',
     starter: `import json\n\nautorisees = [k.strip() for k in input().strip().split(',') if k.strip()]\npayload = json.loads(input().strip())\n\n# À compléter : filtrer le dictionnaire et afficher le JSON assaini.\n`,
     hints: [
-      'Construis un nouveau dictionnaire : {k: payload[k] for k in autorisees if k in payload}.',
-      'Utilise json.dumps(..., sort_keys=True) pour l’affichage.'
+      'Construisez un nouveau dictionnaire : {k: payload[k] for k in autorisees if k in payload}.',
+      'Utilisez json.dumps(..., sort_keys=True) pour l’affichage.'
     ],
     examples: [
       {

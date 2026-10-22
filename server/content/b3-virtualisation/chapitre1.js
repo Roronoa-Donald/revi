@@ -285,6 +285,19 @@ module.exports = {
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « VMkernel » ?', a: "VMkernel : Micro-noyau d'exploitation propriétaire de VMware ESXi assurant l'ordonnancement CPU, la gestion mémoire et les accès réseau/stockage." },
+      { q: 'Qu’est-ce que « SLAT / EPT » ?', a: 'SLAT / EPT : Second Level Address Translation (Extended Page Tables) : virtualisation matérielle de la mémoire gérée par le contrôleur mémoire du CPU.' },
+      { q: 'Qu’est-ce que « VCSA (vCenter Server Appliance) » ?', a: 'VCSA (vCenter Server Appliance) : Appliance virtuelle pré-configurée sous Linux Photon OS hébergeant le service de gestion centralisée vCenter Server.' },
+      { q: 'Qu’est-ce que « Consolidation de snapshots » ?', a: 'Consolidation de snapshots : Opération vSphere qui fusionne les modifications des disques deltas dans le disque parent et supprime les fichiers temporaires.' },
+      { q: 'Qu’est-ce que « Multipathing NMP » ?', a: 'Multipathing NMP : Sous-système de gestion des chemins multiples entre un hôte ESXi et une baie de stockage pour assurer redondance et débit.' },
+      { q: 'Qu’est-ce que « VMware vSAN » ?', a: 'VMware vSAN : Solution de stockage hyperconvergé agrégeant les disques flash locaux des serveurs ESXi en un datastore distribué unique.' },
+      { q: 'Qu’est-ce que « SPBM (Storage Policy-Based Management) » ?', a: 'SPBM (Storage Policy-Based Management) : Mécanisme vSphere appliquant des règles logiques de redondance (FTT, RAID) par machine virtuelle.' },
+      { q: 'Qu’est-ce que « vSphere Distributed Switch (VDS) » ?', a: 'vSphere Distributed Switch (VDS) : Commutateur virtuel administré centralement par vCenter dont les plans de données sont répartis sur les hyperviseurs.' },
+      { q: 'Qu’est-ce que « Interface VMkernel » ?', a: "Interface VMkernel : Point d'accès réseau dédié à un service interne de l'hyperviseur (Management, vMotion, vSAN, iSCSI, NFS)." },
+      { q: 'Qu’est-ce que « FDM (Fault Domain Manager) » ?', a: "FDM (Fault Domain Manager) : Agent logiciel autonome de vSphere HA s'exécutant sur chaque hyperviseur pour surveiller la santé des nœuds du cluster." },
+      { q: 'Qu’est-ce que « vSphere DRS » ?', a: 'vSphere DRS : Ordonnanceur distribué équilibrant la charge CPU et mémoire du cluster en migrant les VM via vMotion.' },
+      { q: 'Qu’est-ce que « VADP (vStorage APIs for Data Protection) » ?', a: "VADP (vStorage APIs for Data Protection) : Ensemble d'APIs permettant aux logiciels tiers d'effectuer des sauvegardes sans agent au niveau de l'hyperviseur." },
+      { q: 'Qu’est-ce que « TPM 2.0 & Secure Boot » ?', a: "TPM 2.0 & Secure Boot : Composant matériel cryptographique validant l'intégrité des modules du VMkernel lors du démarrage de l'hôte physique." },
     {
       q: 'Qu\'est-ce qu\'un hyperviseur Type-1 bare-metal ?',
       a: 'Un hyperviseur logiciel installé directement sur le matériel nu du serveur (ex: ESXi, XenServer), garantissant latence ultra-faible et haute résilience.'

@@ -182,7 +182,7 @@ module.exports = {
   "mastery": [
     {
       "cls": "low",
-      "text": "&lt; 50 % — Reprends les sections théoriques et revois les définitions clés."
+      "text": "&lt; 50 % — Reprenez les sections théoriques et revois les définitions clés."
     },
     {
       "cls": "mid",
@@ -190,7 +190,7 @@ module.exports = {
     },
     {
       "cls": "good",
-      "text": "70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
+      "text": "70–94 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
     },
     {
       "cls": "top",
@@ -198,6 +198,11 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « Rules of Engagement (RoE) » ?', "a": "Rules of Engagement (RoE) : Document contractuel formel fixant les limites strictes, les adresses IP autorisées, les techniques proscrites et les fenêtres horaires d'un test d'intrusion." },
+    { "q": 'Qu’est-ce que « CVSS v3.1 Base Metrics » ?', "a": "CVSS v3.1 Base Metrics : Standard ouvert évaluant la sévérité intrinsèque d'une vulnérabilité (exploitabilité et impact) sur une échelle de 0.0 à 10.0." },
+    { "q": "Qu’est-ce que « Le cadre juridique français (Code Pénal art. 323-1 à 323-7) réprime l'accès frauduleux d'amendes et d'emprisonnement sans mandat écrit formel. » ?", "a": "Le cadre juridique français (Code Pénal art. 323-1 à 323-7) réprime l'accès frauduleux d'amendes et d'emprisonnement sans mandat écrit formel." },
+    { "q": "Qu’est-ce que « Les Règles d'Engagement (RoE) cadrent strictement le périmètre IP, les horaires et les techniques autorisées pour protéger l'auditeur. » ?", "a": "Les Règles d'Engagement (RoE) cadrent strictement le périmètre IP, les horaires et les techniques autorisées pour protéger l'auditeur." },
+    { "q": 'Qu’est-ce que « Les 5 phases du CEH structurent la mission » ?', "a": 'Les 5 phases du CEH structurent la mission : Reconnaissance, Scanning, Gaining Access, Maintaining Access, Clearing Tracks.' },
     {
       "q": "Quelle infraction pénale sanctionne l'article 323-1 du Code Pénal français ?",
       "a": "L'accès ou le maintien frauduleux dans tout ou partie d'un système de traitement automatisé de données (STAD), puni de 3 à 5 ans de prison et 100 000 à 150 000 € d'amende."

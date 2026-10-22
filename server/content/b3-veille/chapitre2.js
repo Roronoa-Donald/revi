@@ -19,7 +19,7 @@ module.exports = {
     'concevoir des requêtes booléennes d’ingénierie avancées avec opérateurs stricts (AND, OR, NOT, site:, filetype:) ;',
     'auditer et pondérer la fiabilité des sources d’information selon une grille multicritère objective ;',
     'distinguer mathématiquement un signal faible d’un bruit de fond par le calcul des taux d’accélération lexicale ;',
-    'implémenter en Python 3 des générateurs de requêtes dorking, des auditeurs de crédibilité et des détecteurs temporels de signaux faibles.'
+    'analyser et résoudre méthodologiquement des générateurs de requêtes dorking, des auditeurs de crédibilité et des détecteurs temporels de signaux faibles.'
   ],
   sections: [
     {

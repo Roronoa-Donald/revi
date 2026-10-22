@@ -49,7 +49,7 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "title": "Multiplication par un scalaire",
-    "goal": "Multiplier un vecteur par un réel lu sur l’entrée standard.",
+    "goal": "Multiplier un vecteur par un réel fourni dans les données du cas.",
     "brief": "<p>Dans cette étude, on considère un entier <code>k</code> (le scalaire), puis un entier <code>n</code>, puis les <code>n</code> composantes d’un vecteur <code>v</code> (une par ligne). Affichez le vecteur <code>k · v</code> sur une seule ligne, composantes séparées par un espace.</p>",
     "starter": "# Grille de calcul (al-c1-e2) — Multiplication par un scalaire\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Scalaire avec composante négative]\n# Données : 2\n# Données : 2\n# Données : 5\n# Données : -4\nA_COMPLETER\n\n[Cas 2 — Scalaire négatif]\n# Données : -1\n# Données : 3\n# Données : 1\n# Données : 2\n# Données : 3\nA_COMPLETER\n\n[Cas 3 — Scalaire nul]\n# Données : 0\n# Données : 4\n# Données : 7\n# Données : 8\n# Données : 9\n# Données : 10\nA_COMPLETER\n",
     "hints": [
@@ -132,7 +132,7 @@ module.exports = [
     "starter": "# Grille de calcul (al-c2-e1) — Produit de deux matrices 2 × 2\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice diagonale à gauche]\n# Données : 2 0\n# Données : 0 2\n# Données : 1 1\n# Données : 1 1\nA_COMPLETER\n\n[Cas 2 — Produit nul sans facteur nul]\n# Données : 1 1\n# Données : 1 1\n# Données : 1 -1\n# Données : -1 1\nA_COMPLETER\n\n[Cas 3 — Produit par la matrice identité]\n# Données : 3 1\n# Données : 2 4\n# Données : 1 0\n# Données : 0 1\nA_COMPLETER\n",
     "hints": [
       "Le coefficient ligne i, colonne j du produit est la somme des A[i][k] · B[k][j] pour k = 0 et k = 1.",
-      "Pense à la taille : (2 × 2) · (2 × 2) = (2 × 2), le résultat a donc autant de lignes et de colonnes que les facteurs."
+      "Pensez à la taille : (2 × 2) · (2 × 2) = (2 × 2), le résultat a donc autant de lignes et de colonnes que les facteurs."
     ],
     "examples": [
       {
@@ -327,7 +327,7 @@ module.exports = [
     "starter": "# Grille de calcul (al-c3-e3) — Résoudre un système 2 × 2\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Determinant négatif]\n# Données : 1 2 5\n# Données : 3 1 5\nA_COMPLETER\n\n[Cas 2 — Coefficients plus grands]\n# Données : 2 3 12\n# Données : 1 -1 1\nA_COMPLETER\n\n[Cas 3 — Second membre pair]\n# Données : 4 2 10\n# Données : 1 1 4\nA_COMPLETER\n",
     "hints": [
       "Élimine x dans la deuxième équation : multiplie la première par c et la seconde par a, puis soustrais.",
-      "Tu peux aussi résoudre par les formules de Cramer : x = (e·d − b·f)/det et y = (a·f − e·c)/det."
+      "Vous pouvez aussi résoudre par les formules de Cramer : x = (e·d − b·f)/det et y = (a·f − e·c)/det."
     ],
     "examples": [
       {
@@ -366,7 +366,7 @@ module.exports = [
     "starter": "# Grille de calcul (al-c4-e1) — Combinaison linéaire\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Opposé de u]\n# Données : 2\n# Données : 1 -1\n# Données : 5\n# Données : 7\n# Données : 5\n# Données : 7\nA_COMPLETER\n\n[Cas 2 — Alpha nul]\n# Données : 3\n# Données : 0 2\n# Données : 1\n# Données : 1\n# Données : 1\n# Données : 9\n# Données : 8\n# Données : 7\nA_COMPLETER\n\n[Cas 3 — Vecteurs de taille un]\n# Données : 1\n# Données : 4 4\n# Données : 1\n# Données : 1\nA_COMPLETER\n",
     "hints": [
       "Une combinaison linéaire combine deux opérations : multiplier chaque vecteur par son scalaire, puis additionner.",
-      "Tu peux écrire les deux étapes séparément, ou les fusionner dans une seule boucle."
+      "Vous pouvez écrire les deux étapes séparément, ou les fusionner dans une seule boucle."
     ],
     "examples": [
       {
@@ -444,7 +444,7 @@ module.exports = [
     "starter": "# Grille de calcul (al-c4-e3) — Coordonnées dans une famille\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Somme des deux vecteurs]\n# Données : 1 1 0\n# Données : 1 0 0\n# Données : 0 1 0\nA_COMPLETER\n\n[Cas 2 — Coefficient entier en deuxième position]\n# Données : 5 4 0\n# Données : 1 1 0\n# Données : 2 1 0\nA_COMPLETER\n\n[Cas 3 — Famille en dimension trois]\n# Données : 2 0 2\n# Données : 1 0 0\n# Données : 0 0 1\nA_COMPLETER\n",
     "hints": [
       "w = a·u + b·v donne trois équations, dont deux suffisent puisque les vecteurs sont dans un plan.",
-      "Choisis deux coordonnées dont le déterminant 2 × 2 est non nul, puis résous ce petit système."
+      "Choisissez deux coordonnées dont le déterminant 2 × 2 est non nul, puis résous ce petit système."
     ],
     "examples": [
       {

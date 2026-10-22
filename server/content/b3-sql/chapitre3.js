@@ -31,7 +31,7 @@ module.exports = {
         '    <h4>Les Options Cruciales de la Commande EXPLAIN</h4>',
         '    <ul>',
         '      <li><code>EXPLAIN &lt;sql&gt;</code> : Affiche uniquement les estimations théoriques calculées par le planificateur, sans exécuter la requête.</li>',
-        '      <li><code>EXPLAIN (ANALYZE)</code> : <strong>Exécute réellement la requête</strong> et mesure les temps réels d’exécution (actual time en ms) et le nombre de lignes produites (actual rows).</li>',
+        '      <li><code>EXPLAIN (ANALYZE)</code> : <strong>Exécutez réellement la requête</strong> et mesure les temps réels d’exécution (actual time en ms) et le nombre de lignes produites (actual rows).</li>',
         '      <li><code>EXPLAIN (ANALYZE, BUFFERS)</code> : Affiche en plus les blocs mémoire manipulés dans le buffer pool (<code>shared hit</code> = blocs en RAM, <code>read</code> = blocs lus sur disque, <code>dirtied</code> = blocs modifiés).</li>',
         '    </ul>',
         '  </div>',

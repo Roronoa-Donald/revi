@@ -90,7 +90,7 @@ module.exports = [
           'active une sortie par combinaison d\'adresse ; le <strong>multiplexeur</strong> aiguille une des ' +
           '2^k entrées vers la sortie selon k bits de sélection — son inverse, le démultiplexeur, redistribue ' +
           'une entrée vers 2^k sorties.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>L\'additionneur de l\'atelier : total = a + b + r ; S = total mod 2, retenue = total divisé par 2.</li>\n' +
             '      <li>Le décodeur : une adresse 2 bits allume une sortie parmi 4 (un seul 1 dans le mot).</li>\n' +
@@ -154,7 +154,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les tables des huit portes.' },
       { cls: 'mid', text: '50–69 % — refais la synthèse depuis une table simple.' },
-      { cls: 'good', text: '70–89 % — cible Karnaugh et les blocs combinatoires.' },
+      { cls: 'good', text: '70–94 % — cible Karnaugh et les blocs combinatoires.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -231,9 +231,8 @@ module.exports = [
           '<p>Un <strong>compteur</strong> compte les fronts d\'horloge de 0 à 2^n-1 (modulo 2^n) puis ' +
           'recommence — un compteur modulo 8 sur 3 bits parcourt 000, 001 … 111 puis revient à 000. Le ' +
           '<strong>décompteur</strong> fait le chemin inverse. Réalisation typique : bascules JK câblées en ' +
-          'bascule (J=K=1), chaque étage cadencé par la sortie du précédent. En Bash, l\'atelier simule le ' +
-          'modulo : valeur = (départ + front) mod 8.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          'bascule (J=K=1), chaque étage cadencé par la sortie du précédent. Dans l\'atelier, on applique le calcul modulo : valeur = (départ + front) mod 8.</p>',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>La bascule D de l\'atelier : Q prend D à chaque front, l\'état final se lit après la boucle.</li>\n' +
             '      <li>La JK : if imbriqué 00/10/01/11 — le mode 11 inverse l\'état.</li>\n' +
@@ -296,7 +295,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les tables RS et JK.' },
       { cls: 'mid', text: '50–69 % — déroule une bascule D et une JK pas à pas.' },
-      { cls: 'good', text: '70–89 % — cible registre à décalage et compteurs.' },
+      { cls: 'good', text: '70–94 % — cible registre à décalage et compteurs.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -387,7 +386,7 @@ module.exports = [
           '<strong>bureautique</strong> se contente d\'un niveau intermédiaire (≥ 1000 MHz et ≥ 2048 Mo) ; ' +
           'en dessous, le poste est <strong>basique</strong>. Connecteurs vidéo à connaître : HDMI, VGA, ' +
           'DVI, DisplayPort.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>Le classeur de périphériques de l\'atelier : un case par famille (entree/sortie/double).</li>\n' +
             '      <li>Le classeur von Neumann : ual → calcul, ucc → controle, ram/rom/disque → memoire, clavier/ecran → es.</li>\n' +
@@ -450,7 +449,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les quatre blocs de von Neumann.' },
       { cls: 'mid', text: '50–69 % — refais le classement des composants et périphériques.' },
-      { cls: 'good', text: '70–89 % — cible les slots et connecteurs de la carte mère.' },
+      { cls: 'good', text: '70–94 % — cible les slots et connecteurs de la carte mère.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

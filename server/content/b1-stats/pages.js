@@ -18,7 +18,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -39,7 +39,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>employer le vocabulaire exact : population, individus, caractère, modalités, effectif ;</li>',
       '      <li>construire un tableau statistique avec effectifs, fréquences et effectifs cumulés ;</li>',
@@ -51,8 +51,8 @@ function index(course, chapterList) {
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Chaque chapitre part d’un jeu de données concret, pose le vocabulaire, montre un calcul ' +
       'détaillé ligne à ligne, puis se termine par <strong>trois études de cas statistiques</strong> : ' +
-      'tu écris vraiment un programme qui résume une série (effectifs, moyenne, médiane, variance, ' +
-      'coefficient de corrélation), il est réellement exécuté puis corrigé par des tests que tu ne vois pas.</p>',
+      'vous écrivez vraiment un programme qui résume une série (effectifs, moyenne, médiane, variance, ' +
+      'coefficient de corrélation), il est réellement exécuté puis corrigé par des tests que vous ne voyez pas.</p>',
       '    <p>Python sert ici de <em>démarche méthodologique</em> : les formules restent celles du support, ' +
       'en notation statistique. Chaque énoncé précise si la variance se divise par N ou par N − 1.</p>'
     ].join('\n')),
@@ -102,7 +102,7 @@ function sommaire(course, chapterList) {
     'régression. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois études de cas statistiques</strong> à écrire et à exécuter ' +
-    'dans la page : ton programme est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
+    'dans la page : votre programme est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de calcul</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -136,7 +136,7 @@ function atelier(course) {
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
     '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Python derrière. Donne une série de ' +
-    'valeurs au programme, exécute-le et lis ce qu’il affiche : c’est ici qu’une formule devient un réflexe.</p>',
+    'valeurs au programme, exécutez-le et lisez ce qu’il affiche : c’est ici qu’une formule devient un réflexe.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
@@ -161,11 +161,11 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends une notion du cours ' +
-      '(fréquence, médiane, quartile, variance, corrélation), programme-la et teste-la sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez une notion du cours ' +
+      '(fréquence, médiane, quartile, variance, corrélation), programmez-la et testez-la sur des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé calcule la moyenne et l’écart-type de la série lue sur l’entrée standard. ' +
-      'Modifie la série, change la formule, ou remplace tout le script par le calcul que tu veux vérifier.</p>',
+      '      <p>Le script proposé calcule la moyenne et l’écart-type de la série fournie dans les données du cas. ' +
+      'Modifiez la série, change la formule, ou remplace tout le script par le calcul que vous voulez vérifier.</p>',
       '      <p>Une erreur n’est pas un échec : c’est le message que Python te laisse pour comprendre ce qu’il attendait.</p>',
       '    </div>',
       '    <div class="lab__sample">',
@@ -230,8 +230,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo des formules' })
   ].join('\n\n');
@@ -462,12 +462,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’épreuve finale (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu’à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : division par N, centres de classe, interprétation de r.</p>',
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu’à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : division par N, centres de classe, interprétation de r.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
       '  </div>'
@@ -479,7 +479,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les pièges du calcul et l’interprétation.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les pièges du calcul et l’interprétation.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l’épreuve réelle.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),

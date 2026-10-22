@@ -137,9 +137,9 @@ module.exports = {
 
   notions: ['donnée personnelle', 'identifiée', 'identifiable', 'directe', 'indirecte', 'croisement', 'donnée sensible', 'origine', 'opinions', 'santé', 'vie sexuelle', 'traitement', 'collecte', 'enregistrement', 'conservation', 'cession'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends la définition de la donnée personnelle.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les données sensibles.' },
-    { cls: 'good', text: '70–89 % — Solide : tu qualifies données et traitements.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez la définition de la donnée personnelle.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les données sensibles.' },
+    { cls: 'good', text: '70–94 % — Solide : vous qualifiez données et traitements.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux défis du numérique, chapitre 3.' }
   ],
 

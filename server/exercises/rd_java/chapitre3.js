@@ -31,7 +31,7 @@ public class Main {
 }
 `,
     hints: [
-      'Initialise le maximum avec la première valeur (valeurs[0]), pas avec 0 : des valeurs négatives seraient mal comparées.',
+      'Initialisez le maximum avec la première valeur (valeurs[0]), pas avec 0 : des valeurs négatives seraient mal comparées.',
       'Boucle à partir de l’indice 1 et remplace le maximum dès qu’une valeur est plus grande.'
     ],
     examples: [
@@ -89,7 +89,7 @@ public class Main {
 }
 `,
     hints: [
-      'Parcours le tableau de n-1 à 0 avec une boucle décrémentée.',
+      'Parcourez le tableau de n-1 à 0 avec une boucle décrémentée.',
       'Un StringBuilder accumule la sortie ; n’ajoute l’espace qu’après le premier élément écrit.'
     ],
     examples: [

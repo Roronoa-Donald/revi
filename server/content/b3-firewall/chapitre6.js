@@ -20,7 +20,7 @@ module.exports = {
     'écrire des scripts de filtrage étanches appliquant la politique Default DROP, l’état conntrack et les règles de NAT ;',
     'parser et agréger les journaux de pare-feu (logs syslog) pour extraire des indicateurs de menace pertinents ;',
     'concevoir une chaîne de réponse active automatisée par bannissement dynamique d’IP (Fail2ban et sets nftables) ;',
-    'développer en Python 3 des compilateurs de règles netfilter, des analyseurs de journaux et des moteurs de bannissement SIEM.'
+    'analyser et résoudre méthodologiquement des compilateurs de règles netfilter, des analyseurs de journaux et des moteurs de bannissement SIEM.'
   ],
   sections: [
     {
@@ -111,7 +111,7 @@ module.exports = {
     'La structure d’un script pare-feu complet en politique Default DROP est assimilée.',
     'Le format des lignes de logs netfilter et leur parsing statistique sont compris.',
     'Le principe du bannissement dynamique d’IP via des sets nftables / Fail2ban est assimilé.',
-    'Les 3 ateliers de programmation interactive en Python 3 (fw3-c6-e1 à fw3-c6-e3) sont validés.'
+    'Les 3 études de cas pratiques et méthodologiques (fw3-c6-e1 à fw3-c6-e3) sont validés.'
   ],
   notions: [
     'Framework Linux Netfilter',

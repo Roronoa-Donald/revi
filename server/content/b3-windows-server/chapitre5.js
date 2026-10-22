@@ -19,7 +19,7 @@ module.exports = {
     'concevoir une matrice de commutation réseau avec les commutateurs virtuels External, Internal et Private vSwitch et maîtriser l’option allow_host ;',
     'calculer et optimiser l’allocation de la mémoire dynamique (Startup RAM, seuils Min/Max, Memory Buffer en pourcentage et Smart Paging) ;',
     'administrer le cycle de vie des disques virtuels VHDX différentiels (.avhdx) et exécuter la fusion de points de contrôle (Checkpoints) sans perte de données ;',
-    'implémenter en Python 3 des simulateurs de connectivité vSwitch, des moteurs d’allocation de mémoire dynamique et des gestionnaires d’arborescences VHDX.'
+    'analyser et résoudre méthodologiquement des simulateurs de connectivité vSwitch, des moteurs d’allocation de mémoire dynamique et des gestionnaires d’arborescences VHDX.'
   ],
   sections: [
     {

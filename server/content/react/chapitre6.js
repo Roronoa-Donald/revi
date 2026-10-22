@@ -124,8 +124,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les bases du routage déclaratif et la différence avec les balises &lt;a&gt;.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les paramètres dynamiques et les layouts imbriqués.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le routage avancé et l’architecture SPA.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les paramètres dynamiques et les layouts imbriqués.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le routage avancé et l’architecture SPA.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise complète : félicitations, passe aux ateliers et examens blancs !' }
   ],
 

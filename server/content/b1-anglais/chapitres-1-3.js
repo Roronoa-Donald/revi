@@ -67,7 +67,7 @@ module.exports = [
           '<p>Le test « <strong>business or not</strong> » du support : « gonna », « wanna », « hey, what\'s ' +
           'up ? » sont <strong>casual</strong> ; « invoice », « quarterly report », « Dear Sir, I hope this ' +
           'email finds you well » sont <strong>business</strong>. En contexte professionnel, la règle : si ' +
-          'le destinataire peut juger votre email, écrivez business.</p>',
+          'le destinataire peut juger le courriel, écrivez business.</p>',
           '<p>Les <strong>faux amis</strong> (French to English) du support : <strong>actually</strong> ne ' +
           'veut pas dire « actuellement » mais « en fait » ; <strong>eventually</strong> ne veut pas dire ' +
           '« éventuellement » mais « finalement » ; <strong>library</strong> n\'est pas la « librairie » ' +
@@ -139,11 +139,26 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les définitions et les exemples de phrases du support.' },
       { cls: 'mid', text: '50–69 % — refais le quiz « business or not » et les faux amis.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les expressions (touch base, ball rolling).' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les expressions (touch base, ball rolling).' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Stakeholder » ?', a: 'Stakeholder : person interested in the project.' },
+      { q: 'Qu’est-ce que « Deployment » ?', a: 'Deployment : releasing software so people can use it.' },
+      { q: 'Qu’est-ce que « Sprint » ?', a: 'Sprint : short Agile work period (1–4 weeks).' },
+      { q: 'Qu’est-ce que « False friends » ?', a: 'False friends : actually, eventually, library.' },
+      { q: 'Qu’est-ce que « Reply all » ?', a: 'Reply all : réponse à tous, à manier avec précaution.' },
+      { q: 'Qu’est-ce que « Disaster email » ?', a: 'Disaster email : objet vide, ton casual, réponse massive.' },
+      { q: 'Qu’est-ce que « Q&A » ?', a: "Q&A : That's a good question / Let me clarify." },
+      { q: 'Qu’est-ce que « Thought groups » ?', a: 'Thought groups : pauses aux frontières naturelles.' },
+      { q: 'Qu’est-ce que « Register » ?', a: 'Register : casual vs formal selon le destinataire.' },
+      { q: 'Qu’est-ce que « Rising intonation » ?', a: 'Rising intonation : questions oui/non.' },
+      { q: 'Qu’est-ce que « Falling intonation » ?', a: 'Falling intonation : déclarations et WH-questions.' },
+      { q: 'Qu’est-ce que « Sujet explicite » ?', a: 'Sujet explicite : I, you, the server — jamais omis.' },
+      { q: 'Qu’est-ce que « Could you please… » ?', a: 'Could you please… : requête polie standard.' },
+      { q: 'Qu’est-ce que « I would appreciate it if… » ?', a: 'I would appreciate it if… : requête formelle client.' },
+      { q: 'Qu’est-ce que « Verdict » ?', a: 'Verdict : admis (≥ seuil) ou entraînement.' },
       { q: 'Deadline, definition ?', a: 'The final date to finish work — stressful, not a happy word.' },
       { q: 'Client vs customer ?', a: 'Client = long-term relationship ; customer = one-time purchase.' },
       { q: 'Touch base ?', a: 'To contact briefly : « I\'ll touch base tomorrow » remplace « I\'ll contact you ».' },
@@ -188,7 +203,7 @@ module.exports = [
           '<code>Yo,</code>. Le closing suit la même logique : <code>Best regards,</code> (standard), ' +
           '<code>Kind regards,</code> (amical), <code>Sincerely,</code> (formel), jamais « Cheers, » ni ' +
           '« XOXO ».</p>',
-          '<p>La <strong>signature</strong> est votre carte de visite numérique : nom, job title, company, ' +
+          '<p>La <strong>signature</strong> est la carte de visite numérique : nom, job title, company, ' +
           'téléphone en option — jamais de citations, d\'emojis ni d\'images géantes.</p>',
           box('mnemo', 'Mnémotechnique — « S-S-B-C-S : de l\'objet à la signature »', 'pin',
             '    <p>Subject, Salutation, Body, Closing, Signature : cinq cases, dans cet ordre. Un email qui ' +
@@ -227,9 +242,9 @@ module.exports = [
       { q: 'Un bon subject line contient…', opts: ['juste « Hello »', 'sujet + action + échéance', 'rien du tout'], correct: 1, exp: '« Q3 Budget Update – Action Needed by Friday » : le format modèle.' },
       { q: 'À un nouveau client, on écrit…', opts: ['Yo,', 'Dear Mr. Smith,', 'Hey dude,'], correct: 1, exp: 'Formel pour un nouveau client ou la direction.' },
       { q: 'Dans CLEAR, la lettre L signifie…', opts: ['Language', 'Logistics (what, when, where)', 'Lead'], correct: 1, exp: 'Context, Logistics, Expectation, Action, Respect.' },
-      { q: 'L\'Expectation énonce…', opts: ['ce que le lecteur doit faire', 'ce dont vous avez besoin (approval by Friday)', 'un remerciement'], correct: 1, exp: 'Expectation = what do you need ; Action = what they should do.' },
+      { q: 'L\'Expectation énonce…', opts: ['ce que le lecteur doit faire', 'ce qui est attendu (approval by Friday)', 'un remerciement'], correct: 1, exp: 'Expectation = what do you need ; Action = what they should do.' },
       { q: 'Le closing standard est…', opts: ['XOXO', 'Best regards,', 'Later,'], correct: 1, exp: 'Best regards (standard), Kind regards (amical), Sincerely (formel).' },
-      { q: 'La signature professionnelle contient…', opts: ['des emojis et une citation', 'nom, job title, company', 'une image géante'], correct: 1, exp: 'Votre carte de visite numérique : sobre et lisible.' },
+      { q: 'La signature professionnelle contient…', opts: ['des emojis et une citation', 'nom, job title, company', 'une image géante'], correct: 1, exp: 'La carte de visite numérique : sobre et lisible.' },
       { q: '« Reply all is a weapon » signifie…', opts: ['il faut répondre à tous toujours', 'l\'utiliser avec précaution', 'il est interdit'], correct: 1, exp: 'Le support le montre : répondre à tous à 200 personnes humilie et encombre.' }
     ],
 
@@ -276,7 +291,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les cinq parties et la méthode CLEAR.' },
       { cls: 'mid', text: '50–69 % — réécris les trois disaster emails du support.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible le choix du ton par destinataire.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible le choix du ton par destinataire.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -412,7 +427,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends la structure en trois parties.' },
       { cls: 'mid', text: '50–69 % — réécris trois phrases techniques en langage simple.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les transitions et le Q&amp;A.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les transitions et le Q&amp;A.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

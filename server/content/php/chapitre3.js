@@ -123,8 +123,8 @@ module.exports = {
   notions: ['héritage', 'extends', 'parent::', 'redéfinition', 'protected', 'abstract', 'méthode abstraite', 'polymorphisme', 'interface', 'implements'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois extends, parent:: et la visibilité protected.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à redéfinir une méthode sans casser le parent.' },
-    { cls: 'good', text: '70–89 % — Solide : tu distingues abstract et interface.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à redéfinir une méthode sans casser le parent.' },
+    { cls: 'good', text: '70–94 % — Solide : vous distinguez abstract et interface.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux traits et namespaces, chapitre 4.' }
   ],
 

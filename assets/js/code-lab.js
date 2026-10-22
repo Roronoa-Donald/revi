@@ -685,16 +685,25 @@
 
   Lab.prototype.setBusy = function (busy, label) {
     this.running = busy;
-    this.controls.run.disabled = busy;
+    if (this.controls.run) {
+      this.controls.run.disabled = busy;
+      this.controls.run.innerHTML = busy
+        ? '<span class="lab__spinner" aria-hidden="true"></span><span>' + esc(label || 'Exécution…') + '</span>'
+        : icon('play') + '<span>Exécuter</span>';
+    }
     if (this.controls.stop) {
       this.controls.stop.hidden = !busy;
       this.controls.stop.disabled = !busy;
     }
-    if (this.controls.submit) this.controls.submit.disabled = busy;
-    this.controls.reset.disabled = busy;
-    this.controls.run.innerHTML = busy
-      ? '<span class="lab__spinner" aria-hidden="true"></span><span>' + esc(label || 'Exécution…') + '</span>'
-      : icon('play') + '<span>Exécuter</span>';
+    if (this.controls.submit) {
+      this.controls.submit.disabled = busy;
+      if (this.isAnalyse) {
+        this.controls.submit.innerHTML = busy
+          ? '<span class="lab__spinner" aria-hidden="true"></span><span>Correction…</span>'
+          : icon('check') + '<span>Vérifier mes réponses</span>';
+      }
+    }
+    if (this.controls.reset) this.controls.reset.disabled = busy;
     this.refreshHelpState();
   };
 

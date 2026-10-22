@@ -39,7 +39,7 @@ const course = {
     'et passage à l’échelle et gouvernance d’entreprise (défis multi-équipes, Scrum of Scrums, frameworks à l’échelle SAFe avec PI Planning et LeSS, organisation matricielle du modèle Spotify avec Squads, Tribes, Chapters, Guilds, modèles hybrides Water-Scrum-Fall et radars de maturité agile).',
   lead:
     'Maîtrisez le cadre Scrum officiel, le flux tiré Kanban, la modélisation mathématique par la Loi de Little, les User Stories INVEST, la planification prévisionnelle et l’agilité à l’échelle. ' +
-    'Six modules approfondis combinant formalisme méthodologique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant formalisme méthodologique, 18 études de cas pratiques et méthodologiques et 48 QCM d’évaluation.',
 
   sources: 'Guide officiel Scrum (Ken Schwaber & Jeff Sutherland), Manifeste Agile (2001), Kanban Guide (David J. Anderson), User Stories Applied (Mike Cohn) et Scaled Agile Framework (SAFe)',
 

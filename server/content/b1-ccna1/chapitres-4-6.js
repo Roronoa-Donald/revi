@@ -139,7 +139,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les quatre étapes et les règles de sous-réseaux.' },
       { cls: 'mid', text: '50–69 % — refais le classement des WAN et des protocoles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible la propagation des annonces.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible la propagation des annonces.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -272,7 +272,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les trois accès et les quatre mémoires.' },
       { cls: 'mid', text: '50–69 % — refais l\'escalade des modes et le placement des fichiers.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible copy et erase.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible copy et erase.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -404,7 +404,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la sécurisation et les cinq étapes IPv4.' },
       { cls: 'mid', text: '50–69 % — refais la configuration SSH étape par étape.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible SVI et default-gateway.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible SVI et default-gateway.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

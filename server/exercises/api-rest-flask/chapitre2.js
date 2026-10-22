@@ -19,14 +19,14 @@ module.exports = [
     brief: '<p>Une bonne pratique de conception REST consiste à utiliser des chemins en minuscules, ' +
       'sans slashes superflus, et sans slash final (sauf pour la racine <code>/</code>).</p>' +
       '<p>Lit une chaîne de chemin sur l’entrée standard. Nettoie la chaîne :<br>' +
-      '1. Convertis en minuscules.<br>' +
+      '1. Convertissez en minuscules.<br>' +
       '2. Remplacer les séquences de slashes multiples par un slash unique.<br>' +
       '3. Retirer le slash final s’il y en a un et que le chemin ne se réduit pas à <code>/</code>.<br>' +
       '4. S’assurer que le chemin commence bien par un slash <code>/</code>.<br>' +
-      'Affiche le chemin normalisé.</p>',
+      'Affichez le chemin normalisé.</p>',
     starter: `chemin = input().strip()\n\n# À compléter : normaliser le chemin REST et afficher le résultat.\n`,
     hints: [
-      'Tu peux découper la chaîne avec .split("/") et filtrer les segments non vides avec [s for s in ... if s].',
+      'Vous pouvez découper la chaîne avec .split("/") et filtrer les segments non vides avec [s for s in ... if s].',
       'Reconstitue le chemin avec "/" + "/".join(segments).'
     ],
     examples: [
@@ -80,8 +80,8 @@ else:
       'Pour toute autre action non reconnue, affiche <code>INCONNU</code>.</p>',
     starter: `action = input().strip().lower()\n\n# À compléter : afficher le verbe HTTP correspondant.\n`,
     hints: [
-      'Utilise un dictionnaire Python associant chaque mot-clé à son verbe HTTP.',
-      'Utilise .get(action, "INCONNU") pour gérer les valeurs hors table.'
+      'Utilisez un dictionnaire Python associant chaque mot-clé à son verbe HTTP.',
+      'Utilisez .get(action, "INCONNU") pour gérer les valeurs hors table.'
     ],
     examples: [
       {
@@ -138,8 +138,8 @@ print(table.get(action, 'INCONNU'))
       'Ignore les préfixes éventuels comme <code>/api</code> ou <code>/v1</code> pour trouver la collection ciblée.</p>',
     starter: `uri = input().strip()\n\n# À compléter : analyser l'URI et afficher le type et la cible.\n`,
     hints: [
-      'Découpe l’URI en segments non vides avec [s for s in uri.split("/") if s].',
-      'Vérifie si le dernier segment est composé uniquement de chiffres avec segment.isdigit().'
+      'Découpez l’URI en segments non vides avec [s for s in uri.split("/") if s].',
+      'Vérifiez si le dernier segment est composé uniquement de chiffres avec segment.isdigit().'
     ],
     examples: [
       {

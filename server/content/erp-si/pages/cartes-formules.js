@@ -17,7 +17,7 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique sur une carte pour révéler la réponse. Objectif : répondre sans hésiter dans ' +
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter dans ' +
     'les deux sens pour ancrer durablement les concepts clés des ERP et des systèmes d’information.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo ERP &amp; SI' })

@@ -151,12 +151,15 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les définitions et le tableau des sous-systèmes.' },
-      { cls: 'mid', text: '50–69 % — refais le classement donnée/information sur tes propres exemples.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les flux entre sous-systèmes.' },
+      { cls: 'mid', text: '50–69 % — refais le classement donnée/information sur vos propres exemples.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les flux entre sous-systèmes.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Dépendance fonctionnelle » ?', a: 'Dépendance fonctionnelle : A → B, connaître A suffit pour B.' },
+      { q: 'Qu’est-ce que « Dépendance partielle » ?', a: "Dépendance partielle : attribut dépendant d'une partie de la clé." },
+      { q: 'Qu’est-ce que « Décomposition » ?', a: 'Décomposition : sortir les attributs fautifs dans une nouvelle table.' },
       { q: 'Donnée vs information ?', a: 'La donnée est brute (un chiffre, un mot) ; l\'information est une donnée structurée et interprétée dans un contexte d\'usage.' },
       { q: 'La chaîne complète ?', a: 'donnée + traitement + contexte = information ; information + raisonnement = connaissance.' },
       { q: 'Les trois sous-systèmes de l\'entreprise ?', a: 'Système de décision (piloter), système opérant (produire), système d\'information (mémoriser, traiter, transmettre).' },
@@ -288,7 +291,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends le tableau des six modèles.' },
       { cls: 'mid', text: '50–69 % — refais le classement modèle/niveau sur des exemples neufs.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible l\'argumentation TVA.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible l\'argumentation TVA.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -424,7 +427,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les trois natures de propriété.' },
       { cls: 'mid', text: '50–69 % — refais le dictionnaire d\'un document (facture, bon de livraison).' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible la matrice des DF.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible la matrice des DF.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

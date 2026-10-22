@@ -148,11 +148,25 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la carte des onglets et les modes d\'affichage.' },
       { cls: 'mid', text: '50–69 % — refais le classement groupes/onglets du support.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les sélections au clavier.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les sélections au clavier.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Ruban » ?', a: "Ruban : bandeau d'onglets subdivisés en groupes." },
+      { q: 'Qu’est-ce que « F8 » ?', a: 'F8 : sélection croissante (mot, phrase, paragraphe, section, document).' },
+      { q: 'Qu’est-ce que « Enregistrer sous » ?', a: 'Enregistrer sous : premier enregistrement — nom, disque, dossier.' },
+      { q: 'Qu’est-ce que « Interligne » ?', a: "Interligne : espace entre les lignes d'un paragraphe." },
+      { q: 'Qu’est-ce que « Taquets » ?', a: 'Taquets : repères de la règle pour aligner.' },
+      { q: 'Qu’est-ce que « Puces et numéros » ?', a: 'Puces et numéros : liste appliquée aux paragraphes sélectionnés.' },
+      { q: 'Qu’est-ce que « Marges » ?', a: 'Marges : 2,5 cm par défaut, personnalisables.' },
+      { q: 'Qu’est-ce que « Orientation » ?', a: 'Orientation : portrait (longueur) ou paysage (largeur).' },
+      { q: 'Qu’est-ce que « Filigrane » ?', a: 'Filigrane : texte ou image derrière le texte (Brouillon, Urgent).' },
+      { q: 'Qu’est-ce que « Classeur » ?', a: 'Classeur : le fichier Excel, composé de feuilles.' },
+      { q: 'Qu’est-ce que « Fusionner et centrer » ?', a: 'Fusionner et centrer : assembler des cellules sélectionnées.' },
+      { q: 'Qu’est-ce que « En-tête et pied de page » ?', a: 'En-tête et pied de page : zones des marges, sur chaque page.' },
+      { q: 'Qu’est-ce que « Thème » ?', a: 'Thème : habillage global, couleurs adaptables (onglet Création).' },
+      { q: 'Qu’est-ce que « Ouvrir et réparer » ?', a: 'Ouvrir et réparer : secours des documents corrompus.' },
       { q: 'Les sept onglets de Word ?', a: 'Accueil, Insertion, Mise en page, Références, Publipostage, Révision, Affichage.' },
       { q: 'Les cinq modes d\'affichage ?', a: 'Page (défaut), Lecture plein écran, Web (HTML), Plan (titres), Brouillon (rapide).' },
       { q: 'Sélections de la souris ?', a: 'Double-clic = mot ; Ctrl + clic = phrase ; triple-clic ou double-clic en marge = paragraphe ; Ctrl+A = tout.' },
@@ -281,7 +295,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les quatre alignements et la mise en page.' },
       { cls: 'mid', text: '50–69 % — refais les sélections et les réglages de paragraphe.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible tabulations et numérotation.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible tabulations et numérotation.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -412,7 +426,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les barres de la fenêtre et la gestion des feuilles.' },
       { cls: 'mid', text: '50–69 % — refais le classement onglets/groupes d\'Excel.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les formats de nombre.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les formats de nombre.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

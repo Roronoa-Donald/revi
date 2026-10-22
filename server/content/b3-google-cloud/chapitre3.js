@@ -19,7 +19,7 @@ module.exports = {
     'concevoir des Groupes d\'Instances Gérés (MIG) avec auto-scaling élastique et auto-healing supervisé par Health Checks ;',
     'comparer les modes opérationnels de Google Kubernetes Engine : GKE Standard versus GKE Autopilot managé ;',
     'maîtriser le déploiement Serverless conteneurisé sur Cloud Run : concurrence de requêtes, révisions immuables et Traffic Splitting ;',
-    'développer en Python 3 des dimensionneurs de VM, des moteurs d\'autoscaling MIG et des routeurs de trafic Cloud Run.'
+    'analyser et résoudre méthodologiquement des dimensionneurs de VM, des moteurs d\'autoscaling MIG et des routeurs de trafic Cloud Run.'
   ],
   sections: [
     {
@@ -111,7 +111,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Cloud Run (PaaS Conteneurisé)</h4>',
         '    <ul>',
-        '      <li>Exécute n\'importe quel conteneur OCI (Docker) répondant sur un port HTTP ou gRPC.</li>',
+        '      <li>Exécutez n\'importe quel conteneur OCI (Docker) répondant sur un port HTTP ou gRPC.</li>',
         '      <li><strong>Scale-to-Zero :</strong> aucun coût lorsqu\'aucune requête n\'est traitée.</li>',
         '      <li><strong>Concurrence :</strong> un seul conteneur peut traiter jusqu\'à 1 000 requêtes simultanées (extrême rentabilité).</li>',
         '      <li><strong>Révisions immuables :</strong> support natif de Canary Release et de Traffic Splitting sans interruption.</li>',

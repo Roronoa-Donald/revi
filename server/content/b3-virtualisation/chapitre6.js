@@ -56,7 +56,7 @@ module.exports = {
         '<table class="table">',
         '  <thead><tr><th>Mesure de Durcissement</th><th>Mécanisme Technique</th><th>Objectif de Sécurité / Conformité</th></tr></thead>',
         '  <tbody>',
-        '    <tr><td><strong>Désactivation Shell / SSH</strong></td><td>Services <code>ESXi Shell</code> et <code>SSH</code> arrêtés par défaut sur le démon hostd.</td><td>Supprime les risques d\'attaques par force brute sur le compte root local via le réseau.</td></tr>',
+        '    <tr><td><strong>Désactivation Shell / SSH</strong></td><td>Services <code>ESXi Shell</code> et <code>SSH</code> arrêtés par défaut sur le démon hostd.</td><td>Supprimez les risques d\'attaques par force brute sur le compte root local via le réseau.</td></tr>',
         '    <tr><td><strong>Mode Lockdown (Normal)</strong></td><td>L\'hôte ESXi ne peut être administré que via vCenter Server ; la console locale DCUI reste accessible aux administrateurs autorisés.</td><td>Empêche toute modification de configuration hors du contrôle d\'audit centralisé de vCenter.</td></tr>',
         '    <tr><td><strong>Mode Lockdown (Strict)</strong></td><td>La console locale DCUI est elle-même désactivée. L\'hôte est 100% dépendant de vCenter Server.</td><td>Sécurisation maximale des serveurs situés dans des datacenters distants ou des colocalisations non surveillées.</td></tr>',
         '    <tr><td><strong>Puce TPM 2.0 &amp; Secure Boot</strong></td><td>Validation cryptographique de l\'intégrité des composants de boot du VMkernel au démarrage de l\'hôte.</td><td>Garantit qu\'aucun rootkit ou chargeur de démarrage modifié n\'a infecté le serveur (Host Attestation).</td></tr>',

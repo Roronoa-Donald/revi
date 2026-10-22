@@ -20,7 +20,7 @@ module.exports = {
     'distinguer avec rigueur le Lead Time, le Cycle Time et le temps d’attente (Wait Time) ;',
     'analyser un Diagramme de Flux Cumulé (Cumulative Flow Diagram - CFD) pour repérer les anomalies de cadence ;',
     'appliquer la Loi de Little ($TH = WIP / CT$) pour diagnostiquer la performance et la capacité du système ;',
-    'développer en Python 3 des contrôleurs de limites WIP, des calculateurs de métriques d’écoulement et des détecteurs de goulots d’étranglement.'
+    'analyser et résoudre méthodologiquement des contrôleurs de limites WIP, des calculateurs de métriques d’écoulement et des détecteurs de goulots d’étranglement.'
   ],
   sections: [
     {

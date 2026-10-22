@@ -18,7 +18,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -39,7 +39,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>écrire un programme qui lit des entrées, décide et affiche au caractère près ;</li>',
       '      <li>répéter et cadencer : boucles de clignotement, séquences de feux, comptages ;</li>',
@@ -52,10 +52,10 @@ function index(course, chapterList) {
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Le support du club voyage sur trois terrains : la programmation (C/C++/MicroPython), les ' +
       'circuits logiques (CircuitVerse) et le prototypage Arduino (Tinkercad). Ce cours en garde le plan ' +
-      'mais simule chaque mécanisme <strong>en Python</strong> — le langage dont MicroPython est la copie ' +
+      'mais simule chaque mécanisme <strong>de manière méthodique</strong> — le langage dont MicroPython est la copie ' +
       'portative : la boucle qui clignote, la table de vérité, le régulateur qui lit des relevés.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment le ' +
-      'programme, il est réellement exécuté, puis corrigé par des tests que tu ne vois pas. La logique ' +
+      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
+      'programme, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique ' +
       'écrite ici se rejoue telle quelle sur la carte du club.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -103,8 +103,8 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier programme jusqu’à la régulation ' +
     'd’un capteur. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Python</strong> à écrire et à exécuter ' +
-    'dans la page : ton programme est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
+    '  <p>Chaque chapitre se termine par <strong>trois exercices de manière méthodique</strong> à écrire et à exécuter ' +
+    'dans la page : votre programme est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de simulation</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -138,7 +138,7 @@ function atelier(course) {
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de simulation</h1>',
     '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Python derrière. Programme le ' +
-    'comportement du robot, exécute-le et lis ce qu’il affiche : c’est ici qu’une idée devient un programme.</p>',
+    'comportement du robot, exécutez-le et lisez ce qu’il affiche : c’est ici qu’une idée devient un programme.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
@@ -163,11 +163,11 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends un comportement du robot ' +
-      '(clignotement, seuil d’alerte, séquence de feux, chiffrement), programme-le et teste-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un comportement du robot ' +
+      '(clignotement, seuil d’alerte, séquence de feux, chiffrement), programmez-le et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé lit une série de distances et déciderait la vitesse du robot. Modifie les ' +
-      'seuils, change les états, ou remplace tout le script par le comportement que tu veux vérifier.</p>',
+      '      <p>Le script proposé lit une série de distances et déciderait la vitesse du robot. Modifiez les ' +
+      'seuils, change les états, ou remplace tout le script par le comportement que vous voulez vérifier.</p>',
       '      <p>Sur la carte, ce sera <code>digitalWrite</code> et des capteurs réels : la structure du ' +
       'programme — lire, décider, agir — reste exactement la même.</p>',
       '    </div>',
@@ -191,12 +191,12 @@ function atelier(course) {
     '  <h2>De la simulation à la carte</h2>',
     '  <p>La simulation texte a une limite assumée : rien ne clignote vraiment. Elle a une force : ' +
     '<strong>toute la logique se vérifie sans matériel</strong>. Quand le programme affiche les bonnes ' +
-    'décisions sur tes cas limites, le portage vers MicroPython est mécanique : <code>print</code> devient ' +
+    'décisions sur vos cas limites, le portage vers MicroPython est mécanique : <code>print</code> devient ' +
     '<code>digitalWrite</code>, la lecture d’une ligne devient la lecture d’un capteur, et la boucle ' +
     'principale tourne dans <code>while True</code>.</p>',
     box('pitfall', 'Les trois erreurs que l’atelier révèle immédiatement', 'warning', [
       '    <ul>',
-      '      <li><strong>Ordre des lectures inversé</strong> : le programme lit le relevé avant le seuil alors que l’énoncé fixe l’ordre.</li>',
+      '      <li><strong>Ordre des lectures inversé</strong> : l’étude de cas comporte le relevé avant le seuil alors que l’énoncé fixe l’ordre.</li>',
       '      <li><strong>Seuil large au lieu de strict</strong> : la valeur exactement au seuil change de camp et le compte d’alertes glisse.</li>',
       '      <li><strong>Bilan dans la boucle</strong> : le total s’affiche à chaque passage au lieu d’une seule fois, après.</li>',
       '    </ul>'
@@ -239,8 +239,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo du roboticien' })
   ].join('\n\n');
@@ -435,7 +435,7 @@ function examens(course) {
     { stem: 'Jusqu’où teste-t-on les diviseurs d’un nombre premier ?', opts: ['Jusqu’à x − 1', 'Jusqu’à la racine carrée de x', 'Jusqu’à x / 2'], correct: 1, exp: 'Un diviseur au-delà de la racine en suppose un plus petit déjà testé.' },
     { stem: 'Que vaut Cout pour a = 1, b = 0, cin = 1 ?', opts: ['0', '1', 'Non défini'], correct: 1, exp: '(1 ET 0) OU (1 ET 1) = 0 OU 1 = 1.' },
     { stem: 'Le chiffre de César avec k = 25 transforme A en…', opts: ['Z', 'B', 'A'], correct: 0, exp: 'Décaler de 25 recule d’une lettre : A donne Z.' },
-    { stem: 'Que vaut 2 ^ 3 en Python ?', opts: ['8', '1', '6'], correct: 1, exp: '^ est le XOR bit à bit (10 XOR 11 = 01) ; la puissance se note **.' },
+    { stem: 'Que vaut 2 ^ 3 de manière méthodique ?', opts: ['8', '1', '6'], correct: 1, exp: '^ est le XOR bit à bit (10 XOR 11 = 01) ; la puissance se note **.' },
     { stem: 't = 30 avec le test t > 30 : quel état ?', opts: ['ALERTE CHALEUR', 'normale', 'Cela dépend'], correct: 1, exp: 'Seuil strict : 30 n’est pas strictement supérieur à 30.' },
     { stem: 'Que vaut 135 // 6 ?', opts: ['22,5', '22', '23'], correct: 1, exp: 'La division entière tronque : 22, reste 3.' }
   ];
@@ -444,12 +444,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit du TP noté du club (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu’à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : ordre des lectures, seuils stricts, indentation du bilan.</p>',
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu’à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : ordre des lectures, seuils stricts, indentation du bilan.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
       '  </div>'
@@ -461,7 +461,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les seuils stricts et les formats d’affichage.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les seuils stricts et les formats d’affichage.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant le TP noté.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),
@@ -502,25 +502,25 @@ function exercices(course) {
       'Identifier les capteurs proprioceptifs et extéroceptifs d’un robot mobile.',
       'Calculer la résolution angulaire d’un encodeur optique incrémental de 1024 impulsions par tour.',
       'Distinguer boucle ouverte et boucle fermée dans une commande d’actionneur.',
-      'Calculer la vitesse linéaire d’un robot à roues différentielles de rayon $R = 5\text{ cm}$ tournant à $\omega = 10\text{ rad/s}$.'
+      'Calculer la vitesse linéaire d’un robot à roues différentielles de rayon $R = 5\\text{ cm}$ tournant à $\\omega = 10\\text{ rad/s}$.'
     ], [
       '<p><strong>1. Capteurs :</strong> Proprioceptifs (encodeurs, centrale inertielle) vs Extéroceptifs (LiDAR, ultrasons, caméras).</p>',
-      '<p><strong>2. Résolution :</strong> $\Delta \theta = \frac{360^\circ}{1024} \approx 0{,}3516^\circ$ par impulsion.</p>',
+      '<p><strong>2. Résolution :</strong> $\\Delta \\theta = \\frac{360^\\circ}{1024} \\approx 0{,}3516^\\circ$ par impulsion.</p>',
       '<p><strong>3. Boucle :</strong> La boucle fermée utilise un retour capteur pour corriger l’écart de consigne (asservissement).</p>',
-      '<p><strong>4. Vitesse :</strong> $v = R \cdot \omega = 0{,}05 \times 10 = 0{,}5\text{ m/s}$.</p>'
+      '<p><strong>4. Vitesse :</strong> $v = R \\cdot \\omega = 0{,}05 \\times 10 = 0{,}5\\text{ m/s}$.</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
       'Établir la machine à états finis (FSM) d’un robot éviteur d’obstacles.',
       'Calculer l’erreur statique d’un asservissement proportionnel (gain $K_p$).',
-      'Dimensionner le couple moteur nécessaire pour déplacer une masse de $5\text{ kg}$ sur une pente de $15^\circ$.',
-      'Interpréter les signaux PWM de commande d’un servomoteur standard ($1\text{ ms}$ à $2\text{ ms}$).'
+      'Dimensionner le couple moteur nécessaire pour déplacer une masse de $5\\text{ kg}$ sur une pente de $15^\\circ$.',
+      'Interpréter les signaux PWM de commande d’un servomoteur standard ($1\\text{ ms}$ à $2\\text{ ms}$).'
     ], [
       '<p><strong>1. Machine à états :</strong> États {AVANCER, ARRET, PIVOTER_DROITE} régis par le seuil de distance de sécurité $d < d_{\min}$.</p>',
       '<p><strong>2. Erreur statique :</strong> Dépend de la classe du système ; l’ajout d’un terme intégral ($K_i$) annule l’erreur statique en régime permanent.</p>',
-      '<p><strong>3. Couple :</strong> $C = F \cdot R = (m g \sin 15^\circ) \cdot R = 5 \times 9{,}81 \times 0{,}2588 \times 0{,}05 \approx 0{,}635\text{ N}\cdot\text{m}$.</p>',
-      '<p><strong>4. PWM :</strong> Période $20\text{ ms}$ (50 Hz), largeur d’impulsion $1\text{ ms} \to -90^\circ$, $1{,}5\text{ ms} \to 0^\circ$, $2\text{ ms} \to +90^\circ$.</p>'
+      '<p><strong>3. Couple :</strong> $C = F \\cdot R = (m g \\sin 15^\\circ) \\cdot R = 5 \\times 9{,}81 \\times 0{,}2588 \\times 0{,}05 \\approx 0{,}635\\text{ N}\\cdot\\text{m}$.</p>',
+      '<p><strong>4. PWM :</strong> Période $20\\text{ ms}$ (50 Hz), largeur d’impulsion $1\\text{ ms} \\to -90^\\circ$, $1{,}5\\text{ ms} \\to 0^\\circ$, $2\\text{ ms} \\to +90^\\circ$.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
@@ -530,8 +530,8 @@ function exercices(course) {
       'Régler les gains d’un correcteur PID par la méthode de Ziegler-Nichols.',
       'Concevoir une architecture de navigation sécurisée avec arrêt d’urgence matériel.'
     ], [
-      '<p><strong>1. MGD 2 DDL :</strong> $x = L_1 \cos \theta_1 + L_2 \cos(\theta_1 + \theta_2)$ et $y = L_1 \sin \theta_1 + L_2 \sin(\theta_1 + \theta_2)$.</p>',
-      '<p><strong>2. Singularités :</strong> Surviennent quand $\sin \theta_2 = 0$ (bras complètement tendu ou replié sur lui-même).</p>',
+      '<p><strong>1. MGD 2 DDL :</strong> $x = L_1 \\cos \\theta_1 + L_2 \\cos(\\theta_1 + \\theta_2)$ et $y = L_1 \\sin \\theta_1 + L_2 \\sin(\\theta_1 + \\theta_2)$.</p>',
+      '<p><strong>2. Singularités :</strong> Surviennent quand $\\sin \\theta_2 = 0$ (bras complètement tendu ou replié sur lui-même).</p>',
       '<p><strong>3. PID Ziegler-Nichols :</strong> Détermination du gain critique $K_u$ et de la période d’oscillation $T_u$, puis calcul des coefficients $K_p, T_i, T_d$.</p>',
       '<p><strong>4. Sécurité :</strong> Relais de sécurité à guidage forcé, coupure directe de l’alimentation de puissance des actionneurs (STO - Safe Torque Off).</p>'
     ].join('\n')),

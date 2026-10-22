@@ -19,7 +19,7 @@ module.exports = {
     'maîtriser les 3 Voies de Gene Kim (The Phoenix Project) : optimisation du flux, boucles de rétroaction rapides et culture d’expérimentation ;',
     'évaluer et mesurer la maturité d’une organisation selon les 5 piliers du modèle CALMS (Culture, Automation, Lean, Measurement, Sharing) ;',
     'construire une cartographie de chaîne de valeur (Value Stream Mapping) et calculer l’efficience de flux (Flow Efficiency) ;',
-    'automatiser en Python 3 l’analyse des gaspillages de flux et le calcul d’indicateurs d’alignement opérationnel.'
+    'automatiser de manière méthodique l’analyse des gaspillages de flux et le calcul d’indicateurs d’alignement opérationnel.'
   ],
   sections: [
     {
@@ -265,6 +265,39 @@ module.exports = {
     }
   ],
   flashcards: [
+      { q: 'Qu’est-ce que « Mur de la confusion Dev/Ops » ?', a: 'Mur de la confusion Dev/Ops' },
+      { q: 'Qu’est-ce que « Lean Manufacturing & TPS » ?', a: 'Lean Manufacturing & TPS : Dans les organisations informatiques traditionnelles, les équipes de développement (Dev) et les équipes d’exploitation (Ops) opèrent dans des silos étanches et poursuivent des incitations diamétralement opposées : les premières sont récompensées pour la vitesse de livraison de no' },
+      { q: 'Qu’est-ce que « Élimination des Mudas (Gaspillages) » ?', a: 'Élimination des Mudas (Gaspillages)' },
+      { q: 'Qu’est-ce que « Loi de Little & Limite du WIP » ?', a: 'Loi de Little & Limite du WIP' },
+      { q: 'Qu’est-ce que « Modèle d’évaluation CALMS » ?', a: 'Modèle d’évaluation CALMS' },
+      { q: 'Qu’est-ce que « Value Stream Mapping (VSM) » ?', a: 'Le Value Stream Mapping (VSM) analyse chronologiquement chaque étape requise pour convertir une exigence métier en fonctionnalité opérationnelle. Deux grandeurs temporelles fondamentales s’en dégagent :' },
+      { q: 'Qu’est-ce que « Principes de l’Intégration Continue (CI) » ?', a: 'Principes de l’Intégration Continue (CI)' },
+      { q: 'Qu’est-ce que « Semantic Versioning (SemVer 2.0.0) » ?', a: 'appliquer rigoureusement la norme Semantic Versioning (SemVer 2.0.0) et analyser l’impact des ruptures d’API ;' },
+      { q: 'Qu’est-ce que « Breaking Changes & Rétrocompatibilité » ?', a: 'Breaking Changes & Rétrocompatibilité' },
+      { q: 'Qu’est-ce que « Tests Unitaires, Intégration, E2E » ?', a: 'Tests Unitaires, Intégration, E2E' },
+      { q: 'Qu’est-ce que « Tests instables (Flaky Tests) » ?', a: 'Tests instables (Flaky Tests) : Dans un projet d’envergure réunissant des dizaines de développeurs, l’intégration tardive des fonctionnalités développées en parallèle provoque systématiquement « l’enfer des fusions » (Merge Hell) : branches Git divergentes pendant plusieurs semaines, conflits insolubles, régres' },
+      { q: 'Qu’est-ce que « Mise en quarantaine & Règle du Tronc Vert » ?', a: 'Mise en quarantaine & Règle du Tronc Vert' },
+      { q: 'Qu’est-ce que « Namespaces Linux (pid, net, mnt, uts) » ?', a: 'Namespaces Linux (pid, net, mnt, uts)' },
+      { q: 'Qu’est-ce que « Control Groups - cgroups (CPU, RAM) » ?', a: 'Control Groups - cgroups (CPU, RAM)' },
+      { q: 'Qu’est-ce que « Layer Caching & Ordonnancement » ?', a: 'Layer Caching & Ordonnancement' },
+      { q: 'Qu’est-ce que « Multi-Stage Builds Docker » ?', a: 'Multi-Stage Builds Docker' },
+      { q: 'Qu’est-ce que « Durcissement de conteneur & Non-root » ?', a: 'Durcissement de conteneur & Non-root' },
+      { q: 'Qu’est-ce que « Idempotence & Dérive en IaC (Drift) » ?', a: 'Idempotence & Dérive en IaC (Drift)' },
+      { q: 'Qu’est-ce que « Rolling Updates (maxSurge, maxUnavailable) » ?', a: 'Rolling Updates (maxSurge, maxUnavailable)' },
+      { q: 'Qu’est-ce que « Blue/Green Deployment & Bascule » ?', a: 'Blue/Green Deployment & Bascule' },
+      { q: 'Qu’est-ce que « Canary Releases & Détection d’erreurs » ?', a: 'Canary Releases & Détection d’erreurs' },
+      { q: 'Qu’est-ce que « Patron Expand and Contract pour BDD » ?', a: 'Patron Expand and Contract pour BDD' },
+      { q: 'Qu’est-ce que « Découplage Deploy vs Release » ?', a: 'Découplage Deploy vs Release' },
+      { q: 'Qu’est-ce que « Feature Flags & Kill Switches » ?', a: 'Feature Flags & Kill Switches' },
+      { q: 'Qu’est-ce que « Équations de fiabilité MTBF, MTTF, MTTR » ?', a: 'Équations de fiabilité MTBF, MTTF, MTTR' },
+      { q: 'Qu’est-ce que « Rayon d’impact (Blast Radius) & Bulkheads » ?', a: 'Rayon d’impact (Blast Radius) & Bulkheads' },
+      { q: 'Qu’est-ce que « Site Reliability Engineering (SRE) » ?', a: 'Site Reliability Engineering (SRE) : Fixer un objectif de disponibilité de 100% est une illusion ruineuse : non seulement atteindre 100% d’uptime est physiquement impossible dans des systèmes distribués, mais cela paralyserait totalement l’innovation en interdisant toute modification logicielle. Fondée par Benjamin ' },
+      { q: 'Qu’est-ce que « Élimination du Toil (< 50% du temps) » ?', a: 'Élimination du Toil (< 50% du temps)' },
+      { q: 'Qu’est-ce que « Indicateurs SLI vs Objectifs SLO » ?', a: 'Indicateurs SLI vs Objectifs SLO' },
+      { q: 'Qu’est-ce que « Accords SLA & Pénalités contractuelles » ?', a: 'Accords SLA & Pénalités contractuelles' },
+      { q: 'Qu’est-ce que « Error Budgets & Politiques de gel de release » ?', a: 'Error Budgets & Politiques de gel de release' },
+      { q: 'Qu’est-ce que « Burn Rate & Vitesse de consommation » ?', a: 'Burn Rate & Vitesse de consommation' },
+      { q: 'Qu’est-ce que « Alert Flapping & Temporisation Prometheus » ?', a: 'Alert Flapping & Temporisation Prometheus' },
     {
       q: 'Qu’appelle-t-on le « mur de la confusion » en informatique d’entreprise ?',
       a: 'La barrière organisationnelle et culturelle opposant les Développeurs (incités au changement rapide) et les Exploitants (incités à la stabilité et au gel de l’infrastructure).'

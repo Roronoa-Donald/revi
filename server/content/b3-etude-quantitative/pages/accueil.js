@@ -58,7 +58,7 @@ function index(course, chapterList) {
       'la conduite rigoureuse d’entretiens semi-directifs, focus groups et observations in situ, ' +
       'l’analyse statistique univariée et bivariée (Chi-deux d’indépendance, corrélation linéaire de Pearson), ' +
       'l’analyse qualitative de contenu thématique et la structuration académique du mémoire professionnel selon le guide officiel CDP Sup. ' +
-      'Chaque module comprend 3 ateliers de programmation interactive en Python 3 exécutables directement dans le navigateur, ' +
+      'Chaque module comprend 3 études de cas pratiques et méthodologiques exécutables directement dans le navigateur, ' +
       'un QCM de 8 questions rigoureusement argumentées et des flashcards de mémorisation active.</p>'
     ].join('\n')),
     '',
@@ -111,7 +111,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid-3">',
     '    <div class="card">',
     '      <h4>' + ic('terminal') + ' Bac à sable Statistiques</h4>',
-    '      <p>Simulateur Python 3 pour exécuter vos calculs de Cochran, tests du Chi-deux, corrélations de Pearson et analyses de contenu.</p>',
+    '      <p>Atelier d’analyse interactif pour valider vos calculs de Cochran, tests du Chi-deux, corrélations de Pearson et analyses de contenu.</p>',
     '      <a class="btn" href="atelier.html">Ouvrir le bac à sable</a>',
     '    </div>',
     '    <div class="card">',
@@ -153,7 +153,7 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Atelier de Code &amp; Bac à Sable Statistiques &amp; Enquêtes</h1>',
-    '  <p class="lead">Expérimentez et automatisez vos analyses méthodologiques en Python 3 : dimensionnement d’échantillons probabilistes de Cochran, dépouillement d’échelles de Likert, tests du Chi-deux et codage thématique.</p>',
+    '  <p class="lead">Expérimentez et automatisez vos analyses méthodologiques de manière méthodique : dimensionnement d’échantillons probabilistes de Cochran, dépouillement d’échelles de Likert, tests du Chi-deux et codage thématique.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
@@ -182,7 +182,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Atelier de code libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos calculs d’échantillonnage, tests statistiques et analyses qualitatives.',
+      description: 'Bac à sable interactif de manière méthodiquepour tester vos calculs d’échantillonnage, tests statistiques et analyses qualitatives.',
       active: 'atelier',
       body
     }

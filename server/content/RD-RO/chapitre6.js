@@ -106,7 +106,7 @@ module.exports = {
         box('formula', 'Lois de conservation du flot & Algorithme de Ford-Fulkerson', [
           '<div class="box--formula">',
           '  <span class="formula-label">1. Lois de conservation de Kirchhoff</span>',
-          '  <div class="math-block">$$0 \\le f(u, v) \\le c(u, v) \\quad \\text{et} \\quad \\sum_{u} f(u, v) = \\sum_{w} f(v, w) \\quad (\\forall v \\notin \\{s, t\\})$$</div>',
+          '  <div class="math-block">$$0 \\le f(u, v) \\le c(u, v) \\quad \\text{et} \\quad \\sum_{u} f(u, v) = \\sum_{w} f(v, w) \\quad (\\forall v ∉ \\{s, t\\})$$</div>',
           '</div>',
           '<div class="box--formula">',
           '  <span class="formula-label">2. Algorithme de Ford-Fulkerson (1956)</span>',
@@ -272,9 +272,9 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois la construction du DAG et la formule du calcul aller (Forward Pass).' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul retour (Backward Pass) et l’identification des marges nulles.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le chemin critique PERT et le théorème Flot-Max / Coupe-Min.' },
-    { cls: 'top', text: '≥ 95 % — Parfait : tu as terminé l’ensemble du cursus de Recherche Opérationnelle B2 !' }
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul retour (Backward Pass) et l’identification des marges nulles.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le chemin critique PERT et le théorème Flot-Max / Coupe-Min.' },
+    { cls: 'top', text: '≥ 95 % — Parfait : vous avez terminé l’ensemble du cursus de Recherche Opérationnelle B2 !' }
   ],
 
   flashcards: [

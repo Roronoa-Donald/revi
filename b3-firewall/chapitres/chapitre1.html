@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-firewallnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,14 +68,14 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>définir les concepts clés de la sécurité périmétrique, le modèle de défense en profondeur et la cartographie des zones de confiance ;</li>
       <li>analyser la structure détaillée des en-têtes de paquets IPv4 et des segments TCP/UDP exploités lors du filtrage réseau ;</li>
       <li>maîtriser le principe de filtrage de paquets sans état (Stateless) et la formulation de règles d’accès élémentaires ;</li>
       <li>appliquer rigoureusement la politique de sécurité du moindre privilège et le refus implicite par défaut (Default DROP) ;</li>
       <li>identifier les failles majeures du filtrage sans état face aux attaques par usurpation (Spoofing) et injection de paquets forgés ;</li>
-      <li>développer en Python 3 des classificateurs d’architectures pare-feu, des auditeurs d’isolation de zones et un moteur d’inspection stateless.</li>
+      <li>analyser et résoudre méthodologiquement des classificateurs d’architectures pare-feu, des auditeurs d’isolation de zones et un moteur d’inspection stateless.</li>
     </ol>
   </div>
 
@@ -134,24 +134,31 @@
     <tr><td><code>IP Destination (DIP)</code></td><td>Couche 3 (Réseau)</td><td>32 bits (IPv4)</td><td>Identifier l’hôte ou le serveur cible du flux.</td></tr>
     <tr><td><code>Protocole IP (Proto)</code></td><td>Couche 3 (Réseau)</td><td>8 bits</td><td>Valeurs standard : 6 (TCP), 17 (UDP), 1 (ICMP).</td></tr>
     <tr><td><code>Port Source (Sport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Généralement éphémère et aléatoire côté client (plage 1024-65535).</td></tr>
-    <tr><td><code>Port Destination (Dport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Identifie le service cible (22 SSH, 80 HTTP, 443 HTTPS, 53 DNS).</td></tr>
+    <tr><td><code>Port Destination (Dport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Identifiez le service cible (22 SSH, 80 HTTP, 443 HTTPS, 53 DNS).</td></tr>
     <tr><td><code>Drapeaux TCP (Flags)</code></td><td>Couche 4 (Transport)</td><td>6 à 9 bits</td><td>SYN, ACK, FIN, RST, PSH, URG : indicateurs d’état du protocole TCP.</td></tr>
   </tbody>
 </table>
   <div class="box box--info">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Rappel fondamental — La poignée de main TCP à 3 voies (3-Way Handshake)</div>
-<p>Pour comprendre comment un pare-feu contrôle les sessions, rappelons le cycle d’ouverture d’une connexion TCP normale :</p>,<ol>,  <li><strong>Client &rarr; Serveur [SYN] :</strong> Le client demande l’ouverture d’une session avec un numéro de séquence initial aléatoire (ISN).</li>,  <li><strong>Serveur &rarr; Client [SYN, ACK] :</strong> Le serveur accepte, acquitte le SYN du client et envoie son propre ISN.</li>,  <li><strong>Client &rarr; Serveur [ACK] :</strong> Le client acquitte la réponse du serveur. La session passe à l’état <strong>ESTABLISHED</strong>.</li>,</ol>,<p>Dans un <strong>pare-feu stateful</strong>, la table d’état (<em>conntrack</em>) mémorise ce dialogue. Si un paquet arrive avec le drapeau ACK sans qu’un SYN préalable n’ait été validé, il est instantanément jeté (DROP). Dans un <strong>pare-feu stateless</strong>, il n’y a aucune mémoire : le pare-feu est incapable de savoir si l’ACK fait suite à une session existante ou s’il a été forgé de toutes pièces par un pirate !</p>
+<p>Pour comprendre comment un pare-feu contrôle les sessions, rappelons le cycle d’ouverture d’une connexion TCP normale :</p>
+<ol>
+  <li><strong>Client &rarr; Serveur [SYN] :</strong> Le client demande l’ouverture d’une session avec un numéro de séquence initial aléatoire (ISN).</li>
+  <li><strong>Serveur &rarr; Client [SYN, ACK] :</strong> Le serveur accepte, acquitte le SYN du client et envoie son propre ISN.</li>
+  <li><strong>Client &rarr; Serveur [ACK] :</strong> Le client acquitte la réponse du serveur. La session passe à l’état <strong>ESTABLISHED</strong>.</li>
+</ol>
+<p>Dans un <strong>pare-feu stateful</strong>, la table d’état (<em>conntrack</em>) mémorise ce dialogue. Si un paquet arrive avec le drapeau ACK sans qu’un SYN préalable n’ait été validé, il est instantanément jeté (DROP). Dans un <strong>pare-feu stateless</strong>, il n’y a aucune mémoire : le pare-feu est incapable de savoir si l’ACK fait suite à une session existante ou s’il a été forgé de toutes pièces par un pirate !</p>
   </div>
   <div class="box box--warning">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La Vulnérabilité Critique du Filtrage Stateless aux Paquets ACK Forgés</div>
-<p>Pour permettre à un poste interne d’accéder au Web externe, un pare-feu stateless doit autoriser le trafic retour provenant des serveurs Internet. Comme il ne garde aucune mémoire de la session, la règle de retour autorise classiquement tout paquet externe ayant le port source 80 ou le drapeau ACK activé.</p>,<p><strong>L’attaque :</strong> Un pirate distant forge des paquets TCP personnalisés avec le drapeau ACK activé (<code>nmap -sA</code> ou <code>scapy</code>) et cible directement des serveurs internes. Le pare-feu stateless constate que le drapeau ACK est présent, déduit à tort qu’il s’agit du retour légitime d’une requête interne, et laisse passer le paquet ! C’est cette faiblesse structurelle rédhibitoire qui a imposé l’avènement du filtrage stateful.</p>
+<p>Pour permettre à un poste interne d’accéder au Web externe, un pare-feu stateless doit autoriser le trafic retour provenant des serveurs Internet. Comme il ne garde aucune mémoire de la session, la règle de retour autorise classiquement tout paquet externe ayant le port source 80 ou le drapeau ACK activé.</p>
+<p><strong>L’attaque :</strong> Un pirate distant forge des paquets TCP personnalisés avec le drapeau ACK activé (<code>nmap -sA</code> ou <code>scapy</code>) et cible directement des serveurs internes. Le pare-feu stateless constate que le drapeau ACK est présent, déduit à tort qu’il s’agit du retour légitime d’une requête interne, et laisse passer le paquet ! C’est cette faiblesse structurelle rédhibitoire qui a imposé l’avènement du filtrage stateful.</p>
   </div>
 
 <!-- code-labs:start -->
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" id="fw3-c1-e1" data-lab
      data-exercise="fw3-c1-e1"
      data-language="analyse"
      data-height="300"
@@ -209,7 +216,7 @@ Afficher :<br>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="fw3-c1-e2" data-lab
      data-exercise="fw3-c1-e2"
      data-language="analyse"
      data-height="300"
@@ -269,7 +276,7 @@ Afficher :<br>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="fw3-c1-e3" data-lab
      data-exercise="fw3-c1-e3"
      data-language="analyse"
      data-height="300"
@@ -460,7 +467,7 @@ PACKET src=10.0.0.5 dst=192.168.1.10 proto=TCP dport=80</pre></div>
       <li>Les champs clés des en-têtes IPv4, TCP et UDP sont identifiés.</li>
       <li>Le principe du Default DROP (Whitelisting) est assimilé et justifié.</li>
       <li>La vulnérabilité des pare-feux stateless face aux paquets ACK forgés est comprise.</li>
-      <li>Les 3 ateliers de programmation interactive en Python 3 (fw3-c1-e1 à fw3-c1-e3) sont validés.</li>
+      <li>Les 3 études de cas pratiques et méthodologiques (fw3-c1-e1 à fw3-c1-e3) sont validés.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
@@ -473,12 +480,13 @@ PACKET src=10.0.0.5 dst=192.168.1.10 proto=TCP dport=80</pre></div>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Niveau initial : vous confondez encore filtrage avec et sans état, ou vous utilisez une politique Default ACCEPT permissive.</div>
-      <div class="bandrow bandrow--medium">Niveau opérationnel : vous formulez des règles L3/L4 cohérentes en Default DROP et comprenez les risques des paquets forgés.</div>
-      <div class="bandrow bandrow--high">Maîtrise B3 : vous concevez des architectures périmétriques étanches, auditez les zones de confiance et choisissez la génération de pare-feu adaptée.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>vous confondez encore filtrage avec et sans état, ou vous utilisez une politique Default ACCEPT permissive.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>vous formulez des règles L3/L4 cohérentes en Default DROP et comprenez les risques des paquets forgés.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>vous concevez des architectures périmétriques étanches, auditez les zones de confiance et choisissez la génération de pare-feu adaptée.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -488,7 +496,7 @@ PACKET src=10.0.0.5 dst=192.168.1.10 proto=TCP dport=80</pre></div>
     <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Filtrage Dynamique avec Suivi d’État (Stateful Inspection) &amp; Table Conntrack <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
 </main>
 

@@ -141,9 +141,9 @@ module.exports = {
 
   notions: ['clustering', 'nœud', 'quorum', 'split brain', 'active-passive', 'active-active', 'load balancing', 'failover cluster', 'grid cluster', 'SAN', 'NAS', 'stockage partagé', 'tolérance aux pannes'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les cinq types de clusters.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le tableau récapitulatif.' },
-    { cls: 'good', text: '70–89 % — Solide : tu choisis le bon type selon le besoin.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les cinq types de clusters.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le tableau récapitulatif.' },
+    { cls: 'good', text: '70–94 % — Solide : vous choisissez le bon type selon le besoin.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : enchaîne sur la maintenance, chapitre 4.' }
   ],
 

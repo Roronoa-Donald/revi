@@ -19,7 +19,7 @@ module.exports = {
     'configurer des règles d\'optimisation du cycle de vie des données (Hot -&gt; Cool -&gt; Cold -&gt; Archive -&gt; Delete) ;',
     'générer et valider des jetons de signature d\'accès partagé (Shared Access Signature - SAS) à privilèges restreints ;',
     'différencier les services de bases de données managées : Azure SQL Database (ACID relationnel) et Azure Cosmos DB (NoSQL distribué mondialement) ;',
-    'développer en Python 3 des simulateurs de cycle de vie de stockage, des validateurs de jetons SAS et des sélecteurs d\'architecture de données.'
+    'analyser et résoudre méthodologiquement des simulateurs de cycle de vie de stockage, des validateurs de jetons SAS et des sélecteurs d\'architecture de données.'
   ],
   sections: [
     {
@@ -228,7 +228,7 @@ module.exports = {
       desc: 'Configurer la réplication géo-redondante inter-régions et simuler le basculement d\'un compte de stockage en cas de sinistre continental.'
     },
     {
-      title: 'Développement d\'outils d\'analyse de stockage en Python 3',
+      title: 'Développement d\'outils d\'analyse de stockage de manière méthodique',
       desc: 'Concevoir des calculateurs de coûts de transition, des validateurs de syntaxe SAS et des sélecteurs de moteurs de base de données.'
     }
   ]

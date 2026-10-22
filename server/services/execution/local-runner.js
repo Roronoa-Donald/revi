@@ -1,20 +1,28 @@
 'use strict';
 
-/**
- * Moteur d'exécution local isolé (processus enfant jetable sans secrets ni privilèges).
- *
- * Permet au serveur de corriger les exercices Python (Skulpt), JavaScript (Node VM),
- * Pseudo-code (AST) et Étude de cas (Analyse) de manière 100% autonome et isolée.
- */
-
 const { spawn } = require('child_process');
 const path = require('path');
 
 const WORKER_PATH = path.resolve(__dirname, 'isolated-worker.js');
 const SERVER_SKULPT_DIR = path.resolve(__dirname, '../../vendor/skulpt');
 const ASSETS_SKULPT_DIR = path.resolve(__dirname, '../../../assets/vendor/skulpt');
+const SQL_WASM_DIR = path.resolve(__dirname, '../../../b1-sql/assets/vendor/sqljs');
+const ENGINES_DIR = path.resolve(__dirname, '../../../assets/js/engines');
 
 const NODE_MAJOR = parseInt(process.versions.node.split('.')[0], 10) || 0;
+const MAX_OUTPUT_BYTES = 65536; // 64 Ko
+
+function capOutput(str, maxBytes = MAX_OUTPUT_BYTES) {
+  const s = String(str || '');
+  if (!s) return '';
+  const buf = Buffer.from(s, 'utf8');
+  if (buf.length <= maxBytes) return s;
+  return buf.subarray(0, maxBytes).toString('utf8');
+}
+
+const SUPPORTED_LOCAL_LANGUAGES = new Set([
+  'python', 'py', 'javascript', 'js', 'algo', 'pseudo-code', 'pseudocode', 'sql', 'analyse'
+]);
 
 let pseudoEngineCache = null;
 
@@ -34,13 +42,9 @@ function loadPseudoCodeEngine() {
 
 function canHandle(languageId) {
   const norm = String(languageId || '').toLowerCase().trim();
-  return ['python', 'py', 'javascript', 'js', 'algo', 'pseudo-code', 'pseudocode', 'analyse'].includes(norm);
+  return SUPPORTED_LOCAL_LANGUAGES.has(norm);
 }
 
-/**
- * Exécute un langage dans un processus Node.js enfant jetable, sans aucun secret de process.env
- * et confiné par le modèle de permissions Node.js (--permission).
- */
 function runInIsolatedWorker(language, code, stdin, timeoutMs = 5000) {
   return new Promise((resolve) => {
     const args = ['--max-old-space-size=64'];
@@ -50,7 +54,9 @@ function runInIsolatedWorker(language, code, stdin, timeoutMs = 5000) {
         '--permission',
         `--allow-fs-read=${WORKER_PATH}`,
         `--allow-fs-read=${SERVER_SKULPT_DIR}/*`,
-        `--allow-fs-read=${ASSETS_SKULPT_DIR}/*`
+        `--allow-fs-read=${ASSETS_SKULPT_DIR}/*`,
+        `--allow-fs-read=${SQL_WASM_DIR}/*`,
+        `--allow-fs-read=${ENGINES_DIR}/*`
       );
     }
     args.push(WORKER_PATH);
@@ -65,6 +71,10 @@ function runInIsolatedWorker(language, code, stdin, timeoutMs = 5000) {
     const finish = (result) => {
       if (settled) return;
       settled = true;
+      if (result && result.data) {
+        result.data.stdout = capOutput(result.data.stdout);
+        result.data.stderr = capOutput(result.data.stderr);
+      }
       resolve(result);
     };
 
@@ -92,9 +102,7 @@ function runInIsolatedWorker(language, code, stdin, timeoutMs = 5000) {
     const MAX_IPC_BYTES = 256 * 1024;
 
     const killTimer = setTimeout(() => {
-      try {
-        child.kill('SIGKILL');
-      } catch {}
+      try { child.kill('SIGKILL'); } catch {}
       finish({
         ok: true,
         httpStatus: 200,
@@ -194,17 +202,14 @@ function runPseudoCode(code, stdin) {
       ok: true,
       httpStatus: 200,
       data: {
-        stdout: res.stdout || '',
-        stderr: res.stderr || '',
+        stdout: capOutput(res.stdout || ''),
+        stderr: capOutput(res.stderr || ''),
         exit_code: res.exitCode !== null ? res.exitCode : (res.ok ? 0 : 1)
       }
     });
   });
 }
 
-/**
- * Mode d'évaluation conceptuelle (étude de cas / grille d'analyse) sans exécution de code.
- */
 function runAnalyse(code, stdin) {
   const rawLines = String(code || '')
     .replace(/\r\n?/g, '\n')
@@ -236,7 +241,7 @@ function runAnalyse(code, stdin) {
 
     if (/^cas\s*:/i.test(sel)) {
       const key = sel.toLowerCase().replace(/\s+/g, '');
-      const out = (sections.get(key) || []).join('\n');
+      const out = capOutput((sections.get(key) || []).join('\n'));
       return Promise.resolve({
         ok: true,
         httpStatus: 200,
@@ -248,9 +253,9 @@ function runAnalyse(code, stdin) {
       !sel ||
       (!sel.startsWith('critere:') && !sel.startsWith('cle:') && !sel.startsWith('ligne:') && !sel.startsWith('lignes:'))
     ) {
-      const out = sections.has('cas:exemple')
+      const out = capOutput(sections.has('cas:exemple')
         ? sections.get('cas:exemple').join('\n')
-        : allSectionLines.join('\n');
+        : allSectionLines.join('\n'));
       return Promise.resolve({
         ok: true,
         httpStatus: 200,
@@ -289,15 +294,19 @@ function runAnalyse(code, stdin) {
     ok: true,
     httpStatus: 200,
     data: {
-      stdout: out,
+      stdout: capOutput(out),
       stderr: '',
       exit_code: 0
     }
   });
 }
 
+async function runSql(code, stdin, timeoutMs = 4000) {
+  return runInIsolatedWorker('sql', code, stdin, timeoutMs);
+}
+
 function run(payload) {
-  const norm = String(payload.language || payload.languageId || '').toLowerCase().trim();
+  const norm = String((payload && (payload.language || payload.languageId)) || '').toLowerCase().trim();
   if (norm === 'python' || norm === 'py') {
     return runPython(payload.code, payload.stdin);
   }
@@ -307,21 +316,32 @@ function run(payload) {
   if (norm === 'algo' || norm === 'pseudo-code' || norm === 'pseudocode') {
     return runPseudoCode(payload.code, payload.stdin);
   }
+  if (norm === 'sql') {
+    return runSql(payload.code, payload.stdin);
+  }
   if (norm === 'analyse') {
     return runAnalyse(payload.code, payload.stdin);
   }
   return Promise.resolve({
     ok: false,
-    httpStatus: 400,
-    data: { stdout: '', stderr: `Langage ${norm} non pris en charge par le runner local`, exit_code: 1 }
+    httpStatus: 503,
+    data: {
+      stdout: '',
+      stderr: '',
+      message: `Le moteur d’exécution est temporairement indisponible (langage ${norm || 'inconnu'} non exécutable localement).`,
+      exit_code: 1
+    }
   });
 }
 
 module.exports = {
+  MAX_OUTPUT_BYTES,
+  capOutput,
   canHandle,
   run,
   runPython,
   runJavaScript,
   runPseudoCode,
+  runSql,
   runAnalyse
 };

@@ -821,7 +821,7 @@ int main(void) {
 `,
     hints: [
       'Le rôle de la fonction est d’écrire à l’adresse reçue : c’est une affectation à travers le pointeur, pas un retour.',
-      'Les deux paramètres de sortie sont distincts : l’ordre dans lequel vous les remplissez n’a pas d’importance, mais chacun doit recevoir le bon calcul.'
+      'Les deux paramètres de sortie sont distincts : l’ordre de remplissage n’a pas d’importance, mais chacun doit recevoir le bon calcul.'
     ],
     examples: [
       { stdin: '2 9', expected: 'Somme : 11\nProduit : 18', note: 'Somme 11 ; produit 18.' }

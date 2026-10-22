@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-sqlnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>maîtriser la syntaxe et la structure des blocs procéduraux PL/pgSQL (DECLARE, BEGIN, EXCEPTION, END) ;</li>
       <li>concevoir et déployer des fonctions déclencheurs (TRIGGER) associées aux événements BEFORE et AFTER ;</li>
@@ -191,210 +191,140 @@ EXECUTE 'SELECT * FROM users WHERE nom = $1' USING entree;</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="sql3-c5-e1" data-lab
      data-exercise="sql3-c5-e1"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user&#10;OP action=UPDATE table=users id=10 user=sec_admin old=email:a@b.com,role:user new=email:a@b.com,role:admin&#10;OP action=DELETE table=users id=10 user=admin old=email:a@b.com,role:admin">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c5-e1) — Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Mise à jour de multiples champs simultanément]
-# Données : OP action=UPDATE table=produits id=42 user=gest_stock old=nom:Velo,prix:200,stock:10 new=nom:Velo,prix:250,stock:8
-A_COMPLETER
-
-[Cas 2 — Série de plusieurs insertions successives]
-# Données : OP action=INSERT table=logs id=1 user=cron new=lvl:info
-# Données : OP action=INSERT table=logs id=2 user=cron new=lvl:warn
-A_COMPLETER
-
-[Cas 3 — Mise à jour sans changement réel (valeurs identiques)]
-# Données : OP action=UPDATE table=clients id=100 user=app old=statut:actif new=statut:actif
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);&#10;-- VERIFY:&#10;UPDATE comptes SET solde = -2000 WHERE id = 1; UPDATE comptes SET solde = 4000 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Créez le trigger conditionnel trg_alerte_decouvert avec WHEN NEW.solde < 0
+SELECT * FROM comptes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)</h3>
+    <h3 class="lab__title">Exercice 1 — Déclencheur de protection contre les soldes négatifs (AFTER UPDATE + WHEN)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement d’un trigger AFTER INSERT/UPDATE/DELETE alimentant une table de journalisation d’audit.</p>
-    <div class="lab__brief">Dans les systèmes financiers et médicaux, les réglementations (RGPD, PCI-DSS, HDS) imposent une traçabilité immuable de chaque modification.
-Un déclencheur d’audit compare les variables d’état `OLD` et `NEW` :
-- Pour `INSERT` : enregistre `diff=INSERTED`.
-- Pour `DELETE` : enregistre `diff=DELETED`.
-- Pour `UPDATE` : compare les champs clés pour lister précisément les valeurs modifiées sous la forme `champ:old_val->new_val`.
-
-Entrée :
-`OP action=<INSERT|UPDATE|DELETE> table=<name> id=<row_id> user=<username> [old=<k:v,k:v>] [new=<k:v,k:v>]`
-
-Sortie :
-- Pour chaque opération :
-  `AUDIT_ENTRY action=<ACT> table=<TBL> row_id=<ID> diff=<DIFF> user=<USR>`
-- Bilan : `AUDIT_SUMMARY total_events=<N> inserts=<N> updates=<N> deletes=<N>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Déclencher une alerte automatique sur condition métier dans un trigger SQL.</p>
+    <div class="lab__brief"><p>Soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user
-OP action=UPDATE table=users id=10 user=sec_admin old=email:a@b.com,role:user new=email:a@b.com,role:admin
-OP action=DELETE table=users id=10 user=admin old=email:a@b.com,role:admin</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT_ENTRY action=INSERT table=users row_id=10 diff=INSERTED user=admin
-AUDIT_ENTRY action=UPDATE table=users row_id=10 diff=role:user-&gt;admin user=sec_admin
-AUDIT_ENTRY action=DELETE table=users row_id=10 diff=DELETED user=admin
-AUDIT_SUMMARY total_events=3 inserts=1 updates=1 deletes=1</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);
+-- VERIFY:
+UPDATE comptes SET solde = -2000 WHERE id = 1; UPDATE comptes SET solde = 4000 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (2 lignes modifiées).
+
+Instruction exécutée avec succès (1 ligne modifiée).
+
+Instruction exécutée avec succès (1 ligne modifiée).
+
++-----------+---------------+
+| compte_id | montant_tente |
++-----------+---------------+
+| 1         | -2000         |
++-----------+---------------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">Le trigger trace la création, le changement de rôle et la suppression.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Parser les champs old et new en dictionnaires pour l’action UPDATE.</li>
-        <li>Identifier les clés pour lesquelles old[k] != new[k] et formater champ:old-&gt;new.</li>
-        <li>Comptabiliser le nombre d’événements de chaque type.</li>
+        <li>Utilisez la clause WHEN NEW.solde &lt; 0 avant BEGIN dans la définition du trigger.</li>
+        <li>Insérez (NEW.id, NEW.solde) dans alertes_fraude.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c5-e2" data-lab
      data-exercise="sql3-c5-e2"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="SESSION tenant=org_A role=member&#10;DOC id=1 tenant=org_A title=Bilan_A&#10;DOC id=2 tenant=org_B title=Bilan_B&#10;ACCESS action=SELECT doc_id=1&#10;ACCESS action=SELECT doc_id=2&#10;ACCESS action=DELETE doc_id=1">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c5-e2) — Moteur d’évaluation de politiques de sécurité au niveau ligne (Row-Level Security RLS)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Administrateur de tenant effectuant une suppression légitime]
-# Données : SESSION tenant=corp_X role=admin
-# Données : DOC id=10 tenant=corp_X title=Rapport
-# Données : ACCESS action=DELETE doc_id=10
-A_COMPLETER
-
-[Cas 2 — Accès à un document inexistant]
-# Données : SESSION tenant=org_A role=member
-# Données : ACCESS action=SELECT doc_id=999
-A_COMPLETER
-
-[Cas 3 — Mises à jour autorisées et bloquées]
-# Données : SESSION tenant=alpha role=member
-# Données : DOC id=101 tenant=alpha title=Contrat
-# Données : DOC id=102 tenant=beta title=Contrat
-# Données : ACCESS action=UPDATE doc_id=101
-# Données : ACCESS action=UPDATE doc_id=102
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');&#10;-- VERIFY:&#10;SELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Créez la vue v_dossiers_rls appliquant la politique RLS
+CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE 1 = 0;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur d’évaluation de politiques de sécurité au niveau ligne (Row-Level Security RLS)</h3>
+    <h3 class="lab__title">Exercice 2 — Isolation multi-locataires (Row-Level Security / Politique RLS)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le filtrage transparent des lignes en fonction du tenant et du rôle utilisateur via PostgreSQL Row-Level Security (RLS).</p>
-    <div class="lab__brief">Dans une architecture SaaS multi-locataire (multi-tenant) mutualisée, la sécurité au niveau des lignes (RLS) garantit qu’une session ne peut jamais lire ni modifier les données d’une autre organisation :
-- Chaque session déclare son identité : `SESSION tenant=<tenant_id> role=<admin|member>`.
-- Des documents sont enregistrés : `DOC id=<id> tenant=<tenant_id> title=<title>`.
-- Une politique RLS applique les règles suivantes lors d’une action (`SELECT`, `UPDATE`, `DELETE`) :
-  1. Si `doc.tenant == session.tenant` : l’accès est `ALLOWED`.
-  2. Si `doc.tenant != session.tenant` : l’accès est `DENIED` pour violation de frontière inter-tenant (isolation étanche).
-  3. Pour `DELETE` : nécessite en plus le rôle `admin` dans le tenant ; si le rôle est `member`, l’accès est `DENIED_INSUFFICIENT_ROLE`.
-
-Entrée :
-- `SESSION tenant=<T> role=<R>`
-- `DOC id=<id> tenant=<T> title=<title>`
-- `ACCESS action=<SELECT|UPDATE|DELETE> doc_id=<id>`
-
-Sortie :
-- Pour chaque tentative : `RLS_CHECK action=<ACT> doc_id=<ID> status=<ALLOWED|DENIED> reason=<REASON>`
-- Bilan : `RLS_REPORT total_checks=<N> allowed=<N> denied=<N>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler une politique d’isolation Row-Level Security filtrant selon le contexte de session.</p>
+    <div class="lab__brief"><p>Dans une architecture SaaS multi-tenant, la table <code>contexte_session(tenant_actif TEXT, role_actif TEXT)</code> contient 1 ligne décrivant l’utilisateur connecté, et la table <code>dossiers_patients(id INT, tenant_id TEXT, patient TEXT)</code> contient les données. Créez une vue sécurisée <code>v_dossiers_rls</code> qui renvoie <code>id</code>, <code>tenant_id</code> et <code>patient</code> uniquement lorsque <code>tenant_id = (SELECT tenant_actif FROM contexte_session)</code> OU lorsque <code>(SELECT role_actif FROM contexte_session) = 'SUPERADMIN'</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SESSION tenant=org_A role=member
-DOC id=1 tenant=org_A title=Bilan_A
-DOC id=2 tenant=org_B title=Bilan_B
-ACCESS action=SELECT doc_id=1
-ACCESS action=SELECT doc_id=2
-ACCESS action=DELETE doc_id=1</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RLS_CHECK action=SELECT doc_id=1 status=ALLOWED reason=TENANT_MATCH
-RLS_CHECK action=SELECT doc_id=2 status=DENIED reason=CROSS_TENANT_VIOLATION
-RLS_CHECK action=DELETE doc_id=1 status=DENIED reason=INSUFFICIENT_ROLE
-RLS_REPORT total_checks=3 allowed=1 denied=2</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');
+-- VERIFY:
+SELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (2 lignes modifiées).
+
++----+------------+---------+
+| id | tenant_id  | patient |
++----+------------+---------+
+| 1  | clinique_a | Koffi   |
++----+------------+---------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">Accès autorisé sur doc 1 pour SELECT, refusé sur doc 2 (cross-tenant), et refusé pour DELETE sans rôle admin.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Stocker les documents dans un dictionnaire documents[doc_id] = {tenant, title}.</li>
-        <li>Comparer doc[tenant] avec session_tenant pour valider l’isolation multi-tenant.</li>
-        <li>Vérifier le rôle pour les opérations destructrices comme DELETE.</li>
+        <li>Créez CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE ...</li>
+        <li>Combinez les deux conditions avec OR.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c5-e3" data-lab
      data-exercise="sql3-c5-e3"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="CHECK_SQL id=1 input=&quot;alice&quot;&#10;CHECK_SQL id=2 input=&quot;admin' OR '1'='1&quot;&#10;CHECK_SQL id=3 input=&quot;test'; DROP TABLE clients; --&quot;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c5-e3) — Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Attaque par union pour extraction de schéma]
-# Données : CHECK_SQL id=10 input="1 UNION SELECT username, password FROM users"
-A_COMPLETER
-
-[Cas 2 — Troncature par commentaire SQL double tiret]
-# Données : CHECK_SQL id=20 input="admin' -- bypass password check"
-A_COMPLETER
-
-[Cas 3 — Entrée saine avec espaces et chiffres]
-# Données : CHECK_SQL id=30 input="Jean-Luc Dupont 2025"
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);&#10;-- VERIFY:&#10;INSERT INTO commandes VALUES (100, 1, 25000), (101, 2, 15000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Créez le trigger trg_maj_stats AFTER INSERT ON commandes
+SELECT * FROM stats_clients;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)</h3>
+    <h3 class="lab__title">Exercice 3 — Maintien automatique d’une table de matérialisation par Trigger</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser des paramètres de requêtes SQL dynamiques et neutraliser les vecteurs d’injection SQL classiques.</p>
-    <div class="lab__brief">Dans le code procédural PL/pgSQL, la concaténation directe de variables utilisateur dans des instructions `EXECUTE` engendre des failles critiques d’injection SQL (SQLi).
-Les signatures d’attaque typiques incluent :
-- Tautologies logiques contournant les filtres : `OR 1=1`, `OR '1'='1'`, `OR true`.
-- Concaténations de requêtes multiples (Piggybacked queries) : `; DROP TABLE`, `; TRUNCATE`, `; DELETE`.
-- Injections par union : `UNION SELECT`, `UNION ALL SELECT`.
-- Troncature de commentaires : `--`, `/*`.
-
-Entrée :
-`CHECK_SQL id=<num> input="<chaine_brute>"`
-
-Sortie :
-- Si une signature est détectée : `SQLI_ALERT id=<id> status=VULNERABLE threat=<TAUTOLOGY|PIGGYBACKED_DROP|UNION_INJECTION|COMMENT_BYPASS> action=BLOCK`
-- Si la chaîne est saine : `SQLI_ALERT id=<id> status=SECURE safe_value=<quote_literal_value> action=ALLOW`
-- Bilan : `SECURITY_AUDIT checked=<N> blocked=<N> allowed=<N>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Maintenir un compteur dénormalisé en temps réel à chaque insertion.</p>
+    <div class="lab__brief"><p>Soient <code>commandes(id INT, client_id INT, montant INT)</code> et la table de synthèse <code>stats_clients(client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT)</code>. Créez un trigger <code>trg_maj_stats</code> qui, <code>AFTER INSERT ON commandes</code>, met à jour <code>stats_clients</code> (<code>SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant WHERE client_id = NEW.client_id</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CHECK_SQL id=1 input="alice"
-CHECK_SQL id=2 input="admin' OR '1'='1"
-CHECK_SQL id=3 input="test'; DROP TABLE clients; --"</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SQLI_ALERT id=1 status=SECURE safe_value='alice' action=ALLOW
-SQLI_ALERT id=2 status=VULNERABLE threat=TAUTOLOGY action=BLOCK
-SQLI_ALERT id=3 status=VULNERABLE threat=PIGGYBACKED_DROP action=BLOCK
-SECURITY_AUDIT checked=3 blocked=2 allowed=1</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);
+-- VERIFY:
+INSERT INTO commandes VALUES (100, 1, 25000), (101, 2, 15000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (2 lignes modifiées).
+
+Instruction exécutée avec succès (2 lignes modifiées).
+
++-----------+--------+---------------+
+| client_id | nb_cmd | cumul_montant |
++-----------+--------+---------------+
+| 1         | 1      | 25000         |
+| 2         | 2      | 25000         |
++-----------+--------+---------------+
+(2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">La saisie légitime est autorisée après échappement ; les deux attaques sont bloquées.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Rechercher les mots-clés dangereux en ignorant la casse (upper/lower).</li>
-        <li>Identifier "or 1=1" ou "or '1'='1'" comme TAUTOLOGY.</li>
-        <li>Identifier "; drop" ou "; truncate" comme PIGGYBACKED_DROP.</li>
-        <li>Identifier "union select" comme UNION_INJECTION.</li>
-        <li>Identifier "--" ou "/*" comme COMMENT_BYPASS.</li>
+        <li>Utilisez CREATE TRIGGER trg_maj_stats AFTER INSERT ON commandes FOR EACH ROW BEGIN ... END;</li>
+        <li>Mettez à jour stats_clients avec NEW.montant et NEW.client_id.</li>
       </ol>
     </details>
   </div>
@@ -543,12 +473,13 @@ SECURITY_AUDIT checked=3 blocked=2 allowed=1</pre></div>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Difficultés à structurer une fonction PL/pgSQL ou confusion entre pseudo-variables NEW et OLD.</div>
-      <div class="bandrow bandrow--medium">Bonne maîtrise de l’écriture de déclencheurs d’audit et configuration de politiques simples de Row-Level Security.</div>
-      <div class="bandrow bandrow--high">Architecture de sécurité complète : RLS multi-tenant étanche avec FORCE RLS, audit infalsifiable et élimination totale des risques SQLi.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à structurer une fonction PL/pgSQL ou confusion entre pseudo-variables NEW et OLD.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise de l’écriture de déclencheurs d’audit et configuration de politiques simples de Row-Level Security.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Architecture de sécurité complète : RLS multi-tenant étanche avec FORCE RLS, audit infalsifiable et élimination totale des risques SQLi.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -558,7 +489,7 @@ SECURITY_AUDIT checked=3 blocked=2 allowed=1</pre></div>
     <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Partitionnement Déclaratif, Réplication WAL &amp; Haute Disponibilité (HA) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
 </main>
 

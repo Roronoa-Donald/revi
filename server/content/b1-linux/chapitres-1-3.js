@@ -35,6 +35,10 @@ module.exports = [
 
     sections: [
       {
+        "title": "Initiation immédiate : Structure minimale d’un script Bash pour les ateliers",
+        "html": "<div class=\"box box--tech\"><div class=\"box__title\">Lire et écrire un court script Bash dès le Chapitre 1 (approfondi au Chapitre 6 §4)</div><p>Dans les ateliers interactifs de ce cours, vos réponses s’exécutent dans un script shell Bash :</p><ul><li><code>#!/bin/bash</code> (le <em>shebang</em> en ligne 1) indique au système d’utiliser l’interpréteur Bash ;</li><li><code>read -r ma_variable</code> lit une ligne de texte sur l’entrée standard et la stocke dans <code>ma_variable</code> ;</li><li><code>echo \"$ma_variable\"</code> affiche le contenu de la variable à l’écran ;</li><li><code>if [ \"$x\" = \"valeur\" ]; then ... else ... fi</code> permet de tester une condition, et <code>case \"$x\" in ... esac</code> de distinguer plusieurs cas.</li></ul></div>"
+      },
+      {
         title: 'Un système d’exploitation, à quoi ça sert',
         html: [
           '<p>Un <strong>système d’exploitation</strong> (OS, Operating System) est un ensemble de ' +
@@ -170,11 +174,24 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Réécris la frise historique de mémoire, sans le cours.' },
       { cls: 'mid', text: '50–69 % — Récite les quatre libertés avec un exemple concret chacune.' },
-      { cls: 'good', text: '70–89 % — Solide : dessine l’architecture en couches et nomme chaque couche.' },
+      { cls: 'good', text: '70–94 % — Solide : dessine l’architecture en couches et nomme chaque couche.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, l’arborescence du système de fichiers.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « système d’exploitation » ?', a: 'On te confie une machine pour la première fois : avant même d’ouvrir un terminal, il faut savoir ce qu’est un système d’exploitation, d’où vient Linux et pourquoi il est partout — serveurs web, supercalculateurs, box internet, Android. Ce chapitre pose le vocabulaire qui servira ' },
+      { q: 'Qu’est-ce que « GNU » ?', a: 'rappeler les grandes dates d’UNIX et de GNU/Linux, de 1969 à 1991 ;' },
+      { q: 'Qu’est-ce que « chemin absolu » ?', a: 'Le système de fichiers de Linux est hiérarchique : une arborescence de répertoires et de sous-répertoires qui part d’un élément de base noté / — la racine (root directory). Tout chemin absolu commence par ce slash : /etc/passwd , /home/alice/notes.txt .' },
+      { q: 'Qu’est-ce que « inode » ?', a: 'expliquer « tout est fichier » et le rôle des inodes et métadonnées ;' },
+      { q: 'Qu’est-ce que « journalisation » ?', a: 'journalisation performante, snapshots, défragmentation en ligne (1993)' },
+      { q: 'Qu’est-ce que « montage » ?', a: 'Se représenter le montage : un FS se greffe sur un répertoire, comme un volume sur un point.' },
+      { q: 'Qu’est-ce que « répertoire courant » ?', a: 'Options et arguments sont tous deux facultatifs : ls seul liste le répertoire courant. Les commandes utiles pour se repérer : pwd affiche l’emplacement courant, cd change de répertoire courant, ls liste les fichiers.' },
+      { q: 'Qu’est-ce que « redirection » ?', a: 'redirection : Linux B1 › Sommaire › Chapitre 3' },
+      { q: 'Qu’est-ce que « machine virtuelle » ?', a: 'La théorie est posée : un arbre, des partitions, des montages. Place à la pratique du TP — installer une vraie distribution, Debian 12, sur une machine ou une machine virtuelle. C’est au cours de cette installation que le chapitre 2 devient concret : les partitions que l’on défin' },
+      { q: 'Qu’est-ce que « hostname » ?', a: 'Noter hostname, mot de passe root et utilisateur au fil de l’eau.' },
+      { q: 'Qu’est-ce que « compte système » ?', a: 'compte système : Un serveur héberge plusieurs personnes et chaque personne n’a pas les mêmes droits. Linux gère cela avec des comptes et des groupes, décrits dans trois fichiers texte lisibles : /etc/passwd, /etc/shadow, /etc/group. Savoir lire ces lignes — et les produire, comme le font les comm' },
+      { q: 'Qu’est-ce que « groupe principal » ?', a: 'Créer un groupe : groupadd option groupe — ex. groupadd modem . Le supprimer : groupdel groupe (ou groupdel GID ), avec une contrainte importante : on ne peut pas supprimer un groupe qui est le groupe principal d’un utilisateur.' },
+      { q: 'Qu’est-ce que « useradd » ?', a: 'créer, modifier et supprimer comptes et groupes (useradd, usermod, userdel, groupadd, groupdel) ;' },
       { q: 'Qui a créé UNIX, quand et où ?', a: 'Ken Thompson et Dennis Ritchie, en 1969, aux laboratoires Bell (AT&T) ; réécrit en C en 1973.' },
       { q: 'Les quatre libertés du logiciel libre ?', a: '0 : utiliser ; 1 : étudier et adapter ; 2 : redistribuer ; 3 : améliorer et diffuser.' },
       { q: 'Que garantit le copyleft de la GPL ?', a: 'Toute redistribution, modifiée ou non, se fait sous les mêmes conditions ; code source et libertés sont inséparables.' },
@@ -225,7 +242,7 @@ module.exports = [
           '├── bin   et   sbin    binaires indispensables au démarrage et commandes d’administration\n' +
           '└── lib   et   usr/lib librairies nécessaires à ces commandes</code></pre>',
           box('mnemo', 'Mnémotechnique — « etc = étagère de config »', 'pin',
-            '    <p>Retiens par contrastes : <code>/etc</code> est <strong>l’étagère de configuration</strong> ' +
+            '    <p>Retenez par contrastes : <code>/etc</code> est <strong>l’étagère de configuration</strong> ' +
             '(celle qu’on sauvegarde pour restaurer une machine), <code>/home</code> <strong>les maisons</strong> ' +
             'des utilisateurs, <code>/tmp</code> <strong>la table qui se débarrasse</strong> au redémarrage, ' +
             '<code>/var</code> <strong>les journaux qui varient</strong>, <code>/root</code> la maison de ' +
@@ -344,8 +361,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Recopie l’arborescence puis reproduis-la de mémoire trois fois.' },
-      { cls: 'mid', text: '50–69 % — Refais le tableau des répertoires standard avec une phrase par rôle.' },
-      { cls: 'good', text: '70–89 % — Solide : explique la journalisation et le trio principal/étendue/logique.' },
+      { cls: 'mid', text: '50–69 % — Refaites le tableau des répertoires standard avec une phrase par rôle.' },
+      { cls: 'good', text: '70–94 % — Solide : explique la journalisation et le trio principal/étendue/logique.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, l’installation de Debian 12.' }
     ],
 
@@ -475,10 +492,10 @@ module.exports = [
 
     questions: [
       { stem: 'Quelle est la syntaxe générale d’une commande ?', opts: ['COMMANDE ARGUMENTS OPTIONS', 'COMMANDE OPTIONS ARGUMENTS', 'OPTIONS COMMANDE ARGUMENTS'], correct: 1, exp: 'La commande, puis les options (facultatives), puis les arguments (facultatifs) : ls -a /home.' },
-      { stem: 'Que fait pwd ?', opts: ['Change de répertoire', 'Affiche l’emplacement courant', 'Liste les fichiers'], correct: 1, exp: 'pwd (print working directory) affiche l’emplacement où l’on se situe dans la hiérarchie.' },
+      { stem: 'Que fait pwd ?', opts: ['Change de répertoire', 'Affichez l’emplacement courant', 'Liste les fichiers'], correct: 1, exp: 'pwd (print working directory) affiche l’emplacement où l’on se situe dans la hiérarchie.' },
       { stem: 'Quelle commande crée un fichier vide ?', opts: ['mkdir', 'touch', 'cat'], correct: 1, exp: 'touch change la date de modification d’un fichier — et le crée vide s’il n’existe pas.' },
       { stem: 'echo "x" > f et echo "x" >> f : quelle différence ?', opts: ['Aucune', '> écrase, >> ajoute à la fin', '> ajoute, >> écrase'], correct: 1, exp: 'Un chevron écrase le contenu, deux chevrons suffisent au fichier.' },
-      { stem: 'Que fait mv fichier3 /home/fichier4 ?', opts: ['Copie fichier3', 'Renomme et déplace fichier3 en /home/fichier4 en une seule fois', 'Supprime fichier3'], correct: 1, exp: 'mv renomme ou déplace : renommer est un déplacement dans le même répertoire.' },
+      { stem: 'Que fait mv fichier3 /home/fichier4 ?', opts: ['Copie fichier3', 'Renomme et déplace fichier3 en /home/fichier4 en une seule fois', 'Supprimez fichier3'], correct: 1, exp: 'mv renomme ou déplace : renommer est un déplacement dans le même répertoire.' },
       { stem: 'Pourquoi rm -rf est-elle dangereuse ?', opts: ['Elle est lente', 'Elle peut supprimer tout le système de fichiers, irréversiblement', 'Elle chiffre les fichiers'], correct: 1, exp: 'Le cours l’avertit : avec -f ou -rf, rm peut endommager voire détruire le système de fichiers sans retour.' },
       { stem: 'Quelle option de ln crée un lien symbolique ?', opts: ['-a', '-s', '-l'], correct: 1, exp: 'ln -s crée un lien symbolique (raccourci) au lieu d’un lien physique ; c’est documenté dans man ln.' },
       { stem: 'Après modification de la source, que voit-on via le lien symbolique ?', opts: ['L’ancien contenu', 'Le contenu mis à jour de la source', 'Une erreur'], correct: 1, exp: 'La cible n’est pas un fichier stocké : elle pointe vers la source et reflète son contenu courant.' },
@@ -521,9 +538,9 @@ module.exports = [
     notions: ['commande', 'option', 'argument', 'répertoire courant', 'lien symbolique', 'find', 'critère', 'redirection', 'manuel'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais le tableau des commandes avec un exemple par ligne.' },
-      { cls: 'mid', text: '50–69 % — Entraîne-toi à écrire les commandes des exercices find du TP.' },
-      { cls: 'good', text: '70–89 % — Solide : décris ce que voit cat fichiercible après chaque modification.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites le tableau des commandes avec un exemple par ligne.' },
+      { cls: 'mid', text: '50–69 % — Entraînez-vous à écrire les commandes des exercices find du TP.' },
+      { cls: 'good', text: '70–94 % — Solide : décris ce que voit cat fichiercible après chaque modification.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, la installation de Debian 12.' }
     ],
 

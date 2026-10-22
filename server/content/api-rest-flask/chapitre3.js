@@ -139,8 +139,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise l’instanciation de Flask et la syntaxe @app.route.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’utilisation de request et les convertisseurs dynamiques.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le routage et le filtrage des méthodes.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’utilisation de request et les convertisseurs dynamiques.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le routage et le filtrage des méthodes.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux codes d’état et à la sérialisation au chapitre 4.' }
   ],
 

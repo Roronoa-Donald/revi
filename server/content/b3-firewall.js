@@ -39,7 +39,7 @@ const course = {
     'et mise en œuvre opérationnelle sous Linux Netfilter (hooks noyau, tables et chaînes, syntaxe comparée iptables vs nftables moderne, analyse statistique des logs Syslog et réponse active automatisée par bannissement dynamique Fail2ban/SIEM).',
   lead:
     'Maîtrisez la défense périmétrique complète, le suivi de sessions conntrack, l’ingénierie DMZ, le filtrage applicatif L7 et le déploiement Linux Netfilter de niveau Bachelor 3. ' +
-    'Six modules approfondis combinant formalisme théorique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant formalisme théorique, 18 études de cas pratiques et méthodologiques et 48 QCM d’évaluation.',
 
   sources: 'Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter',
 

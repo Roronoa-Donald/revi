@@ -89,7 +89,7 @@ switch ($vlan) {
     brief: '<p>Le script lit la <strong>zone source</strong>, la <strong>zone destination</strong> ' +
       '(chacune : <code>lan</code>, <code>dmz</code> ou <code>autre</code>) et le <strong>port</strong>. ' +
       'Un flux est autorisé s’il reste dans la même zone, ou s’il traverse LAN et DMZ sur le port 443. ' +
-      'Sinon, affichez <code>flux : filtre</code> ; sinon <code>flux : autorise</code>.</p>',
+      'Sinon, affichezz <code>flux : filtre</code> ; sinon <code>flux : autorise</code>.</p>',
     starter: `$source = [Console]::In.ReadLine()
 $destination = [Console]::In.ReadLine()
 $port = [int][Console]::In.ReadLine()

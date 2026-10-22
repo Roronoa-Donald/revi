@@ -144,13 +144,15 @@ module.exports = {
 
   notions: ['droit', 'informatique', 'droit du numérique', 'données personnelles', 'propriété intellectuelle', 'contrats informatiques', 'responsabilité civile', 'liberté d’expression', 'vie privée', 'accès à l’information', 'RGPD'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les définitions du droit et de l’informatique.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les quatre fondements.' },
-    { cls: 'good', text: '70–89 % — Solide : tu distingues notions et droits numériques.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les définitions du droit et de l’informatique.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les quatre fondements.' },
+    { cls: 'good', text: '70–94 % — Solide : vous distinguez notions et droits numériques.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux données personnelles, chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « croisement » ?', a: 'par croisement de plusieurs données : un homme vivant à telle adresse, né tel jour et membre de telle organisation.' },
+      { q: 'Qu’est-ce que « profilage » ?', a: 'Le scandale Cambridge Analytica a révélé l’exploitation massive de données personnelles d’utilisateurs d’un réseau social à des fins de profilage psychologique et d’influence électorale. Trois griefs juridiques se dégagent :' },
     { q: 'Que définissent le droit et l’informatique ?', a: 'Le droit : les règles d’une société ; l’informatique : le traitement automatique de l’information.' },
     { q: 'Qu’est-ce que le droit du numérique ?', a: 'L’ensemble des règles juridiques applicables à l’environnement et à la technologie numériques.' },
     { q: 'Quatre fondements ?', a: 'Données personnelles, propriété intellectuelle, contrats informatiques, responsabilité civile.' },

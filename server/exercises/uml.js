@@ -3,7 +3,7 @@
  *
  * 6 chapitres x 3 exercices (n1, n2, n3).
  * Préfixe d'identifiant : `um2`.
- * Langage : Python 3 (`python`).
+ * Mode : Étude de cas (`python`).
  */
 'use strict';
 

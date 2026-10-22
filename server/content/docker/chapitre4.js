@@ -98,7 +98,7 @@ module.exports = {
         '<div class="grid grid-3">',
         '  <div class="card">',
         '    <h4>Bridge Network (Par Défaut)</h4>',
-        '    <p>Crée une interface pont virtuelle (comme <code>docker0</code>) et attribue une adresse IP privée ' +
+        '    <p>Créez une interface pont virtuelle (comme <code>docker0</code>) et attribue une adresse IP privée ' +
         '    (ex: 172.17.0.X) à chaque conteneur. L’accès extérieur s’effectue par translation d’adresses NAT.</p>',
         '  </div>',
         '  <div class="card">',

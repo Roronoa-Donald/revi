@@ -20,7 +20,7 @@ module.exports = {
     'comparer les avantages et limites des topologies Dual-Homed, Triple-Homed et Back-to-Back ;',
     'justifier la défense en profondeur par l’hétérogénéité des constructeurs de pare-feux en cascade ;',
     'mettre en œuvre des passerelles d’administration sécurisées via des hôtes bastions (Jump Hosts) avec MFA ;',
-    'développer en Python 3 des auditeurs de conformité DMZ, des évaluateurs de résilience de topologie et des contrôleurs de bastion.'
+    'analyser et résoudre méthodologiquement des auditeurs de conformité DMZ, des évaluateurs de résilience de topologie et des contrôleurs de bastion.'
   ],
   sections: [
     {
@@ -113,7 +113,7 @@ module.exports = {
     'Les trois topologies (Dual-Homed, Triple-Homed, Back-to-Back) sont maîtrisées.',
     'L’intérêt de l’hétérogénéité des constructeurs en cascade est assimilé.',
     'Le fonctionnement d’un Bastion SSH d’administration avec MFA est compris.',
-    'Les 3 ateliers de programmation interactive en Python 3 (fw3-c4-e1 à fw3-c4-e3) sont validés.'
+    'Les 3 études de cas pratiques et méthodologiques (fw3-c4-e1 à fw3-c4-e3) sont validés.'
   ],
   notions: [
     'Zone Démilitarisée (DMZ)',

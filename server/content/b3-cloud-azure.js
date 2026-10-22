@@ -39,7 +39,7 @@ const course = {
     'et enfin observabilité analytique, gouvernance et automatisation (métriques temps réel Azure Monitor, alertes avec Action Groups, analyse avancée de logs dans Log Analytics avec requêtes KQL Kusto, Secure Score Microsoft Defender for Cloud, budgets Cost Management et Infrastructure as Code déclarative avec templates Bicep et ARM).',
   lead:
     'Maîtrisez l’architecture, la sécurité, le réseau et l’automatisation du Cloud Microsoft Azure : gouvernance ARM, Entra ID, RBAC, VMSS, sous-réseaux VNet, Blob Lifecycle, requêtes analytiques KQL et Infrastructure as Code Bicep. ' +
-    'Six modules complets combinant rigueur d’ingénierie Cloud (AZ-104), 18 exercices interactifs de code en Python 3 et 48 QCM d’évaluation.',
+    'Six modules complets combinant rigueur d’ingénierie Cloud (AZ-104), 18 exercices interactifs de code de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Supports de cours officiels Services Cloud AZURE B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation Microsoft Learn Azure, Référentiels d\'examen Microsoft Certified Azure Administrator (AZ-104) et Azure Solutions Architect Expert (AZ-305)',
 

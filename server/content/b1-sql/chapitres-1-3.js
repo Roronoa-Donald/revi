@@ -106,7 +106,7 @@ module.exports = [
           '    <tr><td>SQLite</td><td>embarqué, sans serveur — c’est le moteur du simulateur de ce cours</td></tr>\n' +
           '  </table>',
           '<p>Tous parlent <strong>SQL</strong> (Structured Query Language), le langage standard de ' +
-          'l’interrogation : ce que tu apprends ici se rejoue à l’identique d’un SGBD à l’autre, aux ' +
+          'l’interrogation : ce que vous apprenez ici se rejoue à l’identique d’un SGBD à l’autre, aux ' +
           'détails de dialecte près.</p>',
           box('intuition', 'Base, SGBD, SQL : trois rôles', 'compass',
             '    <p>La <strong>base</strong> est le garde-meuble (les données rangées), le <strong>SGBD</strong> ' +
@@ -189,14 +189,23 @@ module.exports = [
     notions: ['base de données', 'SGBD', 'SQL', 'modèle relationnel', 'table', 'clé primaire', 'clé étrangère', 'NULL'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Relis les définitions et réécris-les avec tes mots.' },
-      { cls: 'mid', text: '50–69 % — Refais le schéma Marque/Voiture en nommant toutes les clés.' },
-      { cls: 'good', text: '70–89 % — Solide : explique le rôle du SGBD à quelqu’un d’autre.' },
+      { cls: 'low', text: '&lt; 50 % — Relis les définitions et réécris-les avec vos mots.' },
+      { cls: 'mid', text: '50–69 % — Refaites le schéma Marque/Voiture en nommant toutes les clés.' },
+      { cls: 'good', text: '70–94 % — Solide : explique le rôle du SGBD à quelqu’un d’autre.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, types et création de tables.' }
     ],
 
     flashcards: [
-      { q: 'Définis une base de données.', a: 'Un ensemble d’informations organisé pour être accessible, géré et mis à jour facilement, interrogeable par le contenu.' },
+      { q: 'Qu’est-ce que « modèle relationnel » ?', a: 'décrire le modèle relationnel : table, ligne, colonne, clé primaire et étrangère.' },
+      { q: 'Qu’est-ce que « TINYINT » ?', a: 'Entiers : TINYINT à BIGINT selon la plage ; INT(x) ne change que l’affichage.' },
+      { q: 'Qu’est-ce que « DATETIME » ?', a: "Le parc auto du support utilise DATETIME pour la mise en circulation — d’où des valeurs comme '2000-01-21 08:00:00' — et des comparaisons directes sont possibles : WHERE datecirc < '2015-01-01' ." },
+      { q: 'Qu’est-ce que « DISTINCT » ?', a: 'La base du parc est en place : 23 voitures, 12 marques. Reste à poser les questions — combien de diesels ? lesquelles avant 2015 ? quelles marques distinctes ? Toute question s’écrit avec le même squelette SELECT…FROM…WHERE, et l’ordre des clauses n’est pas négociable : le SGBD l' },
+      { q: 'Qu’est-ce que « produit cartésien » ?', a: 'Condition de jointure oubliée : produit cartésien, des milliers de lignes absurdes.' },
+      { q: 'Qu’est-ce que « SUM » ?', a: 'calculer des totaux avec COUNT, MIN, MAX, SUM et AVG ;' },
+      { q: 'Qu’est-ce que « ALTER TABLE » ?', a: 'faire évoluer une structure avec ALTER TABLE ;' },
+      { q: 'Qu’est-ce que « CREATE USER » ?', a: 'Un utilisateur créé avec CREATE USER, avant tout GRANT, peut…' },
+      { q: 'Qu’est-ce que « REVOKE » ?', a: 'comprendre le rôle du privilège GRANT OPTION et de REVOKE.' },
+      { q: 'Définissez une base de données.', a: 'Un ensemble d’informations organisé pour être accessible, géré et mis à jour facilement, interrogeable par le contenu.' },
       { q: 'Rôle du SGBD ?', a: 'Logiciel qui gère la base : insertion, modification, recherche, sécurité, partage transparent entre utilisateurs.' },
       { q: 'Clé primaire vs clé étrangère ?', a: 'La primaire identifie chaque ligne sans ambiguïté ; l’étrangère pointe vers une ligne d’une autre table.' },
       { q: 'Que vaut NULL ?', a: 'L’absence d’information — ni 0, ni chaîne vide, ni tiret.' }
@@ -325,7 +334,7 @@ module.exports = [
       { stem: 'Un code de marque sur 3 lettres : quel type ?', opts: ['VARCHAR(3)', 'CHAR(3)', 'TEXT'], correct: 1, exp: 'Longueur constante : CHAR(3), qui réserve exactement la place.' },
       { stem: 'Comment s’écrit le 21 novembre 2014 en littéral SQL ?', opts: ['\'21/11/2014\'', '\'2014-11-21\'', '\'11-21-2014\''], correct: 1, exp: 'Toujours année, mois, jour : AAAA-MM-JJ.' },
       { stem: 'Dans INSERT INTO … (colonnes) VALUES (…), les colonnes non citées reçoivent…', opts: ['une erreur', 'NULL ou leur valeur par défaut', 'des zéros'], correct: 1, exp: 'C’est le sens du nommage explicite des colonnes.' },
-      { stem: 'Que fait IF NOT EXISTS dans CREATE TABLE ?', opts: ['Vide la table si elle existe', 'Évite une erreur si la table existe déjà', 'Crée la table en mémoire'], correct: 1, exp: 'L’instruction devient sans effet (et sans erreur) si la table existe déjà.' }
+      { stem: 'Que fait IF NOT EXISTS dans CREATE TABLE ?', opts: ['Vide la table si elle existe', 'Évite une erreur si la table existe déjà', 'Créez la table en mémoire'], correct: 1, exp: 'L’instruction devient sans effet (et sans erreur) si la table existe déjà.' }
     ],
 
     pitfalls: [
@@ -365,7 +374,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Relis le tableau des types et associe chaque colonne du parc à son type.' },
       { cls: 'mid', text: '50–69 % — Réécris CREATE TABLE Voiture sans regarder le cours.' },
-      { cls: 'good', text: '70–89 % — Solide : insère trois voitures dans le simulateur et vérifie les NULL.' },
+      { cls: 'good', text: '70–94 % — Solide : insère trois voitures dans le simulateur et vérifie les NULL.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, les requêtes SELECT.' }
     ],
 
@@ -495,7 +504,7 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que fait SELECT DISTINCT marque FROM Voiture ?', opts: ['Compte les marques', 'Renvoie chaque marque une seule fois', 'Trie les marques'], correct: 1, exp: 'DISTINCT élimine les lignes dupliquées du résultat.' },
+      { stem: 'Que fait SELECT DISTINCT marque FROM Voiture ?', opts: ['Compte les marques', 'Renvoie chaque marque une seule fois', 'Triez les marques'], correct: 1, exp: 'DISTINCT élimine les lignes dupliquées du résultat.' },
       { stem: 'Comment tester une valeur NULL dans WHERE ?', opts: ['= NULL', 'IS NULL', '== NULL'], correct: 1, exp: '= NULL ne renvoie jamais vrai : seule la forme IS NULL fonctionne.' },
       { stem: 'Dans LIKE \'%AK\', que remplace % ?', opts: ['Exactement un caractère', 'N’importe quelle suite de caractères', 'Un chiffre'], correct: 1, exp: '% = toute suite (même vide) ; _ remplace exactement un caractère.' },
       { stem: 'ORDER BY marque, datecirc trie…', opts: ['par marque seulement', 'par date seulement', 'par marque puis par date à l’intérieur de chaque marque'], correct: 2, exp: 'Les tris multi-colonnes s’appliquent de gauche à droite, par niveaux.' },
@@ -538,9 +547,9 @@ module.exports = [
     notions: ['SELECT', 'FROM', 'WHERE', 'LIKE', 'IS NULL', 'DISTINCT', 'ORDER BY', 'LIMIT'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais les requêtes du support dans le simulateur, une par une.' },
-      { cls: 'mid', text: '50–69 % — Écris « diesels avant 2015, du plus ancien au plus récent » sans aide.' },
-      { cls: 'good', text: '70–89 % — Solide : ajoute le classement des 3 voitures les plus chères.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites les requêtes du support dans le simulateur, une par une.' },
+      { cls: 'mid', text: '50–69 % — Écrivez « diesels avant 2015, du plus ancien au plus récent » sans aide.' },
+      { cls: 'good', text: '70–94 % — Solide : ajoute le classement des 3 voitures les plus chères.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, les jointures.' }
     ],
 
@@ -548,7 +557,7 @@ module.exports = [
       { q: 'Ordre fixe des clauses d’un SELECT ?', a: 'SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT.' },
       { q: 'Comment teste-t-on NULL ?', a: 'IS NULL ou IS NOT NULL — jamais = NULL.' },
       { q: 'Que font % et _ dans LIKE ?', a: '% remplace toute suite de caractères, _ exactement un caractère.' },
-      { q: 'Que fait ORDER BY a, b DESC ?', a: 'Trie par a croissant puis, à l’intérieur, par b décroissant.' }
+      { q: 'Que fait ORDER BY a, b DESC ?', a: 'Triez par a croissant puis, à l’intérieur, par b décroissant.' }
     ]
   }
 ];

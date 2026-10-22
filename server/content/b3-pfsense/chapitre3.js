@@ -20,7 +20,7 @@ module.exports = {
     'maîtriser le NAT sortant (Outbound NAT) dans ses modes Automatique et Hybride ;',
     'créer des adresses IP Virtuelles (Virtual IPs : IP Alias, CARP, Proxy ARP) sur les interfaces réseau ;',
     'configurer des passerelles multiples et les agréger au sein de Gateway Groups avec gestion des Tiers ;',
-    'développer en Python 3 des simulateurs de DNAT, des moteurs de NAT sortant hybride et des ordonnanceurs Multi-WAN.'
+    'analyser et résoudre méthodologiquement des simulateurs de DNAT, des moteurs de NAT sortant hybride et des ordonnanceurs Multi-WAN.'
   ],
   sections: [
     {

@@ -39,7 +39,7 @@ const course = {
     'et enfin fonctions d\'entreprise et sécurité des télécommunications unifiées : centres de contacts avec files d\'attente ACD (queues.conf, stratégies de distribution ringall, leastrecent, roundrobin), routage au moindre coût LCR (Least Cost Routing) multi-opérateurs, interconnexion multi-sites par trunks IAX2 et SIP, chiffrement de la signalisation (SIP over TLS sur port 5061/TCP), chiffrement des flux voix (SRTP RFC 3711 avec clés AES), et défense active contre les scans et attaques brute-force avec Fail2ban et filtrage pare-feu dynamique.',
   lead:
     'Maîtrisez l\'ingénierie de la voix sur IP et de la téléphonie d\'entreprise : codecs audio, protocoles SIP/SDP/RTP, administration d\'Asterisk, programmation du dialplan, dimensionnement Erlang B, QoS et sécurité ToIP. ' +
-    'Six modules complets, 18 ateliers de programmation interactive en Python 3 et 48 QCM d\'évaluation.',
+    'Six modules complets, 18 études de cas pratiques et méthodologiques et 48 QCM d\'évaluation.',
 
   sources: 'Supports de cours officiels B3-IT / B3-RSI Téléphonie Voix sur IP (Auteur : M. Pape Moussa SONKO, Élève Ingénieur en Systèmes et Réseaux), Normes IETF RFC 3261 (SIP), RFC 4566 (SDP), RFC 3550 (RTP), RFC 5389 (STUN), Recommandations ITU-T G.107, G.711, G.729, Documentation officielle Asterisk',
 

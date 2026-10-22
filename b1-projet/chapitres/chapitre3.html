@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>décrire l'architecture : interface de connexion, puis interface principale ;</li>
       <li>nommer les widgets : Label, Entry, Button, Frame, LabelFrame, Treeview, Scrollbar ;</li>
@@ -78,7 +78,11 @@
     </ol>
   </div>
 
-<h2>1. Deux écrans, une fenêtre</h2>
+<h2>1. Prérequis intégré : Initiation progressive à l’interface graphique Tkinter</h2>
+
+<div class="box box--intuition"><div class="box__title">Niveau 1 — Intuition : Fenêtre principale, composants (Widgets) et événements (Callbacks)</div><p>La bibliothèque standard <code>tkinter</code> (et son sous-module stylisé <code>ttk</code>) permet de créer une interface de bureau en quatre étapes simples :</p><ol><li><strong>Fenêtre racine :</strong> <code>fenetre = tk.Tk()</code> crée la fenêtre et <code>fenetre.mainloop()</code> lance la boucle d’écoute des clics ;</li><li><strong>Widgets de base :</strong> <code>tk.Label</code> affiche un texte fixe, <code>tk.Entry</code> crée un champ de saisie (lu avec <code>.get()</code>), et <code>tk.Button(..., command=fonction)</code> déclenche une fonction Python au clic (<em>callback</em>) ;</li><li><strong>Placement :</strong> <code>.pack()</code> empile les éléments verticalement ou horizontalement, tandis que <code>.grid(row=..., column=...)</code> les aligne dans un tableau ;</li><li><strong>Tableau de données :</strong> <code>ttk.Treeview(fenetre, columns=(...), show="headings")</code> affiche la liste des articles du stock sous forme de table multi-colonnes.</li></ol></div>
+
+<h2>2. Deux écrans, une fenêtre</h2>
 
 <p>L'application <code>ApplicationGestionStock</code> s'ouvre sur l'<strong>interface de connexion</strong> : champs host, database, user, password préremplis, bouton « Se connecter ». Si <code>db.connecter()</code> réussit, la méthode crée la table, <strong>détruit</strong> le frame de connexion (<code>destroy()</code>) et affiche l'<strong>interface principale</strong> : formulaire d'ajout/modification, boutons Ajouter / Modifier / Supprimer, tableau des produits. En cas d'échec : <code>messagebox.showerror</code> et on reste sur l'écran de connexion.</p>
 <p>La fenêtre se termine proprement : <code>root.protocol("WM_DELETE_WINDOW", fermer_application)</code> appelle <code>db.deconnecter()</code> avant <code>root.destroy()</code> — la base est fermée avant l'écran.</p>
@@ -87,7 +91,7 @@
     <p>Écran 1 : se connecter. Écran 2 : travailler. La fenêtre ne détruit jamais l'écran actif avant d'avoir bâti le suivant.</p>
   </div>
 
-<h2>2. Widgets, layout et tableau</h2>
+<h2>3. Widgets, layout et tableau</h2>
 
 <p>Les <strong>widgets</strong> : <code>Label</code> (texte), <code>Entry</code> (saisie), <code>Button</code> (action avec <code>command=</code>), <code>Frame</code> et <code>LabelFrame</code> (cadres titrés), <code>ttk.Treeview</code> (tableau multi-colonnes), <code>Scrollbar</code> (ascenseur relié par <code>yscrollcommand</code>). Le <strong>layout</strong> : <code>pack</code> empile, <code>grid</code> place en lignes/colonnes avec <code>sticky</code> et <code>padx/pady</code>.</p>
 <p>Le <strong>Treeview</strong> définit ses colonnes (« ID », « Nom », « Catégorie », « Quantité », « Prix »), leurs en-têtes (<code>heading</code>) et largeurs ; le clic sur une ligne déclenche <code>selectionner_produit</code> via <code>bind("&lt;ButtonRelease-1&gt;", …)</code>, qui remplit le formulaire. <code>actualiser_tableau()</code> efface le tableau puis le recharge depuis <code>obtenir_tous_produits()</code> : la base reste la source unique de vérité.</p>
@@ -101,12 +105,12 @@
     </ul>
   </div>
 
-<h2>3. Validation et boîtes de dialogue</h2>
+<h2>4. Validation et boîtes de dialogue</h2>
 
 <p>Avant tout appel à la base, <code>ajouter_produit()</code> vérifie : <strong>champs obligatoires non vides</strong> (nom, quantite, prix) sinon <code>showwarning</code> ; puis <code>int(quantite)</code> et <code>float(prix)</code> dans un try — une <code>ValueError</code> provoque <code>showerror</code> « Quantité et prix doivent être des nombres ». La validation vivant dans l'interface, la base ne reçoit jamais de donnée absurde.</p>
 <p>Les quatre <strong>boîtes de dialogue</strong> : <code>showinfo</code> — succès (« Produit ajouté avec succès ») ; <code>showwarning</code> — champs manquants ou sélection absente ; <code>showerror</code> — échec de connexion, conversion impossible ; <code>askyesno</code> — confirmation avant suppression (« Voulez-vous vraiment supprimer… ? »), la suppression n'a lieu que si l'utilisateur répond oui.</p>
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier dans l’atelier</div>
     <ul>
       <li>Les familles : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>
       <li>La validation : nom refuse le vide, quantite et prix testent nombre positif.</li>
@@ -115,10 +119,10 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" id="pr-c3-e1" data-lab
      data-exercise="pr-c3-e1"
      data-language="analyse"
      data-height="300"
@@ -184,7 +188,7 @@ conformes : 3/3</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="pr-c3-e2" data-lab
      data-exercise="pr-c3-e2"
      data-language="analyse"
      data-height="300"
@@ -247,7 +251,7 @@ valides : 2/3</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="pr-c3-e3" data-lab
      data-exercise="pr-c3-e3"
      data-language="analyse"
      data-height="300"
@@ -311,7 +315,7 @@ avis : 3/3</pre></div>
   </div>
 </div>
   <!-- code-labs:end -->
-  <h2>5. QCM — niveau examen</h2>
+  <h2>6. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -388,7 +392,7 @@ avis : 3/3</pre></div>
     </div>
   </div>
 
-<h2>6. Erreurs classiques — récapitulatif</h2>
+<h2>7. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -400,7 +404,7 @@ avis : 3/3</pre></div>
     </ul>
   </div>
 
-<h2>7. Méthodologie de résolution</h2>
+<h2>8. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — câbler une action en trois gestes</div>
@@ -411,7 +415,7 @@ avis : 3/3</pre></div>
     </ol>
   </div>
 
-<h2>8. Révision active</h2>
+<h2>9. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -436,16 +440,16 @@ avis : 3/3</pre></div>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>9. Test de maîtrise</h2>
+<h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — relis les widgets et les quatre boîtes de dialogue.</div>
-      <div class="bandrow bandrow--mid">50–69 % — refais l'enchaînement connexion puis principal.</div>
-      <div class="bandrow bandrow--good">70–89 % — cible la validation et le Treeview.</div>
-      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — relisez les widgets et les quatre boîvos de dialogue.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites l'enchaînement connexion puis principal.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>ciblez la validation et le Treeview.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>niveau de maîtrise recherché.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -455,7 +459,7 @@ avis : 3/3</pre></div>
     <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Cycle de vie d'un produit <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : le support « Tutoriel Projet Tutoré — Application de Gestion de Stock » (Python, Tkinter & PostgreSQL, LAWSON Latevi Sena, Collège de Paris - Campus de Lomé, janvier 2026).</p>
 </main>
 

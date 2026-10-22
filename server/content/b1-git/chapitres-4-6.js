@@ -122,13 +122,13 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que fait git checkout -b nom ?', opts: ['Supprime la branche', 'Crée la branche et s\'y déplace', 'Renomme la branche courante'], correct: 1, exp: '-b combine branch (créer) et checkout (basculer).' },
+      { stem: 'Que fait git checkout -b nom ?', opts: ['Supprimez la branche', 'Créez la branche et s\'y déplace', 'Renomme la branche courante'], correct: 1, exp: '-b combine branch (créer) et checkout (basculer).' },
       { stem: 'Dans le fast-forward, que devient la branche fusionnée dans l\'historique ?', opts: ['Elle reste visible', 'Il n\'y a plus trace d\'elle', 'Elle devient une étiquette'], correct: 1, exp: 'Les commits s\'enchaînent comme s\'ils avaient toujours été sur main : plus de trace de la branche.' },
       { stem: 'Quelle option force la création d\'un commit de fusion ?', opts: ['--force', '--no-ff', '--abort'], correct: 1, exp: '--no-ff crée l\'objet commit même quand le fast-forward est possible : la branche reste visible.' },
       { stem: 'Un merge en cours s\'annule avec…', opts: ['git merge --abort', 'git reset --hard', 'git checkout -f'], correct: 0, exp: 'merge --abort remet la branche dans l\'état d\'avant fusion.' },
       { stem: 'Un conflit naît quand…', opts: ['deux branches existent', 'deux modifications touchent la même zone d\'un même fichier', 'un push est refusé'], correct: 1, exp: 'Git ne choisit pas à votre place entre deux versions d\'une même zone.' },
       { stem: 'Dans les marqueurs de conflit, HEAD désigne…', opts: ['la version de la branche courante', 'la version de la branche fusionnée', 'le dernier push'], correct: 0, exp: 'HEAD est la version courante ; la section après ======= vient de la branche fusionnée.' },
-      { stem: 'Que fait git branch -d nom ?', opts: ['Bascule dessus', 'Supprime la branche', 'La fusionne'], correct: 1, exp: 'branch -d supprime — le TP3 le fait après fusion de la branche.' },
+      { stem: 'Que fait git branch -d nom ?', opts: ['Bascule dessus', 'Supprimez la branche', 'La fusionne'], correct: 1, exp: 'branch -d supprime — le TP3 le fait après fusion de la branche.' },
       { stem: 'checkout refuse de changer de branche quand…', opts: ['la branche n\'existe pas', 'la copie de travail porte des modifications', 'il y a un dépôt distant'], correct: 1, exp: 'Changer de branche écraserait les modifications : -f les perd, stash les garde.' }
     ],
 
@@ -167,9 +167,9 @@ module.exports = [
     notions: ['branche', 'checkout', 'checkout -b', 'merge', 'fast-forward', '--no-ff', 'conflit', 'marqueurs', '--ours', '--theirs'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais le TP3 (branches puis fusion) en machine virtuelle.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites le TP3 (branches puis fusion) en machine virtuelle.' },
       { cls: 'mid', text: '50–69 % — Dessine deux historiques : fast-forward et --no-ff.' },
-      { cls: 'good', text: '70–89 % — Solide : résous un conflit à trois versions combinées.' },
+      { cls: 'good', text: '70–94 % — Solide : résous un conflit à trois versions combinées.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, le dépôt distant.' }
     ],
 
@@ -297,7 +297,7 @@ module.exports = [
       { stem: 'Que fait git fetch ?', opts: ['Il fusionne le distant dans le local', 'Il actualise les références distantes sans fusionner', 'Il pousse les commits'], correct: 1, exp: 'fetch ramène l\'historique distant et met à jour origin/main, sans toucher à la copie.' },
       { stem: 'git pull équivaut à…', opts: ['fetch puis merge', 'push puis fetch', 'clone puis merge'], correct: 0, exp: 'pull = fetch + merge : il ramène ET incorpore dans la branche courante.' },
       { stem: 'Après un fetch, la copie de travail est…', opts: ['mise à jour', 'inchangée', 'supprimée'], correct: 1, exp: 'fetch ne touche ni à la copie de travail ni à la branche courante.' },
-      { stem: 'Que fait git push -u origin main ?', opts: ['Renomme main', 'Pousse main et la lie à sa jumelle distante', 'Crée origin'], correct: 1, exp: '-u (upstream) lie la branche locale à la branche distante pour les push/pull suivants.' },
+      { stem: 'Que fait git push -u origin main ?', opts: ['Renomme main', 'Pousse main et la lie à sa jumelle distante', 'Créez origin'], correct: 1, exp: '-u (upstream) lie la branche locale à la branche distante pour les push/pull suivants.' },
       { stem: 'Dans le TP2, le conflit survient parce que…', opts: ['les deux ont modifié le même fichier', 'le dépôt est public', 'B a cloné'], correct: 0, exp: 'Deux modifications de la même zone : la fusion demande un arbitrage humain.' }
     ],
 
@@ -336,9 +336,9 @@ module.exports = [
     notions: ['dépôt distant', 'origin', 'remote add', 'push', '-u', 'rejet', 'fetch', 'pull', 'upstream', 'collaboration'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais le TP2 en binôme (ou en simulant les deux postes).' },
+      { cls: 'low', text: '&lt; 50 % — Refaites le TP2 en binôme (ou en simulant les deux postes).' },
       { cls: 'mid', text: '50–69 % — Explique la différence fetch/pull avec un scénario chacune.' },
-      { cls: 'good', text: '70–89 % — Solide : prédis l\'issue de chaque push du scénario A/B.' },
+      { cls: 'good', text: '70–94 % — Solide : prédis l\'issue de chaque push du scénario A/B.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, stash, gitignore et archive.' }
     ],
 
@@ -453,7 +453,7 @@ module.exports = [
 
     questions: [
       { stem: 'Que fait git stash ?', opts: ['Il commite', 'Il remise les modifications et rend la copie propre', 'Il pousse'], correct: 1, exp: 'stash empile les modifications de la copie : elle redevient propre, rien ne se perd.' },
-      { stem: 'git stash pop fait quoi ?', opts: ['Ajoute une remise', 'Reprend la remise la plus récente et la retire de la pile', 'Liste les remises'], correct: 1, exp: 'pop dépile : les modifications remises reviennent dans la copie de travail.' },
+      { stem: 'git stash pop fait quoi ?', opts: ['Ajoutez une remise', 'Reprend la remise la plus récente et la retire de la pile', 'Liste les remises'], correct: 1, exp: 'pop dépile : les modifications remises reviennent dans la copie de travail.' },
       { stem: 'pop sur une pile vide…', opts: ['crée une remise vide', 'signale qu\'il n\'y a rien à reprendre', 'efface la copie'], correct: 1, exp: 'Sans remise en attente, pop n\'a rien à rendre — l\'atelier reproduit ce cas.' },
       { stem: 'Quel .gitignore pour un projet Python du TP1 ?', opts: ['*.py seulement', '__pycache__/, *.pyc, venv/', 'main.py'], correct: 1, exp: 'Cache d\'exécution, fichiers compilés et environnement virtuel : les trois pollutions du TP1.' },
       { stem: 'Comment vérifier ce que le .gitignore exclut ?', opts: ['git status', 'git ls-files --other --ignored --exclude-standard', 'git diff'], correct: 1, exp: 'Cette commande liste tous les fichiers exclus du suivi dans le projet.' },
@@ -497,9 +497,9 @@ module.exports = [
     notions: ['stash', 'pop', 'list', 'drop', 'remise', '.gitignore', 'ls-files', 'git archive', 'README', 'GitHub Pages'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais le cycle stash/pop sur un vrai dossier.' },
-      { cls: 'mid', text: '50–69 % — Écris un .gitignore complet et audite-le avec ls-files.' },
-      { cls: 'good', text: '70–89 % — Solide : produis une archive et vérifie son contenu.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites le cycle stash/pop sur un vrai dossier.' },
+      { cls: 'mid', text: '50–69 % — Écrivez un .gitignore complet et audite-le avec ls-files.' },
+      { cls: 'good', text: '70–94 % — Solide : produis une archive et vérifie son contenu.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est terminé, passe aux examens blancs et au projet.' }
     ],
 

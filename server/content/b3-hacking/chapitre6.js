@@ -182,7 +182,7 @@ module.exports = {
   "mastery": [
     {
       "cls": "low",
-      "text": "&lt; 50 % — Reprends les sections théoriques et revois les définitions clés."
+      "text": "&lt; 50 % — Reprenez les sections théoriques et revois les définitions clés."
     },
     {
       "cls": "mid",
@@ -190,7 +190,7 @@ module.exports = {
     },
     {
       "cls": "good",
-      "text": "70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
+      "text": "70–94 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
     },
     {
       "cls": "top",
@@ -198,6 +198,10 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « Executive Summary » ?', "a": "Executive Summary : Synthèse managériale non-technique d'un rapport d'intrusion exposant le risque global et les impacts métier." },
+    { "q": "Qu’est-ce que « Le maintien de l'accès exploite des mécanismes de démarrage légitimes (cron, systemd, authorized_keys, clés Run du Registre). » ?", "a": "Le maintien de l'accès exploite des mécanismes de démarrage légitimes (cron, systemd, authorized_keys, clés Run du Registre)." },
+    { "q": "Qu’est-ce que « Les web shells dissimulent leur code via des encodages Base64 et des fonctions d'exécution dynamique (eval, assert). » ?", "a": "Les web shells dissimulent leur code via des encodages Base64 et des fonctions d'exécution dynamique (eval, assert)." },
+    { "q": "Qu’est-ce que « Les techniques d'anti-forensics comme le timestomping cherchent à tromper l'investigation numérique des analystes DFIR. » ?", "a": "Les techniques d'anti-forensics comme le timestomping cherchent à tromper l'investigation numérique des analystes DFIR." },
     {
       "q": "Qu'est-ce qu'un web shell et comment fonctionne-t-il ?",
       "a": "Un script déposé sur un serveur web permettant à l'attaquant d'exécuter des commandes système à distance via des requêtes HTTP (ex: system($_GET[\"cmd\"]))."

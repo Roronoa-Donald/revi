@@ -2,7 +2,7 @@
  * Catalogue des 18 exercices de code lab du cours
  * « Anglais Professionnel & Technique B3 » (dossier `b3-anglais/`).
  *
- * Découpage : six modules de trois exercices en Python 3, chacun dans son fichier.
+ * Découpage : six modules de trois exercices de manière méthodique, chacun dans son fichier.
  * Les identifiants suivent le schéma `an3-cN-eM`.
  */
 'use strict';

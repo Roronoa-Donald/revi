@@ -20,7 +20,7 @@ module.exports = {
     'concevoir une matrice de flux inter-VLANs zéro confiance régie par le principe du moindre privilège ;',
     'sécuriser de manière étanche une Zone Démilitarisée (DMZ) publique hébergeant des serveurs Web/Mail ;',
     'analyser les mécanismes d’attaque par VLAN Hopping et Double Tagging et déployer les contre-mesures ;',
-    'développer en Python 3 des validateurs d’encapsulation 802.1Q, des contrôleurs de flux DMZ et des auditeurs de double marquage.'
+    'analyser et résoudre méthodologiquement des validateurs d’encapsulation 802.1Q, des contrôleurs de flux DMZ et des auditeurs de double marquage.'
   ],
   sections: [
     {

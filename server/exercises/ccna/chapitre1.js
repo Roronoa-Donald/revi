@@ -12,7 +12,7 @@ module.exports = [
     "starter": "# Grille d'analyse (na2-c1-e1) — Décodeur d'en-tête Ethernet II\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trame IPv4 unicast]\n# Données : 00:11:22:33:44:55 00:aa:bb:cc:dd:ee 0800 64\nA_COMPLETER\n\n[Cas 2 — Trame IPv6 multicast]\n# Données : 33:33:00:00:00:01 02:42:ac:11:00:02 86dd 120\nA_COMPLETER\n\n[Cas 3 — Trame protocole inconnu]\n# Données : 00:50:56:c0:00:08 00:0c:29:12:34:56 88cc 40\nA_COMPLETER\n\n[Cas 4 — Trame multicast IPv4 standard]\n# Données : 01:00:5e:00:00:05 00:10:94:ab:cd:ef 0800 80\nA_COMPLETER\n",
     "hints": [
       "L'en-tête Ethernet II standard fait 14 octets (6 octets MAC Dest + 6 octets MAC Src + 2 octets EtherType).",
-      "Le premier octet d'une MAC s'obtient par int(mac.split(\":\")[0], 16). Le bit 0 indique multicast/broadcast.",
+      "Le premier octet d'une MAC s'obtient par int(l’extraction des champs[0], 16). Le bit 0 indique multicast/broadcast.",
       "La MAC ff:ff:ff:ff:ff:ff est spécifiquement BROADCAST."
     ],
     "examples": [

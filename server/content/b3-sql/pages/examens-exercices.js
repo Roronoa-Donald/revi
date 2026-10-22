@@ -154,29 +154,29 @@ function exercices(course) {
   ]);
 
   const exercises = [
-    { id: 'sql3-c1-e1', ch: 1, title: 'Détecteur d’anomalies de concurrence selon le niveau d’isolation ANSI SQL', level: 'n1', lang: 'Python', desc: 'Évaluer la possibilité d’anomalies (Dirty Read, Non-Repeatable Read, Phantom Read) sous chaque niveau ANSI.' },
-    { id: 'sql3-c1-e2', ch: 1, title: 'Simulateur de verrous partagés et exclusifs (S/X Locks) et détection de conflit', level: 'n2', lang: 'Python', desc: 'Simuler l’octroi, les files d’attente et les promotions de verrous 2PL sur des ressources partagées.' },
-    { id: 'sql3-c1-e3', ch: 1, title: 'Détecteur d’interblocage de transactions (Deadlock Graph Cycle Finder)', level: 'n3', lang: 'Python', desc: 'Construire le graphe d’attente Wait-For Graph, détecter les cycles et sélectionner la victime à avorter.' },
+    { id: 'sql3-c1-e1', ch: 1, title: 'Détecteur d’anomalies de concurrence selon le niveau d’isolation ANSI SQL', level: 'n1', lang: 'SQL', desc: 'Évaluer la possibilité d’anomalies (Dirty Read, Non-Repeatable Read, Phantom Read) sous chaque niveau ANSI.' },
+    { id: 'sql3-c1-e2', ch: 1, title: 'Simulateur de verrous partagés et exclusifs (S/X Locks) et détection de conflit', level: 'n2', lang: 'SQL', desc: 'Simuler l’octroi, les files d’attente et les promotions de verrous 2PL sur des ressources partagées.' },
+    { id: 'sql3-c1-e3', ch: 1, title: 'Détecteur d’interblocage de transactions (Deadlock Graph Cycle Finder)', level: 'n3', lang: 'SQL', desc: 'Construire le graphe d’attente Wait-For Graph, détecter les cycles et sélectionner la victime à avorter.' },
 
-    { id: 'sql3-c2-e1', ch: 2, title: 'Simulateur de recherche et traversée dans un arbre B-Tree indexé', level: 'n1', lang: 'Python', desc: 'Traverser les nœuds internes d’un index B-Tree de la racine aux feuilles pour localiser une clé.' },
-    { id: 'sql3-c2-e2', ch: 2, title: 'Calculateur d’empreinte mémoire d’index et facteur de blocage (Fill Factor)', level: 'n2', lang: 'Python', desc: 'Estimer le nombre de pages et le volume en Mo d’un index B-Tree selon la taille des clés et le Fill Factor.' },
-    { id: 'sql3-c2-e3', ch: 2, title: 'Sélecteur d’index optimal (Index Advisor) selon la typologie de prédicats', level: 'n3', lang: 'Python', desc: 'Analyser les prédicats de requêtes et recommander le type d’index adapté (B-Tree, GIN, Hash, partiel).' },
+    { id: 'sql3-c2-e1', ch: 2, title: 'Simulateur de recherche et traversée dans un arbre B-Tree indexé', level: 'n1', lang: 'SQL', desc: 'Traverser les nœuds internes d’un index B-Tree de la racine aux feuilles pour localiser une clé.' },
+    { id: 'sql3-c2-e2', ch: 2, title: 'Calculateur d’empreinte mémoire d’index et facteur de blocage (Fill Factor)', level: 'n2', lang: 'SQL', desc: 'Estimer le nombre de pages et le volume en Mo d’un index B-Tree selon la taille des clés et le Fill Factor.' },
+    { id: 'sql3-c2-e3', ch: 2, title: 'Sélecteur d’index optimal (Index Advisor) selon la typologie de prédicats', level: 'n3', lang: 'SQL', desc: 'Analyser les prédicats de requêtes et recommander le type d’index adapté (B-Tree, GIN, Hash, partiel).' },
 
-    { id: 'sql3-c3-e1', ch: 3, title: 'Parseur et estimateur de coût de plan d’exécution EXPLAIN', level: 'n1', lang: 'Python', desc: 'Extraire les métriques de coût (startup/total cost, rows, width) des nœuds d’un plan d’exécution PostgreSQL.' },
-    { id: 'sql3-c3-e2', ch: 3, title: 'Simulateur de sélection d’algorithme de jointure (Nested Loop vs Hash vs Merge)', level: 'n2', lang: 'Python', desc: 'Simuler le choix d’algorithme de jointure par l’optimiseur CBO selon la volumétrie et les index.' },
-    { id: 'sql3-c3-e3', ch: 3, title: 'Détecteur d’écart de cardinalité (Estimation vs Actual Rows)', level: 'n3', lang: 'Python', desc: 'Calculer les dérives statistiques entre lignes estimées et réelles dans un plan EXPLAIN ANALYZE.' },
+    { id: 'sql3-c3-e1', ch: 3, title: 'Parseur et estimateur de coût de plan d’exécution EXPLAIN', level: 'n1', lang: 'SQL', desc: 'Extraire les métriques de coût (startup/total cost, rows, width) des nœuds d’un plan d’exécution PostgreSQL.' },
+    { id: 'sql3-c3-e2', ch: 3, title: 'Simulateur de sélection d’algorithme de jointure (Nested Loop vs Hash vs Merge)', level: 'n2', lang: 'SQL', desc: 'Simuler le choix d’algorithme de jointure par l’optimiseur CBO selon la volumétrie et les index.' },
+    { id: 'sql3-c3-e3', ch: 3, title: 'Détecteur d’écart de cardinalité (Estimation vs Actual Rows)', level: 'n3', lang: 'SQL', desc: 'Calculer les dérives statistiques entre lignes estimées et réelles dans un plan EXPLAIN ANALYZE.' },
 
-    { id: 'sql3-c4-e1', ch: 4, title: 'Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)', level: 'n1', lang: 'Python', desc: 'Appliquer les trois fonctions de classement standardisées SQL sur une série de valeurs avec ex-æquo.' },
-    { id: 'sql3-c4-e2', ch: 4, title: 'Calculateur de moyennes et sommes glissantes avec clause d’encadrement', level: 'n2', lang: 'Python', desc: 'Simuler l’agrégation fenêtrée avec la clause de cadrage ROWS BETWEEN k PRECEDING AND CURRENT ROW.' },
-    { id: 'sql3-c4-e3', ch: 4, title: 'Moteur de résolution de hiérarchie arborescente par CTE récursive', level: 'n3', lang: 'Python', desc: 'Calculer la profondeur, le chemin absolu et le nombre total de subordonnés via une CTE récursive simulée.' },
+    { id: 'sql3-c4-e1', ch: 4, title: 'Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)', level: 'n1', lang: 'SQL', desc: 'Appliquer les trois fonctions de classement standardisées SQL sur une série de valeurs avec ex-æquo.' },
+    { id: 'sql3-c4-e2', ch: 4, title: 'Calculateur de moyennes et sommes glissantes avec clause d’encadrement', level: 'n2', lang: 'SQL', desc: 'Simuler l’agrégation fenêtrée avec la clause de cadrage ROWS BETWEEN k PRECEDING AND CURRENT ROW.' },
+    { id: 'sql3-c4-e3', ch: 4, title: 'Moteur de résolution de hiérarchie arborescente par CTE récursive', level: 'n3', lang: 'SQL', desc: 'Calculer la profondeur, le chemin absolu et le nombre total de subordonnés via une CTE récursive simulée.' },
 
-    { id: 'sql3-c5-e1', ch: 5, title: 'Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)', level: 'n1', lang: 'Python', desc: 'Simuler un trigger AFTER INSERT/UPDATE/DELETE alimentant une table de journalisation d’audit immuable.' },
-    { id: 'sql3-c5-e2', ch: 5, title: 'Moteur d’évaluation de politiques de sécurité au niveau ligne (RLS)', level: 'n2', lang: 'Python', desc: 'Filtrer les accès selon le tenant et le rôle utilisateur via PostgreSQL Row-Level Security.' },
-    { id: 'sql3-c5-e3', ch: 5, title: 'Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)', level: 'n3', lang: 'Python', desc: 'Détecter les motifs d’injection SQL classiques et valider l’échappement des requêtes dynamiques.' },
+    { id: 'sql3-c5-e1', ch: 5, title: 'Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)', level: 'n1', lang: 'SQL', desc: 'Simuler un trigger AFTER INSERT/UPDATE/DELETE alimentant une table de journalisation d’audit immuable.' },
+    { id: 'sql3-c5-e2', ch: 5, title: 'Moteur d’évaluation de politiques de sécurité au niveau ligne (RLS)', level: 'n2', lang: 'SQL', desc: 'Filtrer les accès selon le tenant et le rôle utilisateur via PostgreSQL Row-Level Security.' },
+    { id: 'sql3-c5-e3', ch: 5, title: 'Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)', level: 'n3', lang: 'SQL', desc: 'Détecter les motifs d’injection SQL classiques et valider l’échappement des requêtes dynamiques.' },
 
-    { id: 'sql3-c6-e1', ch: 6, title: 'Routeur de partitionnement déclaratif de table (Range & List)', level: 'n1', lang: 'Python', desc: 'Acheminer les insertions de données vers la sous-table appropriée selon la stratégie de partitionnement.' },
-    { id: 'sql3-c6-e2', ch: 6, title: 'Simulateur d’élagage de partitions (Partition Pruning Optimizer)', level: 'n2', lang: 'Python', desc: 'Calculer les partitions éliminées et le gain d’I/O lors de l’exécution d’une requête filtrée.' },
-    { id: 'sql3-c6-e3', ch: 6, title: 'Calculateur de lag de réplication WAL (Streaming Replication Lag)', level: 'n3', lang: 'Python', desc: 'Calculer le retard de réplication en octets et en Ko à partir des numéros LSN du primaire et des réplicas.' }
+    { id: 'sql3-c6-e1', ch: 6, title: 'Routeur de partitionnement déclaratif de table (Range & List)', level: 'n1', lang: 'SQL', desc: 'Acheminer les insertions de données vers la sous-table appropriée selon la stratégie de partitionnement.' },
+    { id: 'sql3-c6-e2', ch: 6, title: 'Simulateur d’élagage de partitions (Partition Pruning Optimizer)', level: 'n2', lang: 'SQL', desc: 'Calculer les partitions éliminées et le gain d’I/O lors de l’exécution d’une requête filtrée.' },
+    { id: 'sql3-c6-e3', ch: 6, title: 'Calculateur de lag de réplication WAL (Streaming Replication Lag)', level: 'n3', lang: 'SQL', desc: 'Calculer le retard de réplication en octets et en Ko à partir des numéros LSN du primaire et des réplicas.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -197,7 +197,7 @@ function exercices(course) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — SQL Avancé B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 ateliers de pratique interactive (SQL) intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',

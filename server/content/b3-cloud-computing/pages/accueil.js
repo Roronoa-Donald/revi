@@ -57,7 +57,7 @@ function index(course, chapterList) {
       'l’efficience environnementale Green IT (calcul du PUE, DCiE, empreinte carbone et automatisation FinOps), ' +
       'le modèle de responsabilité partagée, la sécurité du stockage et la souveraineté des données (RGPD, CLOUD Act, SecNumCloud), ' +
       'et les méthodologies de migration d’entreprise (les 6 R du Gartner, calcul de TCO sur 3 ans et arbitrage tarifaire On-Demand, Réservé, Spot). ' +
-      'Chaque module comprend 3 exercices de programmation Python 3 exécutables directement dans l’atelier, un QCM de 8 questions et des flashcards.</p>'
+      'Chaque module comprend 3 exercices interactifs d’études de cas exécutables directement dans l’atelier, un QCM de 8 questions et des flashcards.</p>'
     ].join('\n')),
     '',
     chnav(null, { href: 'chapitres/chapitre1.html', label: 'Commencer par le Chapitre 1' }),

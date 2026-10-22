@@ -147,8 +147,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la différence FR/NFR et la classification FURPS+.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la traque des mots vagues et les critères de qualité ISO.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les critères de qualification d’une exigence.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la traque des mots vagues et les critères de qualité ISO.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les critères de qualification d’une exigence.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux techniques d’élicitation au chapitre 3.' }
   ],
 

@@ -19,7 +19,7 @@ module.exports = {
     'appliquer les règles de normalisation de nommage et d\'étiquetage (Tags) définies par le Cloud Adoption Framework (CAF) de Microsoft ;',
     'calculer la disponibilité théorique des architectures et choisir la stratégie de réplication des données (LRS vs ZRS vs GRS) ;',
     'évaluer les coûts IaaS/PaaS (TCO / FinOps) et optimiser les dépenses via les Instances Réservées (RI sur 1 an ou 3 ans) ;',
-    'implémenter en Python 3 des validateurs de hiérarchie CAF, des sélecteurs de résilience régionale et des estimateurs de budget.'
+    'analyser et résoudre méthodologiquement des validateurs de hiérarchie CAF, des sélecteurs de résilience régionale et des estimateurs de budget.'
   ],
   sections: [
     {
@@ -190,6 +190,33 @@ module.exports = {
     }
   ],
   flashcards: [
+      { q: 'Qu’est-ce que « Cloud Adoption Framework (CAF) » ?', a: "Cloud Adoption Framework (CAF) : Ensemble de bonnes pratiques et de normes publiées par Microsoft pour cadrer l'architecture, le nommage et la gouvernance Cloud." },
+      { q: 'Qu’est-ce que « Reserved Instances (RI) » ?', a: "Reserved Instances (RI) : Engagement financier sur 1 an ou 3 ans réservant des capacités de calcul Azure en échange d'une réduction tarifaire substantielle (35% à 60%)." },
+      { q: 'Qu’est-ce que « Une Région Azure est un ensemble de datacenters reliés par un réseau dédié ; une Zone de Disponibilité (AZ) est un datacenter isolé au sein de la région offrant un SLA de 99.99%. » ?', a: 'Une Région Azure est un ensemble de datacenters reliés par un réseau dédié ; une Zone de Disponibilité (AZ) est un datacenter isolé au sein de la région offrant un SLA de 99.99%.' },
+      { q: "Qu’est-ce que « La Paire Régionale regroupe deux régions d'une même zone géographique distantes d'au moins 480 km pour garantir la reprise après sinistre (Disaster Recovery). » ?", a: "La Paire Régionale regroupe deux régions d'une même zone géographique distantes d'au moins 480 km pour garantir la reprise après sinistre (Disaster Recovery)." },
+      { q: 'Qu’est-ce que « La hiérarchie ARM comprend 4 niveaux » ?', a: 'La hiérarchie ARM comprend 4 niveaux : Root Management Group, Management Groups, Subscriptions (facturation/quotas) et Resource Groups (cycle de vie).' },
+      { q: 'Qu’est-ce que « Scope (Périmètre) » ?', a: "Scope (Périmètre) : Niveau hiérarchique auquel s'applique une attribution de rôle (Management Group, Subscription, Resource Group ou Ressource individuelle)." },
+      { q: 'Qu’est-ce que « Microsoft Entra ID centralise les identités Cloud et offre les Managed Identities pour une authentification automatique sans mot de passe. » ?', a: 'Microsoft Entra ID centralise les identités Cloud et offre les Managed Identities pour une authentification automatique sans mot de passe.' },
+      { q: "Qu’est-ce que « Azure RBAC applique le contrôle d'accès granulaire combinant un Principal, une Définition de rôle et un Périmètre (Scope). » ?", a: "Azure RBAC applique le contrôle d'accès granulaire combinant un Principal, une Définition de rôle et un Périmètre (Scope)." },
+      { q: "Qu’est-ce que « La structure d'un rôle RBAC repose sur Actions (autorisations) et NotActions (exclusions soustractives), évaluées avec wildcards. » ?", a: "La structure d'un rôle RBAC repose sur Actions (autorisations) et NotActions (exclusions soustractives), évaluées avec wildcards." },
+      { q: 'Qu’est-ce que « Deployment Slot » ?', a: "Deployment Slot : Environnement d'hébergement autonome (ex: Staging) au sein d'un App Service permettant de tester une version avant la bascule en production." },
+      { q: 'Qu’est-ce que « Les séries de machines virtuelles Azure répondent à des besoins ciblés » ?', a: 'Les séries de machines virtuelles Azure répondent à des besoins ciblés : B-series (burstable), D-series (général), E-series (mémoire) et F-series (calcul).' },
+      { q: 'Qu’est-ce que « Les disques Premium SSD sont requis pour bénéficier des SLAs de production unitaire (99.9%). » ?', a: 'Les disques Premium SSD sont requis pour bénéficier des SLAs de production unitaire (99.9%).' },
+      { q: 'Qu’est-ce que « Les Availability Sets séparent les serveurs en Fault Domains (pannes physiques) et Update Domains (mises à jour de maintenance) pour offrir 99.95% de SLA. » ?', a: 'Les Availability Sets séparent les serveurs en Fault Domains (pannes physiques) et Update Domains (mises à jour de maintenance) pour offrir 99.95% de SLA.' },
+      { q: 'Qu’est-ce que « Azure Virtual Network (VNet) » ?', a: 'Azure Virtual Network (VNet) : Réseau virtuel privé isolé sous Azure permettant la communication sécurisée entre ressources Cloud et sur site.' },
+      { q: 'Qu’est-ce que « VNet Peering » ?', a: 'VNet Peering : Interconnexion directe à haute vitesse et faible latence entre deux réseaux virtuels via le réseau fédérateur privé de Microsoft.' },
+      { q: 'Qu’est-ce que « Un Azure VNet isole un réseau virtuel privé ; Azure réserve systématiquement 5 adresses IP (.0, .1, .2, .3, .255) dans chaque sous-réseau. » ?', a: 'Un Azure VNet isole un réseau virtuel privé ; Azure réserve systématiquement 5 adresses IP (.0, .1, .2, .3, .255) dans chaque sous-réseau.' },
+      { q: 'Qu’est-ce que « Les sous-réseaux en /24 offrent exactement 251 adresses IP exploitables pour les machines virtuelles. » ?', a: 'Les sous-réseaux en /24 offrent exactement 251 adresses IP exploitables pour les machines virtuelles.' },
+      { q: 'Qu’est-ce que « Les Network Security Groups (NSG) filtrent le trafic selon la priorité des règles (100 à 4096), avec les règles par défaut 65000 (Allow VNet) et 65500 (Deny All). » ?', a: 'Les Network Security Groups (NSG) filtrent le trafic selon la priorité des règles (100 à 4096), avec les règles par défaut 65000 (Allow VNet) et 65500 (Deny All).' },
+      { q: 'Qu’est-ce que « Block Blob » ?', a: "Block Blob : Type de blob Azure optimisé pour stocker efficacement d'immenses volumes de données non structurées (fichiers, images, sauvegardes)." },
+      { q: "Qu’est-ce que « Access Tier (Palier d'accès) » ?", a: "Access Tier (Palier d'accès) : Niveau de stockage Blob (Hot, Cool, Cold, Archive) associant un coût de rétention par Go et un coût d'opération de lecture/écriture." },
+      { q: 'Qu’est-ce que « Les comptes de stockage Azure regroupent 4 services majeurs » ?', a: 'Les comptes de stockage Azure regroupent 4 services majeurs : Blob (objets), Files (partage SMB/NFS), Queues (messages) et Tables (NoSQL simple).' },
+      { q: "Qu’est-ce que « Les 4 paliers d'accès Blob (Hot, Cool, Cold, Archive) permettent d'ajuster les coûts selon la fréquence de consultation des fichiers. » ?", a: "Les 4 paliers d'accès Blob (Hot, Cool, Cold, Archive) permettent d'ajuster les coûts selon la fréquence de consultation des fichiers." },
+      { q: 'Qu’est-ce que « Le Lifecycle Management déplace automatiquement les données froides vers des paliers économiques selon leur ancienneté sans code. » ?', a: 'Le Lifecycle Management déplace automatiquement les données froides vers des paliers économiques selon leur ancienneté sans code.' },
+      { q: 'Qu’est-ce que « Log Analytics Workspace » ?', a: "Log Analytics Workspace : Environnement de stockage et d'indexation centralisé de télémétrie Azure où sont exécutées les requêtes d'analyse KQL." },
+      { q: "Qu’est-ce que « Azure Monitor centralise les métriques (données numériques temps réel) et les logs (événements structurés) pour assurer l'observabilité totale. » ?", a: "Azure Monitor centralise les métriques (données numériques temps réel) et les logs (événements structurés) pour assurer l'observabilité totale." },
+      { q: "Qu’est-ce que « Les Action Groups automatisent les notifications et les remédiations lors du déclenchement d'alertes de sévérité Sev0 à Sev4. » ?", a: "Les Action Groups automatisent les notifications et les remédiations lors du déclenchement d'alertes de sévérité Sev0 à Sev4." },
+      { q: "Qu’est-ce que « KQL (Kusto Query Language) offre un pipeline d'opérateurs hautement performant (where, summarize, project, order by, take) pour explorer les journaux. » ?", a: "KQL (Kusto Query Language) offre un pipeline d'opérateurs hautement performant (where, summarize, project, order by, take) pour explorer les journaux." },
     {
       q: 'Qu\'est-ce qu\'une Zone de Disponibilité (Availability Zone) Azure et quel SLA garantit-elle ?',
       a: 'Un datacenter physiquement distinct au sein d\'une région, doté d\'une alimentation, d\'un refroidissement et d\'un réseau indépendants. Déployer sur au moins 2 AZs garantit un SLA de 99.99%.'
@@ -233,7 +260,7 @@ module.exports = {
       desc: 'Calculer le TCO prévisionnel sur 3 ans et modéliser les économies d\'échelle entre PAYG, RI 1Y, RI 3Y et réutilisation de licences sur site.'
     },
     {
-      title: 'Automatisation d\'audit d\'infrastructure en Python 3',
+      title: 'Automatisation d\'audit d\'infrastructure de manière méthodique',
       desc: 'Développer des scripts d\'audit vérifiant la conformité des noms de ressources et simulant les calculs de coûts et de résilience régionale.'
     }
   ]

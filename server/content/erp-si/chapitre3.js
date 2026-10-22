@@ -137,8 +137,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les topologies d’intégration et le rôle d’un bus ESB.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les formats pivots et les fonctions du middleware.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les architectures d’intégration du SI.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les formats pivots et les fonctions du middleware.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les architectures d’intégration du SI.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux processus métiers et aux grands cycles au chapitre 4.' }
   ],
 

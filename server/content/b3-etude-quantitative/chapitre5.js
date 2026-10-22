@@ -20,7 +20,7 @@ module.exports = {
     'exécuter pas-à-pas le test d’indépendance du Chi-deux ($\\chi^2$) et comparer la statistique au seuil critique (3.84 pour 1 ddl à $\\alpha = 0.05$) ;',
     'calculer le coefficient de corrélation linéaire de Pearson ($r$) et déterminer la force et le sens d’association entre variables continues ;',
     'maîtriser la dialectique des hypothèses nulle ($H_0$) et alternative ($H_1$) et la signification d’une p-valeur ($p < 0.05$) ;',
-    'développer en Python 3 des moteurs d’analyse univariée, des calculateurs de Chi-deux et des évaluateurs de corrélations métriques de Pearson.'
+    'analyser et résoudre méthodologiquement des moteurs d’analyse univariée, des calculateurs de Chi-deux et des évaluateurs de corrélations métriques de Pearson.'
   ],
   sections: [
     {

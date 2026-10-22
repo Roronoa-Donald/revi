@@ -73,7 +73,7 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>4. Summary</h4>',
-        '    <p>Calcule directement des quantiles configurables côté client (sur l\'application elle-même) ainsi qu\'un compteur et une somme totale. Plus léger pour Prometheus mais impossible à agréger entre plusieurs instances d\'un même service.</p>',
+        '    <p>Calculez directement des quantiles configurables côté client (sur l\'application elle-même) ainsi qu\'un compteur et une somme totale. Plus léger pour Prometheus mais impossible à agréger entre plusieurs instances d\'un même service.</p>',
         '  </div>',
         '</div>'
       ].join('\n')

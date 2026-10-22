@@ -19,7 +19,7 @@ module.exports = {
     'comparer en détail Cisco HSRP (v1 et v2) et le standard universel VRRP (v2 et v3, RFC 5798) ;',
     'configurer et auditer les mécanismes d’élection de priorité et de préemption (preempt) ;',
     'déployer l’Object Tracking (IP SLA et interface) pour déclencher un basculement dynamique sur rupture de lien WAN ;',
-    'développer en Python 3 des simulateurs d’élection VRRP, des moteurs de suivi d’objets et des répartiteurs GLBP.'
+    'analyser et résoudre méthodologiquement des simulateurs d’élection VRRP, des moteurs de suivi d’objets et des répartiteurs GLBP.'
   ],
   sections: [
     {

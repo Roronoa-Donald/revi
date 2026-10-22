@@ -144,9 +144,9 @@ module.exports = {
 
   notions: ['hyperviseur', 'type 1', 'bare-metal', 'type 2', 'VMware ESXi', 'vCenter', 'vSphere Client', 'NAT', 'bridge', 'host-only', 'ISO', 'VMDK', 'VHDX', 'vCPU', 'CPU Ready Time', 'surallocation', 'thin provisioning'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les deux types d’hyperviseur.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les modes réseau.' },
-    { cls: 'good', text: '70–89 % — Solide : tu dimensionnes et connectes une VM.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les deux types d’hyperviseur.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les modes réseau.' },
+    { cls: 'good', text: '70–94 % — Solide : vous dimensionnez et connectes une VM.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : enchaîne sur les snapshots, chapitre 6.' }
   ],
 

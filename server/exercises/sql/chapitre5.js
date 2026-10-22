@@ -4,122 +4,118 @@ module.exports = [
   {
     "id": "sql2-c5-e1",
     "chapter": 5,
-    "title": "Simulateur de transaction atomique bancaire (COMMIT vs ROLLBACK)",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Appliquer l’atomicité (A de ACID) : si un virement échoue (fonds insuffisants), la transaction entière est annulée.",
-    "brief": "<p>Une transaction bancaire transfère des fonds entre comptes : <code>TRANSFERT source destination montant</code>. Pour chaque transfert, le compte source doit exister et disposer d’au moins le montant demandé (pas de découvert). Le compte destination doit également exister.\nSi toutes les opérations réussissent, la transaction fait <code>COMMIT</code>. Si la moindre opération échoue, la transaction fait <code>ROLLBACK</code> et restaure l’état exact de départ.</p>\n<p>Entrée :\n- Ligne 1 : Soldes initiaux <code>compte:solde</code> séparés par des virgules (ex: <code>A:1000,B:500,C:200</code>).\n- Lignes suivantes : Opérations <code>TRANSFERT source destination montant</code>.\n\nSortie :\n- Si succès : <code>Statut: COMMIT | Soldes: &lt;compte:solde triés&gt;</code>\n- Si échec : <code>Statut: ROLLBACK | Erreur: &lt;Raison&gt; | Soldes: &lt;soldes initiaux inchangés&gt;</code></p>",
-    "starter": "# Grille d'analyse (sql2-c5-e1) — Simulateur de transaction atomique bancaire (COMMIT vs ROLLBACK)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — ROLLBACK pour solde insuffisant]\n# Données : A:100,B:50\n# Données : TRANSFERT A B 50\n# Données : TRANSFERT A B 80\nA_COMPLETER\n\n[Cas 2 — ROLLBACK pour compte inexistant]\n# Données : A:500,B:200\n# Données : TRANSFERT A Z 100\nA_COMPLETER\n\n[Cas 3 — Multiple transferts équilibrés avec COMMIT]\n# Données : A:100,B:100,C:100\n# Données : TRANSFERT A B 100\n# Données : TRANSFERT B C 200\n# Données : TRANSFERT C A 50\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Virement bancaire atomique entre deux comptes",
+    "goal": "Exécuter le débit et le crédit d’un virement bancaire en conservant l’invariant de somme.",
+    "brief": "<p>Dans la table <code>comptes(id, titulaire, solde)</code>, effectuez un virement de <code>15000</code> du compte <code>id = 1</code> (débit : <code>solde = solde - 15000</code>) vers le compte <code>id = 2</code> (crédit : <code>solde = solde + 15000</code>).</p>",
+    "starter": "-- Débitez 15000 sur id=1 et créditez 15000 sur id=2\nUPDATE comptes SET solde = solde WHERE id = 1;",
     "hints": [
-      "Garde une copie indépendante des soldes initiaux pour le ROLLBACK.",
-      "Vérifie que les comptes source et destination existent.",
-      "Vérifie que le solde de la source est suffisant (>= montant).",
-      "Si une erreur survient, interromps les virements et restaure la copie de départ."
+      "Écrivez deux instructions UPDATE séparées par un point-virgule.",
+      "La première soustrait 15000 sur WHERE id = 1, la seconde ajoute 15000 sur WHERE id = 2."
     ],
     "examples": [
       {
-        "stdin": "A:1000,B:500,C:200\nTRANSFERT A B 300\nTRANSFERT B C 150",
-        "expected": "Statut: COMMIT | Soldes: A:700,B:650,C:350",
-        "note": "Tous les virements sont valides, la transaction est validée (COMMIT)."
+        "stdin": "CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Amina', 50000), (2, 'Koffi', 20000);\n-- VERIFY:\nSELECT id, titulaire, solde FROM comptes ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+-----------+-------+\n| id | titulaire | solde |\n+----+-----------+-------+\n| 1  | Amina     | 35000 |\n| 2  | Koffi     | 35000 |\n+----+-----------+-------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "ROLLBACK pour solde insuffisant",
-        "stdin": "cas:1",
-        "expected": "Statut: ROLLBACK | Erreur: Solde insuffisant pour A | Soldes: A:100,B:50"
+        "label": "Virement standard de 15000",
+        "stdin": "CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Amina', 50000), (2, 'Koffi', 20000);\n-- VERIFY:\nSELECT id, titulaire, solde FROM comptes ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+-----------+-------+\n| id | titulaire | solde |\n+----+-----------+-------+\n| 1  | Amina     | 35000 |\n| 2  | Koffi     | 35000 |\n+----+-----------+-------+\n(2 lignes retournées)"
       },
       {
-        "label": "ROLLBACK pour compte inexistant",
-        "stdin": "cas:2",
-        "expected": "Statut: ROLLBACK | Erreur: Compte inconnu Z | Soldes: A:500,B:200"
+        "label": "Solde exact de 15000 au départ",
+        "stdin": "CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Yao', 15000), (2, 'Sena', 0);\n-- VERIFY:\nSELECT id, titulaire, solde FROM comptes ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+-----------+-------+\n| id | titulaire | solde |\n+----+-----------+-------+\n| 1  | Yao       | 0     |\n| 2  | Sena      | 15000 |\n+----+-----------+-------+\n(2 lignes retournées)"
       },
       {
-        "label": "Multiple transferts équilibrés avec COMMIT",
-        "stdin": "cas:3",
-        "expected": "Statut: COMMIT | Soldes: A:50,B:0,C:250"
+        "label": "Trois comptes dont un non touché",
+        "stdin": "CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Afi', 100000), (2, 'Binta', 40000), (3, 'Epargne', 90000);\n-- VERIFY:\nSELECT id, titulaire, solde FROM comptes ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+-----------+-------+\n| id | titulaire | solde |\n+----+-----------+-------+\n| 1  | Afi       | 85000 |\n| 2  | Binta     | 55000 |\n| 3  | Epargne   | 90000 |\n+----+-----------+-------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nStatut: COMMIT | Soldes: A:700,B:650,C:350\n\n[Cas 1 — ROLLBACK pour solde insuffisant]\nStatut: ROLLBACK | Erreur: Solde insuffisant pour A | Soldes: A:100,B:50\n\n[Cas 2 — ROLLBACK pour compte inexistant]\nStatut: ROLLBACK | Erreur: Compte inconnu Z | Soldes: A:500,B:200\n\n[Cas 3 — Multiple transferts équilibrés avec COMMIT]\nStatut: COMMIT | Soldes: A:50,B:0,C:250"
+    "solution": "UPDATE comptes SET solde = solde - 15000 WHERE id = 1;\nUPDATE comptes SET solde = solde + 15000 WHERE id = 2;"
   },
   {
     "id": "sql2-c5-e2",
     "chapter": 5,
-    "title": "Gestionnaire de points de sauvegarde SAVEPOINT & ROLLBACK TO",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Gérer des états intermédiaires dans une transaction avec les points de reprise SAVEPOINT.",
-    "brief": "<p>Dans une longue transaction SQL, l’instruction <code>SAVEPOINT nom_point</code> sauvegarde l’état courant de la base. En cas d’erreur survenue ultérieurement, la commande <code>ROLLBACK TO nom_point</code> annule uniquement les opérations effectuées après ce point de sauvegarde sans compromettre le reste de la transaction.</p>\n<p>Entrée :\nUne suite de commandes sur chaque ligne :\n- <code>AJOUT cle valeur</code>\n- <code>SAVEPOINT nom</code>\n- <code>ROLLBACK TO nom</code>\n- <code>COMMIT</code>\n\nSortie :\n<code>Etat_Final: &lt;cle:valeur triées&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (sql2-c5-e2) — Gestionnaire de points de sauvegarde SAVEPOINT & ROLLBACK TO\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Savepoints multiples emboîtés]\n# Données : AJOUT X 1\n# Données : SAVEPOINT sp1\n# Données : AJOUT Y 2\n# Données : SAVEPOINT sp2\n# Données : AJOUT Z 3\n# Données : ROLLBACK TO sp2\n# Données : COMMIT\nA_COMPLETER\n\n[Cas 2 — Retour complet au premier savepoint]\n# Données : AJOUT K 100\n# Données : SAVEPOINT depart\n# Données : AJOUT K 200\n# Données : AJOUT L 300\n# Données : ROLLBACK TO depart\n# Données : COMMIT\nA_COMPLETER\n\n[Cas 3 — Aucun rollback intervenu]\n# Données : AJOUT A 1\n# Données : AJOUT B 2\n# Données : COMMIT\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Validation atomique d’une commande et décrémentation de stock",
+    "goal": "Mettre à jour simultanément le statut d’une commande et le stock disponible.",
+    "brief": "<p>Lors de la validation de la commande <code>id = 10</code> portant sur <code>3</code> unités de l’article <code>id = 1</code>, mettez à jour <code>commandes</code> (<code>SET statut = 'VALIDEE' WHERE id = 10</code>) et décrémentez <code>articles</code> (<code>SET stock = stock - 3 WHERE id = 1</code>).</p>",
+    "starter": "-- Validez la commande id=10 et décrémentez de 3 le stock de l’article id=1\nUPDATE commandes SET statut = statut WHERE id = 10;",
     "hints": [
-      "Maintiens un dictionnaire représentant l état de la base.",
-      "Pour chaque SAVEPOINT nom, sauvegarde une copie superficielle ou profonde du dictionnaire dans un historique {nom: copie}.",
-      "Lors de ROLLBACK TO nom, restaure la copie correspondante."
+      "Exécutez UPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;",
+      "Puis exécutez UPDATE articles SET stock = stock - 3 WHERE id = 1;"
     ],
     "examples": [
       {
-        "stdin": "AJOUT A 10\nSAVEPOINT sp1\nAJOUT B 20\nROLLBACK TO sp1\nAJOUT C 30\nCOMMIT",
-        "expected": "Etat_Final: A:10,C:30",
-        "note": "L'ajout de B est annulé par le ROLLBACK TO sp1, mais A:10 est conservé."
+        "stdin": "CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 10); INSERT INTO commandes VALUES (10, 'EN_ATTENTE');\n-- VERIFY:\nSELECT c.id, c.statut, a.stock FROM commandes c CROSS JOIN articles a WHERE c.id = 10 AND a.id = 1;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+-------+\n| id | statut  | stock |\n+----+---------+-------+\n| 10 | VALIDEE | 7     |\n+----+---------+-------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Savepoints multiples emboîtés",
-        "stdin": "cas:1",
-        "expected": "Etat_Final: X:1,Y:2"
+        "label": "Stock initial de 10 unités",
+        "stdin": "CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 10); INSERT INTO commandes VALUES (10, 'EN_ATTENTE');\n-- VERIFY:\nSELECT c.id, c.statut, a.stock FROM commandes c CROSS JOIN articles a WHERE c.id = 10 AND a.id = 1;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+-------+\n| id | statut  | stock |\n+----+---------+-------+\n| 10 | VALIDEE | 7     |\n+----+---------+-------+\n(1 ligne retournée)"
       },
       {
-        "label": "Retour complet au premier savepoint",
-        "stdin": "cas:2",
-        "expected": "Etat_Final: K:100"
+        "label": "Stock initial de 3 unités",
+        "stdin": "CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 3); INSERT INTO commandes VALUES (10, 'BROUILLON');\n-- VERIFY:\nSELECT c.id, c.statut, a.stock FROM commandes c CROSS JOIN articles a WHERE c.id = 10 AND a.id = 1;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+-------+\n| id | statut  | stock |\n+----+---------+-------+\n| 10 | VALIDEE | 0     |\n+----+---------+-------+\n(1 ligne retournée)"
       },
       {
-        "label": "Aucun rollback intervenu",
-        "stdin": "cas:3",
-        "expected": "Etat_Final: A:1,B:2"
+        "label": "Plusieurs commandes en base",
+        "stdin": "CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 25), (2, 50); INSERT INTO commandes VALUES (10, 'EN_ATTENTE'), (20, 'EN_ATTENTE');\n-- VERIFY:\nSELECT c.id, c.statut, a.stock FROM commandes c JOIN articles a ON a.id = 1 ORDER BY c.id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+------------+-------+\n| id | statut     | stock |\n+----+------------+-------+\n| 10 | VALIDEE    | 22    |\n| 20 | EN_ATTENTE | 22    |\n+----+------------+-------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nEtat_Final: A:10,C:30\n\n[Cas 1 — Savepoints multiples emboîtés]\nEtat_Final: X:1,Y:2\n\n[Cas 2 — Retour complet au premier savepoint]\nEtat_Final: K:100\n\n[Cas 3 — Aucun rollback intervenu]\nEtat_Final: A:1,B:2"
+    "solution": "UPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;\nUPDATE articles SET stock = stock - 3 WHERE id = 1;"
   },
   {
     "id": "sql2-c5-e3",
     "chapter": 5,
-    "title": "Détecteur d’interblocage (Deadlock) par graphe d’attente (Wait-For Graph)",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Construire le graphe orienté de dépendance des transactions et détecter la présence d’un cycle d’interblocage.",
-    "brief": "<p>Un interblocage (Deadlock) survient lorsque deux ou plusieurs transactions s’attendent mutuellement pour libérer des verrous exclusifs.\nSi la transaction T1 détient la ressource R1 et attend R2, alors que T2 détient R2 et attend R1, il y a une dépendance circulaire <code>T1 -&gt; T2 -&gt; T1</code>.</p>\n<p>Entrée :\nChaque ligne décrit une transaction : <code>T_ID DETIENT ressource_tenue ATTEND ressource_attendue</code> (ou <code>ATTEND AUCUNE</code> s’il n’y a pas d’attente).\n\nSortie :\n- S’il existe un cycle : <code>DEADLOCK DETECTE: cycle &lt;T_A -&gt; T_B -&gt; ... -&gt; T_A&gt;</code>\n- Si le graphe est acyclique : <code>AUCUN DEADLOCK: execution possible</code>.</p>",
-    "starter": "# Grille d'analyse (sql2-c5-e3) — Détecteur d’interblocage (Deadlock) par graphe d’attente (Wait-For Graph)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Exécution séquentielle sans cycle]\n# Données : T1 DETIENT R1 ATTEND AUCUNE\n# Données : T2 DETIENT R2 ATTEND R1\nA_COMPLETER\n\n[Cas 2 — Interblocage à 3 transactions (T1 -> T2 -> T3 -> T1)]\n# Données : T1 DETIENT R1 ATTEND R2\n# Données : T2 DETIENT R2 ATTEND R3\n# Données : T3 DETIENT R3 ATTEND R1\nA_COMPLETER\n\n[Cas 3 — Graphe sans attente mutuelle]\n# Données : T1 DETIENT R1 ATTEND R3\n# Données : T2 DETIENT R2 ATTEND R3\n# Données : T3 DETIENT R3 ATTEND AUCUNE\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Audit de cohérence comptable (Écriture débit / crédit équilibrée)",
+    "goal": "Vérifier par agrégation SQL qu’une transaction respecte l’équilibre débit = crédit.",
+    "brief": "<p>Dans la table <code>ecritures(tx_id, sens, montant)</code> où <code>sens</code> vaut <code>'DEBIT'</code> ou <code>'CREDIT'</code>, affichez pour chaque <code>tx_id</code> le total débit (<code>SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit</code>) et le total crédit (<code>SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit</code>), triés par <code>tx_id</code> croissant.</p>",
+    "starter": "-- Calculez total_debit et total_credit par tx_id\nSELECT tx_id FROM ecritures GROUP BY tx_id;",
     "hints": [
-      "Établis qui détient chaque ressource : detenteurs[ressource] = transaction.",
-      "Pour chaque transaction qui attend une ressource, crée une arête orientée : T_demandeur -> detenteurs[ressource].",
-      "Applique un parcours en profondeur (DFS) pour détecter si un cycle existe."
+      "Utilisez SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit.",
+      "Faites de même pour CREDIT et regroupez avec GROUP BY tx_id ORDER BY tx_id ASC."
     ],
     "examples": [
       {
-        "stdin": "T1 DETIENT R1 ATTEND R2\nT2 DETIENT R2 ATTEND R1",
-        "expected": "DEADLOCK DETECTE: cycle T1 -> T2 -> T1",
-        "note": "T1 attend T2 qui attend T1 : cycle d'interblocage."
+        "stdin": "CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 10000), (1, 'CREDIT', 10000), (2, 'DEBIT', 5000), (2, 'CREDIT', 3000);",
+        "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 1     | 10000       | 10000        |\n| 2     | 5000        | 3000         |\n+-------+-------------+--------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Exécution séquentielle sans cycle",
-        "stdin": "cas:1",
-        "expected": "AUCUN DEADLOCK: execution possible"
+        "label": "Une transaction équilibrée et une déséquilibrée",
+        "stdin": "CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 10000), (1, 'CREDIT', 10000), (2, 'DEBIT', 5000), (2, 'CREDIT', 3000);",
+        "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 1     | 10000       | 10000        |\n| 2     | 5000        | 3000         |\n+-------+-------------+--------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Interblocage à 3 transactions (T1 -> T2 -> T3 -> T1)",
-        "stdin": "cas:2",
-        "expected": "DEADLOCK DETECTE: cycle T1 -> T2 -> T3 -> T1"
+        "label": "Transaction ventilée sur deux crédits",
+        "stdin": "CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (10, 'DEBIT', 20000), (10, 'CREDIT', 12000), (10, 'CREDIT', 8000);",
+        "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 10    | 20000       | 20000        |\n+-------+-------------+--------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Graphe sans attente mutuelle",
-        "stdin": "cas:3",
-        "expected": "AUCUN DEADLOCK: execution possible"
+        "label": "Deux transactions équilibrées",
+        "stdin": "CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 1500), (1, 'CREDIT', 1500), (2, 'DEBIT', 4500), (2, 'CREDIT', 4500);",
+        "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 1     | 1500        | 1500         |\n| 2     | 4500        | 4500         |\n+-------+-------------+--------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nDEADLOCK DETECTE: cycle T1 -> T2 -> T1\n\n[Cas 1 — Exécution séquentielle sans cycle]\nAUCUN DEADLOCK: execution possible\n\n[Cas 2 — Interblocage à 3 transactions (T1 -> T2 -> T3 -> T1)]\nDEADLOCK DETECTE: cycle T1 -> T2 -> T3 -> T1\n\n[Cas 3 — Graphe sans attente mutuelle]\nAUCUN DEADLOCK: execution possible"
+    "solution": "SELECT tx_id, SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit, SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit FROM ecritures GROUP BY tx_id ORDER BY tx_id ASC;"
   }
 ];

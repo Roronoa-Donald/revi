@@ -93,7 +93,7 @@ switch ($mode) {
     brief: '<p>Le script lit le total de <strong>vCPU</strong> alloués aux VM, puis le nombre de ' +
       '<strong>cœurs physiques</strong> de l’hôte. S’il y a plus de vCPU que de cœurs, la surallocation ' +
       'est active : affichez <code>surallocation : oui</code> puis <code>vcpu en exces : X</code>. ' +
-      'Sinon, affichez <code>surallocation : non</code> puis <code>vcpu en exces : 0</code>.</p>',
+      'Sinon, affichezz <code>surallocation : non</code> puis <code>vcpu en exces : 0</code>.</p>',
     starter: `$vcpu = [int][Console]::In.ReadLine()
 $coeurs = [int][Console]::In.ReadLine()
 

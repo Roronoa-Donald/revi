@@ -146,9 +146,9 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les critères de la grille INVEST et le rôle du comité CCB.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’analyse d’impact d’une CR et le concept de Baseline.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le pilotage et le contrôle des exigences.' },
-    { cls: 'top', text: '≥ 95 % — Parfait : tu possèdes une maîtrise experte de l’ingénierie des exigences B2 !' }
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’analyse d’impact d’une CR et le concept de Baseline.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le pilotage et le contrôle des exigences.' },
+    { cls: 'top', text: '≥ 95 % — Parfait : vous possèdez une maîtrise experte de l’ingénierie des exigences B2 !' }
   ],
 
   flashcards: [

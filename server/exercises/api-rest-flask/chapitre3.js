@@ -22,10 +22,10 @@ module.exports = [
       '- <code>path</code> pour les chaînes contenant au moins un slash <code>/</code> (ex: <code>docs/api/v1</code>)<br>' +
       '- <code>string</code> pour toute autre chaîne de caractères standard sans slash.<br>' +
       '<p>Lit une valeur textuelle et le nom de variable souhaité (deux lignes en entrée). ' +
-      'Affiche la syntaxe de route Flask correspondante sous la forme <code>&lt;type:nom_variable&gt;</code>.</p>',
+      'Affichez la syntaxe de route Flask correspondante sous la forme <code>&lt;type:nom_variable&gt;</code>.</p>',
     starter: `valeur = input().strip()\nnom_var = input().strip()\n\n# À compléter : déduire le type de convertisseur et afficher <type:nom_var>.\n`,
     hints: [
-      'Vérifie d’abord si la chaîne contient un slash avec "/" in valeur.',
+      'Vérifiez d’abord si la chaîne contient un slash avec "/" in valeur.',
       'Pour tester un entier : valeur.isdigit().',
       'Pour tester un float : essaye de convertir avec float() dans un bloc try/except.'
     ],
@@ -87,11 +87,11 @@ print(f"<{type_conv}:{nom_var}>")
       '2. L’URL demandée (ex: <code>/articles/73</code>)<br>' +
       'Si l’URL correspond au modèle et que le type est valide (par exemple <code>int</code> ne contient que des chiffres), ' +
       'affiche <code>Match: &lt;nom&gt;=&lt;valeur&gt;</code>.<br>' +
-      'Sinon, affiche <code>404 Not Found</code>.</p>',
+      'Sinon, affichez <code>404 Not Found</code>.</p>',
     starter: `modele = input().strip()\nurl = input().strip()\n\n# À compléter : vérifier la correspondance et extraire la variable.\n`,
     hints: [
-      'Découpe le modèle et l’URL en segments avec .split("/").',
-      'Compare le nombre de segments : s’ils diffèrent, c’est 404 Not Found.',
+      'Découpez le modèle et l’URL en segments avec .split("/").',
+      'Comparez le nombre de segments : s’ils diffèrent, c’est 404 Not Found.',
       'Repère le segment contenant "<" et ">", extrais le type et le nom, puis valide la valeur reçue.'
     ],
     examples: [
@@ -162,7 +162,7 @@ else:
       '1. La liste des méthodes autorisées séparées par des virgules (ex: <code>GET,POST</code>)<br>' +
       '2. La méthode utilisée par la requête entrante (ex: <code>DELETE</code>)<br>' +
       'Si la méthode est autorisée, affiche <code>200 OK: Traitement &lt;METHODE&gt;</code>.<br>' +
-      'Sinon, affiche <code>405 Method Not Allowed: Verbes autorises: &lt;liste triee separee par des virgules&gt;</code>.</p>',
+      'Sinon, affichez <code>405 Method Not Allowed: Verbes autorises: &lt;liste triee separee par des virgules&gt;</code>.</p>',
     starter: `autorisees = input().strip().split(',')\nmethode = input().strip().upper()\n\n# À compléter : valider la méthode et afficher la réponse.\n`,
     hints: [
       'Nettoie et passe toutes les méthodes en majuscules avec [m.strip().upper() for m in autorisees].',

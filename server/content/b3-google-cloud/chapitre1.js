@@ -19,7 +19,7 @@ module.exports = {
     'différencier Project ID (RFC 1035), Project Name et Project Number et appliquer les conventions de nommage ;',
     'analyser le modèle de facturation, les comptes de facturation (Billing Accounts) et la gestion des quotas d\'API ;',
     'maîtriser le SDK gcloud CLI : initialisation, gestion des configurations actives, commutation de contextes et Cloud Shell ;',
-    'développer en Python 3 des validateurs de Project ID, des sélecteurs de régions multi-zones et des parsers de configuration CLI.'
+    'analyser et résoudre méthodologiquement des validateurs de Project ID, des sélecteurs de régions multi-zones et des parsers de configuration CLI.'
   ],
   sections: [
     {
@@ -193,6 +193,37 @@ module.exports = {
     }
   ],
   flashcards: [
+      { q: 'Qu’est-ce que « Région GCP » ?', a: "Région GCP : Emplacement géographique indépendant composé d'au moins trois zones de disponibilité isolées et reliées par un réseau à très faible latence." },
+      { q: 'Qu’est-ce que « Hiérarchie Organisationnelle » ?', a: "Hiérarchie Organisationnelle : Arborescence GCP structurée en Organisation, Dossiers, Projets et Ressources permettant la délégation et l'héritage des politiques de sécurité." },
+      { q: 'Qu’est-ce que « SDK gcloud CLI » ?', a: 'SDK gcloud CLI : Outil officiel en ligne de commande permettant de gérer et automatiser les ressources et configurations Google Cloud.' },
+      { q: 'Qu’est-ce que « Google Cloud déploie ses services sur des Régions géographiques indépendantes comprenant chacune au moins 3 Zones de disponibilité reliées par un réseau en fibre privé. » ?', a: 'Google Cloud déploie ses services sur des Régions géographiques indépendantes comprenant chacune au moins 3 Zones de disponibilité reliées par un réseau en fibre privé.' },
+      { q: "Qu’est-ce que « La hiérarchie des ressources suit l'ordre strict » ?", a: "La hiérarchie des ressources suit l'ordre strict : Organisation (0) > Dossiers (1) > Projets (2) > Ressources (3), avec propagation descendante des autorisations IAM." },
+      { q: "Qu’est-ce que « Le Project ID est l'identifiant unique permanent mondial (6 à 30 caractères, conforme RFC 1035), tandis que le Project Name est modifiable et le Project Number est généré par Google. » ?", a: "Le Project ID est l'identifiant unique permanent mondial (6 à 30 caractères, conforme RFC 1035), tandis que le Project Name est modifiable et le Project Number est généré par Google." },
+      { q: 'Qu’est-ce que « Rôle Prédéfini (Predefined Role) » ?', a: 'Rôle Prédéfini (Predefined Role) : Rôle managé par Google offrant un ensemble précis de permissions adaptées à un métier ou un service particulier.' },
+      { q: 'Qu’est-ce que « Conditions IAM (CEL) » ?', a: "Conditions IAM (CEL) : Expressions logiques basées sur Common Expression Language conditionnant l'application d'un rôle à des critères temporels ou de contexte." },
+      { q: 'Qu’est-ce que « Workload Identity Federation » ?', a: "Workload Identity Federation : Mécanisme permettant à des charges de travail externes ou conteneurisées d'accéder aux ressources GCP sans manipuler de clés privées statiques." },
+      { q: 'Qu’est-ce que « Cloud IAM applique le principe du moindre privilège en liant des Membres à des Rôles sur des Ressources ciblées. » ?', a: 'Cloud IAM applique le principe du moindre privilège en liant des Membres à des Rôles sur des Ressources ciblées.' },
+      { q: 'Qu’est-ce que « Les rôles primitifs (Viewer, Editor, Owner) sont trop permissifs et proscrits en production au profit des rôles prédéfinis ou sur mesure (Custom Roles). » ?', a: 'Les rôles primitifs (Viewer, Editor, Owner) sont trop permissifs et proscrits en production au profit des rôles prédéfinis ou sur mesure (Custom Roles).' },
+      { q: 'Qu’est-ce que « Les rôles personnalisés se composent de permissions atomiques au format service.resource.action et suivent un cycle de vie contrôlé. » ?', a: 'Les rôles personnalisés se composent de permissions atomiques au format service.resource.action et suivent un cycle de vie contrôlé.' },
+      { q: 'Qu’est-ce que « Managed Instance Group (MIG) » ?', a: "Managed Instance Group (MIG) : Groupe de machines virtuelles identiques gérées automatiquement avec fonctions d'auto-scaling, d'auto-healing et de mises à jour progressives." },
+      { q: 'Qu’est-ce que « Google Compute Engine propose des séries adaptées (E2 économique, N2 équilibrée, C2 calcul) avec un SLA atteignant 99.99% en déploiement multi-zones. » ?', a: 'Google Compute Engine propose des séries adaptées (E2 économique, N2 équilibrée, C2 calcul) avec un SLA atteignant 99.99% en déploiement multi-zones.' },
+      { q: "Qu’est-ce que « Les Groupes d'Instances Gérés (MIG) garantissent l'élasticité automatique (Auto-scaling) et la tolérance aux pannes (Auto-healing) via des sondes de santé. » ?", a: "Les Groupes d'Instances Gérés (MIG) garantissent l'élasticité automatique (Auto-scaling) et la tolérance aux pannes (Auto-healing) via des sondes de santé." },
+      { q: "Qu’est-ce que « GKE Autopilot décharge l'équipe de la maintenance des nœuds Kubernetes et facture uniquement les ressources réellement allouées aux Pods. » ?", a: "GKE Autopilot décharge l'équipe de la maintenance des nœuds Kubernetes et facture uniquement les ressources réellement allouées aux Pods." },
+      { q: 'Qu’est-ce que « Virtual Private Cloud (VPC) » ?', a: 'Virtual Private Cloud (VPC) : Réseau virtuel privé mondial logiciel (SDN) fournissant connectivité et isolation aux ressources Google Cloud.' },
+      { q: 'Qu’est-ce que « URL Map » ?', a: "URL Map : Composant de routage du Load Balancer Google Cloud acheminant le trafic vers différents services backend selon l'hôte et le chemin HTTP." },
+      { q: 'Qu’est-ce que « Un réseau VPC Google Cloud est mondial par défaut, composé de sous-réseaux régionaux indépendants. » ?', a: 'Un réseau VPC Google Cloud est mondial par défaut, composé de sous-réseaux régionaux indépendants.' },
+      { q: "Qu’est-ce que « Chaque sous-réseau réserve 4 adresses IP (.0, .1, .2 et .255), ramenant le nombre d'hôtes disponibles à 2^(32-prefix) - 4. » ?", a: "Chaque sous-réseau réserve 4 adresses IP (.0, .1, .2 et .255), ramenant le nombre d'hôtes disponibles à 2^(32-prefix) - 4." },
+      { q: "Qu’est-ce que « Cloud NAT permet aux instances privées d'accéder à Internet en toute sécurité sans exposer d'adresses IP publiques. » ?", a: "Cloud NAT permet aux instances privées d'accéder à Internet en toute sécurité sans exposer d'adresses IP publiques." },
+      { q: 'Qu’est-ce que « Firestore » ?', a: 'Firestore : Base de données NoSQL orientée documents offrant une synchronisation en temps réel et un support hors-ligne pour applications web et mobiles.' },
+      { q: 'Qu’est-ce que « Cloud Storage offre 11 9s de durabilité avec 4 classes de stockage optimisées pour le coût (Standard, Nearline, Coldline, Archive). » ?', a: 'Cloud Storage offre 11 9s de durabilité avec 4 classes de stockage optimisées pour le coût (Standard, Nearline, Coldline, Archive).' },
+      { q: "Qu’est-ce que « L'Object Lifecycle Management migre automatiquement les objets sans intervention humaine selon des règles d'âge. » ?", a: "L'Object Lifecycle Management migre automatiquement les objets sans intervention humaine selon des règles d'âge." },
+      { q: 'Qu’est-ce que « Cloud SQL gère MySQL, PostgreSQL et SQL Server en régional avec HA, tandis que Cloud Spanner fournit du NewSQL mondial à cohérence stricte avec 99.999% de SLA. » ?', a: 'Cloud SQL gère MySQL, PostgreSQL et SQL Server en régional avec HA, tandis que Cloud Spanner fournit du NewSQL mondial à cohérence stricte avec 99.999% de SLA.' },
+      { q: 'Qu’est-ce que « Cloud Operations Suite » ?', a: "Cloud Operations Suite : Ensemble unifié d'outils d'observabilité Google Cloud regroupant Monitoring, Logging, Trace, Profiler et Error Reporting." },
+      { q: 'Qu’est-ce que « Committed Use Discount (CUD) » ?', a: "Committed Use Discount (CUD) : Remise contractuelle substantielle accordée par Google en échange d'un engagement d'utilisation continue de ressources sur 1 ou 3 ans." },
+      { q: 'Qu’est-ce que « Backend Terraform GCS » ?', a: "Backend Terraform GCS : Configuration stockant le fichier d'état terraform.tfstate dans un bucket Google Cloud Storage avec gestion des versions et verrouillage automatique." },
+      { q: 'Qu’est-ce que « Cloud Monitoring supervise les métriques système et déclenche des alertes configurées vers Slack, PagerDuty ou Email. » ?', a: 'Cloud Monitoring supervise les métriques système et déclenche des alertes configurées vers Slack, PagerDuty ou Email.' },
+      { q: "Qu’est-ce que « Cloud Logging centralise tous les événements d'infrastructure et permet l'archivage à long terme via des Log Sinks vers BigQuery ou Cloud Storage. » ?", a: "Cloud Logging centralise tous les événements d'infrastructure et permet l'archivage à long terme via des Log Sinks vers BigQuery ou Cloud Storage." },
+      { q: "Qu’est-ce que « Cloud Trace et Cloud Profiler identifient avec précision les goulots d'étranglement de latence et de mémoire dans le code applicatif. » ?", a: "Cloud Trace et Cloud Profiler identifient avec précision les goulots d'étranglement de latence et de mémoire dans le code applicatif." },
     {
       q: 'Quels sont les 4 niveaux de la hiérarchie Google Cloud ?',
       a: '1. Organisation (racine liée au domaine) ; 2. Dossiers (Folders) ; 3. Projets ; 4. Ressources.'
@@ -224,7 +255,7 @@ module.exports = {
       desc: 'Modéliser des hiérarchies Organisation/Dossiers/Projets selon les bonnes pratiques de gouvernance GCP.'
     },
     {
-      title: 'Validation automatisée de Project IDs en Python 3',
+      title: 'Validation automatisée de Project IDs de manière méthodique',
       desc: 'Développer des linters garantissant la stricte conformité RFC 1035 des identifiants d\'infrastructure.'
     },
     {

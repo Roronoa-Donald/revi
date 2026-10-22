@@ -87,7 +87,7 @@ function sommaire(course, chapterList) {
     '      <div class="summary-item__content">',
     '        <h3 class="summary-item__title"><a href="chapitres/chapitre' + chapitre.n + '.html">' + chapitre.title + '</a></h3>',
     '        <p class="summary-item__desc">' + chapitre.toc + '</p>',
-    '        <div class="summary-item__meta">' + ic('clock') + ' ' + (chapitre.time || '≈ 2 h 45') + ' • 3 ateliers de code Python 3 • 8 questions d\'évaluation QCM</div>',
+    '        <div class="summary-item__meta">' + ic('clock') + ' ' + (chapitre.time || '≈ 2 h 45') + ' • 3 ateliers interactifs d’études de cas • 8 questions d\'évaluation QCM</div>',
     '      </div>',
     '    </li>'
   ].join('\n')).join('\n');
@@ -103,7 +103,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid-3">',
     '    <div class="card">',
     '      <h4>' + ic('terminal') + ' Laboratoire de Code</h4>',
-    '      <p>Expérimentez librement vos scripts de parsing RSS, calcul de TF-IDF et modélisation TRL dans le bac à sable Python 3.</p>',
+    '      <p>Expérimentez librement vos scripts de parsing RSS, calcul de TF-IDF et modélisation TRL dans l’atelier d’études de cas.</p>',
     '      <a class="btn btn--sm" href="atelier.html">Ouvrir l\'atelier ' + ic('arrow-right') + '</a>',
     '    </div>',
     '    <div class="card">',
@@ -145,7 +145,7 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable de Veille Technologique</h1>',
-    '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie documentaire en Python 3 : parsing de flux RSS/Atom, déduplication par similarité de Jaccard, indexation TF-IDF et modélisation de tendances.</p>',
+    '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie documentaire de manière méthodique : parsing de flux RSS/Atom, déduplication par similarité de Jaccard, indexation TF-IDF et modélisation de tendances.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
@@ -174,7 +174,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire de veille libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos algorithmes de veille technologique, parsing RSS et analyse de signaux.',
+      description: 'Bac à sable interactif de manière méthodiquepour tester vos algorithmes de veille technologique, parsing RSS et analyse de signaux.',
       active: 'atelier',
       body
     }

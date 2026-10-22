@@ -163,8 +163,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Redéroule l’installation en machine virtuelle en prenant des notes.' },
-      { cls: 'mid', text: '50–69 % — Refais le schéma de partitionnement avec les tailles justifiées.' },
-      { cls: 'good', text: '70–89 % — Solide : explique sources.list ligne par ligne et le couple update/upgrade.' },
+      { cls: 'mid', text: '50–69 % — Refaites le schéma de partitionnement avec les tailles justifiées.' },
+      { cls: 'good', text: '70–94 % — Solide : explique sources.list ligne par ligne et le couple update/upgrade.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, les utilisateurs et les groupes.' }
     ],
 
@@ -301,7 +301,7 @@ module.exports = [
       { stem: 'Que signifie le champ x dans /etc/passwd ?', opts: ['Compte désactivé', 'Le mot de passe chiffré est dans /etc/shadow', 'Pas de mot de passe'], correct: 1, exp: 'x ou ! renvoient à /etc/shadow ; !! signifie compte désactivé, * interdit l’authentification.' },
       { stem: 'Quel UID possède root ?', opts: ['1', '0', '1000'], correct: 1, exp: 'root = UID 0 ; les UID inférieurs à 1000 sont réservés aux comptes système.' },
       { stem: 'Quel fichier stocke les mots de passe chiffrés ?', opts: ['/etc/passwd', '/etc/shadow', '/etc/group'], correct: 1, exp: '/etc/shadow, lisible uniquement par l’administrateur.' },
-      { stem: 'Que fait usermod -d /home/toto -m tutu ?', opts: ['Renomme tutu en toto', 'Change la maison de tutu en /home/toto en recopiant le contenu', 'Supprime tutu'], correct: 1, exp: '-d fixe la nouvelle maison et -m y recopie le contenu de l’ancienne en ajustant les droits.' },
+      { stem: 'Que fait usermod -d /home/toto -m tutu ?', opts: ['Renomme tutu en toto', 'Change la maison de tutu en /home/toto en recopiant le contenu', 'Supprimez tutu'], correct: 1, exp: '-d fixe la nouvelle maison et -m y recopie le contenu de l’ancienne en ajustant les droits.' },
       { stem: 'Que fait userdel toto, et que faut-il pour supprimer sa maison ?', opts: ['Tout est supprimé', 'Le compte est supprimé ; ajouter -r pour retirer aussi le répertoire', 'Rien, il faut usermod'], correct: 1, exp: 'userdel ne supprime pas le répertoire personnel ; l’option -r l’ajoute à la suppression.' },
       { stem: 'Quelle commande crée un groupe ?', opts: ['groupadd', 'usermod', 'passwd'], correct: 0, exp: 'groupadd groupe (ex. groupadd modem) ; suppression avec groupdel.' },
       { stem: 'Quand groupdel échoue-t-il ?', opts: ['Si le groupe contient des fichiers', 'Si le groupe est le groupe principal d’un utilisateur', 'Jamais'], correct: 1, exp: 'On ne peut pas supprimer un groupe qui sert de groupe principal à un utilisateur.' },
@@ -346,7 +346,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Recopiez une ligne passwd et nommez chaque champ à voix haute.' },
       { cls: 'mid', text: '50–69 % — Refaites le tableau des états du champ mot-de-passe.' },
-      { cls: 'good', text: '70–89 % — Solide : déroulez le cycle useradd, groupadd, usermod, userdel de mémoire.' },
+      { cls: 'good', text: '70–94 % — Solide : déroulez le cycle useradd, groupadd, usermod, userdel de mémoire.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, les droits d’accès et les scripts.' }
     ],
 
@@ -477,12 +477,12 @@ module.exports = [
     questions: [
       { stem: 'Dans -rwxr-x---, que peut faire le groupe ?', opts: ['Tout', 'Lire et exécuter', 'Rien'], correct: 1, exp: 'Le triplet du groupe est r-x : lecture et exécution, pas d’écriture.' },
       { stem: 'Que vaut rwxr-x--- en octal ?', opts: ['754', '750', '740'], correct: 1, exp: 'rwx=7, r-x=5, ---=0 : 750.' },
-      { stem: 'Que fait chmod o-r toto ?', opts: ['Ajoute la lecture aux autres', 'Retire la lecture aux autres', 'Retire la lecture au propriétaire'], correct: 1, exp: 'o = autres (others), - = retirer, r = lecture.' },
+      { stem: 'Que fait chmod o-r toto ?', opts: ['Ajoutez la lecture aux autres', 'Retire la lecture aux autres', 'Retire la lecture au propriétaire'], correct: 1, exp: 'o = autres (others), - = retirer, r = lecture.' },
       { stem: 'Que fixe chmod 770 toto ?', opts: ['rwxrwx---', 'rwx------', 'rwxr-xr-x'], correct: 0, exp: '7=rwx pour u, 7=rwx pour g, 0=--- pour o.' },
       { stem: 'Quelle différence entre ug=rwx et ug+x ?', opts: ['Aucune', '= fixe exactement (retire le reste), + ajoute seulement', '+ fixe, = ajoute'], correct: 1, exp: 'Avec =, tout droit non listé disparaît ; + ne fait qu’ajouter au droit existant.' },
       { stem: 'Que fait chown tpsysteme:root dossier ?', opts: ['Change le propriétaire seulement', 'Change propriétaire et groupe en une commande', 'C’est une erreur'], correct: 1, exp: 'La syntaxe utilisateur:groupe change les deux à la fois.' },
       { stem: 'À quoi sert l’option -R de chmod ou chown ?', opts: ['À rendre le fichier exécutable', 'À appliquer récursivement au dossier et à son contenu', 'À rien ici'], correct: 1, exp: '-R descend dans l’arborescence : dossier, sous-dossiers, fichiers.' },
-      { stem: 'Que fait chgrp tpsysteme toto ?', opts: ['Change le propriétaire de toto', 'Change le groupe propriétaire de toto', 'Crée le groupe tpsysteme'], correct: 1, exp: 'chgrp (change group) ne touche que le groupe ; chown change le propriétaire.' },
+      { stem: 'Que fait chgrp tpsysteme toto ?', opts: ['Change le propriétaire de toto', 'Change le groupe propriétaire de toto', 'Créez le groupe tpsysteme'], correct: 1, exp: 'chgrp (change group) ne touche que le groupe ; chown change le propriétaire.' },
       { stem: 'À quoi sert la ligne #!/bin/bash ?', opts: ['À commenter le script', 'À indiquer l’interpréteur qui exécute le script', 'À définir une variable'], correct: 1, exp: 'Le shebang désigne l’interpréteur : bash ici.' },
       { stem: 'Où initialiser un compteur utilisé dans une boucle Bash ?', opts: ['Dans la boucle', 'Avant la boucle', 'Après la boucle'], correct: 1, exp: 'Avant, sinon il repart à zéro à chaque tour ; le bilan s’affiche après la boucle.' }
     ],
@@ -524,7 +524,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Refaites le tableau r=4, w=2, x=1 et convertissez dix chaînes.' },
       { cls: 'mid', text: '50–69 % — Refaites les exercices du TP2 avec ls -l à chaque étape.' },
-      { cls: 'good', text: '70–89 % — Solide : écrivez le script de surveillance de l’atelier de mémoire.' },
+      { cls: 'good', text: '70–94 % — Solide : écrivez le script de surveillance de l’atelier de mémoire.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est terminé, passez aux examens blancs et au projet.' }
     ],
 

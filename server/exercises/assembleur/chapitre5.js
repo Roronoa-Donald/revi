@@ -11,8 +11,8 @@ module.exports = [
     "brief": "<p>L’instruction <code>MOV destination, source</code> copie une valeur sans modifier la source. Dans notre processeur simulé, quatre registres 32 bits <code>EAX</code>, <code>EBX</code>, <code>ECX</code> et <code>EDX</code> sont initialement tous fixés à <code>0</code>.</p><p>Analysez les paramètres du problème pour chaque cas. <code>MOV EAX, 42; MOV EBX, EAX</code>). Indiquez l’état final des 4 registres au format :<br><code>EAX=&lt;val&gt; EBX=&lt;val&gt; ECX=&lt;val&gt; EDX=&lt;val&gt;</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c5-e1) — Simulateur d’instructions MOV entre registres\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne de transferts entre les 4 registres]\n# Données : MOV EAX, 10; MOV EBX, 20; MOV ECX, EAX; MOV EDX, EBX\nA_COMPLETER\n\n[Cas 2 — Écrasement successif d’un même registre]\n# Données : MOV EAX, 5; MOV EAX, 100; MOV ECX, 50\nA_COMPLETER\n\n[Cas 3 — Copie croisée]\n# Données : MOV EDX, 999; MOV EAX, EDX; MOV EBX, EDX; MOV ECX, EDX\nA_COMPLETER\n\n[Cas 4 — Valeur nulle explicite]\n# Données : MOV EAX, 77; MOV EAX, 0\nA_COMPLETER\n",
     "hints": [
-      "Initialise un dictionnaire reg = {\"EAX\": 0, \"EBX\": 0, \"ECX\": 0, \"EDX\": 0}.",
-      "Découpe la ligne par point-virgule (split(\";\")) : pour chaque commande, sépare par espace pour extraire la destination et la source.",
+      "Initialisez un dictionnaire reg = {\"EAX\": 0, \"EBX\": 0, \"ECX\": 0, \"EDX\": 0}.",
+      "Découpez la ligne par point-virgule (l’extraction des champs) : pour chaque commande, sépare par espace pour extraire la destination et la source.",
       "Si la source est dans reg, utilise sa valeur, sinon convertis-la en entier avec int(source)."
     ],
     "examples": [

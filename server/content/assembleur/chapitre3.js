@@ -243,8 +243,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les différences Von Neumann / Harvard et les trois registres GPIO (DDR, PORT, PIN).' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’ordonnancement Little-Endian et le calcul Segment:Offset.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les bus matériels, les mémoires et les broches d’E/S.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’ordonnancement Little-Endian et le calcul Segment:Offset.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les bus matériels, les mémoires et les broches d’E/S.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la chaîne d’outils logicielle (Assembleur, ELF, Linker) au chapitre 4.' }
   ],
 

@@ -66,7 +66,7 @@ function formules(course) {
     '      <tr><td>Région par défaut</td><td><code>gcloud config set compute/region [REG]</code></td><td>Configure la région de calcul par défaut (ex: europe-west9)</td></tr>',
     '      <tr><td>Composants</td><td><code>gcloud components update</code></td><td>Met à jour les binaires du SDK Google Cloud</td></tr>',
     '      <tr><td>Instances VM</td><td><code>gcloud compute instances list</code></td><td>Liste toutes les VM Compute Engine du projet actif</td></tr>',
-    '      <tr><td>Connexion SSH</td><td><code>gcloud compute ssh [VM_NAME]</code></td><td>Ouvre une session SSH sécurisée avec gestion automatique des clés</td></tr>',
+    '      <tr><td>Connexion SSH</td><td><code>gcloud compute ssh [VM_NAME]</code></td><td>Ouvrez une session SSH sécurisée avec gestion automatique des clés</td></tr>',
     '      <tr><td>Stockage GCS</td><td><code>gcloud storage ls gs://[BUCKET]</code></td><td>Liste les objets d\'un bucket Cloud Storage (remplace gsutil)</td></tr>',
     '    </tbody>',
     '  </table>',

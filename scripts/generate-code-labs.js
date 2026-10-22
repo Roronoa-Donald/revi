@@ -86,6 +86,14 @@ function languageLabel(id) {
 // Bloc d'un atelier
 // ========================
 
+const NUMBER_WORDS = {
+  1: 'Un indice',
+  2: 'Deux indices',
+  3: 'Trois indices',
+  4: 'Quatre indices',
+  5: 'Cinq indices'
+};
+
 function renderLab(exercise, index) {
   const example = exercise.examples[0] || { stdin: '', expected: '' };
   const isAnalyse = exercise.language === 'analyse';
@@ -107,9 +115,12 @@ function renderLab(exercise, index) {
     '    </div>\n' +
     (example.note ? '    <p class="lab__note">' + escText(example.note) + '</p>\n' : '');
 
+  const nHints = Array.isArray(exercise.hints) ? exercise.hints.length : 0;
+  const hintsTitle = (NUMBER_WORDS[nHints] || (nHints + ' indices')) + (nHints === 1 ? ', rédigé en mots' : ', rédigés en mots');
+
   const hints =
     '    <details class="lab__hints">\n' +
-    '      <summary>' + icon('lightbulb') + ' Deux indices, rédigés en mots</summary>\n' +
+    '      <summary>' + icon('lightbulb') + ' ' + hintsTitle + '</summary>\n' +
     '      <ol>\n' +
     exercise.hints.map(hint => '        <li>' + escText(hint) + '</li>').join('\n') + '\n' +
     '      </ol>\n' +
@@ -124,7 +135,7 @@ function renderLab(exercise, index) {
     '  </div>\n';
 
   return (
-    '<div class="lab" data-lab\n' +
+    '<div class="lab" id="' + escAttr(exercise.id) + '" data-lab\n' +
     '     data-exercise="' + escAttr(exercise.id) + '"\n' +
     '     data-language="' + escAttr(exercise.language) + '"\n' +
     '     data-height="300"\n' +
@@ -144,13 +155,13 @@ function renderSection(courseId, chapter) {
   const allAnalyse = list.length > 0 && list.every(exercise => exercise.language === 'analyse');
 
   const intro = allAnalyse
-    ? '  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>\n' +
-      '  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>\n'
-    : '  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code\n' +
-      '  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :\n' +
+    ? '  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>\n' +
+      '  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>\n'
+    : '  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code\n' +
+      '  et la validation fait tourner des jeux de tests indépendants :\n' +
       '  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>\n' +
       '  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui\n' +
-      '  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>\n';
+      '  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>\n';
 
   return (
     START + '\n' +
@@ -166,9 +177,6 @@ function renderSection(courseId, chapter) {
 // Transformation d'un chapitre
 // ========================
 
-// Le remplacement conserve exactement l'espacement produit par l'insertion,
-// sinon chaque passage retirerait un saut de ligne et le fichier ne
-// convergerait qu'après plusieurs exécutions.
 function stripGenerated(html) {
   const pattern = new RegExp('\\n?[ \\t]*' + START + '[\\s\\S]*?' + END + '\\n?', 'g');
   return html.replace(pattern, '\n');
@@ -192,17 +200,12 @@ function ensureAssets(html) {
 function transformChapter(html, courseId, chapter) {
   let out = stripGenerated(html);
 
-  // Un cours sans catalogue d'exercices (matière non exécutable, atelier
-  // remplacé par un simulateur dédié) garde ses chapitres tels quels : les
-  // numéros de sections restent ceux écrits par le kit.
   const hasExercises = exercises.listExercises()
     .some(exercise => exercise.course === courseId);
   if (!hasExercises) {
     return ensureAssets(out);
   }
 
-  // Réinstallation juste avant le QCM : la pratique vient après la théorie
-  // du chapitre et avant l'évaluation.
   const anchor = /  <h2>\d+\.\s*QCM/;
   if (!anchor.test(out)) {
     throw new Error(`${courseId}/${chapter} : ancre QCM introuvable`);
@@ -220,7 +223,6 @@ function transformChapter(html, courseId, chapter) {
 
 function ensureAtelierLink(html, href, label) {
   if (/href="[^"]*atelier\.html"/.test(html)) return html;
-  // Le lien suit « Exercices » quand il existe, sinon il suit « Sommaire ».
   const afterExercices = /(<a href="[^"]*exercices\/exercices\.html">Exercices<\/a>)/;
   if (afterExercices.test(html)) {
     return html.replace(afterExercices, '$1\n    <a href="' + href + '">' + label + '</a>');
@@ -232,24 +234,14 @@ function ensureAtelierLink(html, href, label) {
   return html;
 }
 
-/**
- * Version finale d'un chapitre : blocs d'ateliers régénérés, ressources
- * assurées, lien « Atelier » présent. C'est le seul rendu légitime d'un
- * chapitre — `scripts/generate-courses.js` l'utilise pour que la génération des
- * pages et l'injection des ateliers ne fassent qu'un seul pipeline.
- */
 function finalizeChapter(html, courseId, chapter) {
   return ensureAtelierLink(transformChapter(html, courseId, chapter), '../atelier.html', 'Atelier');
 }
 
-/** Version finale d'une page transverse du cours. */
 function finalizePage(html, href) {
   return ensureAssets(ensureAtelierLink(html, href, 'Atelier'));
 }
 
-// Pages transverses : même liste pour tous les cours (elles portent les mêmes
-// noms de fichiers). « atelier.html » est à la racine du cours, les autres
-// peuvent être dans un sous-dossier.
 const EXTRA_PAGES = [
   ['index.html', 'atelier.html'],
   ['sommaire.html', 'atelier.html'],
@@ -307,8 +299,7 @@ for (const [courseId, config] of Object.entries(courseConfig)) {
     write(file, out);
   }
 
-  // 2. Navigation et ressources des autres pages du cours (l'atelier inclus :
-  //    sans son script, la page afficherait un cadre mort).
+  // 2. Navigation et ressources des autres pages du cours
   for (const [relative, href] of EXTRA_PAGES) {
     const file = path.join(courseDir, relative);
     if (!fs.existsSync(file)) continue;
@@ -318,10 +309,6 @@ for (const [courseId, config] of Object.entries(courseConfig)) {
 
   total += exercises.listExercises().filter(exercise => exercise.course === courseId).length;
 }
-
-// ========================
-// Bilan
-// ========================
 
 if (CHECK) {
   if (problems.length) {

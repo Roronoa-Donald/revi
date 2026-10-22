@@ -99,7 +99,7 @@ module.exports = [
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
             '      <li>Pléonasme ≠ barbarisme : l\'un est un excès de mots, l\'autre un mot faux.</li>\n' +
-            '      <li>Se rappeler prend un complément direct — exception : se rappeler de toi, d\'elle, d\'avoir fait.</li>\n' +
+            '      <li>Se rappeler prend un complément direct — exception : se rappeler de vous, d\'elle, d\'avoir fait.</li>\n' +
             '      <li>Après que + indicatif (le fait s\'est produit) ; avant que + subjonctif (il ne s\'est pas encore produit).</li>\n' +
             '      <li>Un si d\'hypothèse interdit le conditionnel : « si je pouvais », jamais « si je pourrais ».</li>\n' +
             '    </ul>')
@@ -160,14 +160,14 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — refais les trois listes du support, une famille à la fois.' },
       { cls: 'mid', text: '50–69 % — refais les dix pléonasmes et les dix solécismes.' },
-      { cls: 'good', text: '70–89 % — bon niveau, traque les barbarismes dans tes mails.' },
+      { cls: 'good', text: '70–94 % — bon niveau, traque les barbarismes dans vos mails.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
       { q: 'Les trois familles de fautes ?', a: 'Pléonasme (mot de trop), barbarisme (mot déformé ou forgé), solécisme (construction fautive).' },
       { q: 'Pallier ou pallier à ?', a: 'Pallier : transitif direct — on pallie un manque, une défaillance. Pallier à est fautif.' },
-      { q: 'Se rappeler ou se rappeler de ?', a: 'Se rappeler quelque chose (COD) ; se souvenir de quelque chose. Exceptions : se rappeler de toi, d\'elle, d\'avoir fait.' },
+      { q: 'Se rappeler ou se rappeler de ?', a: 'Se rappeler quelque chose (COD) ; se souvenir de quelque chose. Exceptions : se rappeler de vous, d\'elle, d\'avoir fait.' },
       { q: 'Après que ou avant que ?', a: 'Après que + indicatif (fait réalisé) ; avant que + subjonctif (fait envisagé).' },
       { q: 'Cinq barbarismes classiques ?', a: 'Pécuniers → pécuniaires ; maline → maligne ; dilemne → dilemme ; empruntes → empreintes ; rénuméré → rémunéré.' }
     ]
@@ -302,7 +302,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends la lettre de Kiryang Park bloc par bloc.' },
       { cls: 'mid', text: '50–69 % — refais les formules d\'appel et les stratégies lexicales.' },
-      { cls: 'good', text: '70–89 % — bon niveau, rédige une lettre complète chronométrée.' },
+      { cls: 'good', text: '70–94 % — bon niveau, rédige une lettre complète chronométrée.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -433,7 +433,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la maison d\'être et les familles de participes.' },
       { cls: 'mid', text: '50–69 % — refais le tableau d\'accords du support (allé, allée, allés, allées).' },
-      { cls: 'good', text: '70–89 % — bon niveau, accorde les « vous » sans hésiter.' },
+      { cls: 'good', text: '70–94 % — bon niveau, accorde les « vous » sans hésiter.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

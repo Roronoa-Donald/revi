@@ -72,7 +72,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « Qualitatif : on compte ; Quantitatif : on calcule »', 'pin',
             '    <p>Un caractère <strong>qualitatif</strong> ne permet que de <em>compter</em> des individus par ' +
             'modalité. Un caractère <strong>quantitatif</strong> permet en plus de <em>calculer</em> : moyenne, ' +
-            'écart-type. Si tu te demandes s’il faut une moyenne, la réponse t’indique le type.</p>'),
+            'écart-type. Si vous te demandes s’il faut une moyenne, la réponse vous indique le type.</p>'),
           box('intuition', 'Attention aux nombres qui n’en sont pas', 'compass',
             '    <p>Un numéro de téléphone, un code postal ou un numéro d’étudiant s’écrivent avec des chiffres ' +
             'mais restent <strong>qualitatifs</strong> : additionner deux codes postaux n’a aucun sens. Le type ' +
@@ -178,14 +178,30 @@ module.exports = [
     notions: ['population', 'individu', 'échantillon', 'caractère', 'modalité', 'effectif', 'série ordonnée', 'centre de classe'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends les sections 1 et 2 en réécrivant les définitions.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 1 de l’atelier du chapitre 1.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible le type des caractères et les bornes de classes.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez les sections 1 et 2 en réécrivant les définitions.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 1 de l’atelier du chapitre 1.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible le type des caractères et les bornes de classes.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, effectifs et fréquences.' }
     ],
 
     flashcards: [
-      { q: 'Définis la population et l’échantillon.', a: 'La population est l’ensemble étudié ; l’échantillon est une partie de cette population.' },
+      { q: 'Qu’est-ce que « tableau statistique » ?', a: 'tableau statistique : Vous avez trié votre série : 42 notes. Personne ne peut lire une liste de 42 nombres dans un rapport. Pour décider, il faut la même information sous une forme condensée : combien d’élèves ont eu chaque note, quelle proportion cela représente, et combien d’élèves ont eu au moins telle no' },
+      { q: 'Qu’est-ce que « pourcentage » ?', a: 'calculer une fréquence relative et une fréquence en pourcentage ;' },
+      { q: 'Qu’est-ce que « fréquence cumulée » ?', a: 'fréquence cumulée : calculer une fréquence relative et une fréquence en pourcentage ;' },
+      { q: 'Qu’est-ce que « contrôle des sommes » ?', a: 'contrôle des sommes : Les deux contrôles à faire systématiquement : la somme de la colonne des effectifs doit valoir N, et la somme de la colonne des fréquences doit valoir 1 (ou 100 en pourcentage). Une erreur dans un tableau se repère presque toujours ainsi.' },
+      { q: 'Qu’est-ce que « comparaison de populations » ?', a: 'comparaison de populations' },
+      { q: 'Qu’est-ce que « quartiles » ?', a: 'déterminer médiane et quartiles avec la convention du cours ;' },
+      { q: 'Qu’est-ce que « distribution dissymétrique » ?', a: 'distribution dissymétrique' },
+      { q: 'Qu’est-ce que « étendue » ?', a: 'calculer l’étendue et l’écart interquartile ;' },
+      { q: 'Qu’est-ce que « coefficient de variation » ?', a: 'comparer deux séries par leur coefficient de variation.' },
+      { q: 'Qu’est-ce que « homogénéité » ?', a: 'homogénéité : Statistiques B1 › Sommaire › Chapitre 4' },
+      { q: 'Qu’est-ce que « diagramme en bâtons » ?', a: 'Un graphique bien choisi fait comprendre en deux secondes ce qu’un tableau met deux minutes à dire. Un graphique mal choisi fait croire le contraire de la vérité : un histogramme à classes inégales lu comme un diagramme en bâtons surestime les classes larges. Choisir la bonne rep' },
+      { q: 'Qu’est-ce que « diagramme en barres » ?', a: 'Diagramme en barres : barres plus larges, fréquemment horizontales, pratique quand les libellés sont longs (noms de filières, de villes).' },
+      { q: 'Qu’est-ce que « série double » ?', a: 'Quand deux caractères sont relevés sur les mêmes individus, on obtient une série double : un couple (x, y) par individu. On la représente par un nuage de points dans le plan.' },
+      { q: 'Qu’est-ce que « coefficient de corrélation » ?', a: 'calculer et interpréter un coefficient de corrélation linéaire ;' },
+      { q: 'Qu’est-ce que « prévision » ?', a: 'prévision : Un magasin relève, chaque jour, sa dépense publicitaire et son chiffre d’affaires. Les deux nombres ont-ils un lien, et si oui, peut-on prévoir le second à partir du premier ? Décrire une seule variable ne suffit plus : il faut étudier deux caractères ensemble , mesurer leur liai' },
+      { q: 'Qu’est-ce que « corrélation et causalité » ?', a: 'corrélation et causalité : calculer et interpréter un coefficient de corrélation linéaire ;' },
+      { q: 'Définissez la population et l’échantillon.', a: 'La population est l’ensemble étudié ; l’échantillon est une partie de cette population.' },
       { q: 'Quels sont les trois types de caractères ?', a: 'Qualitatif, quantitatif discret, quantitatif continu (regroupé en classes).' },
       { q: 'Qu’est-ce qu’une modalité ?', a: 'Une valeur possible du caractère (ou une classe, si le caractère est continu).' },
       { q: 'Comment calcule-t-on le centre d’une classe ?', a: 'C’est la demi-somme des bornes inférieure et supérieure de la classe.' }
@@ -201,7 +217,7 @@ module.exports = [
     time: '≈ 2 h 30 de travail',
 
     situation:
-      'Tu as trié ta série : 42 notes. Personne ne peut lire une liste de 42 nombres dans un rapport. Pour ' +
+      'Vous avez trié votre série : 42 notes. Personne ne peut lire une liste de 42 nombres dans un rapport. Pour ' +
       'décider, il faut la même information sous une forme condensée : combien d’élèves ont eu chaque note, ' +
       'quelle proportion cela représente, et combien d’élèves ont eu au moins telle note. C’est exactement le ' +
       'tableau statistique, et il tient en cinq lignes.',
@@ -247,7 +263,7 @@ module.exports = [
           'fréquences (40 %) sont identiques.</p>',
           box('standard', 'Propriété des fréquences relatives', [
       '<p>La fréquence relative $f_i$ est un nombre sans dimension compris entre 0 et 1 :</p>',
-      '<div class="math-block">$0 \\\\le f_i \\\\le 1 \\\\quad \forall i \\\\in \{1, \\\\dots, k\}$</div>',
+      '<div class="math-block">$0 \\\\le f_i \\\\le 1 \\\\quad \\forall i \\\\in \{1, \\\\dots, k\}$</div>',
       '<p>Elle mesure la proportion relative d’individus présentant la modalité $x_i$.</p>'
     ].join('\n'))
         ].join('\n')
@@ -337,9 +353,9 @@ module.exports = [
     notions: ['tableau statistique', 'fréquence relative', 'pourcentage', 'ECC', 'ECD', 'fréquence cumulée', 'contrôle des sommes', 'comparaison de populations'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends le tableau de la section 1 et refais-le entièrement.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 2 de l’atelier du chapitre 2.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible la distinction ECC / ECD.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez le tableau de la section 1 et refais-le entièrement.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 2 de l’atelier du chapitre 2.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible la distinction ECC / ECD.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, la tendance centrale.' }
     ],
 
@@ -509,9 +525,9 @@ module.exports = [
     notions: ['moyenne', 'moyenne pondérée', 'centre de classe', 'médiane', 'quartiles', 'écart interquartile', 'mode', 'distribution dissymétrique'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends le calcul d’effectifs du chapitre 2 avant d’attaquer la moyenne.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 2 de l’atelier du chapitre 3.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible les rangs de quantiles.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez le calcul d’effectifs du chapitre 2 avant d’attaquer la moyenne.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 2 de l’atelier du chapitre 3.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible les rangs de quantiles.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, les mesures de dispersion.' }
     ],
 

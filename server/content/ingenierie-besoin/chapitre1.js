@@ -147,12 +147,28 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la frontière problème/solution et la matrice de Mendelow.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les attributs de fiches d’exigences et la gouvernance RACI.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les fondamentaux du cadrage des exigences.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les attributs de fiches d’exigences et la gouvernance RACI.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les fondamentaux du cadrage des exigences.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux types et critères de qualité d’exigences au chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « Espace Problème » ?', a: 'Le Besoin (Espace Problème / « Quoi & Pourquoi ») : exprime une opportunité, une obligation réglementaire ou un problème concret vécu par les utilisateurs. Exemple : « Réduire le temps d’attente des clients au guichet bancaire » .' },
+      { q: 'Qu’est-ce que « Espace Solution » ?', a: 'La Solution (Espace Solution / « Comment ») : correspond à un choix technique d’implémentation. Exemple : « Développer une application mobile React avec base MongoDB » .' },
+      { q: 'Qu’est-ce que « SMART » ?', a: 'Une exigence SMART est Spécifique (périmètre net), Mesurable (seuil chiffré), Atteignable (technologiquement réaliste), Pertinente / Relevant (alignée sur les objectifs stratégiques) et Temporellement définie (délai ou jalon d’exécution clair).' },
+      { q: 'Qu’est-ce que « Testabilité » ?', a: 'S (Supportability) : testabilité, maintenabilité, modularité, extensibilité et portabilité.' },
+      { q: 'Qu’est-ce que « Non-ambiguïté » ?', a: 'Que signifie le critère de « Non-ambiguïté » d’une exigence ?' },
+      { q: 'Qu’est-ce que « Shadowing » ?', a: 'pratiquer l’observation directe et le shadowing pour confronter travail prescrit et travail réel ;' },
+      { q: 'Qu’est-ce que « Effet Hawthorne » ?', a: 'L’effet Hawthorne : attention au biais par lequel un individu modifie son comportement habituel du simple fait qu’il se sait observé. D’où la nécessité de séances d’immersion prolongées.' },
+      { q: 'Qu’est-ce que « Workaround » ?', a: 'Découverte des « Workarounds » (Contournements) : les utilisateurs inventent souvent des béquilles informelles pour pallier les défauts de l’ancien système. Ces contournements révèlent les besoins métier les plus urgents.' },
+      { q: 'Qu’est-ce que « Échantillonnage » ?', a: 'Échantillonnage : Ingénierie du besoin B2 › Sommaire › Chapitre 3' },
+      { q: 'Qu’est-ce que « Personas » ?', a: 'construire des personas utilisateurs réalistes dotés d’objectifs, de frustrations et de scénarios d’usage.' },
+      { q: 'Qu’est-ce que « Triangulation » ?', a: 'Ne vous fiez jamais à une seule technique. La triangulation consiste à croiser au moins trois sources : par exemple, un entretien stratégique avec le manager, une journée d’observation terrain avec les opérateurs, et un questionnaire de validation auprès de l’ensemble des agences' },
+      { q: 'Qu’est-ce que « Critères d’acceptation » ?', a: 'Critères d’acceptation (Acceptance Criteria) : conditions spécifiques et mesurables propres à la story que le livrable doit valider pour être accepté par le Product Owner.' },
+      { q: 'Qu’est-ce que « DoD » ?', a: 'distinguer clairement la Definition of Ready (DoR) et la Definition of Done (DoD) ;' },
+      { q: 'Qu’est-ce que « Codification » ?', a: 'La codification systématique (ex. BNK-AUTH-FR-001) garantit une traçabilité pérenne à travers le cycle de vie.' },
+      { q: 'Qu’est-ce que « RTM » ?', a: 'concevoir une matrice de traçabilité des exigences (RTM) bidirectionnelle (amont et aval) ;' },
+      { q: 'Qu’est-ce que « Change Request » ?', a: 'Change Request : Même avec la meilleure élicitation du monde, les besoins d’une entreprise évoluent en permanence. Les changements incontrôlés mènent tout droit au phénomène destructeur du « Scope Creep » (dérive des objectifs). L’ingénieur des exigences doit mettre en place des revues formelles ' },
     { q: 'Quelle est la différence fondamentale entre besoin et solution ?', a: 'Le besoin décrit le problème ou l’objectif métier (Quoi/Pourquoi) ; la solution décrit l’implémentation technique (Comment).' },
     { q: 'Quelle norme internationale régit l’ingénierie des exigences ?', a: 'La norme ISO/IEC/IEEE 29148 (qui remplace l’historique IEEE 830).' },
     { q: 'Quels sont les 4 quadrants de la matrice de Mendelow ?', a: 'Gérer de près (P+ / I+), Garder satisfait (P+ / I-), Garder informé (P- / I+), Surveiller (P- / I-).' },

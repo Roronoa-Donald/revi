@@ -20,7 +20,7 @@ module.exports = {
     'implémenter la stratégie Blue/Green et piloter la bascule instantanée de routeur réseau et le retour arrière (Rollback) ;',
     'paramétrer une Canary Release progressive avec monitoring d’erreurs HTTP 5xx et coupe-circuit automatisé ;',
     'découpler le déploiement de code de l’activation métier via des Feature Flags (Toggles) ;',
-    'programmer en Python 3 des simulateurs de bascule Blue/Green, de routage Canary et d’évaluation de Feature Flags.'
+    'analyser et résoudre méthodologiquement des simulateurs de bascule Blue/Green, de routage Canary et d’évaluation de Feature Flags.'
   ],
   sections: [
     {

@@ -20,7 +20,7 @@ module.exports = {
     'concevoir des diagrammes d’architecture et de séquence as-code via la syntaxe textuelle Mermaid.js ;',
     'configurer et structurer un générateur de site statique documentaire (MkDocs avec le thème Material, Docusaurus, Sphinx) ;',
     'automatiser la compilation, la validation et la publication continue de la documentation dans une forge logicielle (GitHub Actions, GitLab CI) ;',
-    'développer en Python 3 des linters de hiérarchie Markdown, des validateurs de connectivité Mermaid et des générateurs d’arborescence YAML.'
+    'analyser et résoudre méthodologiquement des linters de hiérarchie Markdown, des validateurs de connectivité Mermaid et des générateurs d’arborescence YAML.'
   ],
   sections: [
     {
@@ -97,7 +97,7 @@ module.exports = {
         '<div class="grid grid-3">',
         '  <div class="card">',
         '    <h4>MkDocs + Material for MkDocs</h4>',
-        '    <p>Le standard incontournable de l’écosystème Python et DevOps. Écrit en Python, il se configure via un fichier central <code>mkdocs.yml</code>. Le thème Material offre une recherche plein texte instantanée, le mode sombre/clair automatique, la coloration syntaxique et le support natif de Mermaid.</p>',
+        '    <p>Le standard incontournable de l’écosystème Python et DevOps. Écrit de manière méthodique, il se configure via un fichier central <code>mkdocs.yml</code>. Le thème Material offre une recherche plein texte instantanée, le mode sombre/clair automatique, la coloration syntaxique et le support natif de Mermaid.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Docusaurus (Meta)</h4>',

@@ -97,12 +97,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’examen (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu’à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : formules de réunion, hypothèses de Markov/Tchebychev, ' +
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu’à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : formules de réunion, hypothèses de Markov/Tchebychev, ' +
       'standardisation, arrondis.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
@@ -115,7 +115,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les lois usuelles et la normale.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les lois usuelles et la normale.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l’examen.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & annales' }),

@@ -51,10 +51,10 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "goal": "Vérifier l’égalité des optimums primal et dual et calculer le gap de dualité.",
-    "brief": "<p>D’après le <strong>théorème fort de la dualité</strong>, si le problème primal admet une solution optimale $x^*$, alors le problème dual admet une solution optimale $y^*$ telle que :<br>$$Z(x^*) = c^T x^* = b^T y^* = W(y^*)$$<br>Si les points testés ne sont pas encore optimaux, le <em>théorème faible</em> garantit que $Z(x) \\le W(y)$, l’écart $W(y) - Z(x) \\ge 0$ formant le <strong>gap de dualité</strong>.</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calcule $Z = c_1 x_1 + c_2 x_2$, $W = b_1 y_1 + b_2 y_2$ et l’écart $gap = W - Z$.<br>Si $|gap| < 10^{-5}$, Indiquez :<br><code>OPTIMUM_ATTEINT Z=W=&lt;valeur à 2 décimales&gt; GAP=0.00</code>.<br>Sinon, Indiquez :<br><code>NON_OPTIMAL Z=&lt;Z à 2 décimales&gt; W=&lt;W à 2 décimales&gt; GAP=&lt;gap à 2 décimales&gt;</code>.</p>",
+    "brief": "<p>D’après le <strong>théorème fort de la dualité</strong>, si le problème primal admet une solution optimale $x^*$, alors le problème dual admet une solution optimale $y^*$ telle que :<br>$$Z(x^*) = c^T x^* = b^T y^* = W(y^*)$$<br>Si les points testés ne sont pas encore optimaux, le <em>théorème faible</em> garantit que $Z(x) \\le W(y)$, l’écart $W(y) - Z(x) \\ge 0$ formant le <strong>gap de dualité</strong>.</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calculez $Z = c_1 x_1 + c_2 x_2$, $W = b_1 y_1 + b_2 y_2$ et l’écart $gap = W - Z$.<br>Si $|gap| < 10^{-5}$, Indiquez :<br><code>OPTIMUM_ATTEINT Z=W=&lt;valeur à 2 décimales&gt; GAP=0.00</code>.<br>Sinon, Indiquez :<br><code>NON_OPTIMAL Z=&lt;Z à 2 décimales&gt; W=&lt;W à 2 décimales&gt; GAP=&lt;gap à 2 décimales&gt;</code>.</p>",
     "starter": "# Grille de calcul (ro2-c4-e2) — Théorème fort de la dualité & Gap de dualité\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\n# Données : 3,5;7,2;16,11;0.333333,2.333333\nA_COMPLETER\n\n[Cas 2 — Points sous-optimaux avec gap net]\n# Données : 2,3;2,1;10,8;1.5,1.0\nA_COMPLETER\n\n[Cas 3 — Autre optimum parfait]\n# Données : 10,12;5,5;50,30;1.0,2.0\nA_COMPLETER\n",
     "hints": [
-      "Calcule z = c1*x1 + c2*x2 et w = b1*y1 + b2*y2.",
+      "Calculez z = c1*x1 + c2*x2 et w = b1*y1 + b2*y2.",
       "Si abs(w - z) < 1e-5, le gap est nul et l’optimum est prouvé."
     ],
     "examples": [
@@ -93,7 +93,7 @@ module.exports = [
     "brief": "<p>Le théorème des écarts complémentaires (Karush-Kuhn-Tucker) stipule qu’à l’optimum :</p><ul>  <li>Pour toute contrainte de ressource $i$ : $y_i^* \\times s_i^* = 0$.<br>  (Si une ressource est excédentaire $s_i > 0$, son prix d’ombre est nul $y_i = 0$ ; si $y_i > 0$, la ressource est saturée $s_i = 0$).</li>  <li>Pour toute variable de décision $j$ : $x_j^* \\times e_j^* = 0$ (où $e_j$ est l’écart sur la contrainte duale).</li></ul><p>Analysez les paramètres du problème pour chaque cas...;y1,y2,...</code> représentant les écarts primaux $s_i$ et les variables duales associées $y_i$.<br>Pour chaque couple $(s_i, y_i)$, vérifie si $s_i \\times y_i = 0$ (avec tolérance $10^{-5}$).<br>Si toutes les conditions sont respectées, Indiquez :<br><code>COMPLEMENTARITE_VERIFIEE</code>.<br>Sinon, liste les indices des contraintes en violation :<br><code>VIOLATION_CONTRAINTE_&lt;i&gt;</code> (séparés par un espace).</p>",
     "starter": "# Grille de calcul (ro2-c4-e3) — Théorème des écarts complémentaires (Slackness)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les conditions respectées]\n# Données : 0.0,0.0,2.0,0.0;3.0,1.5,0.0,4.2\nA_COMPLETER\n\n[Cas 2 — Violation sur la deuxième contrainte]\n# Données : 0.0,3.0,0.0;2.0,1.0,4.0\nA_COMPLETER\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\n# Données : 1.5,0.0,2.0;2.0,0.0,1.0\nA_COMPLETER\n",
     "hints": [
-      "Découpe par \";\" puis sépare les valeurs s et y.",
+      "Découpez par \";\" puis sépare les valeurs s et y.",
       "Une violation apparaît si abs(s * y) > 1e-5."
     ],
     "examples": [

@@ -19,7 +19,7 @@ module.exports = {
     'maîtriser les 4 transformations de chaque ronde d\'AES : SubBytes, ShiftRows, MixColumns et AddRoundKey ;',
     'comparer les modes opératoires de chiffrement par bloc : ECB, CBC, CFB, OFB, CTR et le mode authentifié GCM ;',
     'implémenter rigoureusement la norme de bourrage PKCS#7 (RFC 5652) et comprendre la mécanique de l\'attaque par oracle de padding ;',
-    'développer en Python 3 des chiffreurs de flux LFSR, des applicateurs de padding PKCS#7 et des simulateurs de mode CBC.'
+    'analyser et résoudre méthodologiquement des chiffreurs de flux LFSR, des applicateurs de padding PKCS#7 et des simulateurs de mode CBC.'
   ],
   sections: [
     {
@@ -219,7 +219,7 @@ module.exports = {
       desc: 'Mettre en place des mécanismes garantissant qu\'un nonce ou un IV n\'est jamais réutilisé avec la même clé secrète.'
     },
     {
-      title: 'Développement d\'outils de cryptographie symétrique en Python 3',
+      title: 'Développement d\'outils de cryptographie symétrique de manière méthodique',
       desc: 'Concevoir des scripts de simulation de modes de bloc CBC, de padding PKCS#7 et d\'analyse de propagation d\'erreurs de bits.'
     }
   ]

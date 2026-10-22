@@ -235,8 +235,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la différence fondamentale entre INNER JOIN et LEFT JOIN.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’anti-jointure et le remplacement de NOT IN par NOT EXISTS.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les jointures multi-tables et la logique conditionnelle.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’anti-jointure et le remplacement de NOT IN par NOT EXISTS.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les jointures multi-tables et la logique conditionnelle.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe aux fonctions d’agrégation avancées et au fenêtrage au module 4.' }
   ],
 

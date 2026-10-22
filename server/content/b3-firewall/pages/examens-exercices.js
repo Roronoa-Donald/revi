@@ -159,29 +159,29 @@ function exercices(course, chapterList) {
   ]);
 
   const exercises = [
-    { id: 'fw3-c1-e1', ch: 1, title: 'Classificateur de génération et d’architecture de pare-feu', level: 'n1', lang: 'Python', desc: 'Identifier la génération technologique (Stateless, Stateful, UTM, NGFW) selon les capacités d’inspection.' },
-    { id: 'fw3-c1-e2', ch: 1, title: 'Auditeur de séparation des zones de confiance', level: 'n2', lang: 'Python', desc: 'Vérifier la conformité de l’isolation entre zones de confiance et d’exposition.' },
-    { id: 'fw3-c1-e3', ch: 1, title: 'Moteur de filtrage de paquets sans état (Stateless)', level: 'n3', lang: 'Python', desc: 'Filtrer les paquets réseau en couches L3/L4 avec politique de refus implicite.' },
+    { id: 'fw3-c1-e1', ch: 1, title: 'Classificateur de génération et d’architecture de pare-feu', level: 'n1', lang: 'Étude de cas', desc: 'Identifier la génération technologique (Stateless, Stateful, UTM, NGFW) selon les capacités d’inspection.' },
+    { id: 'fw3-c1-e2', ch: 1, title: 'Auditeur de séparation des zones de confiance', level: 'n2', lang: 'Étude de cas', desc: 'Vérifier la conformité de l’isolation entre zones de confiance et d’exposition.' },
+    { id: 'fw3-c1-e3', ch: 1, title: 'Moteur de filtrage de paquets sans état (Stateless)', level: 'n3', lang: 'Étude de cas', desc: 'Filtrer les paquets réseau en couches L3/L4 avec politique de refus implicite.' },
 
-    { id: 'fw3-c2-e1', ch: 2, title: 'Machine à états TCP conntrack (NEW, ESTABLISHED, INVALID)', level: 'n1', lang: 'Python', desc: 'Simuler le moteur conntrack de suivi de sessions TCP selon la RFC 793.' },
-    { id: 'fw3-c2-e2', ch: 2, title: 'Purge et gestion des délais d’expiration (Timeouts) conntrack', level: 'n2', lang: 'Python', desc: 'Gérer la durée de vie des entrées conntrack selon le protocole et leur inactivité.' },
-    { id: 'fw3-c2-e3', ch: 2, title: 'Détecteur de balayages furtifs (Scans Xmas, Null, FIN & Syn-Fin)', level: 'n3', lang: 'Python', desc: 'Détecter les combinaisons illégales de drapeaux TCP exploitées par Nmap.' },
+    { id: 'fw3-c2-e1', ch: 2, title: 'Machine à états TCP conntrack (NEW, ESTABLISHED, INVALID)', level: 'n1', lang: 'Étude de cas', desc: 'Simuler le moteur conntrack de suivi de sessions TCP selon la RFC 793.' },
+    { id: 'fw3-c2-e2', ch: 2, title: 'Purge et gestion des délais d’expiration (Timeouts) conntrack', level: 'n2', lang: 'Étude de cas', desc: 'Gérer la durée de vie des entrées conntrack selon le protocole et leur inactivité.' },
+    { id: 'fw3-c2-e3', ch: 2, title: 'Détecteur de balayages furtifs (Scans Xmas, Null, FIN & Syn-Fin)', level: 'n3', lang: 'Étude de cas', desc: 'Détecter les combinaisons illégales de drapeaux TCP exploitées par Nmap.' },
 
-    { id: 'fw3-c3-e1', ch: 3, title: 'Moteur d’évaluation d’ACL First-Match-Wins avec Default DROP', level: 'n1', lang: 'Python', desc: 'Implémenter le moteur séquentiel d’évaluation des règles de filtrage avec refus par défaut.' },
-    { id: 'fw3-c3-e2', ch: 3, title: 'Détecteur d’anomalies et masquage de règles (Rule Shadowing)', level: 'n2', lang: 'Python', desc: 'Analyser une politique de sécurité pour détecter les règles masquées ou redondantes.' },
-    { id: 'fw3-c3-e3', ch: 3, title: 'Simulateur de translation d’adresses NAT (SNAT Masquerade & DNAT)', level: 'n3', lang: 'Python', desc: 'Simuler les translations SNAT sortantes et DNAT (Port Forwarding) entrantes.' },
+    { id: 'fw3-c3-e1', ch: 3, title: 'Moteur d’évaluation d’ACL First-Match-Wins avec Default DROP', level: 'n1', lang: 'Étude de cas', desc: 'Implémenter le moteur séquentiel d’évaluation des règles de filtrage avec refus par défaut.' },
+    { id: 'fw3-c3-e2', ch: 3, title: 'Détecteur d’anomalies et masquage de règles (Rule Shadowing)', level: 'n2', lang: 'Étude de cas', desc: 'Analyser une politique de sécurité pour détecter les règles masquées ou redondantes.' },
+    { id: 'fw3-c3-e3', ch: 3, title: 'Simulateur de translation d’adresses NAT (SNAT Masquerade & DNAT)', level: 'n3', lang: 'Étude de cas', desc: 'Simuler les translations SNAT sortantes et DNAT (Port Forwarding) entrantes.' },
 
-    { id: 'fw3-c4-e1', ch: 4, title: 'Contrôleur de conformité des flux de sécurité DMZ', level: 'n1', lang: 'Python', desc: 'Vérifier la conformité des flux et interdire formellement toute initiation DMZ vers LAN.' },
-    { id: 'fw3-c4-e2', ch: 4, title: 'Évaluateur d’architectures et topologies pare-feu', level: 'n2', lang: 'Python', desc: 'Classifier l’architecture (Dual-Homed, Triple-Homed, Back-to-Back) et calculer sa résilience.' },
-    { id: 'fw3-c4-e3', ch: 4, title: 'Passerelle d’administration sécurisée et Bastion SSH / Jump Host', level: 'n3', lang: 'Python', desc: 'Valider les accès d’administration via un hôte bastion avec authentification MFA.' },
+    { id: 'fw3-c4-e1', ch: 4, title: 'Contrôleur de conformité des flux de sécurité DMZ', level: 'n1', lang: 'Étude de cas', desc: 'Vérifier la conformité des flux et interdire formellement toute initiation DMZ vers LAN.' },
+    { id: 'fw3-c4-e2', ch: 4, title: 'Évaluateur d’architectures et topologies pare-feu', level: 'n2', lang: 'Étude de cas', desc: 'Classifier l’architecture (Dual-Homed, Triple-Homed, Back-to-Back) et calculer sa résilience.' },
+    { id: 'fw3-c4-e3', ch: 4, title: 'Passerelle d’administration sécurisée et Bastion SSH / Jump Host', level: 'n3', lang: 'Étude de cas', desc: 'Valider les accès d’administration via un hôte bastion avec authentification MFA.' },
 
-    { id: 'fw3-c5-e1', ch: 5, title: 'Filtrage de domaines DNS & inspection du SNI TLS', level: 'n1', lang: 'Python', desc: 'Classer les noms d’hôtes extraits de l’extension SNI TLS selon leur réputation.' },
-    { id: 'fw3-c5-e2', ch: 5, title: 'Limiteur de débit et protection anti-DoS par fenêtre glissante', level: 'n2', lang: 'Python', desc: 'Implémenter un limiteur de débit par IP pour contrer les rafales de requêtes.' },
-    { id: 'fw3-c5-e3', ch: 5, title: 'Moteur Deep Packet Inspection (DPI) et détection de signatures L7', level: 'n3', lang: 'Python', desc: 'Analyser la charge utile applicative pour détecter les injections SQL, XSS et path traversal.' },
+    { id: 'fw3-c5-e1', ch: 5, title: 'Filtrage de domaines DNS & inspection du SNI TLS', level: 'n1', lang: 'Étude de cas', desc: 'Classer les noms d’hôtes extraits de l’extension SNI TLS selon leur réputation.' },
+    { id: 'fw3-c5-e2', ch: 5, title: 'Limiteur de débit et protection anti-DoS par fenêtre glissante', level: 'n2', lang: 'Étude de cas', desc: 'Implémenter un limiteur de débit par IP pour contrer les rafales de requêtes.' },
+    { id: 'fw3-c5-e3', ch: 5, title: 'Moteur Deep Packet Inspection (DPI) et détection de signatures L7', level: 'n3', lang: 'Étude de cas', desc: 'Analyser la charge utile applicative pour détecter les injections SQL, XSS et path traversal.' },
 
-    { id: 'fw3-c6-e1', ch: 6, title: 'Compilateur de règles vers les syntaxes iptables et nftables', level: 'n1', lang: 'Python', desc: 'Traduire une politique déclarative en commandes netfilter iptables et nftables.' },
-    { id: 'fw3-c6-e2', ch: 6, title: 'Parseur et agrégateur statistique de journaux de pare-feu (Logs)', level: 'n2', lang: 'Python', desc: 'Analyser un flux de logs format syslog et extraire les métriques de sécurité essentielles.' },
-    { id: 'fw3-c6-e3', ch: 6, title: 'Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)', level: 'n3', lang: 'Python', desc: 'Surveiller les échecs d’authentification et déclencher le blocage dynamique de l’IP.' }
+    { id: 'fw3-c6-e1', ch: 6, title: 'Compilateur de règles vers les syntaxes iptables et nftables', level: 'n1', lang: 'Étude de cas', desc: 'Traduire une politique déclarative en commandes netfilter iptables et nftables.' },
+    { id: 'fw3-c6-e2', ch: 6, title: 'Parseur et agrégateur statistique de journaux de pare-feu (Logs)', level: 'n2', lang: 'Étude de cas', desc: 'Analyser un flux de logs format syslog et extraire les métriques de sécurité essentielles.' },
+    { id: 'fw3-c6-e3', ch: 6, title: 'Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)', level: 'n3', lang: 'Étude de cas', desc: 'Surveiller les échecs d’authentification et déclencher le blocage dynamique de l’IP.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -202,7 +202,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — Pare-feux &amp; Sécurité Réseau</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 études de cas pratiques et méthodologiques intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',
@@ -214,7 +214,7 @@ function exercices(course, chapterList) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Répertoire complet des 18 exercices de programmation en Python 3 du cours Firewall & Sécurité Réseau B3.',
+      description: 'Répertoire complet des 18 exercices de programmation de manière méthodique du cours Firewall & Sécurité Réseau B3.',
       active: 'exercices',
       body
     }

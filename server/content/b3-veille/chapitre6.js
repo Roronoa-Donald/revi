@@ -19,7 +19,7 @@ module.exports = {
     'mettre en place un workflow agile Kanban pour piloter la production d’une cellule de veille collaborative en équipe projet B3 ;',
     'mesurer et optimiser le temps de cycle (Lead Time) entre la détection d’un signal et sa diffusion aux équipes techniques ;',
     'maîtriser le cadre légal et déontologique de la veille : droit d’auteur, exception de courte citation, secret des affaires et directive NIS 2 ;',
-    'implémenter en Python 3 des générateurs de bulletins hiérarchisés, des calculateurs de Tech Radar et des simulateurs de workflow Kanban.'
+    'analyser et résoudre méthodologiquement des générateurs de bulletins hiérarchisés, des calculateurs de Tech Radar et des simulateurs de workflow Kanban.'
   ],
   sections: [
     {

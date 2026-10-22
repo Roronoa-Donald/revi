@@ -85,7 +85,7 @@ module.exports = {
           '<p>Lorsque le pixel affiché à l’écran ne correspond pas exactement à un texel de la texture :</p>' +
           '<ul>' +
           '  <li><strong>Nearest Neighbor :</strong> Prend le texel le plus proche. Produit un effet pixelisé (style rétro).</li>' +
-          '  <li><strong>Bilinéaire :</strong> Calcule une moyenne pondérée entre les 4 texels voisins les plus proches. Lisse les pixels.</li>' +
+          '  <li><strong>Bilinéaire :</strong> Calculez une moyenne pondérée entre les 4 texels voisins les plus proches. Lisse les pixels.</li>' +
           '  <li><strong>Trilinéaire :</strong> Réalise un filtrage bilinéaire sur les deux niveaux de mipmaps adjacents et effectue une interpolation linéaire entre les deux. Élimine toute coupure visible lors des transitions de distance.</li>' +
           '</ul>'
         )

@@ -49,7 +49,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4 class="card-title">Approches de détection</h4>',
         '    <ul>',
-        '      <li><strong>Détection par signatures :</strong> Compare le trafic à une base de motifs connus (chaînes d’octets, hash, regex). Très rapide et faible taux de faux positifs, mais incapable de bloquer une vulnérabilité 0-day inconnue.</li>',
+        '      <li><strong>Détection par signatures :</strong> Comparez le trafic à une base de motifs connus (chaînes d’octets, hash, regex). Très rapide et faible taux de faux positifs, mais incapable de bloquer une vulnérabilité 0-day inconnue.</li>',
         '      <li><strong>Détection comportementale / par anomalies :</strong> Établit une référence du trafic normal et alerte en cas d’écart statistique notable (débit inhabituel, volume de requêtes). Détecte les menaces émergentes mais génère davantage de faux positifs.</li>',
         '    </ul>',
         '  </div>',
@@ -239,12 +239,19 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les bases des signatures NIDS Snort et les étapes du cycle NIST.' },
-    { cls: 'mid', text: '50–69 % — Consolide tes acquis sur la corrélation SIEM et les techniques de mitigation DDoS.' },
-    { cls: 'good', text: '70–89 % — Très bon niveau : tu maîtrises les principes de détection et la réaction aux incidents cyber.' },
-    { cls: 'top', text: '≥ 95 % — Maîtrise d’expert : tu es prêt pour auditer et défendre des architectures complexes en B2 !' }
+    { cls: 'mid', text: '50–69 % — Consolide vos acquis sur la corrélation SIEM et les techniques de mitigation DDoS.' },
+    { cls: 'good', text: '70–94 % — Très bon niveau : vous maîtrisez les principes de détection et la réaction aux incidents cyber.' },
+    { cls: 'top', text: '≥ 95 % — Maîtrise d’expert : vous êtes prêt pour auditer et défendre des architectures complexes en B2 !' }
   ],
 
   flashcards: [
+    { "q": 'Qu’est-ce que « Règles et signatures Snort (sid, rev, content) » ?', "a": 'Règles et signatures Snort (sid, rev, content)' },
+    { "q": 'Qu’est-ce que « SIEM et corrélation de journaux de sécurité » ?', "a": 'SIEM et corrélation de journaux de sécurité' },
+    { "q": 'Qu’est-ce que « Attaques DDoS SYN Flood et SYN Cookies » ?', "a": 'Attaques DDoS SYN Flood et SYN Cookies' },
+    { "q": 'Qu’est-ce que « Amplification et réflexion UDP (DNS, NTP) » ?', "a": 'Amplification et réflexion UDP (DNS, NTP)' },
+    { "q": 'Qu’est-ce que « Ransomwares et modèle de double extorsion » ?', "a": 'Ransomwares et modèle de double extorsion' },
+    { "q": 'Qu’est-ce que « Méthodologie NIST SP 800-61 » ?', "a": 'Méthodologie NIST SP 800-61' },
+    { "q": 'Qu’est-ce que « Forensics numérique et acquisition de mémoire RAM » ?', "a": 'Forensics numérique et acquisition de mémoire RAM' },
     { q: 'Quelle est la fonction du paramètre sid dans une règle Snort ?', a: 'Il attribue un identifiant unique (Snort ID) à la règle pour faciliter son traçage et sa gestion dans les alertes du SOC.' },
     { q: 'Pourquoi un NIDS passif est-il incapable d’interrompre directement une connexion malveillante ?', a: 'Parce qu’il écoute une copie du flux sur un port miroir et n’est pas positionné en coupure directe (in-line) sur le flux réseau.' },
     { q: 'Comment les SYN Cookies protègent-ils un serveur contre un SYN Flood ?', a: 'Ils encodent l’état de la connexion dans le numéro de séquence TCP initial (ISN), évitant d’allouer de la mémoire tant que le ACK final du client n’est pas reçu.' },

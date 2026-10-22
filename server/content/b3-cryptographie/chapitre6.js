@@ -19,7 +19,7 @@ module.exports = {
     'décortiquer la structure des suites cryptographiques et classifier leur niveau de conformité selon les recommandations ANSSI/NIST ;',
     'maîtriser le fonctionnement de SSHv2 (clés ed25519, known_hosts) et d\'IPsec (protocoles AH/ESP, modes Transport et Tunnel, négociations IKEv2) ;',
     'évaluer l\'impact des algorithmes de Shor et de Grover sur la cryptographie moderne et comprendre les nouveaux standards post-quantiques (FIPS 203, FIPS 204) ;',
-    'développer en Python 3 des analyseurs de suites TLS, des simulateurs de négociation TLS 1.3 et des auditeurs de conformité post-quantique.'
+    'analyser et résoudre méthodologiquement des analyseurs de suites TLS, des simulateurs de négociation TLS 1.3 et des auditeurs de conformité post-quantique.'
   ],
   sections: [
     {
@@ -229,7 +229,7 @@ module.exports = {
   ],
   mastery: [
     {
-      title: 'Audit et analyse automatique de suites TLS en Python 3',
+      title: 'Audit et analyse automatique de suites TLS de manière méthodique',
       desc: 'Développer des parsers inspectant les versions TLS, les algorithmes de chiffrement et la présence du Forward Secrecy.'
     },
     {

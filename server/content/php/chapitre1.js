@@ -128,12 +128,22 @@ module.exports = {
   notions: ['classe', 'objet', 'instance', 'constructeur', '$this', 'méthode', 'propriété', 'visibilité', 'new', 'type de retour', 'concaténation'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Réécris la classe Point de zéro avant de continuer.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à distinguer -> et le point de concaténation.' },
-    { cls: 'good', text: '70–89 % — Solide : ta classe a un état clair et des méthodes typées.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à distinguer -> et le point de concaténation.' },
+    { cls: 'good', text: '70–94 % — Solide : votre classe a un état clair et des méthodes typées.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe à l’encapsulation, chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « visibilité » ?', a: 'Déclarer une propriété sans visibilité ni valeur et la lire avant toute affectation.' },
+      { q: 'Qu’est-ce que « public » ?', a: 'La visibilité décide qui peut toucher un membre. public l’ouvre à tout le monde, private le réserve à la classe, protected l’ouvre aussi aux classes filles (chapitre 3). Le principe d’ encapsulation : propriétés en private, méthodes publiques qui contrôlent l’accès.' },
+      { q: 'Qu’est-ce que « getter » ?', a: 'exposer l’état par des getters et le modifier par des setters qui valident ;' },
+      { q: 'Qu’est-ce que « validation » ?', a: 'Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code et la validation fait tourner des jeux de tests indépendants : réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.' },
+      { q: 'Qu’est-ce que « héritage » ?', a: 'Une classe abstraite peut contenir du code et n’en hérite qu’une seule (héritage simple). Une interface ne contient que des signatures et on peut en implémenter autant qu’on veut : elle sert à décrire une capacité (« est affichable », « est comparable »).' },
+      { q: 'Qu’est-ce que « redéfinition » ?', a: 'redéfinition : PHP POO B2 › Sommaire › Chapitre 3' },
+      { q: 'Qu’est-ce que « abstract » ?', a: 'Une classe abstraite ( abstract ) ne s’instancie pas : elle sert de base commune. Elle peut déclarer des méthodes abstraites — sans corps — que chaque fille devra obligatoirement implémenter.' },
+      { q: 'Qu’est-ce que « nom complet » ?', a: 'Écrire le nom complet Core\\Calcul partout au lieu d’importer une fois.' },
+      { q: 'Qu’est-ce que « ERRMODE_EXCEPTION » ?', a: 'Le mode ERRMODE_EXCEPTION est essentiel : sans lui, une requête qui échoue renvoie simplement false et l’erreur passe inaperçue. Avec, chaque incident lève une PDOException qu’on peut intercepter.' },
+      { q: 'Qu’est-ce que « paramètre nommé » ?', a: 'Comment lie-t-on un paramètre nommé ?' },
     { q: 'Qu’est-ce qu’une classe ?', a: 'Le moule qui décrit les propriétés et méthodes d’un type d’objet.' },
     { q: 'Quand s’exécute __construct() ?', a: 'Automatiquement à chaque new, pour initialiser l’objet.' },
     { q: 'À quoi sert $this ?', a: 'À désigner l’objet courant et atteindre ses membres avec ->.' },

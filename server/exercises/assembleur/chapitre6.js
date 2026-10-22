@@ -52,10 +52,10 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Déterminer si un saut conditionnel x86 est franchi (pris) ou ignoré selon le résultat de CMP.",
-    "brief": "<p>L’instruction <code>CMP A, B</code> compare deux opérandes en calculant $A - B$. L’instruction de branchement conditionnel suivante examine l’état des drapeaux :</p><ul>  <li><code>JE / JZ</code> : saute si $A = B$ ;</li>  <li><code>JNE / JNZ</code> : saute si $A \\neq B$ ;</li>  <li><code>JG</code> : saute si $A &gt; B$ (comparaison signée) ;</li>  <li><code>JL</code> : saute si $A &lt; B$ (comparaison signée) ;</li>  <li><code>JGE</code> : saute si $A \\ge B$ ;</li>  <li><code>JLE</code> : saute si $A \\le B$.</li></ul><p>Analysez les paramètres du problème pour chaque cas. Indiquez :<br><code>DECISION=&lt;PRIS|IGNORE&gt; COND=&lt;condition satisfaite ou non&gt;</code>.</p>",
+    "brief": "<p>L’instruction <code>CMP A, B</code> compare deux opérandes en calculant $A - B$. L’instruction de branchement conditionnel suivante examine l’état des drapeaux :</p><ul>  <li><code>JE / JZ</code> : saute si $A = B$ ;</li>  <li><code>JNE / JNZ</code> : saute si $A ≠ B$ ;</li>  <li><code>JG</code> : saute si $A &gt; B$ (comparaison signée) ;</li>  <li><code>JL</code> : saute si $A &lt; B$ (comparaison signée) ;</li>  <li><code>JGE</code> : saute si $A \\ge B$ ;</li>  <li><code>JLE</code> : saute si $A \\le B$.</li></ul><p>Analysez les paramètres du problème pour chaque cas. Indiquez :<br><code>DECISION=&lt;PRIS|IGNORE&gt; COND=&lt;condition satisfaite ou non&gt;</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c6-e2) — Évaluateur de sauts conditionnels x86 (CMP & Jcc)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Saut d’égalité JE avec valeurs égales]\n# Données : 15;15;JE\nA_COMPLETER\n\n[Cas 2 — Saut d’égalité JE avec valeurs distinctes]\n# Données : 15;20;JE\nA_COMPLETER\n\n[Cas 3 — Saut JG avec premier opérande supérieur]\n# Données : 50;30;JG\nA_COMPLETER\n\n[Cas 4 — Saut JL avec premier opérande supérieur (saut non pris)]\n# Données : 50;30;JL\nA_COMPLETER\n",
     "hints": [
-      "Compare A et B avec l’opérateur correspondant : JE (==), JNE (!=), JG (>), JL (<), JGE (>=), JLE (<=).",
+      "Comparez A et B avec l’opérateur correspondant : JE (==), JNE (!=), JG (>), JL (<), JGE (>=), JLE (<=).",
       "Si la condition est vraie, DECISION=PRIS, sinon DECISION=IGNORE."
     ],
     "examples": [

@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-sqlnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>maîtriser la clause analytique OVER avec ses sous-clauses PARTITION BY et ORDER BY ;</li>
       <li>différencier avec rigueur les fonctions de classement ROW_NUMBER, RANK et DENSE_RANK sur des ex-æquo ;</li>
@@ -93,7 +93,7 @@
        ) AS salaire_moyen_cumul
 FROM employes;</code></pre>
     <ul>
-      <li><strong>PARTITION BY :</strong> Découpe le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>
+      <li><strong>PARTITION BY :</strong> Découpez le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>
       <li><strong>ORDER BY :</strong> Détermine l’ordre d’évaluation séquentielle des tuples au sein de chaque partition.</li>
     </ul>
   </div>
@@ -185,208 +185,127 @@ SELECT * FROM hierarchie ORDER BY niveau, id;</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="sql3-c4-e1" data-lab
      data-exercise="sql3-c4-e1"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="SERIE vals=100,90,90,80,70">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c4-e1) — Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Toutes les valeurs identiques (ex-æquo parfait)]
-# Données : SERIE vals=50,50,50,50
-A_COMPLETER
-
-[Cas 2 — Toutes les valeurs strictement distinctes]
-# Données : SERIE vals=30,25,20,15,10
-A_COMPLETER
-
-[Cas 3 — Multiples groupes d ex-æquo consécutifs]
-# Données : SERIE vals=80,80,60,60,60,40
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Utilisez LAG(ca, 1, 0) OVER (ORDER BY mois ASC)
+SELECT mois, ca FROM chiffre_affaires;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)</h3>
+    <h3 class="lab__title">Exercice 1 — Comparaison temporelle ligne à ligne avec LAG() OVER</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer et comparer les trois fonctions de classement standardisées SQL sur une série de valeurs avec ex-æquo.</p>
-    <div class="lab__brief">Dans la norme SQL analytique, les fonctions de classement ordonnent les lignes au sein d’une fenêtre de partition :
-- `ROW_NUMBER()` : attribue un entier consécutif unique strict ($1, 2, 3, \dots$) sans aucun doublon.
-- `RANK()` : attribue le même rang aux lignes ex-æquo, puis saute les rangs suivants ($1, 2, 2, 4, 5, \dots$).
-- `DENSE_RANK()` : attribue le même rang aux lignes ex-æquo, sans sauter de rang ($1, 2, 2, 3, 4, \dots$).
-
-Entrée :
-`SERIE vals=<v1,v2,...>` (les valeurs sont ordonnées de manière décroissante)
-
-Sortie :
-- Pour chaque élément :
-  `RANK_ROW val=<V> row_num=<N> rank=<R> dense_rank=<D>`
-- Bilan : `SUMMARY total_rows=<N> max_rank=<R> max_dense_rank=<D>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser la fonction de fenêtrage LAG() pour calculer l’écart avec la période précédente.</p>
+    <div class="lab__brief"><p>Dans la table <code>chiffre_affaires(mois INT, ca INT)</code>, affichez <code>mois</code>, <code>ca</code>, le CA du mois précédent (<code>LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent</code>) et la variation (<code>ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation</code>), triés par <code>mois</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERIE vals=100,90,90,80,70</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RANK_ROW val=100 row_num=1 rank=1 dense_rank=1
-RANK_ROW val=90 row_num=2 rank=2 dense_rank=2
-RANK_ROW val=90 row_num=3 rank=2 dense_rank=2
-RANK_ROW val=80 row_num=4 rank=4 dense_rank=3
-RANK_ROW val=70 row_num=5 rank=5 dense_rank=4
-SUMMARY total_rows=5 max_rank=5 max_dense_rank=4</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------+--------+--------------+-----------+
+| mois | ca     | ca_precedent | variation |
++------+--------+--------------+-----------+
+| 1    | 100000 | 0            | 100000    |
+| 2    | 130000 | 100000       | 30000     |
+| 3    | 115000 | 130000       | -15000    |
++------+--------+--------------+-----------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Les deux notes à 90 partagent le rang 2. RANK saute à 4, DENSE_RANK continue à 3.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Itérer sur la liste triée avec l’indice courant i (1-based pour row_number).</li>
-        <li>Pour RANK : si val == val_precedente, conserver le même rank que le premier ex-æquo ; sinon rank = i.</li>
-        <li>Pour DENSE_RANK : n’incrémenter le rang que lorsque la valeur change.</li>
+        <li>LAG(ca, 1, 0) renvoie la valeur de ca 1 ligne plus haut, ou 0 sur la toute première ligne.</li>
+        <li>Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c4-e2" data-lab
      data-exercise="sql3-c4-e2"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="CONFIG preceding=2&#10;ROW id=1 val=10&#10;ROW id=2 val=20&#10;ROW id=3 val=30&#10;ROW id=4 val=40">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c4-e2) — Calculateur de moyennes et sommes glissantes avec clause d’encadrement
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Fenêtre cumulée depuis le début (preceding infini / très grand)]
-# Données : CONFIG preceding=100
-# Données : ROW id=1 val=5
-# Données : ROW id=2 val=15
-# Données : ROW id=3 val=25
-A_COMPLETER
-
-[Cas 2 — Fenêtre de 1 ligne précédente (preceding=1)]
-# Données : CONFIG preceding=1
-# Données : ROW id=1 val=100
-# Données : ROW id=2 val=200
-# Données : ROW id=3 val=50
-A_COMPLETER
-
-[Cas 3 — Fenêtre stricte preceding=0 (uniquement current row)]
-# Données : CONFIG preceding=0
-# Données : ROW id=1 val=12.5
-# Données : ROW id=2 val=25.0
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Sélectionnez les rangs <= 2 par département avec DENSE_RANK()
+SELECT departement, nom, salaire FROM employes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Calculateur de moyennes et sommes glissantes avec clause d’encadrement</h3>
+    <h3 class="lab__title">Exercice 2 — Top-N par département avec DENSE_RANK() dans une CTE</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler l’agrégation fenêtrée avec la clause de cadrage ROWS BETWEEN k PRECEDING AND CURRENT ROW.</p>
-    <div class="lab__brief">Dans la clause `OVER (ORDER BY date ROWS BETWEEN k PRECEDING AND CURRENT ROW)` :
-- Pour chaque ligne courante, la fenêtre d’agrégation englobe au maximum les $k$ lignes précédentes plus la ligne courante (soit jusqu’à $k+1$ éléments).
-- On calcule la somme cumulée de la fenêtre et la moyenne mobile arithmétique associée arrondie à 2 décimales.
-
-Entrée :
-- Une ligne définissant la taille de l’historique : `CONFIG preceding=<K>`
-- Des lignes de données : `ROW id=<step> val=<float_val>`
-
-Sortie :
-- Pour chaque ligne : `WINDOW_AGG id=<step> val=<V.2f> sum=<SUM.2f> avg=<AVG.2f> window_size=<COUNT>`
-- En fin de série : `FINAL_METRIC total_rows=<N> last_avg=<LAST_AVG.2f>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire les 2 meilleurs salaires de chaque département sans trou de classement.</p>
+    <div class="lab__brief"><p>Dans la table <code>employes(nom, departement, salaire)</code>, utilisez une CTE calculant <code>DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang</code> pour afficher <code>departement</code>, <code>nom</code>, <code>salaire</code> et <code>rang</code> uniquement pour les employés classés aux rangs <code>1</code> ou <code>2</code> (<code>WHERE rang &lt;= 2</code>), triés par <code>departement</code> croissant, <code>rang</code> croissant et <code>nom</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONFIG preceding=2
-ROW id=1 val=10
-ROW id=2 val=20
-ROW id=3 val=30
-ROW id=4 val=40</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>WINDOW_AGG id=1 val=10.00 sum=10.00 avg=10.00 window_size=1
-WINDOW_AGG id=2 val=20.00 sum=30.00 avg=15.00 window_size=2
-WINDOW_AGG id=3 val=30.00 sum=60.00 avg=20.00 window_size=3
-WINDOW_AGG id=4 val=40.00 sum=90.00 avg=30.00 window_size=3
-FINAL_METRIC total_rows=4 last_avg=30.00</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+-------------+-------+---------+------+
+| departement | nom   | salaire | rang |
++-------------+-------+---------+------+
+| IT          | Amina | 500000  | 1    |
+| IT          | Koffi | 400000  | 2    |
+| RH          | Sena  | 450000  | 1    |
++-------------+-------+---------+------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Pour l’id=4 avec preceding=2, la fenêtre contient [20, 30, 40] : somme=90, moyenne=30.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Une fonction de fenêtrage (OVER (...)) applique un calcul d’agrégation sur une partition sans regrouper les lignes.</li>
-        <li>Définissez la fenêtre glissante (ROWS BETWEEN ... PRECEDING AND CURRENT ROW) pour calculer la moyenne mobile.</li>
+        <li>Une fonction de fenêtrage ne peut pas figurer directement dans WHERE : calculez-la dans une CTE WITH classement AS (...).</li>
+        <li>Filtrez ensuite avec WHERE rang &lt;= 2.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c4-e3" data-lab
      data-exercise="sql3-c4-e3"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="EMP id=1 name=CEO manager=0&#10;EMP id=2 name=CTO manager=1&#10;EMP id=3 name=DevLead manager=2&#10;EMP id=4 name=Dev1 manager=3">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c4-e3) — Moteur de résolution de hiérarchie arborescente par CTE récursive
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Organigramme avec plusieurs branches parallèles sous la racine]
-# Données : EMP id=1 name=CEO manager=0
-# Données : EMP id=2 name=VP_Sales manager=1
-# Données : EMP id=3 name=VP_Tech manager=1
-# Données : EMP id=4 name=Dev1 manager=3
-# Données : EMP id=5 name=Dev2 manager=3
-A_COMPLETER
-
-[Cas 2 — Nœud unique racine sans subordonné]
-# Données : EMP id=1 name=SoloConsultant manager=0
-A_COMPLETER
-
-[Cas 3 — Arbre de pièces industrielles (BOM)]
-# Données : EMP id=10 name=Voiture manager=0
-# Données : EMP id=20 name=Moteur manager=10
-# Données : EMP id=30 name=Piston manager=20
-# Données : EMP id=40 name=Chassis manager=10
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Écrivez une CTE WITH RECURSIVE hierarchie(id, nom, niveau)
+SELECT id, nom FROM organigramme;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Moteur de résolution de hiérarchie arborescente par CTE récursive</h3>
+    <h3 class="lab__title">Exercice 3 — Parcours d’arbre hiérarchique avec WITH RECURSIVE</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la profondeur, le chemin absolu et le nombre total de subordonnés dans une structure hiérarchique via une CTE récursive simulée.</p>
-    <div class="lab__brief">Dans SQL standard, la syntaxe `WITH RECURSIVE` permet de parcourir des graphes et arbres hiérarchiques (ex: organigramme d’entreprise, nomenclature de pièces BOM) :
-- Nœud racine (Ancre récursive) : employé dont `manager_id=0` (niveau 1, chemin `/<nom>`).
-- Membre récursif : chaque subordonné direct d’un employé résolu hérite d’un `level = level_manager + 1` et d’un `path = path_manager / <nom>`.
-- Le moteur calcule également pour chaque nœud le nombre total de subordonnés (descendants directs et indirects).
-
-Entrée :
-`EMP id=<int> name=<nom> manager=<int>` (manager=0 pour le sommet de l’arbre)
-
-Sortie :
-- Liste des employés triés par niveau puis par identifiant :
-  `HIERARCHY id=<id> name=<name> level=<L> path=<PATH> subordinates=<COUNT>`
-- Bilan de l’arbre : `TREE_REPORT max_depth=<D> total_nodes=<N>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une CTE récursive pour calculer la profondeur hiérarchique d’un organigramme.</p>
+    <div class="lab__brief"><p>La table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente la hiérarchie d’une entreprise (la racine a <code>manager_id IS NULL</code>). Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour la racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EMP id=1 name=CEO manager=0
-EMP id=2 name=CTO manager=1
-EMP id=3 name=DevLead manager=2
-EMP id=4 name=Dev1 manager=3</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>HIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=3
-HIERARCHY id=2 name=CTO level=2 path=/CEO/CTO subordinates=2
-HIERARCHY id=3 name=DevLead level=3 path=/CEO/CTO/DevLead subordinates=1
-HIERARCHY id=4 name=Dev1 level=4 path=/CEO/CTO/DevLead/Dev1 subordinates=0
-TREE_REPORT max_depth=4 total_nodes=4</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+----+--------------+--------+
+| id | nom          | niveau |
++----+--------------+--------+
+| 1  | DG           | 1      |
+| 2  | DSI          | 2      |
+| 3  | Admin Réseau | 3      |
++----+--------------+--------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Arbre à 4 niveaux : le CEO a 3 subordonnés au total.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Construire un dictionnaire des employés et un graphe direct manager -&gt; [enfants].</li>
-        <li>Identifier la racine (manager=0) pour initialiser la récursion (BFS ou DFS).</li>
-        <li>Pour le compte des subordonnés, une fonction récursive d’exploration du sous-arbre permet de sommer tous les descendants.</li>
+        <li>Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.</li>
+        <li>Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1.</li>
       </ol>
     </details>
   </div>
@@ -535,12 +454,13 @@ TREE_REPORT max_depth=4 total_nodes=4</pre></div>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Difficultés à formuler une clause OVER ou confusion entre agrégation classique et calcul analytique.</div>
-      <div class="bandrow bandrow--medium">Bonne maîtrise de ROW_NUMBER, RANK, LAG et calculs cumulatifs mobiles avec cadrage ROWS.</div>
-      <div class="bandrow bandrow--high">Conception avancée de requêtes hiérarchiques complexes avec WITH RECURSIVE, anti-boucle robuste et calculs analytiques multi-niveaux.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à formuler une clause OVER ou confusion entre agrégation classique et calcul analytique.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise de ROW_NUMBER, RANK, LAG et calculs cumulatifs mobiles avec cadrage ROWS.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Conception avancée de requêvos hiérarchiques complexes avec WITH RECURSIVE, anti-boucle robuste et calculs analytiques multi-niveaux.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -550,7 +470,7 @@ TREE_REPORT max_depth=4 total_nodes=4</pre></div>
     <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp; Row-Level Security (RLS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
 </main>
 

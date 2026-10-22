@@ -134,7 +134,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les opérateurs et les six fonctions statistiques.' },
       { cls: 'mid', text: '50–69 % — refais les exemples Gauche/Droite/STXT du support.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible NB contre NBVAL.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible NB contre NBVAL.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -158,7 +158,7 @@ module.exports = [
     situation:
       'Le responsable commercial du support calcule une commission à paliers : 10 % si CA &lt; 10000, 15 % ' +
       'si 10000 &lt;= CA &lt; 50000, 20 % si CA &gt;= 50000. C\'est le cas d\'école de la fonction ' +
-      '<strong>SI</strong> imbriquée — transposé ici en if/elif Bash, puis complété par les compteurs ' +
+      '<strong>SI</strong> imbriquée — structuré ici par paliers successifs, puis complété par les compteurs ' +
       'conditionnels NB.SI, SOMME.SI et MOYENNE.SI.',
 
     objectives: [
@@ -179,7 +179,7 @@ module.exports = [
           '=SI(Test1;valeur1;SI(Test2;valeur2;valeur_fausse)).</p>',
           '<p>La commission du support illustre le schéma : un SI principal teste le premier palier, le ' +
           'sinon en teste un second, et la dernière branche recueille le reste — <strong>du palier le plus ' +
-          'strict au plus large</strong>. En Bash, le même raisonnement s\'écrit if / elif / else : ' +
+          'strict au plus large</strong>. Dans une grille d’analyse, le même raisonnement s\'évalue palier par palier : ' +
           'le programme teste 50000, puis 10000, sinon applique le taux de base.</p>',
           box('mnemo', 'Mnémotechnique — « SI imbriqué : tester du plus grand au plus petit »', 'pin',
             '    <p>Si on teste d\'abord CA &gt;= 50000, les branches suivantes n\'ont plus besoin de ' +
@@ -260,7 +260,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la syntaxe SI et la commission du support.' },
       { cls: 'mid', text: '50–69 % — refais les paliers de commission par études de cas.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les trois compteurs conditionnels.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les trois compteurs conditionnels.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -395,7 +395,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les quatre modes d\'affichage.' },
       { cls: 'mid', text: '50–69 % — refais la carte écran/modes du support.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible modèles, thèmes et minutage.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible modèles, thèmes et minutage.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

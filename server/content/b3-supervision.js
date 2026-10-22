@@ -39,7 +39,7 @@ const course = {
     'et enfin stratégies d\'alerting avancées et automatisation SRE : prévention de la fatigue d\'alerte (Alert Fatigue), technique d\'hystérésis des seuils, algorithme mathématique de détection de flapping avec gel temporaire des notifications, Capacity Planning prédictif par régression linéaire pour anticiper la saturation des disques (Go/jour), et auto-remédiation par exécution automatisée de runbooks (redémarrage de services, purge de logs, redimensionnement) avec garde-fous de réessais (max_retries) et escalade vers l\'opérateur humain.',
   lead:
     'Maîtrisez l\'ingénierie de la supervision et de l\'observabilité : métriques de fiabilité SLA/MTBF/MTTR, protocoles SNMPv3 & Syslog RFC 5424, déploiement Zabbix & Nagios, requêtage PromQL, logs ELK et auto-remédiation SRE. ' +
-    'Six modules complets, 18 ateliers de programmation interactive en Python 3 et 48 QCM d\'évaluation.',
+    'Six modules complets, 18 études de cas pratiques et méthodologiques et 48 QCM d\'évaluation.',
 
   sources: 'Supports de cours officiels B3-IT / B3-RSI Supervision Système et Réseaux (Enseignant : Essowaba AHOULOUMI, Ingénieur en Informatique et Réseaux, 2024/2025), Référentiels RFC 1157/1213/3414 (SNMP), RFC 5424 (Syslog), Documentations officielles Prometheus, Grafana, Zabbix et Elastic',
 

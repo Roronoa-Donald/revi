@@ -131,7 +131,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les quatre couches et les trois étapes du handshake.' },
       { cls: 'mid', text: '50–69 % — refais le classement des protocoles et les correspondances OSI.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les numéros de séquence du handshake.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les numéros de séquence du handshake.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -265,7 +265,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis MAC, IP et le tableau des classes.' },
       { cls: 'mid', text: '50–69 % — refais la classification par premier octet et les masques par défaut.' },
-      { cls: 'good', text: '70–89 % — bon niveau, raconte le chemin complet d\'un paquet distant.' },
+      { cls: 'good', text: '70–94 % — bon niveau, raconte le chemin complet d\'un paquet distant.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -391,7 +391,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis l\'exemple de l\'emprunt de 3 bits du support.' },
       { cls: 'mid', text: '50–69 % — refais les conversions masque binaire/décimal/CIDR.' },
-      { cls: 'good', text: '70–89 % — bon niveau, dimensionne un plan VLSM complet.' },
+      { cls: 'good', text: '70–94 % — bon niveau, dimensionne un plan VLSM complet.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

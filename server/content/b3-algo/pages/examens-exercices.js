@@ -118,7 +118,7 @@ function examens(course) {
       '<ul>',
       '  <li><strong>Équation de Bellman (3 pts) :</strong> $dp[i][w] = dp[i-1][w]$ si $w &lt; p_i$. Sinon $dp[i][w] = \\max(dp[i-1][w], dp[i-1][w - p_i] + v_i)$. Cas de base : $dp[0][w] = 0$ pour tout $w \\in [0..W]$.</li>',
       '  <li><strong>Matrice DP (2 pts) :</strong> Pour $w=7$ : avec objet 1 (2kg, 6€) : 6. Avec objet 2 (3kg, 10€) : à $w=5$, $10+6=16$. Avec objet 3 (4kg, 12€) : à $w=7$, $\\max(16, dp[2][3]+12) = \\max(16, 10+12) = 22$. Avec objet 4 (5kg, 16€) : à $w=7$, $\\max(22, dp[3][2]+16) = \\max(22, 6+16) = 22$. Valeur maximale = <strong>22 €</strong>.</li>',
-      '  <li><strong>Reconstruction (2 pts) :</strong> À $i=4, w=7$, $dp[4][7] == dp[3][7] = 22$ (on ne prend pas l’objet 4). À $i=3, w=7$, $dp[3][7] (22) \\neq dp[2][7] (16)$, donc on prend l’<strong>Objet 3</strong> (4kg, 12€). Capacité résiduelle : $7 - 4 = 3$ kg. À $i=2, w=3$, $dp[2][3] (10) \\neq dp[1][3] (6)$, donc on prend l’<strong>Objet 2</strong> (3kg, 10€). Capacité résiduelle : $3 - 3 = 0$ kg. Objets choisis : <strong>Objet 2 et Objet 3</strong> (Poids total = 7 kg, Valeur = 22 €).</li>',
+      '  <li><strong>Reconstruction (2 pts) :</strong> À $i=4, w=7$, $dp[4][7] == dp[3][7] = 22$ (on ne prend pas l’objet 4). À $i=3, w=7$, $dp[3][7] (22) ≠ dp[2][7] (16)$, donc on prend l’<strong>Objet 3</strong> (4kg, 12€). Capacité résiduelle : $7 - 4 = 3$ kg. À $i=2, w=3$, $dp[2][3] (10) ≠ dp[1][3] (6)$, donc on prend l’<strong>Objet 2</strong> (3kg, 10€). Capacité résiduelle : $3 - 3 = 0$ kg. Objets choisis : <strong>Objet 2 et Objet 3</strong> (Poids total = 7 kg, Valeur = 22 €).</li>',
       '</ul>'
     ].join('\n')),
     '',

@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-cryptographienav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,14 +68,14 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>comprendre le fonctionnement des générateurs de flux pseudo-aléatoires à registres à décalage (LFSR) ;</li>
       <li>différencier les architectures de chiffrement par bloc : schémas de Feistel (DES/3DES) et réseaux de substitution-permutation SPN (AES Rijndael) ;</li>
       <li>maîtriser les 4 transformations de chaque ronde d'AES : SubBytes, ShiftRows, MixColumns et AddRoundKey ;</li>
       <li>comparer les modes opératoires de chiffrement par bloc : ECB, CBC, CFB, OFB, CTR et le mode authentifié GCM ;</li>
       <li>implémenter rigoureusement la norme de bourrage PKCS#7 (RFC 5652) et comprendre la mécanique de l'attaque par oracle de padding ;</li>
-      <li>développer en Python 3 des chiffreurs de flux LFSR, des applicateurs de padding PKCS#7 et des simulateurs de mode CBC.</li>
+      <li>analyser et résoudre méthodologiquement des chiffreurs de flux LFSR, des applicateurs de padding PKCS#7 et des simulateurs de mode CBC.</li>
     </ol>
   </div>
 
@@ -138,14 +138,19 @@ P_i = C_i ^ K_i</code></pre>
 </table>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Bourrage PKCS#7 (RFC 5652) &amp; Oracle de Padding</div>
-<p>Lorsque la taille du message n'est pas un multiple de la taille du bloc <code>B</code> (ex: 16 octets pour AES) :</p>,<ul>,  <li>On ajoute <code>p = B - (len(M) mod B)</code> octets, chacun ayant pour valeur l'entier <code>p</code>.</li>,  <li>Si le message est déjà un multiple exact de B, on ajoute un bloc entier de 16 octets de valeur <code>0x10</code>.</li>,  <li><strong>Attaque par Oracle de Padding :</strong> si le serveur déchiffreur répond par une erreur explicite lorsque le padding est invalide, un attaquant peut manipuler le bloc chiffré précédent pour retrouver l'intégralité du texte en clair sans la clé secrète.</li>,</ul>
+<p>Lorsque la taille du message n'est pas un multiple de la taille du bloc <code>B</code> (ex: 16 octets pour AES) :</p>
+<ul>
+  <li>On ajoute <code>p = B - (len(M) mod B)</code> octets, chacun ayant pour valeur l'entier <code>p</code>.</li>
+  <li>Si le message est déjà un multiple exact de B, on ajoute un bloc entier de 16 octets de valeur <code>0x10</code>.</li>
+  <li><strong>Attaque par Oracle de Padding :</strong> si le serveur déchiffreur répond par une erreur explicite lorsque le padding est invalide, un attaquant peut manipuler le bloc chiffré précédent pour retrouver l'intégralité du texte en clair sans la clé secrète.</li>
+</ul>
   </div>
 
 <!-- code-labs:start -->
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" id="cr3-c2-e1" data-lab
      data-exercise="cr3-c2-e1"
      data-language="analyse"
      data-height="300"
@@ -179,7 +184,7 @@ Fonctionnement :<br>
 - À chaque cycle : le bit le plus à droite est émis (retiré du registre).<br>
 - Le bit injecté à gauche (position 0) est le XOR des bits situés aux indices <code>taps</code> (0-indexés). Si un tap dépasse la longueur restante, il est XORé avec le bit émis.<br>
 - Chaque octet du texte clair est chiffré par XOR avec 8 bits consécutifs du LFSR assemblés selon <code>(byte &lt;&lt; 1) | bit</code>.<br><br>
-Commandes lues sur STDIN :<br>
+Opérations soumises à l’analyse :<br>
 1. <code>LFSR ENC seed=&lt;bits&gt; taps=&lt;t1,t2,...&gt; text=&lt;texte&gt;</code> : produit <code>HEX: &lt;hex_str&gt;</code>.<br>
 2. <code>LFSR DEC seed=&lt;bits&gt; taps=&lt;t1,t2,...&gt; hex=&lt;hex_str&gt;</code> : produit <code>PLAIN: &lt;texte&gt;</code>.</p></div>
     <div class="lab__sample">
@@ -197,7 +202,7 @@ Commandes lues sur STDIN :<br>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="cr3-c2-e2" data-lab
      data-exercise="cr3-c2-e2"
      data-language="analyse"
      data-height="300"
@@ -233,7 +238,7 @@ A_COMPLETER
     <div class="lab__brief"><p>La norme PKCS#7 (RFC 5652) complète un message pour que sa taille en octets soit un multiple exact du bloc <code>B</code>.<br>
 - Nombre d'octets ajoutés : <code>p = B - (len(M) mod B)</code> (si multiple exact, <code>p = B</code>).<br>
 - Chaque octet de padding a pour valeur <code>p</code>.<br><br>
-Commandes lues sur STDIN :<br>
+Opérations soumises à l’analyse :<br>
 1. <code>PAD block_size=&lt;B&gt; text=&lt;texte&gt;</code> :<br>
    <code>PADDED: len=&lt;L&gt; pad=&lt;p&gt; hex=&lt;hex&gt;</code><br>
 2. <code>UNPAD block_size=&lt;B&gt; hex=&lt;hex&gt;</code> :<br>
@@ -255,7 +260,7 @@ Commandes lues sur STDIN :<br>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="cr3-c2-e3" data-lab
      data-exercise="cr3-c2-e3"
      data-language="analyse"
      data-height="300"
@@ -292,7 +297,7 @@ A_COMPLETER
 <code>C_0 = E_K(P_0 ^ IV)</code>, puis <code>C_i = E_K(P_i ^ C_{i-1})</code>.<br>
 Fonction de bloc pédagogique sur 4 octets :<br>
 <code>E_K([x0, x1, x2, x3]) = [(x1 ^ k0), (x2 ^ k1), (x3 ^ k2), (x0 ^ k3)]</code>.<br><br>
-Commandes lues sur STDIN :<br>
+Opérations soumises à l’analyse :<br>
 1. <code>CBC ENC key=&lt;key_hex&gt; iv=&lt;iv_hex&gt; text=&lt;texte&gt;</code> :<br>
    <code>CBC_ENC: blocks=&lt;N&gt; hex=&lt;cipher_hex&gt;</code><br>
 2. <code>CBC DEC key=&lt;key_hex&gt; iv=&lt;iv_hex&gt; hex=&lt;cipher_hex&gt;</code> :<br>
@@ -422,7 +427,7 @@ Commandes lues sur STDIN :<br>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>LFSR :</strong> Registre à décalage à rétroaction linéaire utilisant des portes XOR pour générer une séquence de bits pseudo-aléatoire périodique.</li><li><strong>Réseau de Feistel :</strong> Structure de chiffrement par bloc scindant les données en deux moitiés où le déchiffrement utilise la même fonction interne avec les clés inversées (ex: DES).</li><li><strong>Réseau SPN (AES) :</strong> Substitution-Permutation Network appliquant des couches alternées de confusion (S-Box) et de diffusion linéaire (ShiftRows, MixColumns).</li><li><strong>Bourrage PKCS#7 :</strong> Norme RFC 5652 complétant un message jusqu'au multiple de taille de bloc par p octets valant tous la valeur p.</li><li><strong>AEAD (Authenticated Encryption) :</strong> Mode de chiffrement moderne combinant confidentialité du message et authentification d'intégrité (ex: AES-GCM, ChaCha20-Poly1305).</li>
+      <li><strong>LFSR :</strong> Registre à décalage à rétroaction linéaire utilisant des portes XOR pour générer une séquence de bits pseudo-aléatoire périodique.</li><li><strong>Réseau de Feistel :</strong> Structure de chiffrement par bloc scindant les données en deux moitiés où le déchiffrement utilise la même fonction interne avec les clés inversées (ex: DES).</li><li><strong>Réseau SPN (AES) :</strong> Substitution-Permutation Network appliquant des couches alternées de confusion (S-Box) et de diffusion linéaire (ShiftRows, MixColumns).</li><li><strong>Bourrage PKCS#7 :</strong> Norme RFC 5652 complétant un message jusqu'au multiple de taille de bloc par p octets valant tous la valeur p.</li><li><strong>AEAD (Authenticated Encryption) :</strong> Mode de chiffrement moderne combinant confidentialité du message et authentification d'intégrité (ex: AES-GCM, ChaCha20-Poly1305).</li><li>Le chiffrement par flux opère en continu par XOR avec un keystream (LFSR, ChaCha20), tandis que le chiffrement par bloc traite des blocs fixes (AES 128 bits).</li><li>AES Rijndael repose sur un réseau de substitution-permutation (SPN) combinant SubBytes, ShiftRows, MixColumns et AddRoundKey.</li><li>Le mode ECB est formellement interdit en production car il préserve les motifs des blocs clairs identiques.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -431,14 +436,13 @@ Commandes lues sur STDIN :<br>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow"><strong>Implémentation sécurisée d'AES et sélection de modes AEAD :</strong> Configurer les bibliothèques cryptographiques pour imposer le mode AES-256-GCM et éliminer les modes vulnérables ECB et CBC sans MAC.</div>
-      <div class="bandrow"><strong>Gestion rigoureuse du bourrage PKCS#7 et protection contre les oracles :</strong> Développer des parseurs de débourrage en temps constant évitant toute fuite d'information temporelle ou d'erreur explicite.</div>
-      <div class="bandrow"><strong>Conception de générateurs de flux pseudo-aléatoires LFSR :</strong> Simuler des registres à décalage pour analyser les périodes maximales et les propriétés d'aléa des chiffrements de flux.</div>
-      <div class="bandrow"><strong>Contrôle d'unicité des vecteurs d'initialisation (IV et Nonces) :</strong> Mettre en place des mécanismes garantissant qu'un nonce ou un IV n'est jamais réutilisé avec la même clé secrète.</div>
-      <div class="bandrow"><strong>Développement d'outils de cryptographie symétrique en Python 3 :</strong> Concevoir des scripts de simulation de modes de bloc CBC, de padding PKCS#7 et d'analyse de propagation d'erreurs de bits.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong><strong>Implémentation sécurisée d'AES et sélection de modes AEAD :</strong> Configurer les bibliothèques cryptographiques pour imposer le mode AES-256-GCM et éliminer les modes vulnérables ECB et CBC sans MAC.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Gestion rigoureuse du bourrage PKCS#7 et protection contre les oracles :</strong> Développer des parseurs de débourrage en temps constant évitant toute fuite d'information temporelle ou d'erreur explicite.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong><strong>Contrôle d'unicité des vecteurs d'initialisation (IV et Nonces) :</strong> Mettre en place des mécanismes garantissant qu'un nonce ou un IV n'est jamais réutilisé avec la même clé secrète.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Développement d'outils de cryptographie symétrique de manière méthodique :</strong> Concevoir des scripts de simulation de modes de bloc CBC, de padding PKCS#7 et d'analyse de propagation d'erreurs de bits.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -448,7 +452,7 @@ Commandes lues sur STDIN :<br>
     <a class="btn btn--primary" href="chapitre3.html">Module 3 — Fonctions de Hachage, Intégrité et Authentification de Message (MAC) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
 </main>
 

@@ -78,7 +78,7 @@ module.exports = [
             '    <ul>\n' +
             '      <li>Le para-verbal n\'est pas le non-verbal : la voix (intonation, volume) para-verbe ; la posture, le regard non-verbe.</li>\n' +
             '      <li>Logos n\'est pas éthos : la démonstration raisonne ; la crédibilité se gagne avant de parler.</li>\n' +
-            '      <li>La fonction phatique ne transmet rien : elle maintient le canal (« allô ? », « vous me suivez ? »).</li>\n' +
+            '      <li>La fonction phatique ne transmet rien : elle maintient le canal (« allô ? », « m’entend-on bien ? »).</li>\n' +
             '      <li>L\'implicite n\'est pas un sous-texte secret : « Il fait chaud ici » demande d\'ouvrir la fenêtre.</li>\n' +
             '    </ul>')
         ].join('\n')
@@ -88,7 +88,7 @@ module.exports = [
         html: [
           '<p>La communication interpersonnelle a « deux côtés » : <strong>l\'explicite</strong>, ce que la ' +
           'personne dit, et <strong>l\'implicite</strong>, ce qu\'elle veut dire. Le support en donne deux ' +
-          'exemples canoniques : « <em>Il fait chaud dans ta chambre</em> » cache « tu veux bien allumer la ' +
+          'exemples canoniques : « <em>Il fait chaud dans votre chambre</em> » cache « vous voulez bien allumer la ' +
           'clim ? » ; « <em>Il est déjà 18 heures passé</em> » cache « je voudrais bien rentrer ».</p>',
           '<p>Décoder l\'implicite est une compétence professionnelle : un client qui « signale un petit ' +
           'problème » annonce souvent une réclamation ; un manager qui « serait curieux de voir le dossier » ' +
@@ -102,9 +102,9 @@ module.exports = [
       { q: 'Selon Mehrabian, l\'intonation appartient…', opts: ['au verbal', 'au para-verbal', 'au non-verbal'], correct: 1, exp: 'La voix (rythme, intonation, volume) est para-verbale.' },
       { q: 'La tenue vestimentaire relève…', opts: ['du para-verbal', 'du non-verbal', 'du référentiel'], correct: 1, exp: 'Gestion de l\'espace, tenue, mimo-gestuelle : non-verbal.' },
       { q: 'Le logos d\'Aristote est…', opts: ['l\'émotion', 'la crédibilité', 'la raison et l\'argumentation'], correct: 2, exp: 'Pathos = émotion ; éthos = crédibilité ; logos = raison.' },
-      { q: '« Allô ? Vous m\'entendez ? » illustre la fonction…', opts: ['phatique', 'poétique', 'métalinguistique'], correct: 0, exp: 'Phatique : établir et maintenir le contact.' },
+      { q: '« Allô ? M\'entend-on ? » illustre la fonction…', opts: ['phatique', 'poétique', 'métalinguistique'], correct: 0, exp: 'Phatique : établir et maintenir le contact.' },
       { q: 'La communication intrapersonnelle est…', opts: ['un dialogue à deux', 'se parler à soi-même', 'un discours public'], correct: 1, exp: 'Penser, raisonner, se juger : le dialogue intérieur.' },
-      { q: '« Il fait chaud dans ta chambre » est…', opts: ['explicite : une information météo', 'implicite : une demande d\'allumer la clim', 'une fonction poétique'], correct: 1, exp: 'Le dit masque le voulu : c\'est l\'implicite.' },
+      { q: '« Il fait chaud dans votre chambre » est…', opts: ['explicite : une information météo', 'implicite : une demande d\'allumer la clim', 'une fonction poétique'], correct: 1, exp: 'Le dit masque le voulu : c\'est l\'implicite.' },
       { q: 'La fonction conative vise à…', opts: ['faire agir, convaincre', 'parler de la langue', 'se plaindre'], correct: 0, exp: 'Conative : inciter l\'auditeur à agir.' }
     ],
 
@@ -150,14 +150,32 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les définitions des trois canaux et des trois ressorts.' },
       { cls: 'mid', text: '50–69 % — refais le classement Mehrabian et les fonctions du langage.' },
-      { cls: 'good', text: '70–89 % — bon niveau, entraîne-toi à décoder l\'implicite.' },
+      { cls: 'good', text: '70–94 % — bon niveau, entraînez-vous à décoder l\'implicite.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Fonctions du langage » ?', a: 'Fonctions du langage : référentielle, expressive, conative, poétique, phatique, métalinguistique.' },
+      { q: 'Qu’est-ce que « Familier » ?', a: 'Familier : oral quotidien, argot, syntaxe relâchée (cailler, boulot, zyeuter).' },
+      { q: 'Qu’est-ce que « Soutenu » ?', a: 'Soutenu : lexique précis, figures, inversions (se sustenter, considérer, labeur).' },
+      { q: 'Qu’est-ce que « Ne supprimé » ?', a: 'Ne supprimé : « je sais pas » — marque grammaticale du familier.' },
+      { q: 'Qu’est-ce que « Prodiguer » ?', a: 'Prodiguer : remplacer « donner » (des conseils).' },
+      { q: 'Qu’est-ce que « Compter » ?', a: 'Compter : remplacer « avoir » (des habitants).' },
+      { q: 'Qu’est-ce que « De toute façon » ?', a: "De toute façon : singulier (quoi qu'il en soit)." },
+      { q: 'Qu’est-ce que « M. : abréviation française de Monsieur — « Mr » est anglais. » ?', a: 'M. : abréviation française de Monsieur — « Mr » est anglais.' },
+      { q: 'Qu’est-ce que « Périssologie » ?', a: 'Périssologie : nom didactique de la répétition inutile.' },
+      { q: "Qu’est-ce que « Si d'hypothèse » ?", a: "Si d'hypothèse : pas de conditionnel derrière « si »." },
+      { q: 'Qu’est-ce que « Le sens de » ?', a: "Le sens de : l'organisation, le contact, l'écoute." },
+      { q: "Qu’est-ce que « L'esprit de » ?", a: "L'esprit de : sans article — synthèse, groupe, entreprise." },
+      { q: 'Qu’est-ce que « Passé composé » ?', a: 'Passé composé : auxiliaire au présent + participe passé.' },
+      { q: "Qu’est-ce que « Maison d'être » ?", a: "Maison d'être : aller, venir, partir, arriver, entrer, sortir, monter, descendre…" },
+      { q: 'Qu’est-ce que « Verbes douteux » ?', a: 'Verbes douteux : avoir avec COD, être sans COD (monter, sortir, descendre…).' },
+      { q: 'Qu’est-ce que « Pronominaux » ?', a: 'Pronominaux : toujours être (se coucher, se lever, se souvenir).' },
+      { q: 'Qu’est-ce que « Accord avec être » ?', a: "Accord avec être : genre et nombre du sujet, comme l'adjectif." },
+      { q: 'Qu’est-ce que « Vous masculin pluriel » ?', a: "Vous masculin pluriel : groupe d'hommes ou mixte — « vous êtes sortis »." },
       { q: 'Les trois canaux de Mehrabian ?', a: 'Verbal (les mots), para-verbal (la voix : intonation, rythme, volume), non-verbal (gestuelle, tenue, espace).' },
       { q: 'Les trois ressorts d\'Aristote ?', a: 'Logos (la raison), pathos (l\'émotion), éthos (la crédibilité de l\'orateur).' },
-      { q: 'La fonction phatique ?', a: 'Établir et maintenir le contact : « allô ? », « vous me suivez ? » — elle ne transmet pas d\'information.' },
+      { q: 'La fonction phatique ?', a: 'Établir et maintenir le contact : « allô ? », « m’entend-on bien ? » — elle ne transmet pas d\'information.' },
       { q: 'Explicite contre implicite ?', a: 'Explicite : ce que la personne dit ; implicite : ce qu\'elle veut dire. « Il fait chaud ici » demande d\'ouvrir la fenêtre.' },
       { q: 'Les quatre champs de la communication ?', a: 'Intrapersonnelle (soi), interpersonnelle (deux), petit groupe, publique (un orateur, un auditoire).' }
     ]
@@ -267,7 +285,7 @@ module.exports = [
       'Trois niveaux : familier (oral relâché), courant (standard de la presse), soutenu (précis, recherché).',
       'Les trios du support : cailler / avoir très froid / être mort de froid ; bouffer / manger / se sustenter.',
       'Marques du familier : argot, ruptures, suppression du « ne ».',
-      'Passe-partout à remplacer : prodiguer, commettre, détenir, éprouver, compter…'
+      'Passez-partout à remplacer : prodiguer, commettre, détenir, éprouver, compter…'
     ],
 
     checklist: [
@@ -291,7 +309,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les tableaux comparatifs du support et refais les trios.' },
       { cls: 'mid', text: '50–69 % — refais les exercices d\'identification du support (manger, cela m\'est égal).' },
-      { cls: 'good', text: '70–89 % — bon niveau, chasse les passe-partout dans tes propres textes.' },
+      { cls: 'good', text: '70–94 % — bon niveau, chasse les passe-partout dans vos propres textes.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -385,7 +403,7 @@ module.exports = [
     questions: [
       { q: 'La date correcte s\'écrit…', opts: ['Mercredi 26 Juillet 2023', 'mercredi 26 juillet 2023', 'Mercredi 26 juillet 2023'], correct: 1, exp: 'Jours et mois : noms communs, minuscules.' },
       { q: 'Etc. se ponctue…', opts: ['etc…', 'etc', 'etc.'], correct: 2, exp: 'Un point, toujours — jamais de points de suspension.' },
-      { q: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'pluriel'], correct: 1, exp: 'Entre virgules : invariable.' },
+      { q: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'pluriel'], correct: 1, exp: 'Entrez virgules : invariable.' },
       { q: '« Les statistiques ci-annexées » : ci-annexées est…', opts: ['fautif', 'invariable', 'accordé'], correct: 2, exp: 'Après le nom : valeur d\'adjectif, accord.' },
       { q: '« Veillez croire, Monsieur… » : la correction est…', opts: ['Veillez bien croire', 'Veuillez croire', 'Veiller à croire'], correct: 1, exp: 'Veuillez vient de vouloir ; veillez, de veiller.' },
       { q: 'Au sens de « quoi qu\'il en soit », on écrit…', opts: ['de toutes les façons', 'de toute façon', 'de toutes façons'], correct: 1, exp: 'Singulier imposé ; le pluriel signifie « par tous les moyens ».' },
@@ -437,7 +455,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les quatorze points du support et reprends la date et etc.' },
       { cls: 'mid', text: '50–69 % — refais les exemples ci-joint et les abréviations.' },
-      { cls: 'good', text: '70–89 % — bon niveau, relis un vrai courrier à la loupe.' },
+      { cls: 'good', text: '70–94 % — bon niveau, relis un vrai courrier à la loupe.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

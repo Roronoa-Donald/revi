@@ -129,8 +129,8 @@ module.exports = {
   notions: ['variable aléatoire discrète', 'loi de probabilité', 'espérance', 'linéarité', 'variance', 'Kœnig–Huygens', 'écart-type', 'fonction de répartition', 'P(X ≤ x)', 'complément', 'valeur possible'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois E(X) = Σ xᵢ·pᵢ et la somme des probabilités.' },
-    { cls: 'mid', text: '50–69 % — Reprends V(X) = E(X²) − E(X)² sur des exemples courts.' },
-    { cls: 'good', text: '70–89 % — Solide : tu construis la répartition sans erreur.' },
+    { cls: 'mid', text: '50–69 % — Reprenez V(X) = E(X²) − E(X)² sur des exemples courts.' },
+    { cls: 'good', text: '70–94 % — Solide : vous construisez la répartition sans erreur.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux lois discrètes usuelles, chapitre 4.' }
   ],
 

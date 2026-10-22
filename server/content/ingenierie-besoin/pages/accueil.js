@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>distinguer sans équivoque un besoin métier (espace problème) d’un choix technique prématuré (espace solution) ;</li>',
       '      <li>classifier les exigences selon FURPS+ et les formuler selon les critères normatifs ISO/IEC/IEEE 29148 ;</li>',
@@ -37,7 +37,7 @@ function index(course, chapterList) {
       '    <p>Ce cours structure l’ingénierie des exigences logicielles et systèmes en six chapitres progressifs : ' +
       'du recueil des attentes initiales et de la cartographie des parties prenantes jusqu’au contrôle qualité formel ' +
       'et à la gestion du changement. Le chapitre 1 est en accès libre.</p>',
-      '    <p>Chaque chapitre propose <strong>trois exercices interactifs en Python</strong> simulant l’outillage ' +
+      '    <p>Chaque chapitre propose <strong>trois exercices interactifs de manière méthodique</strong> simulant l’outillage ' +
       'd’un ingénieur des exigences (classification FURPS+, détecteur de mots vagues, calcul d’échantillon statistique, ' +
       'parseur Connextra, arbitrage MoSCoW, algorithme WSJF, matrice RTM, validateurs Gherkin et grilles INVEST), ' +
       'exécutés directement dans votre navigateur et validés par des tests automatisés.</p>'
@@ -87,7 +87,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres pour maîtriser l’ingénierie des exigences logicielles et l’analyse métier, ' +
     'de la formulation du besoin initial jusqu’à la gestion du changement et l’audit qualité. Le chapitre 1 est en accès libre ; ' +
     'les suivants requièrent un compte de niveau B2 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Python</strong> automatisant le contrôle et la modélisation des exigences. ' +
+    '  <p>Chaque chapitre se termine par <strong>trois exercices de manière méthodique</strong> automatisant le contrôle et la modélisation des exigences. ' +
     'L’<a href="atelier.html">atelier de code</a> permet de tester et prototyper librement vos scripts d’analyse.</p>',
     '  <div class="toc">',
     toc,
@@ -120,12 +120,12 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier pratique Python / Analyse d’Exigences</h1>',
-    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écris ton script, ' +
-    'exécute-le et observe immédiatement la sortie : l’outil idéal pour prototyper la validation automatisée de tes exigences.</p>',
+    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écrivez votre script, ' +
+    'exécutez-le et observez immédiatement la sortie : l’outil idéal pour prototyper la validation automatisée de vos exigences.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre code Python 3 et affiche sa sortie standard et ses éventuelles erreurs.</li>',
-      '      <li><strong>Entrée du programme</strong> contient ce que <code>sys.stdin</code> recevra en entrée standard.</li>',
+      '      <li><strong>Exécuter</strong> vérifie votre grille d’analyse sur le cas d’exemple et affiche le résultat obtenu.</li>',
+      '      <li><strong>Données du cas</strong> présente les paramètres soumis à votre analyse.</li>',
       '      <li><strong>Expliquer mon erreur</strong> sollicite le tuteur IA pour comprendre l’origine d’un dysfonctionnement sans dévoiler la solution.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script directement depuis l’éditeur.</li>',
       '      <li>Vos modifications sont automatiquement sauvegardées dans votre navigateur.</li>',
@@ -142,15 +142,15 @@ function atelier(course) {
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre : auditeur d’exigence et calculateur économique WSJF</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Python 3</span>',
+      '      <span class="lab__lang">' + ic('terminal') + ' Grille d’analyse</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écris un parseur d’exigence, ' +
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écrivez un parseur d’exigence, ' +
       'teste des expressions régulières pour valider les codes IEEE ou calcule la matrice de couverture de test.</p>',
       '    <div class="lab__brief">',
       '      <p>Le code d’exemple évalue la conformité syntaxique d’une exigence et calcule son score de priorité économique WSJF. ' +
-      'Modifie l’entrée standard ci-dessous et clique sur <strong>Exécuter</strong> pour observer le rapport JSON généré.</p>',
+      'Modifiez les données du cas ci-dessous et cliquez sur <strong>Exécuter</strong> pour observer le rapport JSON généré.</p>',
       '    </div>',
       '    <div class="lab__sample">',
       '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BNK-AUTH-FR-001;Connexion biométrique;Le système doit authentifier l’utilisateur via empreinte digitale en moins de 500 ms;Must;8;3;5;2</pre></div>',

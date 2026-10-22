@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>décrire la table produits : id SERIAL, nom et categorie VARCHAR, quantite INTEGER, prix DECIMAL(10,2) ;</li>
       <li>expliquer la connexion : psycopg2.connect, cursor, gestion des erreurs par try/except ;</li>
@@ -78,7 +78,11 @@
     </ol>
   </div>
 
-<h2>1. La table produits</h2>
+<h2>1. Prérequis intégré : Initiation pas à pas aux classes Python (class, __init__, self)</h2>
+
+<div class="box box--intuition"><div class="box__title">Niveau 1 — Intuition : Regrouper données et actions dans un même objet</div><p>Le cours de Python B1 s’arrêtait aux fonctions et aux fichiers. Pour structurer proprement notre application de gestion de stock, nous regroupons la connexion à la base et ses opérations dans une <strong>classe</strong> (un plan de construction) :</p><ul><li><code>class Database:</code> définit le plan de construction d’un objet ;</li><li><code>def __init__(self, fichier):</code> est le <strong>constructeur</strong> appelé automatiquement à la création de l’objet (<code>db = Database("stock.db")</code>) ;</li><li><code>self</code> désigne l’objet lui-même et permet de stocker ses attributs (ex. <code>self.conn</code>) pour les réutiliser dans toutes les méthodes de la classe.</li></ul></div>
+
+<h2>2. La table produits</h2>
 
 <p>Cinq colonnes : <strong>id</strong> — identifiant unique, clé primaire auto-incrémentée (<code>SERIAL PRIMARY KEY</code>) ; <strong>nom</strong> — VARCHAR(100) NOT NULL ; <strong>categorie</strong> — VARCHAR(50) ; <strong>quantite</strong> — INTEGER NOT NULL ; <strong>prix</strong> — DECIMAL(10,2) NOT NULL. Le <code>CREATE TABLE IF NOT EXISTS</code> rend le premier lancement idempotent : la table ne se recrée pas à chaque démarrage.</p>
 <p>Pourquoi DECIMAL et non FLOAT pour le prix : DECIMAL(10,2) stocke exactement deux décimales — 2500.50 reste 2500.50, sans arrondi binaire. La précision monétaire n'est pas négociable.</p>
@@ -87,7 +91,7 @@
     <p>Cinq colonnes, cinq types : la grille attendue à l'examen.</p>
   </div>
 
-<h2>2. Connexion et gestion des erreurs</h2>
+<h2>3. Connexion et gestion des erreurs</h2>
 
 <p>La méthode <code>connecter()</code> appelle <code>psycopg2.connect(host, database, user, password)</code>, récupère un <strong>cursor</strong>, affiche le succès et renvoie True ; en cas d'<code>Error</code>, elle affiche le problème et renvoie False. Ce pattern try/except recommence dans chaque méthode : le programme ne plante jamais, il rapporte.</p>
 <p>Après toute écriture (INSERT, UPDATE, DELETE), la méthode appelle <code>self.connection.commit()</code> : sans commit, PostgreSQL annule la modification à la déconnexion. La <code>deconnecter()</code> ferme le cursor puis la connexion — dans cet ordre.</p>
@@ -101,12 +105,12 @@
     </ul>
   </div>
 
-<h2>3. Les quatre requêtes CRUD</h2>
+<h2>4. Les quatre requêtes CRUD</h2>
 
 <p><strong>Create</strong> — <code>INSERT INTO produits (nom, categorie, quantite, prix) VALUES (%s, %s, %s, %s)</code> avec les valeurs passées en paramètre ; <strong>Read</strong> — <code>SELECT * FROM produits ORDER BY id</code> puis <code>fetchall()</code> ; <strong>Update</strong> — <code>UPDATE produits SET nom=%s, categorie=%s, quantite=%s, prix=%s WHERE id=%s</code> ; <strong>Delete</strong> — <code>DELETE FROM produits WHERE id=%s</code>.</p>
 <p>Les <code>%s</code> sont des <strong>requêtes paramétrées</strong> : psycopg2 échappe les valeurs. Concaténer du SQL à la main ouvre la porte à l'injection — le paramétrage n'est pas une option, c'est la seule façon.</p>
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier dans l’atelier</div>
     <ul>
       <li>Le schéma : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>
       <li>La connexion : serveur/mdp/base dans l'ordre, sortie au premier ko.</li>
@@ -115,10 +119,10 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" id="pr-c2-e1" data-lab
      data-exercise="pr-c2-e1"
      data-language="analyse"
      data-height="300"
@@ -183,7 +187,7 @@ corrects : 3/3</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="pr-c2-e2" data-lab
      data-exercise="pr-c2-e2"
      data-language="analyse"
      data-height="300"
@@ -236,7 +240,7 @@ base ok
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="pr-c2-e3" data-lab
      data-exercise="pr-c2-e3"
      data-language="analyse"
      data-height="300"
@@ -297,7 +301,7 @@ etapes correctes : 4/4</pre></div>
   </div>
 </div>
   <!-- code-labs:end -->
-  <h2>5. QCM — niveau examen</h2>
+  <h2>6. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -374,7 +378,7 @@ etapes correctes : 4/4</pre></div>
     </div>
   </div>
 
-<h2>6. Erreurs classiques — récapitulatif</h2>
+<h2>7. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -386,7 +390,7 @@ etapes correctes : 4/4</pre></div>
     </ul>
   </div>
 
-<h2>7. Méthodologie de résolution</h2>
+<h2>8. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — écrire une méthode Database en trois gestes</div>
@@ -397,7 +401,7 @@ etapes correctes : 4/4</pre></div>
     </ol>
   </div>
 
-<h2>8. Révision active</h2>
+<h2>9. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -422,16 +426,16 @@ etapes correctes : 4/4</pre></div>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>9. Test de maîtrise</h2>
+<h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — relis les cinq colonnes et leurs types.</div>
-      <div class="bandrow bandrow--mid">50–69 % — refais la connexion et le commit.</div>
-      <div class="bandrow bandrow--good">70–89 % — cible les requêtes paramétrées.</div>
-      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — relisez les cinq colonnes et leurs types.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites la connexion et le commit.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>ciblez les requêvos paramétrées.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>niveau de maîtrise recherché.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -441,7 +445,7 @@ etapes correctes : 4/4</pre></div>
     <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — L'interface Tkinter <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : le support « Tutoriel Projet Tutoré — Application de Gestion de Stock » (Python, Tkinter & PostgreSQL, LAWSON Latevi Sena, Collège de Paris - Campus de Lomé, janvier 2026).</p>
 </main>
 

@@ -171,7 +171,7 @@ function exercices(course, chapterList) {
 
   const body = [
     crumbs,
-    '  <h1>Catalogue des 18 Ateliers Pratiques de Programmation en Python 3</h1>',
+    '  <h1>Catalogue des 18 Ateliers Pratiques de Programmation de manière méthodique</h1>',
     '  <p class="lead">Chaque module de cours intègre 3 ateliers interactifs avec exécution en temps réel dans le navigateur, vérifications automatisées et aide pédagogique contextualisée.</p>',
     '',
     '  <div class="grid grid-2">' + cardsHtml + '</div>',
@@ -184,7 +184,7 @@ function exercices(course, chapterList) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des ateliers — ' + course.brand,
-      description: 'Présentation des 18 ateliers de programmation Python 3 du cours d’Étude Quantitative & Qualitative B3.',
+      description: 'Présentation des 18 ateliers d’études de cas pratiques du cours d’Étude Quantitative & Qualitative B3.',
       active: 'exercices',
       body
     }

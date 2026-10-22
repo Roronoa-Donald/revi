@@ -37,7 +37,7 @@ module.exports = {
         '       ) AS salaire_moyen_cumul',
         'FROM employes;</code></pre>',
         '    <ul>',
-        '      <li><strong>PARTITION BY :</strong> Découpe le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>',
+        '      <li><strong>PARTITION BY :</strong> Découpez le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>',
         '      <li><strong>ORDER BY :</strong> Détermine l’ordre d’évaluation séquentielle des tuples au sein de chaque partition.</li>',
         '    </ul>',
         '  </div>',

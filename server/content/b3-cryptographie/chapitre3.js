@@ -19,7 +19,7 @@ module.exports = {
     'identifier les vulnérabilités cryptanalytiques de MD5 et SHA-1 (attaques Wang et SHAttered) et appliquer les recommandations NIST ;',
     'différencier intégrité simple (hachage) et authenticité d\'origine (code HMAC selon la RFC 2104) ;',
     'calculer la probabilité de collision selon le paradoxe des anniversaires et dimensionner la taille de sortie face aux attaques ;',
-    'développer en Python 3 des vérificateurs d\'empreintes, des moteurs HMAC-SHA256 et des simulateurs de détection de collision.'
+    'analyser et résoudre méthodologiquement des vérificateurs d\'empreintes, des moteurs HMAC-SHA256 et des simulateurs de détection de collision.'
   ],
   sections: [
     {
@@ -34,12 +34,12 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>2. Seconde Préimage</h4>',
-        '    <p>Étant donné un message $M_1$, il doit être impossible de trouver un second message distinct $M_2 \\neq M_1$ tel que $H(M_1) = H(M_2)$.</p>',
+        '    <p>Étant donné un message $M_1$, il doit être impossible de trouver un second message distinct $M_2 ≠ M_1$ tel que $H(M_1) = H(M_2)$.</p>',
         '    <p><strong>Complexité requise :</strong> $2^n$ opérations (protection contre la falsification ciblée).</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>3. Résistance aux Collisions</h4>',
-        '    <p>Il doit être impossible de trouver deux messages quelconques $M_1 \\neq M_2$ tels que $H(M_1) = H(M_2)$.</p>',
+        '    <p>Il doit être impossible de trouver deux messages quelconques $M_1 ≠ M_2$ tels que $H(M_1) = H(M_2)$.</p>',
         '    <p><strong>Complexité requise :</strong> $2^{n/2}$ opérations (dictée par le paradoxe des anniversaires).</p>',
         '  </div>',
         '</div>',
@@ -229,7 +229,7 @@ module.exports = {
       desc: 'Identifier et éliminer toute utilisation de MD5 ou SHA-1 dans le code source, les certificats et les pipelines de déploiement.'
     },
     {
-      title: 'Vérification d\'intégrité automatisée en Python 3',
+      title: 'Vérification d\'intégrité automatisée de manière méthodique',
       desc: 'Développer des outils d\'empreinte cryptographique capables de certifier l\'intégrité de jeux de données et de binaires.'
     },
     {

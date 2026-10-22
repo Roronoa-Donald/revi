@@ -147,7 +147,7 @@ function atelier(course) {
     box('info', 'Environnement d’exécution sécurisé', [
       '<p>Cet atelier intègre un interpréteur interactif pour expérimenter avec les algorithmes d’audit, ' +
       'les règles de pare-feu et les vérifications cryptographiques présentés tout au long du cours. ' +
-      'Rédigez votre script, renseignez vos données de test sur l’entrée standard, et observez la réaction immédiate.</p>'
+      'Rédigez votre script, renseignez vos données de test dans l’encadré du cas, et observez la réaction immédiate.</p>'
     ].join('\n')),
     '',
     '  <div class="lab" data-lab',

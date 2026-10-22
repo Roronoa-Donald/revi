@@ -75,10 +75,10 @@ module.exports = [
       {
         "label": "Cinq reseaux",
         "stdin": "cas:3",
-        "expected": "a : workgroup\nb : client-serveur\nc : workgroup\nd : workgroup\ne : client-serveur\ncentralises : oui"
+        "expected": "a : workgroup\nb : client-serveur\nc : workgroup\nd : workgroup≠ : client-serveur\ncentralises : oui"
       }
     ],
-    "solution": "[Exemple]\natelier : workgroup\nagence : client-serveur\nsdb : workgroup\ncentralises : oui\n\n[Cas 1 — Un seul centralise]\nagence : client-serveur\ncentralises : oui\n\n[Cas 2 — Que du pairapair]\ntpe : workgroup\ncabine : workgroup\ncentralises : non\n\n[Cas 3 — Cinq reseaux]\na : workgroup\nb : client-serveur\nc : workgroup\nd : workgroup\ne : client-serveur\ncentralises : oui"
+    "solution": "[Exemple]\natelier : workgroup\nagence : client-serveur\nsdb : workgroup\ncentralises : oui\n\n[Cas 1 — Un seul centralise]\nagence : client-serveur\ncentralises : oui\n\n[Cas 2 — Que du pairapair]\ntpe : workgroup\ncabine : workgroup\ncentralises : non\n\n[Cas 3 — Cinq reseaux]\na : workgroup\nb : client-serveur\nc : workgroup\nd : workgroup≠ : client-serveur\ncentralises : oui"
   },
   {
     "id": "re-c1-e3",
@@ -113,10 +113,10 @@ module.exports = [
       {
         "label": "Six reseaux",
         "stdin": "cas:3",
-        "expected": "a : PAN\nb : LAN\nc : WLAN\nd : MAN\ne : WAN\nf : WLAN\nsans fil : 2/6"
+        "expected": "a : PAN\nb : LAN\nc : WLAN\nd : MAN≠ : WAN\nf : WLAN\nsans fil : 2/6"
       }
     ],
-    "solution": "[Exemple]\niphone : PAN\nbox : LAN\nwifi : WLAN\nmairie : MAN\noperateur : WAN\nsans fil : 1/5\n\n[Cas 1 — Un seul WLAN]\nlycee : WLAN\nsans fil : 1/1\n\n[Cas 2 — Aucun sans fil]\nstudio : PAN\ncampus : MAN\nsans fil : 0/2\n\n[Cas 3 — Six reseaux]\na : PAN\nb : LAN\nc : WLAN\nd : MAN\ne : WAN\nf : WLAN\nsans fil : 2/6"
+    "solution": "[Exemple]\niphone : PAN\nbox : LAN\nwifi : WLAN\nmairie : MAN\noperateur : WAN\nsans fil : 1/5\n\n[Cas 1 — Un seul WLAN]\nlycee : WLAN\nsans fil : 1/1\n\n[Cas 2 — Aucun sans fil]\nstudio : PAN\ncampus : MAN\nsans fil : 0/2\n\n[Cas 3 — Six reseaux]\na : PAN\nb : LAN\nc : WLAN\nd : MAN≠ : WAN\nf : WLAN\nsans fil : 2/6"
   },
   {
     "id": "re-c2-e1",
@@ -151,10 +151,10 @@ module.exports = [
       {
         "label": "Cinq reseaux",
         "stdin": "cas:3",
-        "expected": "a : fragile\nb : centralise\nc : boucle\nd : centralise\ne : fragile\netoiles : 2/5"
+        "expected": "a : fragile\nb : centralise\nc : boucle\nd : centralise≠ : fragile\netoiles : 2/5"
       }
     ],
-    "solution": "[Exemple]\nthinnet : fragile\ntokenring : boucle\ncampus : centralise\netoiles : 1/3\n\n[Cas 1 — Une seule etoile]\ntour : centralise\netoiles : 1/1\n\n[Cas 2 — Deux bus]\nusine : fragile\nlabo : fragile\netoiles : 0/2\n\n[Cas 3 — Cinq reseaux]\na : fragile\nb : centralise\nc : boucle\nd : centralise\ne : fragile\netoiles : 2/5"
+    "solution": "[Exemple]\nthinnet : fragile\ntokenring : boucle\ncampus : centralise\netoiles : 1/3\n\n[Cas 1 — Une seule etoile]\ntour : centralise\netoiles : 1/1\n\n[Cas 2 — Deux bus]\nusine : fragile\nlabo : fragile\netoiles : 0/2\n\n[Cas 3 — Cinq reseaux]\na : fragile\nb : centralise\nc : boucle\nd : centralise≠ : fragile\netoiles : 2/5"
   },
   {
     "id": "re-c2-e2",
@@ -189,10 +189,10 @@ module.exports = [
       {
         "label": "Cinq reseaux",
         "stdin": "cas:3",
-        "expected": "a : conseille\nb : sans fil\nc : conseille\nd : conseille\ne : conseille\nblindes : 2/5"
+        "expected": "a : conseille\nb : sans fil\nc : conseille\nd : conseille≠ : conseille\nblindes : 2/5"
       }
     ],
-    "solution": "[Exemple]\nbureau : conseille\natelier : conseille\ncities : conseille\nreunion : sans fil\nblindes : 1/4\n\n[Cas 1 — Un seul blindé]\nchaudiere : conseille\nblindes : 1/1\n\n[Cas 2 — Support inconnu]\nbureau : support inconnu\nsalle : conseille\nblindes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : conseille\nb : sans fil\nc : conseille\nd : conseille\ne : conseille\nblindes : 2/5"
+    "solution": "[Exemple]\nbureau : conseille\natelier : conseille\ncities : conseille\nreunion : sans fil\nblindes : 1/4\n\n[Cas 1 — Un seul blindé]\nchaudiere : conseille\nblindes : 1/1\n\n[Cas 2 — Support inconnu]\nbureau : support inconnu\nsalle : conseille\nblindes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : conseille\nb : sans fil\nc : conseille\nd : conseille≠ : conseille\nblindes : 2/5"
   },
   {
     "id": "re-c2-e3",
@@ -227,10 +227,10 @@ module.exports = [
       {
         "label": "Cinq reseaux",
         "stdin": "cas:3",
-        "expected": "a : reseau hors service\nb : liaison correcte\nc : liaison correcte\nd : un poste isole\ne : bascule anneau secondaire\npannes : 3/5"
+        "expected": "a : reseau hors service\nb : liaison correcte\nc : liaison correcte\nd : un poste isole≠ : bascule anneau secondaire\npannes : 3/5"
       }
     ],
-    "solution": "[Exemple]\na : liaison correcte\nb : reseau hors service\nc : bascule anneau secondaire\nd : un poste isole\npannes : 3/4\n\n[Cas 1 — Anneau double]\nr1 : bascule anneau secondaire\npannes : 1/1\n\n[Cas 2 — Rien ne casse]\na : liaison correcte\nb : liaison correcte\npannes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : reseau hors service\nb : liaison correcte\nc : liaison correcte\nd : un poste isole\ne : bascule anneau secondaire\npannes : 3/5"
+    "solution": "[Exemple]\na : liaison correcte\nb : reseau hors service\nc : bascule anneau secondaire\nd : un poste isole\npannes : 3/4\n\n[Cas 1 — Anneau double]\nr1 : bascule anneau secondaire\npannes : 1/1\n\n[Cas 2 — Rien ne casse]\na : liaison correcte\nb : liaison correcte\npannes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : reseau hors service\nb : liaison correcte\nc : liaison correcte\nd : un poste isole≠ : bascule anneau secondaire\npannes : 3/5"
   },
   {
     "id": "re-c3-e1",
@@ -265,10 +265,10 @@ module.exports = [
       {
         "label": "Cinq objets",
         "stdin": "cas:3",
-        "expected": "a : 7-application\nb : 2-liaison\nc : 3-reseau\nd : 5-session\ne : 6-presentation\nrouteurs : 1/5"
+        "expected": "a : 7-application\nb : 2-liaison\nc : 3-reseau\nd : 5-session≠ : 6-presentation\nrouteurs : 1/5"
       }
     ],
-    "solution": "[Exemple]\ncable : 1-physique\nadresse : 3-reseau\nport : 4-transport\nnavigateur : 7-application\nrouteurs : 1/4\n\n[Cas 1 — Un seul c3]\npaquet : 3-reseau\nrouteurs : 1/1\n\n[Cas 2 — Couche 2]\ntrame : 1-physique\nmac : 2-liaison\nrouteurs : 0/2\n\n[Cas 3 — Cinq objets]\na : 7-application\nb : 2-liaison\nc : 3-reseau\nd : 5-session\ne : 6-presentation\nrouteurs : 1/5"
+    "solution": "[Exemple]\ncable : 1-physique\nadresse : 3-reseau\nport : 4-transport\nnavigateur : 7-application\nrouteurs : 1/4\n\n[Cas 1 — Un seul c3]\npaquet : 3-reseau\nrouteurs : 1/1\n\n[Cas 2 — Couche 2]\ntrame : 1-physique\nmac : 2-liaison\nrouteurs : 0/2\n\n[Cas 3 — Cinq objets]\na : 7-application\nb : 2-liaison\nc : 3-reseau\nd : 5-session≠ : 6-presentation\nrouteurs : 1/5"
   },
   {
     "id": "re-c3-e2",
@@ -341,10 +341,10 @@ module.exports = [
       {
         "label": "Cinq incidents",
         "stdin": "cas:3",
-        "expected": "a : verifier les cables\nb : verifier le routage\nc : verifier la carte\nd : verifier les cables\ne : verifier les applications\nphysiques : 2/5"
+        "expected": "a : verifier les cables\nb : verifier le routage\nc : verifier la carte\nd : verifier les cables≠ : verifier les applications\nphysiques : 2/5"
       }
     ],
-    "solution": "[Exemple]\npc1 : verifier les cables\npc2 : verifier la carte\nsrv : verifier le routage\nweb : verifier les applications\nphysiques : 1/4\n\n[Cas 1 — Cable debranche]\nimprimante : verifier les cables\nphysiques : 1/1\n\n[Cas 2 — Routage absent]\nvlan : verifier le routage\nappli : verifier les applications\nphysiques : 0/2\n\n[Cas 3 — Cinq incidents]\na : verifier les cables\nb : verifier le routage\nc : verifier la carte\nd : verifier les cables\ne : verifier les applications\nphysiques : 2/5"
+    "solution": "[Exemple]\npc1 : verifier les cables\npc2 : verifier la carte\nsrv : verifier le routage\nweb : verifier les applications\nphysiques : 1/4\n\n[Cas 1 — Cable debranche]\nimprimante : verifier les cables\nphysiques : 1/1\n\n[Cas 2 — Routage absent]\nvlan : verifier le routage\nappli : verifier les applications\nphysiques : 0/2\n\n[Cas 3 — Cinq incidents]\na : verifier les cables\nb : verifier le routage\nc : verifier la carte\nd : verifier les cables≠ : verifier les applications\nphysiques : 2/5"
   },
   {
     "id": "re-c4-e1",
@@ -379,10 +379,10 @@ module.exports = [
       {
         "label": "Cinq objets",
         "stdin": "cas:3",
-        "expected": "a : acces-reseau\nb : application\nc : internet\nd : transport\ne : application\ntransport : 1/5"
+        "expected": "a : acces-reseau\nb : application\nc : internet\nd : transport≠ : application\ntransport : 1/5"
       }
     ],
-    "solution": "[Exemple]\nethernet : acces-reseau\nip : internet\ntcp : transport\nhttp : application\ntransport : 1/4\n\n[Cas 1 — Un seul transport]\nudp : transport\ntransport : 1/1\n\n[Cas 2 — Couche internet]\nicmp : internet\narp : internet\ntransport : 0/2\n\n[Cas 3 — Cinq objets]\na : acces-reseau\nb : application\nc : internet\nd : transport\ne : application\ntransport : 1/5"
+    "solution": "[Exemple]\nethernet : acces-reseau\nip : internet\ntcp : transport\nhttp : application\ntransport : 1/4\n\n[Cas 1 — Un seul transport]\nudp : transport\ntransport : 1/1\n\n[Cas 2 — Couche internet]\nicmp : internet\narp : internet\ntransport : 0/2\n\n[Cas 3 — Cinq objets]\na : acces-reseau\nb : application\nc : internet\nd : transport≠ : application\ntransport : 1/5"
   },
   {
     "id": "re-c4-e2",
@@ -455,10 +455,10 @@ module.exports = [
       {
         "label": "Cinq flux",
         "stdin": "cas:3",
-        "expected": "a : fiable\nb : rapide\nc : rapide\nd : fiable\ne : fiable\nfiables : 3/5"
+        "expected": "a : fiable\nb : rapide\nc : rapide\nd : fiable≠ : fiable\nfiables : 3/5"
       }
     ],
-    "solution": "[Exemple]\ncourriel : fiable\ndns : rapide\ntransfert : fiable\nfiables : 2/3\n\n[Cas 1 — Un seul UDP]\nvoix : rapide\nfiables : 0/1\n\n[Cas 2 — Que du TCP]\nsite : fiable\nbanque : fiable\nfiables : 2/2\n\n[Cas 3 — Cinq flux]\na : fiable\nb : rapide\nc : rapide\nd : fiable\ne : fiable\nfiables : 3/5"
+    "solution": "[Exemple]\ncourriel : fiable\ndns : rapide\ntransfert : fiable\nfiables : 2/3\n\n[Cas 1 — Un seul UDP]\nvoix : rapide\nfiables : 0/1\n\n[Cas 2 — Que du TCP]\nsite : fiable\nbanque : fiable\nfiables : 2/2\n\n[Cas 3 — Cinq flux]\na : fiable\nb : rapide\nc : rapide\nd : fiable≠ : fiable\nfiables : 3/5"
   },
   {
     "id": "re-c5-e1",
@@ -493,10 +493,10 @@ module.exports = [
       {
         "label": "Cinq cartes",
         "stdin": "cas:3",
-        "expected": "a : mac valide\nb : mac valide\nc : mac invalide\nd : mac invalide\ne : mac invalide\ninvalides : 3/5"
+        "expected": "a : mac valide\nb : mac valide\nc : mac invalide\nd : mac invalide≠ : mac invalide\ninvalides : 3/5"
       }
     ],
-    "solution": "[Exemple]\npc1 : mac valide\npc2 : mac invalide\npc3 : mac invalide\ninvalides : 2/3\n\n[Cas 1 — Une seule valide]\nsrv : mac valide\ninvalides : 0/1\n\n[Cas 2 — Trop longue]\npc1 : mac invalide\npc2 : mac valide\ninvalides : 1/2\n\n[Cas 3 — Cinq cartes]\na : mac valide\nb : mac valide\nc : mac invalide\nd : mac invalide\ne : mac invalide\ninvalides : 3/5"
+    "solution": "[Exemple]\npc1 : mac valide\npc2 : mac invalide\npc3 : mac invalide\ninvalides : 2/3\n\n[Cas 1 — Une seule valide]\nsrv : mac valide\ninvalides : 0/1\n\n[Cas 2 — Trop longue]\npc1 : mac invalide\npc2 : mac valide\ninvalides : 1/2\n\n[Cas 3 — Cinq cartes]\na : mac valide\nb : mac valide\nc : mac invalide\nd : mac invalide≠ : mac invalide\ninvalides : 3/5"
   },
   {
     "id": "re-c5-e2",
@@ -569,10 +569,10 @@ module.exports = [
       {
         "label": "Six adresses",
         "stdin": "cas:3",
-        "expected": "a : classe A\nb : classe A\nc : classe B\nd : classe B\ne : reservee\nf : reservee\nspeciales : 2/6"
+        "expected": "a : classe A\nb : classe A\nc : classe B\nd : classe B≠ : reservee\nf : reservee\nspeciales : 2/6"
       }
     ],
-    "solution": "[Exemple]\nrc : classe A\nuni : classe B\npmi : classe C\ngroupe : classe D\nspeciales : 0/4\n\n[Cas 1 — Boucle locale]\nlocalhost : boucle locale\nspeciales : 1/1\n\n[Cas 2 — Classe E]\nlabo : classe E\npmi : classe C\nspeciales : 0/2\n\n[Cas 3 — Six adresses]\na : classe A\nb : classe A\nc : classe B\nd : classe B\ne : reservee\nf : reservee\nspeciales : 2/6"
+    "solution": "[Exemple]\nrc : classe A\nuni : classe B\npmi : classe C\ngroupe : classe D\nspeciales : 0/4\n\n[Cas 1 — Boucle locale]\nlocalhost : boucle locale\nspeciales : 1/1\n\n[Cas 2 — Classe E]\nlabo : classe E\npmi : classe C\nspeciales : 0/2\n\n[Cas 3 — Six adresses]\na : classe A\nb : classe A\nc : classe B\nd : classe B≠ : reservee\nf : reservee\nspeciales : 2/6"
   },
   {
     "id": "re-c6-e1",
@@ -607,10 +607,10 @@ module.exports = [
       {
         "label": "Cinq reseaux",
         "stdin": "cas:3",
-        "expected": "a : /25 (2 sous-reseaux, 126 hotes)\nb : /26 (4 sous-reseaux, 62 hotes)\nc : /27 (8 sous-reseaux, 30 hotes)\nd : /28 (16 sous-reseaux, 14 hotes)\ne : /29 (32 sous-reseaux, 6 hotes)"
+        "expected": "a : /25 (2 sous-reseaux, 126 hotes)\nb : /26 (4 sous-reseaux, 62 hotes)\nc : /27 (8 sous-reseaux, 30 hotes)\nd : /28 (16 sous-reseaux, 14 hotes)≠ : /29 (32 sous-reseaux, 6 hotes)"
       }
     ],
-    "solution": "[Exemple]\nagence : /27 (8 sous-reseaux, 30 hotes)\nagence2 : /26 (4 sous-reseaux, 62 hotes)\nagence3 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 1 — Emprunt d un bit]\nres1 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : /27 (8 sous-reseaux, 30 hotes)\n\n[Cas 3 — Cinq reseaux]\na : /25 (2 sous-reseaux, 126 hotes)\nb : /26 (4 sous-reseaux, 62 hotes)\nc : /27 (8 sous-reseaux, 30 hotes)\nd : /28 (16 sous-reseaux, 14 hotes)\ne : /29 (32 sous-reseaux, 6 hotes)"
+    "solution": "[Exemple]\nagence : /27 (8 sous-reseaux, 30 hotes)\nagence2 : /26 (4 sous-reseaux, 62 hotes)\nagence3 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 1 — Emprunt d un bit]\nres1 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : /27 (8 sous-reseaux, 30 hotes)\n\n[Cas 3 — Cinq reseaux]\na : /25 (2 sous-reseaux, 126 hotes)\nb : /26 (4 sous-reseaux, 62 hotes)\nc : /27 (8 sous-reseaux, 30 hotes)\nd : /28 (16 sous-reseaux, 14 hotes)≠ : /29 (32 sous-reseaux, 6 hotes)"
   },
   {
     "id": "re-c6-e2",
@@ -645,10 +645,10 @@ module.exports = [
       {
         "label": "Cinq reseaux",
         "stdin": "cas:3",
-        "expected": "a : 255.255.255.128 (/25)\nb : 255.255.255.192 (/26)\nc : 255.255.255.224 (/27)\nd : 255.255.255.240 (/28)\ne : 255.255.255.252 (/30)\nslash28 : 1/5"
+        "expected": "a : 255.255.255.128 (/25)\nb : 255.255.255.192 (/26)\nc : 255.255.255.224 (/27)\nd : 255.255.255.240 (/28)≠ : 255.255.255.252 (/30)\nslash28 : 1/5"
       }
     ],
-    "solution": "[Exemple]\nagence : 255.255.255.224 (/27)\nagence2 : 255.255.255.192 (/26)\nagence3 : 255.255.255.240 (/28)\nslash28 : 1/3\n\n[Cas 1 — Un seul bit]\nres1 : 255.255.255.128 (/25)\nslash28 : 0/1\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : 255.255.255.192 (/26)\nslash28 : 0/2\n\n[Cas 3 — Cinq reseaux]\na : 255.255.255.128 (/25)\nb : 255.255.255.192 (/26)\nc : 255.255.255.224 (/27)\nd : 255.255.255.240 (/28)\ne : 255.255.255.252 (/30)\nslash28 : 1/5"
+    "solution": "[Exemple]\nagence : 255.255.255.224 (/27)\nagence2 : 255.255.255.192 (/26)\nagence3 : 255.255.255.240 (/28)\nslash28 : 1/3\n\n[Cas 1 — Un seul bit]\nres1 : 255.255.255.128 (/25)\nslash28 : 0/1\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : 255.255.255.192 (/26)\nslash28 : 0/2\n\n[Cas 3 — Cinq reseaux]\na : 255.255.255.128 (/25)\nb : 255.255.255.192 (/26)\nc : 255.255.255.224 (/27)\nd : 255.255.255.240 (/28)≠ : 255.255.255.252 (/30)\nslash28 : 1/5"
   },
   {
     "id": "re-c6-e3",
@@ -683,9 +683,9 @@ module.exports = [
       {
         "label": "Cinq sites",
         "stdin": "cas:3",
-        "expected": "a : /30 (2 hotes)\nb : /28 (14 hotes)\nc : /26 (62 hotes)\nd : /30 (2 hotes)\ne : /24 (254 hotes)\nliaisons : 2/5"
+        "expected": "a : /30 (2 hotes)\nb : /28 (14 hotes)\nc : /26 (62 hotes)\nd : /30 (2 hotes)≠ : /24 (254 hotes)\nliaisons : 2/5"
       }
     ],
-    "solution": "[Exemple]\nbureau1 : /27 (30 hotes)\nbureau2 : /29 (6 hotes)\nliaison : /30 (2 hotes)\nsiege : /25 (126 hotes)\nliaisons : 1/4\n\n[Cas 1 — Une seule liaison]\nrouteurs : /30 (2 hotes)\nliaisons : 1/1\n\n[Cas 2 — Besoin impossible]\ndatacenter : impossible\nbureau : /28 (14 hotes)\nliaisons : 0/2\n\n[Cas 3 — Cinq sites]\na : /30 (2 hotes)\nb : /28 (14 hotes)\nc : /26 (62 hotes)\nd : /30 (2 hotes)\ne : /24 (254 hotes)\nliaisons : 2/5"
+    "solution": "[Exemple]\nbureau1 : /27 (30 hotes)\nbureau2 : /29 (6 hotes)\nliaison : /30 (2 hotes)\nsiege : /25 (126 hotes)\nliaisons : 1/4\n\n[Cas 1 — Une seule liaison]\nrouteurs : /30 (2 hotes)\nliaisons : 1/1\n\n[Cas 2 — Besoin impossible]\ndatacenter : impossible\nbureau : /28 (14 hotes)\nliaisons : 0/2\n\n[Cas 3 — Cinq sites]\na : /30 (2 hotes)\nb : /28 (14 hotes)\nc : /26 (62 hotes)\nd : /30 (2 hotes)≠ : /24 (254 hotes)\nliaisons : 2/5"
   }
 ];

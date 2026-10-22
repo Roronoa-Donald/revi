@@ -20,7 +20,7 @@ module.exports = {
     'appliquer rigoureusement la norme Semantic Versioning (SemVer 2.0.0) et analyser l’impact des ruptures d’API ;',
     'dimensionner et organiser la pyramide des tests logiciels pour optimiser la rapidité du retour d’information ;',
     'identifier, isoler et corriger les tests instables (Flaky Tests) dans un pipeline distribué ;',
-    'développer en Python 3 des analyseurs d’étapes CI, de conformité SemVer et de matrices d’instabilité de tests.'
+    'analyser et résoudre méthodologiquement des analyseurs d’étapes CI, de conformité SemVer et de matrices d’instabilité de tests.'
   ],
   sections: [
     {

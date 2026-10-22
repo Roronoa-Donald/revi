@@ -114,7 +114,7 @@ module.exports = {
         '    Chiffre automatiquement les mots de passe affichés en clair dans la configuration (algorithme type 7).</li>',
         '  <li><strong>Protection du mode Privilégié avec enable secret :</strong><br>',
         '    <code>Router(config)# enable secret &lt;MotDePasseRobuste&gt;</code><br>',
-        '    Utilise un hachage cryptographique fort (MD5 type 5 ou SHA-256 type 8/9). La commande obsolète <code>enable password</code> (en clair) ne doit jamais être utilisée.</li>',
+        '    Utilisez un hachage cryptographique fort (MD5 type 5 ou SHA-256 type 8/9). La commande obsolète <code>enable password</code> (en clair) ne doit jamais être utilisée.</li>',
         '  <li><strong>Configuration d’une bannière légale d’avertissement :</strong><br>',
         '    <code>Router(config)# banner motd #ACCES INTERDIT AU PERSONNEL NON AUTORISE#</code><br>',
         '    Exigence légale pour établir l’accès non autorisé lors de poursuites judiciaires. Ne jamais afficher de message de bienvenue du type « Bienvenue sur notre routeur » !</li>',

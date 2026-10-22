@@ -40,7 +40,7 @@
     <a href="../chapitres/formules.html">Mémo</a>
     <a href="../exercices/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="sqlnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>maîtriser le fonctionnement interne des fonctions d’agrégation (COUNT, SUM, AVG, MIN, MAX) et leur comportement face aux valeurs NULL ;</li>
       <li>distinguer avec une rigueur absolue le rôle du filtre WHERE (sur les lignes individuelles) de celui de HAVING (sur les groupes agrégés) ;</li>
@@ -93,8 +93,8 @@
   <div class="card">
     <h4 class="card-title">WHERE vs HAVING</h4>
     <ul>
-      <li><strong>WHERE :</strong> Filtre les lignes <em>avant</em> tout regroupement et calcul d’agrégat. Les fonctions d’agrégation y sont strictement <strong>interdites</strong>.</li>
-      <li><strong>HAVING :</strong> Filtre les groupes <em>après</em> le calcul des agrégats (ex: <code>HAVING COUNT(*) &gt; 5</code> ou <code>HAVING SUM(montant) &ge; 1000</code>).</li>
+      <li><strong>WHERE :</strong> Filtrez les lignes <em>avant</em> tout regroupement et calcul d’agrégat. Les fonctions d’agrégation y sont strictement <strong>interdites</strong>.</li>
+      <li><strong>HAVING :</strong> Filtrez les groupes <em>après</em> le calcul des agrégats (ex: <code>HAVING COUNT(*) &gt; 5</code> ou <code>HAVING SUM(montant) &ge; 1000</code>).</li>
     </ul>
   </div>
 </div>
@@ -138,180 +138,125 @@ FROM Employes;</div>
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="sql2-c4-e1" data-lab
      data-exercise="sql2-c4-e1"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="5000&#10;Alice:IT:3200,Bob:RH:2200,Claire:IT:2800,David:RH:2500,Eva:VENTES:6000">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c4-e1) — Moteur GROUP BY avec agrégation et clause HAVING
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Tous les départements passent le seuil]
-# Données : 2000
-# Données : Alice:IT:3000,Bob:RH:2500,Claire:COMM:2200
-A_COMPLETER
-
-[Cas 2 — Aucun département ne passe le seuil]
-# Données : 10000
-# Données : Alice:IT:3000,Claire:IT:3000,Bob:RH:2000
-A_COMPLETER
-
-[Cas 3 — Département unique avec moyenne décimale]
-# Données : 4000
-# Données : A:DEV:2000,B:DEV:2500,C:DEV:2200
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 400000), ('Koffi', 'IT', 300000), ('Yao', 'RH', 350000);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Calculez le rang par département avec RANK() OVER (...)
+SELECT nom, departement, salaire FROM employes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Moteur GROUP BY avec agrégation et clause HAVING</h3>
+    <h3 class="lab__title">Exercice 1 — Classement par partition avec RANK() OVER</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Agréger des salaires par département (COUNT, SUM, AVG) et filtrer les groupes avec HAVING.</p>
-    <div class="lab__brief"><p>Le script simule la requête :
-<code>SELECT dept, COUNT(*), SUM(salaire), ROUND(AVG(salaire), 2) FROM Employes GROUP BY dept HAVING SUM(salaire) &gt;= seuil ORDER BY dept</code>
-
-Entrée :
-- Ligne 1 : Le seuil minimal pour la clause <code>HAVING SUM(salaire) &gt;= seuil</code>.
-- Ligne 2 : Liste des employés <code>nom:dept:salaire</code> séparés par des virgules.
-
-Sortie :
-Pour chaque département satisfaisant la clause HAVING (triés par ordre alphabétique de département) :
-<code>&lt;dept&gt; | COUNT: &lt;N&gt; | SUM: &lt;Total&gt; | AVG: &lt;Moyenne.2f&gt;</code> (ou <code>AUCUN DEPARTEMENT</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le rang de chaque ligne au sein de son groupe avec une fonction de fenêtrage.</p>
+    <div class="lab__brief"><p>Dans la table <code>employes(nom, departement, salaire)</code>, affichez <code>nom</code>, <code>departement</code>, <code>salaire</code> et le rang du salaire au sein de chaque département (<code>RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang</code>), triés par <code>departement</code> croissant puis <code>rang</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5000
-Alice:IT:3200,Bob:RH:2200,Claire:IT:2800,David:RH:2500,Eva:VENTES:6000</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IT | COUNT: 2 | SUM: 6000 | AVG: 3000.00
-VENTES | COUNT: 1 | SUM: 6000 | AVG: 6000.00</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 400000), ('Koffi', 'IT', 300000), ('Yao', 'RH', 350000);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+-------+-------------+---------+------+
+| nom   | departement | salaire | rang |
++-------+-------------+---------+------+
+| Amina | IT          | 400000  | 1    |
+| Koffi | IT          | 300000  | 2    |
+| Yao   | RH          | 350000  | 1    |
++-------+-------------+---------+------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">RH a une somme de 4700 &lt; 5000, il est donc éliminé par la clause HAVING.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utilise un dictionnaire avec le nom du département comme clé pour stocker la liste des salaires.</li>
-        <li>Calcule le total (SUM), l effectif (COUNT) et la moyenne (AVG = SUM / COUNT).</li>
-        <li>Filtre avec la condition sum &gt;= seuil et trie les clés par ordre alphabétique.</li>
+        <li>Utilisez RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang.</li>
+        <li>Triez par departement ASC, rang ASC, nom ASC.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql2-c4-e2" data-lab
      data-exercise="sql2-c4-e2"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="Alice:A:95,Bob:B:80,Claire:A:98,David:B:80,Eva:A:90">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c4-e2) — Fonction de fenêtrage ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Une seule équipe]
-# Données : Marc:DEV:50,Luc:DEV:85,Zoe:DEV:92
-A_COMPLETER
-
-[Cas 2 — Membres avec scores identiques]
-# Données : Paul:X:100,Alain:X:100,Benoit:X:100
-A_COMPLETER
-
-[Cas 3 — Plusieurs équipes distinctes de taille 1]
-# Données : A:T1:10,B:T2:20,C:T3:30
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE recettes (jour INT, montant INT); INSERT INTO recettes VALUES (1, 10000), (2, 15000), (3, 5000);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Calculez le cumul progressif avec SUM(montant) OVER (ORDER BY jour ASC)
+SELECT jour, montant FROM recettes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Fonction de fenêtrage ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)</h3>
+    <h3 class="lab__title">Exercice 2 — Cumul glissant avec SUM() OVER (ORDER BY ...)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer les numéros de ligne partitionnés par catégorie et triés par score décroissant.</p>
-    <div class="lab__brief"><p>En SQL moderne, les fonctions de fenêtrage (Window Functions) calculent des valeurs relatives sans regrouper (aplatir) les lignes.
-Le script simule la fonction analytique :
-<code>ROW_NUMBER() OVER (PARTITION BY equipe ORDER BY score DESC, nom ASC)</code>
-
-Entrée :
-Une liste de membres <code>nom:equipe:score</code> séparés par des virgules.
-
-Sortie :
-Pour chaque membre (trié par équipe alphabétique, puis par row_number croissant) :
-<code>&lt;equipe&gt; | Rang: &lt;row_number&gt; | &lt;nom&gt; (&lt;score&gt;)</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer un total cumulé progressif à l’aide d’une fenêtre ordonnée.</p>
+    <div class="lab__brief"><p>Dans la table <code>recettes(jour, montant)</code>, affichez <code>jour</code>, <code>montant</code> et le cumul progressif des recettes jusqu’à ce jour (<code>SUM(montant) OVER (ORDER BY jour ASC) AS cumul</code>), triés par <code>jour</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Alice:A:95,Bob:B:80,Claire:A:98,David:B:80,Eva:A:90</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>A | Rang: 1 | Claire (98)
-A | Rang: 2 | Alice (95)
-A | Rang: 3 | Eva (90)
-B | Rang: 1 | Bob (80)
-B | Rang: 2 | David (80)</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE recettes (jour INT, montant INT); INSERT INTO recettes VALUES (1, 10000), (2, 15000), (3, 5000);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------+---------+-------+
+| jour | montant | cumul |
++------+---------+-------+
+| 1    | 10000   | 10000 |
+| 2    | 15000   | 25000 |
+| 3    | 5000    | 30000 |
++------+---------+-------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Claire est première dans l'équipe A, Alice deuxième. Dans l'équipe B, Bob et David ont le même score, départagés par nom.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Regroupe les membres par équipe dans un dictionnaire.</li>
-        <li>Pour chaque équipe, trie les membres par score décroissant (-score), puis nom alphabétique.</li>
-        <li>Attribue un numéro 1, 2, 3... à chaque membre au sein de sa partition.</li>
+        <li>SUM(montant) OVER (ORDER BY jour ASC) additionne toutes les lignes du début jusqu’à la ligne courante.</li>
+        <li>Nommez la colonne AS cumul.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql2-c4-e3" data-lab
      data-exercise="sql2-c4-e3"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="2026-01:100,2026-02:130,2026-03:110,2026-04:110">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c4-e3) — Fonction de décalage LAG() OVER (ORDER BY ...) et variation temporelle
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Progression continue positive]
-# Données : T1:10,T2:25,T3:40
-A_COMPLETER
-
-[Cas 2 — Baisse continue]
-# Données : M1:500,M2:420,M3:390
-A_COMPLETER
-
-[Cas 3 — Valeur unique]
-# Données : 2026-01:250
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE ventes (vendeur TEXT, montant INT); INSERT INTO ventes VALUES ('Amina', 30000), ('Amina', 25000), ('Koffi', 40000);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Utilisez WITH totaux AS (...) SELECT ...
+SELECT vendeur, montant FROM ventes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Fonction de décalage LAG() OVER (ORDER BY ...) et variation temporelle</h3>
+    <h3 class="lab__title">Exercice 3 — Expression de table commune (CTE WITH ... AS)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la différence entre la valeur courante et la valeur précédente selon la fonction LAG().</p>
-    <div class="lab__brief"><p>La fonction <code>LAG(valeur, 1, defaut) OVER (ORDER BY date ASC)</code> permet d’accéder à la valeur de la ligne précédente pour calculer l’évolution relative (delta).
-
-Entrée :
-Une séquence chronologique de couples <code>date:valeur</code> séparés par des virgules (ex: <code>2026-01:100,2026-02:130,2026-03:110</code>).
-
-Sortie :
-Pour chaque date (dans l’ordre chronologique de l’entrée) :
-<code>&lt;date&gt; | Actuel: &lt;val&gt; | Precedent: &lt;lag_val&gt; | Delta: &lt;+delta/-delta/0&gt;</code>
-(Pour la toute première ligne, où il n’y a pas de ligne antérieure, <code>Precedent: NULL | Delta: NULL</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Structurer une requête analytique avec une CTE (clause WITH).</p>
+    <div class="lab__brief"><p>À partir de la table <code>ventes(vendeur, montant)</code>, utilisez une CTE <code>totaux AS (SELECT vendeur, SUM(montant) AS ca_total FROM ventes GROUP BY vendeur)</code> pour afficher <code>vendeur</code> et <code>ca_total</code> des vendeurs ayant <code>ca_total &gt;= 50000</code>, triés par <code>ca_total</code> décroissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2026-01:100,2026-02:130,2026-03:110,2026-04:110</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>2026-01 | Actuel: 100 | Precedent: NULL | Delta: NULL
-2026-02 | Actuel: 130 | Precedent: 100 | Delta: +30
-2026-03 | Actuel: 110 | Precedent: 130 | Delta: -20
-2026-04 | Actuel: 110 | Precedent: 110 | Delta: 0</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE ventes (vendeur TEXT, montant INT); INSERT INTO ventes VALUES ('Amina', 30000), ('Amina', 25000), ('Koffi', 40000);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+---------+----------+
+| vendeur | ca_total |
++---------+----------+
+| Amina   | 55000    |
++---------+----------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">LAG() permet de comparer directement chaque valeur à celle de la période antérieure.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Garde une variable pour mémoriser la valeur de l étape précédente.</li>
-        <li>Si c est la première ligne, affiche Precedent: NULL | Delta: NULL.</li>
-        <li>Pour les lignes suivantes, préfixe les deltas positifs d un signe + (ex: +30) ou négatifs (-20).</li>
+        <li>Définissez WITH totaux AS (SELECT vendeur, SUM(montant) AS ca_total FROM ventes GROUP BY vendeur).</li>
+        <li>Interrogez ensuite totaux avec WHERE ca_total &gt;= 50000 ORDER BY ca_total DESC.</li>
       </ol>
     </details>
   </div>
@@ -427,13 +372,13 @@ Pour chaque date (dans l’ordre chronologique de l’entrée) :
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — Révise impérativement la distinction entre WHERE et HAVING.</div>
-      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la clause OVER et la fonction ROW_NUMBER().</div>
-      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les subtilités du fenêtrage et des fonctions analytiques.</div>
-      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe aux transactions ACID, à la concurrence et aux verrous au module 5.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise impérativement la distinction entre WHERE et HAVING.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur la clause OVER et la fonction ROW_NUMBER().</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez les subtilités du fenêtrage et des fonctions analytiques.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passe aux transactions ACID, à la concurrence et aux verrous au module 5.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -443,7 +388,7 @@ Pour chaque date (dans l’ordre chronologique de l’entrée) :
     <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Transactions ACID, Concurrence &amp; Niveaux d’Isolation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
 </main>
 

@@ -20,7 +20,7 @@ module.exports = {
     'appliquer les règles strictes de la Definition of Done (DoD) pour garantir la qualité livrable de chaque incrément ;',
     'animer et respecter le timeboxing officiel des 5 événements Scrum (Sprint, Planning, Daily, Review, Rétrospective) ;',
     'analyser les mécanismes d’auto-organisation et d’amélioration continue au sein d’une équipe pluridisciplinaire ;',
-    'développer en Python 3 des auditeurs de Definition of Done, des ordonnanceurs de backlog par ROI et des contrôleurs de timeboxing.'
+    'analyser et résoudre méthodologiquement des auditeurs de Definition of Done, des ordonnanceurs de backlog par ROI et des contrôleurs de timeboxing.'
   ],
   sections: [
     {

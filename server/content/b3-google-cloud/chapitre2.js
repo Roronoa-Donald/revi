@@ -19,7 +19,7 @@ module.exports = {
     'concevoir, tester et valider des rôles personnalisés (Custom Roles) à base de permissions atomiques ;',
     'configurer des liaisons de politiques IAM (Role Bindings) et des conditions d\'accès basées sur CEL (Common Expression Language) ;',
     'auditer le cycle de vie des comptes de service et mettre en place la rotation obligatoire des clés de moins de 90 jours ;',
-    'développer en Python 3 des évaluateurs de droits IAM, des linters de rôles personnalisés et des auditeurs de sécurité de comptes de service.'
+    'analyser et résoudre méthodologiquement des évaluateurs de droits IAM, des linters de rôles personnalisés et des auditeurs de sécurité de comptes de service.'
   ],
   sections: [
     {
@@ -234,7 +234,7 @@ module.exports = {
       desc: 'Remplacer méthodiquement tous les rôles primitifs par des rôles prédéfinis ciblés dans les projets d\'entreprise.'
     },
     {
-      title: 'Création et linter de rôles personnalisés en Python',
+      title: 'Création et linter de rôles personnalisés de manière méthodique',
       desc: 'Programmer des validateurs vérifiant la syntaxe atomique des permissions et l\'absence de privilèges d\'organisation interdits.'
     },
     {

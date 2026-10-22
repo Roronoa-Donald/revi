@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 6 — Gérer les objets AD DS | Administration Windows B1</title>
-<meta name="description" content="Chapitre 6 du cours B1 : Console Utilisateurs et ordinateurs, unités d’organisation, utilisateurs (UPN, options), groupes, jointure au domaine. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 6 du cours B1 : Console Utilisateurs et ordinateurs, unités d’organisation, utilisateurs (UPN, options), groupes, jointure au domaine. Théorie, exemples détaillés, études de cas interactives, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-admin-windows/chapitres/chapitre6.html">
 <meta property="og:title" content="Chapitre 6 — Gérer les objets AD DS | Administration Windows B1">
-<meta property="og:description" content="Chapitre 6 du cours B1 : Console Utilisateurs et ordinateurs, unités d’organisation, utilisateurs (UPN, options), groupes, jointure au domaine. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 6 du cours B1 : Console Utilisateurs et ordinateurs, unités d’organisation, utilisateurs (UPN, options), groupes, jointure au domaine. Théorie, exemples détaillés, études de cas interactives, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>peupler l’Active Directory depuis la console Utilisateurs et ordinateurs ;</li>
       <li>créer des unités d’organisation et y créer des utilisateurs ;</li>
@@ -115,46 +115,67 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
-<div class="lab" data-lab
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" id="aw-c6-e1" data-lab
      data-exercise="aw-c6-e1"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;iziti utilisateur&#10;poste-compta ordinateur&#10;grp-ventes groupe&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-ok=0
-for ((i=0; i<n; i++)); do
-  read -r objet classe
-  # À compléter : la classe attendue, la comparaison, le compteur.
-done
-# À compléter : le bilan.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aw-c6-e1) — Les classes d’objets AD DS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Console complète]
+# Données : 6
+# Données : iziti utilisateur
+# Données : ilham utilisateur
+# Données : portable-dir ordinateur
+# Données : grp-info groupe
+# Données : SRV-DC1 controleur
+# Données : SRV-DC2 controleur
+A_COMPLETER
+
+[Cas 2 — Trois erreurs]
+# Données : 4
+# Données : iziti ordinateur
+# Données : portable-dir utilisateur
+# Données : SRV-DC1 groupe
+# Données : grp-ventes groupe
+A_COMPLETER
+
+[Cas 3 — Tri à la main]
+# Données : 6
+# Données : SRV-DC2 controleur
+# Données : grp-ventes groupe
+# Données : portable-dir ordinateur
+# Données : ilham utilisateur
+# Données : SRV-DC1 controleur
+# Données : iziti utilisateur
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Les classes d’objets AD DS</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Classer chaque objet dans sa classe : utilisateur, ordinateur, groupe, contrôleur.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « objet classe » : classe est un code parmi <code>utilisateur</code>, <code>ordinateur</code>, <code>groupe</code> ou <code>controleur</code>. Objets du support : iziti, ilham → <code>utilisateur</code> ; poste-compta, portable-dir → <code>ordinateur</code> ; grp-ventes, grp-info → <code>groupe</code> ; SRV-DC1, SRV-DC2 → <code>controleur</code>. Pour chaque ligne il affiche <code>objet : OK</code> ou <code>objet : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « objet classe » : classe est un code parmi <code>utilisateur</code>, <code>ordinateur</code>, <code>groupe</code> ou <code>controleur</code>. Objets du support : iziti, ilham → <code>utilisateur</code> ; poste-compta, portable-dir → <code>ordinateur</code> ; grp-ventes, grp-info → <code>groupe</code> ; SRV-DC1, SRV-DC2 → <code>controleur</code>. Pour chaque ligne indiquez <code>objet : OK</code> ou <code>objet : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 iziti utilisateur
 poste-compta ordinateur
 grp-ventes groupe
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>iziti : OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>iziti : OK
 poste-compta : OK
 grp-ventes : OK
 correctes : 3/3</pre></div>
     </div>
+    <p class="lab__note">Cas d’illustration Windows Server</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -165,43 +186,60 @@ correctes : 3/3</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="aw-c6-e2" data-lab
      data-exercise="aw-c6-e2"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;iziti iziti@ntic.ma oui&#10;ilham NTIC\\ilham non&#10;demo demo@ntic.ma non&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-upn=0
-init=0
-for ((i=0; i<n; i++)); do
-  read -r utilisateur identifiant changement
-  # À compléter : forme UPN ou domaine, l'option de changement, les compteurs.
-done
-# À compléter : les deux bilans.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aw-c6-e2) — Créer les utilisateurs : UPN et options de compte
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Promotion 2026]
+# Données : 4
+# Données : a.ade a.ade@ntic.ma oui
+# Données : b.ben NTIC\\b.ben oui
+# Données : c.cia c.cia@ntic.ma non
+# Données : d.dan NTIC\\d.dan non
+A_COMPLETER
+
+[Cas 2 — Que des UPN]
+# Données : 3
+# Données : me me@cdp.org non
+# Données : you you@cdp.org oui
+# Données : us us@cdp.org non
+A_COMPLETER
+
+[Cas 3 — Que du domaine]
+# Données : 3
+# Données : a CD\\a non
+# Données : b CD\\b non
+# Données : c CD\\c oui
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Créer les utilisateurs : UPN et options de compte</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Valider l’UPN de chaque utilisateur et signaler l’option de mot de passe.</p>
-    <div class="lab__brief"><p>Le support crée les utilisateurs dans l’unité puis distingue les deux formes de session : <strong>UPN</strong> (forme adresse e-mail, contient une arobase) et <code>DOMAINE\login</code>. Le script lit <strong>n lignes</strong> « utilisateur upn changement » : upn est l’identifiant saisi, changement vaut <code>oui</code> (doit changer son mot de passe à la prochaine ouverture) ou <code>non</code>. Pour chaque utilisateur il affiche <code>utilisateur : upn-valide</code> si l’UPN contient une arobase, sinon <code>utilisateur : forme-domaine</code> ; et il note <code>utilisateur : init-mdp</code> en plus si changement vaut oui. Enfin <code>upn : X/n</code> et <code>a-initialiser : Y</code>.</p></div>
+    <div class="lab__brief"><p>Le support crée les utilisateurs dans l’unité puis distingue les deux formes de session : <strong>UPN</strong> (forme adresse e-mail, contient une arobase) et <code>DOMAINE\login</code>. Analysez chaque ligne proposée « utilisateur upn changement » : upn est l’identifiant saisi, changement vaut <code>oui</code> (doit changer son mot de passe à la prochaine ouverture) ou <code>non</code>. Pour chaque utilisateur indiquez <code>utilisateur : upn-valide</code> si l’UPN contient une arobase, sinon <code>utilisateur : forme-domaine</code> ; et il note <code>utilisateur : init-mdp</code> en plus si changement vaut oui. Enfin <code>upn : X/n</code> et <code>a-initialiser : Y</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 iziti iziti@ntic.ma oui
 ilham NTIC\\ilham non
 demo demo@ntic.ma non
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>iziti : upn-valide
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>iziti : upn-valide
 iziti : init-mdp
 ilham : forme-domaine
 demo : upn-valide
 upn : 2/3
 a-initialiser : 1</pre></div>
     </div>
+    <p class="lab__note">Cas d’illustration Windows Server</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -212,50 +250,67 @@ a-initialiser : 1</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="aw-c6-e3" data-lab
      data-exercise="aw-c6-e3"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="2&#10;grp-ventes securite globale&#10;liste-clients distribution globale&#10;2&#10;pc1 ad-dns&#10;pc2 8.8.8.8&#10;">
-  <script type="text/plain" data-lab-starter>read -r g
-droits=0
-for ((i=0; i<g; i++)); do
-  read -r groupe type etendue
-  # À compléter : verdict selon le type, compteur des groupes à droits.
-done
-read -r n
-j=0
-for ((i=0; i<n; i++)); do
-  read -r poste dns
-  # À compléter : jointure selon le DNS, compteur.
-done
-# À compléter : les deux bilans.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aw-c6-e3) — Groupes : droits, type et étendue
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Annuaire du stage]
+# Données : 3
+# Données : grp-info securite globale
+# Données : grp-bureau securite locale
+# Données : annonce distribution universelle
+# Données : 3
+# Données : stage1 ad-dns
+# Données : stage2 ad-dns
+# Données : invite1 1.1.1.1
+A_COMPLETER
+
+[Cas 2 — Que de la diffusion]
+# Données : 2
+# Données : news distribution globale
+# Données : events distribution locale
+# Données : 1
+# Données : pc9 ad-dns
+A_COMPLETER
+
+[Cas 3 — DNS à corriger partout]
+# Données : 1
+# Données : grp-admins securite globale
+# Données : 2
+# Données : pc-a 8.8.8.8
+# Données : pc-b 1.0.0.1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Groupes : droits, type et étendue</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Décider quels groupes peuvent recevoir des droits et compter les jointures au domaine.</p>
-    <div class="lab__brief"><p>Le script lit d’abord <strong>g lignes</strong> « groupe type etendue » : type vaut <code>securite</code> (peut recevoir des droits sur fichiers, imprimantes, bases) ou <code>distribution</code> (diffusion seulement) ; etendue vaut <code>globale</code>, <code>locale</code> ou <code>universelle</code>. Puis il lit <strong>n lignes</strong> « poste dns » pour les jointures au domaine : un poste rejoint le domaine si son serveur DNS est celui du domaine (<code>ad-dns</code>). Il affiche pour chaque groupe <code>groupe : droits</code> ou <code>groupe : diffusion</code>, pour chaque poste <code>poste : joint</code> ou <code>poste : dns a corriger</code>, puis <code>groupes-droits : X</code> et <code>jointures : Y/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez les paramètres Windows Server fournis pour chaque cas. Puis il lit <strong>n lignes</strong> « poste dns » pour les jointures au domaine : un poste rejoint le domaine si son serveur DNS est celui du domaine (<code>ad-dns</code>). indiquez pour chaque groupe <code>groupe : droits</code> ou <code>groupe : diffusion</code>, pour chaque poste <code>poste : joint</code> ou <code>poste : dns a corriger</code>, puis <code>groupes-droits : X</code> et <code>jointures : Y/n</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
 grp-ventes securite globale
 liste-clients distribution globale
 2
 pc1 ad-dns
 pc2 8.8.8.8
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>grp-ventes : droits
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>grp-ventes : droits
 liste-clients : diffusion
 pc1 : joint
 pc2 : dns a corriger
 groupes-droits : 1
 jointures : 1/2</pre></div>
     </div>
+    <p class="lab__note">Cas d’illustration Windows Server</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -394,13 +449,13 @@ jointures : 1/2</pre></div>
 <h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — rejoue le cycle d’un compte neuf sur une VM de TP.</div>
-      <div class="bandrow bandrow--mid">50–69 % — refais les exercices UPN/groupes jusqu’au sans-faute.</div>
-      <div class="bandrow bandrow--good">70–89 % — solide : structure un domaine fictif complet (UO, comptes, groupes).</div>
-      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : le cours est acquis, enchaîne les examens blancs.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — rejoue le cycle d’un compte neuf sur une VM de TP.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites les exercices UPN/groupes jusqu’au sans-faute.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>solide : structure un domaine fictif complet (UO, comptes, groupes).</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise : le cours est acquis, enchaîne les examens blancs.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -410,7 +465,7 @@ jointures : 1/2</pre></div>
     <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : les supports B1 « Base de l’Administration Windows » (IT_B1A et IT_B1B) du Dr Abasse KPEGOUNI : introduction à l’administration Windows, installation du serveur Active Directory AD DS, gestion des objets AD DS (unités d’organisation, utilisateurs, groupes).</p>
 </main>
 

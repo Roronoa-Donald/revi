@@ -229,12 +229,20 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois le rôle du salage et la structure des trois parties d’un JWT.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le mécanisme de dérivation de clé et la matrice des rôles RBAC.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les principes de gestion des identités et du contrôle d’accès.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le mécanisme de dérivation de clé et la matrice des rôles RBAC.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes de gestion des identités et du contrôle d’accès.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe à la détection d’intrusions, au SIEM et à la réponse à incident au module 6.' }
   ],
 
   flashcards: [
+    { "q": 'Qu’est-ce que « Salage cryptographique (Salt) » ?', "a": 'Salage cryptographique (Salt)' },
+    { "q": 'Qu’est-ce que « Fonctions de dérivation de clé (KDF) » ?', "a": 'Fonctions de dérivation de clé (KDF)' },
+    { "q": 'Qu’est-ce que « Algorithmes Argon2id, bcrypt, PBKDF2 » ?', "a": 'Algorithmes Argon2id, bcrypt, PBKDF2' },
+    { "q": 'Qu’est-ce que « Authentification multi-facteurs (MFA / 2FA) » ?', "a": 'Authentification multi-facteurs (MFA / 2FA)' },
+    { "q": 'Qu’est-ce que « Algorithme TOTP (RFC 6238) » ?', "a": 'Algorithme TOTP (RFC 6238)' },
+    { "q": 'Qu’est-ce que « Structure du JSON Web Token (JWT) » ?', "a": 'Structure du JSON Web Token (JWT)' },
+    { "q": 'Qu’est-ce que « Attaque JWT alg=none » ?', "a": 'Attaque JWT alg=none : Une base de données d’utilisateurs contenant 500 000 comptes est dérobée lors d’une brèche de sécurité. Si les mots de passe y sont stockés en clair ou avec un simple SHA-256 non salé, les pirates casseront 90 % d’entre eux en quelques heures à l’aide de tables arc-en-ciel (rainb' },
+    { "q": 'Qu’est-ce que « Contrôle d’accès discrétionnaire (DAC) » ?', "a": 'distinguer et implémenter les modèles de contrôle d’accès discrétionnaire (DAC), obligatoire (MAC) et basé sur les rôles (RBAC).' },
     { q: 'Pourquoi le salage aléatoire unique par compte empêche-t-il les attaques par tables arc-en-ciel ?', a: 'Parce que les empreintes précalculées deviennent inutilisables : chaque mot de passe salé nécessiterait de recalculer une table complète pour ce sel précis.' },
     { q: 'Quelle est la particularité d’Argon2id par rapport aux algorithmes classiques ?', a: 'Il est « à mémoire dure » (memory-hard), ce qui sature la mémoire vive et paralyse les puces d’attaque massivement parallèles (GPU, ASIC).' },
     { q: 'Quels sont les trois types de facteurs d’authentification existants ?', a: 'Ce que je sais (connaissance), ce que j’ai (possession) et ce que je suis (inhérence/biométrie).' },

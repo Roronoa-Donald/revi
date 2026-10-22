@@ -123,29 +123,29 @@ function exercices(course, chapterList) {
   ]);
 
   const exercises = [
-    { id: 'ag3-c1-e1', ch: 1, title: 'Calculateur d’écart du Triangle de Fer (Périmètre, Coût, Délais)', level: 'n1', lang: 'Python', desc: 'Évaluer la dérive budgétaire et calendaire d’un projet traditionnel par rapport aux prévisions initiales.' },
-    { id: 'ag3-c1-e2', ch: 1, title: 'Calculateur de dates au plus tôt et durée totale d’un graphe PERT', level: 'n2', lang: 'Python', desc: 'Calculer la date de début au plus tôt (ES) et la fin au plus tôt (EF) de tâches ordonnancées dans un graphe PERT.' },
-    { id: 'ag3-c1-e3', ch: 1, title: 'Classificateur d’adéquation méthodologique (Waterfall vs Agile vs Hybride)', level: 'n3', lang: 'Python', desc: 'Orienter un projet vers le bon modèle d’organisation selon le niveau d’incertitude et les contraintes réglementaires.' },
+    { id: 'ag3-c1-e1', ch: 1, title: 'Calculateur d’écart du Triangle de Fer (Périmètre, Coût, Délais)', level: 'n1', lang: 'Étude de cas', desc: 'Évaluer la dérive budgétaire et calendaire d’un projet traditionnel par rapport aux prévisions initiales.' },
+    { id: 'ag3-c1-e2', ch: 1, title: 'Calculateur de dates au plus tôt et durée totale d’un graphe PERT', level: 'n2', lang: 'Étude de cas', desc: 'Calculer la date de début au plus tôt (ES) et la fin au plus tôt (EF) de tâches ordonnancées dans un graphe PERT.' },
+    { id: 'ag3-c1-e3', ch: 1, title: 'Classificateur d’adéquation méthodologique (Waterfall vs Agile vs Hybride)', level: 'n3', lang: 'Étude de cas', desc: 'Orienter un projet vers le bon modèle d’organisation selon le niveau d’incertitude et les contraintes réglementaires.' },
 
-    { id: 'ag3-c2-e1', ch: 2, title: 'Validateur d’incrément de produit et Definition of Done (DoD)', level: 'n1', lang: 'Python', desc: 'Vérifier la conformité d’une User Story aux critères stricts de la Definition of Done avant livraison.' },
-    { id: 'ag3-c2-e2', ch: 2, title: 'Ordonnanceur de Product Backlog par ROI et Réduction de Risque', level: 'n2', lang: 'Python', desc: 'Classer les éléments du Product Backlog selon un ratio pondéré Valeur Métier / Effort de développement.' },
-    { id: 'ag3-c2-e3', ch: 2, title: 'Contrôleur de Timeboxing des événements Scrum selon le Scrum Guide', level: 'n3', lang: 'Python', desc: 'Vérifier la stricte conformité de la durée des réunions Scrum par rapport aux limites temporelles maximales officielles.' },
+    { id: 'ag3-c2-e1', ch: 2, title: 'Validateur d’incrément de produit et Definition of Done (DoD)', level: 'n1', lang: 'Étude de cas', desc: 'Vérifier la conformité d’une User Story aux critères stricts de la Definition of Done avant livraison.' },
+    { id: 'ag3-c2-e2', ch: 2, title: 'Ordonnanceur de Product Backlog par ROI et Réduction de Risque', level: 'n2', lang: 'Étude de cas', desc: 'Classer les éléments du Product Backlog selon un ratio pondéré Valeur Métier / Effort de développement.' },
+    { id: 'ag3-c2-e3', ch: 2, title: 'Contrôleur de Timeboxing des événements Scrum selon le Scrum Guide', level: 'n3', lang: 'Étude de cas', desc: 'Vérifier la stricte conformité de la durée des réunions Scrum par rapport aux limites temporelles maximales officielles.' },
 
-    { id: 'ag3-c3-e1', ch: 3, title: 'Contrôleur de limites de travail en cours (WIP Limits)', level: 'n1', lang: 'Python', desc: 'Vérifier la stricte conformité des colonnes d’un tableau Kanban aux limites WIP pour éviter la surcharge cognitive.' },
-    { id: 'ag3-c3-e2', ch: 3, title: 'Calculateur de Lead Time, Cycle Time et Débit Moyen (Throughput)', level: 'n2', lang: 'Python', desc: 'Mesurer la performance d’écoulement d’un flux Kanban à travers le temps de traversée total et le temps de traitement actif.' },
-    { id: 'ag3-c3-e3', ch: 3, title: 'Simulateur de Loi de Little et Détection de Goulots d’Étranglement', level: 'n3', lang: 'Python', desc: 'Appliquer la Loi de Little (TH = WIP / CT) pour calculer le débit de chaque étape et identifier le goulot d’étranglement.' },
+    { id: 'ag3-c3-e1', ch: 3, title: 'Contrôleur de limites de travail en cours (WIP Limits)', level: 'n1', lang: 'Étude de cas', desc: 'Vérifier la stricte conformité des colonnes d’un tableau Kanban aux limites WIP pour éviter la surcharge cognitive.' },
+    { id: 'ag3-c3-e2', ch: 3, title: 'Calculateur de Lead Time, Cycle Time et Débit Moyen (Throughput)', level: 'n2', lang: 'Étude de cas', desc: 'Mesurer la performance d’écoulement d’un flux Kanban à travers le temps de traversée total et le temps de traitement actif.' },
+    { id: 'ag3-c3-e3', ch: 3, title: 'Simulateur de Loi de Little et Détection de Goulots d’Étranglement', level: 'n3', lang: 'Étude de cas', desc: 'Appliquer la Loi de Little (TH = WIP / CT) pour calculer le débit de chaque étape et identifier le goulot d’étranglement.' },
 
-    { id: 'ag3-c4-e1', ch: 4, title: 'Validateur syntaxique de User Story et conformité INVEST', level: 'n1', lang: 'Python', desc: 'Vérifier la structure narrative formelle d’une User Story (En tant que, Je veux, Afin de) et la présence de critères d’acceptation.' },
-    { id: 'ag3-c4-e2', ch: 4, title: 'Consensus de Planning Poker et Suite de Fibonacci Modifiée', level: 'n2', lang: 'Python', desc: 'Analyser un tour de vote de Planning Poker, détecter la divergence et projeter l’estimation sur la suite de Fibonacci.' },
-    { id: 'ag3-c4-e3', ch: 4, title: 'Parseur de Scénarios Gherkin / BDD (Given - When - Then)', level: 'n3', lang: 'Python', desc: 'Valider la structure séquentielle d’un scénario de comportement Gherkin (Étant donné, Quand, Alors).' },
+    { id: 'ag3-c4-e1', ch: 4, title: 'Validateur syntaxique de User Story et conformité INVEST', level: 'n1', lang: 'Étude de cas', desc: 'Vérifier la structure narrative formelle d’une User Story (En tant que, Je veux, Afin de) et la présence de critères d’acceptation.' },
+    { id: 'ag3-c4-e2', ch: 4, title: 'Consensus de Planning Poker et Suite de Fibonacci Modifiée', level: 'n2', lang: 'Étude de cas', desc: 'Analyser un tour de vote de Planning Poker, détecter la divergence et projeter l’estimation sur la suite de Fibonacci.' },
+    { id: 'ag3-c4-e3', ch: 4, title: 'Parseur de Scénarios Gherkin / BDD (Given - When - Then)', level: 'n3', lang: 'Étude de cas', desc: 'Valider la structure séquentielle d’un scénario de comportement Gherkin (Étant donné, Quand, Alors).' },
 
-    { id: 'ag3-c5-e1', ch: 5, title: 'Calculateur de Vélocité moyenne et estimation d’atterrissage de Release', level: 'n1', lang: 'Python', desc: 'Calculer la vélocité moyenne d’une équipe sur les derniers sprints et estimer le nombre de sprints nécessaires pour terminer le backlog.' },
-    { id: 'ag3-c5-e2', ch: 5, title: 'Traceur de Sprint Burn-down et détection de Dérive de Périmètre (Scope Creep)', level: 'n2', lang: 'Python', desc: 'Analyser le reste à faire quotidien d’un Sprint, identifier le Scope Creep et évaluer l’avance ou le retard sur la trajectoire idéale.' },
-    { id: 'ag3-c5-e3', ch: 5, title: 'Simulateur de Prévision Probabiliste de Release (Pessimiste, Médian, Optimiste)', level: 'n3', lang: 'Python', desc: 'Calculer la fourchette d’atterrissage d’une Release en intégrant les trois scénarios de vélocité de l’équipe.' },
+    { id: 'ag3-c5-e1', ch: 5, title: 'Calculateur de Vélocité moyenne et estimation d’atterrissage de Release', level: 'n1', lang: 'Étude de cas', desc: 'Calculer la vélocité moyenne d’une équipe sur les derniers sprints et estimer le nombre de sprints nécessaires pour terminer le backlog.' },
+    { id: 'ag3-c5-e2', ch: 5, title: 'Traceur de Sprint Burn-down et détection de Dérive de Périmètre (Scope Creep)', level: 'n2', lang: 'Étude de cas', desc: 'Analyser le reste à faire quotidien d’un Sprint, identifier le Scope Creep et évaluer l’avance ou le retard sur la trajectoire idéale.' },
+    { id: 'ag3-c5-e3', ch: 5, title: 'Simulateur de Prévision Probabiliste de Release (Pessimiste, Médian, Optimiste)', level: 'n3', lang: 'Étude de cas', desc: 'Calculer la fourchette d’atterrissage d’une Release en intégrant les trois scénarios de vélocité de l’équipe.' },
 
-    { id: 'ag3-c6-e1', ch: 6, title: 'Matrice de Dépendances Inter-équipes en Program Increment (PI Planning)', level: 'n1', lang: 'Python', desc: 'Détecter les inversions et blocages de dépendances temporelles entre équipes lors d’un PI Planning SAFe.' },
-    { id: 'ag3-c6-e2', ch: 6, title: 'Validateur d’Organisation Matricielle Spotify (Squads, Tribes, Chapters)', level: 'n2', lang: 'Python', desc: 'Contrôler la cohérence de l’affectation des ingénieurs au sein du modèle agile d’entreprise (Spotify Model).' },
-    { id: 'ag3-c6-e3', ch: 6, title: 'Radar de Maturité d’Équipe et Détecteur de Dette Méthodologique', level: 'n3', lang: 'Python', desc: 'Calculer l’indice global de maturité agile d’une équipe sur 5 dimensions clés et alerter sur les faiblesses critiques.' }
+    { id: 'ag3-c6-e1', ch: 6, title: 'Matrice de Dépendances Inter-équipes en Program Increment (PI Planning)', level: 'n1', lang: 'Étude de cas', desc: 'Détecter les inversions et blocages de dépendances temporelles entre équipes lors d’un PI Planning SAFe.' },
+    { id: 'ag3-c6-e2', ch: 6, title: 'Validateur d’Organisation Matricielle Spotify (Squads, Tribes, Chapters)', level: 'n2', lang: 'Étude de cas', desc: 'Contrôler la cohérence de l’affectation des ingénieurs au sein du modèle agile d’entreprise (Spotify Model).' },
+    { id: 'ag3-c6-e3', ch: 6, title: 'Radar de Maturité d’Équipe et Détecteur de Dette Méthodologique', level: 'n3', lang: 'Étude de cas', desc: 'Calculer l’indice global de maturité agile d’une équipe sur 5 dimensions clés et alerter sur les faiblesses critiques.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -166,7 +166,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — Méthodes Agiles B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 études de cas pratiques et méthodologiques intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',
@@ -178,7 +178,7 @@ function exercices(course, chapterList) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Répertoire complet des 18 exercices de programmation en Python 3 du cours Méthodes Agiles B3.',
+      description: 'Répertoire complet des 18 exercices de programmation de manière méthodique du cours Méthodes Agiles B3.',
       active: 'exercices',
       body
     }

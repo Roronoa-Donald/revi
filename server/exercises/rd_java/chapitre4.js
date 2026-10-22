@@ -105,7 +105,7 @@ public class Main {
 }
 `,
     hints: [
-      'Ajoute l’annotation @Override devant public String toString().',
+      'Ajoutez l’annotation @Override devant public String toString().',
       'Concatène les valeurs entre parenthèses : "(" + x + ", " + y + ")".'
     ],
     examples: [

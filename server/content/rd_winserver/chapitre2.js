@@ -138,8 +138,8 @@ module.exports = {
   notions: ['haute disponibilité', 'HA', 'redondance', 'point unique de défaillance', 'failover', 'basculement', 'supervision', 'monitoring', 'SLA', 'load balancer', 'Zabbix', 'Nagios', 'Proxmox', 'vSphere'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les trois piliers de la HA.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la lecture des SLA.' },
-    { cls: 'good', text: '70–89 % — Solide : tu conçois une redondance supervisée.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la lecture des SLA.' },
+    { cls: 'good', text: '70–94 % — Solide : vous concevez une redondance supervisée.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : enchaîne sur le clustering, chapitre 3.' }
   ],
 

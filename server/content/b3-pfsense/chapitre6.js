@@ -20,7 +20,7 @@ module.exports = {
     'configurer la synchronisation temps réel de la table d’états avec pfsync sur un lien dédié de heartbeat ;',
     'déployer la synchronisation de configuration XMLRPC (config.xml) entre le nœud primaire et secondaire ;',
     'installer et administrer les packages de détection et prévention d’intrusion (Snort ou Suricata) ;',
-    'développer en Python 3 des simulateurs d’élection CARP, des parseurs d’alertes IDS/IPS et des auditeurs de synchronisation pfsync/XMLRPC.'
+    'analyser et résoudre méthodologiquement des simulateurs d’élection CARP, des parseurs d’alertes IDS/IPS et des auditeurs de synchronisation pfsync/XMLRPC.'
   ],
   sections: [
     {

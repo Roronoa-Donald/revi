@@ -55,7 +55,7 @@ module.exports = [
     "starter": "# Grille de calcul (pb2-c6-e2) — Inégalité de Bienaymé-Tchebychev\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Variance plus grande]\n# Données : 9\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Écart de deux]\n# Données : 1\n# Données : 2\nA_COMPLETER\n\n[Cas 3 — Écart serré]\n# Données : 5\n# Données : 2\nA_COMPLETER\n",
     "hints": [
       "La borne de Tchebychev est le quotient de la variance par le carré de l’écart ε.",
-      "Pense à élever epsilon au carré : epsilon ** 2."
+      "Pensez à élever epsilon au carré : epsilon ** 2."
     ],
     "examples": [
       {
@@ -94,7 +94,7 @@ module.exports = [
     "starter": "# Grille de calcul (pb2-c6-e3) — Théorème central limite\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trente-six variables]\n# Données : 36\n# Données : 10\n# Données : 2\n# Données : 372\nA_COMPLETER\n\n[Cas 2 — Vingt-cinq variables]\n# Données : 25\n# Données : 4\n# Données : 1\n# Données : 95\nA_COMPLETER\n\n[Cas 3 — Soixante-quatre variables]\n# Données : 64\n# Données : 1\n# Données : 2\n# Données : 64\nA_COMPLETER\n",
     "hints": [
       "La somme a pour moyenne n * mu et pour écart-type sigma * sqrt(n).",
-      "Calcule z = (x - n * mu) / (sigma * sqrt(n)), puis Φ(z) = 0.5 * (1 + erf(z / sqrt(2)))."
+      "Calculez z = (x - n * mu) / (sigma * sqrt(n)), puis Φ(z) = 0.5 * (1 + erf(z / sqrt(2)))."
     ],
     "examples": [
       {

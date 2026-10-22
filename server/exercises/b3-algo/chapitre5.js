@@ -12,7 +12,7 @@ module.exports = [
     level: 'n1',
     language: 'python',
     goal: 'Implémenter l’opération élémentaire de relâchement d’un arc u -> v et vérifier si la distance minimale courante est améliorée.',
-    brief: '<p>Le script lit sur l\'entrée standard des déclarations au format :<br>\n<code>RELAX nom=&lt;nom&gt; DISTS=&lt;s:d,...&gt; ARC=&lt;u-&gt;v:poids&gt;</code>.<br>\nFormule de relâchement :<br>\nSi $dist[u] \\neq \\infty$ et $dist[u] + poids &lt; dist[v]$ :<br>\nLa distance $dist[v]$ est améliorée et mise à jour.<br>\nAfficher :<br>\n<code>RELAX: nom=&lt;nom&gt; | ARC: &lt;u-&gt;v:poids&gt; | AMELIORATION: &lt;OUI|NON&gt; | DIST_AVANT: &lt;d_av&gt; | DIST_APRES: &lt;d_ap&gt;</code></p>',
+    brief: '<p>Le script lit sur l\'entrée standard des déclarations au format :<br>\n<code>RELAX nom=&lt;nom&gt; DISTS=&lt;s:d,...&gt; ARC=&lt;u-&gt;v:poids&gt;</code>.<br>\nFormule de relâchement :<br>\nSi $dist[u] ≠ \\infty$ et $dist[u] + poids &lt; dist[v]$ :<br>\nLa distance $dist[v]$ est améliorée et mise à jour.<br>\nAfficher :<br>\n<code>RELAX: nom=&lt;nom&gt; | ARC: &lt;u-&gt;v:poids&gt; | AMELIORATION: &lt;OUI|NON&gt; | DIST_AVANT: &lt;d_av&gt; | DIST_APRES: &lt;d_ap&gt;</code></p>',
     starter: `import sys
 
 lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
@@ -100,7 +100,7 @@ for lig in lignes:
     level: 'n2',
     language: 'python',
     goal: 'Calculer les plus courts chemins depuis une source vers tous les sommets accessibles dans un graphe orienté à poids strictement positifs.',
-    brief: '<p>Le script lit sur l\'entrée standard des déclarations au format :<br>\n<code>DIJKSTRA nom=&lt;nom&gt; SOURCE=&lt;src&gt; SOMMETS=&lt;S1,S2,...&gt; ARCS=&lt;u-&gt;v:poids,...&gt; CIBLE=&lt;dst&gt;</code>.<br>\nAlgorithme de Dijkstra :<br>\n1. Initialiser une file de priorité avec <code>(0, src)</code> et $dist[s] = \\infty$ pour tout $s \\neq src$.<br>\n2. À chaque étape, extraire le sommet non finalisé ayant la distance minimale.<br>\n3. Relâcher tous ses arcs sortants en mettant à jour les distances et les prédécesseurs.<br>\nAfficher :<br>\n<code>DIJKSTRA: nom=&lt;nom&gt; | SOURCE: &lt;src&gt;</code><br>\n<code>DISTANCES: S1=&lt;d1&gt;, S2=&lt;d2&gt;, ...</code> (par ordre alphabétique des sommets, <code>inf</code> si inaccessible)<br>\n<code>CHEMIN vers &lt;dst&gt;: &lt;src -&gt; ... -&gt; dst&gt; (distance: &lt;dist&gt;)</code> (ou <code>CHEMIN vers &lt;dst&gt;: AUCUN</code>)</p>',
+    brief: '<p>Le script lit sur l\'entrée standard des déclarations au format :<br>\n<code>DIJKSTRA nom=&lt;nom&gt; SOURCE=&lt;src&gt; SOMMETS=&lt;S1,S2,...&gt; ARCS=&lt;u-&gt;v:poids,...&gt; CIBLE=&lt;dst&gt;</code>.<br>\nAlgorithme de Dijkstra :<br>\n1. Initialiser une file de priorité avec <code>(0, src)</code> et $dist[s] = \\infty$ pour tout $s ≠ src$.<br>\n2. À chaque étape, extraire le sommet non finalisé ayant la distance minimale.<br>\n3. Relâcher tous ses arcs sortants en mettant à jour les distances et les prédécesseurs.<br>\nAfficher :<br>\n<code>DIJKSTRA: nom=&lt;nom&gt; | SOURCE: &lt;src&gt;</code><br>\n<code>DISTANCES: S1=&lt;d1&gt;, S2=&lt;d2&gt;, ...</code> (par ordre alphabétique des sommets, <code>inf</code> si inaccessible)<br>\n<code>CHEMIN vers &lt;dst&gt;: &lt;src -&gt; ... -&gt; dst&gt; (distance: &lt;dist&gt;)</code> (ou <code>CHEMIN vers &lt;dst&gt;: AUCUN</code>)</p>',
     starter: `import sys
 
 lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]

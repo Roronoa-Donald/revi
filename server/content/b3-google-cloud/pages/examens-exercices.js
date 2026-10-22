@@ -186,7 +186,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Répertoire Exhaustif des 18 Exercices Pratiques — Google Cloud Platform B3</h1>',
-    '  <p class="lead">18 ateliers de programmation Python 3 interactifs intégrés dans vos modules d\'apprentissage : validation de conformité, gestion d\'identités IAM, élasticité de calcul, routage réseau VPC, gestion de cycle de vie et automatisation déclarative Terraform.</p>',
+    '  <p class="lead">18 ateliers d’études de cas pratiques interactifs intégrés dans vos modules d\'apprentissage : validation de conformité, gestion d\'identités IAM, élasticité de calcul, routage réseau VPC, gestion de cycle de vie et automatisation déclarative Terraform.</p>',
     '',
     chExercises,
     '',
@@ -198,7 +198,7 @@ function exercices(course, chapterList) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des 18 Exercices — ' + course.brand,
-      description: 'Répertoire complet des 18 exercices de code lab en Python 3 du cours Google Cloud Platform B3.',
+      description: 'Répertoire complet des 18 exercices de code lab de manière méthodique du cours Google Cloud Platform B3.',
       active: 'exercices',
       body
     }

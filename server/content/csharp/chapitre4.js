@@ -212,8 +212,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les collections génériques et l’accès sécurisé TryGetValue.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les filtres catch when et les contraintes where T.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la résilience logicielle et les collections O(1).' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les filtres catch when et les contraintes where T.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la résilience logicielle et les collections O(1).' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe à LINQ et au système événementiel au module 5.' }
   ]
 };

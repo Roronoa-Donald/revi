@@ -395,7 +395,7 @@ module.exports = [
     "starter": "# Grille d'analyse (ar-c4-e2) — Additionneur complet 1 bit\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les huit combinaisons partielles]\n# Données : 4\n# Données : 0 0 1\n# Données : 0 1 1\n# Données : 1 0 1\n# Données : 1 1 0\nA_COMPLETER\n\n[Cas 2 — Retour au calme]\n# Données : 3\n# Données : 0 1 0\n# Données : 1 0 0\n# Données : 1 1 1\nA_COMPLETER\n\n[Cas 3 — Sortie du zero]\n# Données : 2\n# Données : 0 0 0\n# Données : 1 1 0\nA_COMPLETER\n",
     "hints": [
       "Fais le total $((a + b + c)) : la somme est son reste modulo 2, la retenue son quotient par 2.",
-      "Vérifie avec la table : 1+1+1 donne somme 1 et retenue 1."
+      "Vérifiez avec la table : 1+1+1 donne somme 1 et retenue 1."
     ],
     "examples": [
       {
@@ -660,7 +660,7 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « frequence memoire » : frequence est la cadence du processeur en MHz et memoire la RAM en Mo. Règle du support adaptée : un poste est <code>multimedia</code> si la fréquence atteint 2000 MHz et la RAM 4096 Mo, <code>bureautique</code> si la fréquence atteint 1000 MHz et la RAM 2048 Mo, sinon <code>basique</code>. Pour chaque ligne il Indiquez <code>frequence memoire : profil</code>, puis le bilan <code>postes : n</code>.</p>",
     "starter": "# Grille d'analyse (ar-c6-e3) — Qualifier un poste de travail\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Aux frontieres des seuils]\n# Données : 4\n# Données : 2200 4096\n# Données : 2000 2048\n# Données : 999 2048\n# Données : 3000 512\nA_COMPLETER\n\n[Cas 2 — Salles machine]\n# Données : 3\n# Données : 1000 2048\n# Données : 2600 16384\n# Données : 500 512\nA_COMPLETER\n\n[Cas 3 — Petit parc]\n# Données : 2\n# Données : 2100 8192\n# Données : 1200 1024\nA_COMPLETER\n",
     "hints": [
-      "Teste d'abord le profil le plus exigeant : -ge 2000 et -ge 4096, puis le profil intermédiaire.",
+      "Testez d'abord le profil le plus exigeant : -ge 2000 et -ge 4096, puis le profil intermédiaire.",
       "Sinon le poste est basique."
     ],
     "examples": [

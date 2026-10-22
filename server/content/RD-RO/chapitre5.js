@@ -267,8 +267,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois le principe d’équilibrage offre/demande et la méthode du Coin Nord-Ouest.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul des potentiels duaux u_i et v_j dans la méthode MODI.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le critère d’optimalité et les réductions de l’algorithme Hongrois.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul des potentiels duaux u_i et v_j dans la méthode MODI.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le critère d’optimalité et les réductions de l’algorithme Hongrois.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux graphes, flots et ordonnancement au chapitre 6.' }
   ],
 

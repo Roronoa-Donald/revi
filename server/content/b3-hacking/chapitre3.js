@@ -59,7 +59,7 @@ module.exports = {
     "Je sais interpréter l'état d'un port TCP selon la sonde Nmap envoyée et le paquet de réponse reçu.",
     "Je maîtrise la détection de versions et de systèmes d'exploitation via les options -sV et -O.",
     "Je sais auditer les configurations SMB et SNMP vulnérables.",
-    "Je sais écrire des analyseurs en Python 3 simulant le décodage de sondes TCP Nmap."
+    "Je sais écrire des analyseurs de manière méthodique simulant le décodage de sondes TCP Nmap."
   ],
   "notions": [
     {
@@ -182,7 +182,7 @@ module.exports = {
   "mastery": [
     {
       "cls": "low",
-      "text": "&lt; 50 % — Reprends les sections théoriques et revois les définitions clés."
+      "text": "&lt; 50 % — Reprenez les sections théoriques et revois les définitions clés."
     },
     {
       "cls": "mid",
@@ -190,7 +190,7 @@ module.exports = {
     },
     {
       "cls": "good",
-      "text": "70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
+      "text": "70–94 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
     },
     {
       "cls": "top",
@@ -198,6 +198,14 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « Poignée de Mains TCP (3-Way Handshake) » ?', "a": "Poignée de Mains TCP (3-Way Handshake) : Séquence d'établissement de connexion en 3 étapes : SYN, SYN+ACK, puis ACK selon la RFC 793." },
+    { "q": 'Qu’est-ce que « SYN Stealth Scan (-sS) » ?', "a": 'SYN Stealth Scan (-sS) : Balayage de ports demi-ouvert envoyant un RST dès réception du SYN+ACK sans finaliser la connexion.' },
+    { "q": 'Qu’est-ce que « OS Fingerprinting (-O) » ?', "a": "OS Fingerprinting (-O) : Technique d'identification du système d'exploitation basée sur l'analyse des caractéristiques fines de la pile TCP/IP (TTL, Window Size)." },
+    { "q": 'Qu’est-ce que « Session Nulle SMB » ?', "a": "Session Nulle SMB : Connexion non authentifiée sur le port 445/139 permettant d'énumérer les partages, utilisateurs et groupes d'un système." },
+    { "q": 'Qu’est-ce que « Communauté SNMP v1/v2c » ?', "a": "Communauté SNMP v1/v2c : Mot de passe transmis en clair régissant l'accès en lecture (public) ou écriture (private) à l'arborescence MIB-2 d'un équipement." },
+    { "q": "Qu’est-ce que « Le balayage de ports s'appuie sur la conformité des réponses à la RFC 793 pour qualifier les états OPEN, CLOSED ou FILTERED. » ?", "a": "Le balayage de ports s'appuie sur la conformité des réponses à la RFC 793 pour qualifier les états OPEN, CLOSED ou FILTERED." },
+    { "q": 'Qu’est-ce que « Le scan SYN Stealth (-sS) nécessite des privilèges root pour forger des paquets réseau bruts et déchirer la session par RST. » ?', "a": 'Le scan SYN Stealth (-sS) nécessite des privilèges root pour forger des paquets réseau bruts et déchirer la session par RST.' },
+    { "q": "Qu’est-ce que « L'OS fingerprinting déduit le noyau hôte à partir du TTL initial (64 pour Linux, 128 pour Windows) et des options TCP. » ?", "a": "L'OS fingerprinting déduit le noyau hôte à partir du TTL initial (64 pour Linux, 128 pour Windows) et des options TCP." },
     {
       "q": "Quelle est la séquence exacte du 3-way handshake TCP pour établir une connexion ?",
       "a": "1. Le client envoie SYN | 2. Le serveur répond SYN+ACK (port ouvert) | 3. Le client confirme avec ACK."

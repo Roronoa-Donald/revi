@@ -138,7 +138,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends la notion et les deux catégories.' },
       { cls: 'mid', text: '50–69 % — refais le classement public/privé et absence/disparition.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible l\'exception de l\'enfant conçu.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible l\'exception de l\'enfant conçu.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -271,7 +271,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends jour franc, non-rétroactivité et abrogation.' },
       { cls: 'mid', text: '50–69 % — refais les trois situations types (éteinte, en cours, nouvelle).' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les abrogations expresses et tacites.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les abrogations expresses et tacites.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -404,7 +404,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les quatre conditions et les trois vices.' },
       { cls: 'mid', text: '50–69 % — refais le classement nullité relative / selon la loi / libre.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible force majeure et responsabilités.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible force majeure et responsabilités.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

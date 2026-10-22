@@ -18,7 +18,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -39,7 +39,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>te repérer dans Word : onglets et groupes, cinq modes d\'affichage, barre d\'état ;</li>',
       '      <li>mettre un courrier en forme : sélection d\'abord, alignements, retraits, mise en page ;</li>',
@@ -52,10 +52,10 @@ function index(course, chapterList) {
     box('method', 'Comment ce cours s\'articule', 'compass', [
       '    <p>Les trois supports d\'AHADJI Katé Kékéli déroulent Word (interface et mise en forme), Excel ' +
       '(feuille, formules, conditionnelles) et PowerPoint (présentation). Ce cours en garde l\'esprit et fait ' +
-      'manipuler chaque règle <strong>en Bash</strong> : un script qui reproduit l\'analyse exacte du support — ' +
+      'appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit l\'analyse exacte du support — ' +
       'classement des onglets, alignement, commission à paliers, minutage — exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que tu ne vois pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
+      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les exemples des supports (commission, Gauche/Droite/STXT, diaporama).</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -104,7 +104,7 @@ function sommaire(course, chapterList) {
     'chronométré. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
+    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -114,7 +114,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo bureautique</span><br><span class="toc__d">Onglets Word, alignements, barres Excel, six fonctions, SI imbriqué, modes PowerPoint.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : le classeur de bord du secrétariat.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Écrire et exécuter du Bash directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -137,11 +137,10 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de scripts</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Bash derrière. Écris un script, ' +
-    'exécute-le et lis ce qu\'il affiche : c\'est ici qu\'une règle de mise en forme devient un contrôle automatisé.</p>',
+    '  <p class="lead">Un éditeur interactif dans la page pour résoudre les études de cas. Complétez la grille d’analyse, validez-la et observez le résultat : c\'est ici qu\'une règle de mise en forme devient un contrôle automatisé.</p>',
     box('objectifs', 'Comment fonctionne l\'atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre script Bash tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
+      '      <li><strong>Exécuter</strong> vérifie votre grille d’analyse sur le cas d’exemple et affiche le résultat obtenu.</li>',
       '      <li><strong>Entrée du programme</strong> contient ce que <code>read</code> lira, une valeur par ligne.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n\'écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l\'éditeur.</li>',
@@ -169,13 +168,13 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends un mécanisme du ' +
-      'cours (alignement par défaut, commission à paliers, minutage du diaporama), programme-le et teste-le sur ' +
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un mécanisme du ' +
+      'cours (alignement par défaut, commission à paliers, minutage du diaporama), programmez-le et testez-le sur ' +
       'des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé aligne chaque valeur comme le fait Excel : texte à gauche, nombre à droite. ' +
       'Transforme-le : ajoute le calcul de la somme, applique la commission à paliers du support, ou remplace ' +
-      'tout le script par le mécanisme que tu veux vérifier.</p>',
+      'tout le script par le mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai classeur, ce contrôle se fera à la relecture : la structure du script — lire, ' +
       'décider, rapporter — reste exactement la même.</p>',
       '    </div>',
@@ -202,7 +201,7 @@ function atelier(course) {
       '    <ul>',
       '      <li><strong>Paliers dans le mauvais ordre</strong> : tester CA &gt;= 10000 avant 50000 fait tout tomber dans le palier bas.</li>',
       '      <li><strong>Sans le signe =</strong> : la « formule » reste du texte — le script qui oublie sa sortie ressemble à la cellule qui oublie son signe.</li>',
-      '      <li><strong>Ordre des lectures inversé</strong> : le script lit le type avant la valeur, et tout décale.</li>',
+      '      <li><strong>Ordre des lectures inversé</strong> : l’étude de cas comporte le type avant la valeur, et tout décale.</li>',
       '    </ul>'
     ].join('\n')),
     box('tech', 'Ce que fait l\'atelier, côté technique', 'terminal', [
@@ -224,8 +223,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Atelier de scripts — simuler la bureautique | ' + course.brand,
-      description: 'Atelier de scripts du cours de Bureautique B1 : éditeur dans le navigateur, exécution ' +
-        'réelle du script Bash, entrée standard, console de sortie et tuteur qui explique les erreurs.',
+      description: 'Atelier de scripts du cours de Bureautique B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }
@@ -243,8 +241,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo bureautique' })
   ].join('\n\n');
@@ -465,12 +463,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d\'examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l\'esprit de l\'épreuve (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d\'examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu\'à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : onglets, alignements, signe =, bornes de la commission, ' +
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu\'à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : onglets, alignements, signe =, bornes de la commission, ' +
       'modes d\'affichage.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
@@ -483,7 +481,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible formules et conditionnelles.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible formules et conditionnelles.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l\'épreuve.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),

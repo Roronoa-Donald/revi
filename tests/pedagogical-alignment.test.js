@@ -38,11 +38,8 @@ const NON_PROGRAMMING_COURSES = [
   'uml',
   'b1-architecture',
   'infographie',
-  'csharp',
-  'sql',
-  'b1-sql',
-  'b3-sql',
-  // B1 (6)
+  // B1 (7)
+  'b1-admin-windows',
   'b1-reseaux',
   'b1-ccna1',
   'b1-robotique',
@@ -53,13 +50,10 @@ const NON_PROGRAMMING_COURSES = [
   'assembleur',
   'Cyber securite B2',
   'ccna',
-  'docker',
   // B3 (16)
   'b3-cloud-computing',
   'b3-devops',
   'b3-firewall',
-  'b3-github',
-  'b3-linux',
   'b3-pfsense',
   'b3-reseau-lan',
   'b3-windows-server',

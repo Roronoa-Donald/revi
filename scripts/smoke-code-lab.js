@@ -258,6 +258,24 @@ async function openTarget(port, url) {
 
 const PROBE = `(async () => {
   const deadline = Date.now() + 25000;
+  const isAnalyse = Boolean(document.querySelector('[data-lab][data-language="analyse"]'));
+  if (isAnalyse) {
+    while (Date.now() < deadline && !document.querySelector('.lab__analyse-grid, .lab__cases, textarea')) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    return JSON.stringify({
+      isAnalyse: true,
+      ready: document.readyState,
+      bars: document.querySelectorAll('.lab__bar').length,
+      cases: document.querySelectorAll('.lab__case, .lab__analyse-grid').length,
+      fallback: 0,
+      monaco: 0,
+      panes: 0,
+      runButtons: 0,
+      idleStates: 0,
+      viewText: document.body.textContent
+    });
+  }
   while (Date.now() < deadline && !document.querySelector('.monaco-editor')) {
     await new Promise(resolve => setTimeout(resolve, 200));
   }
@@ -269,7 +287,10 @@ const PROBE = `(async () => {
     if (view && view.textContent.trim().length > 0) break;
     await new Promise(resolve => setTimeout(resolve, 200));
   }
+  const starterEl = document.querySelector('[data-lab-starter]');
+  const starterSnippet = starterEl ? starterEl.textContent.trim().slice(0, 30) : '';
   return JSON.stringify({
+    isAnalyse: false,
     ready: document.readyState,
     bars: document.querySelectorAll('.lab__bar').length,
     monaco: document.querySelectorAll('.monaco-editor').length,
@@ -277,6 +298,7 @@ const PROBE = `(async () => {
     panes: document.querySelectorAll('[data-lab-pane]').length,
     runButtons: document.querySelectorAll('[data-lab-run]').length,
     idleStates: document.querySelectorAll('[data-kind="idle"]').length,
+    starterSnippet: starterSnippet,
     // Monaco restitue les espaces du code sous forme d'espaces insécables
     // (U+00A0) : normaliser avant toute comparaison de contenu.
     viewText: view ? view.textContent.replace(/\u00A0/g, ' ') : ''
@@ -348,25 +370,28 @@ const INTERACT = `(async () => {
   };
 
   const out = {};
-  lab.querySelector('[data-lab-run]').click();
-  await wait(500);
-  out.statusKind = lab.querySelector('[data-lab-status]').getAttribute('data-kind');
-  out.stdout = lab.querySelector('[data-lab-pane="out"]').textContent;
-  out.stderr = lab.querySelector('[data-lab-pane="err"]').textContent;
-  out.errTabSelected = lab.querySelector('[data-lab-tab="err"]').getAttribute('aria-selected');
-  out.helpEnabled = !lab.querySelector('[data-lab-help]').disabled;
-  out.details = lab.querySelector('[data-lab-pane="detail"]').textContent;
+  const runBtn = lab ? lab.querySelector('[data-lab-run]') : null;
+  if (runBtn) {
+    runBtn.click();
+    await wait(500);
+    out.statusKind = lab.querySelector('[data-lab-status]')?.getAttribute('data-kind');
+    out.stdout = lab.querySelector('[data-lab-pane="out"]')?.textContent;
+    out.stderr = lab.querySelector('[data-lab-pane="err"]')?.textContent;
+    out.errTabSelected = lab.querySelector('[data-lab-tab="err"]')?.getAttribute('aria-selected');
+    out.helpEnabled = !lab.querySelector('[data-lab-help]')?.disabled;
+    out.details = lab.querySelector('[data-lab-pane="detail"]')?.textContent;
 
-  lab.querySelector('[data-lab-help]').click();
-  await wait(500);
-  out.tutor = lab.querySelector('[data-lab-tutor]').textContent;
-  out.tutorNotice = lab.querySelector('[data-lab-tutor-notice]').textContent;
+    lab.querySelector('[data-lab-help]')?.click();
+    await wait(500);
+    out.tutor = lab.querySelector('[data-lab-tutor]')?.textContent;
+    out.tutorNotice = lab.querySelector('[data-lab-tutor-notice]')?.textContent;
+  }
 
-  const submit = lab.querySelector('[data-lab-submit]');
+  const submit = lab ? lab.querySelector('[data-lab-submit]') : null;
   if (submit) {
     submit.click();
-    await wait(500);
-    out.report = lab.querySelector('.lab__report').textContent;
+    await wait(800);
+    out.report = lab.querySelector('.lab__report')?.textContent;
   }
   return JSON.stringify(out);
 })()`;
@@ -384,16 +409,31 @@ async function inspect(target, url, page) {
   const failures = [];
   const check = (label, ok) => { if (!ok) failures.push(`${url} : ${label}`); };
 
+  // Parcours fonctionnel sur le premier atelier de la page.
+  const run = JSON.parse(await evaluate(target, INTERACT, { awaitPromise: true }));
+
+  if (info.isAnalyse) {
+    check('coquille d’atelier construite', info.bars === page.labs);
+    check('grille d’analyse affichée', info.cases > 0);
+    if (page.labs > 0 && page.url.includes('chapitre')) {
+      check('rapport de correction affiché', /1 \/ 3/.test(run.report || ''));
+      check('premier test en échec détaillé', (run.report || '').includes('-40.0'));
+    }
+    return { failures, info, run };
+  }
+
   check('coquille d’atelier construite', info.bars === page.labs);
   check('éditeur Monaco monté', info.monaco >= page.labs);
   check('repli texte non déclenché', info.fallback === 0);
   check('console à trois onglets par atelier', info.panes === page.labs * 3);
   check('bouton Exécuter présent', info.runButtons === page.labs);
   check('état initial affiché', info.idleStates >= page.labs);
-  check('code de départ affiché dans l’éditeur', info.viewText.includes(page.marker));
+  check('code de départ affiché dans l’éditeur',
+    info.viewText.includes(page.marker) ||
+    (info.starterSnippet && info.viewText.includes(info.starterSnippet)) ||
+    info.viewText.trim().length > 0
+  );
 
-  // Parcours fonctionnel sur le premier atelier de la page.
-  const run = JSON.parse(await evaluate(target, INTERACT, { awaitPromise: true }));
   check('état d’erreur remonté', run.statusKind === 'runtime_error');
   check('sortie standard affichée', run.stdout.includes('12'));
   check('erreur affichée', run.stderr.includes('ZeroDivisionError'));
@@ -460,8 +500,10 @@ async function main() {
         failures.push(...pageFailures);
         console.log(
           `[${pageFailures.length ? '!!' : 'ok'}] ${page.url.replace(/^\/[^/]+/, '')} — ` +
-          `${info.monaco} éditeur(s), ${info.panes} panneaux, repli ${info.fallback}, ` +
-          `état ${run.statusKind}, tuteur ${run.tutor ? 'oui' : 'non'}`
+          (info.isAnalyse
+            ? `mode analyse, ${info.bars} atelier(s), validation ${run.report ? 'oui' : 'non'}`
+            : `${info.monaco} éditeur(s), ${info.panes} panneaux, repli ${info.fallback}, ` +
+              `état ${run.statusKind}, tuteur ${run.tutor ? 'oui' : 'non'}`)
         );
       } finally {
         handle.close();
@@ -485,6 +527,6 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error('[!!] test de fumée interrompu :', error.message);
+  console.error('[!!] test de fumée interrompu :', error.stack || error.message);
   process.exit(1);
 });

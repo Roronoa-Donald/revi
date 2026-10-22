@@ -140,9 +140,9 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les phases du projet ERP et les concepts Capex/Opex.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la matrice des risques et les stratégies de bascule.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les enjeux stratégiques et d’urbanisation des ERP.' },
-    { cls: 'top', text: '≥ 95 % — Parfait : tu es prêt pour les examens blancs et l’étude de cas complète !' }
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la matrice des risques et les stratégies de bascule.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les enjeux stratégiques et d’urbanisation des ERP.' },
+    { cls: 'top', text: '≥ 95 % — Parfait : vous êtes prêt pour les examens blancs et l’étude de cas complète !' }
   ],
 
   flashcards: [

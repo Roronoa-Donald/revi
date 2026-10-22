@@ -120,8 +120,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la syntaxe de useState et l’immutabilité des objets.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les formulaires contrôlés et la capture d’événements.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le cycle de réactivité et les mises à jour d’état.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les formulaires contrôlés et la capture d’événements.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le cycle de réactivité et les mises à jour d’état.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux listes et au rendu conditionnel dans le chapitre 4.' }
   ],
 

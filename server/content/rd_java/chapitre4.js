@@ -76,11 +76,11 @@ module.exports = {
   questions: [
     { stem: 'Qu’est-ce qu’une classe ?', opts: ['Un moule à objets', 'Une valeur', 'Une boucle'], correct: 0, exp: 'La classe décrit attributs et méthodes ; new produit des instances.' },
     { stem: 'Comment s’appelle le constructeur ?', opts: ['Comme la classe', 'main', 'new'], correct: 0, exp: 'Le constructeur porte le nom de la classe.' },
-    { stem: 'Que fait new ?', opts: ['Crée un objet', 'Détruit un objet', 'Copie une classe'], correct: 0, exp: 'new instancie et appelle le constructeur.' },
+    { stem: 'Que fait new ?', opts: ['Créez un objet', 'Détruit un objet', 'Copie une classe'], correct: 0, exp: 'new instancie et appelle le constructeur.' },
     { stem: 'Que désigne this ?', opts: ['L’objet courant', 'La classe', 'Le constructeur'], correct: 0, exp: 'this référence l’instance en cours.' },
-    { stem: 'Que fait private ?', opts: ['Réserve l’accès à la classe', 'Ouvre à tous', 'Interdit la classe'], correct: 0, exp: 'private n’est accessible que depuis la classe elle-même.' },
+    { stem: 'Que fait private ?', opts: ['Réservez l’accès à la classe', 'Ouvrez à tous', 'Interdit la classe'], correct: 0, exp: 'private n’est accessible que depuis la classe elle-même.' },
     { stem: 'À quoi sert un setter ?', opts: ['Lire l’état', 'Écrire l’état en validant', 'Détruire l’objet'], correct: 1, exp: 'Le setter contrôle la valeur avant de l’affecter.' },
-    { stem: 'Que fait @Override sur toString ?', opts: ['Redéfinit l’affichage de l’objet', 'Supprime la méthode', 'Crée un getter'], correct: 0, exp: 'println appelle alors cette version de toString.' },
+    { stem: 'Que fait @Override sur toString ?', opts: ['Redéfinit l’affichage de l’objet', 'Supprimez la méthode', 'Créez un getter'], correct: 0, exp: 'println appelle alors cette version de toString.' },
     { stem: 'Que signifie final sur un attribut ?', opts: ['Il ne peut plus être réaffecté', 'Il est public', 'Il est statique'], correct: 0, exp: 'final fige la valeur une fois le constructeur passé.' }
   ],
 
@@ -119,8 +119,8 @@ module.exports = {
   notions: ['classe', 'objet', 'constructeur', 'new', 'this', 'attribut', 'méthode', 'public', 'private', 'protected', 'encapsulation', 'getter', 'setter', 'toString', 'final'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Réécris la classe Rectangle de zéro.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la visibilité et les setters validants.' },
-    { cls: 'good', text: '70–89 % — Solide : tes classes ont un état clair et protégé.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la visibilité et les setters validants.' },
+    { cls: 'good', text: '70–94 % — Solide : vos classes ont un état clair et protégé.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux collections et à l’héritage, chapitre 5.' }
   ],
 

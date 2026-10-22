@@ -12,10 +12,10 @@ module.exports = [
     language: 'analyse',
     title: "Courbe de l’oubli d’Ebbinghaus",
     goal: "Calculer le pourcentage de rétention mnésique après un délai $t$ selon la formule exponentielle d’Hermann Ebbinghaus.",
-    brief: "<p>La modélisation mathématique d’Ebbinghaus définit la probabilité de rétention $R$ après un temps $t$ (en jours) par :</p><div class=\"formule-box\">$$R = e^{-\\frac{t}{S}}$$</div><p>où $S$ représente la <strong>stabilité de la trace mnésique</strong> (en jours), qui augmente à chaque rappel réussi.</p><p>Lit une ligne au format <code>t;S</code> (entiers ou décimaux) sur l’entrée standard et affiche :<br><code>Retention: &lt;P&gt;%</code> (où $P = R \\times 100$, arrondi à 1 décimale).<br>- Si $P &lt; 50{,}0\\,\\%$, ajoute sur la ligne suivante : <code>Statut: Seuil critique (Reactivation urgente)</code>.<br>- Sinon : <code>Statut: Trace active</code>.</p>",
+    brief: "<p>La modélisation mathématique d’Ebbinghaus définit la probabilité de rétention $R$ après un temps $t$ (en jours) par :</p><div class=\"formule-box\">$$R = e^{-\\frac{t}{S}}$$</div><p>où $S$ représente la <strong>stabilité de la trace mnésique</strong> (en jours), qui augmente à chaque rappel réussi.</p><p>Analyse une ligne au format <code>t;S</code> (entiers ou décimaux) fourni(e) dans les données du cas et affiche :<br><code>Retention: &lt;P&gt;%</code> (où $P = R \\times 100$, arrondi à 1 décimale).<br>- Si $P &lt; 50{,}0\\,\\%$, ajoute sur la ligne suivante : <code>Statut: Seuil critique (Reactivation urgente)</code>.<br>- Sinon : <code>Statut: Trace active</code>.</p>",
     starter: "# Grille d'analyse (mc2-c3-e1) — Courbe de l’oubli d’Ebbinghaus\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Oubli prononcé sous le seuil critique]\n# Données : 7;4\nA_COMPLETER\n\n[Cas 2 — Trace fraîche et stable]\n# Données : 1;10\nA_COMPLETER\n\n[Cas 3 — Échéance égale à la stabilité]\n# Données : 5;5\nA_COMPLETER\n",
     hints: [
-          "Utilise math.exp(-t / s).",
+          "Utilisez math.exp(-t / s).",
           "Multiplie par 100 et arrondis avec round(p, 1)."
     ],
     examples: [
@@ -54,7 +54,7 @@ module.exports = [
     brief: "<p>Le système de Leitner organise les fiches en 5 boîtes de fréquences de révision croissantes (Boîte 1 = quotidien, Boîte 5 = mensuel) :</p><ul>  <li><strong>Succès (rappel réussi)</strong> : la carte monte dans la boîte immédiatement supérieure : $B_{nouv} = \\min(5, B_{actuel} + 1)$.</li>  <li><strong>Échec (rappel raté)</strong> : la carte retombe <strong>immédiatement en Boîte 1</strong>, quelle que soit sa boîte de départ.</li></ul><p>Lit une ligne au format <code>carte_id;boite_actuelle;resultat</code> (où résultat vaut <code>succes</code> ou <code>echec</code>).<br>Affiche : <code>Carte &lt;carte_id&gt; : Boite &lt;boite_actuelle&gt; -&gt; Boite &lt;nouvelle_boite&gt; (&lt;statut&gt;)</code><br>où statut vaut <code>Promotion</code> si la boîte a augmenté, <code>Maintien palier max</code> si elle était déjà à 5 et réussit, ou <code>Retrogradation</code> en cas d’échec.</p>",
     starter: "# Grille d'analyse (mc2-c3-e2) — Simulateur de boîtes de Leitner\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Échec cuisant depuis la boîte 4]\n# Données : CARD-105;4;echec\nA_COMPLETER\n\n[Cas 2 — Maintien au palier maximal]\n# Données : CARD-001;5;succes\nA_COMPLETER\n\n[Cas 3 — Promotion depuis la boîte 1]\n# Données : CARD-888;1;succes\nA_COMPLETER\n",
     hints: [
-          "Parse avec split(\";\"). Convertis boite_actuelle en int.",
+          "Parse avec l’extraction des champs. Convertissez boite_actuelle en int.",
           "En cas d échec, la nouvelle boîte vaut 1."
     ],
     examples: [
@@ -90,11 +90,11 @@ module.exports = [
     language: 'analyse',
     title: "Calculateur du facteur d’aisance SM-2",
     goal: "Calculer la mise à jour du facteur de facilité (Easiness Factor) selon l’algorithme de Piotr Wozniak (SuperMemo SM-2 / Anki).",
-    brief: "<p>L’algorithme <strong>SM-2</strong> adapte l’espacement des révisions via le facteur de facilité $EF$ (initialement à 2.5). Après chaque test noté de 0 (oubli complet) à 5 (réponse parfaite sans hésitation), $EF$ est réévalué par :</p><div class=\"formule-box\">$$EF' = EF + \\left(0{,}1 - (5 - q) \\cdot (0{,}08 + (5 - q) \\cdot 0{,}02)\\right)$$</div><p>avec un plancher incompressible : $EF' \\ge 1{,}30$.</p><p>Lit une ligne au format <code>EF_actuel;q</code> sur l’entrée standard (ex. <code>2.5;4</code>).<br>Affiche : <code>Ancien EF: &lt;EF&gt; | Note: &lt;q&gt;/5 | Nouveau EF: &lt;EF_arrondi_2_decimales&gt;</code>.<br>- Si $EF' \\ge 2{,}50$ : ajoute à la ligne suivante <code>Difficulte: Facile</code>.<br>- Si $1{,}80 \\le EF' &lt; 2{,}50$ : <code>Difficulte: Moderee</code>.<br>- Si $EF' &lt; 1{,}80$ : <code>Difficulte: Difficile</code>.</p>",
+    brief: "<p>L’algorithme <strong>SM-2</strong> adapte l’espacement des révisions via le facteur de facilité $EF$ (initialement à 2.5). Après chaque test noté de 0 (oubli complet) à 5 (réponse parfaite sans hésitation), $EF$ est réévalué par :</p><div class=\"formule-box\">$$EF' = EF + \\left(0{,}1 - (5 - q) \\cdot (0{,}08 + (5 - q) \\cdot 0{,}02)\\right)$$</div><p>avec un plancher incompressible : $EF' \\ge 1{,}30$.</p><p>Analyse une ligne au format <code>EF_actuel;q</code> fourni(e) dans les données du cas (ex. <code>2.5;4</code>).<br>Affiche : <code>Ancien EF: &lt;EF&gt; | Note: &lt;q&gt;/5 | Nouveau EF: &lt;EF_arrondi_2_decimales&gt;</code>.<br>- Si $EF' \\ge 2{,}50$ : ajoute à la ligne suivante <code>Difficulte: Facile</code>.<br>- Si $1{,}80 \\le EF' &lt; 2{,}50$ : <code>Difficulte: Moderee</code>.<br>- Si $EF' &lt; 1{,}80$ : <code>Difficulte: Difficile</code>.</p>",
     starter: "# Grille d'analyse (mc2-c3-e3) — Calculateur du facteur d’aisance SM-2\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Note maximale de 5]\n# Données : 2.5;5\nA_COMPLETER\n\n[Cas 2 — Note faible de 2 entraînant une baisse]\n# Données : 2.2;2\nA_COMPLETER\n\n[Cas 3 — Note de 0 atteignant le plancher de 1.30]\n# Données : 1.4;0\nA_COMPLETER\n",
     hints: [
-          "Calcule le terme delta = 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02).",
-          "Assure-toi que max(1.3, ef + delta) ne descende jamais sous 1.3."
+          "Calculez le terme delta = 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02).",
+          "Vérifiez que max(1.3, ef + delta) ne descende jamais sous 1.3."
     ],
     examples: [
           {

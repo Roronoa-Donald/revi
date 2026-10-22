@@ -20,7 +20,7 @@ module.exports = {
     'appliquer la correction de Cochran pour population finie afin d’optimiser les coûts de collecte sans dégrader la précision ;',
     'concevoir un plan d’échantillonnage stratifié proportionnel et calculer les effectifs à sonder par sous-groupe démographique ;',
     'mettre en œuvre la méthode des quotas et mesurer le biais d’échantillonnage par rapport aux distributions de référence ;',
-    'développer en Python 3 des calculateurs de Cochran, des générateurs d’échantillons stratifiés et des vérificateurs de conformité par quotas.'
+    'analyser et résoudre méthodologiquement des calculateurs de Cochran, des générateurs d’échantillons stratifiés et des vérificateurs de conformité par quotas.'
   ],
   sections: [
     {

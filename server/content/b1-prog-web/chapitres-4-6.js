@@ -9,7 +9,8 @@
 const { box } = require('../../../scripts/course-kit');
 
 function code(lignes) {
-  return '<pre><code>' + lignes.join('\n') + '</code></pre>';
+  const esc = s => String(s).replace(/&(?!(?:lt|gt|amp|quot|#39);)/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return '<pre><code>' + lignes.map(esc).join('\n') + '</code></pre>';
 }
 
 module.exports = [
@@ -22,7 +23,7 @@ module.exports = [
     time: '≈ 3 h de travail',
 
     situation:
-      'Tu écris une règle, la page ignore ton style. Ce n’est presque jamais un bug de navigateur : c’est une ' +
+      'Vous écrivez une règle, la page ignore votre style. Ce n’est presque jamais un bug de navigateur : c’est une ' +
       'règle concurrente qui gagne. CSS applique ses décisions selon des règles précises — spécificité, ordre ' +
       'd’apparition, héritage — et savoir prédire laquelle gagne évite de tout réécrire à l’aveugle.',
 
@@ -211,9 +212,9 @@ module.exports = [
 
     methodTitle: 'Résoudre un conflit de style',
     method: [
-      '<strong>Vérifie que la feuille est chargée</strong> (onglet Réseau) avant tout le reste.',
+      '<strong>Vérifiez que la feuille est chargée</strong> (onglet Réseau) avant tout le reste.',
       '<strong>Contrôle le sélecteur</strong> : combien d’éléments correspondent vraiment ?',
-      '<strong>Calcule les triplets de spécificité</strong> des deux règles concurrentes.',
+      '<strong>Calculez les triplets de spécificité</strong> des deux règles concurrentes.',
       '<strong>Corrige la cause</strong> : un sélecteur plus juste, pas une autorité plus forte.',
       '<strong>Contrôle enfin la boîte</strong> : padding, bordure et <code>box-sizing</code> expliquent la plupart des débordements.'
     ],
@@ -236,9 +237,9 @@ module.exports = [
 
     notions: ['règle CSS', 'sélecteur de classe', 'sélecteur d’identifiant', 'sélecteur descendant', 'pseudo-classe', 'spécificité', 'héritage', 'modèle de boîte', 'box-sizing', 'rem et em'],
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends la section 3 et recalcule cinq triplets de spécificité à la main.' },
-      { cls: 'mid', text: '50–69 % — Refais l’exercice 1 du module : spécificité d’un sélecteur.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible le modèle de boîte et les unités relatives.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez la section 3 et recalcule cinq triplets de spécificité à la main.' },
+      { cls: 'mid', text: '50–69 % — Refaites l’exercice 1 du module : spécificité d’un sélecteur.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible le modèle de boîte et les unités relatives.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, la mise en page.' }
     ],
 
@@ -289,8 +290,8 @@ module.exports = [
           '    <tr><td>sortir un élément du flux pour le superposer</td><td><code>position</code></td></tr>\n' +
           '  </table>',
           box('intuition', 'Intuition — une dimension ou deux ?', 'compass',
-            '    <p>Si tu peux répondre à la question « qu’est-ce qui est rangé ? » par un alignement, c’est ' +
-            'flexbox. Si tu dois dessiner des lignes <em>et</em> des colonnes, c’est une grille. Les deux se ' +
+            '    <p>Si vous pouvez répondre à la question « qu’est-ce qui est rangé ? » par un alignement, c’est ' +
+            'flexbox. Si vous devez dessiner des lignes <em>et</em> des colonnes, c’est une grille. Les deux se ' +
             'combinent : une grille de cartes dont chaque carte est elle-même une flexbox.</p>')
         ].join('\n')
       },
@@ -441,7 +442,7 @@ module.exports = [
           'déborder sur un écran plus étroit que 240 px. C’est le détail qui distingue une grille qui ' +
           '« tient » d’une grille parfaite.</p>',
           box('method', 'Méthode : du plus petit au plus grand', 'compass',
-            '    <p>Construis la version étroite d’abord, vérifie-la à 320 px, puis élargis la fenêtre ' +
+            '    <p>Construisez la version étroite d’abord, vérifiez-la à 320 px, puis élargissez la fenêtre ' +
             'progressivement en corrigeant à chaque rupture visible. Un rendu n’est terminé que lorsqu’il se ' +
             'tient à toutes les largeurs entre 320 px et 1600 px, pas seulement aux trois paliers.</p>')
         ].join('\n')
@@ -468,10 +469,10 @@ module.exports = [
     methodTitle: 'Construire une mise en page solide',
     method: [
       '<strong>Pars du flux normal</strong> et ne le quitte que si le besoin est réel.',
-      '<strong>Choisis flexbox pour un axe</strong>, la grille pour deux dimensions.',
-      '<strong>Écris le style mobile d’abord</strong>, puis ajoute des paliers croissants.',
-      '<strong>Utilise <code>gap</code></strong> plutôt que des marges entre éléments.',
-      '<strong>Vérifie en continu</strong> entre 320 px et 1600 px, pas seulement aux paliers.'
+      '<strong>Choisissez flexbox pour un axe</strong>, la grille pour deux dimensions.',
+      '<strong>Écrivez le style mobile d’abord</strong>, puis ajoute des paliers croissants.',
+      '<strong>Utilisez <code>gap</code></strong> plutôt que des marges entre éléments.',
+      '<strong>Vérifiez en continu</strong> entre 320 px et 1600 px, pas seulement aux paliers.'
     ],
 
     summary: [
@@ -492,9 +493,9 @@ module.exports = [
 
     notions: ['flux normal', 'display', 'position', 'flex-direction', 'justify-content', 'align-items', 'grid-template-columns', 'fr', 'media query', 'mobile first', 'clamp'],
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends la section 1 et reproduis une barre de navigation en flexbox.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices 1 et 2 du module : flex et paliers.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible la grille, <code>auto-fit</code> et les paliers exacts.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez la section 1 et reproduis une barre de navigation en flexbox.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices 1 et 2 du module : flex et paliers.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible la grille, <code>auto-fit</code> et les paliers exacts.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, le DOM et les événements.' }
     ],
 
@@ -652,7 +653,7 @@ module.exports = [
             '    <p><code>document.querySelector("#titrre")</code> renvoie <code>null</code> si le sélecteur ' +
             'ne correspond à rien. La ligne suivante échoue alors avec « Cannot read properties of null ». ' +
             'C’est le message d’erreur le plus fréquent du JavaScript de navigation : il signifie presque ' +
-            'toujours « ton sélecteur ne cible rien » ou « le script tourne trop tôt ».</p>')
+            'toujours « votre sélecteur ne cible rien » ou « le script tourne trop tôt ».</p>')
         ].join('\n')
       },
       {
@@ -666,7 +667,7 @@ module.exports = [
             'bouton.addEventListener("click", () => {',
             '  const note = Number(document.querySelector("#note").value);',
             '  if (Number.isNaN(note)) {',
-            '    document.querySelector("#message").textContent = "Note attendue : un nombre.";',
+            '    document.querySelector("#message").textContent = "Notez attendue : un nombre.";',
             '    return;',
             '  }',
             '  document.querySelector("#message").textContent = note >= 10 ? "Admis" : "Non admis";',
@@ -704,11 +705,11 @@ module.exports = [
           'fréquents.</p>',
           '<ol>\n' +
           '    <li><strong>Texte ou balisage.</strong> <code>textContent</code> pour une donnée venue de ' +
-          'l’utilisateur ; <code>innerHTML</code> réservé au balisage que tu écris toi-même.</li>\n' +
+          'l’utilisateur ; <code>innerHTML</code> réservé au balisage que vous écrivez vous-même.</li>\n' +
           '    <li><strong>Types.</strong> Ce qui sort d’un champ de formulaire est une chaîne : convertis, ' +
           'puis valide avant de calculer.</li>\n' +
           '    <li><strong>Valeurs absentes.</strong> Un sélecteur qui ne trouve rien renvoie ' +
-          '<code>null</code> : teste le résultat avant de t’en servir.</li>\n' +
+          '<code>null</code> : teste le résultat avant de vous en servir.</li>\n' +
           '  </ol>',
           '<table>\n' +
           '    <tr><th>Écriture</th><th>Ce qui se passe</th></tr>\n' +
@@ -718,7 +719,7 @@ module.exports = [
           '    <tr><td><code>"12" + 1</code></td><td>"121" : concaténation involontaire</td></tr>\n' +
           '  </table>',
           box('method', 'Méthode d’écriture d’un comportement', 'compass',
-            '    <p>Écris toujours dans le même ordre : <strong>sélectionner</strong> les éléments (et tester ' +
+            '    <p>Écrivez toujours dans le même ordre : <strong>sélectionner</strong> les éléments (et tester ' +
             'qu’ils existent), <strong>écouter</strong> l’événement, <strong>lire et convertir</strong> les ' +
             'données, <strong>valider</strong>, puis <strong>afficher</strong> avec ' +
             '<code>textContent</code>. Un comportement qui suit cet ordre est presque toujours correct du ' +
@@ -749,8 +750,8 @@ module.exports = [
       '<strong>Sélectionne</strong> les éléments par <code>querySelector</code> et vérifie qu’ils existent.',
       '<strong>Charge le script avec <code>defer</code></strong> pour qu’ils soient présents.',
       '<strong>Écoute</strong> l’événement, au bon niveau (parent pour les listes).',
-      '<strong>Lis, convertis puis valide</strong> les données avant tout calcul.',
-      '<strong>Affiche avec <code>textContent</code></strong> ou en créant les éléments par ' +
+      '<strong>Lisez, convertissez puis validez</strong> les données avant tout calcul.',
+      '<strong>Affichez avec <code>textContent</code></strong> ou en créant les éléments par ' +
       '<code>createElement</code>.'
     ],
 
@@ -772,9 +773,9 @@ module.exports = [
 
     notions: ['defer', 'const et let', 'égalité stricte', 'fonction fléchée', 'map', 'filter', 'sort', 'querySelector', 'textContent', 'addEventListener', 'preventDefault', 'délégation'],
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends la section 4 : sélectionne et modifie trois éléments du DOM.' },
-      { cls: 'mid', text: '50–69 % — Refais l’exercice 2 du module : filtrer et trier des données.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible les événements et la conversion des valeurs de formulaire.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez la section 4 : sélectionne et modifie trois éléments du DOM.' },
+      { cls: 'mid', text: '50–69 % — Refaites l’exercice 2 du module : filtrer et trier des données.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible les événements et la conversion des valeurs de formulaire.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est terminé — passe aux examens blancs et à l’atelier.' }
     ],
 

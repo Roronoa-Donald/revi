@@ -20,7 +20,7 @@ module.exports = {
     'créer des Aliases récursifs (Host, Network, Port, URL Table) et comprendre leur compilation en tables radix ;',
     'analyser le cycle de vie des sessions dans la table d’états pf (SYN_SENT, ESTABLISHED, FIN_WAIT) ;',
     'auditer et purger les connexions en mémoire vive à l’aide des commandes CLI pfctl ;',
-    'développer en Python 3 des résolveurs d’Aliases récursifs, des moteurs d’évaluation First-Match et des parseurs de table d’états.'
+    'analyser et résoudre méthodologiquement des résolveurs d’Aliases récursifs, des moteurs d’évaluation First-Match et des parseurs de table d’états.'
   ],
   sections: [
     {

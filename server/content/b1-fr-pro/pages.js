@@ -18,7 +18,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -39,7 +39,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>décomposer une prise de parole : verbal, para-verbal, non-verbal, logos, pathos, éthos ;</li>',
       '      <li>choisir le bon registre — familier, courant, soutenu — et remplacer les verbes passe-partout ;</li>',
@@ -53,10 +53,10 @@ function index(course, chapterList) {
       '    <p>Les supports déroulent des séances précises — la communication, les registres de langue, les ' +
       'pléonasmes, barbarismes et solécismes, les fautes au bureau, la lettre de motivation — et chaque ' +
       'séance se termine par des listes d\'erreurs et de corrections. Ce cours en garde l\'esprit et fait ' +
-      'manipuler chaque règle <strong>en Bash</strong> : un script qui reproduit l\'analyse exacte du ' +
+      'appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit l\'analyse exacte du ' +
       'correcteur, exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que tu ne vois pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
+      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les exercices des supports (registres, ci-joint, lettre de motivation).</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -105,7 +105,7 @@ function sommaire(course, chapterList) {
     'finale. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur ' +
     '(et un abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
+    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -115,7 +115,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo français professionnel</span><br><span class="toc__d">Communication, registres, fautes au bureau, pléonasmes, lettre, passé composé.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : l\'audit de courriers du service.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Écrire et exécuter du Bash directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -138,11 +138,10 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de scripts</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Bash derrière. Écris un script, ' +
-    'exécute-le et lis ce qu\'il affiche : c\'est ici qu\'une règle de registre devient un contrôle automatisé.</p>',
+    '  <p class="lead">Un éditeur interactif dans la page pour résoudre les études de cas. Complétez la grille d’analyse, validez-la et observez le résultat : c\'est ici qu\'une règle de registre devient un contrôle automatisé.</p>',
     box('objectifs', 'Comment fonctionne l\'atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre script Bash tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
+      '      <li><strong>Exécuter</strong> vérifie votre grille d’analyse sur le cas d’exemple et affiche le résultat obtenu.</li>',
       '      <li><strong>Entrée du programme</strong> contient ce que <code>read</code> lira, une valeur par ligne.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n\'écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l\'éditeur.</li>',
@@ -170,13 +169,13 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends un mécanisme du ' +
-      'cours (canaux de Mehrabian, ci-joint, neuf blocs de la lettre, accords du participe), programme-le et ' +
-      'teste-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un mécanisme du ' +
+      'cours (canaux de Mehrabian, ci-joint, neuf blocs de la lettre, accords du participe), programmez-le et ' +
+      'testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé juge chaque mot : familier, courant ou soutenu, puis rend un verdict global sur ' +
-      'le registre du texte. Ajoute d\'autres niveaux, un décompte par registre, ou remplace tout le script par ' +
-      'le mécanisme que tu veux vérifier.</p>',
+      'le registre du texte. Ajoutez d\'autres niveaux, un décompte par registre, ou remplace tout le script par ' +
+      'le mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai courrier, ce contrôle se fera à l\'œil avant l\'envoi : la structure du script — ' +
       'lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',
@@ -206,7 +205,7 @@ function atelier(course) {
       '    <ul>',
       '      <li><strong>Compteur dans la boucle</strong> : le verdict « a corriger » s\'affiche à chaque ligne au lieu d\'une seule fois, après.</li>',
       '      <li><strong>Cas partiels</strong> : le case ne couvre que fam et juge cour/sout par un défaut silencieux.</li>',
-      '      <li><strong>Ordre des lectures inversé</strong> : le script lit le registre avant le mot, et tout décale.</li>',
+      '      <li><strong>Ordre des lectures inversé</strong> : l’étude de cas comporte le registre avant le mot, et tout décale.</li>',
       '    </ul>'
     ].join('\n')),
     box('tech', 'Ce que fait l\'atelier, côté technique', 'terminal', [
@@ -229,7 +228,7 @@ function atelier(course) {
     'atelier.html': {
       title: 'Atelier de scripts — simuler le français professionnel | ' + course.brand,
       description: 'Atelier de scripts du cours de Français professionnel B1 : éditeur dans le navigateur, ' +
-        'exécution réelle du script Bash, entrée standard, console de sortie et tuteur qui explique les erreurs.',
+        'validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }
@@ -247,8 +246,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo français professionnel' })
   ].join('\n\n');
@@ -284,7 +283,7 @@ function formules(course) {
       'fonctions : referentielle, expressive, conative, poetique,\n',
       '            phatique (maintenir le contact), metalinguistique\n',
       '\n',
-      'explicite : « Il fait chaud dans ta chambre »\n',
+      'explicite : « Il fait chaud dans votre chambre »\n',
       'implicite : « Tu veux bien allumer la clim ? »</code></pre>',
       '<p>Quand le verbe et le corps se contredisent, l\'auditoire croit le corps.</p>'
     ].join('\n')),
@@ -479,7 +478,7 @@ function examens(course) {
     { stem: 'L\'éthos d\'Aristote est…', opts: ['la raison', 'l\'émotion', 'la crédibilité'], correct: 2, exp: 'Logos = raison ; pathos = émotion ; éthos = crédibilité.' },
     { stem: '« Bouffer / manger / se sustenter » couvre…', opts: ['trois notions', 'un trio familier-courant-soutenu', 'des synonymes familiers'], correct: 1, exp: 'Un mot par registre, dans l\'ordre.' },
     { stem: 'Etc. se ponctue…', opts: ['etc…', 'etc', 'etc.'], correct: 2, exp: 'Un point, toujours — jamais de points de suspension.' },
-    { stem: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'au pluriel'], correct: 1, exp: 'Entre virgules : invariable.' },
+    { stem: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'au pluriel'], correct: 1, exp: 'Entrez virgules : invariable.' },
     { stem: 'Monsieur s\'abrège…', opts: ['Mr', 'Mr.', 'M.'], correct: 2, exp: 'M. en français ; Mr est l\'anglais Mister.' },
     { stem: '« Pallier à cet incident » est…', opts: ['correct', 'un solécisme', 'un pléonasme'], correct: 1, exp: 'Pallier est transitif direct : on pallie quelque chose.' },
     { stem: 'L\'objet d\'une lettre de motivation…', opts: ['contient un verbe conjugué', 'est nominal, court, clair', 'se place après l\'appel'], correct: 1, exp: '« Candidature au poste de… » : résumé sans verbe conjugué.' },
@@ -491,12 +490,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d\'examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l\'esprit de l\'épreuve (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d\'examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu\'à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : dates en minuscules, ci-joint accordé au bon endroit, ' +
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu\'à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : dates en minuscules, ci-joint accordé au bon endroit, ' +
       'registres cohérents, neuf blocs de la lettre, accords du participe.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
@@ -509,7 +508,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible courriers sans faute et lettre complète.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible courriers sans faute et lettre complète.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l\'épreuve.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),
@@ -578,10 +577,10 @@ function exercices(course) {
       'Concevoir une communication de crise suite à une indisponibilité majeure de service en production.',
       'Élaborer la charte éditoriale et les consignes de style d’une équipe de développement logiciel.'
     ], [
-      '<p><strong>1. Note d’opportunité :</strong> Chiffrer le coût de l’inaction (dette technique, pannes, perte de productivité) face aux bénéfices mesurables de la modernisation.</p>',
+      '<p><strong>1. Notez d’opportunité :</strong> Chiffrer le coût de l’inaction (dette technique, pannes, perte de productivité) face aux bénéfices mesurables de la modernisation.</p>',
       '<p><strong>2. Réclamation :</strong> Accuser réception rapidement, valider la légitimité du ressenti, exposer les mesures correctives immédiates et proposer une compensation proportionnée.</p>',
       '<p><strong>3. Communication de crise :</strong> Transparence sur les faits constatés, absence de spéculation prématurée, engagement ferme de résolution et fréquence des points de situation.</p>',
-      '<p><strong>4. Charte éditoriale :</strong> Règles typographiques (majuscules, tirets, ponctuation), ton de voix, conventions d’intitulés et structure des messages de commit / pull request.</p>'
+      '<p><strong>4. Charte éditoriale :</strong> Règles typographiques (majuscules, tirets, ponctuation), votre de voix, conventions d’intitulés et structure des messages de commit / pull request.</p>'
     ].join('\n')),
 
     '  <h2>Dossier de synthèse — Dossier de Communication &amp; Note de Cadrage</h2>',

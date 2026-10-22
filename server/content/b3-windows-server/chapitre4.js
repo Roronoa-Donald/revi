@@ -19,7 +19,7 @@ module.exports = {
     'calculer avec une rigueur mathématique absolue la permission réseau effective résultante selon la règle du plus restrictif ;',
     'appliquer la hiérarchie officielle des ACEs dans la DACL : Explicit Deny > Explicit Allow > Inherited Deny > Inherited Allow ;',
     'dimensionner et configurer des pools de disques avec Storage Spaces (Simple, Two-Way Mirror, Three-Way Mirror, Parity) et mesurer la tolérance aux pannes ;',
-    'implémenter en Python 3 des calculateurs de droits effectifs SMB/NTFS, des arbitres de conflits d’héritage et des simulateurs d’espaces de stockage.'
+    'analyser et résoudre méthodologiquement des calculateurs de droits effectifs SMB/NTFS, des arbitres de conflits d’héritage et des simulateurs d’espaces de stockage.'
   ],
   sections: [
     {

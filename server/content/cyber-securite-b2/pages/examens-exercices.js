@@ -169,7 +169,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Cybersécurité B2</h1>',
-    '  <p class="lead">Chaque chapitre propose trois exercices d’analyse et d’automatisation en Python, avec validation instantanée par tests unitaires cachés.</p>',
+    '  <p class="lead">Chaque chapitre propose trois exercices d’analyse et d’automatisation de manière méthodique, avec validation instantanée par tests unitaires cachés.</p>',
     '',
     sections,
     '',

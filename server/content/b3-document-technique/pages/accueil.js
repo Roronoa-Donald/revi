@@ -59,7 +59,7 @@ function index(course, chapterList) {
       'la formalisation de contrats d’API sous la spécification OpenAPI 3.0 / Swagger, ' +
       'l’adoption du paradigme Docs-as-Code (Markdown versionné, schémas Mermaid, MkDocs, Docusaurus), ' +
       'et le contrôle qualité automatisé en intégration continue (linters, link checkers, métriques de lisibilité et détection de documentation obsolète). ' +
-      'Chaque module comprend 3 exercices de programmation Python 3 exécutables directement dans l’atelier, un QCM de 8 questions et des flashcards.</p>'
+      'Chaque module comprend 3 exercices interactifs d’études de cas exécutables directement dans l’atelier, un QCM de 8 questions et des flashcards.</p>'
     ].join('\n')),
     '',
     chnav(null, { href: 'chapitres/chapitre1.html', label: 'Commencer par le Chapitre 1' }),
@@ -111,7 +111,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid-3">',
     '    <div class="card">',
     '      <h4>' + ic('terminal') + ' Bac à sable Rédaction IT</h4>',
-    '      <p>Simulateur Python 3 pour exécuter vos algorithmes de linting Markdown, validation OpenAPI et audits de lisibilité.</p>',
+    '      <p>Atelier d’analyse interactif pour valider vos algorithmes de linting Markdown, validation OpenAPI et audits de lisibilité.</p>',
     '      <a class="btn" href="atelier.html">Ouvrir le bac à sable</a>',
     '    </div>',
     '    <div class="card">',
@@ -153,7 +153,7 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Atelier de Code &amp; Bac à Sable Document Technique</h1>',
-    '  <p class="lead">Automatisez et auditez vos livrables documentaires en Python 3 : validation de schémas OpenAPI, vérificateurs de liens Markdown, matrices de traçabilité RTM et calculs de lisibilité.</p>',
+    '  <p class="lead">Automatisez et auditez vos livrables documentaires de manière méthodique : validation de schémas OpenAPI, vérificateurs de liens Markdown, matrices de traçabilité RTM et calculs de lisibilité.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
@@ -182,7 +182,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Atelier de code libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour auditer, tester et automatiser la qualité documentaire IT et la conformité OpenAPI.',
+      description: 'Bac à sable interactif de manière méthodiquepour auditer, tester et automatiser la qualité documentaire IT et la conformité OpenAPI.',
       active: 'atelier',
       body
     }

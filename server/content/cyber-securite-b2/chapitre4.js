@@ -223,12 +223,18 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois le principe d’une injection SQL et la différence entre XSS et CSRF.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la réécriture en requêtes préparées et l’échappement des entités XSS.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les vulnérabilités du Top 10 OWASP et leurs mécanismes de défense.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la réécriture en requêtes préparées et l’échappement des entités XSS.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les vulnérabilités du Top 10 OWASP et leurs mécanismes de défense.' },
     { cls: 'top', text: '≥ 95 % — Excellent : passe à l’authentification avancée, aux JWT et au contrôle RBAC au module 5.' }
   ],
 
   flashcards: [
+    { "q": 'Qu’est-ce que « Référentiel OWASP Top 10 » ?', "a": "Référentiel OWASP Top 10 : Lors d’un test d’intrusion (pentest) sur une plateforme de commerce électronique, l’auditeur saisit admin' OR '1'='1 dans le formulaire de connexion et accède instantanément au tableau de bord administrateur sans mot de passe. Plus loin, il poste un commentaire contenant &lt;script&gt;" },
+    { "q": 'Qu’est-ce que « Cross-Site Scripting (XSS Stored, Reflected, DOM) » ?', "a": 'Cross-Site Scripting (XSS Stored, Reflected, DOM)' },
+    { "q": 'Qu’est-ce que « Échappement d’entités HTML » ?', "a": 'Échappement d’entités HTML' },
+    { "q": 'Qu’est-ce que « Attributs de cookies (HttpOnly, Secure, SameSite) » ?', "a": 'Attributs de cookies (HttpOnly, Secure, SameSite)' },
+    { "q": 'Qu’est-ce que « Politique de sécurité de contenu (CSP) » ?', "a": "Politique de sécurité de contenu (CSP) : En-tête HTTP Content-Security-Policy: default-src 'self'; interdisant les scripts inline et domaines non autorisés." },
+    { "q": 'Qu’est-ce que « Cross-Site Request Forgery (CSRF) » ?', "a": 'Cross-Site Request Forgery (CSRF)' },
     { q: 'Quelle est la cause fondamentale d’une vulnérabilité par injection SQL ?', a: 'La concaténation directe de données utilisateur non typées dans la commande SQL interprétée par la base de données.' },
     { q: 'Quelle est la seule contre-mesure définitive contre les injections SQL ?', a: 'L’utilisation systématique de requêtes préparées avec paramètres liés (Prepared Statements).' },
     { q: 'Quels sont les 5 caractères à échapper pour neutraliser une injection XSS dans du code HTML ?', a: 'Le perluète (&), le chevron ouvrant (<), le chevron fermant (>), les guillemets droits (") et l’apostrophe (\').' },

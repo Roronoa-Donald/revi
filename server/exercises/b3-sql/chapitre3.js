@@ -4,122 +4,118 @@ module.exports = [
   {
     "id": "sql3-c3-e1",
     "chapter": 3,
-    "title": "Parseur et estimateur de coût de plan d’exécution EXPLAIN",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Analyser les lignes d’un plan d’exécution PostgreSQL pour extraire les nœuds d’accès et les métriques de coût.",
-    "brief": "Dans PostgreSQL, la commande `EXPLAIN` renvoie l’arbre des opérations planifiées par le Cost-Based Optimizer (CBO).\nChaque nœud de plan indique son algorithme et ses métriques standard :\n`-> Node_Type on Target_Relation (cost=startup..total rows=N width=W)`\n- `startup` : coût estimé pour produire la toute première ligne de résultat.\n- `total` : coût total estimé pour consommer l’ensemble des lignes du nœud.\n- `rows` : estimation du nombre de lignes produites.\n- `width` : taille moyenne en octets de chaque tuple produit.\n\nEntrée :\nDes lignes de plan au format standard PostgreSQL (Seq Scan, Index Scan, Bitmap Heap Scan, etc.).\n\nSortie :\n- Pour chaque nœud analysé :\n  `NODE type=<NODE_TYPE> target=<TARGET> startup=<STARTUP> total=<TOTAL> rows=<ROWS> width=<WIDTH>`\n- En fin de traitement : `SUMMARY nodes_count=<N> max_total_cost=<MAX_TOTAL>`",
-    "starter": "# Grille d'analyse (sql3-c3-e1) — Parseur et estimateur de coût de plan d’exécution EXPLAIN\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Bitmap Heap Scan et Bitmap Index Scan]\n# Données : -> Bitmap Heap Scan on factures (cost=12.50..128.00 rows=350 width=64)\n# Données : -> Bitmap Index Scan on idx_factures_date (cost=0.00..8.25 rows=350 width=0)\nA_COMPLETER\n\n[Cas 2 — Nœud unique Index Only Scan]\n# Données : -> Index Only Scan using idx_articles_prix on articles (cost=0.28..4.30 rows=5 width=12)\nA_COMPLETER\n\n[Cas 3 — Trois opérations chaînées]\n# Données : -> Seq Scan on logs (cost=0.00..9800.00 rows=500000 width=80)\n# Données : -> Hash (cost=450.00..450.00 rows=12000 width=36)\n# Données : -> Nested Loop (cost=0.42..85.00 rows=15 width=116)\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Calcul du coût CBO d’un parcours séquentiel (Seq Scan)",
+    "goal": "Appliquer la formule de coût de l’optimiseur PostgreSQL pour un Seq Scan.",
+    "brief": "<p>L’optimiseur CBO estime le coût d’un <code>Seq Scan</code> par la formule : <code>cout_total = relpages * 1.0 + reltuples * 0.01</code>. À partir de la table catalogue <code>pg_class_sim(relname TEXT, relpages INT, reltuples INT)</code>, affichez <code>relname</code> et <code>ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan</code>, triés par <code>cout_seq_scan</code> croissant.</p>",
+    "starter": "-- Calculez cout_seq_scan pour chaque table de pg_class_sim\nSELECT relname FROM pg_class_sim;",
     "hints": [
-      "Utiliser une expression régulière pour capturer le type de nœud, la relation cible, ainsi que les champs cost, rows et width.",
-      "Pattern type : r\"(?:->\\s+)?([A-Za-z\\s]+?)(?:\\s+on\\s+([A-Za-z0-9_]+))?\\s+\\(cost=([0-9.]+)\\.\\.([0-9.]+)\\s+rows=([0-9]+)\\s+width=([0-9]+)\\)\"",
-      "Normaliser les espaces du type de nœud et convertir les coûts en flottants."
+      "Appliquez ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan.",
+      "Triez par cout_seq_scan ASC."
     ],
     "examples": [
       {
-        "stdin": "-> Seq Scan on utilisateurs (cost=0.00..450.50 rows=12000 width=36)\n-> Index Scan using idx_commandes on commandes (cost=0.42..8.44 rows=10 width=48)",
-        "expected": "NODE type=Seq Scan target=utilisateurs startup=0.00 total=450.50 rows=12000 width=36\nNODE type=Index Scan target=commandes startup=0.42 total=8.44 rows=10 width=48\nSUMMARY nodes_count=2 max_total_cost=450.50",
-        "note": "Deux nœuds parsés avec calcul du coût maximal."
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('factures', 100, 10000), ('agences', 2, 50);",
+        "expected": "+----------+---------------+\n| relname  | cout_seq_scan |\n+----------+---------------+\n| agences  | 2.5           |\n| factures | 200           |\n+----------+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Bitmap Heap Scan et Bitmap Index Scan",
-        "stdin": "cas:1",
-        "expected": "NODE type=Bitmap Heap Scan target=factures startup=12.50 total=128.00 rows=350 width=64\nNODE type=Bitmap Index Scan target=idx_factures_date startup=0.00 total=8.25 rows=350 width=0\nSUMMARY nodes_count=2 max_total_cost=128.00"
+        "label": "Petite table et grande table",
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('factures', 100, 10000), ('agences', 2, 50);",
+        "expected": "+----------+---------------+\n| relname  | cout_seq_scan |\n+----------+---------------+\n| agences  | 2.5           |\n| factures | 200           |\n+----------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Nœud unique Index Only Scan",
-        "stdin": "cas:2",
-        "expected": "NODE type=Index Only Scan target=articles startup=0.28 total=4.30 rows=5 width=12\nSUMMARY nodes_count=1 max_total_cost=4.30"
+        "label": "Trois tables de tailles croissantes",
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('t1', 10, 500), ('t2', 50, 4000), ('t3', 5, 100);",
+        "expected": "+---------+---------------+\n| relname | cout_seq_scan |\n+---------+---------------+\n| t3      | 6             |\n| t1      | 15            |\n| t2      | 90            |\n+---------+---------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Trois opérations chaînées",
-        "stdin": "cas:3",
-        "expected": "NODE type=Seq Scan target=logs startup=0.00 total=9800.00 rows=500000 width=80\nNODE type=Hash target=none startup=450.00 total=450.00 rows=12000 width=36\nNODE type=Nested Loop target=none startup=0.42 total=85.00 rows=15 width=116\nSUMMARY nodes_count=3 max_total_cost=9800.00"
+        "label": "Table de 1000 pages",
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('audit_log', 1000, 80000);",
+        "expected": "+-----------+---------------+\n| relname   | cout_seq_scan |\n+-----------+---------------+\n| audit_log | 1800          |\n+-----------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nNODE type=Seq Scan target=utilisateurs startup=0.00 total=450.50 rows=12000 width=36\nNODE type=Index Scan target=commandes startup=0.42 total=8.44 rows=10 width=48\nSUMMARY nodes_count=2 max_total_cost=450.50\n\n[Cas 1 — Bitmap Heap Scan et Bitmap Index Scan]\nNODE type=Bitmap Heap Scan target=factures startup=12.50 total=128.00 rows=350 width=64\nNODE type=Bitmap Index Scan target=idx_factures_date startup=0.00 total=8.25 rows=350 width=0\nSUMMARY nodes_count=2 max_total_cost=128.00\n\n[Cas 2 — Nœud unique Index Only Scan]\nNODE type=Index Only Scan target=articles startup=0.28 total=4.30 rows=5 width=12\nSUMMARY nodes_count=1 max_total_cost=4.30\n\n[Cas 3 — Trois opérations chaînées]\nNODE type=Seq Scan target=logs startup=0.00 total=9800.00 rows=500000 width=80\nNODE type=Hash target=none startup=450.00 total=450.00 rows=12000 width=36\nNODE type=Nested Loop target=none startup=0.42 total=85.00 rows=15 width=116\nSUMMARY nodes_count=3 max_total_cost=9800.00"
+    "solution": "SELECT relname, ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan FROM pg_class_sim ORDER BY cout_seq_scan ASC;"
   },
   {
     "id": "sql3-c3-e2",
     "chapter": 3,
-    "title": "Simulateur de sélection d’algorithme de jointure (Nested Loop vs Hash vs Merge)",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Simuler le choix de l’optimiseur de requêtes pour sélectionner le meilleur algorithme de jointure.",
-    "brief": "Dans les SGBDR modernes, l’optimiseur CBO choisit entre trois algorithmes fondamentaux pour joindre deux relations $R$ (externe) et $S$ (interne) :\n- `NESTED_LOOP` : optimal si l’une des tables est très petite ($N \\le 100$) et que la table interne dispose d’un index sur la clé de jointure, ou pour les jointures sans condition d’égalité.\n- `MERGE_JOIN` : optimal si les deux relations sont déjà triées sur la condition de jointure (ou alimentées par un Index Scan B-Tree pré-trié) ; complexité $O(N + M)$.\n- `HASH_JOIN` : optimal pour les tables moyennes à grandes non triées sur une condition d’égalité (`join_op=eq`), où la plus petite table tient dans la mémoire de travail `work_mem`.\n\nEntrée :\n`JOIN t1=<name> r1=<rows> indexed1=<true|false> sorted1=<true|false> t2=<name> r2=<rows> indexed2=<true|false> sorted2=<true|false> op=<eq|other>`\n\nSortie :\n`JOIN_DECISION algo=<NESTED_LOOP|MERGE_JOIN|HASH_JOIN> outer_table=<t> inner_table=<t> complexity=<O(N*M)|O(N+M)|O(N*logM)> reason=<REASON>`",
-    "starter": "# Grille d'analyse (sql3-c3-e2) — Simulateur de sélection d’algorithme de jointure (Nested Loop vs Hash vs Merge)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux tables pré-triées sur égalité favorisant le Merge Join]\n# Données : JOIN t1=ventes_2025 r1=80000 indexed1=true sorted1=true t2=articles r2=15000 indexed2=true sorted2=true op=eq\nA_COMPLETER\n\n[Cas 2 — Grandes tables non triées sur égalité favorisant le Hash Join]\n# Données : JOIN t1=logs r1=500000 indexed1=false sorted1=false t2=utilisateurs r2=20000 indexed2=true sorted2=false op=eq\nA_COMPLETER\n\n[Cas 3 — Jointure avec opérateur d inégalité]\n# Données : JOIN t1=plages r1=500 indexed1=false sorted1=false t2=tarifs r2=200 indexed2=false sorted2=false op=other\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Calcul du Cache Hit Ratio des tampons partagés (Shared Buffers)",
+    "goal": "Évaluer l’efficacité du cache mémoire SGBD à partir de blks_hit et blks_read.",
+    "brief": "<p>Dans la vue <code>pg_stat_database_sim(datname TEXT, blks_hit INT, blks_read INT)</code>, calculez le taux de succès du cache en pourcentage arrondi à 2 décimales : <code>ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct</code> pour chaque base, trié par <code>hit_ratio_pct</code> décroissant.</p>",
+    "starter": "-- Calculez datname et hit_ratio_pct\nSELECT datname FROM pg_stat_database_sim;",
     "hints": [
-      "Si op != eq : Hash Join et Merge Join sont impossibles -> forcer NESTED_LOOP.",
-      "Si sorted1 == true et sorted2 == true et op == eq : recommander MERGE_JOIN.",
-      "Si min(r1, r2) <= 100 et l’autre table a un index : recommander NESTED_LOOP.",
-      "Sinon sur égalité op == eq : recommander HASH_JOIN (la plus petite table devient la build table inner)."
+      "Multipliez par 100.0 (flottant) avant de diviser par (blks_hit + blks_read).",
+      "Enveloppez dans ROUND(..., 2) AS hit_ratio_pct."
     ],
     "examples": [
       {
-        "stdin": "JOIN t1=clients r1=50 indexed1=true sorted1=false t2=commandes r2=100000 indexed2=true sorted2=false op=eq",
-        "expected": "JOIN_DECISION algo=NESTED_LOOP outer_table=clients inner_table=commandes complexity=O(N*logM) reason=SMALL_OUTER_WITH_INNER_INDEX",
-        "note": "Petite table clients (50 lignes) bouclant sur l’index de commandes."
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('prod_erp', 9900, 100), ('reporting', 7500, 2500);",
+        "expected": "+-----------+---------------+\n| datname   | hit_ratio_pct |\n+-----------+---------------+\n| prod_erp  | 99            |\n| reporting | 75            |\n+-----------+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Deux tables pré-triées sur égalité favorisant le Merge Join",
-        "stdin": "cas:1",
-        "expected": "JOIN_DECISION algo=MERGE_JOIN outer_table=ventes_2025 inner_table=articles complexity=O(N+M) reason=BOTH_INPUTS_PRE_SORTED"
+        "label": "Base transactionnelle (99 %) et base reporting (75 %)",
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('prod_erp', 9900, 100), ('reporting', 7500, 2500);",
+        "expected": "+-----------+---------------+\n| datname   | hit_ratio_pct |\n+-----------+---------------+\n| prod_erp  | 99            |\n| reporting | 75            |\n+-----------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Grandes tables non triées sur égalité favorisant le Hash Join",
-        "stdin": "cas:2",
-        "expected": "JOIN_DECISION algo=HASH_JOIN outer_table=logs inner_table=utilisateurs complexity=O(N+M) reason=HASH_TABLE_ON_SMALLER_RELATION"
+        "label": "Trois bases de données",
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('db1', 950, 50), ('db2', 800, 200), ('db3', 999, 1);",
+        "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| db3     | 99.9          |\n| db1     | 95            |\n| db2     | 80            |\n+---------+---------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Jointure avec opérateur d inégalité",
-        "stdin": "cas:3",
-        "expected": "JOIN_DECISION algo=NESTED_LOOP outer_table=tarifs inner_table=plages complexity=O(N*M) reason=NON_EQUALITY_PREDICATE"
+        "label": "Cache froid à 50 %",
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('test_db', 500, 500);",
+        "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| test_db | 50            |\n+---------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nJOIN_DECISION algo=NESTED_LOOP outer_table=clients inner_table=commandes complexity=O(N*logM) reason=SMALL_OUTER_WITH_INNER_INDEX\n\n[Cas 1 — Deux tables pré-triées sur égalité favorisant le Merge Join]\nJOIN_DECISION algo=MERGE_JOIN outer_table=ventes_2025 inner_table=articles complexity=O(N+M) reason=BOTH_INPUTS_PRE_SORTED\n\n[Cas 2 — Grandes tables non triées sur égalité favorisant le Hash Join]\nJOIN_DECISION algo=HASH_JOIN outer_table=logs inner_table=utilisateurs complexity=O(N+M) reason=HASH_TABLE_ON_SMALLER_RELATION\n\n[Cas 3 — Jointure avec opérateur d inégalité]\nJOIN_DECISION algo=NESTED_LOOP outer_table=tarifs inner_table=plages complexity=O(N*M) reason=NON_EQUALITY_PREDICATE"
+    "solution": "SELECT datname, ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct FROM pg_stat_database_sim ORDER BY hit_ratio_pct DESC;"
   },
   {
     "id": "sql3-c3-e3",
     "chapter": 3,
-    "title": "Détecteur d’écart de cardinalité (Estimation vs Actual Rows)",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Détecter les dérives majeures entre lignes estimées et lignes réelles dans un plan EXPLAIN ANALYZE et recommander les actions correctives.",
-    "brief": "L’optimiseur de requêtes se base sur les statistiques stockées dans `pg_statistic` (fréquences des valeurs les plus courantes MCV, histogrammes de distribution) pour choisir les plans d’exécution.\nSi ces statistiques sont obsolètes, un écart colossal apparaît entre le nombre de lignes estimé (`est_rows`) et le nombre réel de lignes parcourues (`act_rows`).\nCritères d’évaluation du ratio $R = \\max(\\text{est}, \\text{act}) / \\min(\\text{est}, \\text{act})$ (avec $\\min \\ge 1$) :\n- Si $R < 2.0$ : `ACCURATE` (statistiques fidèles).\n- Si $2.0 \\le R < 10.0$ : `MODERATE_DRIFT` (écart tolérable, surveillance).\n- Si $R \\ge 10.0$ : `SEVERE_DRIFT` (alerte critique : l’optimiseur a pu choisir un Nested Loop désastreux au lieu d’un Hash Join).\n\nEntrée :\n`STAT_CHECK node=<name> table=<table> est_rows=<E> act_rows=<A>`\n\nSortie :\n`DRIFT_ANALYSIS node=<name> table=<table> est=<E> act=<A> ratio=<R.2f> status=<ACCURATE|MODERATE_DRIFT|SEVERE_DRIFT> action=<NONE|MONITOR|RUN_ANALYZE_TABLE>`",
-    "starter": "# Grille d'analyse (sql3-c3-e3) — Détecteur d’écart de cardinalité (Estimation vs Actual Rows)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Statistiques précises avec ratio inférieur à 2]\n# Données : STAT_CHECK node=idx_scan table=utilisateurs est_rows=1200 act_rows=1250\nA_COMPLETER\n\n[Cas 2 — Dérive modérée entre 2 et 10]\n# Données : STAT_CHECK node=bitmap_scan table=produits est_rows=400 act_rows=1500\nA_COMPLETER\n\n[Cas 3 — Sous-estimation critique (1 ligne estimée contre 1000 réelles)]\n# Données : STAT_CHECK node=nested_loop table=lignes_factures est_rows=1 act_rows=1200\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Réécriture SARGable et index couvrant (Index-Only Scan)",
+    "goal": "Créer un index couvrant et écrire une requête SARGable par intervalle.",
+    "brief": "<p>Sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>.</p>",
+    "starter": "-- Créez l’index couvrant idx_cmd_annee_montant puis calculez SUM(montant) AS total_2025\nSELECT SUM(montant) FROM commandes;",
     "hints": [
-      "Calculer ratio = max(est, act) / max(1, min(est, act)).",
-      "Classifier selon les seuils 2.0 et 10.0.",
-      "Si SEVERE_DRIFT : action=RUN_ANALYZE_TABLE."
+      "Créez d’abord CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);",
+      "Puis exécutez SELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
     ],
     "examples": [
       {
-        "stdin": "STAT_CHECK node=seq_scan table=commandes est_rows=10 act_rows=8500",
-        "expected": "DRIFT_ANALYSIS node=seq_scan table=commandes est=10 act=8500 ratio=850.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE",
-        "note": "Ratio de 850 : statistiques totalement erronées nécessitant un ANALYZE."
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Statistiques précises avec ratio inférieur à 2",
-        "stdin": "cas:1",
-        "expected": "DRIFT_ANALYSIS node=idx_scan table=utilisateurs est=1200 act=1250 ratio=1.04 status=ACCURATE action=NONE"
+        "label": "Deux commandes en 2025",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Dérive modérée entre 2 et 10",
-        "stdin": "cas:2",
-        "expected": "DRIFT_ANALYSIS node=bitmap_scan table=produits est=400 act=1500 ratio=3.75 status=MODERATE_DRIFT action=MONITOR"
+        "label": "Trois années distinctes",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2023, 1, 5000), (2, 2025, 2, 80000), (3, 2026, 3, 12000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 80000      |\n+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Sous-estimation critique (1 ligne estimée contre 1000 réelles)",
-        "stdin": "cas:3",
-        "expected": "DRIFT_ANALYSIS node=nested_loop table=lignes_factures est=1 act=1200 ratio=1200.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE"
+        "label": "Trois commandes en 2025",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2025, 1, 1000), (2, 2025, 2, 2000), (3, 2025, 3, 3000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 6000       |\n+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nDRIFT_ANALYSIS node=seq_scan table=commandes est=10 act=8500 ratio=850.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE\n\n[Cas 1 — Statistiques précises avec ratio inférieur à 2]\nDRIFT_ANALYSIS node=idx_scan table=utilisateurs est=1200 act=1250 ratio=1.04 status=ACCURATE action=NONE\n\n[Cas 2 — Dérive modérée entre 2 et 10]\nDRIFT_ANALYSIS node=bitmap_scan table=produits est=400 act=1500 ratio=3.75 status=MODERATE_DRIFT action=MONITOR\n\n[Cas 3 — Sous-estimation critique (1 ligne estimée contre 1000 réelles)]\nDRIFT_ANALYSIS node=nested_loop table=lignes_factures est=1 act=1200 ratio=1200.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE"
+    "solution": "CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
   }
 ];

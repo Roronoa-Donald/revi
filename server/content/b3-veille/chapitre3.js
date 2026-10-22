@@ -19,7 +19,7 @@ module.exports = {
     'configurer des agrégateurs et des collecteurs automatisés d’ingénierie ;',
     'nettoyer les paramètres de pistage d’URL (UTM analytics, balises ref et tracking) ;',
     'implémenter l’algorithme de similarité de Jaccard pour éliminer les quasi-doublons de titres ;',
-    'développer en Python 3 des parseurs de flux RSS/Atom, des déduplicateurs de flux et des ordonnanceurs avec Rate Limiter.'
+    'analyser et résoudre méthodologiquement des parseurs de flux RSS/Atom, des déduplicateurs de flux et des ordonnanceurs avec Rate Limiter.'
   ],
   sections: [
     {
@@ -124,7 +124,7 @@ module.exports = {
   notions: [
     'Protocoles Push vs Pull',
     'Syndication RSS 2.0 & Atom XML',
-    'Balises XML <item>, <guid>, <title>, <link>, <pubDate>',
+    'Balises XML &lt;item&gt;, &lt;guid&gt;, &lt;title&gt;, &lt;link&gt;, &lt;pubDate&gt;',
     'Paramètres d’URL de tracking (UTM parameters)',
     'Similarité lexicale de Jaccard (Jaccard Index)',
     'Déduplication stricte vs quasi-déduplication',
@@ -150,15 +150,15 @@ module.exports = {
       exp: 'Really Simple Syndication désigne le format de données standardisé XML utilisé pour la diffusion de contenus web.'
     },
     {
-      stem: 'Dans un élément <item> d’un flux RSS 2.0, quelle balise garantit l’identifiant unique de la ressource ?',
+      stem: 'Dans un élément &lt;item&gt; d’un flux RSS 2.0, quelle balise garantit l’identifiant unique de la ressource ?',
       opts: [
-        '<title>',
-        '<guid>',
-        '<link>',
-        '<description>'
+        '&lt;title&gt;',
+        '&lt;guid&gt;',
+        '&lt;link&gt;',
+        '&lt;description&gt;'
       ],
       correct: 1,
-      exp: 'La balise <guid> (Globally Unique Identifier) fournit un identifiant permanent et unique pour chaque dépêche.'
+      exp: 'La balise &lt;guid&gt; (Globally Unique Identifier) fournit un identifiant permanent et unique pour chaque dépêche.'
     },
     {
       stem: 'À quoi servent les paramètres utm_source et utm_medium ajoutés à la fin d’une URL web ?',
@@ -234,7 +234,7 @@ module.exports = {
     },
     {
       q: 'Quelles sont les balises clés d’un item RSS ?',
-      a: '<title> (titre), <link> (URL), <guid> (identifiant unique) et <pubDate> (date de publication).'
+      a: '&lt;title&gt; (titre), &lt;link&gt; (URL), &lt;guid&gt; (identifiant unique) et &lt;pubDate&gt; (date de publication).'
     },
     {
       q: 'Comment calculer l’indice de similarité de Jaccard ?',

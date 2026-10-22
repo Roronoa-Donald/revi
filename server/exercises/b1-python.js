@@ -36,7 +36,7 @@ valeur = int(input())
 print(convertir_temperature(valeur))
 `,
     hints: [
-      'Une fonction qui n’a pas de return renvoie None : si vous voyez None s’afficher, c’est qu’un print a remplacé le return.',
+      'Une fonction qui n’a pas de return renvoie None : si None s’affiche, c’est qu’un print a remplacé le return.',
       'Pour obtenir un résultat décimal, la division doit être décimale : en Python, 9 / 5 vaut 1.8 alors que 9 // 5 vaut 1.'
     ],
     examples: [
@@ -140,7 +140,7 @@ print(heures, "h", minutes, "min", secondes, "s")
 `,
     hints: [
       'La borne de fin d’un range n’est jamais atteinte : pour aller jusqu’à n, il faut lui demander n + 1.',
-      'Un accumulateur s’initialise avant la boucle : si vous l’initialisez dedans, vous repartez de zéro à chaque tour.'
+      'Un accumulateur s’initialise avant la boucle : s’il est initialisé dedans, il repart de zéro à chaque tour.'
     ],
     examples: [
       { stdin: '10', expected: '55', note: '1 + 2 + … + 10 = 55.' }
@@ -658,7 +658,7 @@ for i in range(n):
 print(notes[0], "-", notes[len(notes)])
 `,
     hints: [
-      'Un indice valide commence à zéro : demandez-vous ce que renvoie len pour une liste de n éléments, et quel est le dernier indice atteignable.',
+      'Un indice valide commence à zéro : il suffit de vérifier ce que renvoie len pour une liste de n éléments, et quel est le dernier indice atteignable.',
       'Python accepte aussi des indices négatifs : ils comptent à partir de la fin.'
     ],
     examples: [

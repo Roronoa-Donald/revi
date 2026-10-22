@@ -90,7 +90,7 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « annee nom » (année <code>&lt;</code> 9999, nom sans espace). Il réIndiquez chaque ligne telle quelle, puis conclut par trois lignes : <code>plus ancien : annee nom</code>, <code>plus recent : annee nom</code> et <code>enseignement : les incidents s'enchaînent, la vigilance aussi</code>.</p>",
     "starter": "# Grille d'analyse (cy-c1-e3) — Historique des incidents\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux incidents]\n# Données : 2\n# Données : 2021 Log4Shell\n# Données : 2017 WannaCry\nA_COMPLETER\n\n[Cas 2 — Trois incidents]\n# Données : 3\n# Données : 1988 Morris\n# Données : 2024 XZ Utils\n# Données : 2013 CryptoLocker\nA_COMPLETER\n\n[Cas 3 — Quatre incidents du siècle]\n# Données : 4\n# Données : 2000 ILOVEYOU\n# Données : 2008 Conficker\n# Données : 2010 Stuxnet\n# Données : 2019 Emotet\nA_COMPLETER\n",
     "hints": [
-      "Garde la ligne complète (année et nom) dans une variable, pas seulement l’année : l’affichage final la réclame.",
+      "Gardez la ligne complète (année et nom) dans une variable, pas seulement l’année : l’affichage final la réclame.",
       "Deux comparaisons par ligne : -lt pour le plus ancien, -gt pour le plus récent."
     ],
     "examples": [

@@ -148,8 +148,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les étapes clés des cycles P2P et O2C.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le Three-Way Matching et la formule du calcul MRP.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les cycles opérationnels et logistiques d’entreprise.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le Three-Way Matching et la formule du calcul MRP.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les cycles opérationnels et logistiques d’entreprise.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux modules fonctionnels de l’ERP au chapitre 5.' }
   ],
 

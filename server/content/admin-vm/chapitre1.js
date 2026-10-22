@@ -138,13 +138,23 @@ module.exports = {
 
   notions: ['virtualisation', 'VM', 'consolidation', 'hyperviseur', 'type 1', 'bare-metal', 'type 2', 'Proxmox', 'ESXi', 'Hyper-V', 'VirtualBox', 'host', 'guest', 'vCPU', 'snapshot', 'template', 'cluster'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends la différence type 1 / type 2.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le vocabulaire.' },
-    { cls: 'good', text: '70–89 % — Solide : tu justifies un choix d’hyperviseur.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez la différence type 1 / type 2.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le vocabulaire.' },
+    { cls: 'good', text: '70–94 % — Solide : vous justifiez un choix d’hyperviseur.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux prérequis et à l’architecture, chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « hyperviseur » ?', a: 'distinguer hyperviseur de type 1 et de type 2 ;' },
+      { q: 'Qu’est-ce que « bare-metal » ?', a: 'Le type 1 (bare-metal) vise la production.' },
+      { q: 'Qu’est-ce que « VT-x » ?', a: 'Extensions CPU (VT-x / AMD-V) : base de l’isolation matérielle.' },
+      { q: 'Qu’est-ce que « VT-d » ?', a: 'Le BIOS/UEFI expose ou bloque les extensions : sans elles, l’hyperviseur ne peut pas isoler correctement les VM. À côté de VT-x/AMD-V, VT-d/IOMMU isole les accès périphériques, et Secure Boot influence le chargement de certains hyperviseurs.' },
+      { q: 'Qu’est-ce que « virtualisation imbriquée » ?', a: 'La virtualisation imbriquée (nested) exécute un hyperviseur dans une VM. Elle met en évidence la chaîne d’abstraction : matériel → hyperviseur → VM → hyperviseur → VM.' },
+      { q: 'Qu’est-ce que « vmbr » ?', a: 'Bridge (vmbr) : switch virtuel relié au réseau physique.' },
+      { q: 'Qu’est-ce que « tagging » ?', a: 'Le tagging VLAN est un mécanisme logique : il structure le trafic mais ne remplace pas le pare-feu . Deux VLAN séparés restent joignables si un routeur les relie sans filtrage.' },
+      { q: 'Qu’est-ce que « pfSense » ?', a: 'Utiliser un pare-feu (pfSense, OPNsense).' },
+      { q: 'Qu’est-ce que « cluster » ?', a: 'Quand plusieurs VM cohabitent sur un cluster, la question n’est plus « ça marche ? » mais « qui passe d’abord, et que se passe-t-il si un nœud tombe ? ». L’administration avancée arbitre les ressources et garantit la continuité.' },
+      { q: 'Qu’est-ce que « failover » ?', a: 'expliquer cluster, quorum, fencing et failover ;' },
     { q: 'Que fait la virtualisation ?', a: 'Exécuter plusieurs VM sur un seul serveur physique.' },
     { q: 'Avantages principaux ?', a: 'Consolidation, économies, disponibilité, agilité.' },
     { q: 'Type 1 vs type 2 ?', a: 'Type 1 sur le matériel (production) ; type 2 sur un OS hôte (tests).' },

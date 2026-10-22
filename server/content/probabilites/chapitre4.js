@@ -130,8 +130,8 @@ module.exports = {
   notions: ['épreuve de Bernoulli', 'loi de Bernoulli', 'loi binomiale', 'coefficient binomial', 'loi de Poisson', 'paramètre λ', 'espérance', 'variance', 'succès', 'épreuves indépendantes', 'événement rare'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois B(p) puis la formule de la binomiale.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à choisir la loi selon l’énoncé.' },
-    { cls: 'good', text: '70–89 % — Solide : tu appliques formule, espérance et variance.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à choisir la loi selon l’énoncé.' },
+    { cls: 'good', text: '70–94 % — Solide : vous appliquez formule, espérance et variance.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux variables continues, chapitre 5.' }
   ],
 

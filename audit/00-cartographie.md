@@ -1,0 +1,103 @@
+# Phase 0 — Cartographie Technique & Pédagogique de la Plateforme (`revi-mu.vercel.app`)
+
+## 1. Architecture du Dépôt, Pipeline de Rendu et Statut de Lecture
+
+- **Périmètre audité** : Dépôt complet `revi-cours-html` correspondant au déploiement Vercel `https://revi-mu.vercel.app`.
+- **Couverture de lecture** : **931 fichiers HTML de cours + 1 fichier portail racine (`index.html`) + 71 catalogues d'exercices (`server/exercises/`) + générateurs (`scripts/course-kit.js`, `scripts/generate-code-labs.js`, `scripts/templates/cours.js`, `server/services/ai-help.js`, `server/services/execution/local-runner.js`) lus intégralement**. **Aucun fichier « NON LU » (0 fichier non lu)**.
+- **Mode de production des pages HTML** : Architecture hybride combinant des pages générées par `scripts/course-kit.js` depuis `server/content/<cours>.js` (avec injection des ateliers entre `<!-- code-labs:start -->` et `<!-- code-labs:end -->` par `scripts/generate-code-labs.js`) et des cours historiques ou retouchés en place par des scripts de remédiation (`tools/migrate-pedagogical-alignment.js`, `scripts/remediate-26-exercises.js`, `scripts/remediate-noncode-courses.js`, `scripts/remediate-math-courses.js`). Lors du build (`scripts/build.js`), les pages sont copiées dans `dist/` avec injection des scripts d'authentification (`/_auth/js/auth-check.js`) et du widget `/rd-ai-chat.js`.
+- **Accès et verrouillage** : Le Chapitre 1 de chaque cours (`data-chapter="1"`) ainsi que ses exercices et le tuteur IA (`/api/exercise/submit`, `/api/code-help` avec `exercise.chapter === 1` dans `server/routes/exercises.js:L44,L110`) sont publics. Les chapitres 2 à $N$ requièrent un compte authentifié de niveau suffisant (`B1 ⊂ B2 ⊂ B3` dans `server/courses.js:L122`).
+- **Moteur d'exécution et d'évaluation des exercices (`assets/js/code-lab.js` & `server/services/execution/local-runner.js`)** :
+  - **15 cours** exécutent réellement du code ou des commandes (`python`, `c`, `cpp`, `php`, `javascript`, `java`, `shell`, `powershell`).
+  - **53 cours** ont été basculés en mode statique `data-language="analyse"` (`runAnalyse()` dans `server/services/execution/local-runner.js:L208-297`), qui n'exécute aucun code mais extrait les lignes de texte saisies sous les en-têtes `[Cas 1]`, `[Cas 2]`, `[Cas 3]`.
+- **Tuteur IA « Expliquer mon erreur » (`server/services/ai-help.js:L13-34`)** : Prompt système unique imposé côté serveur (`SYSTEM_PROMPT`), structuré en 3 blocs obligatoires (`**Ce qui bloque :**`, `**Pourquoi :**`, `**Pistes pour corriger :**`), limité à 60–100 mots, avec filtre `sanitizeExplanation()` (`L87-107`) supprimant tout bloc ` ```...``` `. **Défaut systémique (`D14`)** : le prompt fige la persona *« Tu es un tuteur de programmation bienveillant pour des étudiants débutants de niveau B1 »* (`L14`), même pour des étudiants de B2/B3 et même sur les 53 cours en mode `analyse` (Droit, Anglais, Management, Réseaux, etc.).
+- **Seuils du test de maîtrise (`scripts/templates/cours.js:L16-23` vs HTML statique)** : Le script JS dynamique évalue 6 paliers continus (`< 50 %`, `50–69 %`, `70–79 %`, `80–89 %`, `90–94 %`, `≥ 95 %`), mais l'HTML statique des chapitres présente deux anomalies massives : **283 chapitres** (B1/B2) sautent de `70–89 %` à `≥ 95 %` en omettant `90–94 %` (`D8`), et **153 pages** (dont la totalité des 138 chapitres B3) n'affichent aucun pourcentage dans `.bands` (`D15`).
+
+## 2. Audit de la Page d'Accueil (`index.html`) — Cas Témoin Section 7
+
+| Constat ID | Fichier:Ligne | Défaut | Gravité | Extrait (≤ 15 mots) | Analyse & Impact Utilisateur |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `PORTAL-HOME-001` | `index.html:L78,L93-108` | **D8** | **S1** | `68 cours interactifs (+ Atelier Web & Annales)` vs `countB2: 24 cours` / `countAll: 70 cours` | **Incohérence des compteurs** : le sous-titre héro annonce **68 cours** (+ Atelier Web & Annales), mais les onglets affichent `B1 : 23 cours`, `B2 : 24 cours` (en comptant `preparation-web` et `epreuves` comme des « cours »), `B3 : 23 cours` et `Tous : 70 cours`, tandis que `server/courses.js` contient **71 entrées** (incluant `b1-vb-excel` archivé à 0 chapitre). |
+| `PORTAL-HOME-002` | `index.html:L90,L124,L143-490` | **D8 / D15** | **S1** | `Cours de Licence 1 (B1) — 23 cours` suivi de `<a href="linux/sommaire.html" ... data-level="b2">` | **Ordre DOM inversé sous l'onglet B1 actif** : l'onglet actif par défaut dans le HTML est `Licence 1 (B1)` (`id="tab-b1" class="level-tab is-active" aria-selected="true"`, barre de statut `Cours de Licence 1 (B1) — 23 cours`), mais les **24 premières cartes** du DOM (`#grid`, lignes 143 à 490, index d'animation `--bf-i: 0` à `23`) sont toutes des cartes **B2** (`linux`, `php`, `probabilites`, `rd_java`, `rd_winserver`, etc.) non masquées dans le HTML statique ! Avant exécution du JS (ou sans JS / lors du premier rendu), la liste B1 commence par 24 cours B2, et après filtrage JS les cartes B1 héritent d'un délai d'animation `--bf-i: 24..46`. |
+
+## 3. Tableau Cartographique Complet des 71 Entrées (`server/courses.js`)
+
+| Slug (`id`) | Intitulé du cours | Niv. | Nb Chap. | Fichiers transverses présents (`cartes` / `mémo` / `exercices` / `atelier` / `examen`) | Langage(s) exercices (HTML) | Source `server/content` | Liens cassés (hors `favicon.svg` / tot.) |
+| :--- | :--- | :---: | :---: | :--- | :--- | :---: | :---: |
+| `linux` | Administration Linux | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `shell` | Oui | **0** (13 tot.) |
+| `php` | PHP | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `php` | Oui | **0** (13 tot.) |
+| `probabilites` | Probabilités | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **1** (14 tot.) |
+| `rd_java` | Java | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `java` | Oui | **0** (13 tot.) |
+| `rd_winserver` | Windows Server | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `powershell` | Oui | **0** (13 tot.) |
+| `admin-vm` | Administration des Machines Virtuelles | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `powershell` | Oui | **3** (16 tot.) |
+| `droit` | Droit Informatique | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `react` | React | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `javascript` | Oui | **14** (27 tot.) |
+| `api-rest-flask` | API REST avec Flask | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `python` | Oui | **7** (20 tot.) |
+| `erp-si` | ERP & SI | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **7** (20 tot.) |
+| `ingenierie-besoin` | Ingénierie du besoin | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **7** (20 tot.) |
+| `masterclass-apprendre` | Masterclass Apprendre a apprendre | B2 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **34** (47 tot.) |
+| `RD-RO` | Recherche Opérationnelle | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **17** (30 tot.) |
+| `assembleur` | Assembleur | B2 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **27** (40 tot.) |
+| `Cyber securite B2` | Cybersecurite B2 | B2 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **27** (40 tot.) |
+| `sql` | SQL | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/examens.html`, `simulateur-examen.html` | `analyse` | Oui | **14** (27 tot.) |
+| `csharp` | C# | B2 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **13** (26 tot.) |
+| `ccna` | CCNA Réseau | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `uml` | UML | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **14** (27 tot.) |
+| `uiux` | UI/UX Design | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **14** (27 tot.) |
+| `docker` | Docker | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **13** (26 tot.) |
+| `infographie` | Infographie | B2 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **14** (27 tot.) |
+| `preparation-web` | Preparation Web | B2 | 0 | `index.html` seul | Aucun | Statique | **0** (0 tot.) |
+| `epreuves` | Épreuves Passées | B2 | 0 | `index.html` seul | Aucun | Statique | **0** (1 tot.) |
+| `b1-admin-windows` | Administration Windows | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `shell` | Oui | **0** (13 tot.) |
+| `b1-algebre` | Algèbre linéaire | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-algo` | Algorithmique | B1 | 10 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `python` | Statique | **0** (17 tot.) |
+| `b1-anglais` | Anglais des affaires | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-reseaux` | Architecture des réseaux | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-bureautique` | Bureautique | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-ccna1` | CCNA 1 | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-architecture` | Circuit logique & architecture des ordinateurs | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-robotique` | Club de robotique | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-cyber` | Cybersécurité | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-droit` | Droit | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-fr-pro` | Français professionnel | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-git` | Git | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `shell` | Oui | **0** (13 tot.) |
+| `b1-c-cpp` | Langage C & C++ | B1 | 8 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `c`, `cpp` | Statique | **0** (15 tot.) |
+| `b1-linux` | Linux | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `shell` | Oui | **0** (13 tot.) |
+| `b1-merise` | Modélisation (MERISE) | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-php` | PHP | B1 | 8 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `php` | Statique | **0** (15 tot.) |
+| `b1-prog-web` | Programmation Web | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `javascript` | Oui | **5** (18 tot.) |
+| `b1-projet` | Projet | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-python` | Python | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `python` | Statique | **0** (13 tot.) |
+| `b1-sql` | SQL | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-stats` | Statistique descriptive | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b1-vb-excel` | VB Excel | B1 (Archivé) | 0 | `index.html` seul | Aucun | Statique | **0** (1 tot.) |
+| `b1-virtualisation` | Virtualisation des serveurs | B1 | 6 | `sommaire`, `cartes`, `formules`, `exercices/exercices.html`, `atelier`, `chapitres/simulateur-examen.html` | `analyse` | Oui | **0** (13 tot.) |
+| `b3-algo` | Algorithmique | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `python` | Oui | **26** (39 tot.) |
+| `b3-cloud-computing` | Cloud Computing | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-devops` | DevOps | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-document-technique` | Document technique | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-etude-quantitative` | Étude quantitative & qualitative | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-firewall` | Firewall | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-github` | Git & GitHub | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-linux` | Linux Avancé | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-agile` | Méthodes agiles | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-pfsense` | pfSense & Routage | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-reseau-lan` | Réseau LAN Avancé | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-sql` | SQL Avancé | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-veille` | Veille technologique & Innovation | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-windows-server` | Windows Server | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **63** (76 tot.) |
+| `b3-anglais` | Anglais | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-cloud-azure` | Cloud Azure | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-cryptographie` | Cryptographie & PKI | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-google-cloud` | Google Cloud Platform | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-hacking` | Hacking éthique | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-cloud-aws` | Services Cloud AWS | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-supervision` | Supervision | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-voip` | Téléphonie VoIP | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examens.html` | `analyse` | Oui | **26** (39 tot.) |
+| `b3-virtualisation` | Virtualisation Avancée | B3 | 6 | `sommaire`, `cartes`, `formules`, `chapitres/exercices.html`, `atelier`, `chapitres/examen-blanc.html` | `analyse` | Oui | **26** (39 tot.) |
+
+## 4. Synthèse des Familles de Liens Cassés (`D15` — 2 056 occurrences totales sur 931 fichiers)
+
+1. **Icône `/assets/img/favicon.svg` absente du dépôt (894 pages impactées, gravité S2)** : Toutes les pages générées par `scripts/course-kit.js` déclarent `<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">`, alors que le dossier `/assets/img/` ne contient que `ui-icons.svg`.
+2. **Barre de navigation haute des 23 cours B3 et de 6 cours B2 (754 liens cassés, gravité S1)** : `scripts/course-kit.js` (`navItems()`, L80 et L82) génère en dur les liens `exercices/exercices.html` et `chapitres/simulateur-examen.html`, alors que dans la totalité des 23 cours B3 et dans `masterclass-apprendre`, `RD-RO`, `assembleur`, `Cyber securite B2`, `sql`, `csharp`, les fichiers réels sur disque se nomment `chapitres/exercices.html` et `chapitres/examens.html` (ou `chapitres/examen-blanc.html` pour `b3-virtualisation`). Tout clic sur « Exercices » ou « Examen » dans le menu supérieur renvoie une erreur **404 Not Found**.
+3. **Catalogue `chapitres/exercices.html` de 11 cours B3 (396 liens cassés, gravité S1)** : Dans `b3-agile`, `b3-firewall`, `b3-github`, `b3-linux`, `b3-pfsense`, `b3-reseau-lan`, `b3-sql`, `b3-veille`, `b3-windows-server`, etc., la page `chapitres/exercices.html` est déjà située dans le sous-dossier `chapitres/`, mais ses 36 liens (18 titres + 18 boutons « Résoudre dans le module ») pointent vers `href="chapitres/chapitre1.html#..."`, ce qui résout vers `/b3-<cours>/chapitres/chapitres/chapitre1.html` (**404 systématique**). De plus, l'ancre `#<ex_id>` n'existe pas dans le DOM des chapitres (l'identifiant est dans `data-exercise="..."`, sans attribut `id="..."`).
+4. **Liens relatifs cassés dans `exercices/exercices.html` et `qcm-100.html` de cours B2 (122 liens cassés, gravité S1)** : Dans `uml`, `uiux`, `docker`, `infographie`, la barre de navigation de `exercices/exercices.html` pointe vers `chapitre1.html`..`chapitre6.html` au lieu de `../chapitres/chapitre1.html`. Dans `admin-vm`, `react`, `api-rest-flask`, `erp-si`, `ingenierie-besoin`, `masterclass-apprendre`, les fichiers `qcm-100.html` pointent vers des fichiers inexistants (`chapitres/chapitre7.html`, `chapitres/chapitre8.html`, `chapitres/flashcards.html`, `chapitres/fiche-memo.html`).

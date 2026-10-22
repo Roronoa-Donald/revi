@@ -39,7 +39,7 @@ const course = {
     'et enfin continuité d\'activité et postes de travail virtuels : sauvegarde sans agent par Changed Block Tracking (CBT) et APIs VADP avec quiescing applicatif VSS, durcissement sécuritaire des hyperviseurs ESXi (SSH/Shell arrêté, Mode Lockdown Normal/Strict, attestation TPM 2.0 / Secure Boot et chiffrement VM Encryption), architectures VDI (VMware Horizon, Citrix Virtual Apps and Desktops, Blast Extreme, PCoIP, Instant Clones non-persistants) et dimensionnement des IOPS de stockage avec absorption du pic matinal de Boot Storm.',
   lead:
     'Maîtrisez l\'ingénierie de la virtualisation et des infrastructures de Datacenter privé : hyperviseurs Type-1, vSphere 7/8, vCenter, VMFS-6, vSAN, VDS, clustering HA/DRS, vMotion, CBT et VDI. ' +
-    'Six modules complets, 18 ateliers de programmation interactive en Python 3 et 48 QCM d\'évaluation.',
+    'Six modules complets, 18 études de cas pratiques et méthodologiques et 48 QCM d\'évaluation.',
 
   sources: 'Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant & Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi',
 

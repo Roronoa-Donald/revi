@@ -242,9 +242,9 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la différence entre Seq Scan et Index Scan, et le rôle des vues.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la syntaxe des triggers et l’usage de NEW et OLD.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la programmabilité serveur et les techniques d’indexation.' },
-    { cls: 'top', text: '≥ 95 % — Maîtrise d’expert : félicitations, tu domines l’ensemble des compétences de SQL niveau B2 !' }
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la syntaxe des triggers et l’usage de NEW et OLD.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la programmabilité serveur et les techniques d’indexation.' },
+    { cls: 'top', text: '≥ 95 % — Maîtrise d’expert : félicitations, vous dominez l’ensemble des compétences de SQL niveau B2 !' }
   ],
 
   flashcards: [

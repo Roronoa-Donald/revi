@@ -109,7 +109,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid--3">',
     '    <div class="card">',
     '      <h3>' + ic('terminal') + ' Laboratoire Interactif</h3>',
-    '      <p>Console Python 3 avec éditeur intégré pour tester le moteur conntrack, compiler des règles iptables/nftables et analyser les flux DMZ.</p>',
+    '      <p>Atelier interactif avec grille d’analyse intégrée pour tester le moteur conntrack, compiler des règles iptables/nftables et analyser les flux DMZ.</p>',
     '      <a class="btn btn--sm" href="atelier.html">Ouvrir le lab</a>',
     '    </div>',
     '    <div class="card">',

@@ -175,7 +175,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Exercices de Code en Cloud Computing B3</h1>',
-    '  <p class="lead">Tous les ateliers pratiques de programmation Python 3 intégrés au cours, classés par niveau de difficulté progressive (Niveau 1 Fondamental, Niveau 2 Intermédiaire, Niveau 3 Avancé).</p>',
+    '  <p class="lead">Tous les ateliers pratiques d’études de cas intégrés au cours, classés par niveau de difficulté progressive (Niveau 1 Fondamental, Niveau 2 Intermédiaire, Niveau 3 Avancé).</p>',
     '',
     chaptersHtml,
     '',

@@ -18,7 +18,7 @@ function chnav(prev, next) {
 }
 
 function disclaimer(extra) {
-  const base = 'Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail personnel.';
+  const base = 'Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail personnel.';
   return '  <p class="disclaimer">' + (extra ? base + ' ' + extra : base) + '</p>';
 }
 

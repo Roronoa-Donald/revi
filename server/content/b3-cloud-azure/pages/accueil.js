@@ -123,7 +123,7 @@ function atelier(course) {
 
   const body = [
     crumbs,
-    '  <h1>Laboratoire Interactif &amp; Bac à Sable Azure CLI &amp; Python 3</h1>',
+    '  <h1>Laboratoire Interactif &amp; Bac à Sable Azure CLI &amp; Études de Cas</h1>',
     '  <p class="lead">Expérimentez et validez vos scripts d\'automatisation d\'infrastructure Cloud Azure selon les grilles d’analyse : validation hiérarchique CAF, audit de règles NSG, requêtes Log Analytics KQL et dimensionnement VMSS.</p>',
     '',
     '  <div class="lab" data-lab',

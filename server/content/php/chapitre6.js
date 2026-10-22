@@ -129,10 +129,10 @@ module.exports = {
 
   notions: ['PDO', 'DSN', 'ERRMODE_EXCEPTION', 'PDOException', 'requête préparée', 'paramètre nommé', 'injection SQL', 'dépôt', 'repository', 'couches', 'ToDo List'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends l’ouverture de connexion et la requête préparée.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à écrire le dépôt d’une entité.' },
-    { cls: 'good', text: '70–89 % — Solide : tu ne concatènes jamais d’entrée dans du SQL.' },
-    { cls: 'top', text: '≥ 95 % — Maîtrise : le projet ToDo List est à ta portée, direction les examens blancs.' }
+    { cls: 'low', text: '&lt; 50 % — Reprenez l’ouverture de connexion et la requête préparée.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à écrire le dépôt d’une entité.' },
+    { cls: 'good', text: '70–94 % — Solide : vous ne concatènez jamais d’entrée dans du SQL.' },
+    { cls: 'top', text: '≥ 95 % — Maîtrise : le projet ToDo List est à votre portée, direction les examens blancs.' }
   ],
 
   flashcards: [

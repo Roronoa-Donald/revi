@@ -54,7 +54,7 @@ module.exports = {
         '    <tr><th>Drapeau de Contrôle</th><th>Comportement en cas de SUCCÈS</th><th>Comportement en cas d’ÉCHEC</th><th>Usage Recommandé</th></tr>',
         '  </thead>',
         '  <tbody>',
-        '    <tr><td><code>required</code></td><td>Continue la chaîne.</td><td>Mémorise l’échec mais <strong>continue</strong> la chaîne jusqu’au bout (ne révèle rien à l’attaquant).</td><td>Vérification obligatoire (ex: mot de passe standard, compte actif).</td></tr>',
+        '    <tr><td><code>required</code></td><td>Continue la chaîne.</td><td>Mémorisez l’échec mais <strong>continue</strong> la chaîne jusqu’au bout (ne révèle rien à l’attaquant).</td><td>Vérification obligatoire (ex: mot de passe standard, compte actif).</td></tr>',
         '    <tr><td><code>requisite</code></td><td>Continue la chaîne.</td><td><strong>Interrompt immédiatement</strong> l’évaluation avec rejet définitif.</td><td>Prérequis strict (ex: vérification de verrouillage de compte ou IP bannie).</td></tr>',
         '    <tr><td><code>sufficient</code></td><td>Si aucun échec préalable, <strong>s’arrête immédiatement avec SUCCÈS</strong>.</td><td>L’échec est ignoré ; la chaîne continue.</td><td>Méthode alternative satisfaisante (ex: clé biométrique, certificat SSO, pam_unix).</td></tr>',
         '    <tr><td><code>optional</code></td><td>Continue la chaîne.</td><td>Continue la chaîne.</td><td>Journalisation ou configuration d’environnement secondaire (pam_env).</td></tr>',

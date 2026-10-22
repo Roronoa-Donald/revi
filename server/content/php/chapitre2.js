@@ -121,9 +121,9 @@ module.exports = {
 
   notions: ['encapsulation', 'public', 'private', 'protected', 'getter', 'setter', 'validation', 'const', 'self::', 'static', 'interface fluide'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends la visibilité : public, private, protected.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez la visibilité : public, private, protected.' },
     { cls: 'mid', text: '50–69 % — Réécris un getter et un setter qui valide.' },
-    { cls: 'good', text: '70–89 % — Solide : tu distingues const, static et propriété.' },
+    { cls: 'good', text: '70–94 % — Solide : vous distinguez const, static et propriété.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe à l’héritage et aux interfaces, chapitre 3.' }
   ],
 

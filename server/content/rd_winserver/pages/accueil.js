@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>choisir et vérifier une stratégie de sauvegarde (complète, incrémentielle, différentielle) ;</li>',
       '      <li>concevoir un service hautement disponible (redondance, failover, supervision) ;</li>',
@@ -37,8 +37,8 @@ function index(course, chapterList) {
       '    <p>Les cinq modules historiques du cours RD WinServer sont répartis en six chapitres, du plus ' +
       'concret (la sauvegarde) au plus technique (la gestion des VM).</p>',
       '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> en ' +
-      '<strong>PowerShell</strong> : tu écris un vrai script d’administration qui lit l’entrée standard ' +
-      'et produit un résultat, puis tu le valides. L’atelier de code permet de manipuler librement.</p>'
+      '<strong>PowerShell</strong> : vous écrivez un vrai script d’administration qui lit l’entrée standard ' +
+      'et produit un résultat, puis vous le valides. L’atelier de code permet de manipuler librement.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',
@@ -86,7 +86,7 @@ function sommaire(course, chapterList) {
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B2 ou supérieur (et un ' +
     'abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois exercices en PowerShell</strong> à écrire et à ' +
-    'valider dans la page : ton script est corrigé par des tests que tu ne vois pas. ' +
+    'valider dans la page : votre script est corrigé par des tests que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de code</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -119,8 +119,8 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de code</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur PowerShell derrière. Écris un script ' +
-    'd’administration, exécute-le et lis ce qu’il affiche : c’est ici qu’une règle du cours devient un ' +
+    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur PowerShell derrière. Écrivez un script ' +
+    'd’administration, exécutez-le et lisez ce qu’il affiche : c’est ici qu’une règle du cours devient un ' +
     'script qui tourne.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
@@ -156,11 +156,11 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Reprends un ' +
-      'mécanisme du cours (condition, boucle, switch) et programme-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Reprenez un ' +
+      'mécanisme du cours (condition, boucle, switch) et programmez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé totalise des tailles de sauvegarde lues en entrée. Modifie-le, ajoute ' +
-      'une condition, un switch, remplace tout le script par le mécanisme que tu veux vérifier — un test ' +
+      '      <p>Le script proposé totalise des tailles de sauvegarde lues en entrée. Modifiez-le, ajoute ' +
+      'une condition, un switch, remplace tout le script par le mécanisme que vous voulez vérifier — un test ' +
       'de quorum, un seuil de température, un mode réseau.</p>',
       '      <p>Dans un vrai serveur, ce sera un script d’administration planifié : la structure — lire, ' +
       'traiter, afficher — reste exactement la même.</p>',
@@ -176,7 +176,7 @@ function atelier(course) {
     '  <h2>De la page au vrai serveur</h2>',
     '  <p>La simulation a une limite assumée : rien n’est envoyé ni stocké durablement. Elle a une force : ' +
     '<strong>toute la logique se vérifie sans machine Windows</strong>. Quand le script affiche les bons ' +
-    'résultats sur tes cas limites, le portage est mécanique : les mêmes variables, la même boucle, le ' +
+    'résultats sur vos cas limites, le portage est mécanique : les mêmes variables, la même boucle, le ' +
     'même test.</p>',
     box('pitfall', 'Les trois erreurs que l’atelier révèle immédiatement', 'warning', [
       '    <ul>',

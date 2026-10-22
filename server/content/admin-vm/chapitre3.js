@@ -137,9 +137,9 @@ module.exports = {
 
   notions: ['VM', 'template', 'clone', 'clone complet', 'clone lié', 'snapshot', 'cycle de vie', 'conception', 'provisioning', 'exploitation', 'retrait', 'vCPU', 'RAM', 'thin', 'thick', 'bridge', 'VLAN'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les quatre phases du cycle de vie.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’allocation des ressources.' },
-    { cls: 'good', text: '70–89 % — Solide : tu cycles une VM sans laisser de risque.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les quatre phases du cycle de vie.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’allocation des ressources.' },
+    { cls: 'good', text: '70–94 % — Solide : vous cyclez une VM sans laisser de risque.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe au stockage et aux volumes, chapitre 4.' }
   ],
 

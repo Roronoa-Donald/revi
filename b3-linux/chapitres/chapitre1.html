@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-linuxnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>comprendre l’architecture du noyau Linux monolithique modulaire et la séparation matériel/logiciel (Ring 0 vs Ring 3) ;</li>
       <li>analyser le rôle du Virtual File System (VFS) et le fonctionnement en mémoire des pseudo-systèmes de fichiers /proc et /sys ;</li>
@@ -123,7 +123,12 @@
 7ffd1234-7ffd5678 rw-p 00000000 00:00 0          [stack]</code></pre>
   <div class="box box--danger">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le Principe Fondamental de Sécurité W^X (Write XOR Execute)</div>
-<p>Les permissions de mémoire (<code>rwxp</code> : Read, Write, Execute, Private) sont cruciales pour la sécurité du système :</p>,<ul>,  <li><strong>Segment de code (texte) :</strong> doit être lisible et exécutable, mais <strong>jamais inscriptible</strong> (<code>r-xp</code>) pour empêcher la modification du binaire en mémoire.</li>,  <li><strong>Tas (heap) et Pile (stack) :</strong> doivent être inscriptibles pour manipuler les données, mais <strong>jamais exécutables</strong> (<code>rw-p</code>).</li>,  <li><strong>Violation W^X :</strong> Si une page mémoire est à la fois inscriptible et exécutable (<code>rwxp</code>), un attaquant injectant du shellcode dans une variable peut immédiatement forcer le processeur à exécuter ses instructions arbitraires.</li>,</ul>
+<p>Les permissions de mémoire (<code>rwxp</code> : Read, Write, Execute, Private) sont cruciales pour la sécurité du système :</p>
+<ul>
+  <li><strong>Segment de code (texte) :</strong> doit être lisible et exécutable, mais <strong>jamais inscriptible</strong> (<code>r-xp</code>) pour empêcher la modification du binaire en mémoire.</li>
+  <li><strong>Tas (heap) et Pile (stack) :</strong> doivent être inscriptibles pour manipuler les données, mais <strong>jamais exécutables</strong> (<code>rw-p</code>).</li>
+  <li><strong>Violation W^X :</strong> Si une page mémoire est à la fois inscriptible et exécutable (<code>rwxp</code>), un attaquant injectant du shellcode dans une variable peut immédiatement forcer le processeur à exécuter ses instructions arbitraires.</li>
+</ul>
   </div>
 
 <h2>4. Interception et Profilage des Appels Système avec strace</h2>
@@ -152,34 +157,27 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="lx3-c1-e1" data-lab
      data-exercise="lx3-c1-e1"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="PROC_STAT pid=101 comm=nginx state=S ppid=1 utime=45 stime=15 rss=256">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c1-e1) — Parseur et auditeur de métriques de processus (/proc/[pid]/stat)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Processus actif en cours d’exécution (R)]
-# Données : PROC_STAT pid=1250 comm=python3 state=R ppid=100 utime=320 stime=80 rss=1024
-A_COMPLETER
-
-[Cas 2 — Processus zombie (Z) et attente disque ininterruptible (D)]
-# Données : PROC_STAT pid=440 comm=defunct_job state=Z ppid=1 utime=5 stime=1 rss=0
-# Données : PROC_STAT pid=880 comm=dd_backup state=D ppid=500 utime=120 stime=300 rss=512
-A_COMPLETER
-
-[Cas 3 — Processus stoppé par signal SIGSTOP (T)]
-# Données : PROC_STAT pid=999 comm=debugger state=T ppid=200 utime=10 stime=2 rss=128
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (lx3-c1-e1) — Parseur et auditeur de métriques de processus (/proc/[pid]/stat)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Parseur et auditeur de métriques de processus (/proc/[pid]/stat)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -187,7 +185,7 @@ A_COMPLETER
     <p class="lab__goal"><strong>Objectif :</strong> Analyser les métriques d’état, de temps CPU et de mémoire résidente issues du pseudo-système de fichiers /proc.</p>
     <div class="lab__brief"><p>Dans le noyau Linux, le pseudo-système de fichiers <code>/proc</code> expose directement en mémoire l'état interne des structures de données du noyau (notamment la structure <code>task_struct</code> pour chaque processus).<br><br>
 Le fichier <code>/proc/[pid]/stat</code> fournit sur une seule ligne les indicateurs vitaux d'exécution.<br><br>
-Analysez les paramètres du problème pour chaque cas.<br><br>
+Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Table de correspondance de l'état :<br>
 - <code>R</code> &rarr; <code>RUNNING</code><br>
 - <code>S</code> &rarr; <code>SLEEPING</code><br>
@@ -200,8 +198,8 @@ Calculs à effectuer :<br>
 Pour chaque ligne, afficher :<br>
 <code>STAT_AUDIT pid={pid} comm={comm} state_label={label} total_ticks={total_ticks} mem_kb={rss_kb}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROC_STAT pid=101 comm=nginx state=S ppid=1 utime=45 stime=15 rss=256</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STAT_AUDIT pid=101 comm=nginx state_label=SLEEPING total_ticks=60 mem_kb=1024</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PROC_STAT pid=101 comm=nginx state=S ppid=1 utime=45 stime=15 rss=256</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STAT_AUDIT pid=101 comm=nginx state_label=SLEEPING total_ticks=60 mem_kb=1024</pre></div>
     </div>
     <p class="lab__note">Processus en sommeil (S), total ticks = 45+15=60, mémoire = 256*4=1024 Ko.</p>
     <details class="lab__hints">
@@ -214,31 +212,21 @@ Pour chaque ligne, afficher :<br>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="lx3-c1-e2" data-lab
      data-exercise="lx3-c1-e2"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="VMMAP pid=42 start=00400000 end=00450000 perms=r-xp pathname=/usr/bin/app">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c1-e2) — Analyseur de cartographie de mémoire virtuelle (/proc/[pid]/maps)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Segment de données non exécutable et pile sécurisée]
-# Données : VMMAP pid=10 start=00600000 end=00610000 perms=rw-p pathname=[heap]
-# Données : VMMAP pid=10 start=7fff0000 end=7fff2000 perms=rw-p pathname=[stack]
-A_COMPLETER
-
-[Cas 2 — Détection d’une violation critique W^X (page RWX inscriptible et exécutable)]
-# Données : VMMAP pid=777 start=10000000 end=10004000 perms=rwxp pathname=[jit_buffer]
-A_COMPLETER
-
-[Cas 3 — Bibliothèque partagée en lecture seule]
-# Données : VMMAP pid=500 start=7f800000 end=7fa00000 perms=r--p pathname=/lib/x86_64-linux-gnu/libc.so
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (lx3-c1-e2) — Analyseur de cartographie de mémoire virtuelle (/proc/[pid]/maps)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Analyseur de cartographie de mémoire virtuelle (/proc/[pid]/maps)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -246,19 +234,19 @@ A_COMPLETER
     <p class="lab__goal"><strong>Objectif :</strong> Analyser les plages d’adresses de mémoire virtuelle et détecter les violations du principe de sécurité W^X (Write XOR Execute).</p>
     <div class="lab__brief"><p>Sous Linux, chaque processus dispose d'un espace d'adressage virtuel isolé divisé en segments (code, données, tas heap, pile stack, bibliothèques partagées mmap). Le fichier <code>/proc/[pid]/maps</code> détaille ces plages.<br><br>
 Pour des raisons de sécurité (atténuation d'exploits de corruption de mémoire), le noyau moderne impose le principe <strong>W^X (Write XOR Execute)</strong> : une page de mémoire ne doit <strong>jamais être simultanément inscriptible (w) et exécutable (x)</strong>, car cela permet l'injection et l'exécution directe de shellcode.<br><br>
-Analysez les paramètres du problème pour chaque cas.<br><br>
+Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Calculs :<br>
 - <code>size_kb = (int(end, 16) - int(start, 16)) // 1024</code><br>
 - Violation W^X : si <code>'w' in perms and 'x' in perms</code>, alors <code>wx_violation=OUI</code>, sinon <code>wx_violation=NON</code>.<br><br>
 Pour chaque ligne, afficher :<br>
 <code>MAP_AUDIT pid={pid} path={pathname} size_kb={size_kb} wx_violation={wx_violation}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VMMAP pid=42 start=00400000 end=00450000 perms=r-xp pathname=/usr/bin/app</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MAP_AUDIT pid=42 path=/usr/bin/app size_kb=320 wx_violation=NON</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VMMAP pid=42 start=00400000 end=00450000 perms=r-xp pathname=/usr/bin/app</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MAP_AUDIT pid=42 path=/usr/bin/app size_kb=320 wx_violation=NON</pre></div>
     </div>
     <p class="lab__note">Plage de code en lecture/exécution (r-xp), taille 0x50000 = 327680 octets = 320 Ko, aucune violation.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Convertir les adresses hexadécimales en entiers avec int(val, 16).</li>
         <li>Calculer la taille en octets puis diviser par 1024 pour obtenir les kilo-octets.</li>
@@ -268,38 +256,28 @@ Pour chaque ligne, afficher :<br>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="lx3-c1-e3" data-lab
      data-exercise="lx3-c1-e3"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="SYSCALL pid=101 name=openat args=&quot;AT_FDCWD,/etc/passwd,O_RDONLY&quot; ret=3 time_us=45">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c1-e3) — Décodeur et profileur d’appels système (strace tracer)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Erreur de fichier introuvable (ENOENT ou code négatif)]
-# Données : SYSCALL pid=101 name=openat args="AT_FDCWD,/tmp/missing.txt,O_RDONLY" ret=-ENOENT time_us=80
-# Données : SYSCALL pid=101 name=read args="3,buf,1024" ret=-1 time_us=12
-A_COMPLETER
-
-[Cas 2 — Appel bloquant avec latence excessive (SLOW=OUI)]
-# Données : SYSCALL pid=202 name=epoll_wait args="4,events,64,-1" ret=1 time_us=12000
-A_COMPLETER
-
-[Cas 3 — Refus de permission (EACCES)]
-# Données : SYSCALL pid=303 name=write args="1,data,512" ret=EACCES time_us=150
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (lx3-c1-e3) — Décodeur et profileur d’appels système (strace tracer)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Décodeur et profileur d’appels système (strace tracer)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser les traces d’appels système (syscalls) pour isoler les erreurs d’I/O et profiler la latence noyau.</p>
     <div class="lab__brief"><p>L'utilitaire <code>strace</code> intercepte et enregistre les appels système (syscalls) effectués par un processus et les signaux reçus via l'API <code>ptrace(2)</code> du noyau Linux.<br><br>
-Analysez les paramètres du problème pour chaque cas.<br><br>
+Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Règles d'analyse :<br>
 1. Si <code>ret</code> commence par <code>-</code> ou est égal à une constante d'erreur POSIX (ex: <code>ENOENT</code>, <code>EACCES</code>, <code>EPERM</code>, <code>EBADF</code>), le statut est <code>ERROR</code> et l'erreur est consignée.<br>
 2. Sinon, le statut est <code>SUCCESS</code> et le code d'erreur est <code>NONE</code>.<br>
@@ -307,8 +285,8 @@ Règles d'analyse :<br>
 Pour chaque appel, afficher :<br>
 <code>SYSCALL_PROFILE pid={pid} name={name} status={SUCCESS|ERROR} err={err} duration_us={time_us} slow={SLOW}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SYSCALL pid=101 name=openat args="AT_FDCWD,/etc/passwd,O_RDONLY" ret=3 time_us=45</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SYSCALL_PROFILE pid=101 name=openat status=SUCCESS err=NONE duration_us=45 slow=NON</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SYSCALL pid=101 name=openat args="AT_FDCWD,/etc/passwd,O_RDONLY" ret=3 time_us=45</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SYSCALL_PROFILE pid=101 name=openat status=SUCCESS err=NONE duration_us=45 slow=NON</pre></div>
     </div>
     <p class="lab__note">Appel système réussi retournant le descripteur de fichier 3, durée 45 µs.</p>
     <details class="lab__hints">
@@ -465,12 +443,13 @@ Pour chaque appel, afficher :<br>
 <h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Difficultés à comprendre la différence entre Ring 0 et Ring 3 ou ignorance de la nature virtuelle de /proc.</div>
-      <div class="bandrow bandrow--medium">Bonne analyse des états de processus (D, Z), compréhension de la mémoire virtuelle W^X et utilisation régulière de strace.</div>
-      <div class="bandrow bandrow--high">Maîtrise approfondie des structures internes du noyau (task_struct, VFS), décodage expert des appels système et diagnostic avancé des blocages noyau.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à comprendre la différence entre Ring 0 et Ring 3 ou ignorance de la nature virtuelle de /proc.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne analyse des états de processus (D, Z), compréhension de la mémoire virtuelle W^X et utilisation régulière de strace.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise approfondie des structures internes du noyau (task_struct, VFS), décodage expert des appels système et diagnostic avancé des blocages noyau.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -480,7 +459,7 @@ Pour chaque appel, afficher :<br>
     <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Initialisation &amp; Gestionnaire de Services Systemd Avancé <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Documentation officielle du noyau Linux (kernel.org), spécifications systemd (Lennart Poettering / Freedesktop), guides de durcissement ANSSI et CIS Benchmarks Linux.</p>
 </main>
 

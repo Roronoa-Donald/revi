@@ -83,7 +83,7 @@ module.exports = {
     { stem: 'Que fait insteadof ?', opts: ['Il renomme une méthode', 'Il choisit la méthode qui gagne en cas de conflit', 'Il supprime un trait'], correct: 1, exp: 'insteadof désigne le trait dont la méthode l’emporte.' },
     { stem: 'À quoi sert un namespace ?', opts: ['À accélérer le code', 'À éviter les collisions de noms', 'À hériter'], correct: 1, exp: 'Le namespace préfixe les classes pour les distinguer.' },
     { stem: 'Où se place la déclaration namespace ?', opts: ['En fin de fichier', 'En haut, après <?php', 'Dans le constructeur'], correct: 1, exp: 'Tout en haut du fichier, avant tout autre code.' },
-    { stem: 'Que fait use App\\Utilisateur as U; ?', opts: ['Importe et renomme la classe en U', 'Crée une classe U', 'Supprime Utilisateur'], correct: 0, exp: 'use importe la classe sous l’alias U.' },
+    { stem: 'Que fait use App\\Utilisateur as U; ?', opts: ['Importe et renomme la classe en U', 'Créez une classe U', 'Supprimez Utilisateur'], correct: 0, exp: 'use importe la classe sous l’alias U.' },
     { stem: 'À quoi sert spl_autoload_register ?', opts: ['À charger une classe à la demande', 'À créer un namespace', 'À hériter'], correct: 0, exp: 'PHP appelle l’autoloader quand il rencontre une classe non encore chargée.' },
     { stem: 'Deux traits définissent la méthode demarrer. Que fait PHP ?', opts: ['Il en choisit une', 'Il lève une erreur fatale', 'Il fusionne'], correct: 1, exp: 'Le conflit doit être levé explicitement avec insteadof / as.' }
   ],
@@ -122,9 +122,9 @@ module.exports = {
 
   notions: ['trait', 'use', 'insteadof', 'as', 'namespace', 'nom complet', 'import', 'autoload', 'spl_autoload_register', 'Composer'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends la différence entre trait, classe et interface.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à déclarer un namespace et à importer une classe.' },
-    { cls: 'good', text: '70–89 % — Solide : tu résous un conflit de traits sans hésiter.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez la différence entre trait, classe et interface.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à déclarer un namespace et à importer une classe.' },
+    { cls: 'good', text: '70–94 % — Solide : vous résolvez un conflit de traits sans hésiter.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux exceptions, chapitre 5.' }
   ],
 

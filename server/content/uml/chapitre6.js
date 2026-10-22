@@ -62,8 +62,8 @@ module.exports = {
         '  <div class="card">',
         '    <h4 class="card-title">Pseudo-États d’Historique (H et H*)</h4>',
         '    <ul>',
-        '      <li><strong>Historique superficiel (H) :</strong> Mémorise le dernier sous-état actif de plus haut niveau au sein d’un état composite.</li>',
-        '      <li><strong>Historique profond (H*) :</strong> Mémorise l’état actif à tous les niveaux de récursion imbriqués.</li>',
+        '      <li><strong>Historique superficiel (H) :</strong> Mémorisez le dernier sous-état actif de plus haut niveau au sein d’un état composite.</li>',
+        '      <li><strong>Historique profond (H*) :</strong> Mémorisez l’état actif à tous les niveaux de récursion imbriqués.</li>',
         '    </ul>',
         '  </div>',
         '</div>'

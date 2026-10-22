@@ -140,8 +140,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la formule d’Ebbinghaus et le fonctionnement des boîtes de Leitner.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul du facteur EF dans SM-2 et l’espacement des rappels.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les mécanismes algorithmiques de l’ancrage durable.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul du facteur EF dans SM-2 et l’espacement des rappels.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les mécanismes algorithmiques de l’ancrage durable.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe au double codage et aux cartes mentales au chapitre 4.' }
   ],
 

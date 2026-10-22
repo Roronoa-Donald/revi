@@ -149,12 +149,29 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les bases de HTTP et la syntaxe JSON stricte.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à identifier les en-têtes et le découpage de requête.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les fondamentaux du protocole HTTP.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à identifier les en-têtes et le découpage de requête.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les fondamentaux du protocole HTTP.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la modélisation des ressources REST au chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « API Web » ?', a: 'Une API ( Application Programming Interface ) définit un contrat formel permettant à deux programmes informatiques distincts de communiquer et d’échanger des données. Dans le contexte web, une API Web expose des points d’entrée ( endpoints ) accessibles via le protocole HTTP sur ' },
+      { q: 'Qu’est-ce que « Réponse HTTP » ?', a: 'analyser la structure d’une requête et d’une réponse HTTP ;' },
+      { q: 'Qu’est-ce que « Roy Fielding » ?', a: 'L’acronyme REST ( Representational State Transfer ) désigne un style architectural théorisé en 2000 par Roy Fielding dans sa thèse de doctorat. REST ne constitue pas un protocole ou une norme fermée, mais un ensemble de contraintes architecturales guidant la conception d’API dist' },
+      { q: 'Qu’est-ce que « Stateless » ?', a: 'comprendre le principe fondamental du Stateless (sans état) ;' },
+      { q: 'Qu’est-ce que « CRUD » ?', a: 'L’interface uniforme REST mappe directement les opérations fondamentales de manipulation de données (CRUD) sur les méthodes standard du protocole HTTP :' },
+      { q: 'Qu’est-ce que « Idempotence » ?', a: 'distinguer les notions clés de sécurité (safe) et d’idempotence des opérations.' },
+      { q: 'Qu’est-ce que « Sécurité HTTP » ?', a: 'Utiliser le verbe GET pour effectuer une mutation ou une suppression (non-respect de la sécurité HTTP).' },
+      { q: 'Qu’est-ce que « Micro-framework » ?', a: 'Après avoir modélisé les ressources et les routes théoriques, il est temps de leur donner vie en Python. Flask est un micro-framework minimaliste, rapide et flexible qui permet de déployer une API web en quelques lignes de code sans imposer une structure de projet lourde.' },
+      { q: 'Qu’est-ce que « Convertisseur de route » ?', a: 'Quel convertisseur de route Flask garantit que l’argument reçu est un entier positif ?' },
+      { q: 'Qu’est-ce que « Codes HTTP » ?', a: 'maîtriser la signification des grandes familles de codes HTTP (2xx, 3xx, 4xx, 5xx) ;' },
+      { q: 'Qu’est-ce que « 401 Unauthorized » ?', a: '401 Unauthorized : Une API REST communique le succès ou l’échec d’une requête via les codes de statut HTTP : - creation → 201 Created - lecture ou succes → 200 OK - suppression (sans contenu renvoyé) → 204 No Content - introuvable → 404 Not Found - invalide → 400 Bad Request - non_autorise → 401 Un' },
+      { q: 'Qu’est-ce que « 403 Forbidden » ?', a: '403 Forbidden : Une API REST communique le succès ou l’échec d’une requête via les codes de statut HTTP : - creation → 201 Created - lecture ou succes → 200 OK - suppression (sans contenu renvoyé) → 204 No Content - introuvable → 404 Not Found - invalide → 400 Bad Request - non_autorise → 401 Un' },
+      { q: 'Qu’est-ce que « Validation » ?', a: 'Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code et la validation fait tourner des jeux de tests indépendants : réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.' },
+      { q: 'Qu’est-ce que « Mass Assignment » ?', a: 'protéger l’API contre le Mass Assignment via une liste blanche d’attributs ;' },
+      { q: 'Qu’est-ce que « Blueprints » ?', a: 'Passer de fragments de code isolés à une architecture logicielle robuste et maintenable exige de structurer les modules avec soin. Ce dernier chapitre synthétise l’ensemble des notions pour concevoir un CRUD complet, organiser les routes avec les Blueprints et préparer l’applicat' },
+      { q: 'Qu’est-ce que « Modularité » ?', a: 'Les Blueprints apportent modularité et lisibilité en factorisant préfixes d’URL et gestionnaires.' },
+      { q: 'Qu’est-ce que « Persistance » ?', a: 'gérer un modèle de persistance en mémoire ou connecté à une base relationnelle ;' },
     { q: 'Que signifie l’acronyme API ?', a: 'Application Programming Interface (Interface de programmation d’application).' },
     { q: 'Quels sont les 4 composants d’une requête HTTP ?', a: 'La ligne de requête (méthode + chemin + version), les en-têtes, la ligne vide et le corps (body).' },
     { q: 'À quoi sert l’en-tête Content-Type ?', a: 'À indiquer le type MIME des données envoyées dans le corps (ex. application/json).' },

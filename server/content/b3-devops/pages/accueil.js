@@ -58,7 +58,7 @@ function index(course, chapterList) {
       'les stratégies de Déploiement Continu (Blue/Green, Canary, Feature Flags), ' +
       'le pilotage par les 4 métriques DORA et la modélisation du rayon d’impact (Blast Radius), ' +
       'ainsi que la gouvernance SRE par les SLI/SLO, les budgets d’erreur (Error Budgets) et l’amortissement des tempêtes d’alertes Prometheus. ' +
-      'Chaque module comprend 3 exercices de programmation Python 3 exécutables directement dans l’atelier, un QCM de 8 questions et des flashcards.</p>'
+      'Chaque module comprend 3 exercices interactifs d’études de cas exécutables directement dans l’atelier, un QCM de 8 questions et des flashcards.</p>'
     ].join('\n')),
     '',
     chnav(null, { href: 'chapitres/chapitre1.html', label: 'Commencer par le Chapitre 1' }),
@@ -110,7 +110,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid-3">',
     '    <div class="card">',
     '      <h4>' + ic('terminal') + ' Bac à sable DevOps</h4>',
-    '      <p>Simulateur Python 3 pour exécuter vos algorithmes de calculs DORA, Error Budgets et déploiements Canary.</p>',
+    '      <p>Atelier d’analyse interactif pour valider vos algorithmes de calculs DORA, Error Budgets et déploiements Canary.</p>',
     '      <a class="btn" href="atelier.html">Ouvrir le bac à sable</a>',
     '    </div>',
     '    <div class="card">',

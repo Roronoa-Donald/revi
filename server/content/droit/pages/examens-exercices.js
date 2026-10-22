@@ -97,12 +97,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’épreuve (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen : 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu’à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : définitions exactes, articles cités, calculs refaits, dates vérifiées.</p>',
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu’à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : définitions exactes, articles cités, calculs refaits, dates vérifiées.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
       '  </div>'
@@ -114,7 +114,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % : reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % : refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % : bon niveau, cible les peines togolaises et les sources.' },
+      { cls: 'good', text: '70–94 % : bon niveau, ciblez les peines togolaises et les sources.' },
       { cls: 'top', text: '≥ 95 % : niveau de maîtrise recherché avant l’épreuve.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),
@@ -149,7 +149,7 @@ function exercices(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
     '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
     '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui ' +
-    'outille un registre de conformité. Les scripts sont en Bash, comme à l’atelier.</p>',
+    'outille un registre de conformité. Les résolutions utilisent des grilles d’analyse structurées, comme à l’atelier.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
@@ -195,9 +195,9 @@ function exercices(course) {
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Lis le type (<code>intentionnel</code> ou <code>negligence</code>) puis n faits « code libelle » (<code>formalites</code>, <code>sensible</code>, <code>condamnation</code>, <code>entrave</code>) et affiche l’article et la peine.',
-      'Lis n opérations (collecte, enregistrement, organisation, conservation, adaptation, modification, utilisation, cession ou autre) et distingue traitement et hors traitement.',
-      'Lis n traitements « nom consentement finalite minimisation » et affiche conforme ou le nombre de principes manquants, puis le taux de conformité en pourcentage.'
+      'Lisez le type (<code>intentionnel</code> ou <code>negligence</code>) puis n faits « code libelle » (<code>formalites</code>, <code>sensible</code>, <code>condamnation</code>, <code>entrave</code>) et affiche l’article et la peine.',
+      'Lisez n opérations (collecte, enregistrement, organisation, conservation, adaptation, modification, utilisation, cession ou autre) et distingue traitement et hors traitement.',
+      'Lisez n traitements « nom consentement finalite minimisation » et affiche conforme ou le nombre de principes manquants, puis le taux de conformité en pourcentage.'
     ], [
       '# Grille d\'analyse — Cas 1 (Infractions)',
       'formalites : article 79 (1 a 5 ans)',
@@ -267,8 +267,7 @@ function exercices(course) {
   return {
     'exercices/exercices.html': {
       title: 'Exercices & projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours de Droit informatique B2 : scripts Bash ' +
-        'gradués et registre de conformité complet.',
+      description: 'Exercices supplémentaires et projet intégrateur du cours de Droit informatique B2 : études de cas graduées et registre de conformité complet.',
       active: 'exercices',
       body
     }

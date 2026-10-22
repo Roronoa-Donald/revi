@@ -18,7 +18,7 @@ module.exports = {
     'rédiger des objets d’emails précis incorporant la sévérité, l’environnement et le composant système concerné ;',
     'formaliser un rapport de bug complet avec étapes de reproduction numérotées, comportement attendu et observé ;',
     'construire un communiqué d’escalade d’incident critique (Executive Incident Broadcast) synthétisant le périmètre d’impact, le statut et les contournements ;',
-    'développer en Python 3 des auditeurs de tonalité d’emails, des linters de structure de bug reports et des générateurs d’alertes de production.'
+    'analyser et résoudre méthodologiquement des auditeurs de tonalité d’emails, des linters de structure de bug reports et des générateurs d’alertes de production.'
   ],
   sections: [
     {

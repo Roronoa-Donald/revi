@@ -117,7 +117,7 @@ function atelier(course) {
     '  <p class="lead">Simulez les primitives noyau, inspectez les couches OverlayFS, validez vos Dockerfiles et testez vos configurations Compose directement dans l’interpréteur Python.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="analyse"',
+    '       data-language="shell"',
     '       data-height="420"',
     '       data-stdin="PID\nNET\nCPU_LIMIT">',
     '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',

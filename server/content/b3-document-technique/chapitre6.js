@@ -20,7 +20,7 @@ module.exports = {
     'automatiser la détection des liens rompus (liens HTTP 404, ancres d’en-tête internes inexistantes) dans les pipelines d’intégration continue ;',
     'structurer les métadonnées de gouvernance documentaire via les en-têtes YAML frontmatter (`last_reviewed_date`, `owner`, `review_cycle`) ;',
     'mettre en place une politique d’archivage, de décommissionnement et d’intégration de la documentation dans la Definition of Done (DoD) ;',
-    'concevoir en Python 3 des analyseurs d’ASL, des vérificateurs de liens d’ancres Markdown et des détecteurs automatisés de documents périmés.'
+    'concevoir de manière méthodique des analyseurs d’ASL, des vérificateurs de liens d’ancres Markdown et des détecteurs automatisés de documents périmés.'
   ],
   sections: [
     {

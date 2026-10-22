@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>expliquer LVM et ses trois notions (PV, VG, LV) ;</li>
       <li>comparer les types de stockage (Directory, LVM-thin, ZFS, Ceph) ;</li>
@@ -77,7 +77,11 @@
     </ol>
   </div>
 
-<h2>1. Pourquoi le stockage est critique</h2>
+<h2>1. Allocation des Disques Virtuels : Thin Provisioning vs Thick Provisioning (Épreuve Officielle B2)</h2>
+
+<div class="box box--tech"><div class="box__title">Notion clé d’examen : Thin Provisioning (allocation dynamique) vs Thick Provisioning</div><p>Lors de la création d’un disque virtuel (<code>.vmdk</code> sous VMware vSphere/ESXi, <code>.vhdx</code> sous Hyper-V ou <code>.qcow2</code> sous KVM), l’administrateur choisit entre deux modes d’allocation de l’espace sur le datastore :</p><ul><li><strong>Thin Provisioning (allocation fine ou dynamique) :</strong> l’espace disque physique n’est <strong>alloué dynamiquement qu’au fur et à mesure des besoins réels d’écriture</strong> de la machine virtuelle. Une VM dotée d’un disque logique de 100 Go qui ne contient que 15 Go de fichiers n’occupe réellement que 15 Go sur le stockage physique. Cela maximise le taux d’utilisation du stockage mais exige une surveillance stricte de la surallocation (<em>overprovisioning</em>) pour ne jamais saturer le datastore ;</li><li><strong>Thick Provisioning (allocation épaisse ou statique — Lazy Zeroed / Eager Zeroed) :</strong> la totalité de la taille déclarée (100 Go) est immédiatement réservée et immobilisée sur le disque physique dès la création de la VM, garantissant des performances d’écriture constantes et l’absence de saturation imprévue.</li></ul></div>
+
+<h2>2. Pourquoi le stockage est critique</h2>
 
 <p>Toute la plateforme de virtualisation repose sur le stockage : une panne disque entraîne l’arrêt de plusieurs services simultanément.</p>
 <ul>
@@ -90,7 +94,7 @@
     <p>Contrairement à une VM qu’on peut redémarrer ailleurs, un stockage perdu met en danger toutes les VM qui y reposent à la fois. C’est pourquoi il se pense en premier.</p>
   </div>
 
-<h2>2. LVM en trois notions</h2>
+<h2>3. LVM en trois notions</h2>
 
 <p>LVM (Logical Volume Manager) ajoute une couche d’abstraction entre les disques et les volumes logiques :</p>
 <ul>
@@ -100,7 +104,7 @@
 </ul>
 <p>LVM permet d’<strong>agrandir un disque de VM</strong> sans tout réinstaller. Le mode <em>thin</em> est souple mais exige une surveillance pour éviter la saturation du pool.</p>
 
-<h2>3. Types de stockage et protocoles</h2>
+<h2>4. Types de stockage et protocoles</h2>
 
 <table><thead><tr><th>Type</th><th>Usage</th><th>Avantage</th></tr></thead><tbody>
 <tr><td>Directory</td><td>ISO, backups, templates</td><td>Simple à configurer</td></tr>
@@ -114,7 +118,7 @@
 </tbody></table>
 <p>Pour un petit laboratoire, NFS suffit ; en production, on privilégie iSCSI ou ZFS.</p>
 
-<h2>4. Snapshots, sauvegardes et GFS</h2>
+<h2>5. Snapshots, sauvegardes et GFS</h2>
 
 <p>Un <strong>snapshot</strong> est rapide et local, mais vulnérable : il repose sur le même stockage que la VM. Une <strong>sauvegarde</strong> est une copie externe, essentielle en cas de panne. Règle d’or : <strong>3 copies, 2 supports différents, 1 hors site</strong>.</p>
 <p>La stratégie <strong>GFS</strong> (Grandfather-Father-Son) structure la rétention : quotidien sur 7 jours, hebdomadaire sur 4 semaines, mensuel sur 6 à 12 mois. Le principe — régularité et tests — compte plus que l’outil.</p>
@@ -124,13 +128,13 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
   réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
   <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
-<div class="lab" data-lab
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="vm2-c4-e1" data-lab
      data-exercise="vm2-c4-e1"
      data-language="powershell"
      data-height="300"
@@ -164,7 +168,7 @@
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="vm2-c4-e2" data-lab
      data-exercise="vm2-c4-e2"
      data-language="powershell"
      data-height="300"
@@ -200,7 +204,7 @@ $utilise = [int][Console]::In.ReadLine()
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="vm2-c4-e3" data-lab
      data-exercise="vm2-c4-e3"
      data-language="powershell"
      data-height="300"
@@ -234,7 +238,7 @@ $utilise = [int][Console]::In.ReadLine()
   </div>
 </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -311,7 +315,7 @@ $utilise = [int][Console]::In.ReadLine()
     </div>
   </div>
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -324,7 +328,7 @@ $utilise = [int][Console]::In.ReadLine()
     </ul>
   </div>
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Structurer le stockage</div>
@@ -337,7 +341,7 @@ $utilise = [int][Console]::In.ReadLine()
     </ol>
   </div>
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -355,7 +359,7 @@ $utilise = [int][Console]::In.ReadLine()
       <li>Je distingue NFS et iSCSI.</li>
       <li>Je structure une stratégie GFS.</li>
     </ul>
-    <h3>Les 8 notions à connaître absolument</h3>
+    <h3>Les 16 notions à connaître absolument</h3>
     <ol>
       <li>stockage</li><li>LVM</li><li>PV</li><li>VG</li><li>LV</li><li>LVM-thin</li><li>ZFS</li><li>Ceph</li><li>Directory</li><li>NFS</li><li>iSCSI</li><li>snapshot</li><li>backup</li><li>GFS</li><li>3-2-1</li><li>RAID</li>
     </ol>
@@ -363,16 +367,16 @@ $utilise = [int][Console]::In.ReadLine()
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — Reprends LVM (PV, VG, LV).</div>
-      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur NFS vs iSCSI.</div>
-      <div class="bandrow bandrow--good">70–89 % — Solide : tu structures stockage et sauvegardes.</div>
-      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au réseau virtualisé, chapitre 5.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Reprenez LVM (PV, VG, LV).</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur NFS vs iSCSI.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous structurez stockage et sauvegardes.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au réseau virtualisé, chapitre 5.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -382,7 +386,7 @@ $utilise = [int][Console]::In.ReadLine()
     <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Réseau virtualisé et segmentation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : le cours historique Admin VM (modules 1 à 7 : introduction, prérequis, architecture, cycle de vie, stockage, réseau, administration avancée).</p>
 </main>
 

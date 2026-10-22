@@ -39,7 +39,7 @@ const course = {
     'et restitution stratégique à forte valeur ajoutée (typologie des livrables de la flash note d’urgence au curated digest hebdomadaire, cartographie dynamique d’entreprise avec le Tech Radar ThoughtWorks sur 4 quadrants et 4 anneaux Adopt, Trial, Assess, Hold, animation d’une cellule de veille en équipe projet B3 sous workflow Kanban avec optimisation du Lead Time, et conformité éthique rigoureuse sur le droit d’auteur, l’exception de courte citation, le secret des affaires et la directive NIS 2).',
   lead:
     'Pilotez la veille technologique et l’innovation stratégique de l’entreprise : sourcing OSINT, automatisation RSS, filtrage NLP TF-IDF, maturité TRL/Gartner, Tech Radar et gouvernance agile Kanban. ' +
-    'Six modules approfondis combinant rigueur méthodologique AFNOR, 18 ateliers de code interactifs en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant rigueur méthodologique AFNOR, 18 ateliers de code interactifs de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Norme AFNOR XP Z74-501, Documentation W3C RSS/Atom, Framework ThoughtWorks Tech Radar, Référentiel NASA / Horizon Europe TRL, Cours Veille Technologique B3 (Yan Nyaku, Collège de Paris)',
 

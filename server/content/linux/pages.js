@@ -18,7 +18,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -39,7 +39,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>te déplacer dans l’arborescence FHS et bâtir des chemins absolus ou relatifs ;</li>',
       '      <li>manipuler fichiers et liens, et retrouver une information avec find et grep ;</li>',
@@ -54,8 +54,8 @@ function index(course, chapterList) {
       '    <p>Le cours historique d’administration Linux couvre le terminal, les fichiers, les droits, le ' +
       'réseau, les scripts et les services. Ce cours en garde le plan et fait manipuler chaque mécanisme ' +
       '<strong>en Bash</strong> : le même langage que le terminal d’administration, exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que tu ne vois pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
+      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur un serveur.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -104,7 +104,7 @@ function sommaire(course, chapterList) {
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B2 ou supérieur (et un ' +
     'abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois exercices en Bash</strong> à écrire et à exécuter ' +
-    'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
+    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -137,8 +137,8 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de scripts</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Bash derrière. Écris un script, ' +
-    'exécute-le et lis ce qu’il affiche : c’est ici qu’une règle d’administration devient un contrôle automatisé.</p>',
+    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Bash derrière. Écrivez un script, ' +
+    'exécutez-le et lisez ce qu’il affiche : c’est ici qu’une règle d’administration devient un contrôle automatisé.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre script Bash tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
@@ -182,12 +182,12 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends un mécanisme ' +
-      'd’administration (conversion octal, validation IPv4, filtre de journal, état de service), programme-le ' +
-      'et teste-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un mécanisme ' +
+      'd’administration (conversion octal, validation IPv4, filtre de journal, état de service), programmez-le ' +
+      'et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé lit l’état d’une liste de services et décide de l’action. Modifie la règle, ' +
-      'ajoute un décompte par état, ou remplace tout le script par le mécanisme que tu veux vérifier — un audit ' +
+      '      <p>Le script proposé lit l’état d’une liste de services et décide de l’action. Modifiez la règle, ' +
+      'ajoute un décompte par état, ou remplace tout le script par le mécanisme que vous voulez vérifier — un audit ' +
       'de droits, un classement de tâches cron, une validation d’adresse.</p>',
       '      <p>Dans un vrai terminal, ce sera <code>systemctl</code>, <code>ps</code>, <code>cron</code> : ' +
       'la structure du script — lire, décider, rapporter — reste exactement la même.</p>',
@@ -209,7 +209,7 @@ function atelier(course) {
     '  <h2>De la page au vrai serveur</h2>',
     '  <p>La simulation a une limite assumée : rien n’est vraiment écrit sur disque. Elle a une force : ' +
     '<strong>toute la logique se vérifie sans machine</strong>. Quand le script affiche les bons rapports ' +
-    'sur tes cas limites, le portage vers un serveur est mécanique : <code>read</code> lit la même entrée, ' +
+    'sur vos cas limites, le portage vers un serveur est mécanique : <code>read</code> lit la même entrée, ' +
     '<code>case</code> décide du même arbre, et le bilan s’affiche pareil.</p>',
     box('pitfall', 'Les trois erreurs que l’atelier révèle immédiatement', 'warning', [
       '    <ul>',
@@ -256,8 +256,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo de l’administrateur' })
   ].join('\n\n');
@@ -478,12 +478,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’examen (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu’à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : champs de passwd, triplets de droits, octets d’une adresse, ' +
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu’à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : champs de passwd, triplets de droits, octets d’une adresse, ' +
       'ordre des lectures du script.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
@@ -496,7 +496,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible la conversion octale et la classification d’adresses.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible la conversion octale et la classification d’adresses.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l’examen.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),
@@ -535,7 +535,7 @@ function exercices(course) {
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Affiche « Administration Linux » puis la valeur lue sur l’entrée.',
+      'Affichez « Administration Linux » puis la valeur lue sur l’entrée.',
       'Lit n et affiche n fois « service ok » avec le numéro de chaque ligne.',
       'Lit n puis n mots et compte ceux qui commencent par un slash (chemins absolus).',
       'Lit deux entiers et affiche leur somme et leur produit.'

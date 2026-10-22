@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>comprendre la structure interne d’une image Docker (empilement de couches immuables Read-Only) ;</li>
       <li>analyser le fonctionnement du pilote de stockage Overlay2 (dossiers lowerdir, upperdir, merged) ;</li>
@@ -167,43 +167,33 @@ Exemples :
 </ul>
 
 <!-- code-labs:start -->
-  <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="dk2-c2-e1" data-lab
      data-exercise="dk2-c2-e1"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="NodeApp : base_os:100 , node_runtime:80 , app_code:20&#10;PythonApp : base_os:100 , python_runtime:70 , app_code_py:15">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c2-e1) — Calculateur de taille d’image et déduplication des Layers (OverlayFS)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Trois microservices partageant la même base Alpine]
-# Données : SvcA : alpine:5 , curl:10 , appA:2
-# Données : SvcB : alpine:5 , curl:10 , appB:3
-# Données : SvcC : alpine:5 , git:15 , appC:4
-A_COMPLETER
-
-[Cas 2 — Image unique sans déduplication]
-# Données : Nginx : debian:120 , nginx_bin:30
-A_COMPLETER
-
-[Cas 3 — Empilement de couches lourdes]
-# Données : Img1 : os:200 , libs:150
-# Données : Img2 : os:200 , libs:150 , extra:50
-# Données : Img3 : os:200 , libs:150 , extra:50 , debug:25
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c2-e1) — Calculateur de taille d’image et déduplication des Layers (OverlayFS)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de taille d’image et déduplication des Layers (OverlayFS)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer le stockage réel consommé sur le démon Docker grâce au partage de couches en lecture seule (UnionFS).</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin)...</code>.<br>
 Dans le pilote de stockage Overlay2, chaque couche en lecture seule (identifiée par son ID unique) n'est stockée qu'une seule fois sur le disque hôte, quel que soit le nombre d'images qui s'appuient dessus.<br>
 Calculer :<br>
 1. La taille apparente de chaque image (somme de ses couches).<br>
@@ -215,9 +205,9 @@ Afficher :<br>
 ... puis en fin d'exécution :<br>
 <code>TOTAL_BRUT: &lt;Tb&gt; Mo | TOTAL_REEL: &lt;Tr&gt; Mo | ECONOMIE_DEDUPLICATION: -&lt;Gain&gt; Mo</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NodeApp : base_os:100 , node_runtime:80 , app_code:20
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NodeApp : base_os:100 , node_runtime:80 , app_code:20
 PythonApp : base_os:100 , python_runtime:70 , app_code_py:15</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IMAGE: NodeApp -&gt; TAILLE_APPARENTE: 200 Mo
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IMAGE: NodeApp -&gt; TAILLE_APPARENTE: 200 Mo
 IMAGE: PythonApp -&gt; TAILLE_APPARENTE: 185 Mo
 TOTAL_BRUT: 385 Mo | TOTAL_REEL: 285 Mo | ECONOMIE_DEDUPLICATION: -100 Mo</pre></div>
     </div>
@@ -232,38 +222,27 @@ TOTAL_BRUT: 385 Mo | TOTAL_REEL: 285 Mo | ECONOMIE_DEDUPLICATION: -100 Mo</pre><
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="dk2-c2-e2" data-lab
      data-exercise="dk2-c2-e2"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="nginx&#10;ubuntu:22.04&#10;myorg/backend:v1.0&#10;ghcr.io/dev/api:latest@sha256:abcd1234ef">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c2-e2) — Parseur canonique de références d’images et de tags
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Images officielles simples]
-# Données : redis
-# Données : alpine:3.18
-A_COMPLETER
-
-[Cas 2 — Registres tiers avec sous-chemins]
-# Données : quay.io/coreos/etcd:v3.5
-# Données : registry.gitlab.com/equipe/projet/service:prod
-A_COMPLETER
-
-[Cas 3 — Image avec digest sans tag explicite]
-# Données : postgres@sha256:998877aabb
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c2-e2) — Parseur canonique de références d’images et de tags
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Parseur canonique de références d’images et de tags</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Décomposer une référence d’image Docker en ses composantes normalisées : registre, namespace/nom, tag et digest SHA256.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 Règles de normalisation canonique :<br>
 1. <strong>Digest</strong> : si la référence contient <code>@sha256:...</code>, l'extraire (sinon <code>NONE</code>).<br>
 2. <strong>Tag</strong> : si la référence contient <code>:&lt;tag&gt;</code> (hors du digest), l'extraire (sinon valeur par défaut <code>latest</code>).<br>
@@ -274,18 +253,18 @@ Règles de normalisation canonique :<br>
 Pour chaque référence, afficher :<br>
 <code>REF: &lt;entree&gt; -&gt; REGISTRE: &lt;reg&gt; | IMAGE: &lt;nom&gt; | TAG: &lt;tag&gt; | DIGEST: &lt;digest&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>nginx
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>nginx
 ubuntu:22.04
 myorg/backend:v1.0
 ghcr.io/dev/api:latest@sha256:abcd1234ef</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REF: nginx -&gt; REGISTRE: docker.io/library | IMAGE: nginx | TAG: latest | DIGEST: NONE
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REF: nginx -&gt; REGISTRE: docker.io/library | IMAGE: nginx | TAG: latest | DIGEST: NONE
 REF: ubuntu:22.04 -&gt; REGISTRE: docker.io/library | IMAGE: ubuntu | TAG: 22.04 | DIGEST: NONE
 REF: myorg/backend:v1.0 -&gt; REGISTRE: docker.io | IMAGE: myorg/backend | TAG: v1.0 | DIGEST: NONE
 REF: ghcr.io/dev/api:latest@sha256:abcd1234ef -&gt; REGISTRE: ghcr.io | IMAGE: dev/api | TAG: latest | DIGEST: sha256:abcd1234ef</pre></div>
     </div>
     <p class="lab__note">Normalisation canonique conforme à la spécification Docker distribution.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Traiter en premier l’éventuel digest après @.</li>
         <li>Extraire ensuite le tag après le dernier deux-points.</li>
@@ -295,44 +274,27 @@ REF: ghcr.io/dev/api:latest@sha256:abcd1234ef -&gt; REGISTRE: ghcr.io | IMAGE: d
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="dk2-c2-e3" data-lab
      data-exercise="dk2-c2-e3"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="/etc/app.conf, /usr/bin/python, /var/log/old.log&#10;READ /etc/app.conf&#10;WRITE /etc/app.conf&#10;READ /etc/app.conf&#10;DELETE /var/log/old.log&#10;READ /var/log/old.log">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c2-e3) — Simulateur de stratégie Copy-On-Write (CoW) et couche conteneur
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Création d’un nouveau fichier puis écriture et suppression]
-# Données : /bin/sh
-# Données : CREATE /tmp/test.txt
-# Données : WRITE /tmp/test.txt
-# Données : DELETE /tmp/test.txt
-# Données : READ /tmp/test.txt
-A_COMPLETER
-
-[Cas 2 — Erreurs de lecture et écriture sur fichier inexistant]
-# Données : /etc/hosts
-# Données : READ /etc/inexistant
-# Données : WRITE /etc/inexistant
-A_COMPLETER
-
-[Cas 3 — Multiples écritures successives sur fichier existant]
-# Données : /app/settings.json
-# Données : WRITE /app/settings.json
-# Données : WRITE /app/settings.json
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c2-e3) — Simulateur de stratégie Copy-On-Write (CoW) et couche conteneur
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Simulateur de stratégie Copy-On-Write (CoW) et couche conteneur</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le fonctionnement du pilote de stockage OverlayFS lors des opérations de lecture, écriture et suppression.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 - Lignes suivantes : opérations au format <code>&lt;ACTION&gt; &lt;CheminFichier&gt;</code> où ACTION vaut <code>READ</code>, <code>WRITE</code>, <code>CREATE</code> ou <code>DELETE</code>.<br>
 Comportement OverlayFS :<br>
 - <code>READ</code> :<br>
@@ -350,13 +312,13 @@ Comportement OverlayFS :<br>
 Afficher :<br>
 <code>&lt;ACTION&gt; &lt;Chemin&gt; -&gt; &lt;RESULTAT&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>/etc/app.conf, /usr/bin/python, /var/log/old.log
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/etc/app.conf, /usr/bin/python, /var/log/old.log
 READ /etc/app.conf
 WRITE /etc/app.conf
 READ /etc/app.conf
 DELETE /var/log/old.log
 READ /var/log/old.log</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>READ /etc/app.conf -&gt; ACCES: Image Layer (Lecture directe RO sans duplication)
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>READ /etc/app.conf -&gt; ACCES: Image Layer (Lecture directe RO sans duplication)
 WRITE /etc/app.conf -&gt; MECANISME: Copy-On-Write (Copie du fichier vers la Container Layer puis ecriture)
 READ /etc/app.conf -&gt; ACCES: Container Layer (Version modifiee)
 DELETE /var/log/old.log -&gt; MECANISME: Whiteout (Creation d'un fichier masque dans Container Layer sans toucher a l'image RO)
@@ -516,13 +478,13 @@ READ /var/log/old.log -&gt; ERREUR: Fichier introuvable (404 ENOENT)</pre></div>
 <h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la structure des layers, Overlay2 et les risques du tag latest.</div>
-      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes notions de stockage. Approfondissez le Copy-On-Write et les fichiers whiteout.</div>
-      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise des systèmes de fichiers en couches et des registres d’images.</div>
-      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous optimisez et sécurisez les images Docker selon les standards industriels les plus stricts.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la structure des layers, Overlay2 et les risques du tag latest.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bonnes notions de stockage. Approfondissez le Copy-On-Write et les fichiers whiteout.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bonne maîtrise des systèmes de fichiers en couches et des registres d’images.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Score parfait ! Vous optimisez et sécurisez les images Docker selon les standards industriels les plus stricts.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -532,7 +494,7 @@ READ /var/log/old.log -&gt; ERREUR: Fichier introuvable (404 ENOENT)</pre></div>
     <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Dockerfile, Directives &amp; Optimisation Multi-Stage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
 </main>
 

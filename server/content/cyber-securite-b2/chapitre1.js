@@ -225,12 +225,18 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les définitions de la triade CIA et la différence entre menace et vulnérabilité.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul de risque ISO 27005 et la formule d’entropie.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les principes fondamentaux de la gestion des risques et du modèle AAA.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul de risque ISO 27005 et la formule d’entropie.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes fondamentaux de la gestion des risques et du modèle AAA.' },
     { cls: 'top', text: '≥ 95 % — Excellent : passe à la cryptographie appliquée et aux signatures numériques au module 2.' }
   ],
 
   flashcards: [
+    { "q": 'Qu’est-ce que « Modèle AAA (Authentification, Autorisation, Accounting) » ?', "a": 'Modèle AAA (Authentification, Autorisation, Accounting)' },
+    { "q": 'Qu’est-ce que « Menace vs Vulnérabilité vs Exploit vs Impact » ?', "a": 'Menace vs Vulnérabilité vs Exploit vs Impact' },
+    { "q": 'Qu’est-ce que « Gestion des risques ISO 27005 » ?', "a": 'Gestion des risques ISO 27005' },
+    { "q": 'Qu’est-ce que « Score de criticité du risque » ?', "a": 'Score de criticité du risque' },
+    { "q": 'Qu’est-ce que « Politique de Sécurité des SI (PSSI) » ?', "a": 'Politique de Sécurité des SI (PSSI)' },
+    { "q": 'Qu’est-ce que « Règles ANSSI & NIST pour les identifiants » ?', "a": 'Règles ANSSI & NIST pour les identifiants' },
     { q: 'Que désignent les trois lettres de la triade CIA ?', a: 'Confidentialité, Intégrité et Disponibilité (Confidentiality, Integrity, Availability).' },
     { q: 'Quelle est la différence entre une vulnérabilité et une menace ?', a: 'Une vulnérabilité est une faiblesse interne du système ; une menace est une cause potentielle extérieure d’incident.' },
     { q: 'Comment calcule-t-on le score de risque brut selon l’ISO 27005 ?', a: 'Score = Menace &times; Vulnérabilité &times; Impact (variant de 1 à 125).' },

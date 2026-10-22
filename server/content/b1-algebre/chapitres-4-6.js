@@ -177,9 +177,9 @@ module.exports = [
     notions: ['espace vectoriel', 'scalaire', 'vecteur nul', 'sous-espace vectoriel', 'critère de sous-espace', 'combinaison linéaire', 'sous-espace engendré', 'somme directe'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends les axiomes et le critère, sections 1 et 3.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices de niveau 1 de l’atelier du chapitre 4.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible le vecteur nul et les contre-exemples.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez les axiomes et le critère, sections 1 et 3.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 1 de l’atelier du chapitre 4.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible le vecteur nul et les contre-exemples.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, familles libres et rang.' }
     ],
 
@@ -199,7 +199,7 @@ module.exports = [
     time: '≈ 3 h de travail',
 
     situation:
-      'Tu disposes d’un jeu de trois vecteurs dans le plan : l’un d’eux est forcément de trop. Pourquoi ? ' +
+      'Vous disposez d’un jeu de trois vecteurs dans le plan : l’un d’eux est forcément de trop. Pourquoi ? ' +
       'Parce que le plan est de dimension 2. Distinguer les vecteurs qui apportent une vraie information de ' +
       'ceux qui sont « déjà contenus » dans les autres, c’est l’objet de ce chapitre — et c’est aussi ce que ' +
       'fait un algorithme de compression quand il élimine les données redondantes.',
@@ -274,7 +274,7 @@ module.exports = [
           'à 1. Pour les matrices <code>m × n</code>, la base canonique est l’ensemble des matrices ' +
           '<code>E<sub>ij</sub></code> n’ayant qu’un 1 en position (i, j).</p>',
           box('intuition', 'Un repère, c’est une base', 'compass',
-            '    <p>Tu connais déjà des bases sans les nommer : donner la position d’un point par ' +
+            '    <p>Vous connais déjà des bases sans les nommer : donner la position d’un point par ' +
             '« 3 mètres à droite, 2 mètres en avant » revient à écrire ses coordonnées dans la base ' +
             'des deux directions du sol. Une base est un repère, et la dimension est le nombre de directions ' +
             'indépendantes nécessaires.</p>')
@@ -354,9 +354,9 @@ module.exports = [
     notions: ['famille génératrice', 'coordonnées', 'famille libre', 'famille liée', 'base', 'dimension', 'rang d’une famille', 'rang d’une matrice'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends les définitions des sections 1 et 2 en les écrivant au mot.' },
-      { cls: 'mid', text: '50–69 % — Refais les calculs de rang de l’atelier du chapitre 5.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible le lien rang / liberté / dimension.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez les définitions des sections 1 et 2 en les écrivant au mot.' },
+      { cls: 'mid', text: '50–69 % — Refaites les calculs de rang de l’atelier du chapitre 5.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible le lien rang / liberté / dimension.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, déterminants et applications linéaires.' }
     ],
 
@@ -457,7 +457,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Soit A une matrice carrée. Un réel λ est une ' +
           '<strong>valeur propre</strong> de A s’il existe un vecteur <code>X ≠ 0</code> tel que</p>',
-          '<div class="math-block">$A X = \\\\lambda X \\\\quad (X \\\\ne 0)$</div>',
+          '<div class="math-block">$A X = λ X (X ≠ 0)$</div>',
           '<p>Le vecteur X est alors un <strong>vecteur propre</strong> associé à λ. Géométriquement, dans la ' +
           'direction de X, la transformation <code>A</code> se réduit à une homothétie de rapport λ : ' +
           'elle ne change pas la direction, seulement la longueur (et éventuellement le sens).</p>',
@@ -529,9 +529,9 @@ module.exports = [
     notions: ['déterminant', 'règle de Sarrus', 'application linéaire', 'noyau', 'image', 'théorème du rang', 'valeur propre', 'vecteur propre'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends le calcul du déterminant 3 × 3, section 1.' },
-      { cls: 'mid', text: '50–69 % — Refais les valeurs propres de l’atelier du chapitre 6.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible le théorème du rang.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez le calcul du déterminant 3 × 3, section 1.' },
+      { cls: 'mid', text: '50–69 % — Refaites les valeurs propres de l’atelier du chapitre 6.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible le théorème du rang.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise du cours : revois les examens blancs et le projet intégrateur.' }
     ],
 

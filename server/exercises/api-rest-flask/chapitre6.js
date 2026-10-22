@@ -21,13 +21,13 @@ module.exports = [
       '1. La collection JSON initiale (tableau d’objets, ex: <code>[{"id": 1, "role": "admin"}, ...]</code>)<br>' +
       '2. Le critère au format <code>cle=valeur</code> (ex: <code>role=admin</code>)<br>' +
       'Filtre les objets dont l’attribut correspond à la valeur (convertis en chaîne pour la comparaison).<br>' +
-      'Affiche d’abord : <code>Trouves: &lt;nombre&gt;</code>.<br>' +
+      'Affichez d’abord : <code>Trouves: &lt;nombre&gt;</code>.<br>' +
       'Puis affiche le tableau JSON des éléments filtrés avec <code>json.dumps(..., sort_keys=True)</code>.</p>',
     starter: `import json\n\ncollection = json.loads(input().strip())\ncritere = input().strip()\n\n# À compléter : filtrer la collection et afficher les résultats.\n`,
     hints: [
       'Sépare le critère avec cle, val = critere.split("=", 1).',
-      'Compare str(elem.get(cle)) == val.',
-      'Affiche len(resultats) puis le JSON.'
+      'Comparez str(elem.get(cle)) == val.',
+      'Affichez len(resultats) puis le JSON.'
     ],
     examples: [
       {
@@ -94,7 +94,7 @@ print(json.dumps(resultats, sort_keys=True))
     hints: [
       'Si collection est vide, nouvel_id = 1.',
       'Sinon, nouvel_id = max(item["id"] for item in collection) + 1.',
-      'Ajoute item["id"] = nouvel_id et affiche avec json.dumps(..., sort_keys=True).'
+      'Ajoutez item["id"] = nouvel_id et affichez avec json.dumps(..., sort_keys=True).'
     ],
     examples: [
       {
@@ -149,7 +149,7 @@ print(f"201 Created: {json.dumps(nouvel_item, sort_keys=True)}")
       '2. La commande à exécuter :<br>' +
       '- soit <code>DELETE &lt;id&gt;</code> (ex: <code>DELETE 42</code>)<br>' +
       '- soit <code>UPDATE &lt;id&gt; &lt;json_modifs&gt;</code> (ex: <code>UPDATE 42 {"prix": 35}</code>)<br>' +
-      'Affiche :<br>' +
+      'Affichez :<br>' +
       '- Si l’ID est introuvable : <code>404 Not Found: Ressource &lt;id&gt; inexistante</code><br>' +
       '- Si DELETE réussi : <code>204 No Content: Ressource &lt;id&gt; supprimee</code><br>' +
       '- Si UPDATE réussi : <code>200 OK: &lt;objet_mis_a_jour_trie&gt;</code>.</p>',
@@ -157,7 +157,7 @@ print(f"201 Created: {json.dumps(nouvel_item, sort_keys=True)}")
     hints: [
       'Trouve l’index ou l’élément avec item["id"] == cible_id.',
       'Pour UPDATE, charge le fragment JSON avec json.loads() et mets à jour avec item.update(modifs).',
-      'Assure-toi que l’id cible est converti en entier int(cible_id).'
+      'Assurez-vous que l’id cible est converti en entier int(cible_id).'
     ],
     examples: [
       {

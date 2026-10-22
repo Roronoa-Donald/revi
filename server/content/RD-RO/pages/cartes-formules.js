@@ -17,7 +17,7 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique sur une carte pour révéler la réponse. Objectif : répondre sans hésiter dans ' +
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter dans ' +
     'les deux sens pour ancrer durablement les concepts clés de la modélisation linéaire, du simplexe, de la dualité et des réseaux.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo des formules de RO' })
@@ -59,13 +59,13 @@ function formules(course) {
     ].join('\n')),
 
     bloc('2. Géométrie &amp; Règle de Cramer (2 variables)', [
-      fBox('Intersection de deux droites actives &amp; Déterminant', '\\Delta = a_1 b_2 - a_2 b_1, \\qquad x_1^* = \\frac{c_1 b_2 - c_2 b_1}{\\Delta}, \\qquad x_2^* = \\frac{a_1 c_2 - a_2 c_1}{\\Delta} \\quad (\\Delta \\ne 0)')
+      fBox('Intersection de deux droites actives &amp; Déterminant', '\\Delta = a_1 b_2 - a_2 b_1, \\qquad x_1^* = \\frac{c_1 b_2 - c_2 b_1}{\\Delta}, \\qquad x_2^* = \\frac{a_1 c_2 - a_2 c_1}{\\Delta} \\quad (\\Delta ≠ 0)')
     ].join('\n')),
 
     bloc('3. Algorithme du Simplexe (Tableau de Dantzig)', [
       fBox('Critère de Dantzig (Variable entrante)', 'k = \\operatorname{argmax} \\{ \\Delta_j \\mid \\Delta_j > 0 \\} \\quad (\\text{optimal si tous les } \\Delta_j \\le 0)'),
       fBox('Règle du ratio minimum (Variable sortante)', '\\theta = \\min_{i} \\left\\{ \\frac{b_i}{a_{ik}} \\;\\middle|\\; a_{ik} > 0 \\right\\} \\quad (\\text{non borné si } \\forall i, \\; a_{ik} \\le 0)'),
-      fBox('Opération de pivot de Gauss-Jordan', 'L_r \\leftarrow \\frac{L_r}{p}, \\qquad L_i \\leftarrow L_i - a_{ik} L_r \\quad (\\forall i \\ne r)')
+      fBox('Opération de pivot de Gauss-Jordan', 'L_r \\leftarrow \\frac{L_r}{p}, \\qquad L_i \\leftarrow L_i - a_{ik} L_r \\quad (\\forall i ≠ r)')
     ].join('\n')),
 
     bloc('4. Théorie de la Dualité &amp; Prix d’Ombre', [

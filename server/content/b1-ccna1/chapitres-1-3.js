@@ -162,11 +162,20 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les composantes et le tableau des catégories.' },
       { cls: 'mid', text: '50–69 % — refais le classement types de paires torsadées.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les cas IDS/IPS et L2/L3.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les cas IDS/IPS et L2/L3.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Atténuation » ?', a: 'Atténuation : affaiblissement exponentiel (Beer-Lambert).' },
+      { q: 'Qu’est-ce que « IEEE 802.3 » ?', a: 'IEEE 802.3 : la famille de normes Ethernet filaire.' },
+      { q: 'Qu’est-ce que « RJ-45 » ?', a: 'RJ-45 : connecteur à 8 positions (broches).' },
+      { q: 'Qu’est-ce que « En-tête IPv4 » ?', a: 'En-tête IPv4 : 20 octets, adresses 32 bits inchangées.' },
+      { q: 'Qu’est-ce que « Routeur par défaut » ?', a: 'Routeur par défaut : destination des paquets hors du sous-réseau.' },
+      { q: 'Qu’est-ce que « ARP » ?', a: "ARP : apprend la MAC d'un hôte IP du LAN." },
+      { q: 'Qu’est-ce que « configure terminal » ?', a: 'configure terminal : passage au mode de configuration.' },
+      { q: 'Qu’est-ce que « enable secret » ?', a: 'enable secret : mot de passe du mode enable, en global.' },
+      { q: 'Qu’est-ce que « username nom secret motdepasse » ?', a: "username nom secret motdepasse : création d'un utilisateur local." },
       { q: 'Qu\'est-ce qu\'un réseau informatique ?', a: 'Ensemble de matériels reliés par des supports de transport et échangeant des données numériques (0 et 1).' },
       { q: 'Switch L2 contre switch L3 ?', a: 'L2 : commutation des trames dans un LAN. L3 : commutation PLUS routage entre VLAN.' },
       { q: 'IDS contre IPS ?', a: 'IDS : détecte et alerte. IPS : détecte ET bloque — la prochaine étape de l\'évolution.' },
@@ -290,7 +299,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les sept couches et leurs unités.' },
       { cls: 'mid', text: '50–69 % — refais le classement des deux modèles TCP/IP.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les exemples de protocoles par couche.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les exemples de protocoles par couche.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -423,7 +432,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les brochages et le format de trame.' },
       { cls: 'mid', text: '50–69 % — refais les cas droit/croisé et les tailles de champs.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible le chemin complet de la trame.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible le chemin complet de la trame.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

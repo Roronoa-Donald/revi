@@ -126,8 +126,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la validation des champs obligatoires et l’usage de abort().' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le décorateur @app.errorhandler et les filtres whitelisting.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la sécurisation et les tests d’API.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le décorateur @app.errorhandler et les filtres whitelisting.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la sécurisation et les tests d’API.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la construction d’une API complète au chapitre 6.' }
   ],
 

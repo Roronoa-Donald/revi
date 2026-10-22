@@ -138,9 +138,9 @@ module.exports = {
 
   notions: ['loi Informatique et Libertés', 'article 9 du Code civil', 'article 29', 'CEDH', 'article 8', 'article 10', 'OMPI', 'source nationale', 'source supranationale'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les trois familles de sources.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la frise chronologique.' },
-    { cls: 'good', text: '70–89 % — Solide : tu classes chaque source sans hésiter.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les trois familles de sources.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la frise chronologique.' },
+    { cls: 'good', text: '70–94 % — Solide : vous classez chaque source sans hésiter.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe au RGPD, chapitre 5.' }
   ],
 

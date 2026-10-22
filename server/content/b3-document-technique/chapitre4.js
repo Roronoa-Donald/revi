@@ -20,7 +20,7 @@ module.exports = {
     'appliquer la sémantique stricte des codes de statut HTTP REST (2xx succès, 4xx erreurs client, 5xx erreurs serveur) ;',
     'documenter le code source via des docstrings normalisées (formats Google, Sphinx, TypeDoc) ;',
     'générer des portails interactifs développeurs exploitant Swagger UI, Redoc et des serveurs de mocks (Prism) ;',
-    'développer en Python 3 des validateurs de routes OpenAPI, des auditeurs de docstrings et des vérificateurs de schémas JSON.'
+    'analyser et résoudre méthodologiquement des validateurs de routes OpenAPI, des auditeurs de docstrings et des vérificateurs de schémas JSON.'
   ],
   sections: [
     {
@@ -118,7 +118,7 @@ module.exports = {
     {
       title: 'Documentation du Code Source &amp; Docstrings Normalisées',
       html: [
-        "<pre><code>openapi: 3.0.0\\ninfo:\\n  title: API Calcul de Remise Commerciale\\n  version: 1.0.0\\npaths:\\n  /remise:\\n    post:\\n      summary: Calcule le montant net apres application d'un code promotionnel\\n      parameters:\\n        - name: montant_ht\\n          in: query\\n          required: true\\n          schema:\\n            type: number\\n        - name: code_promo\\n          in: query\\n          required: true\\n          schema:\\n            type: string\\n      responses:\\n        '200':\\n          description: Montant net calcule avec succes</code></pre>",
+        "<pre><code>openapi: 3.0.0\ninfo:\n  title: API Calcul de Remise Commerciale\n  version: 1.0.0\npaths:\n  /remise:\n    post:\n      summary: Calcule le montant net apres application d'un code promotionnel\n      parameters:\n        - name: montant_ht\n          in: query\n          required: true\n          schema:\n            type: number\n        - name: code_promo\n          in: query\n          required: true\n          schema:\n            type: string\n      responses:\n        '200':\n          description: Montant net calcule avec succes</code></pre>",
         box('tip', 'Portails Développeurs Interactifs', [
           '<p>Une spécification OpenAPI 3.0 bien rédigée permet d’instancier immédiatement des portails visuels de référence : <strong>Swagger UI</strong> (offrant un bouton interactif <em>« Try it out »</em> pour tester l’API en direct dans le navigateur) ou <strong>Redoc</strong> (interface responsive épurée à trois colonnes adoptée par Stripe et Docker). Les développeurs disposent d’une documentation vivante, auto-générée et interactive.</p>'
         ].join('\n'))

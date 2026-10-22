@@ -123,8 +123,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise le rôle de useEffect et la syntaxe du tableau de dépendances.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la fonction de nettoyage et les appels asynchrones.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les effets de bord et la gestion d’états réseau.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la fonction de nettoyage et les appels asynchrones.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les effets de bord et la gestion d’états réseau.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe au routage et à l’architecture dans le chapitre 6.' }
   ],
 

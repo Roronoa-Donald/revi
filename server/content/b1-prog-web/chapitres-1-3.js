@@ -10,7 +10,8 @@ const { box } = require('../../../scripts/course-kit');
 
 /** Bloc de code coloré par l'atelier : on reste sur du <pre><code>. */
 function code(lignes) {
-  return '<pre><code>' + lignes.join('\n') + '</code></pre>';
+  const esc = s => String(s).replace(/&(?!(?:lt|gt|amp|quot|#39);)/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return '<pre><code>' + lignes.map(esc).join('\n') + '</code></pre>';
 }
 
 module.exports = [
@@ -24,10 +25,10 @@ module.exports = [
     free: true,
 
     situation:
-      'Tu tapes une adresse dans la barre du navigateur et la page apparaît. Entre ces deux instants, il y a ' +
+      'Vous tapez une adresse dans la barre du navigateur et la page apparaît. Entrez ces deux instants, il y a ' +
       'un dialogue complet entre deux ordinateurs : une demande précise, une réponse, puis un document qu’il ' +
       'faut interpréter. Quand une page affiche « 404 » ou charge des images cassées, toute la lecture du ' +
-      'problème se fait dans ce dialogue. Ce chapitre t’apprend à le voir.',
+      'problème se fait dans ce dialogue. Ce chapitre vous apprend à le voir.',
 
     objectives: [
       'décrire le rôle du client, du serveur et du protocole HTTP ;',
@@ -60,7 +61,7 @@ module.exports = [
             '<!DOCTYPE html> …'
           ]),
           box('intuition', 'Intuition — le serveur ne devine rien', 'compass',
-            '    <p>Un serveur ne « sait » pas ce que tu regardes à l’écran. Il reçoit un chemin et rend un ' +
+            '    <p>Un serveur ne « sait » pas ce que vous regardez à l’écran. Il reçoit un chemin et rend un ' +
             'fichier. Si les images ne s’affichent pas, c’est souvent que le navigateur a redemandé une ' +
             'ressource dont l’adresse était fausse : autant de requêtes, autant de réponses.</p>')
         ].join('\n')
@@ -85,7 +86,7 @@ module.exports = [
           '    <tr><td>fragment</td><td>une ancre dans la page, jamais envoyée au serveur</td><td><code>#section-3</code></td></tr>\n' +
           '  </table>',
           '<p>Deux points se retiennent : le <strong>chemin</strong> commence toujours par une barre oblique, ' +
-          'même quand tu ne l’écris pas (taper <code>https://exemple.fr</code> demande en réalité ' +
+          'même quand vous ne l’écris pas (taper <code>https://exemple.fr</code> demande en réalité ' +
           '<code>/</code>) ; et le <strong>fragment</strong> reste dans le navigateur — le serveur ne le ' +
           'reçoit jamais.</p>',
           box('pitfall', 'Piège — paramètres de requête et chemins différents', 'warning',
@@ -133,11 +134,11 @@ module.exports = [
           '  </table>',
           '<p>La frontière entre <code>4xx</code> et <code>5xx</code> est la plus utile à connaître : ' +
           '<code>404</code> signifie « cette adresse n’existe pas chez moi », <code>500</code> signifie « mon ' +
-          'code a planté pendant que je traitais ta demande valable ». Corriger une <code>404</code> se fait ' +
+          'code a planté pendant que je traitais votre demande valable ». Corriger une <code>404</code> se fait ' +
           'dans l’adresse ; corriger une <code>500</code> se fait dans le serveur.</p>',
           box('pitfall', 'Piège — confondre 401 et 403', 'warning',
-            '    <p><code>401 Unauthorized</code> veut dire « je ne sais pas qui tu es » : il manque une ' +
-            'identification. <code>403 Forbidden</code> veut dire « je sais qui tu es, et tu n’as pas le ' +
+            '    <p><code>401 Unauthorized</code> veut dire « je ne sais pas qui vous êtes » : il manque une ' +
+            'identification. <code>403 Forbidden</code> veut dire « je sais qui vous êtes, et vous n’avez pas le ' +
             'droit ». La première invite à se connecter ; la seconde interdit d’insister.</p>')
         ].join('\n')
       },
@@ -216,11 +217,11 @@ module.exports = [
 
     methodTitle: 'Lire une adresse et une réponse, sans hésiter',
     method: [
-      '<strong>Découpe l’URL</strong> de gauche à droite : protocole, hôte, port éventuel, chemin, requête, fragment.',
+      '<strong>Découpez l’URL</strong> de gauche à droite : protocole, hôte, port éventuel, chemin, requête, fragment.',
       '<strong>Décide de la méthode</strong> selon l’intention : lire (GET), créer (POST), remplacer (PUT), modifier (PATCH), supprimer (DELETE).',
       '<strong>Prévois le statut</strong> attendu du serveur avant de lancer la requête ; compare ensuite.',
-      '<strong>Lis le premier chiffre</strong> d’un code inattendu pour savoir de quel côté chercher.',
-      '<strong>Ouvre l’onglet Réseau</strong> et remonte à la première requête rouge.'
+      '<strong>Lisez le premier chiffre</strong> d’un code inattendu pour savoir de quel côté chercher.',
+      '<strong>Ouvrez l’onglet Réseau</strong> et remonte à la première requête rouge.'
     ],
 
     summary: [
@@ -242,13 +243,37 @@ module.exports = [
     notions: ['client', 'serveur', 'requête HTTP', 'en-tête', 'URL', 'chemin', 'paramètre de requête', 'idempotence', 'code de statut', 'HTML/CSS/JavaScript'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends les sections 1 et 2 en réécrivant à la main une URL découpée.' },
-      { cls: 'mid', text: '50–69 % — Refais les exercices 1 et 2 du module : URL et familles de codes.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible l’idempotence et la frontière 4xx / 5xx.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez les sections 1 et 2 en réécrivant à la main une URL découpée.' },
+      { cls: 'mid', text: '50–69 % — Refaites les exercices 1 et 2 du module : URL et familles de codes.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible l’idempotence et la frontière 4xx / 5xx.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, la structure HTML.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « paramètre de requête » ?', a: 'paramètre de requête : décomposer une URL en protocole, hôte, chemin et paramètres de requête ;' },
+      { q: 'Qu’est-ce que « idempotence » ?', a: 'idempotence : Prog. Web B1 › Sommaire › Chapitre 1' },
+      { q: 'Qu’est-ce que « DOCTYPE » ?', a: 'Tout document commence par <!DOCTYPE html> et déclare son encodage et sa langue.' },
+      { q: 'Qu’est-ce que « head et body » ?', a: 'head et body : Tout document HTML suit le même squelette. Rien n’est facultatif : l’en-tête ( head ) déclare les métadonnées, le corps ( body ) porte le contenu visible.' },
+      { q: 'Qu’est-ce que « sémantique » ?', a: 'Les balises sémantiques décrivent le rôle : header, nav, main, article, section, aside, footer.' },
+      { q: 'Qu’est-ce que « liste » ?', a: 'Les listes existent en trois formes, selon ce que vous énumèrez :' },
+      { q: 'Qu’est-ce que « action » ?', a: 'Un formulaire décrit ce qui sera envoyé au serveur : où ( action ), comment ( method ) et quoi (chaque champ qui porte un attribut name ). Sans name , un champ est visible mais jamais transmis.' },
+      { q: 'Qu’est-ce que « label et for » ?', a: 'label et for : Un formulaire est la seule porte d’entrée du site : ce qui vient de l’utilisateur est, par définition, imprévisible. Le navigateur peut aider à filtrer, mais il ne protège rien : n’importe qui peut envoyer ce qu’il veut, avec ou sans navigateur. Écrire un formulaire, c’est donc é' },
+      { q: 'Qu’est-ce que « fieldset et legend » ?', a: 'Un placeholder disparaît dès la première frappe et n’est pas toujours lu par les lecteurs d’écran : c’est une aide, jamais une étiquette. Pour un groupe de cases à cocher, on encadre l’ensemble avec <fieldset> et <legend> .' },
+      { q: 'Qu’est-ce que « types d’input » ?', a: 'types d’input : Un formulaire utilisable se construit dans un ordre stable : structure, étiquettes, types, validation, puis messages d’erreur.' },
+      { q: 'Qu’est-ce que « règle CSS » ?', a: 'écrire une règle CSS et choisir le bon sélecteur ;' },
+      { q: 'Qu’est-ce que « sélecteur de classe » ?', a: 'sélecteur de classe : écrire une règle CSS et choisir le bon sélecteur ;' },
+      { q: 'Qu’est-ce que « sélecteur d’identifiant » ?', a: 'sélecteur d’identifiant : écrire une règle CSS et choisir le bon sélecteur ;' },
+      { q: 'Qu’est-ce que « sélecteur descendant » ?', a: 'sélecteur descendant : écrire une règle CSS et choisir le bon sélecteur ;' },
+      { q: 'Qu’est-ce que « héritage » ?', a: 'Vous écrivez une règle, la page ignore votre style. Ce n’est presque jamais un bug de navigateur : c’est une règle concurrente qui gagne. CSS applique ses décisions selon des règles précises — spécificité, ordre d’apparition, héritage — et savoir prédire laquelle gagne évite de tout ré' },
+      { q: 'Qu’est-ce que « modèle de boîte » ?', a: 'calculer la largeur réelle d’un élément avec le modèle de boîte ;' },
+      { q: 'Qu’est-ce que « flux normal » ?', a: 'Le contenu s’empile verticalement, et c’est normal : c’est le flux normal du document. Toute mise en page commence par une décision — sortir du flux ou le réorganiser. Flexbox range des éléments sur une ligne ou une colonne, la grille place des cellules dans un tableau virtuel, e' },
+      { q: 'Qu’est-ce que « display » ?', a: 'display décide du comportement de l’élément dans le flux. Les valeurs qui comptent :' },
+      { q: 'Qu’est-ce que « flex-direction » ?', a: 'Un conteneur flex range ses enfants sur un axe principal, dont l’orientation se choisit avec flex-direction . Deux axes sont concernés : le principal ( row par défaut) et le transversal.' },
+      { q: 'Qu’est-ce que « justify-content » ?', a: 'En row : justify-content répartit horizontalement, align-items centre verticalement. En column , les deux rôles s’échangent — d’où l’intérêt de raisonner en axes plutôt qu’en horizontal/vertical.' },
+      { q: 'Qu’est-ce que « grid-template-columns » ?', a: 'La grille organise deux dimensions : grid-template-columns , fr , gap , placement par lignes.' },
+      { q: 'Qu’est-ce que « const et let » ?', a: 'const et let : Dans la console du navigateur, écris le nom d’une fonction de ton script : si elle n’est pas définie, le fichier n’a pas été chargé (chemin faux) ou a produit une erreur avant sa déclaration. L’onglet Console affiche cette erreur en rouge, avec sa ligne.' },
+      { q: 'Qu’est-ce que « égalité stricte » ?', a: 'Quelques réflexes : préférer const par défaut, comparer avec === (égalité stricte, sans conversion de type), et tester les longueurs ( length ) plutôt que la vérité d’un tableau vide.' },
+      { q: 'Qu’est-ce que « fonction fléchée » ?', a: 'fonction fléchée : écrire des variables, conditions et fonctions lisibles ;' },
       { q: 'Que contient une requête HTTP ?', a: 'Une méthode, une ressource (chemin), des en-têtes — et parfois un corps.' },
       { q: 'Quelles parties d’une URL ne partent pas au serveur ?', a: 'Le fragment (après #). Le port, le chemin et la requête, eux, en font partie.' },
       { q: 'Qu’est-ce qu’une méthode idempotente ?', a: 'Une méthode que l’on peut rejouer sans changer l’état final du serveur : GET, PUT, DELETE, HEAD, OPTIONS, TRACE.' },
@@ -335,7 +360,7 @@ module.exports = [
             '  <main>',
             '    <section id="semestre1">',
             '      <h2>Semestre 1</h2>',
-            '      <article><h3>Algorithmique</h3><p>Note obtenue : 16.</p></article>',
+            '      <article><h3>Algorithmique</h3><p>Notez obtenue : 16.</p></article>',
             '    </section>',
             '  </main>',
             '  <footer><p>Relevé non officiel.</p></footer>',
@@ -344,7 +369,7 @@ module.exports = [
           box('intuition', 'Test simple : « cela aurait-il du sens ailleurs ? »', 'compass',
             '    <p>Un <code>article</code> est un bloc qui resterait compréhensible détaché de la page — un ' +
             'sujet d’examen, une fiche de cours. Une <code>section</code> n’a de sens qu’à l’intérieur de son ' +
-            'ensemble. Si tu hésites, pose la question : « est-ce que je pourrais le déplacer sur une autre ' +
+            'ensemble. Si vous hésitez, pose la question : « est-ce que je pourrais le déplacer sur une autre ' +
             'page ? »</p>')
         ].join('\n')
       },
@@ -354,7 +379,7 @@ module.exports = [
           '<p>Les titres <code>h1</code> à <code>h6</code> forment une hiérarchie, pas une échelle de ' +
           'tailles. Un seul <code>h1</code> par page, et l’on ne descend jamais de plus d’un niveau à la ' +
           'fois : <code>h1 → h2 → h3</code> est correct, <code>h1 → h3</code> ne l’est pas.</p>',
-          '<p>Les listes existent en trois formes, selon ce que tu énumères :</p>',
+          '<p>Les listes existent en trois formes, selon ce que vous énumèrez :</p>',
           code([
             '<ul>                    <ol>                    <dl>',
             '  <li>Python</li>         <li>Analyser</li>       <dt>HTTP</dt>',
@@ -368,8 +393,8 @@ module.exports = [
           '<code>&lt;time datetime="2026-09-27"&gt;</code> pour une date lisible par une machine.</p>',
           box('mnemo', 'Mnémotechnique — b, i, strong, em', 'pin',
             '    <p><code>&lt;b&gt;</code> et <code>&lt;i&gt;</code> ne disent que l’apparence ; ' +
-            '<code>&lt;strong&gt;</code> et <code>&lt;em&gt;</code> disent le sens. Si tu veux insister, ' +
-            'c’est <code>strong</code> ; si tu veux juste du gras décoratif, c’est du CSS.</p>')
+            '<code>&lt;strong&gt;</code> et <code>&lt;em&gt;</code> disent le sens. Si vous voulez insister, ' +
+            'c’est <code>strong</code> ; si vous voulez juste du gras décoratif, c’est du CSS.</p>')
         ].join('\n')
       },
       {
@@ -472,9 +497,9 @@ module.exports = [
 
     methodTitle: 'Écrire une page que tout le monde peut lire',
     method: [
-      '<strong>Écris d’abord la structure</strong> (header, main, sections, footer) avant toute décoration.',
+      '<strong>Écrivez d’abord la structure</strong> (header, main, sections, footer) avant toute décoration.',
       '<strong>Donne un seul titre principal</strong> et descends niveau par niveau.',
-      '<strong>Choisis la balise qui nomme le rôle</strong> : liste, tableau, citation, abréviation.',
+      '<strong>Choisissez la balise qui nomme le rôle</strong> : liste, tableau, citation, abréviation.',
       '<strong>Décris chaque image</strong> avec un <code>alt</code> utile, ou vide si elle est purement décorative.',
       '<strong>Relis sans CSS</strong> : si le document reste compréhensible, la structure tient.'
     ],
@@ -500,7 +525,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Réécris le squelette d’une page à la main, encodage et langue compris.' },
       { cls: 'mid', text: '50–69 % — Reprends les exercices 1 et 3 : structure et hiérarchie des titres.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible <code>alt</code>, <code>scope</code> et balises sémantiques.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible <code>alt</code>, <code>scope</code> et balises sémantiques.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, les formulaires.' }
     ],
 
@@ -692,8 +717,8 @@ module.exports = [
           '    <tr><td>« Erreur de saisie. »</td><td>rien : le visiteur ne sait pas quoi corriger</td></tr>\n' +
           '  </table>',
           box('method', 'La règle des deux validations', 'compass',
-            '    <p>Écris la règle une fois pour l’utilisateur (HTML, messages clairs) et une fois pour le ' +
-            'système (serveur, refus silencieux). Si tu ne dois en garder qu’une, garde celle du serveur : ' +
+            '    <p>Écrivez la règle une fois pour l’utilisateur (HTML, messages clairs) et une fois pour le ' +
+            'système (serveur, refus silencieux). Si vous ne dois en garder qu’une, garde celle du serveur : ' +
             'elle est la seule que personne ne peut contourner.</p>')
 
         ].join('\n')
@@ -744,9 +769,9 @@ module.exports = [
 
     notions: ['action', 'method', 'name', 'label et for', 'fieldset et legend', 'types d’input', 'validation native', 'échappement', 'injection HTML', 'textContent'],
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Reprends la section 1 : reconstruis un formulaire complet à la main.' },
-      { cls: 'mid', text: '50–69 % — Refais l’exercice 1 du module : validation d’une adresse.' },
-      { cls: 'good', text: '70–89 % — Bon niveau : cible l’échappement et la frontière client/serveur.' },
+      { cls: 'low', text: '&lt; 50 % — Reprenez la section 1 : reconstruis un formulaire complet à la main.' },
+      { cls: 'mid', text: '50–69 % — Refaites l’exercice 1 du module : validation d’une adresse.' },
+      { cls: 'good', text: '70–94 % — Bon niveau : cible l’échappement et la frontière client/serveur.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, les sélecteurs CSS.' }
     ],
 

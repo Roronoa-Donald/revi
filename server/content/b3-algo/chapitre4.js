@@ -29,7 +29,7 @@ module.exports = {
     },
     {
       "title": "Parcours de Graphes : BFS vs DFS",
-      "html": "<p>L’exploration exhaustive d’un graphe repose sur deux démarches fondamentales en complexité $O(|V| + |E|)$ :</p>\n<div class=\"grid grid-2\">\n  <div class=\"card\">\n    <h4>Parcours en Largeur (Breadth-First Search - BFS)</h4>\n    <p>Utilise une <strong>file FIFO</strong>. Explore d’abord tous les voisins à distance 1, puis à distance 2, etc.<br>    <strong>Propriété clé :</strong> Calcule la distance minimale en nombre d’arêtes depuis la source.<br>    Permet de trouver le plus court chemin dans tout graphe non pondéré.</p>\n  </div>\n  <div class=\"card\">\n    <h4>Parcours en Profondeur (Depth-First Search - DFS)</h4>\n    <p>Utilise une <strong>pile LIFO</strong> (ou récursion). S’enfonce le plus loin possible le long d’une branche avant de rebrousser chemin.<br>    <strong>Propriétés clés :</strong> Détection de cycles, calcul des composantes fortement connexes (Tarjan, Kosaraju) et tri topologique d’un DAG.</p>\n  </div>\n</div>"
+      "html": "<p>L’exploration exhaustive d’un graphe repose sur deux démarches fondamentales en complexité $O(|V| + |E|)$ :</p>\n<div class=\"grid grid-2\">\n  <div class=\"card\">\n    <h4>Parcours en Largeur (Breadth-First Search - BFS)</h4>\n    <p>Utilisez une <strong>file FIFO</strong>. Explore d’abord tous les voisins à distance 1, puis à distance 2, etc.<br>    <strong>Propriété clé :</strong> Calculez la distance minimale en nombre d’arêtes depuis la source.<br>    Permet de trouver le plus court chemin dans tout graphe non pondéré.</p>\n  </div>\n  <div class=\"card\">\n    <h4>Parcours en Profondeur (Depth-First Search - DFS)</h4>\n    <p>Utilisez une <strong>pile LIFO</strong> (ou récursion). S’enfonce le plus loin possible le long d’une branche avant de rebrousser chemin.<br>    <strong>Propriétés clés :</strong> Détection de cycles, calcul des composantes fortement connexes (Tarjan, Kosaraju) et tri topologique d’un DAG.</p>\n  </div>\n</div>"
     },
     {
       "title": "Arbre Couvrant Minimal (MST) et Algorithme de Kruskal",
@@ -168,6 +168,13 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « Graphe orienté vs non orienté et fonction de pondération » ?', "a": 'Graphe orienté vs non orienté et fonction de pondération' },
+    { "q": 'Qu’est-ce que « Parcours en largeur (BFS) et file FIFO » ?', "a": 'Parcours en largeur (BFS) et file FIFO' },
+    { "q": 'Qu’est-ce que « Plus court chemin en nombre d’arêtes » ?', "a": 'Le parcours BFS utilise une file FIFO et trouve le plus court chemin en nombre d’arêtes.' },
+    { "q": 'Qu’est-ce que « Parcours en profondeur (DFS) et pile LIFO » ?', "a": 'Parcours en profondeur (DFS) et pile LIFO' },
+    { "q": 'Qu’est-ce que « Arbre Couvrant Minimal (MST - Minimum Spanning Tree) » ?', "a": 'Arbre Couvrant Minimal (MST - Minimum Spanning Tree)' },
+    { "q": 'Qu’est-ce que « Algorithme glouton de Kruskal en O(|E| log |E|) » ?', "a": 'Algorithme glouton de Kruskal en O(|E| log |E|)' },
+    { "q": 'Qu’est-ce que « Structure Union-Find avec compression de chemin » ?', "a": "Structure Union-Find avec compression de chemin : Le script lit sur l'entrée standard des déclarations au format : KRUSKAL nom=<nom> SOMMETS=<S1,S2,...> ARETES=<u-v:poids,...> . Algorithme glouton de Kruskal : 1. Trier toutes les arêtes par poids croissant. En cas d’égalité de poids, trier par ordre lexicographique sur le nom u-" },
     {
       "q": "Quelle est la différence d’espace mémoire entre une matrice d’adjacence et une liste d’adjacence ?",
       "a": "La matrice d’adjacence consomme toujours O(|V|^2) d’espace, tandis que la liste d’adjacence ne consomme que O(|V| + |E|)."

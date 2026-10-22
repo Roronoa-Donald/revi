@@ -130,7 +130,7 @@ public class Main {
 }
 `,
     hints: [
-      'Utilise des littéraux décimaux (9.0 / 5.0) pour éviter la division entière.',
+      'Utilisez des littéraux décimaux (9.0 / 5.0) pour éviter la division entière.',
       'Formate avec String.format(Locale.US, "%.1f", fahrenheit).'
     ],
     examples: [

@@ -13,7 +13,7 @@ module.exports = [
     goal: 'Vérifier les extensions CPU et la mémoire avant de virtualiser.',
     brief: '<p>Le script lit la présence des extensions de virtualisation <code>VT-x / AMD-V</code> ' +
       '(<code>oui</code>/<code>non</code>), puis la mémoire vive disponible en Go. Sans extensions, ' +
-      'affichez <code>virtualisation : impossible</code>. Sinon, affichez ' +
+      'affichez <code>virtualisation : impossible</code>. Sinon, affichezz ' +
       '<code>virtualisation : possible</code> si la RAM atteint 8 Go, sinon ' +
       '<code>ram insuffisante</code>.</p>',
     starter: `$extensions = [Console]::In.ReadLine()

@@ -137,29 +137,29 @@ function exercices(course, chapterList) {
   ]);
 
   const exercises = [
-    { id: 'gh3-c1-e1', ch: 1, title: 'Calculateur du hash SHA-1 d’objet Git (git hash-object)', level: 'n1', lang: 'Python', desc: 'Calculer le hash SHA-1 officiel avec injection du préambule standard header null-byte.' },
-    { id: 'gh3-c1-e2', ch: 1, title: 'Parseur de structure d’arbre Git (git ls-tree)', level: 'n2', lang: 'Python', desc: 'Décoder et filtrer les entrées d’un arbre Git (mode, type, hash SHA-1 et chemin).' },
-    { id: 'gh3-c1-e3', ch: 1, title: 'Résolveur de références symboliques et pointeur HEAD (git rev-parse)', level: 'n3', lang: 'Python', desc: 'Résoudre la chaîne de pointeurs de branches symboliques jusqu’au commit final.' },
+    { id: 'gh3-c1-e1', ch: 1, title: 'Calculateur du hash SHA-1 d’objet Git (git hash-object)', level: 'n1', lang: 'Bash', desc: 'Calculer le hash SHA-1 officiel avec injection du préambule standard header null-byte.' },
+    { id: 'gh3-c1-e2', ch: 1, title: 'Parseur de structure d’arbre Git (git ls-tree)', level: 'n2', lang: 'Bash', desc: 'Décoder et filtrer les entrées d’un arbre Git (mode, type, hash SHA-1 et chemin).' },
+    { id: 'gh3-c1-e3', ch: 1, title: 'Résolveur de références symboliques et pointeur HEAD (git rev-parse)', level: 'n3', lang: 'Bash', desc: 'Résoudre la chaîne de pointeurs de branches symboliques jusqu’au commit final.' },
 
-    { id: 'gh3-c2-e1', ch: 2, title: 'Classificateur de stratégie de fusion : Fast-Forward vs 3-Way Merge (LCA)', level: 'n1', lang: 'Python', desc: 'Identifier le Lowest Common Ancestor (LCA) et déterminer si un Fast-Forward est possible.' },
-    { id: 'gh3-c2-e2', ch: 2, title: 'Simulateur de rebase interactif (git rebase -i)', level: 'n2', lang: 'Python', desc: 'Simuler le traitement des directives pick, squash, drop et reword sur un historique.' },
-    { id: 'gh3-c2-e3', ch: 3, title: 'Résolveur formel de conflits de fusion tridirectionnelle', level: 'n3', lang: 'Python', desc: 'Effectuer l’arbitrage ligne par ligne entre ancêtre commun, branche locale et distante.' },
+    { id: 'gh3-c2-e1', ch: 2, title: 'Classificateur de stratégie de fusion : Fast-Forward vs 3-Way Merge (LCA)', level: 'n1', lang: 'Bash', desc: 'Identifier le Lowest Common Ancestor (LCA) et déterminer si un Fast-Forward est possible.' },
+    { id: 'gh3-c2-e2', ch: 2, title: 'Simulateur de rebase interactif (git rebase -i)', level: 'n2', lang: 'Bash', desc: 'Simuler le traitement des directives pick, squash, drop et reword sur un historique.' },
+    { id: 'gh3-c2-e3', ch: 3, title: 'Résolveur formel de conflits de fusion tridirectionnelle', level: 'n3', lang: 'Bash', desc: 'Effectuer l’arbitrage ligne par ligne entre ancêtre commun, branche locale et distante.' },
 
-    { id: 'gh3-c3-e1', ch: 3, title: 'Analyseur de journal de références (git reflog) et sauvetage de commits', level: 'n1', lang: 'Python', desc: 'Identifier les commits orphelins (dangling) détachés de tout pointeur de branche.' },
-    { id: 'gh3-c3-e2', ch: 3, title: 'Moteur de recherche dichotomique de régressions (git bisect)', level: 'n2', lang: 'Python', desc: 'Calculer les étapes binaires de bisect pour isoler le premier commit défaillant.' },
-    { id: 'gh3-c3-e3', ch: 3, title: 'Gestionnaire de pile de remisage (git stash LIFO)', level: 'n3', lang: 'Python', desc: 'Gérer la pile stash (push, pop, apply, drop) avec gestion des modifications de fichiers.' },
+    { id: 'gh3-c3-e1', ch: 3, title: 'Analyseur de journal de références (git reflog) et sauvetage de commits', level: 'n1', lang: 'Bash', desc: 'Identifier les commits orphelins (dangling) détachés de tout pointeur de branche.' },
+    { id: 'gh3-c3-e2', ch: 3, title: 'Moteur de recherche dichotomique de régressions (git bisect)', level: 'n2', lang: 'Bash', desc: 'Calculer les étapes binaires de bisect pour isoler le premier commit défaillant.' },
+    { id: 'gh3-c3-e3', ch: 3, title: 'Gestionnaire de pile de remisage (git stash LIFO)', level: 'n3', lang: 'Bash', desc: 'Gérer la pile stash (push, pop, apply, drop) avec gestion des modifications de fichiers.' },
 
-    { id: 'gh3-c4-e1', ch: 4, title: 'Auditeur de flux de travail : Git Flow vs GitHub Flow vs Trunk-Based', level: 'n1', lang: 'Python', desc: 'Vérifier la conformité des noms et cycles de vie de branches selon le modèle d’équipe.' },
-    { id: 'gh3-c4-e2', ch: 4, title: 'Évaluateur de règles de protection de branche (Branch Protection Rules)', level: 'n2', lang: 'Python', desc: 'Valider les conditions de fusion (approbations, CI, signature GPG, historique linéaire).' },
-    { id: 'gh3-c4-e3', ch: 4, title: 'Analyseur sémantique de commits selon Conventional Commits', level: 'n3', lang: 'Python', desc: 'Vérifier la conformité formelle des messages selon la spécification Conventional Commits 1.0.0.' },
+    { id: 'gh3-c4-e1', ch: 4, title: 'Auditeur de flux de travail : Git Flow vs GitHub Flow vs Trunk-Based', level: 'n1', lang: 'Bash', desc: 'Vérifier la conformité des noms et cycles de vie de branches selon le modèle d’équipe.' },
+    { id: 'gh3-c4-e2', ch: 4, title: 'Évaluateur de règles de protection de branche (Branch Protection Rules)', level: 'n2', lang: 'Bash', desc: 'Valider les conditions de fusion (approbations, CI, signature GPG, historique linéaire).' },
+    { id: 'gh3-c4-e3', ch: 4, title: 'Analyseur sémantique de commits selon Conventional Commits', level: 'n3', lang: 'Bash', desc: 'Vérifier la conformité formelle des messages selon la spécification Conventional Commits 1.0.0.' },
 
-    { id: 'gh3-c5-e1', ch: 5, title: 'Auditeur de syntaxe et structure de workflow GitHub Actions', level: 'n1', lang: 'Python', desc: 'Vérifier la présence des blocs obligatoires on, jobs et steps d’un fichier workflow.' },
-    { id: 'gh3-c5-e2', ch: 5, title: 'Générateur de combinaisons matricielles (strategy.matrix)', level: 'n2', lang: 'Python', desc: 'Calculer le produit cartésien des axes OS et versions avec inclusions/exclusions.' },
-    { id: 'gh3-c5-e3', ch: 5, title: 'Détecteur de failles de sécurité et injections dans GitHub Actions', level: 'n3', lang: 'Python', desc: 'Identifier les contextes non nettoyés dans les blocs run: et les fuites de secrets.' },
+    { id: 'gh3-c5-e1', ch: 5, title: 'Auditeur de syntaxe et structure de workflow GitHub Actions', level: 'n1', lang: 'Bash', desc: 'Vérifier la présence des blocs obligatoires on, jobs et steps d’un fichier workflow.' },
+    { id: 'gh3-c5-e2', ch: 5, title: 'Générateur de combinaisons matricielles (strategy.matrix)', level: 'n2', lang: 'Bash', desc: 'Calculer le produit cartésien des axes OS et versions avec inclusions/exclusions.' },
+    { id: 'gh3-c5-e3', ch: 5, title: 'Détecteur de failles de sécurité et injections dans GitHub Actions', level: 'n3', lang: 'Bash', desc: 'Identifier les contextes non nettoyés dans les blocs run: et les fuites de secrets.' },
 
-    { id: 'gh3-c6-e1', ch: 6, title: 'Générateur de pointeurs Git LFS (Large File Storage)', level: 'n1', lang: 'Python', desc: 'Générer le texte formel du pointeur LFS v1 avec calcul du hash SHA-256 du fichier.' },
-    { id: 'gh3-c6-e2', ch: 6, title: 'Vérificateur de hook pre-commit de sécurité et qualité de code', level: 'n2', lang: 'Python', desc: 'Détecter les conflits non résolus et secrets avant de valider l’exécution du commit.' },
-    { id: 'gh3-c6-e3', ch: 6, title: 'Purgeur d’historique de secrets (git-filter-repo)', level: 'n3', lang: 'Python', desc: 'Simuler le nettoyage et le masquage de secrets fuités dans l’intégralité de l’historique.' }
+    { id: 'gh3-c6-e1', ch: 6, title: 'Générateur de pointeurs Git LFS (Large File Storage)', level: 'n1', lang: 'Bash', desc: 'Générer le texte formel du pointeur LFS v1 avec calcul du hash SHA-256 du fichier.' },
+    { id: 'gh3-c6-e2', ch: 6, title: 'Vérificateur de hook pre-commit de sécurité et qualité de code', level: 'n2', lang: 'Bash', desc: 'Détecter les conflits non résolus et secrets avant de valider l’exécution du commit.' },
+    { id: 'gh3-c6-e3', ch: 6, title: 'Purgeur d’historique de secrets (git-filter-repo)', level: 'n3', lang: 'Bash', desc: 'Simuler le nettoyage et le masquage de secrets fuités dans l’intégralité de l’historique.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -180,7 +180,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — Git &amp; GitHub B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 ateliers de pratique interactive (Bash) intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',

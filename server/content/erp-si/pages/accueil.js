@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>comprendre l’architecture globale et le rôle névralgique d’un ERP au sein du système d’information ;</li>',
       '      <li>modéliser avec rigueur des processus métiers complexes selon le standard international BPMN 2.0 ;</li>',
@@ -37,7 +37,7 @@ function index(course, chapterList) {
       '    <p>Ce cours structure l’apprentissage des Progiciels de Gestion Intégrés en six chapitres progressifs : ' +
       'des principes fondateurs et de la modélisation des processus jusqu’à l’intégration technique et au déploiement en production. ' +
       'Le chapitre 1 est en accès libre.</p>',
-      '    <p>Chaque chapitre propose <strong>trois exercices interactifs en Python</strong> simulant des algorithmes réels ' +
+      '    <p>Chaque chapitre propose <strong>trois exercices interactifs de manière méthodique</strong> simulant des algorithmes réels ' +
       'de gestion (contrôles d’intégrité, calculs de TVA, rapprochement de factures, planification MRP, valorisation des stocks, ' +
       'analyses de criticité des risques), exécutés directement dans votre navigateur et validés par des tests automatisés.</p>'
     ].join('\n')),
@@ -86,7 +86,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres pour maîtriser les progiciels de gestion intégrés et l’architecture des systèmes d’information, ' +
     'de l’analyse organisationnelle jusqu’au pilotage de projets complexes. Le chapitre 1 est en accès libre ; ' +
     'les suivants requièrent un compte de niveau B2 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Python</strong> simulant des processus réels d’ERP. ' +
+    '  <p>Chaque chapitre se termine par <strong>trois exercices de manière méthodique</strong> simulant des processus réels d’ERP. ' +
     'L’<a href="atelier.html">atelier de code</a> permet de tester et prototyper librement vos scripts de gestion.</p>',
     '  <div class="toc">',
     toc,
@@ -119,12 +119,12 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier pratique Python / Simulation ERP &amp; SI</h1>',
-    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écris ton script, ' +
-    'exécute-le et observe immédiatement la sortie : l’outil idéal pour prototyper la logique de tes flux ERP.</p>',
+    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écrivez votre script, ' +
+    'exécutez-le et observez immédiatement la sortie : l’outil idéal pour prototyper la logique de vos flux ERP.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre code Python 3 et affiche sa sortie standard et ses éventuelles erreurs.</li>',
-      '      <li><strong>Entrée du programme</strong> contient ce que <code>sys.stdin</code> recevra en entrée standard.</li>',
+      '      <li><strong>Exécuter</strong> vérifie votre grille d’analyse sur le cas d’exemple et affiche le résultat obtenu.</li>',
+      '      <li><strong>Données du cas</strong> présente les paramètres soumis à votre analyse.</li>',
       '      <li><strong>Expliquer mon erreur</strong> sollicite le tuteur IA pour comprendre l’origine d’un dysfonctionnement sans dévoiler la solution.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script directement depuis l’éditeur.</li>',
       '      <li>Vos modifications sont automatiquement sauvegardées dans votre navigateur.</li>',
@@ -141,15 +141,15 @@ function atelier(course) {
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre : simulateur de valorisation d’une ligne de commande ERP</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Python 3</span>',
+      '      <span class="lab__lang">' + ic('terminal') + ' Grille d’analyse</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écris un calcul de réapprovisionnement Wilson, ' +
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écrivez un calcul de réapprovisionnement Wilson, ' +
       'simule une règle de décrémentation de stock ou teste un parseur de message pivot JSON/XML.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le code d’exemple simule le calcul d’une ligne de commande commerciale (HT, TVA et TTC) à partir des données reçues sur l’entrée standard. ' +
-      'Modifie l’entrée standard ci-dessous et clique sur <strong>Exécuter</strong> pour observer la réponse JSON générée.</p>',
+      '      <p>Le code d’exemple simule le calcul d’une ligne de commande commerciale (HT, TVA et TTC) à partir des données fournies dans le cas. ' +
+      'Modifiez les données du cas ci-dessous et cliquez sur <strong>Exécuter</strong> pour observer la réponse JSON générée.</p>',
       '    </div>',
       '    <div class="lab__sample">',
       '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ART-501;Clavier Ergonomique;10;45.0;20.0</pre></div>',

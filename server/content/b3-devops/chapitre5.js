@@ -20,7 +20,7 @@ module.exports = {
     'établir les équations formelles de fiabilité matérielle et logicielle : MTBF, MTTF, MTTR et disponibilité intrinsèque ;',
     'modéliser le rayon d’impact (Blast Radius) et les dépendances en cascade d’une architecture distribuée ;',
     'structurer un protocole de gestion d’incident critique et rédiger un post-mortem sans blâme (Blameless Post-Mortem) ;',
-    'développer en Python 3 des calculateurs DORA, de disponibilité MTBF/MTTR et d’évaluation du risque de release.'
+    'analyser et résoudre méthodologiquement des calculateurs DORA, de disponibilité MTBF/MTTR et d’évaluation du risque de release.'
   ],
   sections: [
     {

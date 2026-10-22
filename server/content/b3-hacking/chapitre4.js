@@ -182,7 +182,7 @@ module.exports = {
   "mastery": [
     {
       "cls": "low",
-      "text": "&lt; 50 % — Reprends les sections théoriques et revois les définitions clés."
+      "text": "&lt; 50 % — Reprenez les sections théoriques et revois les définitions clés."
     },
     {
       "cls": "mid",
@@ -190,7 +190,7 @@ module.exports = {
     },
     {
       "cls": "good",
-      "text": "70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
+      "text": "70–94 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
     },
     {
       "cls": "top",
@@ -198,6 +198,12 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « Broken Access Control (A01) » ?', "a": "Broken Access Control (A01) : Défaillance de contrôle d'accès permettant à un utilisateur d'agir sur des ressources non autorisées (IDOR)." },
+    { "q": 'Qu’est-ce que « Cross-Site Scripting (XSS) » ?', "a": 'Cross-Site Scripting (XSS) : Injection de scripts malveillants exécutés dans le navigateur des victimes légitimes (Stored, Reflected, DOM).' },
+    { "q": 'Qu’est-ce que « Path Traversal (Traversée de Répertoire) » ?', "a": 'Path Traversal (Traversée de Répertoire) : Manipulation de paramètres de chemin via des séquences ../ pour accéder à des fichiers arbitraires hors racine.' },
+    { "q": "Qu’est-ce que « Broken Access Control est la vulnérabilité web n°1 mondiale selon l'OWASP » ?", "a": "Broken Access Control est la vulnérabilité web n°1 mondiale selon l'OWASP : elle frappe directement la logique métier." },
+    { "q": "Qu’est-ce que « Les requêtes préparées avec paramètres liés constituent l'unique remédiation définitive contre les injections SQL. » ?", "a": "Les requêtes préparées avec paramètres liés constituent l'unique remédiation définitive contre les injections SQL." },
+    { "q": 'Qu’est-ce que « Les failles XSS permettent le vol de sessions utilisateurs, contré en profondeur par HttpOnly et les politiques CSP. » ?', "a": 'Les failles XSS permettent le vol de sessions utilisateurs, contré en profondeur par HttpOnly et les politiques CSP.' },
     {
       "q": "Qu'est-ce qu'une vulnérabilité IDOR (Insecure Direct Object Reference) ?",
       "a": "Une faille de contrôle d'accès où un paramètre identifiant une ressource (ex: id=1042) peut être modifié pour accéder aux données d'un autre utilisateur sans vérification côté serveur."

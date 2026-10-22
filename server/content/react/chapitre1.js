@@ -27,6 +27,10 @@ module.exports = {
   ],
 
   sections: [
+      {
+        "title": "Prérequis intégré : Rappels JavaScript ES6+ indispensables pour React",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Les 5 constructions modernes de JavaScript (ES6+) utilisées dans chaque composant React</div><ul><li><strong>Modules (<code>import</code> / <code>export</code>) :</strong> <code>import { useState } from \"react\"</code> importe une fonction, et <code>export default App</code> expose un composant ;</li><li><strong>Fonctions fléchées (Arrow Functions) :</strong> <code>const doubler = (x) =&gt; x * 2</code> est l’écriture courte de <code>function(x) { return x * 2; }</code> ;</li><li><strong>Déstructuration (Destructuring) :</strong> <code>const { nom, age } = utilisateur</code> (ou <code>function Carte({ titre })</code>) extrait directement les propriétés d’un objet, et <code>const [compteur, setCompteur] = useState(0)</code> extrait les éléments d’un tableau ;</li><li><strong>Méthodes de tableaux <code>.map()</code> et <code>.filter()</code> :</strong> <code>liste.map(item =&gt; &lt;li key={item.id}&gt;{item.nom}&lt;/li&gt;)</code> transforme chaque donnée en élément JSX sans modifier le tableau d’origine ;</li><li><strong>Appels asynchrones (<code>fetch</code> &amp; <code>async/await</code>) :</strong> permettent d’interroger une API JSON sans bloquer l’interface.</li></ul></div>"
+      },
     {
       title: 'Le paradigme déclaratif et le modèle mental de React',
       html: [
@@ -135,12 +139,32 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les bases du JSX et la différence déclaratif/impératif.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la structure d’un projet Vite et les règles de balisage.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la décomposition et le modèle mental React.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la structure d’un projet Vite et les règles de balisage.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la décomposition et le modèle mental React.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux composants et aux props dans le chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « Paradigme déclaratif » ?', a: 'comprendre le paradigme déclaratif par opposition à l’impératif ;' },
+      { q: 'Qu’est-ce que « Virtual DOM » ?', a: 'Virtual DOM : Face aux interfaces web modernes riches en données et en interactions, manipuler le DOM à la main devient rapidement ingérable et source de bugs. React introduit un modèle déclaratif fondé sur des composants réutilisables orchestrés par un outillage ultra-rapide (Vite).' },
+      { q: 'Qu’est-ce que « Composant fonctionnel » ?', a: 'En React moderne, un composant fonctionnel est une simple fonction JavaScript qui reçoit un objet de données appelé props et renvoie une description de l’UI en JSX.' },
+      { q: 'Qu’est-ce que « Valeurs par défaut » ?', a: 'déstructurer les props et définir des valeurs par défaut robustes ;' },
+      { q: 'Qu’est-ce que « Batching » ?', a: 'Les mises à jour d’état en React sont regroupées par lot ( batching ). Si une nouvelle valeur dépend directement de l’ancienne valeur (par exemple lors de plusieurs incrémentations rapides), il faut passer une fonction de rappel :' },
+      { q: 'Qu’est-ce que « onChange » ?', a: 'manipuler les événements synthétiques (onClick, onChange, onSubmit) ;' },
+      { q: 'Qu’est-ce que « e.preventDefault() » ?', a: 'À quoi sert e.preventDefault() dans onSubmit ?' },
+      { q: 'Qu’est-ce que « Réconciliation » ?', a: 'comprendre le rôle fondamental de la prop key pour l’algorithme de réconciliation ;' },
+      { q: 'Qu’est-ce que « Rendu conditionnel » ?', a: 'maîtriser les différentes techniques de rendu conditionnel (if, ternaire, court-circuit) ;' },
+      { q: 'Qu’est-ce que « Opérateur ternaire » ?', a: 'Je maîtrise l’opérateur ternaire et le court-circuit && en JSX.' },
+      { q: 'Qu’est-ce que « Index de boucle » ?', a: 'Utiliser l’index de boucle ( key={index} ) fonctionne si la liste est statique. Mais en cas d’ajout en tête, de suppression ou de tri, les index changent : React confond alors l’état interne des composants enfants (comme le contenu de champs de saisie ou des cases cochées). Utili' },
+      { q: 'Qu’est-ce que « Données dérivées » ?', a: 'Les données dérivées (filtres, compteurs) doivent être calculées au vol sans état redondant.' },
+      { q: 'Qu’est-ce que « Effet de bord (Side effect) » ?', a: 'définir la notion d’effet de bord (side effect) dans une application frontend ;' },
+      { q: 'Qu’est-ce que « Tableau de dépendances » ?', a: 'comprendre le rôle critique du tableau de dépendances et la règle d’exhaustivité ;' },
+      { q: 'Qu’est-ce que « Cleanup function » ?', a: 'Cleanup function : implémenter des fonctions de nettoyage (cleanup) pour éviter les fuites mémoire ;' },
+      { q: 'Qu’est-ce que « fetch API » ?', a: 'fetch API : React B2 › Sommaire › Chapitre 5' },
+      { q: 'Qu’est-ce que « Loading state » ?', a: 'Loading state : gérer le cycle complet d’un appel API (états loading, data et error).' },
+      { q: 'Qu’est-ce que « React Router » ?', a: 'Une application web d’envergure ne se résume pas à un écran unique : elle comprend des pages de profil, un tableau de bord, des formulaires et des vues détaillées. React Router permet de créer une navigation fluide sans rechargement de page tout en conservant les URLs et l’histor' },
+      { q: 'Qu’est-ce que « BrowserRouter » ?', a: 'configurer React Router v6 (BrowserRouter, Routes, Route, Link) ;' },
+      { q: 'Qu’est-ce que « Link / NavLink » ?', a: 'Link / NavLink : configurer React Router v6 (BrowserRouter, Routes, Route, Link) ;' },
     { q: 'Qu’est-ce que React ?', a: 'Une bibliothèque JavaScript déclarative et basée sur des composants pour créer des interfaces utilisateur.' },
     { q: 'Que signifie UI = f(state) ?', a: 'L’interface visuelle est le résultat prédictible d’une fonction pure recevant les données d’état.' },
     { q: 'En quoi JSX est-il compilé ?', a: 'En appels à React.createElement(type, props, children).' },

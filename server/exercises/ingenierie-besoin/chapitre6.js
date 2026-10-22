@@ -12,11 +12,11 @@ module.exports = [
     language: 'analyse',
     title: "Audit qualité INVEST d’une User Story",
     goal: "Vérifier la conformité d’une User Story aux 6 critères INVEST (Indépendante, Négociable, Valeur, Estimable, Small, Testable).",
-    brief: "<p>Le modèle <strong>INVEST</strong> évalue la qualité d’une exigence agile selon 6 critères booléens (1 pour conforme, 0 pour non conforme) :<br><code>I</code> (Indépendante), <code>N</code> (Négociable), <code>V</code> (Valeur), <code>E</code> (Estimable), <code>S</code> (Small / Suffisamment petite), <code>T</code> (Testable).</p><p>Lit une ligne au format <code>ID;I;N;V;E;S;T</code> sur l’entrée standard.<br>- Si les 6 critères valent 1 : affiche <code>&lt;ID&gt;: CONFORME_INVEST (6/6)</code>.<br>- Sinon : affiche <code>&lt;ID&gt;: NON_CONFORME (&lt;Score&gt;/6) - Criteres_manquants: &lt;liste des noms manquants séparés par une virgule&gt;</code>.</p>",
+    brief: "<p>Le modèle <strong>INVEST</strong> évalue la qualité d’une exigence agile selon 6 critères booléens (1 pour conforme, 0 pour non conforme) :<br><code>I</code> (Indépendante), <code>N</code> (Négociable), <code>V</code> (Valeur), <code>E</code> (Estimable), <code>S</code> (Small / Suffisamment petite), <code>T</code> (Testable).</p><p>Analyse une ligne au format <code>ID;I;N;V;E;S;T</code> fourni(e) dans les données du cas.<br>- Si les 6 critères valent 1 : affiche <code>&lt;ID&gt;: CONFORME_INVEST (6/6)</code>.<br>- Sinon : affiche <code>&lt;ID&gt;: NON_CONFORME (&lt;Score&gt;/6) - Criteres_manquants: &lt;liste des noms manquants séparés par une virgule&gt;</code>.</p>",
     starter: "# Grille d'analyse (ib2-c6-e1) — Audit qualité INVEST d’une User Story\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : US-10;1;0;1;1;0;1\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : US-11;1;1;1;1;1;0\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : US-12;1;1;1;1;1;1\nA_COMPLETER\n",
     hints: [
           "Associe les colonnes aux critères : [\"Independante\", \"Negociable\", \"Valeur\", \"Estimable\", \"Small\", \"Testable\"].",
-          "Filtre les critères dont la valeur est \"0\" et compte les \"1\"."
+          "Filtrez les critères dont la valeur est \"0\" et compte les \"1\"."
     ],
     examples: [
           {
@@ -51,12 +51,12 @@ module.exports = [
     language: 'analyse',
     title: "Analyse d’impact d’une demande de changement (Change Request)",
     goal: "Calculer la propagation des dépendances pour identifier toutes les exigences impactées par une modification.",
-    brief: "<p>Lorsqu’une exigence est modifiée, toutes les exigences qui en dépendent (directement ou transitivement) doivent être réévaluées.</p><p>Lit sur l’entrée standard :<br>- Ligne 1 : l’identifiant de l’exigence initiale modifiée (ex. <code>REQ-1</code>).<br>- Ligne 2 : la liste des dépendances séparées par des virgules au format <code>Source-&gt;Cible</code> (signifiant que <em>Cible dépend de Source</em>).<br>Affiche la liste de toutes les exigences impactées (l’exigence initiale incluse), dédupliquées et triées alphabétiquement :<br><code>EXIGENCES_IMPACTEES: &lt;REQ_A, REQ_B, ...&gt;</code>.</p>",
+    brief: "<p>Lorsqu’une exigence est modifiée, toutes les exigences qui en dépendent (directement ou transitivement) doivent être réévaluées.</p><p>À partir des données du cas :<br>- Ligne 1 : l’identifiant de l’exigence initiale modifiée (ex. <code>REQ-1</code>).<br>- Ligne 2 : la liste des dépendances séparées par des virgules au format <code>Source-&gt;Cible</code> (signifiant que <em>Cible dépend de Source</em>).<br>Affiche la liste de toutes les exigences impactées (l’exigence initiale incluse), dédupliquées et triées alphabétiquement :<br><code>EXIGENCES_IMPACTEES: &lt;REQ_A, REQ_B, ...&gt;</code>.</p>",
     starter: "# Grille d'analyse (ib2-c6-e2) — Analyse d’impact d’une demande de changement (Change Request)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : AUTH-1\n# Données : AUTH-1->DASH-1,AUTH-1->API-1,API-1->BILL-1\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : ISOL-1\n# Données : REQ-A->REQ-B,REQ-B->REQ-C\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : CORE-0\n# Données : CORE-0->MOD-1,MOD-1->MOD-2,CORE-0->MOD-3\nA_COMPLETER\n",
     hints: [
-          "Construis un graphe de dépendances (dictionnaire d’adjacence : source -> ensemble des cibles).",
-          "Utilise un parcours en largeur (BFS) ou profondeur (DFS) à partir du nœud initial.",
-          "Trie l’ensemble des nœuds visités."
+          "Construisez un graphe de dépendances (dictionnaire d’adjacence : source -> ensemble des cibles).",
+          "Utilisez un parcours en largeur (BFS) ou profondeur (DFS) à partir du nœud initial.",
+          "Triez l’ensemble des nœuds visités."
     ],
     examples: [
           {
@@ -95,7 +95,7 @@ module.exports = [
     starter: "# Grille d'analyse (ib2-c6-e3) — Audit de versionnement d’une Baseline d’exigences\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : A:1,B:2\n# Données : A:1,B:2\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : A:1,B:2,C:3\n# Données : A:1,B:22,D:4,E:5\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : X:10\n# Données : Y:20\nA_COMPLETER\n",
     hints: [
           "Parse chaque ligne dans un dictionnaire {ID: Empreinte}.",
-          "Compare les ensembles d’identifiants pour trouver les ajouts (présents dans V2, absents de V1) et les suppressions (présents dans V1, absents de V2).",
+          "Comparez les ensembles d’identifiants pour trouver les ajouts (présents dans V2, absents de V1) et les suppressions (présents dans V1, absents de V2).",
           "Pour les ID communs, compare les empreintes pour distinguer modifications et inchangées."
     ],
     examples: [

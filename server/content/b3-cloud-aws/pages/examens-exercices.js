@@ -188,7 +188,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers de Code Interactifs — Services Cloud AWS B3</h1>',
-    '  <p class="lead">L\'ensemble des 18 ateliers de programmation pratique en Python 3 intégrés au cours, avec éditeur Monaco, tests automatisés cachés, correction instantanée et aide intelligente du tuteur pédagogique.</p>',
+    '  <p class="lead">L\'ensemble des 18 ateliers de programmation pratique de manière méthodique intégrés au cours, avec éditeur Monaco, tests automatisés cachés, correction instantanée et aide intelligente du tuteur pédagogique.</p>',
     '',
     listHtml,
     '',

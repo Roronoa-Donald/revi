@@ -19,7 +19,7 @@ module.exports = {
     'déployer le mécanisme Sticky MAC pour l’apprentissage persistant des adresses d’accès autorisées ;',
     'mettre en œuvre DHCP Snooping avec distinction rigoureuse des ports trusted et untrusted ;',
     'analyser la base de données DHCP Snooping Binding Table et son exploitation par Dynamic ARP Inspection (DAI) ;',
-    'développer en Python 3 des simulateurs de violation de sécurité, des inspecteurs DHCP Snooping et des filtres DAI.'
+    'analyser et résoudre méthodologiquement des simulateurs de violation de sécurité, des inspecteurs DHCP Snooping et des filtres DAI.'
   ],
   sections: [
     {
@@ -97,7 +97,7 @@ module.exports = {
         '    <p>Exploite directement la base construite par le DHCP Snooping :</p>',
         '    <ul>',
         '      <li><strong>Dynamic ARP Inspection (DAI) :</strong> Intercepte toutes les requêtes et réponses ARP sur les ports untrusted. Si le couple IP/MAC ne figure pas dans la table DHCP Snooping, la trame ARP est détruite, neutralisant totalement l’usurpation de passerelle.</li>',
-        '      <li><strong>IP Source Guard (IPSG) :</strong> Filtre tous les paquets IP au niveau matériel : si un utilisateur change manuellement son adresse IP sans passer par le DHCP légitime, le commutateur bloque immédiatement ses paquets.</li>',
+        '      <li><strong>IP Source Guard (IPSG) :</strong> Filtrez tous les paquets IP au niveau matériel : si un utilisateur change manuellement son adresse IP sans passer par le DHCP légitime, le commutateur bloque immédiatement ses paquets.</li>',
         '    </ul>',
         '  </div>',
         '</div>'

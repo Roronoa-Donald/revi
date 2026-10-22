@@ -20,7 +20,7 @@ module.exports = {
     'évaluer et renforcer la posture de sécurité de l\'entreprise avec Microsoft Defender for Cloud et le Secure Score ;',
     'maîtriser les principes du FinOps, le suivi des budgets Cost Management et les prévisions de dépenses (Forecast) ;',
     'concevoir, valider et ordonnancer des gabarits déclaratifs d\'Infrastructure as Code (IaC Bicep et ARM templates) ;',
-    'implémenter en Python 3 des moteurs d\'exécution KQL, des gestionnaires d\'alertes métriques et des linters de gabarits IaC.'
+    'analyser et résoudre méthodologiquement des moteurs d\'exécution KQL, des gestionnaires d\'alertes métriques et des linters de gabarits IaC.'
   ],
   sections: [
     {
@@ -53,10 +53,10 @@ module.exports = {
         '<table class="table">',
         '  <thead><tr><th>Opérateur KQL</th><th>Rôle et Fonction</th><th>Exemple Concret de Syntaxe</th></tr></thead>',
         '  <tbody>',
-        '    <tr><td><code>where</code></td><td>Filtre les lignes correspondant à un prédicat logique booléen.</td><td><code>AzureActivity | where Status == "Failed" and DurationMs &gt; 1000</code></td></tr>',
+        '    <tr><td><code>where</code></td><td>Filtrez les lignes correspondant à un prédicat logique booléen.</td><td><code>AzureActivity | where Status == "Failed" and DurationMs &gt; 1000</code></td></tr>',
         '    <tr><td><code>project</code></td><td>Sélectionne, ordonne ou renomme les colonnes à afficher dans le résultat.</td><td><code>| project TimeGenerated, OperationName, Caller, ResourceGroup</code></td></tr>',
         '    <tr><td><code>summarize</code></td><td>Agrège les lignes par regroupement (fonctions <code>count()</code>, <code>avg()</code>, <code>sum()</code>, <code>dcount()</code>).</td><td><code>| summarize FailureCount = count() by OperationName</code></td></tr>',
-        '    <tr><td><code>order by</code> / <code>sort by</code></td><td>Trie les enregistrements de manière ascendante (<code>asc</code>) ou descendante (<code>desc</code>).</td><td><code>| order by FailureCount desc</code></td></tr>',
+        '    <tr><td><code>order by</code> / <code>sort by</code></td><td>Triez les enregistrements de manière ascendante (<code>asc</code>) ou descendante (<code>desc</code>).</td><td><code>| order by FailureCount desc</code></td></tr>',
         '    <tr><td><code>take</code> / <code>limit</code></td><td>Restreint le nombre d\'enregistrements renvoyés par la requête.</td><td><code>| take 10</code></td></tr>',
         '  </tbody>',
         '</table>',
@@ -238,7 +238,7 @@ module.exports = {
       desc: 'Développer des modules Bicep réutilisables (réseau, sécurité, calcul, stockage) testés par linters et déployés automatiquement via GitHub Actions.'
     },
     {
-      title: 'Automatisation d\'évaluation d\'alertes et de templates en Python 3',
+      title: 'Automatisation d\'évaluation d\'alertes et de templates de manière méthodique',
       desc: 'Programmer des moteurs de requêtes KQL, des gestionnaires de seuils d\'alertes métriques et des validateurs topologiques de dépendances IaC.'
     }
   ]

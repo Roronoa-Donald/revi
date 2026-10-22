@@ -11,7 +11,7 @@ module.exports = [
     "brief": "<p>En architecture x86_64, le registre 64 bits <code>RAX</code> englobe plusieurs sous-registres historiques :</p><ul>  <li><code>EAX</code> : les 32 bits de poids faible ;</li>  <li><code>AX</code> : les 16 bits de poids faible de EAX ;</li>  <li><code>AH</code> : les 8 bits de poids fort de AX ;</li>  <li><code>AL</code> : les 8 bits de poids faible de AX.</li></ul><p>Analysez les paramètres du problème pour chaque cas. <code>0x1122334455667788</code>). Indiquez la décomposition exacte au format :<br><code>RAX=0x... EAX=0x... AX=0x... AH=0x.. AL=0x..</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c2-e1) — Décomposition des sous-registres x86_64 (RAX, EAX, AX, AH, AL)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-registres nuls sur poids fort]\n# Données : 0x00000000AABBCCDD\nA_COMPLETER\n\n[Cas 2 — Valeur maximale F]\n# Données : 0xFFFFFFFFFFFFFFFF\nA_COMPLETER\n\n[Cas 3 — Seulement AH et AL alimentés]\n# Données : 0x0000000000001234\nA_COMPLETER\n\n[Cas 4 — Registre AL seul à 1]\n# Données : 0x1234567890ABCDEF\nA_COMPLETER\n",
     "hints": [
-      "Convertis avec int(val_hex, 16) pour obtenir un entier 64 bits.",
+      "Convertissez avec int(val_hex, 16) pour obtenir un entier 64 bits.",
       "EAX = val & 0xFFFFFFFF, AX = val & 0xFFFF, AL = val & 0xFF, AH = (val >> 8) & 0xFF.",
       "Formate avec des longueurs fixes : {:016X}, {:08X}, {:04X}, {:02X}."
     ],
@@ -101,7 +101,7 @@ module.exports = [
     "brief": "<p>Le drapeau <strong>OF (Overflow Flag)</strong> signale un dépassement de capacité lors de calculs sur des entiers signés en complément à 2 (plage 8 bits : <code>-128 .. +127</code>) :</p><ul>  <li>En addition : l’addition de deux nombres positifs donne un négatif, ou l’addition de deux négatifs donne un positif ;</li>  <li>En soustraction ($A - B$) : soustraire un négatif à un positif donne un négatif, ou soustraire un positif à un négatif donne un positif.</li></ul><p>Analysez les paramètres du problème pour chaque cas. Indiquez :<br><code>VAL=&lt;valeur signée 8 bits&gt; OF=&lt;0|1&gt; DIAG=&lt;OVERFLOW|NORMAL&gt;</code>.</p>",
     "starter": "# Grille d'analyse (asm2-c2-e3) — Détection du débordement signé (Overflow Flag OF)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Addition de négatifs avec dépassement (-70 + -60)]\n# Données : -70;-60;ADD\nA_COMPLETER\n\n[Cas 2 — Addition normale sans dépassement]\n# Données : 40;30;ADD\nA_COMPLETER\n\n[Cas 3 — Soustraction avec dépassement (100 - -50)]\n# Données : 100;-50;SUB\nA_COMPLETER\n\n[Cas 4 — Soustraction normale aux bornes (-100 - 20 = -120)]\n# Données : -100;20;SUB\nA_COMPLETER\n",
     "hints": [
-      "Calcule le résultat arithmétique théorique sans troncature : th = A + B (ou A - B).",
+      "Calculez le résultat arithmétique théorique sans troncature : th = A + B (ou A - B).",
       "Un overflow sur 8 bits signé se produit si th < -128 ou th > 127.",
       "La valeur 8 bits résultante correspond à (th & 0xFF), puis convertie en signé si >= 128."
     ],

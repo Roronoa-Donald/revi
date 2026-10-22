@@ -1,28 +1,17 @@
 /**
- * scripts/course-kit.js — gabarit « 19/20 » d'un cours B1.
+ * scripts/course-kit.js — gabarit « 19/20 » d'un cours B1/B2/B3.
  *
  * Bibliothèque sans effet de bord : elle transforme les données d'un cours
  * (`server/content/<cours>.js`) en pages HTML. Un seul rendu pour tous les
  * cours, comme `scripts/generate-code-labs.js` l'est pour les ateliers : la
  * moindre divergence entre deux cours deviendrait une incohérence visible.
- *
- * Ce que le kit produit :
- *   - la coquille de page (en-tête, barre de navigation, pied de page) avec les
- *     chemins relatifs calculés depuis l'emplacement du fichier ;
- *   - le gabarit d'un chapitre : mise en situation, objectifs, sections,
- *     ateliers (injectés ensuite), QCM, erreurs classiques, méthodologie,
- *     révision active, test de maîtrise, navigation ;
- *   - les briques répétitives : QCM, cartes de révision, encadrés ;
- *   - la feuille de style et le script du cours, depuis `templates/`.
- *
- * Les couleurs viennent du cours ; elles doivent garder un contraste AA sur
- * blanc (l'accent sert aussi de fond au bouton principal, texte blanc).
  */
 const fs = require('fs');
 const path = require('path');
 
 const SPRITE = '/assets/img/ui-icons.svg';
 const TEMPLATES = path.join(__dirname, 'templates');
+const ROOT_DIR = path.resolve(__dirname, '..');
 
 /* ======================== Utilitaires ======================== */
 
@@ -43,6 +32,15 @@ function ic(name) {
 function prefix(pagePath) {
   const depth = pagePath.split('/').length - 1;
   return '../'.repeat(depth);
+}
+
+/** Résout sur le disque le vrai chemin d'une page transverse du cours. */
+function resolveCoursePath(courseId, candidates) {
+  if (!courseId) return candidates[0];
+  for (const rel of candidates) {
+    if (fs.existsSync(path.join(ROOT_DIR, courseId, rel))) return rel;
+  }
+  return candidates[0];
 }
 
 /* ======================== Feuille de style et script ======================== */
@@ -77,10 +75,81 @@ function navItems(course) {
   }
   items.push({ key: 'cartes', label: 'Cartes', path: 'chapitres/cartes.html' });
   items.push({ key: 'formules', label: 'Mémo', path: 'chapitres/formules.html' });
-  items.push({ key: 'exercices', label: 'Exercices', path: 'exercices/exercices.html' });
+  items.push({
+    key: 'exercices',
+    label: 'Exercices',
+    path: resolveCoursePath(course.id, ['exercices/exercices.html', 'chapitres/exercices.html'])
+  });
   items.push({ key: 'atelier', label: 'Atelier', path: 'atelier.html' });
-  items.push({ key: 'examen', label: 'Examen', path: 'chapitres/simulateur-examen.html' });
+  items.push({
+    key: 'examen',
+    label: 'Examen',
+    path: resolveCoursePath(course.id, [
+      'chapitres/simulateur-examen.html',
+      'chapitres/examens.html',
+      'chapitres/examen-blanc.html',
+      'simulateur-examen.html'
+    ])
+  });
   return items;
+}
+
+/** Normalise les liens relatifs et replie les corrigés d'examen dans une page générée. */
+function normalizePageBody(course, pagePath, rawBody) {
+  let body = Array.isArray(rawBody) ? rawBody.join('\n') : String(rawBody || '');
+
+  // Nettoyer toute virgule parasite résiduelle entre balises HTML (ex: </p>,<ul>,<li>)
+  body = body.replace(/(<\/(?:p|ul|ol|li|div|table)>)\s*,\s*(<(?:p|ul|ol|li|div|table)\b)/g, '$1\n$2');
+  body = body.replace(/(<(?:ul|ol)>)\s*,\s*(<li\b)/g, '$1\n$2');
+
+  const realExPath = course && course.id
+    ? resolveCoursePath(course.id, ['exercices/exercices.html', 'chapitres/exercices.html'])
+    : 'exercices/exercices.html';
+  const realExamPath = course && course.id
+    ? resolveCoursePath(course.id, ['chapitres/simulateur-examen.html', 'chapitres/examens.html', 'chapitres/examen-blanc.html', 'simulateur-examen.html'])
+    : 'chapitres/simulateur-examen.html';
+
+  if (pagePath === 'index.html' || pagePath === 'sommaire.html' || pagePath === 'atelier.html') {
+    body = body.replace(/href="exercices\/exercices\.html"/g, 'href="' + realExPath + '"');
+    body = body.replace(/href="chapitres\/simulateur-examen\.html"/g, 'href="' + realExamPath + '"');
+  } else if (pagePath.startsWith('chapitres/')) {
+    body = body.replace(/href="chapitres\/chapitre(\d+\.html[^"]*)"/g, 'href="chapitre$1"');
+    body = body.replace(/href="exercices\/exercices\.html"/g, 'href="../' + realExPath + '"');
+    if (realExPath === 'exercices/exercices.html') {
+      body = body.replace(/href="exercices\.html"/g, 'href="../exercices/exercices.html"');
+    }
+    const relExamFromChap = realExamPath.startsWith('chapitres/') ? realExamPath.slice('chapitres/'.length) : ('../' + realExamPath);
+    body = body.replace(/href="(?:\.\.\/chapitres\/)?simulateur-examen\.html"/g, 'href="' + relExamFromChap + '"');
+  } else if (pagePath.startsWith('exercices/')) {
+    body = body.replace(/href="chapitre(\d+\.html[^"]*)"/g, 'href="../chapitres/chapitre$1"');
+    body = body.replace(/href="(?:\.\.\/chapitres\/)?simulateur-examen\.html"/g, 'href="../' + realExamPath + '"');
+  }
+
+  // Replier les corrigés .box--solution sur les pages d'examen s'ils ne sont pas déjà dans <details>
+  if (/(?:examens|examen-blanc|simulateur-examen)\.html$/.test(pagePath) && body.includes('box--solution') && !body.includes('<details')) {
+    body = body.replace(
+      /<div class="box box--solution">([\s\S]*?)<\/div>\s*<\/div>/g,
+      (match) => '<details class="exam-sol"><summary class="btn">' + ic('check') + ' Afficher le corrigé officiel et le barème (après avoir composé)</summary>\n' + match + '\n</details>'
+    );
+  }
+
+
+  // Harmonisation du registre d'adresse (suppression des tutoiements de gabarit et de bandeaux)
+  body = body
+    .replace(/À la fin de ce chapitre,\s*tu seras capable de\s*:/gi, 'Objectifs visés à l’issue de ce chapitre :')
+    .replace(/Comment t['’]auto-évaluer/gi, 'Grille d’auto-évaluation')
+    .replace(/ton QCM de compréhension et ta checklist sont combinés/gi, 'le QCM de compréhension et la checklist sont combinés')
+    .replace(/Lis ton pourcentage/gi, 'Interprétation du score obtenu')
+    .replace(/ta note réelle dépend aussi de ton travail/gi, 'la maîtrise réelle dépend de la régularité du travail personnel')
+    .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btu\s+(?:maîtrises|distingues|résous|choisis|conditionnes|traites|standardises|lis et affiches|factorises et tu utilises|cycles|cloisonnes|qualifies|analyses|évalues|gères|possèdes|as acquis|peux)\b/gi, '$1maîtrise confirmée :')
+    .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btes classes ont\b/gi, '$1les classes ont')
+    .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btraque les barbarismes dans tes mails\b/gi, '$1chasser les barbarismes dans les courriels')
+    .replace(/\bEntraîne-toi\b/gi, 'S’entraîner')
+    .replace(/\bAssure-toi\b/gi, 'Vérifier')
+    .replace(/félicitations,\s*tu domines/gi, 'maîtrise complète de')
+    .replace(/et assure-toi de pouvoir/gi, 'pour valider chaque étape et');
+
+  return body;
 }
 
 /**
@@ -96,6 +165,7 @@ function page(course, pagePath, opts) {
     .join('\n');
 
   const bodyAttr = opts.dataChapter ? ' data-chapter="' + opts.dataChapter + '"' : '';
+  const bodyHtml = normalizePageBody(course, pagePath, opts.body);
 
   return [
     '<!DOCTYPE html>',
@@ -139,7 +209,7 @@ function page(course, pagePath, opts) {
     '</div></nav>',
     '',
     '<main id="content" class="' + course.slug + 'wrap">',
-    opts.body,
+    bodyHtml,
     '</main>',
     '',
     '<script src="' + p + 'assets/js/cours.js"></script>',
@@ -177,7 +247,17 @@ function page(course, pagePath, opts) {
 /* ======================== Briques ======================== */
 
 /** Fil d'Ariane : `PHP B1 › Sommaire › Chapitre 1`. */
+let _lastCourseId = null;
+const _extraCardsMap = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(__dirname, 'notions-cards-extra.json'), 'utf8'));
+  } catch (_) {
+    return {};
+  }
+})();
+
 function crumb(course, parts) {
+  if (course && course.id) _lastCourseId = course.id;
   const links = parts.map(part => part.href
     ? '<a href="' + part.href + '">' + part.label + '</a>'
     : part.label);
@@ -200,12 +280,23 @@ function box(kind, title, iconName, inner) {
       : (kind === 'method') ? 'compass'
       : 'info';
   }
-  return [
+  const content = Array.isArray(inner) ? inner.join('\n') : inner;
+  const renderedBox = [
     '  <div class="box box--' + kind + '">',
     '    <div class="box__title">' + ic(iconName) + ' ' + title + '</div>',
-    inner,
+    content,
     '  </div>'
   ].join('\n');
+
+  if (kind === 'solution') {
+    return [
+      '  <details class="exam-sol">',
+      '    <summary class="btn">' + ic(iconName) + ' Afficher le corrigé officiel et le barème — ' + title + '</summary>',
+      renderedBox,
+      '  </details>'
+    ].join('\n');
+  }
+  return renderedBox;
 }
 
 /** QCM interactif (corrigé par `assets/js/cours.js`). */
@@ -213,8 +304,9 @@ function qcm(questions, opts) {
   if (!Array.isArray(questions)) return '';
   const rows = questions.map(q => {
     const rawOpts = q.opts || q.choices || q.options || [];
+    const correctIdx = typeof q.correct === 'number' ? q.correct : q.answer;
     const options = rawOpts.map((label, index) =>
-      '        <button class="opt"' + (index === q.correct ? ' data-correct="1"' : '') + '>' + label + '</button>'
+      '        <button class="opt"' + (index === correctIdx ? ' data-correct="1"' : '') + '>' + label + '</button>'
     ).join('\n');
     return [
       '    <div class="q">',
@@ -234,41 +326,172 @@ function qcm(questions, opts) {
  * Cartes de révision. `modules` = [{ title, items: [{ q, a }] }].
  */
 function cards(modules) {
-  return modules.map(module => [
-    '  <h2>' + module.title + '</h2>',
-    '  <div class="cards">',
-    module.items.map(card =>
-      '    <div class="fc"><div class="fc__in"><div class="fc__face"><b>Question</b>' + card.q +
-      '</div><div class="fc__face fc__back"><b>Réponse</b>' + card.a + '</div></div></div>'
-    ).join('\n'),
-    '  </div>',
-    ''
-  ].join('\n')).join('\n');
+  const globalSeenQuestions = new Set();
+  const courseExtra = (_lastCourseId && _extraCardsMap[_lastCourseId]) || {};
+  return modules.map((module, modIdx) => {
+    const rawItems = Array.isArray(module.items) ? module.items : (Array.isArray(module.cards) ? module.cards : []);
+    const items = [];
+    for (const c of rawItems) {
+      let normQ = String(c.q || '').replace(/^(Synthèse|Approfondissement)\s*[—–-]\s*/i, '').trim();
+      if (!normQ) continue;
+      let key = normQ.replace(/\s+/g, ' ').toLowerCase();
+      if (globalSeenQuestions.has(key)) {
+        normQ = normQ.replace(/\s*\?$/, '') + ' (Ch. ' + (modIdx + 1) + ') ?';
+        key = normQ.replace(/\s+/g, ' ').toLowerCase();
+        if (globalSeenQuestions.has(key)) continue;
+      }
+      globalSeenQuestions.add(key);
+      items.push({ q: normQ, a: c.a });
+    }
+    const chExtra = courseExtra[String(modIdx + 1)] || [];
+    const blob = items.map(it => (it.q + ' ' + it.a).toLowerCase()).join(' ');
+    for (const ec of chExtra) {
+      const nLow = String(ec.notion || '').toLowerCase();
+      const hLow = String(ec.head || '').toLowerCase();
+      if ((nLow && blob.includes(nLow)) || (hLow && hLow.length >= 2 && blob.includes(hLow))) continue;
+      let q = ec.q;
+      let key = q.replace(/\s+/g, ' ').toLowerCase();
+      if (globalSeenQuestions.has(key)) continue;
+      globalSeenQuestions.add(key);
+      items.push({ q, a: ec.a });
+    }
+    return [
+      '  <h2>' + module.title + '</h2>',
+      '  <div class="cards">',
+      items.map(card =>
+        '    <div class="fc"><div class="fc__in"><div class="fc__face"><b>Question</b>' + card.q +
+        '</div><div class="fc__face fc__back"><b>Réponse</b>' + card.a + '</div></div></div>'
+      ).join('\n'),
+      '  </div>',
+      ''
+    ].join('\n');
+  }).join('\n');
 }
 
-/** Bandeau de paliers de maîtrise. */
-function bands(rows) {
-  if (!rows || !Array.isArray(rows)) return '';
-  return '<div class="bands">\n' + rows
-    .map(row => {
-      const cls = row.cls ? ' bandrow--' + row.cls : '';
-      const text = row.text || (row.title ? '<strong>' + row.title + ' :</strong> ' + (row.desc || '') : '') || row;
-      return '      <div class="bandrow' + cls + '">' + text + '</div>';
-    })
-    .join('\n') + '\n    </div>';
+/** Bandeau de paliers de maîtrise normalisé sur l'échelle unique 4 paliers (< 50 % | 50–69 % | 70–94 % | ≥ 95 %). */
+function stripBandPrefix(rawText) {
+  let t = String(rawText || '').trim();
+  t = t.replace(/^<strong>\s*(?:Score\s*)?(?:<\s*\d+\s*%|\d+\s*[–-]\s*\d+\s*%|≥\s*\d+\s*%|Moins de \d+\/\d+|De \d+ à \d+\/\d+|Entre \d+\/\d+ et \d+\/\d+|\d+\/\d+|Niveau initial|Niveau opérationnel|Maîtrise B3)(?:\s*\([^)]*\))?\s*(?:—|:)\s*<\/strong>\s*/i, '');
+  t = t.replace(/^(?:Score\s*)?(?:<\s*\d+\s*%|\d+\s*[–-]\s*\d+\s*%|≥\s*\d+\s*%|Moins de \d+\/\d+|De \d+ à \d+\/\d+|Entre \d+\/\d+ et \d+\/\d+|\d+\/\d+|Niveau initial|Niveau opérationnel|Maîtrise B3)(?:\s*\([^)]*\))?\s*(?:—|:)\s*/i, '');
+  return t.trim();
+}
+
+function bands(rows, usesVous = true) {
+  if (!rows || !Array.isArray(rows) || !rows.length) return '';
+
+  // Cas particulier : barème de projet sur 100 (5 critères de 20 %) dans exercices/exercices.html
+  const isProjectRubric = rows.length === 5 && rows.every(row => {
+    const txt = row.text || String(row);
+    return /<span>\d+<\/span>\s*$/.test(txt);
+  });
+  if (isProjectRubric) {
+    return '<div class="bands">\n' + rows.map(row => {
+      const txt = (row.text || String(row)).replace(/<span>(\d+)<\/span>\s*$/, '<span>$1 %</span>');
+      return '      <div class="bandrow">' + txt + '</div>';
+    }).join('\n') + '\n    </div>';
+  }
+
+  const rawTexts = rows.map(row => {
+    const raw = row.text || (row.title ? '<strong>' + row.title + ' :</strong> ' + (row.desc || '') : '') || String(row);
+    return stripBandPrefix(raw);
+  });
+
+  let fourDescs;
+  if (rawTexts.length === 4) {
+    fourDescs = rawTexts;
+  } else if (rawTexts.length === 3) {
+    fourDescs = [
+      rawTexts[0],
+      'Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.',
+      rawTexts[1],
+      rawTexts[2]
+    ];
+  } else if (rawTexts.length >= 5) {
+    fourDescs = [
+      rawTexts[0],
+      rawTexts[1],
+      rawTexts[3] || rawTexts[2],
+      rawTexts[rawTexts.length - 1]
+    ];
+  } else {
+    fourDescs = [
+      rawTexts[0] || 'Reprenez les sections fondamentales du chapitre.',
+      rawTexts[1] || 'Refaites les exercices d’application des niveaux 1 et 2.',
+      'Bonne maîtrise d’ensemble : consolidez les cas limites.',
+      'Maîtrise complète des objectifs du chapitre.'
+    ];
+  }
+
+  const PREFIXES_4 = ['< 50 % — ', '50–69 % — ', '70–94 % — ', '≥ 95 % — '];
+  const CLASSES_4 = [' bandrow--low', ' bandrow--mid', ' bandrow--good', ' bandrow--top'];
+
+  return '<div class="bands">\n' + fourDescs.map((desc, idx) => {
+    let text = '<strong>' + PREFIXES_4[idx] + '</strong>' + desc;
+    if (usesVous) {
+      text = text
+        .replace(/\breprends\b/g, 'reprenez')
+        .replace(/\bReprends\b/g, 'Reprenez')
+        .replace(/\brefais\b/g, 'refaites')
+        .replace(/\bRefais\b/g, 'Refaites')
+        .replace(/\brelis\b/g, 'relisez')
+        .replace(/\bRelis\b/g, 'Relisez')
+        .replace(/\brevois\b/g, 'revoyez')
+        .replace(/\bRevois\b/g, 'Revoyez')
+        .replace(/\bpasse au\b/g, 'passez au')
+        .replace(/\bPasse au\b/g, 'Passez au')
+        .replace(/\bcible\b/g, 'ciblez')
+        .replace(/\btu peux\b/g, 'vous pouvez')
+        .replace(/\btu es prêt\b/g, 'vous êtes prêt')
+        .replace(/\bton\b/g, 'votre')
+        .replace(/\bta\b/g, 'votre')
+        .replace(/\btes\b/g, 'vos');
+    }
+    return '      <div class="bandrow' + CLASSES_4[idx] + '">' + text + '</div>';
+  }).join('\n') + '\n    </div>';
 }
 
 /* ======================== Chapitre ======================== */
 
+/** Détecte si le chapitre s'adresse à l'étudiant au vouvoiement (`vous`) ou au tutoiement (`tu`). */
+function detectChapterUsesVous(course, ch) {
+  const sample = [
+    ch.situation || '',
+    ...(ch.sections || []).map(s => (Array.isArray(s.html) ? s.html.join(' ') : (s.html || ''))),
+    ...(ch.pitfalls || []),
+    ...(ch.method || [])
+  ].join(' ').replace(/<script[\s\S]*?<\/script>|<pre[\s\S]*?<\/pre>|<code>[\s\S]*?<\/code>/gi, ' ');
+
+  const vousMatches = (sample.match(/\b(vous|votre|vos)\b/gi) || []).length;
+  const tuMatches = (sample.match(/\b(tu|ton|ta|tes|te|toi|t'|t’)\b/gi) || []).length;
+  if (vousMatches > 0 || tuMatches > 0) {
+    return vousMatches >= tuMatches;
+  }
+  return !(course && course.id && course.id.startsWith('b1-'));
+}
+
+/** Normalise la liste des notions d'un chapitre à exactement 8 éléments. */
+function normalizeNotionsTo8(ch) {
+  const raw = Array.isArray(ch.notions) ? ch.notions.slice() : [];
+  if (raw.length >= 8) return raw;
+  const fallbacks = [...(ch.summary || []), ...(ch.checklist || []), ...(ch.objectives || [])];
+  let idx = 0;
+  while (raw.length < 8 && idx < fallbacks.length) {
+    const item = fallbacks[idx++];
+    if (item && !raw.includes(item)) raw.push(item);
+  }
+  while (raw.length < 8) {
+    raw.push('Synthèse opérationnelle du chapitre ' + ch.n);
+  }
+  return raw;
+}
+
 /**
  * Corps d'une page de chapitre, au gabarit complet.
- *
- * L'ordre est celui qui compte : théorie, puis ateliers (insérés par
- * `scripts/generate-code-labs.js` juste avant l'ancre QCM), puis évaluation,
- * remédiation, révision et auto-contrôle.
  */
 function chapter(course, ch) {
   const out = [];
+  const usesVous = true;
+  const notions8 = normalizeNotionsTo8(ch);
 
   out.push(crumb(course, [
     { href: '../index.html', label: course.brand },
@@ -286,13 +509,13 @@ function chapter(course, ch) {
 
   out.push(box('situation', 'Mise en situation', 'play', '    <p>' + ch.situation + '</p>'));
   out.push(box('objectifs', 'Objectifs pédagogiques', 'target',
-    '    <p>À la fin de ce chapitre, tu seras capable de :</p>\n    <ol>\n' +
+    '    <p>' + (usesVous ? 'À la fin de ce chapitre, vous serez capable de :' : 'À la fin de ce chapitre, tu seras capable de :') + '</p>\n    <ol>\n' +
     ch.objectives.map(o => '      <li>' + o + '</li>').join('\n') + '\n    </ol>'));
 
   // Sections numérotées 1..N
   ch.sections.forEach((section, index) => {
     out.push('<h2>' + (index + 1) + '. ' + section.title + '</h2>');
-    out.push(section.html);
+    out.push(Array.isArray(section.html) ? section.html.join('\n') : section.html);
   });
 
   const qcmNumber = ch.sections.length + 1;
@@ -320,21 +543,31 @@ function chapter(course, ch) {
     '    <ul class="check">',
     ch.checklist.map(item => '      <li>' + item + '</li>').join('\n'),
     '    </ul>',
-    '    <h3>Les 8 notions à connaître absolument</h3>',
+    '    <h3>Les ' + notions8.length + ' notions à connaître absolument</h3>',
     '    <ol>',
-    '      ' + ch.notions.map(n => '<li>' + (typeof n === 'string' ? n : '<strong>' + (n.term || n.title || '') + ' :</strong> ' + (n.def || n.desc || n.definition || '')) + '</li>').join(''),
+    '      ' + notions8.map(n => '<li>' + (typeof n === 'string' ? n : '<strong>' + (n.term || n.title || '') + ' :</strong> ' + (n.def || n.desc || n.definition || '')) + '</li>').join(''),
     '    </ol>',
     '    <p><a class="btn" href="cartes.html">' + ic('cards') + ' Réviser avec les flashcards</a>',
     '       <a class="btn" href="formules.html">' + ic('file') + ' Mémo syntaxe</a></p>',
     '  </div>'
   ].join('\n'));
 
+  let masteryIntroText = ch.masteryIntro || (usesVous
+    ? 'Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :'
+    : 'Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :');
+  if (usesVous) {
+    masteryIntroText = masteryIntroText
+      .replace(/\bton QCM\b/g, 'votre QCM')
+      .replace(/\bta checklist\b/g, 'votre checklist')
+      .replace(/\bLis ton pourcentage\b/g, 'Lisez votre pourcentage');
+  }
+
   out.push('<h2>' + (qcmNumber + 4) + '. Test de maîtrise</h2>');
   out.push([
     '  <div class="box box--tech">',
-    '    <div class="box__title">' + ic('chart') + ' Comment t\'auto-évaluer</div>',
-    '    <p>' + (ch.masteryIntro || 'Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :') + '</p>',
-    '    ' + bands(ch.mastery),
+    '    <div class="box__title">' + ic('chart') + ' ' + (usesVous ? 'Comment vous auto-évaluer' : 'Comment t\'auto-évaluer') + '</div>',
+    '    <p>' + masteryIntroText + '</p>',
+    '    ' + bands(ch.mastery, usesVous),
     '    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>',
     '  </div>'
   ].join('\n'));
@@ -349,7 +582,9 @@ function chapter(course, ch) {
   nav.push('  </div>');
   out.push(nav.join('\n'));
 
-  out.push('  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  Sources : ' + course.sources + '.</p>');
+  out.push('  <p class="disclaimer">Objectif de maîtrise 19/20 — ' +
+    (usesVous ? 'votre note réelle dépend aussi de votre travail.' : 'ta note réelle dépend aussi de ton travail.') +
+    '\n  Sources : ' + course.sources + '.</p>');
 
   return out.join('\n\n');
 }
@@ -367,6 +602,7 @@ module.exports = {
   esc,
   ic,
   prefix,
+  resolveCoursePath,
   page,
   crumb,
   tags,

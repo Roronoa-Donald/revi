@@ -63,12 +63,12 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Le club te prête une carte programmable. Branchée, elle n’affiche rien : ce n’est pas qu’elle est cassée, c’est qu’elle attend un programme. Avant de brancher la moindre LED, il faut comprendre ce qu’un programme pour carte a toujours : des lectures d’entrées, des calculs, des affichages exactement ordonnés. On écrit ce premier programme en Python, parce que MicroPython — la variante qui tourne sur les cartes du club — en est la copie presque conforme.</p>
+    <p>Le club te prête une carte programmable. Branchée, elle n’affiche rien : ce n’est pas qu’elle est cassée, c’est qu’elle attend un programme. Avant de brancher la moindre LED, il faut comprendre ce qu’un programme pour carte a toujours : des lectures d’entrées, des calculs, des affichages exactement ordonnés. On écrit ce premier programme de manière méthodique, parce que MicroPython — la variante qui tourne sur les cartes du club — en est la copie presque conforme.</p>
   </div>
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>décrire la boucle capter, décider, agir qui anime tout robot ;</li>
       <li>écrire un programme qui lit une donnée et affiche une séquence exacte ;</li>
@@ -77,19 +77,23 @@
     </ol>
   </div>
 
-<h2>1. La boucle qui anime tout robot</h2>
+<h2>1. Pont pédagogique : Du cycle Capteur → Traitement → Actionneur au programme Arduino (setup / loop)</h2>
+
+<div class="box box--tech"><div class="box__title">Correspondance avec les travaux pratiques sur carte Arduino (C/C++)</div><p>Sur une carte microcontrôleur <strong>Arduino Uno</strong> (étudiée dans les fiches de TP du Club de Robotique), tout programme comporte deux fonctions obligatoires qui reflètent directement la boucle de commande d’un robot :</p><ul><li><code>void setup() { ... }</code> : exécutée <strong>une seule fois</strong> à la mise sous tension pour configurer les broches en entrée ou en sortie (<code>pinMode(pin, INPUT/OUTPUT)</code>) et ouvrir la liaison série (<code>Serial.begin(9600)</code>) ;</li><li><code>void loop() { ... }</code> : répétée <strong>indéfiniment</strong> pour lire les capteurs (<code>digitalRead()</code>, <code>analogRead()</code>), décider du comportement et commander les actionneurs (<code>digitalWrite()</code>, <code>analogWrite()</code>).</li></ul></div>
+
+<h2>2. La boucle qui anime tout robot</h2>
 
 <p>Un robot, une machine à laver, un drone : sous les différences, le même squelette de programme, répété sans fin.</p>
 <pre><code>capter    lire les entrées (capteur, bouton, horloge)
 décider   comparer ces lectures à des seuils ou des règles
 agir      commander les sorties (moteur, LED, buzzer)</code></pre>
-<p>Sur une carte Arduino, cette boucle tourne dans une fonction <code>loop()</code> réécrite sans arrêt. En simulation Python, on l’écrit explicitement : le programme lit, décide, agit — puis le programme s’arrête, parce qu’un affichage texte a une fin. La logique, elle, est la même.</p>
+<p>Sur une carte Arduino, cette boucle tourne dans une fonction <code>loop()</code> réécrite sans arrêt. En simulation Python, on l’écrit explicitement : l’étude de cas comporte, décide, agit — puis le programme s’arrête, parce qu’un affichage texte a une fin. La logique, elle, est la même.</p>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Entrées, décisions, sorties »</div>
     <p>Tout exercice de ce cours se pose dans cet ordre : <strong>quelles entrées</strong> lis-je, <strong>quelle décision</strong> prends-je, <strong>quelle sortie</strong> produis-je. Un programme qui affiche avant de lire ne peut pas marcher, quel que soit le reste du code.</p>
   </div>
 
-<h2>2. La structure d’un programme</h2>
+<h2>3. La structure d’un programme</h2>
 
 <p>Un programme s’exécute <strong>ligne par ligne, de haut en bas</strong>. Chaque ligne est une instruction achevée : une lecture, un calcul, un affichage.</p>
 <table>
@@ -105,7 +109,7 @@ agir      commander les sorties (moteur, LED, buzzer)</code></pre>
     <p>Les instructions s’exécutent <strong>dans l’ordre écrit</strong>. Si l’énoncé attend « nom puis âge », lire l’âge d’abord produit un programme faux, même si chaque ligne est juste. Relire l’ordre des entrées avant d’écrire la première ligne est un réflexe de roboticien.</p>
   </div>
 
-<h2>3. Calculs de bord</h2>
+<h2>4. Calculs de bord</h2>
 
 <p>Une carte calcule tout : une distance parcourue, un temps d’attente, un partage de pièces. Les opérateurs entiers répondent aux deux questions « combien de fois » et « combien il reste ».</p>
 <pre><code>opération         opérateur    exemple
@@ -120,15 +124,15 @@ reste             a % b        10 % 3 = 1    (combien il reste)</code></pre>
     <p><code>a // 0</code> arrête le programme avec une erreur. Sur une carte réelle, la conséquence est pire : le robot fige. Toute division dont le dénominateur vient d’une entrée doit être précédée d’un test <code>if b == 0</code>. L’énoncé du TP le demandait déjà en bonus.</p>
   </div>
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> En Python</div>
-    <pre><code>a, b = (int(x) for x in donnees_capteur.split())
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> de manière méthodique</div>
+    <pre><code>a, b = (int(x) for x in l’extraction des champs)
 
 print(f"somme : {a + b}")
 print(f"reste : {a % b}")</code></pre>
-    <p>La première ligne lit <strong>une seule ligne</strong> contenant « 10 5 » et la découpe : <code>split()</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>
+    <p>La première ligne lit <strong>une seule ligne</strong> contenant « 10 5 » et la découpe : <code>l’extraction des champs</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>
   </div>
 
-<h2>4. Mettre en forme un rapport</h2>
+<h2>5. Mettre en forme un rapport</h2>
 
 <p>Un moniteur série défile vite : le rapport lisible est aligné. Les f-strings alignent tout seules avec une largeur après les deux-points.</p>
 <pre><code>f&quot;{&#39;Membre&#39;:&lt;12}: {membre}&quot;   →   "Membre      : Alice"
@@ -138,10 +142,10 @@ f"{t:g}"                    →   "30"      (sans zéros inutiles)</code></pre>
 <p>Le repère <code>:&lt;12</code> signifie « aligner à gauche en complétant avec des espaces jusqu’à 12 caractères ». Les libellés de même largeur forment une colonne : l’œil compare immédiatement, ce qui est le but d’un journal de séance.</p>
 
 <!-- code-labs:start -->
-  <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" id="rb-c1-e1" data-lab
      data-exercise="rb-c1-e1"
      data-language="analyse"
      data-height="300"
@@ -188,7 +192,7 @@ Ma prochaine seance sera encore meilleure.</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="rb-c1-e2" data-lab
      data-exercise="rb-c1-e2"
      data-language="analyse"
      data-height="300"
@@ -237,7 +241,7 @@ reste : 0</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="rb-c1-e3" data-lab
      data-exercise="rb-c1-e3"
      data-language="analyse"
      data-height="300"
@@ -297,7 +301,7 @@ Duree       : 90 min</pre></div>
   </div>
 </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -356,7 +360,7 @@ Duree       : 90 min</pre></div>
     </div>
   </div>
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -369,7 +373,7 @@ Duree       : 90 min</pre></div>
     </ul>
   </div>
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire un programme pour carte</div>
@@ -382,7 +386,7 @@ Duree       : 90 min</pre></div>
     </ol>
   </div>
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -408,16 +412,16 @@ Duree       : 90 min</pre></div>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — Refais les trois exercices en relisant chaque ligne à voix haute.</div>
-      <div class="bandrow bandrow--mid">50–69 % — Travaille les f-strings de mise en forme sur tes propres rapports.</div>
-      <div class="bandrow bandrow--good">70–89 % — Solide : rejoue le calculatrice de bord avec des valeurs négatives.</div>
-      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, les boucles et temporisations.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Refaites les trois exercices en relisant chaque ligne à voix haute.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Travaille les f-strings de mise en forme sur vos propres rapports.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : rejoue le calculatrice de bord avec des valeurs négatives.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au chapitre 2, les boucles et temporisations.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -427,7 +431,7 @@ Duree       : 90 min</pre></div>
     <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Boucles et temporisations <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : le support du club « Séance TP — Club Robotique & Électronique » (programmation, CircuitVerse, Tinkercad) et le cours de logique fourni.</p>
 </main>
 

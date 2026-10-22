@@ -25,8 +25,8 @@ module.exports = [
       '<code>Version: &lt;version&gt;</code></p>',
     starter: `ligne = input().strip()\n\n# À compléter : découper la ligne et afficher les trois composants.\n`,
     hints: [
-      'Utilise la méthode ligne.split() pour séparer les éléments sur les espaces.',
-      'Affiche chaque valeur sur une ligne dédiée avec le préfixe demandé.'
+      'Utilisez la méthode ligne.split() pour séparer les éléments sur les espaces.',
+      'Affichez chaque valeur sur une ligne dédiée avec le préfixe demandé.'
     ],
     examples: [
       {
@@ -68,13 +68,13 @@ print(f"Version: {version}")
     goal: 'Analyser une URL et extraire ses paramètres d’URL ordonnés alphabétiquement.',
     brief: '<p>Dans une API REST, la <em>Query String</em> permet de filtrer, paginer ou trier une collection. ' +
       'Elle débute après le caractère <code>?</code> et se compose de paires <code>clé=valeur</code> séparées par <code>&amp;</code>.</p>' +
-      '<p>Lit une URL complète sur l’entrée standard. Extrais les paramètres et affiche chaque paire sous la forme <code>cle=valeur</code>, ' +
+      '<p>Lit une URL complète sur l’entrée standard. Extrayez les paramètres et affichez chaque paire sous la forme <code>cle=valeur</code>, ' +
       '<strong>triée par ordre alphabétique de la clé</strong>. Si l’URL ne contient aucun paramètre, affiche <code>Aucun parametre</code>.</p>',
     starter: `from urllib.parse import urlparse, parse_qsl\n\nurl = input().strip()\n\n# À compléter : analyser l'URL et afficher les paramètres triés par clé.\n`,
     hints: [
       'urlparse(url).query renvoie la chaîne de paramètres brute.',
       'parse_qsl(query) renvoie une liste de couples (cle, valeur).',
-      'Trie la liste avec sorted(..., key=lambda x: x[0]) avant d’afficher chaque paire.'
+      'Triez la liste avec sorted(..., key=lambda x: x[0]) avant d’afficher chaque paire.'
     ],
     examples: [
       {
@@ -123,13 +123,13 @@ else:
     brief: '<p>Une API REST moderne dialogue couramment au format JSON. Dans les en-têtes HTTP reçus, ' +
       'le client indique le format envoyé via <code>Content-Type</code> et le format attendu via <code>Accept</code>.</p>' +
       '<p>Lit l’ensemble des lignes d’en-têtes HTTP sur l’entrée standard jusqu’à EOF. Chaque ligne est au format <code>Nom-Entete: Valeur</code>.</p>' +
-      '<p>Vérifie si <code>application/json</code> est présent soit dans <code>Content-Type</code> soit dans <code>Accept</code> (en ignorant la casse).<br>' +
-      'Si oui, affiche <code>JSON supporte</code>.<br>' +
-      'Sinon, affiche <code>Format non supporte</code>.</p>',
+      '<p>Vérifiez si <code>application/json</code> est présent soit dans <code>Content-Type</code> soit dans <code>Accept</code> (en ignorant la casse).<br>' +
+      'Si oui, affichez <code>JSON supporte</code>.<br>' +
+      'Sinon, affichez <code>Format non supporte</code>.</p>',
     starter: `import sys\n\nlignes = [l.strip() for l in sys.stdin if l.strip()]\n\n# À compléter : analyser les en-têtes et afficher 'JSON supporte' ou 'Format non supporte'.\n`,
     hints: [
       'Sépare le nom de l’en-tête et sa valeur sur le premier caractère deux-points (header.split(":", 1)).',
-      'Convertis les noms et valeurs en minuscules (.lower()) pour une comparaison robuste.'
+      'Convertissez les noms et valeurs en minuscules (.lower()) pour une comparaison robuste.'
     ],
     examples: [
       {

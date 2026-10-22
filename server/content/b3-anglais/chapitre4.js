@@ -18,7 +18,7 @@ module.exports = {
     'employer des formules d’interruption courtoise et de relance constructive en réunion technique (« Could I just jump in? », « If I could add to that... ») ;',
     'calculer mathématiquement le temps d’indisponibilité mensuel toléré selon le taux de SLA et déterminer les pénalités contractuelles ;',
     'animer une rétrospective de sprint en anglais en catégorisant les retours positifs, les freins rencontrés et les plans d’action formalisés ;',
-    'implémenter en Python 3 des parseurs de compte-rendus de standup, des calculateurs de conformité de SLA et des agrégateurs de rétrospectives.'
+    'analyser et résoudre méthodologiquement des parseurs de compte-rendus de standup, des calculateurs de conformité de SLA et des agrégateurs de rétrospectives.'
   ],
   sections: [
     {

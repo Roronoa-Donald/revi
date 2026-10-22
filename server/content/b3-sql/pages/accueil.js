@@ -157,7 +157,7 @@ function atelier(course) {
     '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie base de données en Python 3 : simulation de transactions ACID, calcul d\'empreinte B-Tree, analyse de plans EXPLAIN et fenêtrage analytique.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="analyse"',
+    '       data-language="sql"',
     '       data-height="420"',
     '       data-stdin="TX_BEGIN id=1\nTX_UPDATE id=1 table=comptes solde=100\nTX_COMMIT id=1">',
     '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-sql\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',

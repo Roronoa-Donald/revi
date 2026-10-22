@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-windows-servernav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,14 +68,14 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>maîtriser l’architecture interne des GPOs : synchronisation entre le Group Policy Container (GPC) et le Group Policy Template (GPT dans SYSVOL) ;</li>
       <li>appliquer l’ordre séquentiel strict de traitement LSDOU (Local, Site, Domaine, OU) et déterminer la stratégie gagnante en cas de conflit ;</li>
       <li>résoudre les cas complexes d’héritage de stratégies avec les options Enforced (application forcée) et Block Inheritance (blocage de l’héritage) ;</li>
       <li>configurer un filtrage de sécurité (Security Filtering) par groupes d’ordinateurs et restreindre l’application via le droit Apply Group Policy ;</li>
       <li>concevoir des filtres dynamiques WMI en langage WQL pour conditionner l’application d’une GPO aux spécifications matérielles et d’OS ;</li>
-      <li>implémenter en Python 3 des calculateurs de précédence LSDOU, des moteurs d’arbitrage Enforced/Block et des évaluateurs de filtres WMI.</li>
+      <li>analyser et résoudre méthodologiquement des calculateurs de précédence LSDOU, des moteurs d’arbitrage Enforced/Block et des évaluateurs de filtres WMI.</li>
     </ol>
   </div>
 
@@ -148,9 +148,9 @@
 
 <!-- code-labs:start -->
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+<div class="lab" id="ws3-c3-e1" data-lab
      data-exercise="ws3-c3-e1"
      data-language="analyse"
      data-height="300"
@@ -195,7 +195,7 @@ Règles de précédence :
 Entrée :
 `GPO name=<NOM> level=<LOCAL|SITE|DOMAIN|OU> link_order=<N> param=<P> value=<V>`
 
-Sortie :
+Résultat d’analyse attendu :
 - Pour chaque paramètre unique (trié par nom alphabétique) :
   `EFFECTIVE_SETTING param=<P> value=<V> source_gpo=<NOM> level=<LEVEL>`
 - Bilan :
@@ -209,7 +209,7 @@ SUMMARY params_evalues=1 gpos_total=3</pre></div>
     </div>
     <p class="lab__note">La GPO liée à l’OU a la plus forte précédence (niveau OU &gt; DOMAIN &gt; LOCAL) : 30 jours s’appliquent.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Attribuer un poids numérique à chaque niveau (LOCAL:1, SITE:2, DOMAIN:3, OU:4).</li>
         <li>Pour le link_order, un ordre plus petit (1) doit avoir une priorité plus élevée que 2 (ex: utiliser -link_order).</li>
@@ -219,7 +219,7 @@ SUMMARY params_evalues=1 gpos_total=3</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="ws3-c3-e2" data-lab
      data-exercise="ws3-c3-e2"
      data-language="analyse"
      data-height="300"
@@ -262,7 +262,7 @@ Règle d’or Microsoft :
 2. Si `block_inheritance=ENABLED` sur l’OU, toutes les GPOs DOMAIN avec `enforced=DISABLED` sont purement et simplement IGNORÉES.
 3. Si `block_inheritance=DISABLED`, les GPOs DOMAIN (enforced=DISABLED) s’appliquent mais peuvent être écrasées par les GPOs de l’OU.
 
-Sortie :
+Résultat d’analyse attendu :
 - Pour chaque paramètre (trié par nom alphabétique) :
   `EFFECTIVE_SETTING param=<P> value=<V> source_gpo=<NOM>`
 - Bilan :
@@ -279,7 +279,7 @@ SUMMARY block_applied=TRUE enforced_count=1 params_count=2</pre></div>
     </div>
     <p class="lab__note">MinPasswordLength est Enforced par le Domaine : il bat la tentative de réduction à 8 de l’OU. ScreenTimeout du Domaine est bloqué par l’OU, donc la valeur 60 de l’OU s’applique.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Garder la valeur Enforced en priorité absolue (indétrônable).</li>
         <li>Si block_inheritance=ENABLED, éliminer les GPOs DOMAIN non forcées.</li>
@@ -289,7 +289,7 @@ SUMMARY block_applied=TRUE enforced_count=1 params_count=2</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="ws3-c3-e3" data-lab
      data-exercise="ws3-c3-e3"
      data-language="analyse"
      data-height="300"
@@ -324,7 +324,7 @@ A_COMPLETER
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier si une GPO est applicable à un poste client en évaluant l’appartenance aux groupes de sécurité et les critères matériels/OS du filtre WMI.</p>
     <div class="lab__brief">Une stratégie de groupe n’est traitée par un ordinateur client que si elle satisfait deux filtres simultanés :
 1. Filtrage de sécurité : l’ordinateur doit appartenir à au moins un des groupes listés dans `security_groups`.
-2. Filtre WMI : les spécifications de l’ordinateur doivent vérifier tous les critères techniques :
+2. Filtrez WMI : les spécifications de l’ordinateur doivent vérifier tous les critères techniques :
    - `min_os_build` : `client.os_build >= gpo.min_os_build`
    - `arch` : `gpo.arch == ANY` ou `client.arch == gpo.arch`
    - `min_ram_gb` : `client.ram_gb >= gpo.min_ram_gb`
@@ -333,7 +333,7 @@ Entrée :
 `CLIENT name=<NOM> os_build=<N> arch=<64BIT|32BIT> ram_gb=<N> groups=<G1,G2,...>`
 `GPO name=<NOM> security_groups=<G1,G2,...> min_os_build=<N> arch=<64BIT|32BIT|ANY> min_ram_gb=<N>` (1 ou plusieurs)
 
-Sortie :
+Résultat d’analyse attendu :
 - Pour chaque GPO (triée par nom alphabétique) :
   `GPO_EVAL gpo=<NOM> statut=<APPLIQUE|IGNORE> motif=<OK|REFUS_SECURITE|REFUS_WMI>`
   (Priorité de motif : si la sécurité échoue -> `REFUS_SECURITE` ; si la sécurité passe mais WMI échoue -> `REFUS_WMI` ; si tout passe -> `OK`).
@@ -349,7 +349,7 @@ SUMMARY total_gpos=2 appliquees=1 ignorees=1</pre></div>
     </div>
     <p class="lab__note">GPO_BitLocker satisfait la sécurité et WMI (16 &gt;= 4, build OK). GPO_CADSoftware est rejetée pour sécurité car le client n’est pas dans Engineers.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Comparer les ensembles de groupes avec set.intersection().</li>
         <li>Vérifier os_build, arch et ram_gb si la sécurité est validée.</li>
@@ -502,12 +502,13 @@ SUMMARY total_gpos=2 appliquees=1 ignorees=1</pre></div>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Difficultés à ordonner la séquence LSDOU ou confusion entre Enforced et Block Inheritance.</div>
-      <div class="bandrow bandrow--medium">Bonne maîtrise de la précédence GPO, structuration propre des OUs et ciblage précis par filtrage de sécurité.</div>
-      <div class="bandrow bandrow--high">Excellence en gouvernance de parc : déploiement du Central Store ADMX, requêtes WMI complexes et diagnostic gpresult avancé.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à ordonner la séquence LSDOU ou confusion entre Enforced et Block Inheritance.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise de la précédence GPO, structuration propre des OUs et ciblage précis par filtrage de sécurité.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellence en gouvernance de parc : déploiement du Central Store ADMX, requêvos WMI complexes et diagnostic gpresult avancé.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -517,7 +518,7 @@ SUMMARY total_gpos=2 appliquees=1 ignorees=1</pre></div>
     <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Services de Fichiers, Permissions NTFS vs Partage SMB &amp; Espaces de Stockage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris).</p>
 </main>
 

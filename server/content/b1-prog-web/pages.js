@@ -18,7 +18,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -39,7 +39,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>expliquer ce qui se passe entre le clic sur une adresse et l’affichage de la page ;</li>',
       '      <li>écrire un document HTML structuré, sémantique et accessible ;</li>',
@@ -52,12 +52,12 @@ function index(course, chapterList) {
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Chaque chapitre part d’une situation concrète (une page qui ne s’affiche pas, un style qui ne ' +
       's’applique pas, un bouton qui ne réagit pas), pose les notions, montre le code exact, puis se termine ' +
-      'par <strong>trois exercices de code en JavaScript</strong> : ton programme est réellement exécuté et ' +
-      'corrigé par des tests que tu ne vois pas.</p>',
+      'par <strong>trois exercices de code en JavaScript</strong> : votre programme est réellement exécuté et ' +
+      'corrigé par des tests que vous ne voyez pas.</p>',
       '    <p>Les exercices ne manipulent pas le DOM — il n’existe pas hors du navigateur. Ils portent sur ce ' +
       'qui se <em>calcule</em> : décomposer une URL, classer un code HTTP, lire un extrait HTML, valider et ' +
       'échapper une saisie, calculer une spécificité ou une largeur de boîte, placer une cellule de grille. ' +
-      'C’est exactement la logique que tu réutiliseras ensuite dans la page.</p>'
+      'C’est exactement la logique que vous réutiliseras ensuite dans la page.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',
@@ -72,7 +72,7 @@ function index(course, chapterList) {
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Deux sujets chronométrés proches de l’évaluation, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     box('tech', 'Aucune installation nécessaire', 'terminal', [
-      '    <p>L’atelier exécute ton JavaScript sur un service isolé : rien ne tourne sur ta machine, aucun ' +
+      '    <p>L’atelier exécute votre JavaScript sur un service isolé : rien ne tourne sur votre machine, aucun ' +
       'fichier n’est installé. La clé du service reste sur le serveur et n’est jamais transmise au ' +
       'navigateur.</p>'
     ].join('\n')),
@@ -109,7 +109,7 @@ function sommaire(course, chapterList) {
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur (et un ' +
     'abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois exercices en JavaScript</strong> à écrire et à ' +
-    'exécuter dans la page : ton programme est réellement lancé, puis corrigé par des tests que tu ne vois ' +
+    'exécuter dans la page : votre programme est réellement lancé, puis corrigé par des tests que vous ne voyez ' +
     'pas. L’<a href="atelier.html">atelier de code</a> permet de tester librement.</p>',
     '  <div class="toc">',
     toc,
@@ -142,8 +142,8 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de code</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai moteur JavaScript derrière. Écris un programme, ' +
-    'donne-lui une entrée, exécute-le et lis ce qu’il affiche : c’est ici qu’une règle devient un réflexe.</p>',
+    '  <p class="lead">Un éditeur dans la page, un vrai moteur JavaScript derrière. Écrivez un programme, ' +
+    'donnez-lui une entrée, exécutez-le et lisez ce qu’il affiche : c’est ici qu’une règle devient un réflexe.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code JavaScript tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
@@ -189,12 +189,12 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends une notion du ' +
-      'cours — une règle de validation, un calcul de largeur, un tri de données — programme-la et teste-la sur ' +
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez une notion du ' +
+      'cours — une règle de validation, un calcul de largeur, un tri de données — programmez-la et testez-la sur ' +
       'des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé lit une liste d’élèves et affiche chaque note comparée à la moyenne. Modifie ' +
-      'les données, change la règle de comparaison, ou remplace tout le script par le calcul que tu veux ' +
+      '      <p>Le script proposé lit une liste d’élèves et affiche chaque note comparée à la moyenne. Modifiez ' +
+      'les données, change la règle de comparaison, ou remplace tout le script par le calcul que vous voulez ' +
       'vérifier.</p>',
       '      <p>Le navigateur n’est jamais montré ici : on travaille sur des données, pas sur une page. C’est ' +
       'volontaire — la logique s’isole, puis se réutilise dans le DOM.</p>',
@@ -262,8 +262,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo du développeur' })
   ].join('\n\n');
@@ -599,12 +599,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’épreuve finale (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu’à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : encodage, hiérarchie des titres, <code>alt</code>, ' +
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu’à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : encodage, hiérarchie des titres, <code>alt</code>, ' +
       'spécificité, bornes des paliers.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
@@ -617,7 +617,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les pièges de spécificité et de boîte.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les pièges de spécificité et de boîte.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l’épreuve réelle.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),
@@ -656,7 +656,7 @@ function exercices(course) {
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Décompose une URL en protocole, hôte, chemin et requête.',
+      'Décomposez une URL en protocole, hôte, chemin et requête.',
       'Classe des codes de statut dans leur famille.',
       'Compte les occurrences d’une balise dans un extrait de HTML.',
       'Échappe un texte saisi par un utilisateur.'
@@ -680,15 +680,15 @@ function exercices(course) {
       'const echapper = texte => texte',
       '  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")',
       '  .replace(/"/g, "&quot;").replace(/\'/g, "&#39;");',
-      'console.log(echapper(\'<b>Coucou & "toi"</b>\'));'
+      'console.log(echapper(\'<b>Coucou & "vous"</b>\'));'
     ].join('\n')),
 
     '  <h2>Consolidation (maîtrise)</h2>',
     item('Niveau intermédiaire', 'n3', [
-      'Calcule la largeur occupée par une boîte de 250 px avec 15 px de padding, 3 px de bordure et 6 px de marge, dans les deux modèles de boîte.',
-      'Calcule la spécificité de <code>article.note &gt; h2 + p</code> — et explique le rôle du <code>+</code>.',
-      'Convertis 1,25 rem et 2 em en pixels pour une base de 18 px.',
-      'Trie une liste d’élèves par note décroissante, puis par nom en cas d’égalité.'
+      'Calculez la largeur occupée par une boîte de 250 px avec 15 px de padding, 3 px de bordure et 6 px de marge, dans les deux modèles de boîte.',
+      'Calculez la spécificité de <code>article.note &gt; h2 + p</code> — et explique le rôle du <code>+</code>.',
+      'Convertissez 1,25 rem et 2 em en pixels pour une base de 18 px.',
+      'Triez une liste d’élèves par note décroissante, puis par nom en cas d’égalité.'
     ], [
       'const [w, p, b, m] = [250, 15, 3, 6];',
       'console.log(w + 2 * p + 2 * b);      // 286  (content-box)',
@@ -713,7 +713,7 @@ function exercices(course) {
       'Une page contient <code>&lt;h1&gt;</code>, <code>&lt;h3&gt;</code>, <code>&lt;h2&gt;</code>, <code>&lt;h4&gt;</code>. La structure des titres est-elle conforme ? Justifie et propose une correction.',
       'Deux feuilles de style se contredisent : <code>a { color: red }</code> dans la première, <code>.menu a { color: blue }</code> dans la seconde. Laquelle gagne, et que se passe-t-il si l’on ajoute <code>!important</code> à la première ?',
       'Un utilisateur saisit « &lt;script&gt;alert(1)&lt;/script&gt; » dans un commentaire. Explique ce qui se passe si l’application l’affiche avec <code>innerHTML</code>, puis avec <code>textContent</code>.',
-      'Écris un programme qui lit n lignes « nom note », puis affiche la moyenne et le nom du major.'
+      'Écrivez un programme qui lit n lignes « nom note », puis affiche la moyenne et le nom du major.'
     ], [
       '// 1) non conforme : après h1, la descente à h3 saute le niveau 2',
       '//    et remonter à h2 puis descendre à h4 reste incohérent.',

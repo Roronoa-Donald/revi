@@ -269,6 +269,34 @@ function executePythonIsolated(code, stdin, timeoutMs = 6000) {
   });
 }
 
+
+async function executeSqlIsolated(code, stdin, timeoutMs = 3000) {
+  try {
+    const sqlEngine = require('../../../assets/js/engines/sql-wasm-engine');
+    const res = await sqlEngine.execute(code, stdin, { timeoutMs, maxRows: 2000, maxOutputBytes: MAX_OUTPUT_BYTES });
+    const ok = res && res.status === 'success';
+    return {
+      ok: true,
+      httpStatus: 200,
+      data: {
+        stdout: appendCapped('', (res && res.stdout) || ''),
+        stderr: appendCapped('', (res && res.stderr) || ''),
+        exit_code: ok ? 0 : 1
+      }
+    };
+  } catch (err) {
+    return {
+      ok: true,
+      httpStatus: 200,
+      data: {
+        stdout: '',
+        stderr: appendCapped('', String(err && err.message ? err.message : err)),
+        exit_code: 1
+      }
+    };
+  }
+}
+
 async function main() {
   let rawInput = '';
   for await (const chunk of process.stdin) {
@@ -297,6 +325,8 @@ async function main() {
     result = executeJavaScriptIsolated(code, stdin, timeoutMs);
   } else if (lang === 'python' || lang === 'py') {
     result = await executePythonIsolated(code, stdin, timeoutMs);
+  } else if (lang === 'sql') {
+    result = await executeSqlIsolated(code, stdin, timeoutMs);
   } else {
     result = {
       ok: false,

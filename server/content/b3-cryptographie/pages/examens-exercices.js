@@ -179,7 +179,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Répertoire des Exercices de Programmation &amp; Code Labs — ' + course.brand + '</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés au cours, avec exécution directe et tests automatisés : de la cryptanalyse historique aux signatures numériques et protocoles post-quantiques.</p>',
+    '  <p class="lead">18 études de cas pratiques et méthodologiques intégrés au cours, avec exécution directe et tests automatisés : de la cryptanalyse historique aux signatures numériques et protocoles post-quantiques.</p>',
     '',
     itemsHtml,
     '',
@@ -191,7 +191,7 @@ function exercices(course, chapterList) {
   return {
     'chapitres/exercices.html': {
       title: 'Exercices — ' + course.brand,
-      description: 'Catalogue des 18 exercices pratiques de programmation en Python 3 du cours Cryptographie & PKI B3.',
+      description: 'Catalogue des 18 exercices pratiques de programmation de manière méthodique du cours Cryptographie & PKI B3.',
       active: 'exercices',
       body
     }

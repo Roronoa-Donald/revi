@@ -146,8 +146,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise le canevas Connextra et les principes du MoSCoW.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul WSJF et les différences DoR/DoD.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la modélisation et l’arbitrage du backlog.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul WSJF et les différences DoR/DoD.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la modélisation et l’arbitrage du backlog.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la spécification formelle et traçabilité au chapitre 5.' }
   ],
 

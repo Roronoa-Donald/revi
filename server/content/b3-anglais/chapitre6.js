@@ -19,7 +19,7 @@ module.exports = {
     'baliser son discours avec les locutions de transition normalisées (Signposting : Starting, Outlining, Transitioning, Concluding, Q&A) ;',
     'structurer des réponses d’entretiens d’embauche percutantes avec la méthode STAR (Situation, Task, Action, Result) incluant des métriques d’impact quantifiées ;',
     'optimiser un curriculum vitæ technique pour les robots de tri ATS en valorisant les verbes d’action à fort impact (power action verbs) ;',
-    'développer en Python 3 des linters de structure STAR, des auditeurs de signposting et des analyseurs de CV automatisés.'
+    'analyser et résoudre méthodologiquement des linters de structure STAR, des auditeurs de signposting et des analyseurs de CV automatisés.'
   ],
   sections: [
     {

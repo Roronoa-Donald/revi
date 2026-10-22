@@ -20,7 +20,7 @@ module.exports = {
     'maîtriser les techniques de découpage vertical des Epics volumineux (Workflow, Règles métier, Données) ;',
     'rédiger des critères d’acceptation vérifiables selon la syntaxe formelle BDD / Gherkin (Given, When, Then) ;',
     'comprendre le principe de l’estimation relative en Story Points et son découplage de la durée calendaire ;',
-    'développer en Python 3 des validateurs syntaxiques INVEST, des moteurs de consensus Planning Poker et des analyseurs séquentiels Gherkin.'
+    'analyser et résoudre méthodologiquement des validateurs syntaxiques INVEST, des moteurs de consensus Planning Poker et des analyseurs séquentiels Gherkin.'
   ],
   sections: [
     {

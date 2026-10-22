@@ -15,7 +15,7 @@ module.exports = {
   lockLabel: 'Réservé B2 et plus',
 
   situation:
-    'Les utilisateurs finaux ne savent pas toujours formuler précisément ce dont ils ont besoin. Entre ce qu’un client ' +
+    'Les utilisateurs finaux ne savent pas toujours formuler précisément ce dont ils ont besoin. Entrez ce qu’un client ' +
     'dit, ce qu’il fait réellement et ce dont il a besoin, il existe souvent un fossé considérable. L’ingénieur ' +
     'des exigences doit déployer une palette de techniques d’élicitation complémentaires pour faire émerger ' +
     'les besoins tacites et surmonter les biais cognitifs.',
@@ -146,8 +146,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les techniques d’élicitation et le calcul d’échantillon de Yamane.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la démarche de shadowing et la conception de personas.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les démarches d’investigation terrain.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la démarche de shadowing et la conception de personas.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les démarches d’investigation terrain.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la modélisation et priorisation au chapitre 4.' }
   ],
 

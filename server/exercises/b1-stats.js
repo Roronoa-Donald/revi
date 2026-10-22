@@ -131,8 +131,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Affichez le tableau des effectifs : une ligne par modalité, dans l’ordre croissant, au format <code>valeur effectif</code>.</p>",
     "starter": "# Grille de calcul (st-c2-e1) — Tableau des effectifs\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Petites valeurs]\n# Données : 5\n# Données : 1\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Série constante]\n# Données : 3\n# Données : 5\n# Données : 5\n# Données : 5\nA_COMPLETER\n\n[Cas 3 — Trois modalités]\n# Données : 6\n# Données : 10\n# Données : 20\n# Données : 10\n# Données : 30\n# Données : 20\n# Données : 10\nA_COMPLETER\n",
     "hints": [
-      "Parcours les valeurs une seule fois en comptant dans un dictionnaire : c’est plus court que de compter chaque modalité séparément.",
-      "Trie ensuite les couples (valeur, effectif) avant de les afficher."
+      "Parcourez les valeurs une seule fois en comptant dans un dictionnaire : c’est plus court que de compter chaque modalité séparément.",
+      "Triez ensuite les couples (valeur, effectif) avant de les afficher."
     ],
     "examples": [
       {
@@ -210,7 +210,7 @@ module.exports = [
     "starter": "# Grille de calcul (st-c2-e3) — Effectifs cumulés croissants\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série constante]\n# Données : 4\n# Données : 5\n# Données : 5\n# Données : 5\n# Données : 5\nA_COMPLETER\n\n[Cas 2 — Trois modalités mélangées]\n# Données : 5\n# Données : 3\n# Données : 1\n# Données : 2\n# Données : 1\n# Données : 3\nA_COMPLETER\n\n[Cas 3 — ECC de la dernière modalité égal à N]\n# Données : 7\n# Données : 4\n# Données : 4\n# Données : 1\n# Données : 2\n# Données : 2\n# Données : 3\n# Données : 4\nA_COMPLETER\n",
     "hints": [
       "Sur les modalités triées, l’ECC est la somme des effectifs de cette modalité et de toutes les précédentes.",
-      "Tu peux cumuler au fur et à mesure dans une variable qui ne repart jamais de zéro."
+      "Vous pouvez cumuler au fur et à mesure dans une variable qui ne repart jamais de zéro."
     ],
     "examples": [
       {
@@ -366,7 +366,7 @@ module.exports = [
     "starter": "# Grille de calcul (st-c4-e1) — Variance d’une série\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Quatre valeurs régulières]\n# Données : 4\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\nA_COMPLETER\n\n[Cas 2 — Série constante]\n# Données : 2\n# Données : 5\n# Données : 5\nA_COMPLETER\n\n[Cas 3 — Cinq valeurs espacées]\n# Données : 5\n# Données : 10\n# Données : 12\n# Données : 14\n# Données : 16\n# Données : 18\nA_COMPLETER\n",
     "hints": [
       "La variance est la moyenne des carrés des écarts à la moyenne.",
-      "Calcule d’abord la moyenne, puis la somme des (x − moyenne)², puis divise par N."
+      "Calculez d’abord la moyenne, puis la somme des (x − moyenne)², puis divise par N."
     ],
     "examples": [
       {
@@ -560,7 +560,7 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Indiquez les cinq valeurs de la boîte à moustaches — minimum, Q1, médiane, Q3, maximum — chacune arrondie à deux décimales et séparées par un espace. On utilise la convention de rang <code>r = (n + 1)·p</code> avec interpolation.</p>",
     "starter": "# Grille de calcul (st-c5-e3) — Les cinq valeurs d’une boîte à moustaches\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cinq valeurs consécutives]\n# Données : 5\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\n# Données : 5\nA_COMPLETER\n\n[Cas 2 — Quatre valeurs]\n# Données : 4\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\nA_COMPLETER\n\n[Cas 3 — Série désordonnée]\n# Données : 6\n# Données : 5\n# Données : 3\n# Données : 8\n# Données : 1\n# Données : 9\n# Données : 2\nA_COMPLETER\n",
     "hints": [
-      "Écris une seule fonction quantile(valeurs, p) et appelle-la trois fois : p = 0,25 ; 0,5 ; 0,75.",
+      "Écrivez une seule fonction quantile(valeurs, p) et appelle-la trois fois : p = 0,25 ; 0,5 ; 0,75.",
       "Le minimum et le maximum sont la première et la dernière valeur de la série triée."
     ],
     "examples": [
@@ -638,7 +638,7 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez le <strong>coefficient de corrélation linéaire</strong> <code>r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)</code> arrondi à quatre décimales. Les écarts-types sont de population (division par n).</p>",
     "starter": "# Grille de calcul (st-c6-e2) — Coefficient de corrélation\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Liaison forte non parfaite]\n# Données : 4\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\n# Données : 2\n# Données : 4\n# Données : 5\n# Données : 8\nA_COMPLETER\n\n[Cas 2 — Liaison négative]\n# Données : 3\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 5\n# Données : 2\n# Données : 4\nA_COMPLETER\n\n[Cas 3 — Liaison moyenne]\n# Données : 4\n# Données : 0\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 3\n# Données : 1\n# Données : 0\n# Données : 2\nA_COMPLETER\n",
     "hints": [
-      "Calcule la covariance, puis les deux écarts-types avec la même division par n.",
+      "Calculez la covariance, puis les deux écarts-types avec la même division par n.",
       "r est le quotient de la covariance par le produit des deux écarts-types."
     ],
     "examples": [
@@ -677,7 +677,7 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez la pente <code>a</code> puis l’ordonnée à l’origine <code>b</code> de la droite des moindres carrés, chacune sur sa ligne avec quatre décimales. On a <code>a = cov(x, y)/V(x)</code> et <code>b = ȳ − a·x̄</code>, avec des variances de population.</p>",
     "starter": "# Grille de calcul (st-c6-e3) — Droite des moindres carrés\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Droite décalée]\n# Données : 4\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\n# Données : 3\n# Données : 5\n# Données : 6\n# Données : 9\nA_COMPLETER\n\n[Cas 2 — Pente négative]\n# Données : 3\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 5\n# Données : 2\n# Données : 4\nA_COMPLETER\n\n[Cas 3 — Deux points]\n# Données : 2\n# Données : 0\n# Données : 10\n# Données : 0\n# Données : 10\nA_COMPLETER\n",
     "hints": [
-      "Calcule d’abord la pente, avec la variance de x au dénominateur — jamais l’inverse.",
+      "Calculez d’abord la pente, avec la variance de x au dénominateur — jamais l’inverse.",
       "Contrôle final : a × x̄ + b doit redonner ȳ. Si ce n’est pas le cas, il y a une erreur de calcul."
     ],
     "examples": [

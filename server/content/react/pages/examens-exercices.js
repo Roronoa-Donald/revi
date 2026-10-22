@@ -90,7 +90,7 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examens blancs</h1>',
     '  <p class="lead">Deux sujets complets notés sur 20 points, fidèles aux épreuves écrites et pratiques ' +
-    'de Licence 2. Entraîne-toi en conditions réelles, puis consulte les corrigés détaillés.</p>',
+    'de Licence 2. Entraînez-vous en conditions réelles, puis consulte les corrigés détaillés.</p>',
     box('method', 'Conseils pour l’épreuve', 'compass', [
       '    <ul>',
       '      <li><strong>Temps indicatif</strong> : 1 heure 30 par sujet sans document.</li>',

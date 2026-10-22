@@ -20,9 +20,13 @@ module.exports = {
     'configurer un serveur OpenVPN nomade sécurisé en mode SSL/TLS + User Auth (double authentification) ;',
     'interconnecter deux infrastructures d’entreprise via un tunnel IPsec IKEv2 site-à-site avec négociation Phase 1 et Phase 2 ;',
     'auditer et conformer les propositions cryptographiques aux directives de sécurité de l’ANSSI et du NIST ;',
-    'développer en Python 3 des validateurs de certificats PKI, des auditeurs de propositions IPsec et des calculateurs de routage VPN.'
+    'analyser et résoudre méthodologiquement des validateurs de certificats PKI, des auditeurs de propositions IPsec et des calculateurs de routage VPN.'
   ],
   sections: [
+      {
+        "title": "Prérequis intégré : Fondements de la PKI X.509 et des phases IPsec IKEv2 (lien avec Cryptographie B3)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Maîtriser les briques cryptographiques avant de configurer OpenVPN et IPsec (voir aussi le cours Cryptographie &amp; PKI B3)</div><ul><li><strong>PKI X.509 (Infrastructure à Clés Publiques) :</strong> une Autorité de Certification racine (<strong>CA</strong>) signe numériquement le certificat du serveur VPN et les certificats des clients. La <strong>CRL (Certificate Revocation List)</strong> est la liste noire permettant d’invalider immédiatement un certificat volé ou compromis ;</li><li><strong>IPsec IKEv2 en deux phases :</strong> la <strong>Phase 1 (IKE SA)</strong> authentifie les deux pare-feux entre eux et établit un canal de contrôle chiffré grâce à l’échange de clés <em>Diffie-Hellman</em>, au chiffrement symétrique <em>AES-GCM</em> et à l’empreinte <em>SHA-256</em> ; la <strong>Phase 2 (Child SA / ESP)</strong> chiffre et achemine ensuite les paquets de données réels entre les sous-réseaux distants.</li></ul></div>"
+      },
     {
       title: 'Infrastructure à Clés Publiques (PKI X.509) Interne sous pfSense',
       html: [

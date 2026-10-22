@@ -28,7 +28,7 @@ module.exports = [
       'affiche le code d’état exact suivi de son libellé officiel sous la forme <code>&lt;code&gt; &lt;libelle&gt;</code>.</p>',
     starter: `scenario = input().strip().lower()\n\n# À compléter : mapper le scénario vers le code HTTP approprié.\n`,
     hints: [
-      'Utilise un dictionnaire Python associant chaque clé au tuple ou à la chaîne "CODE Libellé".',
+      'Utilisez un dictionnaire Python associant chaque clé au tuple ou à la chaîne "CODE Libellé".',
       'Exemple : "creation": "201 Created".'
     ],
     examples: [
@@ -89,8 +89,8 @@ print(table.get(scenario, '500 Internal Server Error'))
     starter: `import json\n\ncode = int(input().strip())\nerreur = input().strip()\nmessage = input().strip()\n\n# À compléter : sérialiser le dictionnaire en JSON trié.\n`,
     hints: [
       'Le dictionnaire doit avoir pour clés exactes "code", "error" et "message".',
-      'Assure-toi que "code" est bien un entier numérique (int).',
-      'Utilise json.dumps(payload, sort_keys=True).'
+      'Assurez-vous que "code" est bien un entier numérique (int).',
+      'Utilisez json.dumps(payload, sort_keys=True).'
     ],
     examples: [
       {
@@ -149,12 +149,12 @@ print(json.dumps(payload, sort_keys=True))
       '- <code>"page"</code>: page courante (int)<br>' +
       '- <code>"limit"</code>: taille de page (int)<br>' +
       '- <code>"data"</code>: liste des éléments de la tranche courante<br>' +
-      'Affiche le résultat avec <code>json.dumps(..., sort_keys=True)</code>.</p>',
+      'Affichez le résultat avec <code>json.dumps(..., sort_keys=True)</code>.</p>',
     starter: `import json\n\npage = int(input().strip())\nlimit = int(input().strip())\nitems = json.loads(input().strip())\n\n# À compléter : découper la tranche et sérialiser l'enveloppe.\n`,
     hints: [
       'L’indice de début est (page - 1) * limit et l’indice de fin est début + limit.',
-      'Extrais la tranche avec items[debut:fin].',
-      'Assure-toi que les clés du dictionnaire sont "data", "limit", "page", "total".'
+      'Extrayez la tranche avec items[debut:fin].',
+      'Assurez-vous que les clés du dictionnaire sont "data", "limit", "page", "total".'
     ],
     examples: [
       {

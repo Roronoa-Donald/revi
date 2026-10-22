@@ -2,7 +2,7 @@
  * Catalogue des 18 exercices d'ingénierie et d'administration du cours
  * « Windows Server B3 » (dossier `b3-windows-server/`).
  *
- * Découpage : six modules de trois exercices en Python 3, chacun dans son fichier.
+ * Découpage : six modules de trois exercices de manière méthodique, chacun dans son fichier.
  * Les identifiants suivent le schéma `ws3-cN-eM`.
  */
 'use strict';

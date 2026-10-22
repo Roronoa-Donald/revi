@@ -133,8 +133,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les pièges de la relecture passive et l’effet de test.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les 4 étapes de la technique Feynman et la feuille blanche.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les principes de l’extraction active.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les 4 étapes de la technique Feynman et la feuille blanche.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes de l’extraction active.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux algorithmes de répétition espacée au chapitre 3.' }
   ],
 

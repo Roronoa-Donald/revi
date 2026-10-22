@@ -19,7 +19,7 @@ module.exports = {
     'analyser la structure d\'un certificat X.509 v3 (RFC 5280) et ses extensions clés : SAN, Basic Constraints, Key Usage ;',
     'implémenter l\'algorithme de validation de chaîne de certification de l\'entité finale jusqu\'à l\'ancre de confiance racine ;',
     'évaluer et configurer les mécanismes de révocation de certificats : Listes de Révocation (CRL), requêtes OCSP et agrafage OCSP Stapling ;',
-    'développer en Python 3 des vérificateurs de signatures RSA, des valideurs de certificats X.509 et des contrôleurs de chaînes PKI avec support CRL.'
+    'analyser et résoudre méthodologiquement des vérificateurs de signatures RSA, des valideurs de certificats X.509 et des contrôleurs de chaînes PKI avec support CRL.'
   ],
   sections: [
     {
@@ -226,7 +226,7 @@ module.exports = {
   mastery: [
     {
       title: 'Implémentation de signatures numériques conformes',
-      desc: 'Développer des mécanismes de signature et de vérification d\'empreintes en Python 3 avec gestion d\'erreurs rigoureuse.'
+      desc: 'Développer des mécanismes de signature et de vérification d\'empreintes de manière méthodique avec gestion d\'erreurs rigoureuse.'
     },
     {
       title: 'Déploiement et audit d\'architectures PKI multi-niveaux',

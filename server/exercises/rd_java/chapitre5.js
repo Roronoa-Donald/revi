@@ -94,7 +94,7 @@ public class Main {
 `,
     hints: [
       'Une classe abstraite déclare abstract double aire(); chaque fille l’implémente.',
-      'Choisis avec type.equals("carre") ? new Carre(valeur) : new Cercle(valeur), puis formate avec Locale.US.'
+      'Choisissez avec type.equals("carre") ? new Carre(valeur) : new Cercle(valeur), puis formate avec Locale.US.'
     ],
     examples: [
       { stdin: 'carre\n4', expected: 'aire : 16.00', note: 'Un carré de côté 4.' }

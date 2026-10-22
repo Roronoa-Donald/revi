@@ -173,16 +173,22 @@ test('Architecture : Cloisonnement strict de Monaco Editor (10 programmation vs 
     'b1-prog-web',
     'react',
     'api-rest-flask',
-    'b3-algo'
+    'b3-algo',
+    'csharp',
+    'b1-sql',
+    'sql',
+    'b3-sql'
   ]);
 
   const SHELL_COURSES = new Set([
     'b1-linux',
     'linux',
     'b1-git',
-    'b1-admin-windows',
     'rd_winserver',
-    'admin-vm'
+    'admin-vm',
+    'docker',
+    'b3-linux',
+    'b3-github'
   ]);
 
   const allExercises = exercises.listExercises();
@@ -195,7 +201,7 @@ test('Architecture : Cloisonnement strict de Monaco Editor (10 programmation vs 
 
     if (PROGRAMMING_COURSES.has(courseId)) {
       assert.ok(
-        ['python', 'c', 'php', 'javascript', 'java'].includes(lang),
+        ['python', 'c', 'php', 'javascript', 'java', 'csharp', 'sql'].includes(lang),
         `${courseId} doit être un cours de programmation (actuel: ${lang})`
       );
     } else if (SHELL_COURSES.has(courseId)) {

@@ -137,7 +137,7 @@ function exercices(course, chapterList) {
     '      <h3 class="card__title"><a href="chapitre' + ch.n + '.html#exercices">Exercices du Module ' + ch.n + ' — ' + ch.title + '</a></h3>',
     '      <p class="card__desc">' + ch.toc + '</p>',
     '      <div class="card__foot">',
-    '        <span class="card__time">' + ic('terminal') + ' 3 exercices interactifs en Python</span>',
+    '        <span class="card__time">' + ic('terminal') + ' 3 exercices interactifs de manière méthodique</span>',
     '        <span class="card__link"><a class="btn btn--sm" href="chapitre' + ch.n + '.html#exercices">Pratiquer sur le Chapitre ' + ch.n + ' ' + ic('arrow-right') + '</a></span>',
     '      </div>',
     '    </section>'

@@ -137,7 +137,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprennez les cinq sons, un par un, avec les drills.' },
       { cls: 'mid', text: '50–69 % — refaites le tri des -ed et les paires d\'accent.' },
-      { cls: 'good', text: '70–89 % — bon niveau, ciblez linking et intonation.' },
+      { cls: 'good', text: '70–94 % — bon niveau, ciblez linking et intonation.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -267,7 +267,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprenez les trois reductions et leurs formes formelles.' },
       { cls: 'mid', text: '50–69 % — refaites l\'exercice intonation du support.' },
-      { cls: 'good', text: '70–89 % — bon niveau, ciblez le suivi de fluidité.' },
+      { cls: 'good', text: '70–94 % — bon niveau, ciblez le suivi de fluidité.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -399,7 +399,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprenez le tableau bad business English et ses corrections.' },
       { cls: 'mid', text: '50–69 % — refaites les accords sujet-verbe et les requêtes polies.' },
-      { cls: 'good', text: '70–89 % — bon niveau, ciblez l\'évaluation complète des quatre compétences.' },
+      { cls: 'good', text: '70–94 % — bon niveau, ciblez l\'évaluation complète des quatre compétences.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

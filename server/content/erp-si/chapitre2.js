@@ -83,7 +83,7 @@ module.exports = {
         '    <tr><th>Critère</th><th>Workflow ERP</th><th>Robotic Process Automation (RPA)</th></tr>\n' +
         '  </thead>\n' +
         '  <tbody>\n' +
-        '    <tr><td>Nature de l’action</td><td>Orchestre les tâches humaines et les données natives.</td><td>Exécute des tâches informatiques répétitives à la place de l’humain.</td></tr>\n' +
+        '    <tr><td>Nature de l’action</td><td>Orchestre les tâches humaines et les données natives.</td><td>Exécutez des tâches informatiques répétitives à la place de l’humain.</td></tr>\n' +
         '    <tr><td>Niveau d’intégration</td><td>Profond (au cœur de la base et du modèle ERP).</td><td>Superficiel (via l’interface graphique UI ou connecteurs légers).</td></tr>\n' +
         '    <tr><td>Délai de déploiement</td><td>Moyen à long (paramétrage métier complet).</td><td>Très rapide (quelques jours à semaines par scénario).</td></tr>\n' +
         '  </tbody>\n' +
@@ -157,8 +157,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la symbolique BPMN et le rôle d’un workflow.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les seuils d’approbation et la différence Attended/Unattended.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises l’automatisation des flux métiers et la RPA.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les seuils d’approbation et la différence Attended/Unattended.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez l’automatisation des flux métiers et la RPA.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux architectures d’intégration du SI au chapitre 3.' }
   ],
 

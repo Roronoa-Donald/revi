@@ -61,7 +61,7 @@ function formules(course) {
     '    <thead><tr><th>Domaine</th><th>Commande AWS CLI</th><th>Description &amp; Action</th></tr></thead>',
     '    <tbody>',
     '      <tr><td><strong>Configuration</strong></td><td><code>aws configure</code></td><td>Définit Access Key ID, Secret Access Key, région par défaut (ex: <code>eu-west-3</code>) et format de sortie (<code>json</code>).</td></tr>',
-    '      <tr><td><strong>Identité IAM</strong></td><td><code>aws sts get-caller-identity</code></td><td>Affiche l\'identifiant de compte, l\'ARN utilisateur ou le rôle IAM de la session courante.</td></tr>',
+    '      <tr><td><strong>Identité IAM</strong></td><td><code>aws sts get-caller-identity</code></td><td>Affichez l\'identifiant de compte, l\'ARN utilisateur ou le rôle IAM de la session courante.</td></tr>',
     '      <tr><td><strong>Calcul EC2</strong></td><td><code>aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"</code></td><td>Liste toutes les instances EC2 actives avec leurs adresses IP privées et publiques.</td></tr>',
     '      <tr><td><strong>Calcul EC2</strong></td><td><code>aws ec2 run-instances --image-id ami-xxxx --instance-type t3.micro --key-name ma-cle</code></td><td>Démarre une nouvelle machine virtuelle EC2 avec son image AMI et sa paire de clés SSH.</td></tr>',
     '      <tr><td><strong>Stockage S3</strong></td><td><code>aws s3 ls</code> / <code>aws s3 sync ./dist s3://mon-bucket/</code></td><td>Liste les buckets ou synchronise une arborescence locale vers un compartiment de stockage S3.</td></tr>',

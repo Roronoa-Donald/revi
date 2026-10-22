@@ -20,7 +20,7 @@ module.exports = {
     'évaluer la capacité opérationnelle d’un Sprint en appliquant un facteur de focalisation (Focus Factor) ;',
     'analyser un Sprint Burn-down chart et diagnostiquer instantanément les dérives de périmètre (Scope Creep) ;',
     'exploiter un Release Burn-up chart pour piloter l’atterrissage d’une version face aux demandes d’évolution métier ;',
-    'développer en Python 3 des projecteurs de release, des traceurs de burn-down et des simulateurs probabilistes de cône d’incertitude.'
+    'analyser et résoudre méthodologiquement des projecteurs de release, des traceurs de burn-down et des simulateurs probabilistes de cône d’incertitude.'
   ],
   sections: [
     {

@@ -20,7 +20,7 @@ module.exports = {
     'comparer la philosophie décentralisée de LeSS avec l’organisation matricielle du modèle Spotify ;',
     'distinguer les rôles au sein du modèle Spotify (Squads, Tribes, Chapters, Guilds) et leur gouvernance hiérarchique ;',
     'analyser les mécanismes et compromis d’une approche Hybride (Water-Scrum-Fall) en grande organisation ;',
-    'développer en Python 3 des auditeurs de dépendances de PI Planning, des validateurs matriciels Spotify et des radars de maturité agile.'
+    'analyser et résoudre méthodologiquement des auditeurs de dépendances de PI Planning, des validateurs matriciels Spotify et des radars de maturité agile.'
   ],
   sections: [
     {

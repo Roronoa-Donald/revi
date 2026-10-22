@@ -147,8 +147,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les calculs de CMUP et la logique de la partie double comptable.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la formule de Wilson et les composantes du SIRH.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le fonctionnement des grands modules fonctionnels ERP.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la formule de Wilson et les composantes du SIRH.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le fonctionnement des grands modules fonctionnels ERP.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à l’urbanisation et au déploiement au chapitre 6.' }
   ],
 

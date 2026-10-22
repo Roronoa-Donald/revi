@@ -155,8 +155,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les 6 contraintes de REST et la règle du sans-état.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le nommage d’URI et le choix du bon verbe HTTP.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la conception et les nuances PUT/PATCH.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le nommage d’URI et le choix du bon verbe HTTP.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la conception et les nuances PUT/PATCH.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à l’implémentation pratique avec Flask au chapitre 3.' }
   ],
 

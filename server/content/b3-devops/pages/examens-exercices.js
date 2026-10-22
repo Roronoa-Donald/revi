@@ -225,7 +225,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Exercices Pratiques d’Ingénierie DevOps</h1>',
-    '  <p class="lead">Tous les ateliers interactifs en Python 3 intégrés au cours, couvrant l’automatisation CI/CD, l’optimisation de conteneurs, le calcul DORA et la gouvernance SRE.</p>',
+    '  <p class="lead">Tous les ateliers interactifs de manière méthodique intégrés au cours, couvrant l’automatisation CI/CD, l’optimisation de conteneurs, le calcul DORA et la gouvernance SRE.</p>',
     '',
     sectionsHtml,
     '',

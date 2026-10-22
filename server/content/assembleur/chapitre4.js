@@ -41,7 +41,7 @@ module.exports = {
         '<table class="table">',
         '  <thead><tr><th>Étape</th><th>Outil GNU</th><th>Entrée &rarr; Sortie</th><th>Rôle technique exact</th></tr></thead>',
         '  <tbody>',
-        '    <tr><td><strong>1. Préprocesseur</strong></td><td><code>cpp</code></td><td><code>.c / .h &rarr; .i</code></td><td>Supprime les commentaires, remplace les macros (<code>#define</code>) et inclut textuellement les fichiers d’en-tête (<code>#include</code>).</td></tr>',
+        '    <tr><td><strong>1. Préprocesseur</strong></td><td><code>cpp</code></td><td><code>.c / .h &rarr; .i</code></td><td>Supprimez les commentaires, remplace les macros (<code>#define</code>) et inclut textuellement les fichiers d’en-tête (<code>#include</code>).</td></tr>',
         '    <tr><td><strong>2. Compilateur</strong></td><td><code>gcc (cc1)</code></td><td><code>.i &rarr; .s</code></td><td>Analyse syntaxique, optimisation et traduction du code en instructions assembleur textuelles propres à la cible.</td></tr>',
         '    <tr><td><strong>3. Assembleur</strong></td><td><code>as / nasm</code></td><td><code>.s &rarr; .o</code></td><td>Traduit les mnémoniques textuels (MOV, ADD) en <strong>opcodes binaires machine</strong> et génère un fichier objet relocalisable.</td></tr>',
         '    <tr><td><strong>4. Éditeur de liens</strong></td><td><code>ld</code></td><td><code>.o + .a &rarr; ELF / EXE</code></td><td>Fusionne les sections des fichiers objets, résout les adresses des symboles externes et intègre les bibliothèques système.</td></tr>',
@@ -254,8 +254,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les 4 étapes de la toolchain et le rôle des sections .text et .data.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les directives d’allocation (db..dq) et le calcul d’alignement ALIGN.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la production logicielle binaire et la structure ELF.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les directives d’allocation (db..dq) et le calcul d’alignement ALIGN.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la production logicielle binaire et la structure ELF.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux instructions de transfert et aux modes d’adressage au chapitre 5.' }
   ],
 

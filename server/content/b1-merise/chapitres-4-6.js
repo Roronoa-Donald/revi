@@ -147,7 +147,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends le formalisme entité-association.' },
       { cls: 'mid', text: '50–69 % — refais le MCD Client-Facture et Client-Produit.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible l\'application TogoMall complète.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible l\'application TogoMall complète.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -182,6 +182,10 @@ module.exports = [
     ],
 
     sections: [
+      {
+        "title": "Repère autonome : Lire et comprendre les mots-clés SQL du MLD (CREATE TABLE, PRIMARY KEY, REFERENCES)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Comprendre la traduction SQL sans attendre le cours de SQL</div><p>Lorsqu’un Modèle Logique de Données (MLD) est traduit en script de création de table, seules trois expressions du langage SQL (approfondies dans le cours <em>SQL B1</em>) sont utilisées :</p><ul><li><code>CREATE TABLE NomTable (...)</code> : crée une relation (table) dont chaque colonne est suivie de son type (<code>INT</code> pour un entier, <code>VARCHAR(n)</code> pour un texte) ;</li><li><code>PRIMARY KEY</code> : désigne l’identifiant unique de la table (souligné dans le MLD) ;</li><li><code>FOREIGN KEY (col) REFERENCES AutreTable(id)</code> : matérialise une clé étrangère (précédée de <code>#</code> dans le MLD) qui pointe vers la clé primaire d’une table parente.</li></ul></div>"
+      },
       {
         title: 'Tables, clés et règles de passage',
         html: [
@@ -283,7 +287,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends clés primaire/étrangère et les règles de passage.' },
       { cls: 'mid', text: '50–69 % — refais le passage MCD → MLD de la facture.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les trois intégrités.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les trois intégrités.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -420,7 +424,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les anomalies et la 1FN.' },
       { cls: 'mid', text: '50–69 % — refais les contre-exemples du support (EMPLOYE, LIGNE_CDE, CLIENT).' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible la distinction partielle/transitive.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible la distinction partielle/transitive.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

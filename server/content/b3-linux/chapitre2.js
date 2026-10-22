@@ -31,7 +31,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4>1. Matériel &amp; Chargeur d’Amorçage (GRUB2)</h4>',
         '    <ul>',
-        '      <li><strong>UEFI / BIOS :</strong> Initialise le matériel physique (POST) et lit la partition système EFI (ESP) pour charger le gestionnaire d’amorçage.</li>',
+        '      <li><strong>UEFI / BIOS :</strong> Initialisez le matériel physique (POST) et lit la partition système EFI (ESP) pour charger le gestionnaire d’amorçage.</li>',
         '      <li><strong>GRUB2 (Grand Unified Bootloader) :</strong> Présente le menu de boot, charge l’image compressée du noyau (<code>vmlinuz</code>) et le disque mémoire initial (<code>initramfs</code>) en RAM, puis passe la main au noyau en Ring 0.</li>',
         '    </ul>',
         '  </div>',

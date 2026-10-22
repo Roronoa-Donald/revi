@@ -161,29 +161,29 @@ function exercices(course) {
   ]);
 
   const exercises = [
-    { id: 'ws3-c1-e1', ch: 1, title: 'Validateur d’étendue DHCP, exclusions et conflits de réservation MAC', level: 'n1', lang: 'Python', desc: 'Calculer la liste des adresses IP distribuables après exclusions et détecter les doublons de réservation.' },
-    { id: 'ws3-c1-e2', ch: 1, title: 'Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)', level: 'n2', lang: 'Python', desc: 'Vérifier la réciprocité des enregistrements A et PTR et la présence des enregistrements SRV indispensables à Active Directory.' },
-    { id: 'ws3-c1-e3', ch: 1, title: 'Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)', level: 'n3', lang: 'Python', desc: 'Calculer les packs de licences requis et déterminer l’édition financièrement optimale (Standard vs Datacenter).' },
+    { id: 'ws3-c1-e1', ch: 1, title: 'Validateur d’étendue DHCP, exclusions et conflits de réservation MAC', level: 'n1', lang: 'Étude de cas', desc: 'Calculer la liste des adresses IP distribuables après exclusions et détecter les doublons de réservation.' },
+    { id: 'ws3-c1-e2', ch: 1, title: 'Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)', level: 'n2', lang: 'Étude de cas', desc: 'Vérifier la réciprocité des enregistrements A et PTR et la présence des enregistrements SRV indispensables à Active Directory.' },
+    { id: 'ws3-c1-e3', ch: 1, title: 'Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)', level: 'n3', lang: 'Étude de cas', desc: 'Calculer les packs de licences requis et déterminer l’édition financièrement optimale (Standard vs Datacenter).' },
 
-    { id: 'ws3-c2-e1', ch: 2, title: 'Vérificateur de conformité de structure de groupes AGDLP / AGUDLP', level: 'n1', lang: 'Python', desc: 'Vérifier la conformité de l’arborescence des identités au standard Microsoft AGDLP (Comptes -> Globaux -> Locaux de Domaine -> ACLs).' },
-    { id: 'ws3-c2-e2', ch: 2, title: 'Simulateur de topologie FSMO et routage des opérations AD DS', level: 'n2', lang: 'Python', desc: 'Acheminer les opérations sensibles d’annuaire vers le contrôleur détenteur du rôle FSMO correspondant.' },
-    { id: 'ws3-c2-e3', ch: 2, title: 'Parseur de journaux d’audit de sécurité Active Directory (Event IDs 4720, 4726, 4728)', level: 'n3', lang: 'Python', desc: 'Détecter les ajouts suspects de membres dans les groupes critiques et reconstituer l’état des comptes créés.' },
+    { id: 'ws3-c2-e1', ch: 2, title: 'Vérificateur de conformité de structure de groupes AGDLP / AGUDLP', level: 'n1', lang: 'Étude de cas', desc: 'Vérifier la conformité de l’arborescence des identités au standard Microsoft AGDLP (Comptes -> Globaux -> Locaux de Domaine -> ACLs).' },
+    { id: 'ws3-c2-e2', ch: 2, title: 'Simulateur de topologie FSMO et routage des opérations AD DS', level: 'n2', lang: 'Étude de cas', desc: 'Acheminer les opérations sensibles d’annuaire vers le contrôleur détenteur du rôle FSMO correspondant.' },
+    { id: 'ws3-c2-e3', ch: 2, title: 'Parseur de journaux d’audit de sécurité Active Directory (Event IDs 4720, 4726, 4728)', level: 'n3', lang: 'Étude de cas', desc: 'Détecter les ajouts suspects de membres dans les groupes critiques et reconstituer l’état des comptes créés.' },
 
-    { id: 'ws3-c3-e1', ch: 3, title: 'Calculateur de précédence de stratégies de groupe (Modèle LSDOU)', level: 'n1', lang: 'Python', desc: 'Calculer la valeur effective d’un paramètre selon l’ordre strict de traitement LSDOU (Local -> Site -> Domaine -> OU).' },
-    { id: 'ws3-c3-e2', ch: 3, title: 'Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance', level: 'n2', lang: 'Python', desc: 'Résoudre les conflits d’héritage entre une Unité Organisationnelle avec blocage et des GPOs parentes forcées.' },
-    { id: 'ws3-c3-e3', ch: 3, title: 'Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)', level: 'n3', lang: 'Python', desc: 'Vérifier si une GPO est applicable à un poste client en évaluant les groupes de sécurité et les critères matériels/OS du filtre WMI.' },
+    { id: 'ws3-c3-e1', ch: 3, title: 'Calculateur de précédence de stratégies de groupe (Modèle LSDOU)', level: 'n1', lang: 'Étude de cas', desc: 'Calculer la valeur effective d’un paramètre selon l’ordre strict de traitement LSDOU (Local -> Site -> Domaine -> OU).' },
+    { id: 'ws3-c3-e2', ch: 3, title: 'Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance', level: 'n2', lang: 'Étude de cas', desc: 'Résoudre les conflits d’héritage entre une Unité Organisationnelle avec blocage et des GPOs parentes forcées.' },
+    { id: 'ws3-c3-e3', ch: 3, title: 'Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)', level: 'n3', lang: 'Étude de cas', desc: 'Vérifier si une GPO est applicable à un poste client en évaluant les groupes de sécurité et les critères matériels/OS du filtre WMI.' },
 
-    { id: 'ws3-c4-e1', ch: 4, title: 'Calculateur de permissions effectives (Partage SMB vs NTFS)', level: 'n1', lang: 'Python', desc: 'Calculer la permission réseau résultante selon la règle universelle Windows du plus restrictif entre le partage et le système de fichiers.' },
-    { id: 'ws3-c4-e2', ch: 4, title: 'Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite', level: 'n2', lang: 'Python', desc: 'Résoudre les permissions NTFS cumulatives pour chaque opération selon la hiérarchie officielle : Explicit Deny > Explicit Allow > Inherited Deny > Inherited Allow.' },
-    { id: 'ws3-c4-e3', ch: 4, title: 'Simulateur d’espaces de stockage et résilience Storage Spaces', level: 'n3', lang: 'Python', desc: 'Calculer la capacité utile, le taux d’efficacité et la tolérance aux pannes d’un pool de stockage Windows Server.' },
+    { id: 'ws3-c4-e1', ch: 4, title: 'Calculateur de permissions effectives (Partage SMB vs NTFS)', level: 'n1', lang: 'Étude de cas', desc: 'Calculer la permission réseau résultante selon la règle universelle Windows du plus restrictif entre le partage et le système de fichiers.' },
+    { id: 'ws3-c4-e2', ch: 4, title: 'Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite', level: 'n2', lang: 'Étude de cas', desc: 'Résoudre les permissions NTFS cumulatives pour chaque opération selon la hiérarchie officielle : Explicit Deny > Explicit Allow > Inherited Deny > Inherited Allow.' },
+    { id: 'ws3-c4-e3', ch: 4, title: 'Simulateur d’espaces de stockage et résilience Storage Spaces', level: 'n3', lang: 'Étude de cas', desc: 'Calculer la capacité utile, le taux d’efficacité et la tolérance aux pannes d’un pool de stockage Windows Server.' },
 
-    { id: 'ws3-c5-e1', ch: 5, title: 'Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)', level: 'n1', lang: 'Python', desc: 'Déterminer l’accessibilité réseau entre VMs, hôte physique et réseau externe selon le type de commutateur virtuel.' },
-    { id: 'ws3-c5-e2', ch: 5, title: 'Calculateur d’allocation de Mémoire Dynamique Hyper-V', level: 'n2', lang: 'Python', desc: 'Calculer l’allocation de RAM par machine virtuelle en intégrant la demande courante, le tampon mémoire et la capacité physique de l’hôte.' },
-    { id: 'ws3-c5-e3', ch: 5, title: 'Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints', level: 'n3', lang: 'Python', desc: 'Calculer la taille cumulée d’une chaîne de disques différentiels (.avhdx) et simuler la fusion (Merge) d’un checkpoint.' },
+    { id: 'ws3-c5-e1', ch: 5, title: 'Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)', level: 'n1', lang: 'Étude de cas', desc: 'Déterminer l’accessibilité réseau entre VMs, hôte physique et réseau externe selon le type de commutateur virtuel.' },
+    { id: 'ws3-c5-e2', ch: 5, title: 'Calculateur d’allocation de Mémoire Dynamique Hyper-V', level: 'n2', lang: 'Étude de cas', desc: 'Calculer l’allocation de RAM par machine virtuelle en intégrant la demande courante, le tampon mémoire et la capacité physique de l’hôte.' },
+    { id: 'ws3-c5-e3', ch: 5, title: 'Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints', level: 'n3', lang: 'Étude de cas', desc: 'Calculer la taille cumulée d’une chaîne de disques différentiels (.avhdx) et simuler la fusion (Merge) d’un checkpoint.' },
 
-    { id: 'ws3-c6-e1', ch: 6, title: 'Analyseur syntaxique de commandes PowerShell d’administration Active Directory', level: 'n1', lang: 'Python', desc: 'Valider la présence des paramètres obligatoires dans les commandes PowerShell d’administration d’annuaire AD DS.' },
-    { id: 'ws3-c6-e2', ch: 6, title: 'Calculateur de quorum de cluster de basculement (Failover Clustering)', level: 'n2', lang: 'Python', desc: 'Calculer la majorité absolue des voix et vérifier le maintien du quorum dans un cluster Windows Server en cas de panne de nœuds.' },
-    { id: 'ws3-c6-e3', ch: 6, title: 'Planificateur de sauvegardes Windows Server Backup (VSS Full vs Incremental)', level: 'n3', lang: 'Python', desc: 'Calculer la capacité de stockage cible pour un cycle de sauvegarde hebdomadaire (VSS Full + Incrémentales) avec overhead de 15%.' }
+    { id: 'ws3-c6-e1', ch: 6, title: 'Analyseur syntaxique de commandes PowerShell d’administration Active Directory', level: 'n1', lang: 'Étude de cas', desc: 'Valider la présence des paramètres obligatoires dans les commandes PowerShell d’administration d’annuaire AD DS.' },
+    { id: 'ws3-c6-e2', ch: 6, title: 'Calculateur de quorum de cluster de basculement (Failover Clustering)', level: 'n2', lang: 'Étude de cas', desc: 'Calculer la majorité absolue des voix et vérifier le maintien du quorum dans un cluster Windows Server en cas de panne de nœuds.' },
+    { id: 'ws3-c6-e3', ch: 6, title: 'Planificateur de sauvegardes Windows Server Backup (VSS Full vs Incremental)', level: 'n3', lang: 'Étude de cas', desc: 'Calculer la capacité de stockage cible pour un cycle de sauvegarde hebdomadaire (VSS Full + Incrémentales) avec overhead de 15%.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -204,7 +204,7 @@ function exercices(course) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — Windows Server B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 études de cas pratiques et méthodologiques intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',
@@ -216,7 +216,7 @@ function exercices(course) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Répertoire complet des 18 exercices de programmation en Python 3 du cours Windows Server B3.',
+      description: 'Répertoire complet des 18 exercices de programmation de manière méthodique du cours Windows Server B3.',
       active: 'exercices',
       body
     }

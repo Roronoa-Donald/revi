@@ -373,12 +373,12 @@ function normalizeResponse(response, providerOverride) {
  * @returns {Promise<object>} forme normalisée (voir `normalizeResponse`)
  * @throws {provider.ExecutionError} `invalid_request` ou `not_configured`
  */
+const ISOLATED_LOCAL_LANGUAGES = new Set([
+  'python', 'py', 'javascript', 'js', 'algo', 'pseudo-code', 'pseudocode', 'sql', 'analyse'
+]);
+
 async function execute(input, deps = {}) {
   const activeProvider = deps.provider || getProvider();
-
-  // L'ordre compte : une demande mal formée est refusée pour ce qu'elle est
-  // (400), même si le service n'est pas configuré. Sinon une erreur de saisie
-  // se déguiserait en panne d'infrastructure.
   const payload = validate(input);
 
   // 1. Dépendance injectée explicite (ex: tests automatisés)
@@ -387,25 +387,59 @@ async function execute(input, deps = {}) {
     return normalizeResponse(response, activeProvider.PROVIDER_NAME);
   }
 
-  const isLocalCapable = localRunner.canHandle(payload.languageId);
-  const canFallbackLocal = Boolean(deps.allowLocal || process.env.ALLOW_LOCAL_EXECUTION_FALLBACK !== 'false');
+  const langId = String(payload.languageId || '').toLowerCase().trim();
+  const isIsolatedLocal = ISOLATED_LOCAL_LANGUAGES.has(langId) && localRunner.canHandle(langId);
+  // Valeur par défaut du repli local : false (désactivé) ; activation explicite requise
+  const canFallbackLocal = isIsolatedLocal && (deps.allowLocal === true || process.env.ALLOW_LOCAL_EXECUTION_FALLBACK === 'true');
 
-  if (payload.languageId === 'analyse') {
+  if (langId === 'analyse') {
     const localRes = await localRunner.run(payload);
     return normalizeResponse(localRes, 'local');
+  }
+
+  // Pour shell et csharp (et tout langage hors ISOLATED_LOCAL_LANGUAGES) :
+  // exécution UNIQUEMENT via Piston (ou fournisseur distant configuré), jamais de repli local.
+  if (!isIsolatedLocal) {
+    if (piston.isConfigured()) {
+      try {
+        const response = await piston.run(payload);
+        if (!response.ok) {
+          return {
+            ...normalizeResponse(response, piston.PROVIDER_NAME),
+            ok: false,
+            status: 'api_error',
+            userMessage: 'Le moteur d’exécution est temporairement indisponible.'
+          };
+        }
+        return normalizeResponse(response, piston.PROVIDER_NAME);
+      } catch (err) {
+        throw new activeProvider.ExecutionError('upstream_unreachable',
+          `Moteur d’exécution distant indisponible pour ${langId}`, {
+            userMessage: 'Le moteur d’exécution est temporairement indisponible.'
+          });
+      }
+    }
+    if (oanor.isConfigured()) {
+      const response = await oanor.run(payload);
+      return normalizeResponse(response, oanor.PROVIDER_NAME);
+    }
+    throw new activeProvider.ExecutionError('not_configured',
+      `Le moteur d’exécution est temporairement indisponible pour ${langId} (PISTON_URL non configuré).`, {
+        userMessage: 'Le moteur d’exécution est temporairement indisponible.'
+      });
   }
 
   // 2. Si Piston est configuré, il est le moteur distant prioritaire
   if (piston.isConfigured()) {
     try {
       const response = await piston.run(payload);
-      if (!response.ok && canFallbackLocal && isLocalCapable) {
+      if (!response.ok && canFallbackLocal) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }
       return normalizeResponse(response, piston.PROVIDER_NAME);
     } catch (err) {
-      if (canFallbackLocal && isLocalCapable) {
+      if (canFallbackLocal) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }
@@ -413,9 +447,8 @@ async function execute(input, deps = {}) {
     }
   }
 
-  // 3. Pour la correction d'exercices ou quand allowLocal est actif :
-  // priorité absolue au moteur local (Python, JS, Pseudo-code) : 0 réseau, 0 coût, fiabilité 100%.
-  if (deps.allowLocal && isLocalCapable) {
+  // 3. Exécution locale isolée uniquement sur activation explicite (allowLocal === true ou ALLOW_LOCAL_EXECUTION_FALLBACK === 'true')
+  if (canFallbackLocal) {
     const localRes = await localRunner.run(payload);
     return normalizeResponse(localRes, 'local');
   }
@@ -424,13 +457,13 @@ async function execute(input, deps = {}) {
   if (oanor.isConfigured()) {
     try {
       const response = await oanor.run(payload);
-      if (!response.ok && canFallbackLocal && isLocalCapable) {
+      if (!response.ok && canFallbackLocal) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }
       return normalizeResponse(response, oanor.PROVIDER_NAME);
     } catch (err) {
-      if (canFallbackLocal && isLocalCapable) {
+      if (canFallbackLocal) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }
@@ -438,16 +471,10 @@ async function execute(input, deps = {}) {
     }
   }
 
-  // 5. Sans fournisseur distant configuré mais avec support local
-  if (deps.allowLocal && isLocalCapable) {
-    const localRes = await localRunner.run(payload);
-    return normalizeResponse(localRes, 'local');
-  }
-
-  // 6. Langage nécessitant un serveur d'exécution distant Piston
+  // 5. Aucun fournisseur distant configuré et repli local non activé
   throw new activeProvider.ExecutionError('not_configured',
-    `Le moteur distant (Piston) n’est pas configuré pour ${payload.languageId}. Renseignez PISTON_URL dans votre configuration Vercel.`, {
-      userMessage: `L’exécution de ${payload.languageId} requiert un serveur Piston configuré (PISTON_URL).`
+    `Le moteur distant (Piston) n’est pas configuré pour ${payload.languageId}. Renseignez PISTON_URL.`, {
+      userMessage: 'Le moteur d’exécution est temporairement indisponible.'
     });
 }
 

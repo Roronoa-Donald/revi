@@ -388,7 +388,7 @@ const texte = lignes[0];
 // À compléter : afficher le texte échappé.
 `,
     hints: [
-      'L’ordre des remplacements n’est pas neutre : commence impérativement par le & , sinon tu ré-échapperas les entités créées.',
+      'L’ordre des remplacements n’est pas neutre : commence impérativement par le & , sinon vous ré-échapperas les entités créées.',
       'replace() avec une expression régulière globale — le drapeau g — remplace toutes les occurrences, pas seulement la première.'
     ],
     examples: [
@@ -434,7 +434,7 @@ const selecteur = lignes[0];
 // À compléter : afficher ids, classes et types séparés par des espaces.
 `,
     hints: [
-      'Découpe sur les espaces pour obtenir les éléments du sélecteur : chacun se juge séparément.',
+      'Découpez sur les espaces pour obtenir les éléments du sélecteur : chacun se juge séparément.',
       'Un élément qui commence par . peut porter plusieurs classes : compte les points, pas les éléments.'
     ],
     examples: [

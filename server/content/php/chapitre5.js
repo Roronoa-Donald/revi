@@ -122,9 +122,9 @@ module.exports = {
 
   notions: ['erreur', 'exception', 'throw', 'try', 'catch', 'getMessage', 'exception personnalisée', 'extends Exception', 'multi-catch', 'finally'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends throw, try et catch sur un exemple minimal.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à écrire une exception personnalisée.' },
-    { cls: 'good', text: '70–89 % — Solide : tu choisis des types de catch précis.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez throw, try et catch sur un exemple minimal.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à écrire une exception personnalisée.' },
+    { cls: 'good', text: '70–94 % — Solide : vous choisissez des types de catch précis.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe à PDO et à l’architecture, chapitre 6.' }
   ],
 

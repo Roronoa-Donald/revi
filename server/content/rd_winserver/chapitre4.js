@@ -140,9 +140,9 @@ module.exports = {
 
   notions: ['maintenance', 'préventive', 'corrective', 'évolutive', 'mises à jour', 'surveillance', 'Event Viewer', 'Performance Monitor', 'netstat', 'Wireshark', 'SMART', 'planning', 'migration'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les trois types de maintenance.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les outils de surveillance.' },
-    { cls: 'good', text: '70–89 % — Solide : tu planifies un préventif complet.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les trois types de maintenance.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les outils de surveillance.' },
+    { cls: 'good', text: '70–94 % — Solide : vous planifiez un préventif complet.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : enchaîne sur la virtualisation, chapitre 5.' }
   ],
 

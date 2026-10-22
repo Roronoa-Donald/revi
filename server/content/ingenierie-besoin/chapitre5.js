@@ -106,7 +106,7 @@ module.exports = {
     { stem: 'Dans la syntaxe Gherkin BDD, quel mot-clé décrit l’état initial ou le contexte du système ?', opts: ['Given (Étant donné que)', 'When (Quand)', 'Then (Alors)'], correct: 0, exp: 'Given pose les préconditions et le contexte avant que l’action ne survienne.' },
     { stem: 'Pourquoi la matrice de traçabilité des exigences (RTM) doit-elle être bidirectionnelle ?', opts: ['Pour vérifier à la fois la complétude de la couverture (amont) et l’absence de code superflu (aval)', 'Pour être imprimée en recto-verso', 'Pour fonctionner sous Windows et Linux'], correct: 0, exp: 'La bidirectionnalité garantit que rien d’essentiel n’est oublié et que rien d’inutile n’est développé.' },
     { stem: 'Quel mot-clé Gherkin exprime l’événement déclencheur ou l’action réalisée par l’utilisateur ?', opts: ['When (Quand)', 'Given (Étant donné)', 'Feature (Fonctionnalité)'], correct: 0, exp: 'When introduit le geste, l’événement ou l’appel déclenchant le comportement sous test.' },
-    { stem: 'Quel outil permet d’exécuter automatiquement des scénarios Gherkin pour valider le code ?', opts: ['Cucumber / Behave', 'Photoshop', 'Apache Kafka'], correct: 0, exp: 'Cucumber (en JS/Java) ou Behave (en Python) automatisent l’exécution directe des fichiers de scénarios Gherkin.' }
+    { stem: 'Quel outil permet d’exécuter automatiquement des scénarios Gherkin pour valider le code ?', opts: ['Cucumber / Behave', 'Photoshop', 'Apache Kafka'], correct: 0, exp: 'Cucumber (en JS/Java) ou Behave (de manière méthodique) automatisent l’exécution directe des fichiers de scénarios Gherkin.' }
   ],
 
   pitfalls: [
@@ -146,8 +146,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la structure de la SRS et la composition de la matrice RTM.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la nomenclature des exigences et la syntaxe Gherkin.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la formalisation et la traçabilité des exigences.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la nomenclature des exigences et la syntaxe Gherkin.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la formalisation et la traçabilité des exigences.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la validation, gestion du changement et audit au chapitre 6.' }
   ],
 

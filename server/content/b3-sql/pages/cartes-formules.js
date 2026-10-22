@@ -62,7 +62,7 @@ function formules(course) {
     '      <tr><th>Commande SQL / CLI</th><th>Fonction / Rôle</th><th>Exemple d\'Utilisation</th></tr>',
     '    </thead>',
     '    <tbody>',
-    '      <tr><td><code>EXPLAIN (ANALYZE, BUFFERS)</code></td><td>Exécute la requête et affiche le plan réel avec temps et blocs disques lus en mémoire.</td><td><code>EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM commandes;</code></td></tr>',
+    '      <tr><td><code>EXPLAIN (ANALYZE, BUFFERS)</code></td><td>Exécutez la requête et affiche le plan réel avec temps et blocs disques lus en mémoire.</td><td><code>EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM commandes;</code></td></tr>',
     '      <tr><td><code>VACUUM (VERBOSE, ANALYZE)</code></td><td>Nettoie les tuples morts (dead tuples) de la MVCC et réactualise les statistiques du CBO.</td><td><code>VACUUM ANALYZE utilisateurs;</code></td></tr>',
     '      <tr><td><code>REINDEX TABLE CONCURRENTLY</code></td><td>Reconstruit un index B-Tree fragmenté sans verrouiller les écritures sur la table.</td><td><code>REINDEX TABLE CONCURRENTLY commandes;</code></td></tr>',
     '      <tr><td><code>pg_dump -Fc -d dbname -f dump.dump</code></td><td>Effectue une sauvegarde logique compressée au format custom pour restauration sélective.</td><td><code>pg_dump -Fc -U postgres prod_db &gt; backup.dump</code></td></tr>',

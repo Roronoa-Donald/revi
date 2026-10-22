@@ -166,9 +166,9 @@ module.exports = [
     notions: ['DAC', 'MAC', 'RBAC', 'ABAC', 'ACL', 'patch management', 'injection SQL', 'XSS'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais le tableau des cinq modèles de mémoire.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites le tableau des cinq modèles de mémoire.' },
       { cls: 'mid', text: '50–69 % — Classe dix politiques d\'accès dans le bon modèle.' },
-      { cls: 'good', text: '70–89 % — Solide : rédige le plan de correctifs d\'un parc de 20 machines.' },
+      { cls: 'good', text: '70–94 % — Solide : rédige le plan de correctifs d\'un parc de 20 machines.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, la gestion des incidents.' }
     ],
 
@@ -333,7 +333,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Récite ICER et le rôle de chaque étape.' },
       { cls: 'mid', text: '50–69 % — Analyse un journal de 20 lignes : qui attaque, quand, avec quel succès ?' },
-      { cls: 'good', text: '70–89 % — Solide : rédige la réponse complète à une force brute réussie.' },
+      { cls: 'good', text: '70–94 % — Solide : rédige la réponse complète à une force brute réussie.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, la conformité et les bonnes pratiques.' }
     ],
 
@@ -492,9 +492,9 @@ module.exports = [
     notions: ['RGPD', 'NIS2', 'PCI DSS', 'ISO 27001', 'NIST CSF', 'PoLP', 'gestionnaire de mots de passe', 'sauvegarde 3-2-1'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais la table « qui exige quoi » sans notes.' },
-      { cls: 'mid', text: '50–69 % — Calcule trois plafonds RGPD pour trois CA différents.' },
-      { cls: 'good', text: '70–89 % — Solide : audite la sauvegarde de ton ordinateur contre 3-2-1.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites la table « qui exige quoi » sans notes.' },
+      { cls: 'mid', text: '50–69 % — Calculez trois plafonds RGPD pour trois CA différents.' },
+      { cls: 'good', text: '70–94 % — Solide : audite la sauvegarde de ton ordinateur contre 3-2-1.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est complet, passe à l\'atelier et aux examens blancs.' }
     ],
 

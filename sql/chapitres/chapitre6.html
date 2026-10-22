@@ -40,7 +40,7 @@
     <a href="../chapitres/formules.html">Mémo</a>
     <a href="../exercices/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="sqlnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>concevoir des vues relationnelles standard et exploiter les vues matérialisées pour précalculer des agrégations lourdes ;</li>
       <li>comprendre le rôle des procédures stockées et fonctions serveur pour encapsuler la logique métier critique ;</li>
@@ -156,187 +156,134 @@ CREATE INDEX idx_cmd_date_client ON Commandes(date_cmd, client_id);    </div>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="sql2-c6-e1" data-lab
      data-exercise="sql2-c6-e1"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="Clavier,25,10&#10;Souris,-5,5&#10;Ecran,180,-3">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c6-e1) — Émulateur de déclencheur BEFORE INSERT avec contrôle de cohérence
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Prix exactement zéro rejeté]
-# Données : Cadeau,0,100
-A_COMPLETER
-
-[Cas 2 — Toutes les lignes sont valides]
-# Données : T1,10,5
-# Données : T2,20,15
-# Données : T3,30,0
-A_COMPLETER
-
-[Cas 3 — Stock négatif ajusté à 0]
-# Données : Casque,50,-10
-# Données : Tapis,15,-1
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE employes (id INT, nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES (1, 'Amina', 'IT', 350000), (2, 'Koffi', 'Support', 200000), (3, 'Yao', 'Securite', 420000);&#10;-- VERIFY:&#10;SELECT id, nom, departement FROM vue_cadres ORDER BY id;&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Créez la vue vue_cadres(id, nom, departement)
+CREATE VIEW vue_cadres AS SELECT id, nom, departement FROM employes WHERE salaire >= 9999999;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Émulateur de déclencheur BEFORE INSERT avec contrôle de cohérence</h3>
+    <h3 class="lab__title">Exercice 1 — Créer une vue relationnelle (CREATE VIEW)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler un trigger BEFORE INSERT qui valide ou ajuste les valeurs de la pseudo-ligne NEW.</p>
-    <div class="lab__brief"><p>Avant d’insérer un nouvel article dans la table <code>Articles(id, nom, prix, stock)</code>, un déclencheur <code>BEFORE INSERT</code> applique deux règles métier impératives :
-1. Si <code>NEW.prix &lt;= 0</code>, l’insertion est bloquée avec une erreur ;
-2. Si <code>NEW.stock &lt; 0</code>, la valeur est automatiquement corrigée à <code>NEW.stock = 0</code>.
-Si le prix est strictement positif, l’enregistrement est inséré avec un nouvel ID auto-incrémenté démarrant à 1.
-
-Entrée :
-Chaque ligne contient une tentative d’insertion : <code>nom,prix,stock</code>.
-
-Sortie :
-Pour chaque ligne :
-- En cas d’erreur : <code>REJET: &lt;nom&gt; (prix invalide &lt;prix&gt;)</code>
-- En cas de succès : <code>INSERE: id=&lt;id&gt; | &lt;nom&gt; | &lt;prix&gt;€ | stock=&lt;stock_ajuste&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Encapsuler une requête de filtrage dans une vue SQL réutilisable.</p>
+    <div class="lab__brief"><p>À partir de la table <code>employes(id, nom, departement, salaire)</code>, créez une vue nommée <code>vue_cadres</code> qui expose <code>id</code>, <code>nom</code> et <code>departement</code> des employés dont <code>salaire &gt;= 300000</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Clavier,25,10
-Souris,-5,5
-Ecran,180,-3</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INSERE: id=1 | Clavier | 25€ | stock=10
-REJET: Souris (prix invalide -5)
-INSERE: id=2 | Ecran | 180€ | stock=0</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE employes (id INT, nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES (1, 'Amina', 'IT', 350000), (2, 'Koffi', 'Support', 200000), (3, 'Yao', 'Securite', 420000);
+-- VERIFY:
+SELECT id, nom, departement FROM vue_cadres ORDER BY id;
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (3 lignes modifiées).
+
++----+-------+-------------+
+| id | nom   | departement |
++----+-------+-------------+
+| 1  | Amina | IT          |
+| 3  | Yao   | Securite    |
++----+-------+-------------+
+(2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">La souris est rejetée car prix négatif. L'écran est accepté avec stock ramené à 0.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Garde un compteur auto-incrémenté pour l id qui n augmente QUE si l insertion réussit.</li>
-        <li>Vérifie d abord si prix &lt;= 0.</li>
-        <li>Si stock &lt; 0, remplace stock par 0 avant d afficher la ligne insérée.</li>
+        <li>Utilisez la syntaxe CREATE VIEW vue_cadres AS SELECT ...</li>
+        <li>Sélectionnez id, nom, departement FROM employes WHERE salaire &gt;= 300000;</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql2-c6-e2" data-lab
      data-exercise="sql2-c6-e2"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="1:ACTIF:1000;2:BLOQUE:500&#10;UPDATE 1 ACTIF 1200&#10;UPDATE 2 ACTIF 500">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c6-e2) — Déclencheur AFTER UPDATE avec table d’audit OLD vs NEW
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Deux champs modifiés en même temps]
-# Données : 1:ACTIF:100
-# Données : UPDATE 1 FERME 0
-A_COMPLETER
-
-[Cas 2 — Aucun changement réel (valeurs identiques)]
-# Données : 10:ACTIF:500
-# Données : UPDATE 10 ACTIF 500
-A_COMPLETER
-
-[Cas 3 — Plusieurs updates successifs sur le même compte]
-# Données : 5:ATTENTE:10
-# Données : UPDATE 5 ACTIF 10
-# Données : UPDATE 5 ACTIF 50
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE comptes (id INT, solde INT); CREATE TABLE journal_audit (compte_id INT, ancien_solde INT, nouveau_solde INT); INSERT INTO comptes VALUES (1, 10000), (2, 50000);&#10;-- VERIFY:&#10;UPDATE comptes SET solde = 15000 WHERE id = 1; SELECT compte_id, ancien_solde, nouveau_solde FROM journal_audit ORDER BY compte_id;&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Créez le trigger trg_audit_solde AFTER UPDATE ON comptes
+SELECT * FROM comptes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Déclencheur AFTER UPDATE avec table d’audit OLD vs NEW</h3>
+    <h3 class="lab__title">Exercice 2 — Déclencheur d’audit automatique (CREATE TRIGGER AFTER UPDATE)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Générer des entrées de journalisation d’audit comparant l’ancienne valeur (OLD) et la nouvelle valeur (NEW).</p>
-    <div class="lab__brief"><p>Lorsqu’une instruction <code>UPDATE</code> modifie un enregistrement dans la table <code>Comptes(id, statut, solde)</code>, un déclencheur <code>AFTER UPDATE</code> insère une ligne d’audit pour chaque colonne dont la valeur a changé :
-<code>AUDIT: user_id=&lt;id&gt; | champ=&lt;nom_champ&gt; | ancien=&lt;OLD&gt; | nouveau=&lt;NEW&gt;</code>
-Si la valeur d’un champ n’a pas changé, aucune trace d’audit n’est produite pour ce champ.</p>
-<p>Entrée :
-- Ligne 1 : État initial des comptes <code>id:statut:solde</code> séparés par des points-virgules (ex: <code>1:ACTIF:1000;2:BLOQUE:500</code>).
-- Lignes suivantes : Mises à jour <code>UPDATE id NOUVEAU_STATUT NOUVEAU_SOLDE</code>.
-
-Sortie :
-La liste des lignes d’audit générées (ou <code>AUCUNE MODIFICATION</code> si rien n’a changé).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire un trigger enregistrant l’ancienne et la nouvelle valeur lors d’une mise à jour.</p>
+    <div class="lab__brief"><p>Soient <code>comptes(id INT, solde INT)</code> et <code>journal_audit(compte_id INT, ancien_solde INT, nouveau_solde INT)</code>. Créez un déclencheur <code>trg_audit_solde</code> qui, <code>AFTER UPDATE ON comptes</code>, insère dans <code>journal_audit</code> les valeurs <code>(OLD.id, OLD.solde, NEW.solde)</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1:ACTIF:1000;2:BLOQUE:500
-UPDATE 1 ACTIF 1200
-UPDATE 2 ACTIF 500</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT: user_id=1 | champ=solde | ancien=1000 | nouveau=1200
-AUDIT: user_id=2 | champ=statut | ancien=BLOQUE | nouveau=ACTIF</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE comptes (id INT, solde INT); CREATE TABLE journal_audit (compte_id INT, ancien_solde INT, nouveau_solde INT); INSERT INTO comptes VALUES (1, 10000), (2, 50000);
+-- VERIFY:
+UPDATE comptes SET solde = 15000 WHERE id = 1; SELECT compte_id, ancien_solde, nouveau_solde FROM journal_audit ORDER BY compte_id;
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (2 lignes modifiées).
+
+Instruction exécutée avec succès (1 ligne modifiée).
+
++-----------+--------------+---------------+
+| compte_id | ancien_solde | nouveau_solde |
++-----------+--------------+---------------+
+| 1         | 10000        | 15000         |
++-----------+--------------+---------------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">Pour le compte 1, seul le solde a changé. Pour le compte 2, seul le statut a changé.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Stocke les comptes dans un dictionnaire {id: {"statut": ..., "solde": ...}}.</li>
-        <li>Compare statut_old et statut_new : s ils sont différents, émets une ligne d audit.</li>
-        <li>Fais de même pour solde_old et solde_new.</li>
+        <li>Utilisez CREATE TRIGGER trg_audit_solde AFTER UPDATE ON comptes FOR EACH ROW BEGIN ... END;</li>
+        <li>Dans le corps, écrivez INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql2-c6-e3" data-lab
      data-exercise="sql2-c6-e3"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="clients,50000,email|code_postal&#10;WHERE email = 'alice@test.com'">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c6-e3) — Analyseur de plan d’exécution EXPLAIN (Seq Scan vs Index Scan)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Colonne non indexée entraînant un Seq Scan]
-# Données : clients,50000,email|code_postal
-# Données : WHERE age = 30
-A_COMPLETER
-
-[Cas 2 — Deuxième index utilisé]
-# Données : produits,12000,reference|categorie|fournisseur
-# Données : WHERE categorie = 'Informatique'
-A_COMPLETER
-
-[Cas 3 — Table sans aucun index]
-# Données : logs,800000,AUCUN
-# Données : WHERE ip = '192.168.1.1'
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE journaux (id INT, service TEXT, niveau TEXT, message TEXT); INSERT INTO journaux VALUES (1, 'auth', 'ERROR', 'Echec MFA'), (2, 'auth', 'INFO', 'Login OK'), (3, 'db', 'ERROR', 'Timeout');&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Créez l’index idx_journaux_service_niveau puis sélectionnez id, message
+SELECT id, message FROM journaux;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Analyseur de plan d’exécution EXPLAIN (Seq Scan vs Index Scan)</h3>
+    <h3 class="lab__title">Exercice 3 — Créer un index composite pour accélérer les recherches (CREATE INDEX)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le choix du planificateur de requêtes SQL entre parcours séquentiel et parcours d’index.</p>
-    <div class="lab__brief"><p>Le planificateur de requêtes (Query Optimizer) évalue le coût d’accès aux données :
-- <strong>Index Scan</strong> : Si la condition WHERE porte sur une colonne disposant d’un index avec égalité (ex: <code>WHERE email = '...'</code>), le coût estimé est logarithmique : <code>cout = 3</code> (lecture de 3 blocs d’index et de table) ;
-- <strong>Seq Scan (Table Scan)</strong> : Si aucun index n’est disponible sur la colonne filtrée, le moteur doit lire l’intégralité des <code>N</code> lignes de la table : <code>cout = N</code>.</p>
-<p>Entrée :
-- Ligne 1 : Métadonnées : <code>table,nombre_lignes,index1|index2|...</code> (ex: <code>clients,50000,email|code_postal</code>).
-- Ligne 2 : Requête ou clause WHERE : <code>WHERE colonne = valeur</code> (ex: <code>WHERE email = 'alice@test.com'</code>).
-
-Sortie :
-<code>Methode: &lt;Index Scan (colonne) | Seq Scan&gt; | Cout_Estime: &lt;Cout&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Créer un index B-Tree multi-colonnes et interroger la table indexée.</p>
+    <div class="lab__brief"><p>Sur la table <code>journaux(id INT, service TEXT, niveau TEXT, message TEXT)</code>, créez un index nommé <code>idx_journaux_service_niveau</code> sur les colonnes <code>(service, niveau)</code>, puis sélectionnez <code>id</code> et <code>message</code> pour <code>service = 'auth' AND niveau = 'ERROR'</code> triés par <code>id</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>clients,50000,email|code_postal
-WHERE email = 'alice@test.com'</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Methode: Index Scan (email) | Cout_Estime: 3</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE journaux (id INT, service TEXT, niveau TEXT, message TEXT); INSERT INTO journaux VALUES (1, 'auth', 'ERROR', 'Echec MFA'), (2, 'auth', 'INFO', 'Login OK'), (3, 'db', 'ERROR', 'Timeout');
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (3 lignes modifiées).
+
++----+-----------+
+| id | message   |
++----+-----------+
+| 1  | Echec MFA |
++----+-----------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">La colonne email est indexée, le planificateur privilégie un Index Scan à coût minime (3).</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Parse la première ligne pour extraire le nombre total de lignes et l ensemble des colonnes indexées.</li>
-        <li>Extrais le nom de la colonne présente dans la clause WHERE (entre WHERE et =).</li>
-        <li>Si la colonne est dans les index, choisis Index Scan avec cout = 3, sinon Seq Scan avec cout = nombre_lignes.</li>
+        <li>Écrivez CREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);</li>
+        <li>Suivez par SELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;</li>
       </ol>
     </details>
   </div>
@@ -441,7 +388,7 @@ WHERE email = 'alice@test.com'</pre></div>
       <li>Je sais interpréter un plan d’exécution EXPLAIN (Seq Scan vs Index Scan).</li>
       <li>Je sais concevoir un index composite en respectant la règle du préfixe à gauche.</li>
     </ul>
-    <h3>Les 8 notions à connaître absolument</h3>
+    <h3>Les 9 notions à connaître absolument</h3>
     <ol>
       <li>Vues relationnelles (CREATE VIEW)</li><li>Vues matérialisées & REFRESH MATERIALIZED VIEW</li><li>Procédures stockées & Fonctions définies par l’utilisateur</li><li>Déclencheurs (Triggers) BEFORE et AFTER</li><li>Pseudo-lignes de transition NEW et OLD</li><li>Index physique B-Tree (Arbre équilibré)</li><li>Règle du préfixe le plus à gauche sur index composite</li><li>Planificateur de requêtes (Query Optimizer)</li><li>Analyse de plan d’exécution (EXPLAIN / EXPLAIN ANALYZE)</li>
     </ol>
@@ -452,13 +399,13 @@ WHERE email = 'alice@test.com'</pre></div>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — Révise la différence entre Seq Scan et Index Scan, et le rôle des vues.</div>
-      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la syntaxe des triggers et l’usage de NEW et OLD.</div>
-      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la programmabilité serveur et les techniques d’indexation.</div>
-      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise d’expert : félicitations, tu domines l’ensemble des compétences de SQL niveau B2 !</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise la différence entre Seq Scan et Index Scan, et le rôle des vues.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur la syntaxe des triggers et l’usage de NEW et OLD.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez la programmabilité serveur et les techniques d’indexation.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise d’expert : félicitations, vous dominez l’ensemble des compétences de SQL niveau B2 !</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -468,7 +415,7 @@ WHERE email = 'alice@test.com'</pre></div>
     <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
 </main>
 

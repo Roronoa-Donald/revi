@@ -4,120 +4,118 @@ module.exports = [
   {
     "id": "sql3-c4-e1",
     "chapter": 4,
-    "title": "Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Appliquer et comparer les trois fonctions de classement standardisées SQL sur une série de valeurs avec ex-æquo.",
-    "brief": "Dans la norme SQL analytique, les fonctions de classement ordonnent les lignes au sein d’une fenêtre de partition :\n- `ROW_NUMBER()` : attribue un entier consécutif unique strict ($1, 2, 3, \\dots$) sans aucun doublon.\n- `RANK()` : attribue le même rang aux lignes ex-æquo, puis saute les rangs suivants ($1, 2, 2, 4, 5, \\dots$).\n- `DENSE_RANK()` : attribue le même rang aux lignes ex-æquo, sans sauter de rang ($1, 2, 2, 3, 4, \\dots$).\n\nEntrée :\n`SERIE vals=<v1,v2,...>` (les valeurs sont ordonnées de manière décroissante)\n\nSortie :\n- Pour chaque élément :\n  `RANK_ROW val=<V> row_num=<N> rank=<R> dense_rank=<D>`\n- Bilan : `SUMMARY total_rows=<N> max_rank=<R> max_dense_rank=<D>`",
-    "starter": "# Grille d'analyse (sql3-c4-e1) — Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les valeurs identiques (ex-æquo parfait)]\n# Données : SERIE vals=50,50,50,50\nA_COMPLETER\n\n[Cas 2 — Toutes les valeurs strictement distinctes]\n# Données : SERIE vals=30,25,20,15,10\nA_COMPLETER\n\n[Cas 3 — Multiples groupes d ex-æquo consécutifs]\n# Données : SERIE vals=80,80,60,60,60,40\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Comparaison temporelle ligne à ligne avec LAG() OVER",
+    "goal": "Utiliser la fonction de fenêtrage LAG() pour calculer l’écart avec la période précédente.",
+    "brief": "<p>Dans la table <code>chiffre_affaires(mois INT, ca INT)</code>, affichez <code>mois</code>, <code>ca</code>, le CA du mois précédent (<code>LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent</code>) et la variation (<code>ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation</code>), triés par <code>mois</code> croissant.</p>",
+    "starter": "-- Utilisez LAG(ca, 1, 0) OVER (ORDER BY mois ASC)\nSELECT mois, ca FROM chiffre_affaires;",
     "hints": [
-      "Itérer sur la liste triée avec l’indice courant i (1-based pour row_number).",
-      "Pour RANK : si val == val_precedente, conserver le même rank que le premier ex-æquo ; sinon rank = i.",
-      "Pour DENSE_RANK : n’incrémenter le rang que lorsque la valeur change."
+      "LAG(ca, 1, 0) renvoie la valeur de ca 1 ligne plus haut, ou 0 sur la toute première ligne.",
+      "Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation."
     ],
     "examples": [
       {
-        "stdin": "SERIE vals=100,90,90,80,70",
-        "expected": "RANK_ROW val=100 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=90 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=90 row_num=3 rank=2 dense_rank=2\nRANK_ROW val=80 row_num=4 rank=4 dense_rank=3\nRANK_ROW val=70 row_num=5 rank=5 dense_rank=4\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=4",
-        "note": "Les deux notes à 90 partagent le rang 2. RANK saute à 4, DENSE_RANK continue à 3."
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);",
+        "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 100000 | 0            | 100000    |\n| 2    | 130000 | 100000       | 30000     |\n| 3    | 115000 | 130000       | -15000    |\n+------+--------+--------------+-----------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Toutes les valeurs identiques (ex-æquo parfait)",
-        "stdin": "cas:1",
-        "expected": "RANK_ROW val=50 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=3 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=4 rank=1 dense_rank=1\nSUMMARY total_rows=4 max_rank=1 max_dense_rank=1"
+        "label": "Trois mois consécutifs",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);",
+        "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 100000 | 0            | 100000    |\n| 2    | 130000 | 100000       | 30000     |\n| 3    | 115000 | 130000       | -15000    |\n+------+--------+--------------+-----------+\n(3 lignes retournées)"
       },
       {
-        "label": "Toutes les valeurs strictement distinctes",
-        "stdin": "cas:2",
-        "expected": "RANK_ROW val=30 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=25 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=20 row_num=3 rank=3 dense_rank=3\nRANK_ROW val=15 row_num=4 rank=4 dense_rank=4\nRANK_ROW val=10 row_num=5 rank=5 dense_rank=5\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=5"
+        "label": "Croissance continue sur quatre mois",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 50), (2, 75), (3, 100), (4, 150);",
+        "expected": "+------+-----+--------------+-----------+\n| mois | ca  | ca_precedent | variation |\n+------+-----+--------------+-----------+\n| 1    | 50  | 0            | 50        |\n| 2    | 75  | 50           | 25        |\n| 3    | 100 | 75           | 25        |\n| 4    | 150 | 100          | 50        |\n+------+-----+--------------+-----------+\n(4 lignes retournées)"
       },
       {
-        "label": "Multiples groupes d ex-æquo consécutifs",
-        "stdin": "cas:3",
-        "expected": "RANK_ROW val=80 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=80 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=60 row_num=3 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=4 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=5 rank=3 dense_rank=2\nRANK_ROW val=40 row_num=6 rank=6 dense_rank=3\nSUMMARY total_rows=6 max_rank=6 max_dense_rank=3"
+        "label": "Deux mois",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 200000), (2, 180000);",
+        "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 200000 | 0            | 200000    |\n| 2    | 180000 | 200000       | -20000    |\n+------+--------+--------------+-----------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nRANK_ROW val=100 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=90 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=90 row_num=3 rank=2 dense_rank=2\nRANK_ROW val=80 row_num=4 rank=4 dense_rank=3\nRANK_ROW val=70 row_num=5 rank=5 dense_rank=4\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=4\n\n[Cas 1 — Toutes les valeurs identiques (ex-æquo parfait)]\nRANK_ROW val=50 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=3 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=4 rank=1 dense_rank=1\nSUMMARY total_rows=4 max_rank=1 max_dense_rank=1\n\n[Cas 2 — Toutes les valeurs strictement distinctes]\nRANK_ROW val=30 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=25 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=20 row_num=3 rank=3 dense_rank=3\nRANK_ROW val=15 row_num=4 rank=4 dense_rank=4\nRANK_ROW val=10 row_num=5 rank=5 dense_rank=5\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=5\n\n[Cas 3 — Multiples groupes d ex-æquo consécutifs]\nRANK_ROW val=80 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=80 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=60 row_num=3 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=4 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=5 rank=3 dense_rank=2\nRANK_ROW val=40 row_num=6 rank=6 dense_rank=3\nSUMMARY total_rows=6 max_rank=6 max_dense_rank=3"
+    "solution": "SELECT mois, ca, LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent, ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation FROM chiffre_affaires ORDER BY mois ASC;"
   },
   {
     "id": "sql3-c4-e2",
     "chapter": 4,
-    "title": "Calculateur de moyennes et sommes glissantes avec clause d’encadrement",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Simuler l’agrégation fenêtrée avec la clause de cadrage ROWS BETWEEN k PRECEDING AND CURRENT ROW.",
-    "brief": "Dans la clause `OVER (ORDER BY date ROWS BETWEEN k PRECEDING AND CURRENT ROW)` :\n- Pour chaque ligne courante, la fenêtre d’agrégation englobe au maximum les $k$ lignes précédentes plus la ligne courante (soit jusqu’à $k+1$ éléments).\n- On calcule la somme cumulée de la fenêtre et la moyenne mobile arithmétique associée arrondie à 2 décimales.\n\nEntrée :\n- Une ligne définissant la taille de l’historique : `CONFIG preceding=<K>`\n- Des lignes de données : `ROW id=<step> val=<float_val>`\n\nSortie :\n- Pour chaque ligne : `WINDOW_AGG id=<step> val=<V.2f> sum=<SUM.2f> avg=<AVG.2f> window_size=<COUNT>`\n- En fin de série : `FINAL_METRIC total_rows=<N> last_avg=<LAST_AVG.2f>`",
-    "starter": "# Grille d'analyse (sql3-c4-e2) — Calculateur de moyennes et sommes glissantes avec clause d’encadrement\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Fenêtre cumulée depuis le début (preceding infini / très grand)]\n# Données : CONFIG preceding=100\n# Données : ROW id=1 val=5\n# Données : ROW id=2 val=15\n# Données : ROW id=3 val=25\nA_COMPLETER\n\n[Cas 2 — Fenêtre de 1 ligne précédente (preceding=1)]\n# Données : CONFIG preceding=1\n# Données : ROW id=1 val=100\n# Données : ROW id=2 val=200\n# Données : ROW id=3 val=50\nA_COMPLETER\n\n[Cas 3 — Fenêtre stricte preceding=0 (uniquement current row)]\n# Données : CONFIG preceding=0\n# Données : ROW id=1 val=12.5\n# Données : ROW id=2 val=25.0\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Top-N par département avec DENSE_RANK() dans une CTE",
+    "goal": "Extraire les 2 meilleurs salaires de chaque département sans trou de classement.",
+    "brief": "<p>Dans la table <code>employes(nom, departement, salaire)</code>, utilisez une CTE calculant <code>DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang</code> pour afficher <code>departement</code>, <code>nom</code>, <code>salaire</code> et <code>rang</code> uniquement pour les employés classés aux rangs <code>1</code> ou <code>2</code> (<code>WHERE rang &lt;= 2</code>), triés par <code>departement</code> croissant, <code>rang</code> croissant et <code>nom</code> croissant.</p>",
+    "starter": "-- Sélectionnez les rangs <= 2 par département avec DENSE_RANK()\nSELECT departement, nom, salaire FROM employes;",
     "hints": [
-      "Une fonction de fenêtrage (OVER (...)) applique un calcul d’agrégation sur une partition sans regrouper les lignes.",
-      "Définissez la fenêtre glissante (ROWS BETWEEN ... PRECEDING AND CURRENT ROW) pour calculer la moyenne mobile."
+      "Une fonction de fenêtrage ne peut pas figurer directement dans WHERE : calculez-la dans une CTE WITH classement AS (...).",
+      "Filtrez ensuite avec WHERE rang <= 2."
     ],
     "examples": [
       {
-        "stdin": "CONFIG preceding=2\nROW id=1 val=10\nROW id=2 val=20\nROW id=3 val=30\nROW id=4 val=40",
-        "expected": "WINDOW_AGG id=1 val=10.00 sum=10.00 avg=10.00 window_size=1\nWINDOW_AGG id=2 val=20.00 sum=30.00 avg=15.00 window_size=2\nWINDOW_AGG id=3 val=30.00 sum=60.00 avg=20.00 window_size=3\nWINDOW_AGG id=4 val=40.00 sum=90.00 avg=30.00 window_size=3\nFINAL_METRIC total_rows=4 last_avg=30.00",
-        "note": "Pour l’id=4 avec preceding=2, la fenêtre contient [20, 30, 40] : somme=90, moyenne=30."
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);",
+        "expected": "+-------------+-------+---------+------+\n| departement | nom   | salaire | rang |\n+-------------+-------+---------+------+\n| IT          | Amina | 500000  | 1    |\n| IT          | Koffi | 400000  | 2    |\n| RH          | Sena  | 450000  | 1    |\n+-------------+-------+---------+------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Fenêtre cumulée depuis le début (preceding infini / très grand)",
-        "stdin": "cas:1",
-        "expected": "WINDOW_AGG id=1 val=5.00 sum=5.00 avg=5.00 window_size=1\nWINDOW_AGG id=2 val=15.00 sum=20.00 avg=10.00 window_size=2\nWINDOW_AGG id=3 val=25.00 sum=45.00 avg=15.00 window_size=3\nFINAL_METRIC total_rows=3 last_avg=15.00"
+        "label": "Trois employés en IT et un en RH",
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);",
+        "expected": "+-------------+-------+---------+------+\n| departement | nom   | salaire | rang |\n+-------------+-------+---------+------+\n| IT          | Amina | 500000  | 1    |\n| IT          | Koffi | 400000  | 2    |\n| RH          | Sena  | 450000  | 1    |\n+-------------+-------+---------+------+\n(3 lignes retournées)"
       },
       {
-        "label": "Fenêtre de 1 ligne précédente (preceding=1)",
-        "stdin": "cas:2",
-        "expected": "WINDOW_AGG id=1 val=100.00 sum=100.00 avg=100.00 window_size=1\nWINDOW_AGG id=2 val=200.00 sum=300.00 avg=150.00 window_size=2\nWINDOW_AGG id=3 val=50.00 sum=250.00 avg=125.00 window_size=2\nFINAL_METRIC total_rows=3 last_avg=125.00"
+        "label": "Ex-aequo au rang 1",
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Afi', 'Secu', 600000), ('Binta', 'Secu', 600000), ('Kodjo', 'Secu', 450000), ('Marc', 'Secu', 300000);",
+        "expected": "+-------------+-------+---------+------+\n| departement | nom   | salaire | rang |\n+-------------+-------+---------+------+\n| Secu        | Afi   | 600000  | 1    |\n| Secu        | Binta | 600000  | 1    |\n| Secu        | Kodjo | 450000  | 2    |\n+-------------+-------+---------+------+\n(3 lignes retournées)"
       },
       {
-        "label": "Fenêtre stricte preceding=0 (uniquement current row)",
-        "stdin": "cas:3",
-        "expected": "WINDOW_AGG id=1 val=12.50 sum=12.50 avg=12.50 window_size=1\nWINDOW_AGG id=2 val=25.00 sum=25.00 avg=25.00 window_size=1\nFINAL_METRIC total_rows=2 last_avg=25.00"
+        "label": "Deux départements",
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('E1', 'A', 100), ('E2', 'A', 90), ('E3', 'A', 80), ('E4', 'B', 200);",
+        "expected": "+-------------+-----+---------+------+\n| departement | nom | salaire | rang |\n+-------------+-----+---------+------+\n| A           | E1  | 100     | 1    |\n| A           | E2  | 90      | 2    |\n| B           | E4  | 200     | 1    |\n+-------------+-----+---------+------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nWINDOW_AGG id=1 val=10.00 sum=10.00 avg=10.00 window_size=1\nWINDOW_AGG id=2 val=20.00 sum=30.00 avg=15.00 window_size=2\nWINDOW_AGG id=3 val=30.00 sum=60.00 avg=20.00 window_size=3\nWINDOW_AGG id=4 val=40.00 sum=90.00 avg=30.00 window_size=3\nFINAL_METRIC total_rows=4 last_avg=30.00\n\n[Cas 1 — Fenêtre cumulée depuis le début (preceding infini / très grand)]\nWINDOW_AGG id=1 val=5.00 sum=5.00 avg=5.00 window_size=1\nWINDOW_AGG id=2 val=15.00 sum=20.00 avg=10.00 window_size=2\nWINDOW_AGG id=3 val=25.00 sum=45.00 avg=15.00 window_size=3\nFINAL_METRIC total_rows=3 last_avg=15.00\n\n[Cas 2 — Fenêtre de 1 ligne précédente (preceding=1)]\nWINDOW_AGG id=1 val=100.00 sum=100.00 avg=100.00 window_size=1\nWINDOW_AGG id=2 val=200.00 sum=300.00 avg=150.00 window_size=2\nWINDOW_AGG id=3 val=50.00 sum=250.00 avg=125.00 window_size=2\nFINAL_METRIC total_rows=3 last_avg=125.00\n\n[Cas 3 — Fenêtre stricte preceding=0 (uniquement current row)]\nWINDOW_AGG id=1 val=12.50 sum=12.50 avg=12.50 window_size=1\nWINDOW_AGG id=2 val=25.00 sum=25.00 avg=25.00 window_size=1\nFINAL_METRIC total_rows=2 last_avg=25.00"
+    "solution": "WITH classement AS (\n  SELECT departement, nom, salaire, DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang\n  FROM employes\n)\nSELECT departement, nom, salaire, rang FROM classement WHERE rang <= 2 ORDER BY departement ASC, rang ASC, nom ASC;"
   },
   {
     "id": "sql3-c4-e3",
     "chapter": 4,
-    "title": "Moteur de résolution de hiérarchie arborescente par CTE récursive",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Calculer la profondeur, le chemin absolu et le nombre total de subordonnés dans une structure hiérarchique via une CTE récursive simulée.",
-    "brief": "Dans SQL standard, la syntaxe `WITH RECURSIVE` permet de parcourir des graphes et arbres hiérarchiques (ex: organigramme d’entreprise, nomenclature de pièces BOM) :\n- Nœud racine (Ancre récursive) : employé dont `manager_id=0` (niveau 1, chemin `/<nom>`).\n- Membre récursif : chaque subordonné direct d’un employé résolu hérite d’un `level = level_manager + 1` et d’un `path = path_manager / <nom>`.\n- Le moteur calcule également pour chaque nœud le nombre total de subordonnés (descendants directs et indirects).\n\nEntrée :\n`EMP id=<int> name=<nom> manager=<int>` (manager=0 pour le sommet de l’arbre)\n\nSortie :\n- Liste des employés triés par niveau puis par identifiant :\n  `HIERARCHY id=<id> name=<name> level=<L> path=<PATH> subordinates=<COUNT>`\n- Bilan de l’arbre : `TREE_REPORT max_depth=<D> total_nodes=<N>`",
-    "starter": "# Grille d'analyse (sql3-c4-e3) — Moteur de résolution de hiérarchie arborescente par CTE récursive\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Organigramme avec plusieurs branches parallèles sous la racine]\n# Données : EMP id=1 name=CEO manager=0\n# Données : EMP id=2 name=VP_Sales manager=1\n# Données : EMP id=3 name=VP_Tech manager=1\n# Données : EMP id=4 name=Dev1 manager=3\n# Données : EMP id=5 name=Dev2 manager=3\nA_COMPLETER\n\n[Cas 2 — Nœud unique racine sans subordonné]\n# Données : EMP id=1 name=SoloConsultant manager=0\nA_COMPLETER\n\n[Cas 3 — Arbre de pièces industrielles (BOM)]\n# Données : EMP id=10 name=Voiture manager=0\n# Données : EMP id=20 name=Moteur manager=10\n# Données : EMP id=30 name=Piston manager=20\n# Données : EMP id=40 name=Chassis manager=10\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Parcours d’arbre hiérarchique avec WITH RECURSIVE",
+    "goal": "Écrire une CTE récursive pour calculer la profondeur hiérarchique d’un organigramme.",
+    "brief": "<p>La table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente la hiérarchie d’une entreprise (la racine a <code>manager_id IS NULL</code>). Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour la racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant.</p>",
+    "starter": "-- Écrivez une CTE WITH RECURSIVE hierarchie(id, nom, niveau)\nSELECT id, nom FROM organigramme;",
     "hints": [
-      "Construire un dictionnaire des employés et un graphe direct manager -> [enfants].",
-      "Identifier la racine (manager=0) pour initialiser la récursion (BFS ou DFS).",
-      "Pour le compte des subordonnés, une fonction récursive d’exploration du sous-arbre permet de sommer tous les descendants."
+      "Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.",
+      "Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1."
     ],
     "examples": [
       {
-        "stdin": "EMP id=1 name=CEO manager=0\nEMP id=2 name=CTO manager=1\nEMP id=3 name=DevLead manager=2\nEMP id=4 name=Dev1 manager=3",
-        "expected": "HIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=3\nHIERARCHY id=2 name=CTO level=2 path=/CEO/CTO subordinates=2\nHIERARCHY id=3 name=DevLead level=3 path=/CEO/CTO/DevLead subordinates=1\nHIERARCHY id=4 name=Dev1 level=4 path=/CEO/CTO/DevLead/Dev1 subordinates=0\nTREE_REPORT max_depth=4 total_nodes=4",
-        "note": "Arbre à 4 niveaux : le CEO a 3 subordonnés au total."
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);",
+        "expected": "+----+--------------+--------+\n| id | nom          | niveau |\n+----+--------------+--------+\n| 1  | DG           | 1      |\n| 2  | DSI          | 2      |\n| 3  | Admin Réseau | 3      |\n+----+--------------+--------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Organigramme avec plusieurs branches parallèles sous la racine",
-        "stdin": "cas:1",
-        "expected": "HIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=4\nHIERARCHY id=2 name=VP_Sales level=2 path=/CEO/VP_Sales subordinates=0\nHIERARCHY id=3 name=VP_Tech level=2 path=/CEO/VP_Tech subordinates=2\nHIERARCHY id=4 name=Dev1 level=3 path=/CEO/VP_Tech/Dev1 subordinates=0\nHIERARCHY id=5 name=Dev2 level=3 path=/CEO/VP_Tech/Dev2 subordinates=0\nTREE_REPORT max_depth=3 total_nodes=5"
+        "label": "Hiérarchie à 3 niveaux",
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);",
+        "expected": "+----+--------------+--------+\n| id | nom          | niveau |\n+----+--------------+--------+\n| 1  | DG           | 1      |\n| 2  | DSI          | 2      |\n| 3  | Admin Réseau | 3      |\n+----+--------------+--------+\n(3 lignes retournées)"
       },
       {
-        "label": "Nœud unique racine sans subordonné",
-        "stdin": "cas:2",
-        "expected": "HIERARCHY id=1 name=SoloConsultant level=1 path=/SoloConsultant subordinates=0\nTREE_REPORT max_depth=1 total_nodes=1"
+        "label": "Arbre large à 2 branches",
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'PDG', NULL), (2, 'Dir Tech', 1), (3, 'Dir Fin', 1), (4, 'Dev Lead', 2), (5, 'Comptable', 3);",
+        "expected": "+----+-----------+--------+\n| id | nom       | niveau |\n+----+-----------+--------+\n| 1  | PDG       | 1      |\n| 2  | Dir Tech  | 2      |\n| 3  | Dir Fin   | 2      |\n| 4  | Dev Lead  | 3      |\n| 5  | Comptable | 3      |\n+----+-----------+--------+\n(5 lignes retournées)"
       },
       {
-        "label": "Arbre de pièces industrielles (BOM)",
-        "stdin": "cas:3",
-        "expected": "HIERARCHY id=10 name=Voiture level=1 path=/Voiture subordinates=3\nHIERARCHY id=20 name=Moteur level=2 path=/Voiture/Moteur subordinates=1\nHIERARCHY id=40 name=Chassis level=2 path=/Voiture/Chassis subordinates=0\nHIERARCHY id=30 name=Piston level=3 path=/Voiture/Moteur/Piston subordinates=0\nTREE_REPORT max_depth=3 total_nodes=4"
+        "label": "Racine et deux directeurs",
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (10, 'Recteur', NULL), (20, 'Doyen B1', 10), (30, 'Doyen B3', 10);",
+        "expected": "+----+----------+--------+\n| id | nom      | niveau |\n+----+----------+--------+\n| 10 | Recteur  | 1      |\n| 20 | Doyen B1 | 2      |\n| 30 | Doyen B3 | 2      |\n+----+----------+--------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nHIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=3\nHIERARCHY id=2 name=CTO level=2 path=/CEO/CTO subordinates=2\nHIERARCHY id=3 name=DevLead level=3 path=/CEO/CTO/DevLead subordinates=1\nHIERARCHY id=4 name=Dev1 level=4 path=/CEO/CTO/DevLead/Dev1 subordinates=0\nTREE_REPORT max_depth=4 total_nodes=4\n\n[Cas 1 — Organigramme avec plusieurs branches parallèles sous la racine]\nHIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=4\nHIERARCHY id=2 name=VP_Sales level=2 path=/CEO/VP_Sales subordinates=0\nHIERARCHY id=3 name=VP_Tech level=2 path=/CEO/VP_Tech subordinates=2\nHIERARCHY id=4 name=Dev1 level=3 path=/CEO/VP_Tech/Dev1 subordinates=0\nHIERARCHY id=5 name=Dev2 level=3 path=/CEO/VP_Tech/Dev2 subordinates=0\nTREE_REPORT max_depth=3 total_nodes=5\n\n[Cas 2 — Nœud unique racine sans subordonné]\nHIERARCHY id=1 name=SoloConsultant level=1 path=/SoloConsultant subordinates=0\nTREE_REPORT max_depth=1 total_nodes=1\n\n[Cas 3 — Arbre de pièces industrielles (BOM)]\nHIERARCHY id=10 name=Voiture level=1 path=/Voiture subordinates=3\nHIERARCHY id=20 name=Moteur level=2 path=/Voiture/Moteur subordinates=1\nHIERARCHY id=40 name=Chassis level=2 path=/Voiture/Chassis subordinates=0\nHIERARCHY id=30 name=Piston level=3 path=/Voiture/Moteur/Piston subordinates=0\nTREE_REPORT max_depth=3 total_nodes=4"
+    "solution": "WITH RECURSIVE hierarchie(id, nom, niveau) AS (\n  SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.id, o.nom, h.niveau + 1 FROM organigramme o INNER JOIN hierarchie h ON o.manager_id = h.id\n)\nSELECT id, nom, niveau FROM hierarchie ORDER BY niveau ASC, id ASC;"
   }
 ];

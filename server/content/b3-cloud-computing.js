@@ -46,7 +46,7 @@ const course = {
     'gouvernance FinOps et arbitrage tarifaire On-Demand, Instances Réservées et Spot).',
   lead:
     'Maîtrisez les architectures d’infrastructure, la haute disponibilité, l’efficience énergétique et la gouvernance financière du Cloud Computing de niveau Bachelor 3. ' +
-    'Six modules approfondis combinant formalisme technique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant formalisme technique, 18 études de cas pratiques et méthodologiques et 48 QCM d’évaluation.',
 
   sources: 'le cours magistral COURS CLOUD COMPUTING CDPS ITB3, les publications spéciales du NIST (SP 800-145), les standards The Green Grid / ISO 30134 et les référentiels professionnels AWS, Azure et ANSSI SecNumCloud',
 

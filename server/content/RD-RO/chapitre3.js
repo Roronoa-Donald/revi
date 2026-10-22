@@ -121,7 +121,7 @@ module.exports = {
           '<div class="box--formula">',
           '  <span class="formula-label">3. Pivot de Gauss-Jordan</span>',
           '  <p>Le coefficient $p = a_{rk}$ est le pivot. On normalise la ligne du pivot : $L_r \\leftarrow \\frac{L_r}{p}$.</p>',
-          '  <p>Pour chaque autre ligne $i \\ne r$ : $L_i \\leftarrow L_i - a_{ik} L_r$ (élimination sur la colonne $k$).</p>',
+          '  <p>Pour chaque autre ligne $i ≠ r$ : $L_i \\leftarrow L_i - a_{ik} L_r$ (élimination sur la colonne $k$).</p>',
           '</div>'
         ].join('\n'))
       ].join('\n')
@@ -233,7 +233,7 @@ module.exports = {
     'Pour chaque ligne $i$ ayant $a_{ik} > 0$, calculer le ratio $\\theta_i = b_i / a_{ik}$. Identifier le ratio strictement positif le plus petit. Sa ligne est la ligne pivot $r$.',
     'Remplacer le nom de la variable de base sortante par celui de la variable entrante dans la colonne de gauche.',
     'Diviser tous les coefficients de la ligne $r$ par le pivot $p = a_{rk}$.',
-    'Pour toutes les autres lignes $i \\neq r$ (y compris la ligne de fonction objectif), soustraire $a_{ik} \\times L_r$ pour annuler le terme en colonne $k$.'
+    'Pour toutes les autres lignes $i ≠ r$ (y compris la ligne de fonction objectif), soustraire $a_{ik} \\times L_r$ pour annuler le terme en colonne $k$.'
   ],
 
   summary: [
@@ -267,8 +267,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois la définition des variables de base et la règle de sélection de la variable entrante.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul des ratios et l’identification de la variable sortante.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les itérations et le pivotage de Gauss-Jordan.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul des ratios et l’identification de la variable sortante.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les itérations et le pivotage de Gauss-Jordan.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la dualité et à la méthode des deux phases au chapitre 4.' }
   ],
 

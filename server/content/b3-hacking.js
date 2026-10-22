@@ -39,7 +39,7 @@ const course = {
     'et enfin maintien de l\'accès, post-exploitation et rédaction du rapport d\'intrusion (mécanismes de persistance sous Linux via cron, systemd et authorized_keys, persistance Windows via clés de registre Run/RunOnce et tâches planifiées, détection et désobfusquation de web shells PHP/JSP exploitant eval et base64, techniques de dissimulation et d\'anti-forensics avec timestomping et manipulation de logs, détection défensive de la Blue Team via SIEM, EDR, règles Sigma et signatures YARA, protocole éthique de nettoyage intégral des implants, et structure normalisée du rapport de test d\'intrusion avec synthèse managériale vulgarisée, fiches techniques de vulnérabilités avec preuves de concept éthiques et plan de remédiation priorisé par horizon).',
   lead:
     'Maîtrisez la sécurité offensive et les tests d’intrusion professionnels : cadre légal, méthodologie PTES, reconnaissance OSINT, balayage réseau Nmap, OWASP Top 10, exploitation système, élévation de privilèges Linux/Windows, persistance et rapport managérial. ' +
-    'Six modules complets, 18 exercices interactifs de code en Python 3 et 48 QCM d’évaluation.',
+    'Six modules complets, 18 exercices interactifs de code de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins & MITRE ATT&CK',
 

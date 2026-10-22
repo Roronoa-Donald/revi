@@ -235,7 +235,7 @@ module.exports = {
       desc: 'Intégrer GitHub Actions avec un slot Staging et conditionner le swap de production à la réussite de tests d\'intégration end-to-end.'
     },
     {
-      title: 'Développement de simulateurs de haute disponibilité en Python 3',
+      title: 'Développement de simulateurs de haute disponibilité de manière méthodique',
       desc: 'Programmer des moteurs calculant les temps d\'arrêt prévisionnels, simulant l\'auto-scaling et orchestrant la bascule de slots avec rollback.'
     }
   ]

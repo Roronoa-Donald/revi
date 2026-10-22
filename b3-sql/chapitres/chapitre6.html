@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-sqlnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>concevoir une architecture de partitionnement déclaratif horizontal (RANGE, LIST, HASH) avec table mère et sous-partitions ;</li>
       <li>comprendre et activer l’élagage de partitions (Partition Pruning) au niveau de l’optimiseur CBO et au runtime ;</li>
@@ -158,217 +158,124 @@ CREATE TABLE mesures_defaut PARTITION OF mesures_capteurs DEFAULT;</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="sql3-c6-e1" data-lab
      data-exercise="sql3-c6-e1"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="STRATEGY type=RANGE col=annee&#10;PARTITION name=p_2023 from=2023 to=2024&#10;PARTITION name=p_2024 from=2024 to=2025&#10;PARTITION name=p_2025 from=2025 to=2026&#10;INSERT id=1 annee=2024&#10;INSERT id=2 annee=2025&#10;INSERT id=3 annee=2020">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e1) — Routeur de partitionnement déclaratif de table (Range & List)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Partitionnement par liste (LIST) géographique]
-# Données : STRATEGY type=LIST col=pays
-# Données : PARTITION name=p_europe values=FR,BE,DE,IT
-# Données : PARTITION name=p_amerique values=US,CA,MX
-# Données : INSERT id=10 pays=FR
-# Données : INSERT id=11 pays=JP
-A_COMPLETER
-
-[Cas 2 — Toutes les lignes routées avec succès dans un partitionnement par plage]
-# Données : STRATEGY type=RANGE col=mois
-# Données : PARTITION name=t1 from=1 to=4
-# Données : PARTITION name=t2 from=4 to=7
-# Données : INSERT id=101 mois=2
-# Données : INSERT id=102 mois=4
-# Données : INSERT id=103 mois=6
-A_COMPLETER
-
-[Cas 3 — Test de borne supérieure exclusive (valeur égale à to)]
-# Données : STRATEGY type=RANGE col=valeur
-# Données : PARTITION name=p_basse from=0 to=100
-# Données : INSERT id=1 valeur=100
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 2, 100), (2, 3, 150), (3, 5, 200), (4, 11, 300);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Regroupez les mesures par partition trimestrielle p_q1..p_q4
+SELECT mois, valeur FROM mesures_iot;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Routeur de partitionnement déclaratif de table (Range &amp; List)</h3>
+    <h3 class="lab__title">Exercice 1 — Routage de partitions par intervalles de dates (Range Partitioning)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Acheminer les insertions de données vers la partition physique appropriée selon la stratégie de partitionnement déclarative.</p>
-    <div class="lab__brief">Dans PostgreSQL (à partir de la version 10), le partitionnement déclaratif horizontal divise une grande table logique en sous-tables physiques indépendantes :
-- `RANGE` : la partition héberge un intervalle semi-ouvert $[\text{from}, \text{to}[$ (valeur $\ge \text{from}$ et $< \text{to}$).
-- `LIST` : la partition accepte un ensemble fini de valeurs littérales (ex: codes régions ou statuts).
-- Si aucune partition ne correspond et qu’aucune partition par défaut n’existe : l’insertion échoue avec `NO_PARTITION_FOUND`.
-
-Entrée :
-- Définition de la stratégie : `STRATEGY type=<RANGE|LIST> col=<col_name>`
-- Déclaration des partitions :
-  Pour RANGE : `PARTITION name=<p_name> from=<val> to=<val>`
-  Pour LIST : `PARTITION name=<p_name> values=<v1,v2,...>`
-- Insertions : `INSERT id=<row_id> <col_name>=<val>`
-
-Sortie :
-- Pour chaque insertion : `ROUTED row_id=<ID> val=<V> partition=<PART_NAME|NONE> status=<SUCCESS|ERROR_NO_PARTITION>`
-- Bilan : `ROUTER_SUMMARY total=<N> routed=<N> unrouted=<N>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Affecter et agréger les enregistrements par partition trimestrielle.</p>
+    <div class="lab__brief"><p>Dans la table <code>mesures_iot(id INT, mois INT, valeur INT)</code> où <code>mois</code> va de <code>1</code> à <code>12</code>, affichez le nom de la partition trimestrielle (<code>CASE WHEN mois &lt;= 3 THEN 'p_q1' WHEN mois &lt;= 6 THEN 'p_q2' WHEN mois &lt;= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible</code>), le nombre de lignes (<code>COUNT(*) AS nb_lignes</code>) et la somme des valeurs (<code>SUM(valeur) AS total_valeurs</code>), regroupés et triés par <code>partition_cible</code> croissante.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STRATEGY type=RANGE col=annee
-PARTITION name=p_2023 from=2023 to=2024
-PARTITION name=p_2024 from=2024 to=2025
-PARTITION name=p_2025 from=2025 to=2026
-INSERT id=1 annee=2024
-INSERT id=2 annee=2025
-INSERT id=3 annee=2020</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTED row_id=1 val=2024 partition=p_2024 status=SUCCESS
-ROUTED row_id=2 val=2025 partition=p_2025 status=SUCCESS
-ROUTED row_id=3 val=2020 partition=NONE status=ERROR_NO_PARTITION
-ROUTER_SUMMARY total=3 routed=2 unrouted=1</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 2, 100), (2, 3, 150), (3, 5, 200), (4, 11, 300);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+-----------------+-----------+---------------+
+| partition_cible | nb_lignes | total_valeurs |
++-----------------+-----------+---------------+
+| p_q1            | 2         | 250           |
+| p_q2            | 1         | 200           |
+| p_q4            | 1         | 300           |
++-----------------+-----------+---------------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">2024 va dans p_2024 ; 2020 ne correspond à aucune partition déclarée.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Pour RANGE : convertir les bornes et valeurs en entiers pour la comparaison from &lt;= val &lt; to.</li>
-        <li>Pour LIST : vérifier si str(val) est dans la liste values.</li>
-        <li>Afficher ERROR_NO_PARTITION si aucun match n’est trouvé.</li>
+        <li>Utilisez l’expression CASE WHEN pour calculer partition_cible.</li>
+        <li>Regroupez avec GROUP BY partition_cible ORDER BY partition_cible ASC.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c6-e2" data-lab
      data-exercise="sql3-c6-e2"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026&#10;QUERY id=1 op=eq val1=2024&#10;QUERY id=2 op=gte val1=2024">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e2) — Simulateur d’élagage de partitions (Partition Pruning Optimizer)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Filtre BETWEEN couvrant deux partitions consécutives]
-# Données : PARTITIONS list=p_q1:1-4,p_q2:4-7,p_q3:7-10,p_q4:10-13
-# Données : QUERY id=10 op=between val1=3 val2=5
-A_COMPLETER
-
-[Cas 2 — Filtre inférieur ou égal (lte) élaguant les partitions futures]
-# Données : PARTITIONS list=p1:0-10,p2:10-20,p3:20-30
-# Données : QUERY id=20 op=lte val1=9
-A_COMPLETER
-
-[Cas 3 — Requête ne pouvant élaguer aucune partition (scan complet)]
-# Données : PARTITIONS list=p1:1-5,p2:5-10
-# Données : QUERY id=30 op=between val1=1 val2=10
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('replica_dc1', 5000, 5000, 'sync'), ('replica_dc2', 5000, 4850, 'async');&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Calculez lag_mb = sent_lsn_mb - replay_lsn_mb pour chaque réplica
+SELECT application_name FROM pg_stat_replication_sim;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Simulateur d’élagage de partitions (Partition Pruning Optimizer)</h3>
+    <h3 class="lab__title">Exercice 2 — Surveillance du retard de réplication (Replication Lag LSN)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer les partitions éliminées (pruned) et le gain d’I/O lors de l’exécution d’une requête filtrée.</p>
-    <div class="lab__brief">L’élagage de partitions (Partition Pruning) permet à l’optimiseur de ne scanner que les partitions physiques dont les bornes chevauchent le filtre WHERE, éliminant totalement les autres tables du plan d’exécution.
-L’efficacité de l’élagage est mesurée par :
-$$\text{Efficacité} = \frac{\text{Partitions Élaguées}}{\text{Total des Partitions}} \times 100$$
-
-Entrée :
-- `PARTITIONS list=<p1:from-to,p2:from-to,...>`
-- `QUERY id=<num> op=<eq|gte|lte|between> val1=<int> [val2=<int>]`
-
-Sortie :
-- Pour chaque requête :
-  `PRUNING_EVAL query_id=<id> scanned=<p_list> pruned=<p_list> efficiency=<PCT.1f>%`
-- Bilan : `PRUNING_REPORT queries=<N> avg_efficiency=<AVG_PCT.1f>%`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le retard d’application WAL des réplicas et identifier les nœuds en alerte.</p>
+    <div class="lab__brief"><p>Dans la vue <code>pg_stat_replication_sim(application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT)</code>, calculez le retard de réplication <code>sent_lsn_mb - replay_lsn_mb AS lag_mb</code> et affichez <code>application_name</code>, <code>sync_state</code> et <code>lag_mb</code> pour tous les réplicas, triés par <code>lag_mb</code> décroissant puis <code>application_name</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026
-QUERY id=1 op=eq val1=2024
-QUERY id=2 op=gte val1=2024</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PRUNING_EVAL query_id=1 scanned=p_2024 pruned=p_2023,p_2025 efficiency=66.7%
-PRUNING_EVAL query_id=2 scanned=p_2024,p_2025 pruned=p_2023 efficiency=33.3%
-PRUNING_REPORT queries=2 avg_efficiency=50.0%</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('replica_dc1', 5000, 5000, 'sync'), ('replica_dc2', 5000, 4850, 'async');
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------------------+------------+--------+
+| application_name | sync_state | lag_mb |
++------------------+------------+--------+
+| replica_dc2      | async      | 150    |
+| replica_dc1      | sync       | 0      |
++------------------+------------+--------+
+(2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">La requête 1 élimine 2 partitions sur 3 (66.7% d’efficacité).</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Pour chaque partition [pfrom, pto[, tester l’intersection avec l’intervalle défini par le filtre.</li>
-        <li>Pour eq val1 : tester pfrom &lt;= val1 &lt; pto.</li>
-        <li>Pour gte val1 : tester pto &gt; val1.</li>
-        <li>Pour lte val1 : tester pfrom &lt;= val1.</li>
-        <li>Pour between val1 et val2 : tester (pfrom &lt;= val2 et pto &gt; val1).</li>
+        <li>Soustrayez replay_lsn_mb de sent_lsn_mb et renommez la colonne AS lag_mb.</li>
+        <li>Triez par lag_mb DESC, application_name ASC.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c6-e3" data-lab
      data-exercise="sql3-c6-e3"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000&#10;REPLICA node=standby_2 mode=sync primary_lsn=0/16B3C840 replay_lsn=0/16B3C840">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e3) — Calculateur de lag de réplication WAL (Streaming Replication Lag)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Retard critique dépassant 64 Ko sur un réplica asynchrone]
-# Données : REPLICA node=standby_remote mode=async primary_lsn=0/20000000 replay_lsn=0/1FE00000
-A_COMPLETER
-
-[Cas 2 — Tous les nœuds parfaitement synchronisés]
-# Données : REPLICA node=standby_ha1 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000
-# Données : REPLICA node=standby_ha2 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000
-A_COMPLETER
-
-[Cas 3 — LSN traversant la frontière des 32 bits de poids fort]
-# Données : REPLICA node=standby_cross mode=async primary_lsn=2/00001000 replay_lsn=1/FFFF0000
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-1', 'PRIMARY', 0, 9000, 100), ('pg-2', 'REPLICA', 1, 8990, 90), ('pg-3', 'REPLICA', 1, 9000, 80);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Sélectionnez le meilleur candidat REPLICA sain avec ORDER BY ... LIMIT 1
+SELECT node_name, received_lsn, priority FROM cluster_nodes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Calculateur de lag de réplication WAL (Streaming Replication Lag)</h3>
+    <h3 class="lab__title">Exercice 3 — Élection du candidat de basculement automatique (Failover Patroni / HA)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer le décalage de réplication en octets et en Ko entre le primaire et ses nœuds secondaires à partir de nombres LSN (Log Sequence Number).</p>
-    <div class="lab__brief">Dans la réplication physique PostgreSQL (Streaming Replication), l’avancement des écritures dans le journal WAL est repéré par un `LSN` (Log Sequence Number) hexadécimal à deux composantes (ex: `16/B3C840`).
-Conversion d’un LSN en entier 64 bits d’octets :
-$$\text{LSN\_Bytes} = \text{int}(X, 16) \times 2^{32} + \text{int}(Y, 16)$$
-Le retard de réplication (Lag) est calculé par :
-$$\text{Lag\_Bytes} = \text{Primary\_LSN} - \text{Replica\_LSN}$$
-$$\text{Lag\_Ko} = \frac{\text{Lag\_Bytes}}{1024.0}$$
-Évaluation de la santé :
-- Si `Lag_Bytes == 0` : `SYNCED` (parfaite synchronisation).
-- Si `0 < Lag_Ko <= 64` : `HEALTHY_LAG` (retard opérationnel normal en réplication asynchrone).
-- Si `Lag_Ko > 64` : `CRITICAL_LAG` (danger de perte de données en cas de failover, violation de RPO).
-
-Entrée :
-`REPLICA node=<name> mode=<sync|async> primary_lsn=<HEX/HEX> replay_lsn=<HEX/HEX>`
-
-Sortie :
-`LAG_STATUS node=<name> mode=<mode> lag_bytes=<BYTES> lag_kb=<KB.2f> health=<SYNCED|HEALTHY_LAG|CRITICAL_LAG>`
-`CLUSTER_STATUS total_nodes=<N> max_lag_kb=<MAX.2f>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Sélectionner le meilleur réplica candidat à la promotion Primary selon santé et LSN.</p>
+    <div class="lab__brief"><p>Lors d’une panne du serveur primaire, Patroni élit parmi la table <code>cluster_nodes(node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT)</code> le nœud qui vérifie <code>role = 'REPLICA' AND healthy = 1</code> ayant le plus grand <code>received_lsn</code> (et en cas d’égalité la plus grande <code>priority</code>). Écrivez la requête SQL qui retourne <code>node_name</code>, <code>received_lsn</code> et <code>priority</code> du seul meilleur candidat (<code>LIMIT 1</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000
-REPLICA node=standby_2 mode=sync primary_lsn=0/16B3C840 replay_lsn=0/16B3C840</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LAG_STATUS node=standby_1 mode=async lag_bytes=10304 lag_kb=10.06 health=HEALTHY_LAG
-LAG_STATUS node=standby_2 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED
-CLUSTER_STATUS total_nodes=2 max_lag_kb=10.06</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-1', 'PRIMARY', 0, 9000, 100), ('pg-2', 'REPLICA', 1, 8990, 90), ('pg-3', 'REPLICA', 1, 9000, 80);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+-----------+--------------+----------+
+| node_name | received_lsn | priority |
++-----------+--------------+----------+
+| pg-3      | 9000         | 80       |
++-----------+--------------+----------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">standby_1 a un léger retard de 10 Ko (sain), standby_2 est parfaitement synchronisé.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Découper le LSN sur le caractère "/" : high, low = lsn.split("/").</li>
-        <li>Calculer lsn_val = int(high, 16) * (2**32) + int(low, 16).</li>
-        <li>Calculer lag_bytes = primary_bytes - replay_bytes.</li>
-        <li>Comparer lag_kb aux seuils 0 et 64 Ko.</li>
+        <li>Filtrez avec WHERE role = 'REPLICA' AND healthy = 1.</li>
+        <li>Triez avec ORDER BY received_lsn DESC, priority DESC LIMIT 1.</li>
       </ol>
     </details>
   </div>
@@ -517,12 +424,13 @@ CLUSTER_STATUS total_nodes=2 max_lag_kb=10.06</pre></div>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Difficultés à modéliser un partitionnement déclaratif ou confusion sur le fonctionnement du WAL.</div>
-      <div class="bandrow bandrow--medium">Bonne maîtrise de la création de tables partitionnées, vérification du pruning et configuration de réplications basiques.</div>
-      <div class="bandrow bandrow--high">Architecture de production résiliente : partitionnement multi-niveaux optimisé, monitoring fin du lag LSN et cluster HA orchestré.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à modéliser un partitionnement déclaratif ou confusion sur le fonctionnement du WAL.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise de la création de tables partitionnées, vérification du pruning et configuration de réplications basiques.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Architecture de production résiliente : partitionnement multi-niveaux optimisé, monitoring fin du lag LSN et cluster HA orchestré.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -532,7 +440,7 @@ CLUSTER_STATUS total_nodes=2 max_lag_kb=10.06</pre></div>
     <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
 </main>
 

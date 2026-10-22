@@ -252,7 +252,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Exercices de Code Interactifs — Cloud Microsoft Azure B3</h1>',
-    '  <p class="lead">Entraînez-vous sur les 18 ateliers pratiques en Python 3 intégrés à chaque module de cours : hiérarchie CAF, RBAC, VMSS auto-scaling, sous-réseaux VNet, règles NSG, cycle de vie Blob, requêtes KQL et linter IaC Bicep.</p>',
+    '  <p class="lead">Entraînez-vous sur les 18 ateliers pratiques de manière méthodique intégrés à chaque module de cours : hiérarchie CAF, RBAC, VMSS auto-scaling, sous-réseaux VNet, règles NSG, cycle de vie Blob, requêtes KQL et linter IaC Bicep.</p>',
     '',
     sectionsHtml,
     '',
@@ -264,7 +264,7 @@ function exercices(course, chapterList) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Liste complète des 18 exercices de code lab en Python 3 du cours Cloud Microsoft Azure B3.',
+      description: 'Liste complète des 18 exercices de code lab de manière méthodique du cours Cloud Microsoft Azure B3.',
       active: 'exercices',
       body
     }

@@ -141,12 +141,27 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise l’architecture d’Atkinson-Shiffrin et la charge cognitive de Sweller.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le chunking de Miller et les phases de sommeil.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les bases neurobiologiques de l’apprentissage.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le chunking de Miller et les phases de sommeil.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les bases neurobiologiques de l’apprentissage.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à l’illusion de compétence et au rappel actif au chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « Chunking » ?', a: 'George A. Miller a démontré que la mémoire de travail ne peut retenir que $7 \\pm 2$ éléments isolés. Le chunking (morcellement) regroupe les symboles en paquets significatifs pour démultiplier la capacité de rétention.' },
+      { q: 'Qu’est-ce que « Illusion de compétence » ?', a: 'Illusion de compétence : Surligner tout un manuel au feutre jaune donne une fausse sensation de sécurité : le texte paraît familier, donc on s’imagine le maîtriser. Le jour de l’épreuve, devant la copie blanche sans le support sous les yeux, c’est le trou noir. Cette désillusion porte un nom scientifique' },
+      { q: 'Qu’est-ce que « Fluency Illusion » ?', a: 'démasquer l’illusion de compétence et la fausse aisance cognitive (Fluency Illusion) ;' },
+      { q: 'Qu’est-ce que « Dunning-Kruger » ?', a: 'L’effet Dunning-Kruger : les étudiants qui maîtrisent le moins un sujet sont statistiquement ceux qui surestiment le plus leur performance future, faute d’avoir conscience de l’étendue de leurs lacunes.' },
+      { q: 'Qu’est-ce que « Active Recall » ?', a: 'Active Recall : Surligner tout un manuel au feutre jaune donne une fausse sensation de sécurité : le texte paraît familier, donc on s’imagine le maîtriser. Le jour de l’épreuve, devant la copie blanche sans le support sous les yeux, c’est le trou noir. Cette désillusion porte un nom scientifique' },
+      { q: 'Qu’est-ce que « Technique Feynman » ?', a: 'Technique Feynman : maîtriser les 4 étapes de la technique de vulgarisation de Richard Feynman.' },
+      { q: 'Qu’est-ce que « Courbe de l’oubli » ?', a: 'Courbe de l’oubli : Le bachotage intensif la veille d’un examen permet parfois de sauver les meubles le lendemain matin, mais deux semaines plus tard, tout est oublié. Le cerveau élimine impitoyablement les informations qui ne sont pas réactivées à intervalles réguliers. La répétition espacée (Space' },
+      { q: 'Qu’est-ce que « Spacing Effect » ?', a: 'comprendre l’effet d’espacement (Spacing Effect) par rapport au regroupement massif (Cramming) ;' },
+      { q: 'Qu’est-ce que « Piotr Wozniak » ?', a: 'maîtriser l’algorithme mathématique SM-2 de Piotr Wozniak régissant les moteurs comme Anki ;' },
+      { q: 'Qu’est-ce que « Neuromythes » ?', a: 'Neuromythes : Masterclass Apprendre à apprendre B2 › Sommaire › Chapitre 4' },
+      { q: 'Qu’est-ce que « Tony Buzan » ?', a: 'concevoir des cartes mentales (Mind Maps de Tony Buzan) pour cartographier les liens hiérarchiques ;' },
+      { q: 'Qu’est-ce que « Carte conceptuelle » ?', a: 'différencier une carte mentale d’une carte conceptuelle (Concept Map de Joseph Novak) ;' },
+      { q: 'Qu’est-ce que « Monitoring » ?', a: 'Monitoring (Surveillance) : se poser en temps réel la question : « Suis-je vraiment en train de comprendre ce paragraphe ? ».' },
+      { q: 'Qu’est-ce que « Chronobiologie » ?', a: 'Être intelligent ne suffit pas pour réussir des études exigeantes : la capacité à s’auto-réguler, à gérer son attention et à respecter son rythme biologique est le véritable facteur différenciateur. La métacognition (la pensée sur sa propre pensée) et la chronobiologie permettent' },
+      { q: 'Qu’est-ce que « Rythmes circadiens » ?', a: 'Rythmes circadiens : exploiter les rythmes ultradiens (90 minutes) et la technique Pomodoro de concentration fractionnée ;' },
     { q: 'Quels sont les 3 étages du modèle mnésique d’Atkinson et Shiffrin ?', a: 'La mémoire sensorielle (&lt; 1 s), la mémoire de travail (20-30 s, 7 chunks) et la mémoire à long terme (illimitée).' },
     { q: 'Quelle est la formule de la charge cognitive totale selon John Sweller ?', a: 'Charge Totale = Charge Intrinsèque (difficulté du contenu) + Charge Extrinsèque (parasite) + Charge Germane (utile).' },
     { q: 'Que stipule la règle de Donald Hebb (1949) ?', a: 'Les neurones qui s’activent ensemble se connectent ensemble (renforcement synaptique LTP).' },

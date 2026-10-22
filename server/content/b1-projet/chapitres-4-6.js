@@ -80,7 +80,7 @@ module.exports = [
           'négatif. En SQL, le mouvement se traduit par <code>UPDATE produits SET quantite = quantite + X ' +
           'WHERE id = %s</code> (ou − X après vérification). L\'atelier rejoue ces mouvements : entrées ' +
           'cumulées, sorties contrôlées, refus explicites « stock insuffisant ».</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>L\'ajout : quantité vide ou non positive → refuse, compteur d\'ajouts à la fin.</li>\n' +
             '      <li>Le mouvement : un tableau associatif par produit, sortie refusée si stock < quantité.</li>\n' +
@@ -143,7 +143,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les trois actions du CRUD côté interface.' },
       { cls: 'mid', text: '50–69 % — refais la suppression confirmée.' },
-      { cls: 'good', text: '70–89 % — cible les mouvements et leur refus.' },
+      { cls: 'good', text: '70–94 % — cible les mouvements et leur refus.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -215,7 +215,7 @@ module.exports = [
           '« rien » et 0 : à chaque produit mieux placé (prix strictement supérieur), on met à jour les ' +
           'deux. À prix égal, le premier rencontré gagne : c\'est le sens du test strict. Si rien n\'est ' +
           'trouvé, le bilan le dit : trouves : 0, meilleur resté « - ».</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>La cascade : -eq 0 → rupture, -lt seuil → alerte, sinon ok.</li>\n' +
             '      <li>La valeur : ligne = quantite * prix, total accumulé, affiché après.</li>\n' +
@@ -278,7 +278,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la cascade rupture / alerte / ok.' },
       { cls: 'mid', text: '50–69 % — refais le calcul de valeur totale.' },
-      { cls: 'good', text: '70–89 % — cible la recherche et le maximum.' },
+      { cls: 'good', text: '70–94 % — cible la recherche et le maximum.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -355,7 +355,7 @@ module.exports = [
           'de ligne. Quatre lignes de synthèse qui résument le projet : la base est cohérente (stocks), ' +
           'elle vaut quelque chose (total), elle réclame des commandes (alertes), et elle a une vitrine ' +
           '(maximum). C\'est exactement le récit d\'une soutenance.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>Le diagnostic : connexion → service, psycopg2 → pip, tkinter → apt, ascii → utf8.</li>\n' +
             '      <li>Le CSV : en-tête avant la boucle, une ligne par produit, bilan après.</li>\n' +
@@ -418,7 +418,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les quatre pannes et leurs remèdes.' },
       { cls: 'mid', text: '50–69 % — refais l\'export CSV avec en-tête.' },
-      { cls: 'good', text: '70–89 % — cible le tableau de bord complet.' },
+      { cls: 'good', text: '70–94 % — cible le tableau de bord complet.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

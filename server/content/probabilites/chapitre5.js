@@ -26,6 +26,10 @@ module.exports = {
   ],
 
   sections: [
+      {
+        "title": "Prérequis intégré : Comprendre et calculer une intégrale de densité sans cours d’Analyse préalable",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Niveau 1 — Intuition &amp; Règle opératoire : L’intégrale comme aire sous la courbe</div><p>Pour une variable continue, la probabilité de tomber dans un intervalle $[a, b]$ est l’<strong>aire située sous la courbe</strong> de la densité $f(x)$ entre $a$ et $b$, notée $\\int_a^b f(x)\\,dx$. Pour la calculer concrètement en exercice, il suffit de trouver une <strong>primitive</strong> $F(x)$ (la fonction inverse de la dérivée) et d’appliquer la formule $F(b) - F(a)$ :</p><ul><li><strong>Constante :</strong> une primitive de $c$ est $c \\cdot x$, donc $\\int_a^b c\\,dx = c(b - a)$ (utilisé pour la loi uniforme) ;</li><li><strong>Puissance :</strong> une primitive de $x$ est $\\frac{x^2}{2}$ et une primitive de $x^2$ est $\\frac{x^3}{3}$ ;</li><li><strong>Exponentielle :</strong> une primitive de $\\lambda e^{-\\lambda x}$ est $-e^{-\\lambda x}$, ce qui donne directement $P(X \\le t) = \\int_0^t \\lambda e^{-\\lambda x}\\,dx = 1 - e^{-\\lambda t}$ pour la loi exponentielle.</li></ul></div>"
+      },
     {
       title: 'Densité et fonction de répartition',
       html: [
@@ -128,8 +132,8 @@ module.exports = {
   notions: ['densité', 'fonction de répartition', 'loi uniforme', 'loi exponentielle', 'loi sans mémoire', 'loi normale', 'standardisation', 'loi centrée réduite', 'fonction Φ', 'table de la normale', 'aire sous la courbe'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois densité et probabilité nulle en un point.' },
-    { cls: 'mid', text: '50–69 % — Reprends la standardisation puis la lecture de Φ.' },
-    { cls: 'good', text: '70–89 % — Solide : tu traites les intervalles et les symétries.' },
+    { cls: 'mid', text: '50–69 % — Reprenez la standardisation puis la lecture de Φ.' },
+    { cls: 'good', text: '70–94 % — Solide : vous traitez les intervalles et les symétries.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe à la convergence, chapitre 6.' }
   ],
 

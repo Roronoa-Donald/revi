@@ -19,7 +19,7 @@ module.exports = {
     'assimiler les fondements mathématiques du modèle vectoriel d’information spatiale ;',
     'calculer manuellement et algorithmiquement les métriques TF, IDF et TF-IDF lissées ;',
     'implémenter un classificateur bayésien naïf (Naive Bayes) pour discriminer alertes critiques et bruits de fond ;',
-    'développer en Python 3 des nettoyeurs de corpus, des moteurs d’indexation TF-IDF et des filtres bayésiens.'
+    'analyser et résoudre méthodologiquement des nettoyeurs de corpus, des moteurs d’indexation TF-IDF et des filtres bayésiens.'
   ],
   sections: [
     {

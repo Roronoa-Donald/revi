@@ -167,6 +167,13 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « Tas binaire presque complet (Binary Heap) » ?', "a": 'Tas binaire presque complet (Binary Heap)' },
+    { "q": 'Qu’est-ce que « Représentation compacte en tableau 1D (parent, fils) » ?', "a": 'Représentation compacte en tableau 1D (parent, fils)' },
+    { "q": 'Qu’est-ce que « Invariant de Tas-Max (racine = maximum en O(1)) » ?', "a": 'Invariant de Tas-Max (racine = maximum en O(1))' },
+    { "q": 'Qu’est-ce que « Tamisage ascendant (sift-up) pour insertion en O(log n) » ?', "a": 'Tamisage ascendant (sift-up) pour insertion en O(log n)' },
+    { "q": 'Qu’est-ce que « Tamisage descendant (sift-down) pour extraction en O(log n) » ?', "a": 'Tamisage descendant (sift-down) pour extraction en O(log n)' },
+    { "q": 'Qu’est-ce que « Tri par tas (Heapsort) in-place en O(n log n) » ?', "a": 'Tri par tas (Heapsort) in-place en O(n log n)' },
+    { "q": 'Qu’est-ce que « File de priorité à clé dynamique (Priority Queue) » ?', "a": 'File de priorité à clé dynamique (Priority Queue)' },
     {
       "q": "Comment accède-t-on au fils gauche et au fils droit d’un nœud à l’indice i dans un tas binaire ?",
       "a": "Fils gauche : 2*i + 1. Fils droit : 2*i + 2 (dans un tableau indexé à 0)."

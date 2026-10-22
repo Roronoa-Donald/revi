@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>créer des classes, des objets et des constructeurs propres ;</li>',
       '      <li>protéger l’état d’un objet par l’encapsulation et des setters qui valident ;</li>',
@@ -38,8 +38,8 @@ function index(course, chapterList) {
       '    <p>Le cours historique de PHP objet couvre les classes, l’encapsulation, l’héritage, les namespaces, ' +
       'les exceptions et PDO. Ce cours en garde le plan et fait manipuler chaque mécanisme <strong>en PHP 8</strong> ' +
       ': le même langage qu’un serveur réel, exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment la ' +
-      'classe, elle est réellement exécutée, puis corrigée par des tests que tu ne vois pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment la ' +
+      'classe, elle est réellement exécutée, puis corrigée par des tests que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle dans une application.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -88,7 +88,7 @@ function sommaire(course, chapterList) {
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B2 ou supérieur (et un ' +
     'abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois exercices en PHP</strong> à écrire et à exécuter ' +
-    'dans la page : ton programme est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
+    'dans la page : votre programme est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de code</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -121,8 +121,8 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de code</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur PHP derrière. Écris une classe, exécute-la ' +
-    'et lis ce qu’elle affiche : c’est ici qu’une règle d’objet devient un programme qui tourne.</p>',
+    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur PHP derrière. Écrivez une classe, exécutez-la ' +
+    'et lisez ce qu’elle affiche : c’est ici qu’une règle d’objet devient un programme qui tourne.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre programme PHP tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
@@ -170,11 +170,11 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends un mécanisme ' +
-      'du cours (encapsulation, héritage, exception, PDO en mémoire), programme-le et teste-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un mécanisme ' +
+      'du cours (encapsulation, héritage, exception, PDO en mémoire), programmez-le et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le programme proposé construit un objet à partir de l’entrée et l’affiche. Modifie la classe, ' +
-      'ajoute une validation, un second contact, ou remplace tout le programme par le mécanisme que tu veux ' +
+      '      <p>Le programme proposé construit un objet à partir de l’entrée et l’affiche. Modifiez la classe, ' +
+      'ajoute une validation, un second contact, ou remplace tout le programme par le mécanisme que vous voulez ' +
       'vérifier — un setter qui refuse une valeur, une exception personnalisée, une requête préparée.</p>',
       '      <p>Dans une vraie application, ce sera un contrôleur, un dépôt, une base : la structure du programme ' +
       '— lire, construire, afficher — reste exactement la même.</p>',
@@ -190,7 +190,7 @@ function atelier(course) {
     '  <h2>De la page à la vraie application</h2>',
     '  <p>La simulation a une limite assumée : rien n’est envoyé ni stocké durablement. Elle a une force : ' +
     '<strong>toute la logique se vérifie sans serveur</strong>. Quand le programme affiche les bons résultats ' +
-    'sur tes cas limites, le portage est mécanique : la même classe, le même setter, la même requête préparée.</p>',
+    'sur vos cas limites, le portage est mécanique : la même classe, le même setter, la même requête préparée.</p>',
     box('pitfall', 'Les trois erreurs que l’atelier révèle immédiatement', 'warning', [
       '    <ul>',
       '      <li><strong>Point au lieu de flèche</strong> : <code>$this.x</code> au lieu de <code>$this-&gt;x</code>.</li>',

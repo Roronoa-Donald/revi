@@ -77,7 +77,7 @@ module.exports = {
         '    <tr><td><code>edit</code></td><td><code>e</code></td><td>Met en pause le rebase pour amender le contenu du commit (fichiers).</td></tr>',
         '    <tr><td><code>squash</code></td><td><code>s</code></td><td>Fond le commit dans le commit précédent et concatène les messages.</td></tr>',
         '    <tr><td><code>fixup</code></td><td><code>f</code></td><td>Fond le commit dans le précédent en éliminant silencieusement son message.</td></tr>',
-        '    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprime purement et simplement le commit de l’historique.</td></tr>',
+        '    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprimez purement et simplement le commit de l’historique.</td></tr>',
         '  </tbody>',
         '</table>',
         box('danger', 'La Règle d’Or Absolue du Rebase', [

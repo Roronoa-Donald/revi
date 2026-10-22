@@ -119,8 +119,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la syntaxe des props et la déstructuration d’objets.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’utilisation de la prop children et les valeurs par défaut.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises la composition et le flux descendant.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’utilisation de la prop children et les valeurs par défaut.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez la composition et le flux descendant.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la gestion d’état avec useState dans le chapitre 3.' }
   ],
 

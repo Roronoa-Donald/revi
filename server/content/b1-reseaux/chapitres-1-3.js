@@ -40,6 +40,10 @@ module.exports = [
 
     sections: [
       {
+        "title": "Glossaire des services d’entreprise cités en ouverture (Active Directory, LDAP, NAS, SAN/iSCSI)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Définitions immédiates des termes d’infrastructure</div><p>Dans un réseau professionnel client/serveur, plusieurs services spécialisés sont régulièrement mentionnés :</p><ul><li><strong>Active Directory (AD) &amp; LDAP :</strong> annuaire centralisé de Microsoft (interrogé via le protocole standard <em>LDAP</em>) qui vérifie l’identité et les droits des utilisateurs sur tout le domaine ;</li><li><strong>NAS (Network Attached Storage) :</strong> serveur de fichiers autonome branché sur le réseau local pour partager des dossiers ;</li><li><strong>SAN (Storage Area Network) &amp; iSCSI :</strong> réseau de stockage haute performance mettant des disques distants à disposition des serveurs via le protocole <em>iSCSI</em> (transport de commandes disque sur IP) ou la fibre optique (<em>Fibre Channel</em>).</li></ul></div>"
+      },
+      {
         title: 'Pourquoi des réseaux ?',
         html: [
           '<p>À l\'origine de l\'informatique, chaque ordinateur fonctionnait de manière isolée. Pour transmettre ' +
@@ -179,11 +183,16 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les définitions LAN/WAN et la distinction poste-à-poste / client-serveur.' },
       { cls: 'mid', text: '50–69 % — refais le classement des cinq familles par échelle géographique.' },
-      { cls: 'good', text: '70–89 % — bon niveau de maîtrise, révise les cas spécialisés (MAN, SAN).' },
+      { cls: 'good', text: '70–94 % — bon niveau de maîtrise, révise les cas spécialisés (MAN, SAN).' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise d\'examen atteint.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Étoile » ?', a: 'Étoile : nœud central, liaisons point à point, câblage abondant.' },
+      { q: 'Qu’est-ce que « CPL » ?', a: 'CPL : transmission sur lignes électriques, usage domestique.' },
+      { q: 'Qu’est-ce que « IPv4 » ?', a: 'IPv4 : 32 bits, quatre octets décimaux, réseau + hôte.' },
+      { q: 'Qu’est-ce que « IPv6 » ?', a: 'IPv6 : 128 bits, huit groupes hexadécimaux.' },
+      { q: 'Qu’est-ce que « Sous-réseautage » ?', a: "Sous-réseautage : diviser un réseau en empruntant des bits d'hôte." },
       { q: 'Les trois questions fondatrices des réseaux ?', a: 'Comment communiquer efficacement ? Comment éviter la duplication des équipements ? Comment administrer et sécuriser l\'ensemble ?' },
       { q: 'LAN contre WAN ?', a: 'LAN : à l\'intérieur d\'un bâtiment ou campus (privé). WAN : plus de 100 km, villes, pays et continents (liaisons d\'opérateur).' },
       { q: 'La limite du réseau poste-à-poste ?', a: 'Chaque poste doit gérer localement tous les comptes : au-delà d\'une dizaine d\'utilisateurs, la gestion devient ingérable.' },
@@ -314,7 +323,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les trois topologies et le tableau des supports.' },
       { cls: 'mid', text: '50–69 % — refais les questions de panne par topologie.' },
-      { cls: 'good', text: '70–89 % — bon niveau, entraîne-toi à conseiller un support.' },
+      { cls: 'good', text: '70–94 % — bon niveau, entraînez-vous à conseiller un support.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -441,7 +450,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la définition des sept couches du support.' },
       { cls: 'mid', text: '50–69 % — refais le classement équipements/objets par couche.' },
-      { cls: 'good', text: '70–89 % — bon niveau, entraîne-toi aux scénarios de dépannage.' },
+      { cls: 'good', text: '70–94 % — bon niveau, entraînez-vous aux scénarios de dépannage.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

@@ -142,9 +142,9 @@ module.exports = {
 
   notions: ['prérequis', 'VT-x', 'AMD-V', 'VT-d', 'IOMMU', 'Secure Boot', 'virtualisation imbriquée', 'nested', 'KVM', 'QEMU', 'libvirt', 'plan de données', 'plan de gestion', 'stockage', 'compute'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les prérequis matériels.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la pile KVM.' },
-    { cls: 'good', text: '70–89 % — Solide : tu architectures un hôte proprement.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les prérequis matériels.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la pile KVM.' },
+    { cls: 'good', text: '70–94 % — Solide : vous architecturez un hôte proprement.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe au cycle de vie des VM, chapitre 3.' }
   ],
 

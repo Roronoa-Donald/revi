@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>penser en composants autonomes et maîtriser le modèle mental déclaratif de React ;</li>',
       '      <li>écrire du JSX propre et manipuler les props avec déstructuration et children ;</li>',
@@ -37,7 +37,7 @@ function index(course, chapterList) {
       '    <p>Ce cours aborde React de manière progressive en six chapitres : des fondations du JSX ' +
       'jusqu’au routage multipage et aux architectures globales. Le chapitre 1 est en accès libre.</p>',
       '    <p>Chaque chapitre se termine par <strong>trois exercices de code interactifs</strong> en ' +
-      '<strong>JavaScript</strong> : tu écris la logique de composants, d’état et d’algorithmes réactifs, ' +
+      '<strong>JavaScript</strong> : vous écrivez la logique de composants, d’état et d’algorithmes réactifs, ' +
       'exécutée directement dans la page et validée par une batterie de tests cachés.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -118,8 +118,8 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de code React</h1>',
-    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Node.js. Écris ton script, ' +
-    'exécute-le et observe immédiatement la sortie : l’outil idéal pour prototyper la logique de tes composants.</p>',
+    '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Node.js. Écrivez votre script, ' +
+    'exécutez-le et observez immédiatement la sortie : l’outil idéal pour prototyper la logique de vos composants.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code JavaScript et affiche sa sortie standard et ses éventuelles erreurs.</li>',
@@ -155,11 +155,11 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écris une fonction pure, ' +
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte. Écrivez une fonction pure, ' +
       'simule une transition d’état ou teste une déstructuration de props complexe sur des données réelles.</p>',
       '    <div class="lab__brief">',
       '      <p>Le code d’exemple simule l’assemblage d’un composant conteneur Card avec ses props et son corps. ' +
-      'Modifie l’entrée standard ci-dessous et clique sur <strong>Exécuter</strong> pour voir le résultat.</p>',
+      'Modifiez l’entrée standard ci-dessous et clique sur <strong>Exécuter</strong> pour voir le résultat.</p>',
       '    </div>',
       '    <div class="lab__sample">',
       '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>React 19;Equipe Peda</pre></div>',

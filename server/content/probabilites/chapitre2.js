@@ -128,8 +128,8 @@ module.exports = {
   notions: ['principe multiplicatif', 'arbre', 'factorielle', 'arrangement', 'combinaison', 'coefficient binomial', 'permutation avec répétition', 'anagramme', 'binôme de Newton', 'triangle de Pascal', 'sous-ensemble'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois la différence arrangement / combinaison.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les permutations avec répétition.' },
-    { cls: 'good', text: '70–89 % — Solide : tu écris les factorielles correctement.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les permutations avec répétition.' },
+    { cls: 'good', text: '70–94 % — Solide : vous écrivez les factorielles correctement.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux variables aléatoires, chapitre 3.' }
   ],
 

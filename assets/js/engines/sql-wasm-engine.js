@@ -21,7 +21,13 @@
 
     sqlEnginePromise = new Promise(function (resolve, reject) {
       if (typeof window === 'undefined') {
-        return reject(new Error('Le moteur SQL WebAssembly s’exécute dans l’environnement navigateur.'));
+        try {
+          var pathMod = require('path');
+          var initNodeSql = require(pathMod.resolve(__dirname, '../../../b1-sql/assets/vendor/sqljs/sql-wasm.js'));
+          return initNodeSql().then(resolve).catch(reject);
+        } catch (e) {
+          return reject(e);
+        }
       }
 
       function initEngine() {
@@ -79,6 +85,10 @@
         continue;
       }
       if (ch === ';') {
+        if (/\bCREATE\s+(?:TEMP(?:ORARY)?\s+)?TRIGGER\b/i.test(current) && !/\bEND\s*$/i.test(current)) {
+          current += ch;
+          continue;
+        }
         if (current.trim()) statements.push(current.trim());
         current = '';
         continue;
@@ -141,7 +151,21 @@
     return loadSqlJs().then(function (SQL) {
       // Base SQLite fraîche pour chaque exécution d'atelier pour garantir l'indépendance
       var db = new SQL.Database();
+      var rawStdin = String(stdin || '');
+      var setupSql = rawStdin;
+      var verifySql = '';
+      var verifyIdx = rawStdin.indexOf('-- VERIFY:');
+      if (verifyIdx !== -1) {
+        setupSql = rawStdin.slice(0, verifyIdx);
+        verifySql = rawStdin.slice(verifyIdx + '-- VERIFY:'.length);
+      }
+      if (setupSql.trim()) {
+        db.run(setupSql);
+      }
       var statements = splitSql(sql);
+      if (verifySql.trim()) {
+        statements = statements.concat(splitSql(verifySql));
+      }
 
       if (!statements.length) {
         return createResult({
@@ -154,16 +178,41 @@
         });
       }
 
+      var opts = options || {};
+      var maxTimeoutMs = Number(opts.timeoutMs) > 0 ? Number(opts.timeoutMs) : 3000;
+      var maxSelectRows = Number(opts.maxRows) > 0 ? Number(opts.maxRows) : 2000;
+      var maxOutputBytes = Number(opts.maxOutputBytes) > 0 ? Number(opts.maxOutputBytes) : 65536;
       var outputText = '';
       for (var i = 0; i < statements.length; i++) {
+        if (Date.now() - startTime > maxTimeoutMs) {
+          db.close();
+          throw new Error('Temps d’exécution SQL dépassé (' + maxTimeoutMs + ' ms).');
+        }
         var stmt = statements[i];
         var upper = stmt.trim().toUpperCase();
         if (upper.indexOf('SELECT') === 0 || upper.indexOf('WITH') === 0 || upper.indexOf('PRAGMA') === 0 || upper.indexOf('EXPLAIN') === 0) {
-          var res = db.exec(stmt);
-          if (res && res.length) {
-            for (var j = 0; j < res.length; j++) {
-              outputText += formatAsciiTable(res[j].columns, res[j].values) + '\n';
+          var prepared = db.prepare(stmt);
+          var cols = [];
+          var rows = [];
+          try {
+            while (prepared.step()) {
+              if (Date.now() - startTime > maxTimeoutMs) {
+                throw new Error('Temps d’exécution SQL dépassé (' + maxTimeoutMs + ' ms).');
+              }
+              if (!cols.length) cols = prepared.getColumnNames();
+              rows.push(prepared.get());
+              if (rows.length > maxSelectRows) {
+                throw new Error('Limite mémoire/lignes dépassée : la requête génère plus de ' + maxSelectRows + ' lignes (vérifiez vos clauses WITH RECURSIVE ou jointures).');
+              }
             }
+            if (!cols.length) {
+              try { cols = prepared.getColumnNames(); } catch (e) {}
+            }
+          } finally {
+            try { prepared.free(); } catch (e) {}
+          }
+          if (cols && cols.length && rows.length) {
+            outputText += formatAsciiTable(cols, rows) + '\n';
           } else {
             outputText += '(Requête SELECT exécutée avec 0 résultat)\n\n';
           }
@@ -171,6 +220,10 @@
           db.run(stmt);
           var changes = typeof db.getRowsModified === 'function' ? db.getRowsModified() : 0;
           outputText += 'Instruction exécutée avec succès (' + changes + (changes === 1 ? ' ligne modifiée' : ' lignes modifiées') + ').\n\n';
+        }
+        if (outputText.length > maxOutputBytes) {
+          outputText = outputText.slice(0, maxOutputBytes);
+          break;
         }
       }
 

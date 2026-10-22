@@ -20,7 +20,7 @@ module.exports = {
     'formaliser les procédures d’arrêt et de démarrage ordonnancé selon le graphe de dépendances des services ;',
     'auditer la conformité des procédures de sauvegarde et de restauration face aux objectifs RTO et RPO ;',
     'modéliser les étapes chronologiques d’une procédure de bascule de secours dans un Plan de Reprise d’Activité (PRA) ;',
-    'développer en Python 3 des analyseurs d’objectifs RTO/RPO, des ordonnanceurs de runbooks et des simulateurs de bascule PRA.'
+    'analyser et résoudre méthodologiquement des analyseurs d’objectifs RTO/RPO, des ordonnanceurs de runbooks et des simulateurs de bascule PRA.'
   ],
   sections: [
     {
@@ -153,7 +153,7 @@ module.exports = {
         '45 minutes'
       ],
       correct: 1,
-      exp: 'Entre minuit et 15h00, 15 heures de transactions se sont écoulées sans sauvegarde. Le RPO effectif subi par l’entreprise est donc de 15 heures.'
+      exp: 'Entrez minuit et 15h00, 15 heures de transactions se sont écoulées sans sauvegarde. Le RPO effectif subi par l’entreprise est donc de 15 heures.'
     },
     {
       stem: 'Dans quelle séquence logique doit-on éteindre une architecture web 3-tiers (Base de données, API applicative, Passerelle Web NGINX) lors d’un arrêt planifié de production ?',

@@ -153,29 +153,29 @@ function exercices(course, chapterList) {
   ]);
 
   const exercises = [
-    { id: 'lx3-c1-e1', ch: 1, title: 'Parseur et auditeur de métriques de processus (/proc/[pid]/stat)', level: 'n1', lang: 'Python', desc: 'Extraire et analyser les états de processus (R, S, D, Z, T), ticks CPU et consommation mémoire résidente.' },
-    { id: 'lx3-c1-e2', ch: 1, title: 'Analyseur de cartographie de mémoire virtuelle (/proc/[pid]/maps)', level: 'n2', lang: 'Python', desc: 'Analyser les plages mémoire de processus et détecter les violations du principe de sécurité W^X (Write XOR Execute).' },
-    { id: 'lx3-c1-e3', ch: 1, title: 'Décodeur et profileur d’appels système (strace tracer)', level: 'n3', lang: 'Python', desc: 'Analyser les traces d’appels système (syscalls) pour isoler les erreurs d’I/O et profiler la latence noyau.' },
+    { id: 'lx3-c1-e1', ch: 1, title: 'Parseur et auditeur de métriques de processus (/proc/[pid]/stat)', level: 'n1', lang: 'Bash', desc: 'Extraire et analyser les états de processus (R, S, D, Z, T), ticks CPU et consommation mémoire résidente.' },
+    { id: 'lx3-c1-e2', ch: 1, title: 'Analyseur de cartographie de mémoire virtuelle (/proc/[pid]/maps)', level: 'n2', lang: 'Bash', desc: 'Analyser les plages mémoire de processus et détecter les violations du principe de sécurité W^X (Write XOR Execute).' },
+    { id: 'lx3-c1-e3', ch: 1, title: 'Décodeur et profileur d’appels système (strace tracer)', level: 'n3', lang: 'Bash', desc: 'Analyser les traces d’appels système (syscalls) pour isoler les erreurs d’I/O et profiler la latence noyau.' },
 
-    { id: 'lx3-c2-e1', ch: 2, title: 'Validateur d’unité de service Systemd ([Unit], [Service], [Install])', level: 'n1', lang: 'Python', desc: 'Vérifier la conformité syntaxique et la validité des directives d’un fichier de service Systemd.' },
-    { id: 'lx3-c2-e2', ch: 2, title: 'Résolveur de dépendances et détection de cycles Systemd', level: 'n2', lang: 'Python', desc: 'Analyser le graphe de dépendances d’unités et détecter les dépendances circulaires bloquantes (deadlocks).' },
-    { id: 'lx3-c2-e3', ch: 2, title: 'Parseur et filtreur d’événements Systemd Journald', level: 'n3', lang: 'Python', desc: 'Classer les journaux binaires Systemd Journald selon les priorités Syslog RFC 5424 et isoler les incidents critiques.' },
+    { id: 'lx3-c2-e1', ch: 2, title: 'Validateur d’unité de service Systemd ([Unit], [Service], [Install])', level: 'n1', lang: 'Bash', desc: 'Vérifier la conformité syntaxique et la validité des directives d’un fichier de service Systemd.' },
+    { id: 'lx3-c2-e2', ch: 2, title: 'Résolveur de dépendances et détection de cycles Systemd', level: 'n2', lang: 'Bash', desc: 'Analyser le graphe de dépendances d’unités et détecter les dépendances circulaires bloquantes (deadlocks).' },
+    { id: 'lx3-c2-e3', ch: 2, title: 'Parseur et filtreur d’événements Systemd Journald', level: 'n3', lang: 'Bash', desc: 'Classer les journaux binaires Systemd Journald selon les priorités Syslog RFC 5424 et isoler les incidents critiques.' },
 
-    { id: 'lx3-c3-e1', ch: 3, title: 'Calculateur d’allocation LVM Physical Extents (PE) et dimensionnement VG', level: 'n1', lang: 'Python', desc: 'Calculer l’allocation exacte d’extents physiques (PE) dans un groupe de volumes LVM.' },
-    { id: 'lx3-c3-e2', ch: 3, title: 'Simulateur d’état et de résilience de grappe RAID mdadm', level: 'n2', lang: 'Python', desc: 'Diagnostiquer la santé d’un volume RAID logiciel Linux et déclencher la reconstruction automatique avec disque spare.' },
-    { id: 'lx3-c3-e3', ch: 3, title: 'Analyseur de table d’inodes et détection de saturation de système de fichiers', level: 'n3', lang: 'Python', desc: 'Diagnostiquer la saturation de disques Linux en distinguant la pénurie d’espace bloc de l’épuisement d’inodes.' },
+    { id: 'lx3-c3-e1', ch: 3, title: 'Calculateur d’allocation LVM Physical Extents (PE) et dimensionnement VG', level: 'n1', lang: 'Bash', desc: 'Calculer l’allocation exacte d’extents physiques (PE) dans un groupe de volumes LVM.' },
+    { id: 'lx3-c3-e2', ch: 3, title: 'Simulateur d’état et de résilience de grappe RAID mdadm', level: 'n2', lang: 'Bash', desc: 'Diagnostiquer la santé d’un volume RAID logiciel Linux et déclencher la reconstruction automatique avec disque spare.' },
+    { id: 'lx3-c3-e3', ch: 3, title: 'Analyseur de table d’inodes et détection de saturation de système de fichiers', level: 'n3', lang: 'Bash', desc: 'Diagnostiquer la saturation de disques Linux en distinguant la pénurie d’espace bloc de l’épuisement d’inodes.' },
 
-    { id: 'lx3-c4-e1', ch: 4, title: 'Classificateur et auditeur de namespaces Linux par processus', level: 'n1', lang: 'Python', desc: 'Comparer les identifiants d’inodes de namespaces d’un processus par rapport à l’espace hôte.' },
-    { id: 'lx3-c4-e2', ch: 4, title: 'Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max & memory.max)', level: 'n2', lang: 'Python', desc: 'Calculer la bande passante processeur autorisée et vérifier le plafonnement mémoire dans la hiérarchie Cgroups v2.' },
-    { id: 'lx3-c4-e3', ch: 4, title: 'Détecteur de sacrifice OOM Killer et pondération oom_score_adj', level: 'n3', lang: 'Python', desc: 'Calculer le score de sacrifice du mécanisme Out Of Memory (OOM Killer) du noyau Linux.' },
+    { id: 'lx3-c4-e1', ch: 4, title: 'Classificateur et auditeur de namespaces Linux par processus', level: 'n1', lang: 'Bash', desc: 'Comparer les identifiants d’inodes de namespaces d’un processus par rapport à l’espace hôte.' },
+    { id: 'lx3-c4-e2', ch: 4, title: 'Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max & memory.max)', level: 'n2', lang: 'Bash', desc: 'Calculer la bande passante processeur autorisée et vérifier le plafonnement mémoire dans la hiérarchie Cgroups v2.' },
+    { id: 'lx3-c4-e3', ch: 4, title: 'Détecteur de sacrifice OOM Killer et pondération oom_score_adj', level: 'n3', lang: 'Bash', desc: 'Calculer le score de sacrifice du mécanisme Out Of Memory (OOM Killer) du noyau Linux.' },
 
-    { id: 'lx3-c5-e1', ch: 5, title: 'Validateur de topologie réseau virtuelle (veth pairs & Linux Bridge)', level: 'n1', lang: 'Python', desc: 'Vérifier la cohérence de configuration des interfaces réseau virtuelles (veth) et des ponts sous Linux.' },
-    { id: 'lx3-c5-e2', ch: 5, title: 'Moteur d’évaluation de Policy-Based Routing (ip rule & multi-tables)', level: 'n2', lang: 'Python', desc: 'Aiguiller les paquets réseau vers la bonne table de routage selon les règles de politique PBR.' },
-    { id: 'lx3-c5-e3', ch: 5, title: 'Parseur et simulateur de résolution NSSwitch (/etc/nsswitch.conf)', level: 'n3', lang: 'Python', desc: 'Simuler la séquence de résolution de noms d’hôtes selon la politique déclarative de nsswitch.conf.' },
+    { id: 'lx3-c5-e1', ch: 5, title: 'Validateur de topologie réseau virtuelle (veth pairs & Linux Bridge)', level: 'n1', lang: 'Bash', desc: 'Vérifier la cohérence de configuration des interfaces réseau virtuelles (veth) et des ponts sous Linux.' },
+    { id: 'lx3-c5-e2', ch: 5, title: 'Moteur d’évaluation de Policy-Based Routing (ip rule & multi-tables)', level: 'n2', lang: 'Bash', desc: 'Aiguiller les paquets réseau vers la bonne table de routage selon les règles de politique PBR.' },
+    { id: 'lx3-c5-e3', ch: 5, title: 'Parseur et simulateur de résolution NSSwitch (/etc/nsswitch.conf)', level: 'n3', lang: 'Bash', desc: 'Simuler la séquence de résolution de noms d’hôtes selon la politique déclarative de nsswitch.conf.' },
 
-    { id: 'lx3-c6-e1', ch: 6, title: 'Auditeur de paramètres de durcissement du noyau (/etc/sysctl.conf)', level: 'n1', lang: 'Python', desc: 'Vérifier la conformité des paramètres de sécurité du noyau Linux par rapport aux recommandations ANSSI / CIS Benchmark.' },
-    { id: 'lx3-c6-e2', ch: 6, title: 'Évaluateur de chaîne de modules d’authentification PAM (required vs sufficient)', level: 'n2', lang: 'Python', desc: 'Simuler l’évaluation séquentielle d’une pile de modules PAM selon les drapeaux de contrôle.' },
-    { id: 'lx3-c6-e3', ch: 6, title: 'Parseur de journaux d’audit Linux auditd et détection d’élévation de privilèges', level: 'n3', lang: 'Python', desc: 'Analyser les enregistrements auditd (RFC 5424) pour détecter les élévations de privilèges (EUID=0) suspectes.' }
+    { id: 'lx3-c6-e1', ch: 6, title: 'Auditeur de paramètres de durcissement du noyau (/etc/sysctl.conf)', level: 'n1', lang: 'Bash', desc: 'Vérifier la conformité des paramètres de sécurité du noyau Linux par rapport aux recommandations ANSSI / CIS Benchmark.' },
+    { id: 'lx3-c6-e2', ch: 6, title: 'Évaluateur de chaîne de modules d’authentification PAM (required vs sufficient)', level: 'n2', lang: 'Bash', desc: 'Simuler l’évaluation séquentielle d’une pile de modules PAM selon les drapeaux de contrôle.' },
+    { id: 'lx3-c6-e3', ch: 6, title: 'Parseur de journaux d’audit Linux auditd et détection d’élévation de privilèges', level: 'n3', lang: 'Bash', desc: 'Analyser les enregistrements auditd (RFC 5424) pour détecter les élévations de privilèges (EUID=0) suspectes.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -196,7 +196,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — Linux Avancé B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 ateliers de pratique interactive (Bash) intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',

@@ -19,9 +19,13 @@ module.exports = {
     'analyser le protocole d\'échange de clés de Diffie-Hellman (DH) et démontrer sa vulnérabilité à l\'attaque de l\'homme du milieu (MITM) sans authentification ;',
     'comprendre le cryptosystème RSA de bout en bout : choix des nombres premiers, calcul des clés publique et privée, chiffrement et déchiffrement ;',
     'comparer les performances et les tailles de clés entre RSA (2048/4096 bits) et la cryptographie sur les courbes elliptiques ECC (256/384 bits) ;',
-    'développer en Python 3 l\'algorithme d\'Euclide étendu, le calcul d\'inverses modulaires, des simulateurs Diffie-Hellman/MITM et un moteur RSA complet.'
+    'analyser et résoudre méthodologiquement l\'algorithme d\'Euclide étendu, le calcul d\'inverses modulaires, des simulateurs Diffie-Hellman/MITM et un moteur RSA complet.'
   ],
   sections: [
+      {
+        "title": "Prérequis intégré : Rappels d’arithmétique modulaire pour RSA (Euler, Bézout, inverse modulaire)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Comprendre pas à pas la mathématique de RSA sur un mini-exemple ($p = 3, q = 11$)</div><p>Le chiffrement asymétrique RSA repose sur trois briques d’arithmétique modulaire faciles à vérifier sur de petits nombres premiers $p = 3$ et $q = 11$ :</p><ol><li><strong>Module public $n$ :</strong> on multiplie $n = p \\times q = 3 \\times 11 = 33$ ;</li><li><strong>Indicatrice d’Euler $\\varphi(n)$ :</strong> compte combien d’entiers entre sections: [$ et $n$ sont premiers avec $n$. Pour le produit de deux nombres premiers, $\\varphi(n) = (p - 1)(q - 1) = 2 \\times 10 = 20$ ;</li><li><strong>Inverse modulaire et théorème de Bézout :</strong> on choisit un exposant public $e = 3$ premier avec $\\varphi(n) = 20$. L’exposant privé $d$ est l’unique entier tel que $e \\times d \\equiv 1 \\pmod{20}$ : ici $d = 7$ car $3 \\times 7 = 21 = 1 \\times 20 + 1$. Chiffrer un message $M = 2$ calcule $C = M^e \\bmod n = 2^3 \\bmod 33 = 8$, et déchiffrer calcule $C^d \\bmod n = 8^7 \\bmod 33 = 2 = M$.</li></ol></div>"
+      },
     {
       title: 'Arithmétique Modulaire : Euclide Étendu, Bézout &amp; Inverse Modulaire',
       html: [
@@ -236,7 +240,7 @@ module.exports = {
   mastery: [
     {
       title: 'Implémentation de primitives modulaires avancées',
-      desc: 'Coder des fonctions robustes d\'Euclide étendu, de calcul d\'inverse et d\'exponentiation rapide en Python 3.'
+      desc: 'Coder des fonctions robustes d\'Euclide étendu, de calcul d\'inverse et d\'exponentiation rapide de manière méthodique.'
     },
     {
       title: 'Simulation et sécurisation d\'échanges Diffie-Hellman',

@@ -446,7 +446,7 @@ module.exports = [
       {
         "label": "Nettoyage du catalogue",
         "stdin": "cas:1",
-        "expected": "a : supprime\nb : conserve\nc : supprime\nd : introuvable\ne : supprime\nsuppressions : 3\nintrouvables : 1"
+        "expected": "a : supprime\nb : conserve\nc : supprime\nd : introuvable≠ : supprime\nsuppressions : 3\nintrouvables : 1"
       },
       {
         "label": "Tout refuse",
@@ -459,7 +459,7 @@ module.exports = [
         "expected": "p1 : supprime\np2 : supprime\np3 : supprime\np4 : supprime\nsuppressions : 4\nintrouvables : 0"
       }
     ],
-    "solution": "[Exemple]\nclavier : supprime\necran : conserve\nsouris : introuvable\nsuppressions : 1\nintrouvables : 1\n\n[Cas 1 — Nettoyage du catalogue]\na : supprime\nb : conserve\nc : supprime\nd : introuvable\ne : supprime\nsuppressions : 3\nintrouvables : 1\n\n[Cas 2 — Tout refuse]\nx : conserve\ny : conserve\nz : introuvable\nsuppressions : 0\nintrouvables : 1\n\n[Cas 3 — Purge finale]\np1 : supprime\np2 : supprime\np3 : supprime\np4 : supprime\nsuppressions : 4\nintrouvables : 0"
+    "solution": "[Exemple]\nclavier : supprime\necran : conserve\nsouris : introuvable\nsuppressions : 1\nintrouvables : 1\n\n[Cas 1 — Nettoyage du catalogue]\na : supprime\nb : conserve\nc : supprime\nd : introuvable≠ : supprime\nsuppressions : 3\nintrouvables : 1\n\n[Cas 2 — Tout refuse]\nx : conserve\ny : conserve\nz : introuvable\nsuppressions : 0\nintrouvables : 1\n\n[Cas 3 — Purge finale]\np1 : supprime\np2 : supprime\np3 : supprime\np4 : supprime\nsuppressions : 4\nintrouvables : 0"
   },
   {
     "id": "pr-c5-e1",
@@ -484,7 +484,7 @@ module.exports = [
       {
         "label": "Inventaire du soir",
         "stdin": "cas:1",
-        "expected": "a : rupture\nb : alerte\nc : ok\nd : alerte\ne : ok\nruptures : 1\nalertes : 2"
+        "expected": "a : rupture\nb : alerte\nc : ok\nd : alerte≠ : ok\nruptures : 1\nalertes : 2"
       },
       {
         "label": "Rupture generale",
@@ -497,7 +497,7 @@ module.exports = [
         "expected": "p1 : ok\np2 : ok\np3 : ok\np4 : ok\nruptures : 0\nalertes : 0"
       }
     ],
-    "solution": "[Exemple]\nclavier : alerte\necran : rupture\nsouris : ok\nruptures : 1\nalertes : 1\n\n[Cas 1 — Inventaire du soir]\na : rupture\nb : alerte\nc : ok\nd : alerte\ne : ok\nruptures : 1\nalertes : 2\n\n[Cas 2 — Rupture generale]\nx : rupture\ny : rupture\nz : rupture\nruptures : 3\nalertes : 0\n\n[Cas 3 — Stock sain]\np1 : ok\np2 : ok\np3 : ok\np4 : ok\nruptures : 0\nalertes : 0"
+    "solution": "[Exemple]\nclavier : alerte\necran : rupture\nsouris : ok\nruptures : 1\nalertes : 1\n\n[Cas 1 — Inventaire du soir]\na : rupture\nb : alerte\nc : ok\nd : alerte≠ : ok\nruptures : 1\nalertes : 2\n\n[Cas 2 — Rupture generale]\nx : rupture\ny : rupture\nz : rupture\nruptures : 3\nalertes : 0\n\n[Cas 3 — Stock sain]\np1 : ok\np2 : ok\np3 : ok\np4 : ok\nruptures : 0\nalertes : 0"
   },
   {
     "id": "pr-c5-e2",
@@ -547,7 +547,7 @@ module.exports = [
     "brief": "<p>Améliorations 1 et 4 du tutoriel. Analysez chaque ligne proposée « produit categorie prix stock » puis une ligne <code>cible</code> (la catégorie recherchée). Pour chaque ligne de la catégorie cible il Indiquez <code>produit : prix=X stock=Y</code> ; à la fin il Indiquez <code>plus cher : P (X FCFA)</code> (produit de la cible au prix le plus élevé ; en cas d'égalité, le premier rencontré gagne), puis <code>trouves : K</code>.</p>",
     "starter": "# Grille d'analyse (pr-c5-e3) — Recherche et tri du catalogue\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Rayon reseau]\n# Données : 5\n# Données : switch Reseau 45000 2\n# Données : routeur Reseau 62000 1\n# Données : cable Reseau 2000 40\n# Données : imprimante Bureau 85000 3\n# Données : prise Reseau 1500 60\n# Données : Reseau\nA_COMPLETER\n\n[Cas 2 — Categorie absente]\n# Données : 3\n# Données : a Periph 100 1\n# Données : b Bureau 200 2\n# Données : c Periph 300 3\n# Données : Son\nA_COMPLETER\n\n[Cas 3 — Egalite de prix]\n# Données : 3\n# Données : x Stock 500 10\n# Données : y Stock 500 20\n# Données : z Bureau 900 1\n# Données : Stock\nA_COMPLETER\n",
     "hints": [
-      "Lis d'abord les n lignes dans des tableaux, puis la cible, puis boucle sur les tableaux.",
+      "Lisez d'abord les n lignes dans des tableaux, puis la cible, puis boucle sur les tableaux.",
       "Le max : si prix -gt meilleur_prix OU meilleur = -, mettre à jour meilleur et meilleur_prix."
     ],
     "examples": [

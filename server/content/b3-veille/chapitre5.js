@@ -19,7 +19,7 @@ module.exports = {
     'décrypter les 5 phases de la courbe Gartner Hype Cycle et formuler des recommandations d’investissement adaptées ;',
     'analyser les facteurs externes PESTEL et les projeter dans la matrice SWOT pour dériver un score de résilience ;',
     'anticiper les ruptures technologiques (innovations de rupture vs innovations incrémentales selon Clayton Christensen) ;',
-    'implémenter en Python 3 des évaluateurs d’échelle TRL, des positionneurs de phase Hype Cycle et des moteurs SWOT/PESTEL.'
+    'analyser et résoudre méthodologiquement des évaluateurs d’échelle TRL, des positionneurs de phase Hype Cycle et des moteurs SWOT/PESTEL.'
   ],
   sections: [
     {

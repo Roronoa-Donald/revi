@@ -23,7 +23,7 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
       '      <li>poser un univers, des événements et calculer une probabilité ;</li>',
       '      <li>conditionner par une information et reconnaître l’indépendance ;</li>',
@@ -148,8 +148,8 @@ function atelier(course) {
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> manipuler et valider des calculs sans conséquence. Prends une formule ' +
-      'du cours (probabilité, espérance, variance, loi binomiale, loi normale) et vérifie-la sur des cas concrets.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> manipuler et valider des calculs sans conséquence. Prenez une formule ' +
+      'du cours (probabilité, espérance, variance, loi binomiale, loi normale) et vérifiez-la sur des cas concrets.</p>',
       '    <div class="lab__brief">',
       '      <p>Complétez la réponse attendue sous la section correspondante et lancez la validation pour vous auto-évaluer.</p>',
       '    </div>',

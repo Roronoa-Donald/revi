@@ -240,8 +240,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois la règle d’or des opérandes mémoire et la syntaxe des modes d’adressage.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la distinction entre MOV et LEA et les facteurs d’échelle SIB.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le jeu d’instructions x86 et les modes d’adressage matériels.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la distinction entre MOV et LEA et les facteurs d’échelle SIB.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le jeu d’instructions x86 et les modes d’adressage matériels.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux branchements, à la pile et aux fonctions au chapitre 6.' }
   ],
 

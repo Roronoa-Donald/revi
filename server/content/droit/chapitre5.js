@@ -133,9 +133,9 @@ module.exports = {
 
   notions: ['RGPD', 'consentement', 'transparence', 'minimisation', 'responsabilité', 'accountability', 'droit d’accès', 'droit de rectification', 'droit de suppression', 'sanction'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les cinq principes.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le calcul de la sanction.' },
-    { cls: 'good', text: '70–89 % — Solide : tu évalues une conformité.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les cinq principes.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul de la sanction.' },
+    { cls: 'good', text: '70–94 % — Solide : vous évaluez une conformité.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe au cadre togolais, chapitre 6.' }
   ],
 

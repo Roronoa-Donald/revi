@@ -8,7 +8,7 @@
  * Le découpage suit le cours historique de probabilités : fondements du calcul
  * (axiomes, conditionnelle, indépendance), dénombrement, variables aléatoires
  * discrètes, lois discrètes usuelles, variables aléatoires continues, puis
- * convergence et théorèmes limites. Chaque chapitre s'exerce en Python exécuté
+ * convergence et théorèmes limites. Chaque chapitre s'exerce de manière méthodiqueexécuté
  * réellement dans la page, comme calculatrice vérifiable.
  */
 'use strict';

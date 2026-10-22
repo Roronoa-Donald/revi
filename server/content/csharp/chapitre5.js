@@ -224,8 +224,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les délégués Func/Action et les opérateurs de base Where/Select.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’exécution différée et les abonnements d’événements.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises LINQ GroupBy et les événements multicast.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’exécution différée et les abonnements d’événements.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez LINQ GroupBy et les événements multicast.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe à la programmation asynchrone TAP et à IDisposable au module 6.' }
   ]
 };

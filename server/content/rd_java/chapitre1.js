@@ -80,7 +80,7 @@ module.exports = {
     { stem: 'Comment obtenir un décimal ?', opts: ['7 / 2', '7.0 / 2', '7 mod 2'], correct: 1, exp: 'Un opérande double suffit à produire un résultat décimal.' },
     { stem: 'Que fait le signe + entre une chaîne et un nombre ?', opts: ['Il additionne', 'Il concatène', 'Il compare'], correct: 1, exp: 'Dès qu’un opérande est une chaîne, + concatène.' },
     { stem: 'Quel objet lit le clavier ?', opts: ['Scanner', 'Reader', 'Printer'], correct: 0, exp: 'Scanner(System.in) lit l’entrée standard.' },
-    { stem: 'Que fait System.out.println ?', opts: ['Lit une ligne', 'Affiche une ligne', 'Efface l’écran'], correct: 1, exp: 'println affiche, puis passe à la ligne suivante.' },
+    { stem: 'Que fait System.out.println ?', opts: ['Lit une ligne', 'Affichez une ligne', 'Efface l’écran'], correct: 1, exp: 'println affiche, puis passe à la ligne suivante.' },
     { stem: 'Pourquoi formater avec Locale.US ?', opts: ['Pour accélérer', 'Pour garder le point décimal', 'Pour arrondir'], correct: 1, exp: 'La locale française utiliserait la virgule comme séparateur.' }
   ],
 
@@ -119,12 +119,21 @@ module.exports = {
   notions: ['classe', 'méthode main', 'type primitif', 'int', 'double', 'boolean', 'char', 'opérateurs', 'concaténation', 'division entière', 'Scanner', 'String.format'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Réécris un programme qui lit deux entiers et les additionne.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur la division entière et le formatage.' },
-    { cls: 'good', text: '70–89 % — Solide : tu lis et affiches sans hésiter.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la division entière et le formatage.' },
+    { cls: 'good', text: '70–94 % — Solide : vous lisez et affiches sans hésiter.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux conditions et boucles, chapitre 2.' }
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « opérateurs » ?', a: 'déclarer des variables des types primitifs et connaître leurs opérateurs ;' },
+      { q: 'Qu’est-ce que « else » ?', a: 'écrire des conditions avec if/else et l’opérateur ternaire ;' },
+      { q: 'Qu’est-ce que « && » ?', a: '&& : Java B2 › Sommaire › Chapitre 2' },
+      { q: 'Qu’est-ce que « || » ?', a: '|| : Java B2 › Sommaire › Chapitre 2' },
+      { q: 'Qu’est-ce que « case » ?', a: 'Sans break , l’exécution « tombe » dans le cas suivant ( fall-through ) et exécute du code qu’on ne voulait pas. Chaque case se termine normalement par break .' },
+      { q: 'Qu’est-ce que « for-each » ?', a: 'On parcourt une liste avec une boucle indexée ou un for-each : for (int note : notes) { … } .' },
+      { q: 'Qu’est-ce que « paramètre » ?', a: 'passer des paramètres et renvoyer un résultat.' },
+      { q: 'Qu’est-ce que « attribut » ?', a: 'déclarer une classe avec ses attributs et son constructeur ;' },
+      { q: 'Qu’est-ce que « HashSet » ?', a: 'HashSet : Java B2 › Sommaire › Chapitre 5' },
     { q: 'Quel est le point d’entrée d’un programme Java ?', a: 'La méthode public static void main(String[] args).' },
     { q: 'Cite quatre types primitifs.', a: 'int, double, boolean, char.' },
     { q: 'Que vaut 7 / 2 ? Et 7 / 2.0 ?', a: '3 (division entière) et 3.5 (avec un double).' },

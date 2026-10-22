@@ -39,7 +39,7 @@ const course = {
     'et enfin architecture serverless pilotée par les événements avec AWS Lambda (cold start, Provisioned Concurrency, facturation aux Go-secondes), découplage asynchrone avec files d\'attente Amazon SQS et Dead-Letter Queue (DLQ), notifications Pub/Sub Amazon SNS et patron Fan-out, observabilité centralisée avec Amazon CloudWatch (métriques, logs, alarmes), traçabilité d\'audit avec AWS CloudTrail et Infrastructure as Code avec AWS CloudFormation et CDK.',
   lead:
     'Maîtrisez l\'ingénierie et l\'architecture Amazon Web Services : infrastructure mondiale, IAM & politiques JSON, calcul EC2, réseau Amazon VPC, stockage S3, bases RDS/DynamoDB, serverless Lambda et CloudWatch. ' +
-    'Six modules complets, 18 ateliers de programmation interactive en Python 3 et 48 QCM d\'évaluation.',
+    'Six modules complets, 18 études de cas pratiques et méthodologiques et 48 QCM d\'évaluation.',
 
   sources: 'Supports de cours officiels Services Cloud AWS L3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja, 2025/2026), Documentation officielle Amazon Web Services (AWS Architecture Center), Référentiels des certifications AWS Certified Cloud Practitioner (CLF-C02) et Solutions Architect - Associate (SAA-C03)',
 

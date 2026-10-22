@@ -34,6 +34,10 @@ module.exports = {
   ],
 
   sections: [
+      {
+        "title": "Vulgarisation illustrée : Comprendre les Namespaces et les Cgroups du noyau Linux",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Niveau 1 — Intuition : La vitre sans tain (Namespaces) et le compteur électrique (Cgroups)</div><p>Sans attendre le cours de Linux Avancé de B3, retenons qu’un conteneur Docker est un simple processus Linux isolé par deux mécanismes complémentaires du noyau :</p><ul><li><strong>Les Namespaces (« ce que le conteneur a le droit de VOIR ») :</strong> agissent comme des cloisons opaques. Grâce aux 6 namespaces (<code>pid</code> pour la numérotation des processus, <code>net</code> pour la carte réseau virtuelle, <code>mnt</code> pour les dossiers, <code>uts</code> pour le nom de machine, <code>ipc</code> pour la mémoire partagée et <code>user</code> pour les identifiants d’utilisateurs), le conteneur croit être seul sur son propre système ;</li><li><strong>Les Cgroups ou Control Groups (« ce que le conteneur a le droit de CONSOMMER ») :</strong> agissent comme un disjoncteur qui plafonne la quantité maximale de RAM (ex. <code>512 Mo</code>) et de processeur (CPU) qu’un conteneur peut utiliser, évitant qu’il n’affame les autres conteneurs du serveur.</li></ul></div>"
+      },
     {
       title: 'De la Machine Virtuelle au Conteneur Léger',
       html: [
@@ -310,6 +314,48 @@ module.exports = {
   ],
 
   flashcards: [
+      { q: 'Qu’est-ce que « Virtualisation lourde vs Conteneurs » ?', a: 'Virtualisation lourde vs Conteneurs' },
+      { q: 'Qu’est-ce que « Partage du noyau Linux (Host Kernel) » ?', a: 'Partage du noyau Linux (Host Kernel)' },
+      { q: 'Qu’est-ce que « Architecture modulaire Docker Engine » ?', a: 'Architecture modulaire Docker Engine' },
+      { q: 'Qu’est-ce que « Superviseur containerd & containerd-shim » ?', a: 'Superviseur containerd & containerd-shim' },
+      { q: 'Qu’est-ce que « Socket UNIX /var/run/docker.sock » ?', a: 'Le client docker transmet les ordres utilisateur via l’API REST (par défaut via la socket UNIX /var/run/docker.sock ). Le démon dockerd gère les images, les volumes de stockage, les réseaux virtuels et l’authentification.' },
+      { q: 'Qu’est-ce que « Couches immuables (Read-Only Image Layers) » ?', a: 'Couches immuables (Read-Only Image Layers)' },
+      { q: 'Qu’est-ce que « Couche d’écriture du conteneur (Writable Container Layer) » ?', a: 'Couche d’écriture du conteneur (Writable Container Layer)' },
+      { q: 'Qu’est-ce que « Système de fichiers Overlay2 (UnionFS) » ?', a: 'Système de fichiers Overlay2 (UnionFS)' },
+      { q: 'Qu’est-ce que « Dossiers lowerdir, upperdir, workdir, merged » ?', a: 'Dossiers lowerdir, upperdir, workdir, merged' },
+      { q: 'Qu’est-ce que « Fichiers masquants Whiteout » ?', a: 'Fichiers masquants Whiteout' },
+      { q: 'Qu’est-ce que « Registres d’images (Docker Hub, Harbor, GHCR) » ?', a: 'Registres d’images (Docker Hub, Harbor, GHCR)' },
+      { q: 'Qu’est-ce que « Digests cryptographiques SHA256 » ?', a: 'Digests cryptographiques SHA256 : Une entreprise déploie 80 conteneurs sur un serveur de production dont le disque dur s’est soudainement saturé. En examinant le stockage, l’administrateur découvre que chaque développeur a packagé une image de 1,2 Go basée sur une distribution Linux lourde sans mutualisation, con' },
+      { q: 'Qu’est-ce que « Directives Dockerfile fondamentales » ?', a: 'Directives Dockerfile fondamentales' },
+      { q: 'Qu’est-ce que « Build Cache et ordre d’invalidation » ?', a: 'Build Cache et ordre d’invalidation' },
+      { q: 'Qu’est-ce que « Fichier de filtrage .dockerignore » ?', a: 'Fichier de filtrage .dockerignore' },
+      { q: 'Qu’est-ce que « Forme Exec (JSON) vs Forme Shell » ?', a: 'Forme Exec (JSON) vs Forme Shell' },
+      { q: 'Qu’est-ce que « Gestion du PID 1 et signaux SIGTERM » ?', a: 'Gestion du PID 1 et signaux SIGTERM' },
+      { q: 'Qu’est-ce que « Combinaison ENTRYPOINT et CMD » ?', a: 'Combinaison ENTRYPOINT et CMD' },
+      { q: 'Qu’est-ce que « Pattern Multi-Stage Build (AS builder) » ?', a: 'Pattern Multi-Stage Build (AS builder)' },
+      { q: 'Qu’est-ce que « Directive COPY --from=stage » ?', a: 'Directive COPY --from=stage' },
+      { q: 'Qu’est-ce que « Cycle de vie (Created, Running, Paused, Stopped) » ?', a: 'Cycle de vie (Created, Running, Paused, Stopped)' },
+      { q: 'Qu’est-ce que « Signaux UNIX SIGTERM (15) vs SIGKILL (9) » ?', a: 'Signaux UNIX SIGTERM (15) vs SIGKILL (9)' },
+      { q: 'Qu’est-ce que « Publication de ports et redirection NAT iptables » ?', a: 'Publication de ports et redirection NAT iptables' },
+      { q: 'Qu’est-ce que « Réseau Bridge par défaut vs personnalisé » ?', a: 'Réseau Bridge par défaut vs personnalisé' },
+      { q: 'Qu’est-ce que « Serveur DNS interne Docker (127.0.0.11) » ?', a: 'Serveur DNS interne Docker (127.0.0.11)' },
+      { q: 'Qu’est-ce que « Volumes nommés gérés (/var/lib/docker/volumes) » ?', a: 'Volumes nommés gérés (/var/lib/docker/volumes)' },
+      { q: 'Qu’est-ce que « Bind Mounts et mode lecture seule ( » ?', a: 'Bind Mounts et mode lecture seule (:ro)' },
+      { q: 'Qu’est-ce que « Stockage éphémère en mémoire vive Tmpfs » ?', a: 'Stockage éphémère en mémoire vive Tmpfs' },
+      { q: 'Qu’est-ce que « Infrastructure as Code pour conteneurs » ?', a: 'Infrastructure as Code pour conteneurs' },
+      { q: 'Qu’est-ce que « Structure du fichier docker-compose.yml » ?', a: 'Structure du fichier docker-compose.yml' },
+      { q: 'Qu’est-ce que « Blocs racine services, networks, volumes » ?', a: 'Blocs racine services, networks, volumes' },
+      { q: 'Qu’est-ce que « Réseau virtuel automatique de projet » ?', a: 'Réseau virtuel automatique de projet' },
+      { q: 'Qu’est-ce que « Directive depends_on et ses limites » ?', a: 'Directive depends_on et ses limites' },
+      { q: 'Qu’est-ce que « Interpolation de variables et fichier .env » ?', a: 'Interpolation de variables et fichier .env' },
+      { q: 'Qu’est-ce que « Cycle de vie CLI (up, down, ps, logs, exec) » ?', a: 'Cycle de vie CLI (up, down, ps, logs, exec)' },
+      { q: 'Qu’est-ce que « CIS Docker Benchmark » ?', a: 'appliquer les recommandations essentielles du standard de sécurité CIS Docker Benchmark ;' },
+      { q: 'Qu’est-ce que « Exécution non-root (directive USER) » ?', a: 'Exécution non-root (directive USER)' },
+      { q: 'Qu’est-ce que « Risques du drapeau --privileged » ?', a: 'Risques du drapeau --privileged' },
+      { q: 'Qu’est-ce que « Système de fichiers en lecture seule (--read-only) » ?', a: 'Système de fichiers en lecture seule (--read-only)' },
+      { q: 'Qu’est-ce que « Quotas cgroups (--memory, --cpus, --pids-limit) » ?', a: 'Les quotas cgroups (--memory, --cpus, --pids-limit) protègent l’hôte contre les fuites de mémoire et les fork-bombs.' },
+      { q: 'Qu’est-ce que « Scans de vulnérabilités CVE (Trivy) » ?', a: 'Scans de vulnérabilités CVE (Trivy)' },
+      { q: 'Qu’est-ce que « Rotation des journaux (logging drivers) » ?', a: 'Rotation des journaux (logging drivers)' },
     {
       q: 'Quelle est la différence fondamentale entre une VM et un conteneur ?',
       a: 'La VM virtualise le matériel et embarque un OS complet avec son propre noyau ; le conteneur partage le noyau Linux de l’hôte.'

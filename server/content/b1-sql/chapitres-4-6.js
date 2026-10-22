@@ -173,9 +173,9 @@ module.exports = [
     notions: ['jointure', 'INNER JOIN', 'LEFT JOIN', 'ON', 'table virtuelle', 'alias', 'colonne ambiguë', 'produit cartésien'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais la jointure Marque/Voiture dans le simulateur, colonne par colonne.' },
-      { cls: 'mid', text: '50–69 % — Écris « voitures japonaises, triées par immatriculation » avec JOIN.' },
-      { cls: 'good', text: '70–89 % — Solide : compte les voitures par pays avec LEFT JOIN et GROUP BY.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites la jointure Marque/Voiture dans le simulateur, colonne par colonne.' },
+      { cls: 'mid', text: '50–69 % — Écrivez « voitures japonaises, triées par immatriculation » avec JOIN.' },
+      { cls: 'good', text: '70–94 % — Solide : compte les voitures par pays avec LEFT JOIN et GROUP BY.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, les fonctions d’agrégation.' }
     ],
 
@@ -357,9 +357,9 @@ module.exports = [
     notions: ['agrégation', 'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'GROUP BY', 'HAVING'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais les cinq agrégats sur Voiture dans le simulateur.' },
-      { cls: 'mid', text: '50–69 % — Écris « nombre de voitures par moteur avec prix moyen » sans aide.' },
-      { cls: 'good', text: '70–89 % — Solide : ajoute « seulement les moteurs avec au moins 2 voitures ».' },
+      { cls: 'low', text: '&lt; 50 % — Refaites les cinq agrégats sur Voiture dans le simulateur.' },
+      { cls: 'mid', text: '50–69 % — Écrivez « nombre de voitures par moteur avec prix moyen » sans aide.' },
+      { cls: 'good', text: '70–94 % — Solide : ajoute « seulement les moteurs avec au moins 2 voitures ».' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, mises à jour et droits.' }
     ],
 
@@ -542,7 +542,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Relis les syntaxes UPDATE/DELETE et réécris-les de mémoire.' },
       { cls: 'mid', text: '50–69 % — Normalise les codes de marque par UPDATE dans le simulateur.' },
-      { cls: 'good', text: '70–89 % — Solide : écris le GRANT d’un gestionnaire qui lit tout mais n’écrit que Voiture.' },
+      { cls: 'good', text: '70–94 % — Solide : écris le GRANT d’un gestionnaire qui lit tout mais n’écrit que Voiture.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : attaque les examens blancs du simulateur.' }
     ],
 

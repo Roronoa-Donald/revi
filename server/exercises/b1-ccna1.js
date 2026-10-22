@@ -617,14 +617,14 @@ module.exports = [
     "title": "IPv4 sur le commutateur",
     "goal": "Dérouler la configuration IPv4 de gestion : SVI, adresse/masque, no shutdown, passerelle.",
     "brief": "<p>Analysez chaque ligne proposée « etape commande » : etape est un numéro de 1 à 5 et commande un code parmi <code>svi</code>, <code>ipaddress</code>, <code>noshutdown</code>, <code>gateway</code> ou <code>nameserver</code>. Étapes du support : 1 <code>interface vlan 1</code> (la SVI), 2 <code>ip address</code> (adresse + masque), 3 <code>no shutdown</code>, 4 <code>ip default-gateway</code> (obligatoire pour parler hors du sous-réseau), 5 <code>ip name-server</code> (facultatif, DNS). Pour chaque ligne il Indiquez <code>etape N : OK</code> ou <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (cc-c6-e2) — IPv4 sur le commutateur\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Ordre parfait]\n# Données : 5\n# Données : 1 svi\n# Données : 2 ipaddress\n# Données : 3 noshutdown\n# Données : 4 gateway\n# Données : 5 nameserver\nA_COMPLETER\n\n[Cas 2 — Deux inversions]\n# Données : 3\n# Données : 1 svi\n# Données : 2 gateway\n# Données : 3 ipaddress\nA_COMPLETER\n\n[Cas 3 — Cœur de config]\n# Données : 3\n# Données : 2 ipaddress\n# Données : 3 noshutdown\n# Données : 4 gateway\nA_COMPLETER\n",
+    "starter": "# Grille d'analyse (cc-c6-e2) — IPv4 sur le commutateur\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Ordre parfait]\n# Données : 5\n# Données : 1 svi\n# Données : 2 ip-address\n# Données : 3 noshutdown\n# Données : 4 gateway\n# Données : 5 nameserver\nA_COMPLETER\n\n[Cas 2 — Deux inversions]\n# Données : 3\n# Données : 1 svi\n# Données : 2 gateway\n# Données : 3 ipaddress\nA_COMPLETER\n\n[Cas 3 — Cœur de config]\n# Données : 3\n# Données : 2 ip-address\n# Données : 3 noshutdown\n# Données : 4 gateway\nA_COMPLETER\n",
     "hints": [
       "1-svi, 2-ipaddress, 3-noshutdown, 4-gateway, 5-nameserver : l'ordre du support.",
       "L'étape 5 est facultative mais garde sa place dans l'ordre."
     ],
     "examples": [
       {
-        "stdin": "3\n1 svi\n2 ipaddress\n4 gateway\n",
+        "stdin": "3\n1 svi\n2 ip-address\n4 gateway\n",
         "expected": "etape 1 : OK\netape 2 : OK\netape 4 : OK\njustes : 3/3"
       }
     ],
@@ -657,7 +657,7 @@ module.exports = [
     "brief": "<p>Analysez les données fournies pour chaque cas. Effets du support : sans <code>s</code>, les messages syslog s'invitent en pleine saisie ; sans <code>t</code>, la session expire après 5 minutes ; sans <code>d</code>, une commande mal tapée bloque une minute sur une résolution DNS. Pour chaque session il Indiquez <code>session : fluide</code> si les trois réglages sont présents, sinon <code>session : gene (motif X)</code> où X vaut <code>syslog</code>, <code>timeout</code> ou <code>dns</code> (premier motif manquant dans l'ordre s, t, d). Il termine par <code>sessions fluides : X/n</code>.</p>",
     "starter": "# Grille d'analyse (cc-c6-e3) — Le confort du laboratoire\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Parfaites]\n# Données : 2\n# Données : lab1 std\n# Données : lab2 std\nA_COMPLETER\n\n[Cas 2 — Sans timeout]\n# Données : 2\n# Données : lab1 sd\n# Données : lab2 std\nA_COMPLETER\n\n[Cas 3 — Aucun réglage]\n# Données : 3\n# Données : lab1 -\n# Données : lab2 d\n# Données : lab3 t\nA_COMPLETER\n",
     "hints": [
-      "Parcours la suite caractère par caractère : s, t, d dans cet ordre.",
+      "Parcourez la suite caractère par caractère : s, t, d dans cet ordre.",
       "Signale le PREMIER réglage manquant ; le tiret vaut absence de tout réglage."
     ],
     "examples": [

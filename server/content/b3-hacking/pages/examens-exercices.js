@@ -205,7 +205,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Répertoire Exhaustif des 18 Exercices Pratiques — ' + course.brand + '</h1>',
-    '  <p class="lead">Catalogue complet des 18 ateliers de programmation Python 3 répartis sur les 6 modules d\'apprentissage : calculateurs CVSS, validateurs RoE, traceurs Kill Chain, scanners DNS/HTTP, interpréteurs TCP Nmap, détecteurs d\'injections SQL/LFI, auditeurs SUID/sudoers, calculateurs de Buffer Overflow et générateurs de synthèse de pentest.</p>',
+    '  <p class="lead">Catalogue complet des 18 ateliers d’études de cas pratiques répartis sur les 6 modules d\'apprentissage : calculateurs CVSS, validateurs RoE, traceurs Kill Chain, scanners DNS/HTTP, interpréteurs TCP Nmap, détecteurs d\'injections SQL/LFI, auditeurs SUID/sudoers, calculateurs de Buffer Overflow et générateurs de synthèse de pentest.</p>',
     '',
     sectionsHtml,
     '',

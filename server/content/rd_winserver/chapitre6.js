@@ -102,7 +102,7 @@ module.exports = {
   questions: [
     { stem: 'Que capture un snapshot ?', opts: ['Mémoire, processeur et disques virtuels', 'Seulement les fichiers', 'Le réseau'], correct: 0, exp: 'Il enregistre l’état complet de la VM à un instant donné.' },
     { stem: 'Durée de conservation d’un snapshot ?', opts: ['Temporaire', 'Long terme', 'Permanente'], correct: 0, exp: 'Il ne doit pas rester longtemps en production.' },
-    { stem: 'Que fait un clone complet ?', opts: ['Copie indépendante de la VM', 'Partage les disques', 'Supprime la source'], correct: 0, exp: 'Il fonctionne même si la source est supprimée.' },
+    { stem: 'Que fait un clone complet ?', opts: ['Copie indépendante de la VM', 'Partage les disques', 'Supprimez la source'], correct: 0, exp: 'Il fonctionne même si la source est supprimée.' },
     { stem: 'Faiblesse d’un clone lié ?', opts: ['Il dépend de la VM source', 'Il est trop gros', 'Il est trop lent'], correct: 0, exp: 'Si la source est supprimée, il cesse de fonctionner.' },
     { stem: 'À quoi sert un template ?', opts: ['Standardiser les déploiements', 'Sauvegarder les données', 'Migrer à chaud'], correct: 0, exp: 'C’est un modèle de VM préconfigurée.' },
     { stem: 'Que fait vMotion ?', opts: ['Migrer une VM à chaud sans interruption', 'Éteindre un hôte', 'Cloner un template'], correct: 0, exp: 'La VM change d’hôte en cours d’exécution.' },
@@ -144,9 +144,9 @@ module.exports = {
 
   notions: ['snapshot', 'instantané', 'clone complet', 'clone lié', 'linked clone', 'template', 'vMotion', 'cluster HA', 'Veeam', 'restauration', 'bonnes pratiques'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends la différence snapshot / sauvegarde.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les clones complet / lié.' },
-    { cls: 'good', text: '70–89 % — Solide : tu protèges et déploies des VM correctement.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez la différence snapshot / sauvegarde.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les clones complet / lié.' },
+    { cls: 'good', text: '70–94 % — Solide : vous protègez et déploies des VM correctement.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.' }
   ],
 

@@ -234,7 +234,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Exercices de Code Interactifs — Anglais B3</h1>',
-    '  <p class="lead">L’ensemble des 18 ateliers de programmation Python 3 intégrés au cours, répartis à raison de 3 exercices par module avec validation instantanée par tests automatisés.</p>',
+    '  <p class="lead">L’ensemble des 18 ateliers d’études de cas pratiques intégrés au cours, répartis à raison de 3 exercices par module avec validation instantanée par tests automatisés.</p>',
     '',
     htmlSections,
     '',
@@ -246,7 +246,7 @@ function exercices(course, chapterList) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des 18 exercices — ' + course.brand,
-      description: 'Inventaire des 18 exercices de programmation Python 3 d’anglais technique B3.',
+      description: 'Inventaire des 18 exercices interactifs d’études de cas d’anglais technique B3.',
       active: 'exercices',
       body
     }

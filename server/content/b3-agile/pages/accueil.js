@@ -107,7 +107,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid--3">',
     '    <div class="card">',
     '      <h3>' + ic('terminal') + ' Laboratoire Interactif</h3>',
-    '      <p>Console Python 3 avec éditeur intégré pour simuler le calcul de vélocité, vérifier les limites WIP et auditer les timeboxes Scrum.</p>',
+    '      <p>Atelier interactif avec grille d’analyse intégrée pour simuler le calcul de vélocité, vérifier les limites WIP et auditer les timeboxes Scrum.</p>',
     '      <a class="btn btn--sm" href="atelier.html">Ouvrir le lab</a>',
     '    </div>',
     '    <div class="card">',
@@ -151,7 +151,7 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Méthodes Agiles</h1>',
-    '  <p class="lead">Expérimentez et automatisez vos algorithmes de gestion de projet en Python 3 : simulation de capacité de sprint, contrôle de flux Kanban, burn-down charts et matrices de dépendances inter-équipes.</p>',
+    '  <p class="lead">Expérimentez et automatisez vos algorithmes de gestion de projet de manière méthodique : simulation de capacité de sprint, contrôle de flux Kanban, burn-down charts et matrices de dépendances inter-équipes.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
@@ -180,7 +180,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Agile libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos algorithmes de gestion de projet agile.',
+      description: 'Bac à sable interactif de manière méthodiquepour tester vos algorithmes de gestion de projet agile.',
       active: 'atelier',
       body
     }

@@ -1,732 +1,708 @@
 'use strict';
 
-module.exports = [
+const SQL3_EXERCISES = [
   {
     "id": "sql3-c1-e1",
     "chapter": 1,
-    "title": "Détecteur d’anomalies de concurrence selon le niveau d’isolation ANSI SQL",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Déterminer si une anomalie de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read) est possible sous un niveau d’isolation ANSI SQL donné.",
-    "brief": "Dans un système de gestion de bases de données relationnelles (SGBDR), les 4 niveaux d’isolation standard ANSI SQL offrent des compromis distincts entre cohérence et performance :\n- READ UNCOMMITTED : autorise Dirty Read, Non-Repeatable Read et Phantom Read.\n- READ COMMITTED : empêche Dirty Read ; autorise Non-Repeatable Read et Phantom Read.\n- REPEATABLE READ : empêche Dirty Read et Non-Repeatable Read ; autorise Phantom Read.\n- SERIALIZABLE : empêche toutes les anomalies de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read).\n\nEntrée :\n- Une ligne `ISOLATION <READ_UNCOMMITTED|READ_COMMITTED|REPEATABLE_READ|SERIALIZABLE>`\n- Des lignes `CHECK anomaly=<DIRTY_READ|NON_REPEATABLE_READ|PHANTOM_READ>`\n\nSortie :\n- Pour chaque vérification : `ANOMALY name=<NAME> allowed=<TRUE|FALSE> state=<PERMISSIBLE|PREVENTED>`\n- Une ligne de bilan : `SUMMARY isolation=<LEVEL> total=<N> allowed=<N> prevented=<N>`",
-    "starter": "# Grille d'analyse (sql3-c1-e1) — Détecteur d’anomalies de concurrence selon le niveau d’isolation ANSI SQL\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Niveau SERIALIZABLE prévenant toutes les anomalies]\n# Données : ISOLATION SERIALIZABLE\n# Données : CHECK anomaly=DIRTY_READ\n# Données : CHECK anomaly=NON_REPEATABLE_READ\n# Données : CHECK anomaly=PHANTOM_READ\nA_COMPLETER\n\n[Cas 2 — Niveau READ UNCOMMITTED autorisant toutes les anomalies]\n# Données : ISOLATION READ_UNCOMMITTED\n# Données : CHECK anomaly=DIRTY_READ\n# Données : CHECK anomaly=NON_REPEATABLE_READ\n# Données : CHECK anomaly=PHANTOM_READ\nA_COMPLETER\n\n[Cas 3 — Niveau REPEATABLE READ prévenant Dirty Read et Non-Repeatable Read]\n# Données : ISOLATION REPEATABLE_READ\n# Données : CHECK anomaly=DIRTY_READ\n# Données : CHECK anomaly=NON_REPEATABLE_READ\n# Données : CHECK anomaly=PHANTOM_READ\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Audit des transactions non validées dans le journal WAL",
+    "goal": "Identifier par requête SQL les transactions ouvertes sans événement COMMIT ni ROLLBACK.",
+    "brief": "<p>La table <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne les opérations du journal Write-Ahead Log (<code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code>, <code>ROLLBACK</code>). Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant.</p>",
+    "starter": "-- Sélectionnez les tx_id distincts n’ayant ni COMMIT ni ROLLBACK\nSELECT DISTINCT tx_id FROM wal_journal;",
     "hints": [
-      "Stocker la matrice d’admissibilité ANSI dans un dictionnaire associant chaque niveau à l’ensemble des anomalies permises.",
-      "Parcourir les lignes commençant par CHECK et extraire la clé anomaly.",
-      "Afficher TRUE/PERMISSIBLE si l’anomalie est possible, FALSE/PREVENTED sinon."
+      "Utilisez une sous-requête : WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')).",
+      "Ajoutez DISTINCT et ORDER BY tx_id ASC."
     ],
     "examples": [
       {
-        "stdin": "ISOLATION READ_COMMITTED\nCHECK anomaly=DIRTY_READ\nCHECK anomaly=NON_REPEATABLE_READ\nCHECK anomaly=PHANTOM_READ",
-        "expected": "ANOMALY name=DIRTY_READ allowed=FALSE state=PREVENTED\nANOMALY name=NON_REPEATABLE_READ allowed=TRUE state=PERMISSIBLE\nANOMALY name=PHANTOM_READ allowed=TRUE state=PERMISSIBLE\nSUMMARY isolation=READ_COMMITTED total=3 allowed=2 prevented=1",
-        "note": "Sous READ COMMITTED, seule la lecture sale est prévenue."
+        "stdin": "CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 100, 'BEGIN'), (2, 100, 'UPDATE'), (3, 100, 'COMMIT'), (4, 101, 'BEGIN'), (5, 101, 'UPDATE');\n-- exemple",
+        "expected": "+-------+\n| tx_id |\n+-------+\n| 101   |\n+-------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Niveau SERIALIZABLE prévenant toutes les anomalies",
-        "stdin": "cas:1",
-        "expected": "ANOMALY name=DIRTY_READ allowed=FALSE state=PREVENTED\nANOMALY name=NON_REPEATABLE_READ allowed=FALSE state=PREVENTED\nANOMALY name=PHANTOM_READ allowed=FALSE state=PREVENTED\nSUMMARY isolation=SERIALIZABLE total=3 allowed=0 prevented=3"
+        "label": "Une transaction validée et une en vol",
+        "stdin": "CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 100, 'BEGIN'), (2, 100, 'UPDATE'), (3, 100, 'COMMIT'), (4, 101, 'BEGIN'), (5, 101, 'UPDATE');",
+        "expected": "+-------+\n| tx_id |\n+-------+\n| 101   |\n+-------+\n(1 ligne retournée)"
       },
       {
-        "label": "Niveau READ UNCOMMITTED autorisant toutes les anomalies",
-        "stdin": "cas:2",
-        "expected": "ANOMALY name=DIRTY_READ allowed=TRUE state=PERMISSIBLE\nANOMALY name=NON_REPEATABLE_READ allowed=TRUE state=PERMISSIBLE\nANOMALY name=PHANTOM_READ allowed=TRUE state=PERMISSIBLE\nSUMMARY isolation=READ_UNCOMMITTED total=3 allowed=3 prevented=0"
+        "label": "Transactions avec ROLLBACK et en vol",
+        "stdin": "CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 10, 'BEGIN'), (2, 10, 'ROLLBACK'), (3, 20, 'BEGIN'), (4, 30, 'BEGIN'), (5, 30, 'UPDATE');",
+        "expected": "+-------+\n| tx_id |\n+-------+\n| 20    |\n| 30    |\n+-------+\n(2 lignes retournées)"
       },
       {
-        "label": "Niveau REPEATABLE READ prévenant Dirty Read et Non-Repeatable Read",
-        "stdin": "cas:3",
-        "expected": "ANOMALY name=DIRTY_READ allowed=FALSE state=PREVENTED\nANOMALY name=NON_REPEATABLE_READ allowed=FALSE state=PREVENTED\nANOMALY name=PHANTOM_READ allowed=TRUE state=PERMISSIBLE\nSUMMARY isolation=REPEATABLE_READ total=3 allowed=1 prevented=2"
+        "label": "Transaction unique non terminée",
+        "stdin": "CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 1, 'BEGIN'), (2, 1, 'COMMIT'), (3, 500, 'BEGIN'), (4, 500, 'UPDATE');",
+        "expected": "+-------+\n| tx_id |\n+-------+\n| 500   |\n+-------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nANOMALY name=DIRTY_READ allowed=FALSE state=PREVENTED\nANOMALY name=NON_REPEATABLE_READ allowed=TRUE state=PERMISSIBLE\nANOMALY name=PHANTOM_READ allowed=TRUE state=PERMISSIBLE\nSUMMARY isolation=READ_COMMITTED total=3 allowed=2 prevented=1\n\n[Cas 1 — Niveau SERIALIZABLE prévenant toutes les anomalies]\nANOMALY name=DIRTY_READ allowed=FALSE state=PREVENTED\nANOMALY name=NON_REPEATABLE_READ allowed=FALSE state=PREVENTED\nANOMALY name=PHANTOM_READ allowed=FALSE state=PREVENTED\nSUMMARY isolation=SERIALIZABLE total=3 allowed=0 prevented=3\n\n[Cas 2 — Niveau READ UNCOMMITTED autorisant toutes les anomalies]\nANOMALY name=DIRTY_READ allowed=TRUE state=PERMISSIBLE\nANOMALY name=NON_REPEATABLE_READ allowed=TRUE state=PERMISSIBLE\nANOMALY name=PHANTOM_READ allowed=TRUE state=PERMISSIBLE\nSUMMARY isolation=READ_UNCOMMITTED total=3 allowed=3 prevented=0\n\n[Cas 3 — Niveau REPEATABLE READ prévenant Dirty Read et Non-Repeatable Read]\nANOMALY name=DIRTY_READ allowed=FALSE state=PREVENTED\nANOMALY name=NON_REPEATABLE_READ allowed=FALSE state=PREVENTED\nANOMALY name=PHANTOM_READ allowed=TRUE state=PERMISSIBLE\nSUMMARY isolation=REPEATABLE_READ total=3 allowed=1 prevented=2"
+    "solution": "-- Corrigé officiel sql3-c1-e1\nSELECT DISTINCT tx_id FROM wal_journal WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')) ORDER BY tx_id ASC;"
   },
   {
     "id": "sql3-c1-e2",
     "chapter": 1,
-    "title": "Simulateur de verrous partagés et exclusifs (S/X Locks) et détection de conflit",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Simuler l’octroi et les conflits de verrous partagés (S) et exclusifs (X) sur des ressources de base de données.",
-    "brief": "Dans un moteur transactionnel 2PL (Two-Phase Locking) :\n- Un verrou partagé `S` (Shared, lecture) est compatible avec d’autres verrous `S` sur la même ressource, mais incompatible avec un verrou `X`.\n- Un verrou exclusif `X` (Exclusive, écriture) est incompatible avec tout autre verrou (`S` ou `X`) sur la même ressource détenu par une autre transaction.\n- Si une demande est incompatible avec les verrous actuels, elle est mise en attente (`WAITING`).\n- Lorsqu’une transaction libère (`RELEASE`) ses verrous sur une ressource, les requêtes en attente peuvent être octroyées.\n\nEntrée :\n- `ACQUIRE tx=<tx_id> res=<resource_id> mode=<S|X>`\n- `RELEASE tx=<tx_id> res=<resource_id>`\n\nSortie :\n- Pour chaque ACQUIRE : `LOCK tx=<tx_id> res=<res> mode=<mode> status=<GRANTED|WAITING>`\n- Pour chaque RELEASE : `UNLOCKED tx=<tx_id> res=<res> count_released=<N>` et si une attente est débloquée : `PROMOTED tx=<tx_id> res=<res> mode=<mode>`\n- Bilan : `LOCK_REPORT granted_active=<N> waiting_active=<N>`",
-    "starter": "# Grille d'analyse (sql3-c1-e2) — Simulateur de verrous partagés et exclusifs (S/X Locks) et détection de conflit\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Verrou X exclusif bloquant un verrou S ultérieur puis promotion après release]\n# Données : ACQUIRE tx=T1 res=row_42 mode=X\n# Données : ACQUIRE tx=T2 res=row_42 mode=S\n# Données : RELEASE tx=T1 res=row_42\nA_COMPLETER\n\n[Cas 2 — Deux transactions indépendantes sur deux ressources distinctes]\n# Données : ACQUIRE tx=T1 res=res_A mode=X\n# Données : ACQUIRE tx=T2 res=res_B mode=X\nA_COMPLETER\n\n[Cas 3 — Libération complète d une file d attente]\n# Données : ACQUIRE tx=T1 res=account_10 mode=X\n# Données : ACQUIRE tx=T2 res=account_10 mode=X\n# Données : RELEASE tx=T1 res=account_10\n# Données : RELEASE tx=T2 res=account_10\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Visibilité MVCC des tuples selon le snapshot xmin / xmax",
+    "goal": "Déterminer les versions de lignes visibles pour une transaction de snapshot donné.",
+    "brief": "<p>Dans PostgreSQL (MVCC), chaque version de ligne possède <code>xmin</code> (transaction créatrice) et <code>xmax</code> (transaction de suppression, <code>0</code> si toujours active). Pour une transaction courante <code>snapshot_tx = 50</code>, sélectionnez <code>tuple_id</code> et <code>valeur</code> de la table <code>mvcc_tuples(tuple_id, xmin, xmax, valeur)</code> qui ont été créés avant le snapshot (<code>xmin &lt; 50</code>) et qui ne sont pas supprimés avant le snapshot (<code>xmax = 0 OR xmax &gt;= 50</code>), triés par <code>tuple_id</code> croissant.</p>",
+    "starter": "-- Filtrez les tuples visibles au snapshot_tx = 50\nSELECT tuple_id, valeur FROM mvcc_tuples;",
     "hints": [
-      "Maintenir pour chaque ressource la liste des verrous actifs : {res: [(tx, mode), ...]} et la file d’attente : {res: deque([(tx, mode), ...])}.",
-      "Un mode S est accordé si aucun verrou X d’une autre tx n’est actif.",
-      "Un mode X est accordé si aucun verrou (S ou X) d’une autre tx n’est actif."
+      "Un tuple est visible à tx=50 si xmin < 50 AND (xmax = 0 OR xmax >= 50).",
+      "Triez par tuple_id ASC."
     ],
     "examples": [
       {
-        "stdin": "ACQUIRE tx=T1 res=table_users mode=S\nACQUIRE tx=T2 res=table_users mode=S\nACQUIRE tx=T3 res=table_users mode=X\nRELEASE tx=T1 res=table_users",
-        "expected": "LOCK tx=T1 res=table_users mode=S status=GRANTED\nLOCK tx=T2 res=table_users mode=S status=GRANTED\nLOCK tx=T3 res=table_users mode=X status=WAITING\nUNLOCKED tx=T1 res=table_users count_released=1\nLOCK_REPORT granted_active=1 waiting_active=1",
-        "note": "T3 attend car T2 détient toujours un verrou S sur table_users."
+        "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 10, 30, 'v1_supprimee'), (2, 30, 0, 'v2_visible'), (3, 60, 0, 'v3_future');\n-- exemple",
+        "expected": "+----------+------------+\n| tuple_id | valeur     |\n+----------+------------+\n| 2        | v2_visible |\n+----------+------------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Verrou X exclusif bloquant un verrou S ultérieur puis promotion après release",
-        "stdin": "cas:1",
-        "expected": "LOCK tx=T1 res=row_42 mode=X status=GRANTED\nLOCK tx=T2 res=row_42 mode=S status=WAITING\nUNLOCKED tx=T1 res=row_42 count_released=1\nPROMOTED tx=T2 res=row_42 mode=S\nLOCK_REPORT granted_active=1 waiting_active=0"
+        "label": "Trois versions MVCC (supprimée, active, future)",
+        "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 10, 30, 'v1_supprimee'), (2, 30, 0, 'v2_visible'), (3, 60, 0, 'v3_future');",
+        "expected": "+----------+------------+\n| tuple_id | valeur     |\n+----------+------------+\n| 2        | v2_visible |\n+----------+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Deux transactions indépendantes sur deux ressources distinctes",
-        "stdin": "cas:2",
-        "expected": "LOCK tx=T1 res=res_A mode=X status=GRANTED\nLOCK tx=T2 res=res_B mode=X status=GRANTED\nLOCK_REPORT granted_active=2 waiting_active=0"
+        "label": "Tuple supprimé après le snapshot (xmax = 55)",
+        "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (10, 20, 55, 'encore_visible'), (20, 49, 0, 'juste_avant'), (30, 50, 0, 'exclue');",
+        "expected": "+----------+----------------+\n| tuple_id | valeur         |\n+----------+----------------+\n| 10       | encore_visible |\n| 20       | juste_avant    |\n+----------+----------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Libération complète d une file d attente",
-        "stdin": "cas:3",
-        "expected": "LOCK tx=T1 res=account_10 mode=X status=GRANTED\nLOCK tx=T2 res=account_10 mode=X status=WAITING\nUNLOCKED tx=T1 res=account_10 count_released=1\nPROMOTED tx=T2 res=account_10 mode=X\nUNLOCKED tx=T2 res=account_10 count_released=1\nLOCK_REPORT granted_active=0 waiting_active=0"
+        "label": "Deux tuples actifs et un supprimé",
+        "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 5, 0, 'A'), (2, 12, 0, 'B'), (3, 15, 25, 'C');",
+        "expected": "+----------+--------+\n| tuple_id | valeur |\n+----------+--------+\n| 1        | A      |\n| 2        | B      |\n+----------+--------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nLOCK tx=T1 res=table_users mode=S status=GRANTED\nLOCK tx=T2 res=table_users mode=S status=GRANTED\nLOCK tx=T3 res=table_users mode=X status=WAITING\nUNLOCKED tx=T1 res=table_users count_released=1\nLOCK_REPORT granted_active=1 waiting_active=1\n\n[Cas 1 — Verrou X exclusif bloquant un verrou S ultérieur puis promotion après release]\nLOCK tx=T1 res=row_42 mode=X status=GRANTED\nLOCK tx=T2 res=row_42 mode=S status=WAITING\nUNLOCKED tx=T1 res=row_42 count_released=1\nPROMOTED tx=T2 res=row_42 mode=S\nLOCK_REPORT granted_active=1 waiting_active=0\n\n[Cas 2 — Deux transactions indépendantes sur deux ressources distinctes]\nLOCK tx=T1 res=res_A mode=X status=GRANTED\nLOCK tx=T2 res=res_B mode=X status=GRANTED\nLOCK_REPORT granted_active=2 waiting_active=0\n\n[Cas 3 — Libération complète d une file d attente]\nLOCK tx=T1 res=account_10 mode=X status=GRANTED\nLOCK tx=T2 res=account_10 mode=X status=WAITING\nUNLOCKED tx=T1 res=account_10 count_released=1\nPROMOTED tx=T2 res=account_10 mode=X\nUNLOCKED tx=T2 res=account_10 count_released=1\nLOCK_REPORT granted_active=0 waiting_active=0"
+    "solution": "-- Corrigé officiel sql3-c1-e2\nSELECT tuple_id, valeur FROM mvcc_tuples WHERE xmin < 50 AND (xmax = 0 OR xmax >= 50) ORDER BY tuple_id ASC;"
   },
   {
     "id": "sql3-c1-e3",
     "chapter": 1,
-    "title": "Détecteur d’interblocage de transactions (Deadlock Graph Cycle Finder)",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Construire le graphe d’attente des transactions (Wait-For Graph) et détecter les cycles d’interblocage avec désignation de la victime à avorter.",
-    "brief": "Dans un système de gestion de bases de données, un interblocage (Deadlock) survient lorsqu’un ensemble de transactions forment un cycle d’attente mutuel circulaire (ex: T1 attend T2, et T2 attend T1).\nLe SGBD construit un graphe d’attente orienté $G = (V, E)$ où un arc $T_A \\to T_B$ signifie que la transaction $T_A$ attend la libération d’une ressource détenue par $T_B$.\nPour résoudre le deadlock, le moteur détecte le premier cycle orienté et sélectionne la transaction « victime » ayant le timestamp de démarrage le plus récent (ou identifiant alphabétique le plus grand en cas d’égalité) pour la terminer par un ROLLBACK forcé.\n\nEntrée :\n- Des déclarations de transactions : `TX id=<T1> start=<timestamp_int>`\n- Des dépendances d’attente : `WAIT tx=<T1> waits_for=<T2>`\n\nSortie :\n- Si un cycle est détecté : `DEADLOCK_DETECTED cycle=<T1->T2->...->T1>`\n- Victime désignée : `VICTIM_SELECTED tx=<VICTIM_ID> action=ROLLBACK reason=YOUNGEST_TRANSACTION`\n- Si aucun cycle : `NO_DEADLOCK status=SAFE edges=<COUNT>`",
-    "starter": "# Grille d'analyse (sql3-c1-e3) — Détecteur d’interblocage de transactions (Deadlock Graph Cycle Finder)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Graphe sans cycle en chaîne linéaire]\n# Données : TX id=T1 start=10\n# Données : TX id=T2 start=20\n# Données : TX id=T3 start=30\n# Données : WAIT tx=T1 waits_for=T2\n# Données : WAIT tx=T2 waits_for=T3\nA_COMPLETER\n\n[Cas 2 — Cycle de 3 transactions T1 -> T2 -> T3 -> T1]\n# Données : TX id=T1 start=10\n# Données : TX id=T2 start=25\n# Données : TX id=T3 start=40\n# Données : WAIT tx=T1 waits_for=T2\n# Données : WAIT tx=T2 waits_for=T3\n# Données : WAIT tx=T3 waits_for=T1\nA_COMPLETER\n\n[Cas 3 — Graphe avec cycle partiel entre T2 et T4]\n# Données : TX id=T1 start=100\n# Données : TX id=T2 start=200\n# Données : TX id=T3 start=300\n# Données : TX id=T4 start=400\n# Données : WAIT tx=T1 waits_for=T2\n# Données : WAIT tx=T2 waits_for=T4\n# Données : WAIT tx=T4 waits_for=T2\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Détection de conflit de verrous (Lock Wait Graph)",
+    "goal": "Joindre la table des verrous acquis et des verrous en attente pour identifier les blocages.",
+    "brief": "<p>La table <code>pg_locks_sim(pid INT, ressource TEXT, accorde INT)</code> indique si un processus détient un verrou (<code>accorde = 1</code>) ou attend ce verrou (<code>accorde = 0</code>). Écrivez une auto-jointure qui affiche <code>attente.pid AS pid_bloque</code>, <code>detenteur.pid AS pid_bloqueur</code> et <code>attente.ressource</code> pour chaque couple où <code>attente.accorde = 0</code> et <code>detenteur.accorde = 1</code> sur la même <code>ressource</code>, triée par <code>pid_bloque</code> croissant.</p>",
+    "starter": "-- Identifiez pid_bloque, pid_bloqueur et ressource par auto-jointure\nSELECT pid, ressource FROM pg_locks_sim;",
     "hints": [
-      "Construire une liste d’adjacence adj[u] = [v, ...] représentant u -> v (u attend v).",
-      "Utiliser un algorithme DFS avec détection d’arcs retour (Back-edges) à l’aide des états VISITING / VISITED.",
-      "Reconstituer le chemin du cycle dès qu’un arc retour est trouvé.",
-      "Parmi les transactions appartenant au cycle, sélectionner celle ayant la valeur start la plus grande."
+      "Faites une jointure de pg_locks_sim a (en attente, a.accorde = 0) avec pg_locks_sim d (détenteur, d.accorde = 1) sur a.ressource = d.ressource.",
+      "Renommez les colonnes AS pid_bloque, AS pid_bloqueur."
     ],
     "examples": [
       {
-        "stdin": "TX id=T1 start=100\nTX id=T2 start=200\nWAIT tx=T1 waits_for=T2\nWAIT tx=T2 waits_for=T1",
-        "expected": "DEADLOCK_DETECTED cycle=T1->T2->T1\nVICTIM_SELECTED tx=T2 action=ROLLBACK reason=YOUNGEST_TRANSACTION",
-        "note": "T1 et T2 forment un cycle. T2 est plus jeune (start=200 > 100) et est avortée."
+        "stdin": "CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT); INSERT INTO pg_locks_sim VALUES (101, 'ligne_42', 1), (102, 'ligne_42', 0), (103, 'ligne_99', 1);\n-- exemple",
+        "expected": "+------------+--------------+-----------+\n| pid_bloque | pid_bloqueur | ressource |\n+------------+--------------+-----------+\n| 102        | 101          | ligne_42  |\n+------------+--------------+-----------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Graphe sans cycle en chaîne linéaire",
-        "stdin": "cas:1",
-        "expected": "NO_DEADLOCK status=SAFE edges=2"
+        "label": "Un processus bloqué sur ligne_42",
+        "stdin": "CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT); INSERT INTO pg_locks_sim VALUES (101, 'ligne_42', 1), (102, 'ligne_42', 0), (103, 'ligne_99', 1);",
+        "expected": "+------------+--------------+-----------+\n| pid_bloque | pid_bloqueur | ressource |\n+------------+--------------+-----------+\n| 102        | 101          | ligne_42  |\n+------------+--------------+-----------+\n(1 ligne retournée)"
       },
       {
-        "label": "Cycle de 3 transactions T1 -> T2 -> T3 -> T1",
-        "stdin": "cas:2",
-        "expected": "DEADLOCK_DETECTED cycle=T1->T2->T3->T1\nVICTIM_SELECTED tx=T3 action=ROLLBACK reason=YOUNGEST_TRANSACTION"
+        "label": "Chaîne de blocage à deux niveaux",
+        "stdin": "CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT); INSERT INTO pg_locks_sim VALUES (10, 'table_cmd', 1), (20, 'table_cmd', 0), (20, 'table_stock', 1), (30, 'table_stock', 0);",
+        "expected": "+------------+--------------+-------------+\n| pid_bloque | pid_bloqueur | ressource   |\n+------------+--------------+-------------+\n| 20         | 10           | table_cmd   |\n| 30         | 20           | table_stock |\n+------------+--------------+-------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Graphe avec cycle partiel entre T2 et T4",
-        "stdin": "cas:3",
-        "expected": "DEADLOCK_DETECTED cycle=T2->T4->T2\nVICTIM_SELECTED tx=T4 action=ROLLBACK reason=YOUNGEST_TRANSACTION"
+        "label": "Deux processus bloqués par le même détenteur",
+        "stdin": "CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT); INSERT INTO pg_locks_sim VALUES (500, 'compte_1', 1), (501, 'compte_1', 0), (502, 'compte_1', 0);",
+        "expected": "+------------+--------------+-----------+\n| pid_bloque | pid_bloqueur | ressource |\n+------------+--------------+-----------+\n| 501        | 500          | compte_1  |\n| 502        | 500          | compte_1  |\n+------------+--------------+-----------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nDEADLOCK_DETECTED cycle=T1->T2->T1\nVICTIM_SELECTED tx=T2 action=ROLLBACK reason=YOUNGEST_TRANSACTION\n\n[Cas 1 — Graphe sans cycle en chaîne linéaire]\nNO_DEADLOCK status=SAFE edges=2\n\n[Cas 2 — Cycle de 3 transactions T1 -> T2 -> T3 -> T1]\nDEADLOCK_DETECTED cycle=T1->T2->T3->T1\nVICTIM_SELECTED tx=T3 action=ROLLBACK reason=YOUNGEST_TRANSACTION\n\n[Cas 3 — Graphe avec cycle partiel entre T2 et T4]\nDEADLOCK_DETECTED cycle=T2->T4->T2\nVICTIM_SELECTED tx=T4 action=ROLLBACK reason=YOUNGEST_TRANSACTION"
+    "solution": "-- Corrigé officiel sql3-c1-e3\nSELECT a.pid AS pid_bloque, d.pid AS pid_bloqueur, a.ressource FROM pg_locks_sim a INNER JOIN pg_locks_sim d ON a.ressource = d.ressource WHERE a.accorde = 0 AND d.accorde = 1 ORDER BY pid_bloque ASC;"
   },
   {
     "id": "sql3-c2-e1",
     "chapter": 2,
-    "title": "Simulateur de recherche et traversée dans un arbre B-Tree indexé",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Parcourir les nœuds d’un index B-Tree hiérarchique depuis la racine jusqu’à la page feuille pour localiser une clé.",
-    "brief": "L’index B-Tree est la structure par défaut dans les SGBD relationnels (PostgreSQL, MySQL InnoDB, Oracle).\nChaque nœud interne contient $K$ clés triées séparant $K+1$ pointeurs vers des nœuds enfants :\n- Si `clé_cherchée < clé[0]`, on emprunte `enfant[0]`.\n- Si `clé[i] <= clé_cherchée < clé[i+1]`, on emprunte `enfant[i+1]`.\n- Si `clé_cherchée >= clé[K-1]`, on emprunte le dernier enfant `enfant[K]`.\nLorsque l’on atteint une feuille (`type=LEAF`), on vérifie si la clé y est présente.\n\nEntrée :\n- Des lignes décrivant les nœuds de l’arbre :\n  `NODE id=<node_id> type=<INTERNAL|LEAF> keys=<k1,k2,...> children=<c0,c1,...>` (les feuilles n’ont pas de children)\n- Une ligne de recherche : `SEARCH key=<int_key>`\n\nSortie :\n- `TRAVERSAL path=<node1->node2->...->leaf> depth=<N>`\n- `RESULT key=<K> found=<TRUE|FALSE> leaf=<leaf_id>`",
-    "starter": "# Grille d'analyse (sql3-c2-e1) — Simulateur de recherche et traversée dans un arbre B-Tree indexé\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Clé inférieure à toutes les clés de la racine]\n# Données : NODE id=root type=INTERNAL keys=30,70 children=leaf_A,leaf_B,leaf_C\n# Données : NODE id=leaf_A type=LEAF keys=10,20\n# Données : NODE id=leaf_B type=LEAF keys=40,50,60\n# Données : NODE id=leaf_C type=LEAF keys=80,90\n# Données : SEARCH key=15\nA_COMPLETER\n\n[Cas 2 — Arbre à 3 niveaux de profondeur (racine, interne, feuille)]\n# Données : NODE id=root type=INTERNAL keys=100 children=L1_A,L1_B\n# Données : NODE id=L1_A type=INTERNAL keys=50 children=leaf_1,leaf_2\n# Données : NODE id=L1_B type=INTERNAL keys=150 children=leaf_3,leaf_4\n# Données : NODE id=leaf_1 type=LEAF keys=10,25\n# Données : NODE id=leaf_2 type=LEAF keys=60,75,90\n# Données : NODE id=leaf_3 type=LEAF keys=110,130\n# Données : NODE id=leaf_4 type=LEAF keys=160,200\n# Données : SEARCH key=75\nA_COMPLETER\n\n[Cas 3 — Clé supérieure à toutes les clés existantes]\n# Données : NODE id=root type=INTERNAL keys=10,20 children=P1,P2,P3\n# Données : NODE id=P1 type=LEAF keys=1,2\n# Données : NODE id=P2 type=LEAF keys=11,12\n# Données : NODE id=P3 type=LEAF keys=21,22\n# Données : SEARCH key=99\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Calcul du ratio de sélectivité d’une colonne pour le choix d’un index",
+    "goal": "Calculer la cardinalité distincte et la sélectivité d’une colonne.",
+    "brief": "<p>Dans la table <code>commandes(id, code_pays, email_client)</code>, calculez le nombre total de lignes (<code>COUNT(*) AS total_lignes</code>), le nombre de pays distincts (<code>COUNT(DISTINCT code_pays) AS card_pays</code>) et le nombre d’emails distincts (<code>COUNT(DISTINCT email_client) AS card_email</code>).</p>",
+    "starter": "-- Calculez total_lignes, card_pays et card_email\nSELECT COUNT(*) FROM commandes;",
     "hints": [
-      "Stocker chaque nœud dans un dictionnaire avec ses clés triées d’entiers et sa liste d’enfants.",
-      "Le premier nœud de type INTERNAL déclaré ou nommé root est la racine.",
-      "À chaque étape, comparer la clé cible avec les clés du nœud pour déterminer l’indice de l’enfant suivant."
+      "Utilisez COUNT(DISTINCT colonne) pour obtenir le nombre de valeurs uniques.",
+      "Nommez les trois colonnes total_lignes, card_pays et card_email."
     ],
     "examples": [
       {
-        "stdin": "NODE id=root type=INTERNAL keys=20,50 children=N1,N2,N3\nNODE id=N1 type=LEAF keys=5,10,15\nNODE id=N2 type=LEAF keys=25,35,42\nNODE id=N3 type=LEAF keys=55,60,70\nSEARCH key=35",
-        "expected": "TRAVERSAL path=root->N2 depth=2\nRESULT key=35 found=TRUE leaf=N2",
-        "note": "35 est compris entre 20 et 50, on descend dans N2 où 35 est présent."
+        "stdin": "CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'a@x.tg'), (2, 'TG', 'b@x.tg'), (3, 'SN', 'c@x.sn'), (4, 'TG', 'a@x.tg');\n-- exemple",
+        "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 4            | 2         | 3          |\n+--------------+-----------+------------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Clé inférieure à toutes les clés de la racine",
-        "stdin": "cas:1",
-        "expected": "TRAVERSAL path=root->leaf_A depth=2\nRESULT key=15 found=FALSE leaf=leaf_A"
+        "label": "Quatre commandes sur deux pays",
+        "stdin": "CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'a@x.tg'), (2, 'TG', 'b@x.tg'), (3, 'SN', 'c@x.sn'), (4, 'TG', 'a@x.tg');",
+        "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 4            | 2         | 3          |\n+--------------+-----------+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Arbre à 3 niveaux de profondeur (racine, interne, feuille)",
-        "stdin": "cas:2",
-        "expected": "TRAVERSAL path=root->L1_A->leaf_2 depth=3\nRESULT key=75 found=TRUE leaf=leaf_2"
+        "label": "Emails tous uniques",
+        "stdin": "CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'CI', 'u1@ci.org'), (2, 'CI', 'u2@ci.org'), (3, 'BJ', 'u3@bj.org');",
+        "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 3            | 2         | 3          |\n+--------------+-----------+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Clé supérieure à toutes les clés existantes",
-        "stdin": "cas:3",
-        "expected": "TRAVERSAL path=root->P3 depth=2\nRESULT key=99 found=FALSE leaf=P3"
+        "label": "Un seul pays",
+        "stdin": "CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'koffi@tg.org'), (2, 'TG', 'koffi@tg.org');",
+        "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 2            | 1         | 1          |\n+--------------+-----------+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nTRAVERSAL path=root->N2 depth=2\nRESULT key=35 found=TRUE leaf=N2\n\n[Cas 1 — Clé inférieure à toutes les clés de la racine]\nTRAVERSAL path=root->leaf_A depth=2\nRESULT key=15 found=FALSE leaf=leaf_A\n\n[Cas 2 — Arbre à 3 niveaux de profondeur (racine, interne, feuille)]\nTRAVERSAL path=root->L1_A->leaf_2 depth=3\nRESULT key=75 found=TRUE leaf=leaf_2\n\n[Cas 3 — Clé supérieure à toutes les clés existantes]\nTRAVERSAL path=root->P3 depth=2\nRESULT key=99 found=FALSE leaf=P3"
+    "solution": "-- Corrigé officiel sql3-c2-e1\nSELECT COUNT(*) AS total_lignes, COUNT(DISTINCT code_pays) AS card_pays, COUNT(DISTINCT email_client) AS card_email FROM commandes;"
   },
   {
     "id": "sql3-c2-e2",
     "chapter": 2,
-    "title": "Calculateur d’empreinte mémoire d’index et facteur de blocage (Fill Factor)",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Estimer le nombre de pages et la taille en Ko/Mo d’un index B-Tree en fonction du nombre de lignes, de la taille des clés et du Fill Factor.",
-    "brief": "Dans PostgreSQL, une page de base de données fait par défaut 8 192 octets (8 Ko).\nChaque page comporte un en-tête fixe de 24 octets (PageHeaderData).\nChaque entrée d’index stocke un ItemId (4 octets) + un en-tête d’index (IndexTupleData, 8 octets) + la clé physique.\nL’espace utilisable par page pour les feuilles est limité par le `fill_factor` (ex: 90% pour réserver 10% d’espace aux insertions futures sans page split).\nFormule pour une feuille :\n- `taille_entree = 4 (ItemId) + 8 (en-tete) + key_bytes`\n- `espace_disponible = (8192 - 24) * (fill_factor / 100.0)`\n- `capacite_page = int(espace_disponible // taille_entree)`\n- `pages_feuilles = ceil(rows / capacite_page)`\n- En ajoutant les nœuds internes de l’arbre (estimés à environ 1,2% des pages feuilles supplémentaires) : `pages_totales = pages_feuilles + ceil(pages_feuilles * 0.012)`\n\nEntrée :\n`INDEX_CALC table=<nom> rows=<N> key_bytes=<B> fill_factor=<PCT>`\n\nSortie :\n`ESTIMATE table=<nom> entry_bytes=<B> page_capacity=<N> leaf_pages=<N> total_pages=<N> size_kb=<KB> size_mb=<MB.2f>`",
-    "starter": "# Grille d'analyse (sql3-c2-e2) — Calculateur d’empreinte mémoire d’index et facteur de blocage (Fill Factor)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Index compact sur clé entière 4 octets avec fill_factor 100%]\n# Données : INDEX_CALC table=commandes rows=1000000 key_bytes=4 fill_factor=100\nA_COMPLETER\n\n[Cas 2 — Index lourd sur chaîne UUID de 32 octets avec fill_factor 70%]\n# Données : INDEX_CALC table=sessions rows=250000 key_bytes=32 fill_factor=70\nA_COMPLETER\n\n[Cas 3 — Petite table de 10 000 lignes]\n# Données : INDEX_CALC table=produits rows=10000 key_bytes=8 fill_factor=90\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Index partiel (CREATE INDEX ... WHERE) sur les commandes actives",
+    "goal": "Créer un index partiel filtré pour réduire l’empreinte mémoire de l’index B-Tree.",
+    "brief": "<p>Sur la table <code>commandes(id INT, client_id INT, statut TEXT, montant INT)</code>, créez un index partiel nommé <code>idx_cmd_en_cours</code> sur <code>(client_id)</code> filtré uniquement sur <code>WHERE statut = 'EN_COURS'</code>, puis sélectionnez <code>id</code> et <code>montant</code> des commandes de <code>client_id = 10</code> ayant <code>statut = 'EN_COURS'</code> triées par <code>id</code>.</p>",
+    "starter": "-- Créez l’index partiel idx_cmd_en_cours puis interrogez la table\nSELECT id, montant FROM commandes;",
     "hints": [
-      "Appliquer les constantes de stockage de page PostgreSQL : 8192 octets par page, 24 octets de header.",
-      "Chaque entrée consomme 4 + 8 + key_bytes octets.",
-      "Utiliser math.ceil pour arrondir les nombres de pages vers l’entier supérieur.",
-      "size_kb = total_pages * 8 ; size_mb = size_kb / 1024.0."
+      "SQLite et PostgreSQL supportent CREATE INDEX nom ON table(col) WHERE condition;",
+      "Ajoutez ensuite la requête SELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;"
     ],
     "examples": [
       {
-        "stdin": "INDEX_CALC table=utilisateurs rows=500000 key_bytes=16 fill_factor=90",
-        "expected": "ESTIMATE table=utilisateurs entry_bytes=28 page_capacity=262 leaf_pages=1909 total_pages=1932 size_kb=15456 size_mb=15.09",
-        "note": "500 000 lignes avec des clés de 16 octets à 90% de remplissage occupent ~15 Mo."
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (1, 10, 'ARCHIVEE', 5000), (2, 10, 'EN_COURS', 12000), (3, 20, 'EN_COURS', 8000);\n-- exemple",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 2  | 12000   |\n+----+---------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Index compact sur clé entière 4 octets avec fill_factor 100%",
-        "stdin": "cas:1",
-        "expected": "ESTIMATE table=commandes entry_bytes=16 page_capacity=510 leaf_pages=1961 total_pages=1985 size_kb=15880 size_mb=15.51"
+        "label": "Une commande en cours pour le client 10",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (1, 10, 'ARCHIVEE', 5000), (2, 10, 'EN_COURS', 12000), (3, 20, 'EN_COURS', 8000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 2  | 12000   |\n+----+---------+\n(1 ligne retournée)"
       },
       {
-        "label": "Index lourd sur chaîne UUID de 32 octets avec fill_factor 70%",
-        "stdin": "cas:2",
-        "expected": "ESTIMATE table=sessions entry_bytes=44 page_capacity=129 leaf_pages=1938 total_pages=1962 size_kb=15696 size_mb=15.33"
+        "label": "Deux commandes en cours pour le client 10",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (10, 10, 'EN_COURS', 3000), (20, 10, 'EN_COURS', 7000), (30, 10, 'LIVREE', 9000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 10 | 3000    |\n| 20 | 7000    |\n+----+---------+\n(2 lignes retournées)"
       },
       {
-        "label": "Petite table de 10 000 lignes",
-        "stdin": "cas:3",
-        "expected": "ESTIMATE table=produits entry_bytes=20 page_capacity=367 leaf_pages=28 total_pages=29 size_kb=232 size_mb=0.23"
+        "label": "Commande en cours et commande archivée",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (5, 10, 'EN_COURS', 45000), (6, 20, 'ARCHIVEE', 10000);",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 5  | 45000   |\n+----+---------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nESTIMATE table=utilisateurs entry_bytes=28 page_capacity=262 leaf_pages=1909 total_pages=1932 size_kb=15456 size_mb=15.09\n\n[Cas 1 — Index compact sur clé entière 4 octets avec fill_factor 100%]\nESTIMATE table=commandes entry_bytes=16 page_capacity=510 leaf_pages=1961 total_pages=1985 size_kb=15880 size_mb=15.51\n\n[Cas 2 — Index lourd sur chaîne UUID de 32 octets avec fill_factor 70%]\nESTIMATE table=sessions entry_bytes=44 page_capacity=129 leaf_pages=1938 total_pages=1962 size_kb=15696 size_mb=15.33\n\n[Cas 3 — Petite table de 10 000 lignes]\nESTIMATE table=produits entry_bytes=20 page_capacity=367 leaf_pages=28 total_pages=29 size_kb=232 size_mb=0.23"
+    "solution": "-- Corrigé officiel sql3-c2-e2\nCREATE INDEX idx_cmd_en_cours ON commandes(client_id) WHERE statut = 'EN_COURS';\nSELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;"
   },
   {
     "id": "sql3-c2-e3",
     "chapter": 2,
-    "title": "Sélecteur d’index optimal (Index Advisor) selon la typologie de prédicats",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Analyser les prédicats d’une requête SQL et recommander l’index optimal (B-Tree composite, GIN, Hash ou partiel).",
-    "brief": "Dans la conception de bases de données haute performance, choisir le bon type d’index est crucial :\n- `GIN` (Generalized Inverted Index) : recommandé pour les colonnes semi-structurées (`jsonb`, tableaux `array`, ou recherche plein texte `tsvector`).\n- `HASH` : recommandé uniquement pour les comparaisons d’égalité stricte sur clé unique (`eq`) sans recherche par intervalle.\n- `PARTIAL_BTREE` : recommandé lorsqu’un filtre WHERE porte sur un sous-ensemble très sélectif (ex: `deleted_at IS NULL` ou `status=active`).\n- `BTREE_COMPOSITE` : recommandé pour les requêtes combinant égalité et ordre ou intervalle (`range` / `order_by`). Règle d’or : colonnes d’égalité en premier, puis colonne de range ou de tri.\n\nEntrée :\n`ADVISE table=<table_name> col=<c1:type,c2:type> filter=<c1=eq,c2=range> order=<col|none> partial_filter=<cond|none>`\n\nSortie :\n`RECOMMENDATION table=<name> index_type=<GIN|HASH|PARTIAL_BTREE|BTREE_COMPOSITE> cols=<c1,c2> ddl=<CREATE INDEX ...>`",
-    "starter": "# Grille d'analyse (sql3-c2-e3) — Sélecteur d’index optimal (Index Advisor) selon la typologie de prédicats\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Recommandation GIN sur colonne JSONB]\n# Données : ADVISE table=evenements col=payload:jsonb filter=payload=contains order=none partial_filter=none\nA_COMPLETER\n\n[Cas 2 — Recommandation d index partiel avec filtre WHERE]\n# Données : ADVISE table=utilisateurs col=email:text filter=email=eq order=none partial_filter=actif_is_true\nA_COMPLETER\n\n[Cas 3 — Index Hash sur égalité simple d un jeton de session]\n# Données : ADVISE table=sessions col=token:uuid filter=token=eq order=none partial_filter=none\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Estimation du taux de tuples morts (Dead Tuples / Bloat) pour VACUUM",
+    "goal": "Identifier les tables nécessitant un VACUUM selon le seuil d’autovacuum PostgreSQL.",
+    "brief": "<p>Dans PostgreSQL, l’autovacuum se déclenche lorsque <code>n_dead_tup &gt; 50 + 0.20 * n_live_tup</code>. À partir de la table de statistiques <code>pg_stat_user_tables_sim(relname TEXT, n_live_tup INT, n_dead_tup INT)</code>, affichez <code>relname</code>, <code>n_live_tup</code> et <code>n_dead_tup</code> des tables qui dépassent strictement ce seuil, triées par <code>n_dead_tup</code> décroissant.</p>",
+    "starter": "-- Sélectionnez les tables où n_dead_tup > 50 + 0.20 * n_live_tup\nSELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;",
     "hints": [
-      "Si une colonne est de type jsonb ou array, recommander systématiquement GIN.",
-      "Si un partial_filter est présent non vide, recommander PARTIAL_BTREE avec clause WHERE.",
-      "Si plusieurs colonnes sont filtrées ou triées, placer les colonnes en égalité en tête dans l’index composite.",
-      "Générer l’instruction SQL DDL standard correspondante."
+      "Écrivez directement la formule dans WHERE : n_dead_tup > 50 + 0.20 * n_live_tup.",
+      "Triez par n_dead_tup DESC."
     ],
     "examples": [
       {
-        "stdin": "ADVISE table=commandes col=client_id:int,date_cmd:timestamp filter=client_id=eq,date_cmd=range order=date_cmd partial_filter=none",
-        "expected": "RECOMMENDATION table=commandes index_type=BTREE_COMPOSITE cols=client_id,date_cmd ddl=CREATE INDEX idx_commandes_client_id_date_cmd ON commandes (client_id, date_cmd)",
-        "note": "Index B-Tree composite ordonné (égalité client_id d’abord, puis range date_cmd)."
+        "stdin": "CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('commandes', 1000, 300), ('clients', 1000, 100), ('sessions', 200, 120);\n-- exemple",
+        "expected": "+-----------+------------+------------+\n| relname   | n_live_tup | n_dead_tup |\n+-----------+------------+------------+\n| commandes | 1000       | 300        |\n| sessions  | 200        | 120        |\n+-----------+------------+------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Recommandation GIN sur colonne JSONB",
-        "stdin": "cas:1",
-        "expected": "RECOMMENDATION table=evenements index_type=GIN cols=payload ddl=CREATE INDEX idx_evenements_payload ON evenements USING gin (payload)"
+        "label": "Deux tables au-dessus du seuil d’autovacuum",
+        "stdin": "CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('commandes', 1000, 300), ('clients', 1000, 100), ('sessions', 200, 120);",
+        "expected": "+-----------+------------+------------+\n| relname   | n_live_tup | n_dead_tup |\n+-----------+------------+------------+\n| commandes | 1000       | 300        |\n| sessions  | 200        | 120        |\n+-----------+------------+------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Recommandation d index partiel avec filtre WHERE",
-        "stdin": "cas:2",
-        "expected": "RECOMMENDATION table=utilisateurs index_type=PARTIAL_BTREE cols=email ddl=CREATE INDEX idx_utilisateurs_email ON utilisateurs (email) WHERE actif_is_true"
+        "label": "Table fortement fragmentée",
+        "stdin": "CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('logs', 5000, 2000), ('pays', 50, 5);",
+        "expected": "+---------+------------+------------+\n| relname | n_live_tup | n_dead_tup |\n+---------+------------+------------+\n| logs    | 5000       | 2000       |\n+---------+------------+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Index Hash sur égalité simple d un jeton de session",
-        "stdin": "cas:3",
-        "expected": "RECOMMENDATION table=sessions index_type=HASH cols=token ddl=CREATE INDEX idx_sessions_token ON sessions USING hash (token)"
+        "label": "Cas limite autour du seuil (100 vivants -> seuil 70)",
+        "stdin": "CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('t_exact', 100, 70), ('t_depasse', 100, 71);",
+        "expected": "+-----------+------------+------------+\n| relname   | n_live_tup | n_dead_tup |\n+-----------+------------+------------+\n| t_depasse | 100        | 71         |\n+-----------+------------+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nRECOMMENDATION table=commandes index_type=BTREE_COMPOSITE cols=client_id,date_cmd ddl=CREATE INDEX idx_commandes_client_id_date_cmd ON commandes (client_id, date_cmd)\n\n[Cas 1 — Recommandation GIN sur colonne JSONB]\nRECOMMENDATION table=evenements index_type=GIN cols=payload ddl=CREATE INDEX idx_evenements_payload ON evenements USING gin (payload)\n\n[Cas 2 — Recommandation d index partiel avec filtre WHERE]\nRECOMMENDATION table=utilisateurs index_type=PARTIAL_BTREE cols=email ddl=CREATE INDEX idx_utilisateurs_email ON utilisateurs (email) WHERE actif_is_true\n\n[Cas 3 — Index Hash sur égalité simple d un jeton de session]\nRECOMMENDATION table=sessions index_type=HASH cols=token ddl=CREATE INDEX idx_sessions_token ON sessions USING hash (token)"
+    "solution": "-- Corrigé officiel sql3-c2-e3\nSELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim WHERE n_dead_tup > 50 + 0.20 * n_live_tup ORDER BY n_dead_tup DESC;"
   },
   {
     "id": "sql3-c3-e1",
     "chapter": 3,
-    "title": "Parseur et estimateur de coût de plan d’exécution EXPLAIN",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Analyser les lignes d’un plan d’exécution PostgreSQL pour extraire les nœuds d’accès et les métriques de coût.",
-    "brief": "Dans PostgreSQL, la commande `EXPLAIN` renvoie l’arbre des opérations planifiées par le Cost-Based Optimizer (CBO).\nChaque nœud de plan indique son algorithme et ses métriques standard :\n`-> Node_Type on Target_Relation (cost=startup..total rows=N width=W)`\n- `startup` : coût estimé pour produire la toute première ligne de résultat.\n- `total` : coût total estimé pour consommer l’ensemble des lignes du nœud.\n- `rows` : estimation du nombre de lignes produites.\n- `width` : taille moyenne en octets de chaque tuple produit.\n\nEntrée :\nDes lignes de plan au format standard PostgreSQL (Seq Scan, Index Scan, Bitmap Heap Scan, etc.).\n\nSortie :\n- Pour chaque nœud analysé :\n  `NODE type=<NODE_TYPE> target=<TARGET> startup=<STARTUP> total=<TOTAL> rows=<ROWS> width=<WIDTH>`\n- En fin de traitement : `SUMMARY nodes_count=<N> max_total_cost=<MAX_TOTAL>`",
-    "starter": "# Grille d'analyse (sql3-c3-e1) — Parseur et estimateur de coût de plan d’exécution EXPLAIN\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Bitmap Heap Scan et Bitmap Index Scan]\n# Données : -> Bitmap Heap Scan on factures (cost=12.50..128.00 rows=350 width=64)\n# Données : -> Bitmap Index Scan on idx_factures_date (cost=0.00..8.25 rows=350 width=0)\nA_COMPLETER\n\n[Cas 2 — Nœud unique Index Only Scan]\n# Données : -> Index Only Scan using idx_articles_prix on articles (cost=0.28..4.30 rows=5 width=12)\nA_COMPLETER\n\n[Cas 3 — Trois opérations chaînées]\n# Données : -> Seq Scan on logs (cost=0.00..9800.00 rows=500000 width=80)\n# Données : -> Hash (cost=450.00..450.00 rows=12000 width=36)\n# Données : -> Nested Loop (cost=0.42..85.00 rows=15 width=116)\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Calcul du coût CBO d’un parcours séquentiel (Seq Scan)",
+    "goal": "Appliquer la formule de coût de l’optimiseur PostgreSQL pour un Seq Scan.",
+    "brief": "<p>L’optimiseur CBO estime le coût d’un <code>Seq Scan</code> par la formule : <code>cout_total = relpages * 1.0 + reltuples * 0.01</code>. À partir de la table catalogue <code>pg_class_sim(relname TEXT, relpages INT, reltuples INT)</code>, affichez <code>relname</code> et <code>ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan</code>, triés par <code>cout_seq_scan</code> croissant.</p>",
+    "starter": "-- Calculez cout_seq_scan pour chaque table de pg_class_sim\nSELECT relname FROM pg_class_sim;",
     "hints": [
-      "Utiliser une expression régulière pour capturer le type de nœud, la relation cible, ainsi que les champs cost, rows et width.",
-      "Pattern type : r\"(?:->\\s+)?([A-Za-z\\s]+?)(?:\\s+on\\s+([A-Za-z0-9_]+))?\\s+\\(cost=([0-9.]+)\\.\\.([0-9.]+)\\s+rows=([0-9]+)\\s+width=([0-9]+)\\)\"",
-      "Normaliser les espaces du type de nœud et convertir les coûts en flottants."
+      "Appliquez ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan.",
+      "Triez par cout_seq_scan ASC."
     ],
     "examples": [
       {
-        "stdin": "-> Seq Scan on utilisateurs (cost=0.00..450.50 rows=12000 width=36)\n-> Index Scan using idx_commandes on commandes (cost=0.42..8.44 rows=10 width=48)",
-        "expected": "NODE type=Seq Scan target=utilisateurs startup=0.00 total=450.50 rows=12000 width=36\nNODE type=Index Scan target=commandes startup=0.42 total=8.44 rows=10 width=48\nSUMMARY nodes_count=2 max_total_cost=450.50",
-        "note": "Deux nœuds parsés avec calcul du coût maximal."
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('factures', 100, 10000), ('agences', 2, 50);\n-- exemple",
+        "expected": "+----------+---------------+\n| relname  | cout_seq_scan |\n+----------+---------------+\n| agences  | 2.5           |\n| factures | 200           |\n+----------+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Bitmap Heap Scan et Bitmap Index Scan",
-        "stdin": "cas:1",
-        "expected": "NODE type=Bitmap Heap Scan target=factures startup=12.50 total=128.00 rows=350 width=64\nNODE type=Bitmap Index Scan target=idx_factures_date startup=0.00 total=8.25 rows=350 width=0\nSUMMARY nodes_count=2 max_total_cost=128.00"
+        "label": "Petite table et grande table",
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('factures', 100, 10000), ('agences', 2, 50);",
+        "expected": "+----------+---------------+\n| relname  | cout_seq_scan |\n+----------+---------------+\n| agences  | 2.5           |\n| factures | 200           |\n+----------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Nœud unique Index Only Scan",
-        "stdin": "cas:2",
-        "expected": "NODE type=Index Only Scan target=articles startup=0.28 total=4.30 rows=5 width=12\nSUMMARY nodes_count=1 max_total_cost=4.30"
+        "label": "Trois tables de tailles croissantes",
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('t1', 10, 500), ('t2', 50, 4000), ('t3', 5, 100);",
+        "expected": "+---------+---------------+\n| relname | cout_seq_scan |\n+---------+---------------+\n| t3      | 6             |\n| t1      | 15            |\n| t2      | 90            |\n+---------+---------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Trois opérations chaînées",
-        "stdin": "cas:3",
-        "expected": "NODE type=Seq Scan target=logs startup=0.00 total=9800.00 rows=500000 width=80\nNODE type=Hash target=none startup=450.00 total=450.00 rows=12000 width=36\nNODE type=Nested Loop target=none startup=0.42 total=85.00 rows=15 width=116\nSUMMARY nodes_count=3 max_total_cost=9800.00"
+        "label": "Table de 1000 pages",
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('audit_log', 1000, 80000);",
+        "expected": "+-----------+---------------+\n| relname   | cout_seq_scan |\n+-----------+---------------+\n| audit_log | 1800          |\n+-----------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nNODE type=Seq Scan target=utilisateurs startup=0.00 total=450.50 rows=12000 width=36\nNODE type=Index Scan target=commandes startup=0.42 total=8.44 rows=10 width=48\nSUMMARY nodes_count=2 max_total_cost=450.50\n\n[Cas 1 — Bitmap Heap Scan et Bitmap Index Scan]\nNODE type=Bitmap Heap Scan target=factures startup=12.50 total=128.00 rows=350 width=64\nNODE type=Bitmap Index Scan target=idx_factures_date startup=0.00 total=8.25 rows=350 width=0\nSUMMARY nodes_count=2 max_total_cost=128.00\n\n[Cas 2 — Nœud unique Index Only Scan]\nNODE type=Index Only Scan target=articles startup=0.28 total=4.30 rows=5 width=12\nSUMMARY nodes_count=1 max_total_cost=4.30\n\n[Cas 3 — Trois opérations chaînées]\nNODE type=Seq Scan target=logs startup=0.00 total=9800.00 rows=500000 width=80\nNODE type=Hash target=none startup=450.00 total=450.00 rows=12000 width=36\nNODE type=Nested Loop target=none startup=0.42 total=85.00 rows=15 width=116\nSUMMARY nodes_count=3 max_total_cost=9800.00"
+    "solution": "-- Corrigé officiel sql3-c3-e1\nSELECT relname, ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan FROM pg_class_sim ORDER BY cout_seq_scan ASC;"
   },
   {
     "id": "sql3-c3-e2",
     "chapter": 3,
-    "title": "Simulateur de sélection d’algorithme de jointure (Nested Loop vs Hash vs Merge)",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Simuler le choix de l’optimiseur de requêtes pour sélectionner le meilleur algorithme de jointure.",
-    "brief": "Dans les SGBDR modernes, l’optimiseur CBO choisit entre trois algorithmes fondamentaux pour joindre deux relations $R$ (externe) et $S$ (interne) :\n- `NESTED_LOOP` : optimal si l’une des tables est très petite ($N \\le 100$) et que la table interne dispose d’un index sur la clé de jointure, ou pour les jointures sans condition d’égalité.\n- `MERGE_JOIN` : optimal si les deux relations sont déjà triées sur la condition de jointure (ou alimentées par un Index Scan B-Tree pré-trié) ; complexité $O(N + M)$.\n- `HASH_JOIN` : optimal pour les tables moyennes à grandes non triées sur une condition d’égalité (`join_op=eq`), où la plus petite table tient dans la mémoire de travail `work_mem`.\n\nEntrée :\n`JOIN t1=<name> r1=<rows> indexed1=<true|false> sorted1=<true|false> t2=<name> r2=<rows> indexed2=<true|false> sorted2=<true|false> op=<eq|other>`\n\nSortie :\n`JOIN_DECISION algo=<NESTED_LOOP|MERGE_JOIN|HASH_JOIN> outer_table=<t> inner_table=<t> complexity=<O(N*M)|O(N+M)|O(N*logM)> reason=<REASON>`",
-    "starter": "# Grille d'analyse (sql3-c3-e2) — Simulateur de sélection d’algorithme de jointure (Nested Loop vs Hash vs Merge)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux tables pré-triées sur égalité favorisant le Merge Join]\n# Données : JOIN t1=ventes_2025 r1=80000 indexed1=true sorted1=true t2=articles r2=15000 indexed2=true sorted2=true op=eq\nA_COMPLETER\n\n[Cas 2 — Grandes tables non triées sur égalité favorisant le Hash Join]\n# Données : JOIN t1=logs r1=500000 indexed1=false sorted1=false t2=utilisateurs r2=20000 indexed2=true sorted2=false op=eq\nA_COMPLETER\n\n[Cas 3 — Jointure avec opérateur d inégalité]\n# Données : JOIN t1=plages r1=500 indexed1=false sorted1=false t2=tarifs r2=200 indexed2=false sorted2=false op=other\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Calcul du Cache Hit Ratio des tampons partagés (Shared Buffers)",
+    "goal": "Évaluer l’efficacité du cache mémoire SGBD à partir de blks_hit et blks_read.",
+    "brief": "<p>Dans la vue <code>pg_stat_database_sim(datname TEXT, blks_hit INT, blks_read INT)</code>, calculez le taux de succès du cache en pourcentage arrondi à 2 décimales : <code>ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct</code> pour chaque base, trié par <code>hit_ratio_pct</code> décroissant.</p>",
+    "starter": "-- Calculez datname et hit_ratio_pct\nSELECT datname FROM pg_stat_database_sim;",
     "hints": [
-      "Si op != eq : Hash Join et Merge Join sont impossibles -> forcer NESTED_LOOP.",
-      "Si sorted1 == true et sorted2 == true et op == eq : recommander MERGE_JOIN.",
-      "Si min(r1, r2) <= 100 et l’autre table a un index : recommander NESTED_LOOP.",
-      "Sinon sur égalité op == eq : recommander HASH_JOIN (la plus petite table devient la build table inner)."
+      "Multipliez par 100.0 (flottant) avant de diviser par (blks_hit + blks_read).",
+      "Enveloppez dans ROUND(..., 2) AS hit_ratio_pct."
     ],
     "examples": [
       {
-        "stdin": "JOIN t1=clients r1=50 indexed1=true sorted1=false t2=commandes r2=100000 indexed2=true sorted2=false op=eq",
-        "expected": "JOIN_DECISION algo=NESTED_LOOP outer_table=clients inner_table=commandes complexity=O(N*logM) reason=SMALL_OUTER_WITH_INNER_INDEX",
-        "note": "Petite table clients (50 lignes) bouclant sur l’index de commandes."
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('prod_erp', 9900, 100), ('reporting', 7500, 2500);\n-- exemple",
+        "expected": "+-----------+---------------+\n| datname   | hit_ratio_pct |\n+-----------+---------------+\n| prod_erp  | 99            |\n| reporting | 75            |\n+-----------+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Deux tables pré-triées sur égalité favorisant le Merge Join",
-        "stdin": "cas:1",
-        "expected": "JOIN_DECISION algo=MERGE_JOIN outer_table=ventes_2025 inner_table=articles complexity=O(N+M) reason=BOTH_INPUTS_PRE_SORTED"
+        "label": "Base transactionnelle (99 %) et base reporting (75 %)",
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('prod_erp', 9900, 100), ('reporting', 7500, 2500);",
+        "expected": "+-----------+---------------+\n| datname   | hit_ratio_pct |\n+-----------+---------------+\n| prod_erp  | 99            |\n| reporting | 75            |\n+-----------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Grandes tables non triées sur égalité favorisant le Hash Join",
-        "stdin": "cas:2",
-        "expected": "JOIN_DECISION algo=HASH_JOIN outer_table=logs inner_table=utilisateurs complexity=O(N+M) reason=HASH_TABLE_ON_SMALLER_RELATION"
+        "label": "Trois bases de données",
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('db1', 950, 50), ('db2', 800, 200), ('db3', 999, 1);",
+        "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| db3     | 99.9          |\n| db1     | 95            |\n| db2     | 80            |\n+---------+---------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Jointure avec opérateur d inégalité",
-        "stdin": "cas:3",
-        "expected": "JOIN_DECISION algo=NESTED_LOOP outer_table=tarifs inner_table=plages complexity=O(N*M) reason=NON_EQUALITY_PREDICATE"
+        "label": "Cache froid à 50 %",
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('test_db', 500, 500);",
+        "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| test_db | 50            |\n+---------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nJOIN_DECISION algo=NESTED_LOOP outer_table=clients inner_table=commandes complexity=O(N*logM) reason=SMALL_OUTER_WITH_INNER_INDEX\n\n[Cas 1 — Deux tables pré-triées sur égalité favorisant le Merge Join]\nJOIN_DECISION algo=MERGE_JOIN outer_table=ventes_2025 inner_table=articles complexity=O(N+M) reason=BOTH_INPUTS_PRE_SORTED\n\n[Cas 2 — Grandes tables non triées sur égalité favorisant le Hash Join]\nJOIN_DECISION algo=HASH_JOIN outer_table=logs inner_table=utilisateurs complexity=O(N+M) reason=HASH_TABLE_ON_SMALLER_RELATION\n\n[Cas 3 — Jointure avec opérateur d inégalité]\nJOIN_DECISION algo=NESTED_LOOP outer_table=tarifs inner_table=plages complexity=O(N*M) reason=NON_EQUALITY_PREDICATE"
+    "solution": "-- Corrigé officiel sql3-c3-e2\nSELECT datname, ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct FROM pg_stat_database_sim ORDER BY hit_ratio_pct DESC;"
   },
   {
     "id": "sql3-c3-e3",
     "chapter": 3,
-    "title": "Détecteur d’écart de cardinalité (Estimation vs Actual Rows)",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Détecter les dérives majeures entre lignes estimées et lignes réelles dans un plan EXPLAIN ANALYZE et recommander les actions correctives.",
-    "brief": "L’optimiseur de requêtes se base sur les statistiques stockées dans `pg_statistic` (fréquences des valeurs les plus courantes MCV, histogrammes de distribution) pour choisir les plans d’exécution.\nSi ces statistiques sont obsolètes, un écart colossal apparaît entre le nombre de lignes estimé (`est_rows`) et le nombre réel de lignes parcourues (`act_rows`).\nCritères d’évaluation du ratio $R = \\max(\\text{est}, \\text{act}) / \\min(\\text{est}, \\text{act})$ (avec $\\min \\ge 1$) :\n- Si $R < 2.0$ : `ACCURATE` (statistiques fidèles).\n- Si $2.0 \\le R < 10.0$ : `MODERATE_DRIFT` (écart tolérable, surveillance).\n- Si $R \\ge 10.0$ : `SEVERE_DRIFT` (alerte critique : l’optimiseur a pu choisir un Nested Loop désastreux au lieu d’un Hash Join).\n\nEntrée :\n`STAT_CHECK node=<name> table=<table> est_rows=<E> act_rows=<A>`\n\nSortie :\n`DRIFT_ANALYSIS node=<name> table=<table> est=<E> act=<A> ratio=<R.2f> status=<ACCURATE|MODERATE_DRIFT|SEVERE_DRIFT> action=<NONE|MONITOR|RUN_ANALYZE_TABLE>`",
-    "starter": "# Grille d'analyse (sql3-c3-e3) — Détecteur d’écart de cardinalité (Estimation vs Actual Rows)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Statistiques précises avec ratio inférieur à 2]\n# Données : STAT_CHECK node=idx_scan table=utilisateurs est_rows=1200 act_rows=1250\nA_COMPLETER\n\n[Cas 2 — Dérive modérée entre 2 et 10]\n# Données : STAT_CHECK node=bitmap_scan table=produits est_rows=400 act_rows=1500\nA_COMPLETER\n\n[Cas 3 — Sous-estimation critique (1 ligne estimée contre 1000 réelles)]\n# Données : STAT_CHECK node=nested_loop table=lignes_factures est_rows=1 act_rows=1200\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Réécriture SARGable et index couvrant (Index-Only Scan)",
+    "goal": "Créer un index couvrant et écrire une requête SARGable par intervalle.",
+    "brief": "<p>Sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>.</p>",
+    "starter": "-- Créez l’index couvrant idx_cmd_annee_montant puis calculez SUM(montant) AS total_2025\nSELECT SUM(montant) FROM commandes;",
     "hints": [
-      "Calculer ratio = max(est, act) / max(1, min(est, act)).",
-      "Classifier selon les seuils 2.0 et 10.0.",
-      "Si SEVERE_DRIFT : action=RUN_ANALYZE_TABLE."
+      "Créez d’abord CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);",
+      "Puis exécutez SELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
     ],
     "examples": [
       {
-        "stdin": "STAT_CHECK node=seq_scan table=commandes est_rows=10 act_rows=8500",
-        "expected": "DRIFT_ANALYSIS node=seq_scan table=commandes est=10 act=8500 ratio=850.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE",
-        "note": "Ratio de 850 : statistiques totalement erronées nécessitant un ANALYZE."
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);\n-- exemple",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Statistiques précises avec ratio inférieur à 2",
-        "stdin": "cas:1",
-        "expected": "DRIFT_ANALYSIS node=idx_scan table=utilisateurs est=1200 act=1250 ratio=1.04 status=ACCURATE action=NONE"
+        "label": "Deux commandes en 2025",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Dérive modérée entre 2 et 10",
-        "stdin": "cas:2",
-        "expected": "DRIFT_ANALYSIS node=bitmap_scan table=produits est=400 act=1500 ratio=3.75 status=MODERATE_DRIFT action=MONITOR"
+        "label": "Trois années distinctes",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2023, 1, 5000), (2, 2025, 2, 80000), (3, 2026, 3, 12000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 80000      |\n+------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Sous-estimation critique (1 ligne estimée contre 1000 réelles)",
-        "stdin": "cas:3",
-        "expected": "DRIFT_ANALYSIS node=nested_loop table=lignes_factures est=1 act=1200 ratio=1200.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE"
+        "label": "Trois commandes en 2025",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2025, 1, 1000), (2, 2025, 2, 2000), (3, 2025, 3, 3000);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 6000       |\n+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nDRIFT_ANALYSIS node=seq_scan table=commandes est=10 act=8500 ratio=850.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE\n\n[Cas 1 — Statistiques précises avec ratio inférieur à 2]\nDRIFT_ANALYSIS node=idx_scan table=utilisateurs est=1200 act=1250 ratio=1.04 status=ACCURATE action=NONE\n\n[Cas 2 — Dérive modérée entre 2 et 10]\nDRIFT_ANALYSIS node=bitmap_scan table=produits est=400 act=1500 ratio=3.75 status=MODERATE_DRIFT action=MONITOR\n\n[Cas 3 — Sous-estimation critique (1 ligne estimée contre 1000 réelles)]\nDRIFT_ANALYSIS node=nested_loop table=lignes_factures est=1 act=1200 ratio=1200.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE"
+    "solution": "-- Corrigé officiel sql3-c3-e3\nCREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
   },
   {
     "id": "sql3-c4-e1",
     "chapter": 4,
-    "title": "Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Appliquer et comparer les trois fonctions de classement standardisées SQL sur une série de valeurs avec ex-æquo.",
-    "brief": "Dans la norme SQL analytique, les fonctions de classement ordonnent les lignes au sein d’une fenêtre de partition :\n- `ROW_NUMBER()` : attribue un entier consécutif unique strict ($1, 2, 3, \\dots$) sans aucun doublon.\n- `RANK()` : attribue le même rang aux lignes ex-æquo, puis saute les rangs suivants ($1, 2, 2, 4, 5, \\dots$).\n- `DENSE_RANK()` : attribue le même rang aux lignes ex-æquo, sans sauter de rang ($1, 2, 2, 3, 4, \\dots$).\n\nEntrée :\n`SERIE vals=<v1,v2,...>` (les valeurs sont ordonnées de manière décroissante)\n\nSortie :\n- Pour chaque élément :\n  `RANK_ROW val=<V> row_num=<N> rank=<R> dense_rank=<D>`\n- Bilan : `SUMMARY total_rows=<N> max_rank=<R> max_dense_rank=<D>`",
-    "starter": "# Grille d'analyse (sql3-c4-e1) — Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les valeurs identiques (ex-æquo parfait)]\n# Données : SERIE vals=50,50,50,50\nA_COMPLETER\n\n[Cas 2 — Toutes les valeurs strictement distinctes]\n# Données : SERIE vals=30,25,20,15,10\nA_COMPLETER\n\n[Cas 3 — Multiples groupes d ex-æquo consécutifs]\n# Données : SERIE vals=80,80,60,60,60,40\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Comparaison temporelle ligne à ligne avec LAG() OVER",
+    "goal": "Utiliser la fonction de fenêtrage LAG() pour calculer l’écart avec la période précédente.",
+    "brief": "<p>Dans la table <code>chiffre_affaires(mois INT, ca INT)</code>, affichez <code>mois</code>, <code>ca</code>, le CA du mois précédent (<code>LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent</code>) et la variation (<code>ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation</code>), triés par <code>mois</code> croissant.</p>",
+    "starter": "-- Utilisez LAG(ca, 1, 0) OVER (ORDER BY mois ASC)\nSELECT mois, ca FROM chiffre_affaires;",
     "hints": [
-      "Itérer sur la liste triée avec l’indice courant i (1-based pour row_number).",
-      "Pour RANK : si val == val_precedente, conserver le même rank que le premier ex-æquo ; sinon rank = i.",
-      "Pour DENSE_RANK : n’incrémenter le rang que lorsque la valeur change."
+      "LAG(ca, 1, 0) renvoie la valeur de ca 1 ligne plus haut, ou 0 sur la toute première ligne.",
+      "Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation."
     ],
     "examples": [
       {
-        "stdin": "SERIE vals=100,90,90,80,70",
-        "expected": "RANK_ROW val=100 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=90 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=90 row_num=3 rank=2 dense_rank=2\nRANK_ROW val=80 row_num=4 rank=4 dense_rank=3\nRANK_ROW val=70 row_num=5 rank=5 dense_rank=4\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=4",
-        "note": "Les deux notes à 90 partagent le rang 2. RANK saute à 4, DENSE_RANK continue à 3."
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);\n-- exemple",
+        "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 100000 | 0            | 100000    |\n| 2    | 130000 | 100000       | 30000     |\n| 3    | 115000 | 130000       | -15000    |\n+------+--------+--------------+-----------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Toutes les valeurs identiques (ex-æquo parfait)",
-        "stdin": "cas:1",
-        "expected": "RANK_ROW val=50 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=3 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=4 rank=1 dense_rank=1\nSUMMARY total_rows=4 max_rank=1 max_dense_rank=1"
+        "label": "Trois mois consécutifs",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);",
+        "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 100000 | 0            | 100000    |\n| 2    | 130000 | 100000       | 30000     |\n| 3    | 115000 | 130000       | -15000    |\n+------+--------+--------------+-----------+\n(3 lignes retournées)"
       },
       {
-        "label": "Toutes les valeurs strictement distinctes",
-        "stdin": "cas:2",
-        "expected": "RANK_ROW val=30 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=25 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=20 row_num=3 rank=3 dense_rank=3\nRANK_ROW val=15 row_num=4 rank=4 dense_rank=4\nRANK_ROW val=10 row_num=5 rank=5 dense_rank=5\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=5"
+        "label": "Croissance continue sur quatre mois",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 50), (2, 75), (3, 100), (4, 150);",
+        "expected": "+------+-----+--------------+-----------+\n| mois | ca  | ca_precedent | variation |\n+------+-----+--------------+-----------+\n| 1    | 50  | 0            | 50        |\n| 2    | 75  | 50           | 25        |\n| 3    | 100 | 75           | 25        |\n| 4    | 150 | 100          | 50        |\n+------+-----+--------------+-----------+\n(4 lignes retournées)"
       },
       {
-        "label": "Multiples groupes d ex-æquo consécutifs",
-        "stdin": "cas:3",
-        "expected": "RANK_ROW val=80 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=80 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=60 row_num=3 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=4 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=5 rank=3 dense_rank=2\nRANK_ROW val=40 row_num=6 rank=6 dense_rank=3\nSUMMARY total_rows=6 max_rank=6 max_dense_rank=3"
+        "label": "Deux mois",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 200000), (2, 180000);",
+        "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 200000 | 0            | 200000    |\n| 2    | 180000 | 200000       | -20000    |\n+------+--------+--------------+-----------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nRANK_ROW val=100 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=90 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=90 row_num=3 rank=2 dense_rank=2\nRANK_ROW val=80 row_num=4 rank=4 dense_rank=3\nRANK_ROW val=70 row_num=5 rank=5 dense_rank=4\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=4\n\n[Cas 1 — Toutes les valeurs identiques (ex-æquo parfait)]\nRANK_ROW val=50 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=3 rank=1 dense_rank=1\nRANK_ROW val=50 row_num=4 rank=1 dense_rank=1\nSUMMARY total_rows=4 max_rank=1 max_dense_rank=1\n\n[Cas 2 — Toutes les valeurs strictement distinctes]\nRANK_ROW val=30 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=25 row_num=2 rank=2 dense_rank=2\nRANK_ROW val=20 row_num=3 rank=3 dense_rank=3\nRANK_ROW val=15 row_num=4 rank=4 dense_rank=4\nRANK_ROW val=10 row_num=5 rank=5 dense_rank=5\nSUMMARY total_rows=5 max_rank=5 max_dense_rank=5\n\n[Cas 3 — Multiples groupes d ex-æquo consécutifs]\nRANK_ROW val=80 row_num=1 rank=1 dense_rank=1\nRANK_ROW val=80 row_num=2 rank=1 dense_rank=1\nRANK_ROW val=60 row_num=3 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=4 rank=3 dense_rank=2\nRANK_ROW val=60 row_num=5 rank=3 dense_rank=2\nRANK_ROW val=40 row_num=6 rank=6 dense_rank=3\nSUMMARY total_rows=6 max_rank=6 max_dense_rank=3"
+    "solution": "-- Corrigé officiel sql3-c4-e1\nSELECT mois, ca, LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent, ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation FROM chiffre_affaires ORDER BY mois ASC;"
   },
   {
     "id": "sql3-c4-e2",
     "chapter": 4,
-    "title": "Calculateur de moyennes et sommes glissantes avec clause d’encadrement",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Simuler l’agrégation fenêtrée avec la clause de cadrage ROWS BETWEEN k PRECEDING AND CURRENT ROW.",
-    "brief": "Dans la clause `OVER (ORDER BY date ROWS BETWEEN k PRECEDING AND CURRENT ROW)` :\n- Pour chaque ligne courante, la fenêtre d’agrégation englobe au maximum les $k$ lignes précédentes plus la ligne courante (soit jusqu’à $k+1$ éléments).\n- On calcule la somme cumulée de la fenêtre et la moyenne mobile arithmétique associée arrondie à 2 décimales.\n\nEntrée :\n- Une ligne définissant la taille de l’historique : `CONFIG preceding=<K>`\n- Des lignes de données : `ROW id=<step> val=<float_val>`\n\nSortie :\n- Pour chaque ligne : `WINDOW_AGG id=<step> val=<V.2f> sum=<SUM.2f> avg=<AVG.2f> window_size=<COUNT>`\n- En fin de série : `FINAL_METRIC total_rows=<N> last_avg=<LAST_AVG.2f>`",
-    "starter": "# Grille d'analyse (sql3-c4-e2) — Calculateur de moyennes et sommes glissantes avec clause d’encadrement\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Fenêtre cumulée depuis le début (preceding infini / très grand)]\n# Données : CONFIG preceding=100\n# Données : ROW id=1 val=5\n# Données : ROW id=2 val=15\n# Données : ROW id=3 val=25\nA_COMPLETER\n\n[Cas 2 — Fenêtre de 1 ligne précédente (preceding=1)]\n# Données : CONFIG preceding=1\n# Données : ROW id=1 val=100\n# Données : ROW id=2 val=200\n# Données : ROW id=3 val=50\nA_COMPLETER\n\n[Cas 3 — Fenêtre stricte preceding=0 (uniquement current row)]\n# Données : CONFIG preceding=0\n# Données : ROW id=1 val=12.5\n# Données : ROW id=2 val=25.0\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Top-N par département avec DENSE_RANK() dans une CTE",
+    "goal": "Extraire les 2 meilleurs salaires de chaque département sans trou de classement.",
+    "brief": "<p>Dans la table <code>employes(nom, departement, salaire)</code>, utilisez une CTE calculant <code>DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang</code> pour afficher <code>departement</code>, <code>nom</code>, <code>salaire</code> et <code>rang</code> uniquement pour les employés classés aux rangs <code>1</code> ou <code>2</code> (<code>WHERE rang &lt;= 2</code>), triés par <code>departement</code> croissant, <code>rang</code> croissant et <code>nom</code> croissant.</p>",
+    "starter": "-- Sélectionnez les rangs <= 2 par département avec DENSE_RANK()\nSELECT departement, nom, salaire FROM employes;",
     "hints": [
-      "Une fonction de fenêtrage (OVER (...)) applique un calcul d’agrégation sur une partition sans regrouper les lignes.",
-      "Définissez la fenêtre glissante (ROWS BETWEEN ... PRECEDING AND CURRENT ROW) pour calculer la moyenne mobile."
+      "Une fonction de fenêtrage ne peut pas figurer directement dans WHERE : calculez-la dans une CTE WITH classement AS (...).",
+      "Filtrez ensuite avec WHERE rang <= 2."
     ],
     "examples": [
       {
-        "stdin": "CONFIG preceding=2\nROW id=1 val=10\nROW id=2 val=20\nROW id=3 val=30\nROW id=4 val=40",
-        "expected": "WINDOW_AGG id=1 val=10.00 sum=10.00 avg=10.00 window_size=1\nWINDOW_AGG id=2 val=20.00 sum=30.00 avg=15.00 window_size=2\nWINDOW_AGG id=3 val=30.00 sum=60.00 avg=20.00 window_size=3\nWINDOW_AGG id=4 val=40.00 sum=90.00 avg=30.00 window_size=3\nFINAL_METRIC total_rows=4 last_avg=30.00",
-        "note": "Pour l’id=4 avec preceding=2, la fenêtre contient [20, 30, 40] : somme=90, moyenne=30."
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);\n-- exemple",
+        "expected": "+-------------+-------+---------+------+\n| departement | nom   | salaire | rang |\n+-------------+-------+---------+------+\n| IT          | Amina | 500000  | 1    |\n| IT          | Koffi | 400000  | 2    |\n| RH          | Sena  | 450000  | 1    |\n+-------------+-------+---------+------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Fenêtre cumulée depuis le début (preceding infini / très grand)",
-        "stdin": "cas:1",
-        "expected": "WINDOW_AGG id=1 val=5.00 sum=5.00 avg=5.00 window_size=1\nWINDOW_AGG id=2 val=15.00 sum=20.00 avg=10.00 window_size=2\nWINDOW_AGG id=3 val=25.00 sum=45.00 avg=15.00 window_size=3\nFINAL_METRIC total_rows=3 last_avg=15.00"
+        "label": "Trois employés en IT et un en RH",
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);",
+        "expected": "+-------------+-------+---------+------+\n| departement | nom   | salaire | rang |\n+-------------+-------+---------+------+\n| IT          | Amina | 500000  | 1    |\n| IT          | Koffi | 400000  | 2    |\n| RH          | Sena  | 450000  | 1    |\n+-------------+-------+---------+------+\n(3 lignes retournées)"
       },
       {
-        "label": "Fenêtre de 1 ligne précédente (preceding=1)",
-        "stdin": "cas:2",
-        "expected": "WINDOW_AGG id=1 val=100.00 sum=100.00 avg=100.00 window_size=1\nWINDOW_AGG id=2 val=200.00 sum=300.00 avg=150.00 window_size=2\nWINDOW_AGG id=3 val=50.00 sum=250.00 avg=125.00 window_size=2\nFINAL_METRIC total_rows=3 last_avg=125.00"
+        "label": "Ex-aequo au rang 1",
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Afi', 'Secu', 600000), ('Binta', 'Secu', 600000), ('Kodjo', 'Secu', 450000), ('Marc', 'Secu', 300000);",
+        "expected": "+-------------+-------+---------+------+\n| departement | nom   | salaire | rang |\n+-------------+-------+---------+------+\n| Secu        | Afi   | 600000  | 1    |\n| Secu        | Binta | 600000  | 1    |\n| Secu        | Kodjo | 450000  | 2    |\n+-------------+-------+---------+------+\n(3 lignes retournées)"
       },
       {
-        "label": "Fenêtre stricte preceding=0 (uniquement current row)",
-        "stdin": "cas:3",
-        "expected": "WINDOW_AGG id=1 val=12.50 sum=12.50 avg=12.50 window_size=1\nWINDOW_AGG id=2 val=25.00 sum=25.00 avg=25.00 window_size=1\nFINAL_METRIC total_rows=2 last_avg=25.00"
+        "label": "Deux départements",
+        "stdin": "CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('E1', 'A', 100), ('E2', 'A', 90), ('E3', 'A', 80), ('E4', 'B', 200);",
+        "expected": "+-------------+-----+---------+------+\n| departement | nom | salaire | rang |\n+-------------+-----+---------+------+\n| A           | E1  | 100     | 1    |\n| A           | E2  | 90      | 2    |\n| B           | E4  | 200     | 1    |\n+-------------+-----+---------+------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nWINDOW_AGG id=1 val=10.00 sum=10.00 avg=10.00 window_size=1\nWINDOW_AGG id=2 val=20.00 sum=30.00 avg=15.00 window_size=2\nWINDOW_AGG id=3 val=30.00 sum=60.00 avg=20.00 window_size=3\nWINDOW_AGG id=4 val=40.00 sum=90.00 avg=30.00 window_size=3\nFINAL_METRIC total_rows=4 last_avg=30.00\n\n[Cas 1 — Fenêtre cumulée depuis le début (preceding infini / très grand)]\nWINDOW_AGG id=1 val=5.00 sum=5.00 avg=5.00 window_size=1\nWINDOW_AGG id=2 val=15.00 sum=20.00 avg=10.00 window_size=2\nWINDOW_AGG id=3 val=25.00 sum=45.00 avg=15.00 window_size=3\nFINAL_METRIC total_rows=3 last_avg=15.00\n\n[Cas 2 — Fenêtre de 1 ligne précédente (preceding=1)]\nWINDOW_AGG id=1 val=100.00 sum=100.00 avg=100.00 window_size=1\nWINDOW_AGG id=2 val=200.00 sum=300.00 avg=150.00 window_size=2\nWINDOW_AGG id=3 val=50.00 sum=250.00 avg=125.00 window_size=2\nFINAL_METRIC total_rows=3 last_avg=125.00\n\n[Cas 3 — Fenêtre stricte preceding=0 (uniquement current row)]\nWINDOW_AGG id=1 val=12.50 sum=12.50 avg=12.50 window_size=1\nWINDOW_AGG id=2 val=25.00 sum=25.00 avg=25.00 window_size=1\nFINAL_METRIC total_rows=2 last_avg=25.00"
+    "solution": "-- Corrigé officiel sql3-c4-e2\nWITH classement AS (\n  SELECT departement, nom, salaire, DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang\n  FROM employes\n)\nSELECT departement, nom, salaire, rang FROM classement WHERE rang <= 2 ORDER BY departement ASC, rang ASC, nom ASC;"
   },
   {
     "id": "sql3-c4-e3",
     "chapter": 4,
-    "title": "Moteur de résolution de hiérarchie arborescente par CTE récursive",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Calculer la profondeur, le chemin absolu et le nombre total de subordonnés dans une structure hiérarchique via une CTE récursive simulée.",
-    "brief": "Dans SQL standard, la syntaxe `WITH RECURSIVE` permet de parcourir des graphes et arbres hiérarchiques (ex: organigramme d’entreprise, nomenclature de pièces BOM) :\n- Nœud racine (Ancre récursive) : employé dont `manager_id=0` (niveau 1, chemin `/<nom>`).\n- Membre récursif : chaque subordonné direct d’un employé résolu hérite d’un `level = level_manager + 1` et d’un `path = path_manager / <nom>`.\n- Le moteur calcule également pour chaque nœud le nombre total de subordonnés (descendants directs et indirects).\n\nEntrée :\n`EMP id=<int> name=<nom> manager=<int>` (manager=0 pour le sommet de l’arbre)\n\nSortie :\n- Liste des employés triés par niveau puis par identifiant :\n  `HIERARCHY id=<id> name=<name> level=<L> path=<PATH> subordinates=<COUNT>`\n- Bilan de l’arbre : `TREE_REPORT max_depth=<D> total_nodes=<N>`",
-    "starter": "# Grille d'analyse (sql3-c4-e3) — Moteur de résolution de hiérarchie arborescente par CTE récursive\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Organigramme avec plusieurs branches parallèles sous la racine]\n# Données : EMP id=1 name=CEO manager=0\n# Données : EMP id=2 name=VP_Sales manager=1\n# Données : EMP id=3 name=VP_Tech manager=1\n# Données : EMP id=4 name=Dev1 manager=3\n# Données : EMP id=5 name=Dev2 manager=3\nA_COMPLETER\n\n[Cas 2 — Nœud unique racine sans subordonné]\n# Données : EMP id=1 name=SoloConsultant manager=0\nA_COMPLETER\n\n[Cas 3 — Arbre de pièces industrielles (BOM)]\n# Données : EMP id=10 name=Voiture manager=0\n# Données : EMP id=20 name=Moteur manager=10\n# Données : EMP id=30 name=Piston manager=20\n# Données : EMP id=40 name=Chassis manager=10\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Parcours d’arbre hiérarchique avec WITH RECURSIVE",
+    "goal": "Écrire une CTE récursive pour calculer la profondeur hiérarchique d’un organigramme.",
+    "brief": "<p>La table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente la hiérarchie d’une entreprise (la racine a <code>manager_id IS NULL</code>). Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour la racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant.</p>",
+    "starter": "-- Écrivez une CTE WITH RECURSIVE hierarchie(id, nom, niveau)\nSELECT id, nom FROM organigramme;",
     "hints": [
-      "Construire un dictionnaire des employés et un graphe direct manager -> [enfants].",
-      "Identifier la racine (manager=0) pour initialiser la récursion (BFS ou DFS).",
-      "Pour le compte des subordonnés, une fonction récursive d’exploration du sous-arbre permet de sommer tous les descendants."
+      "Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.",
+      "Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1."
     ],
     "examples": [
       {
-        "stdin": "EMP id=1 name=CEO manager=0\nEMP id=2 name=CTO manager=1\nEMP id=3 name=DevLead manager=2\nEMP id=4 name=Dev1 manager=3",
-        "expected": "HIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=3\nHIERARCHY id=2 name=CTO level=2 path=/CEO/CTO subordinates=2\nHIERARCHY id=3 name=DevLead level=3 path=/CEO/CTO/DevLead subordinates=1\nHIERARCHY id=4 name=Dev1 level=4 path=/CEO/CTO/DevLead/Dev1 subordinates=0\nTREE_REPORT max_depth=4 total_nodes=4",
-        "note": "Arbre à 4 niveaux : le CEO a 3 subordonnés au total."
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);\n-- exemple",
+        "expected": "+----+--------------+--------+\n| id | nom          | niveau |\n+----+--------------+--------+\n| 1  | DG           | 1      |\n| 2  | DSI          | 2      |\n| 3  | Admin Réseau | 3      |\n+----+--------------+--------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Organigramme avec plusieurs branches parallèles sous la racine",
-        "stdin": "cas:1",
-        "expected": "HIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=4\nHIERARCHY id=2 name=VP_Sales level=2 path=/CEO/VP_Sales subordinates=0\nHIERARCHY id=3 name=VP_Tech level=2 path=/CEO/VP_Tech subordinates=2\nHIERARCHY id=4 name=Dev1 level=3 path=/CEO/VP_Tech/Dev1 subordinates=0\nHIERARCHY id=5 name=Dev2 level=3 path=/CEO/VP_Tech/Dev2 subordinates=0\nTREE_REPORT max_depth=3 total_nodes=5"
+        "label": "Hiérarchie à 3 niveaux",
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);",
+        "expected": "+----+--------------+--------+\n| id | nom          | niveau |\n+----+--------------+--------+\n| 1  | DG           | 1      |\n| 2  | DSI          | 2      |\n| 3  | Admin Réseau | 3      |\n+----+--------------+--------+\n(3 lignes retournées)"
       },
       {
-        "label": "Nœud unique racine sans subordonné",
-        "stdin": "cas:2",
-        "expected": "HIERARCHY id=1 name=SoloConsultant level=1 path=/SoloConsultant subordinates=0\nTREE_REPORT max_depth=1 total_nodes=1"
+        "label": "Arbre large à 2 branches",
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'PDG', NULL), (2, 'Dir Tech', 1), (3, 'Dir Fin', 1), (4, 'Dev Lead', 2), (5, 'Comptable', 3);",
+        "expected": "+----+-----------+--------+\n| id | nom       | niveau |\n+----+-----------+--------+\n| 1  | PDG       | 1      |\n| 2  | Dir Tech  | 2      |\n| 3  | Dir Fin   | 2      |\n| 4  | Dev Lead  | 3      |\n| 5  | Comptable | 3      |\n+----+-----------+--------+\n(5 lignes retournées)"
       },
       {
-        "label": "Arbre de pièces industrielles (BOM)",
-        "stdin": "cas:3",
-        "expected": "HIERARCHY id=10 name=Voiture level=1 path=/Voiture subordinates=3\nHIERARCHY id=20 name=Moteur level=2 path=/Voiture/Moteur subordinates=1\nHIERARCHY id=40 name=Chassis level=2 path=/Voiture/Chassis subordinates=0\nHIERARCHY id=30 name=Piston level=3 path=/Voiture/Moteur/Piston subordinates=0\nTREE_REPORT max_depth=3 total_nodes=4"
+        "label": "Racine et deux directeurs",
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (10, 'Recteur', NULL), (20, 'Doyen B1', 10), (30, 'Doyen B3', 10);",
+        "expected": "+----+----------+--------+\n| id | nom      | niveau |\n+----+----------+--------+\n| 10 | Recteur  | 1      |\n| 20 | Doyen B1 | 2      |\n| 30 | Doyen B3 | 2      |\n+----+----------+--------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nHIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=3\nHIERARCHY id=2 name=CTO level=2 path=/CEO/CTO subordinates=2\nHIERARCHY id=3 name=DevLead level=3 path=/CEO/CTO/DevLead subordinates=1\nHIERARCHY id=4 name=Dev1 level=4 path=/CEO/CTO/DevLead/Dev1 subordinates=0\nTREE_REPORT max_depth=4 total_nodes=4\n\n[Cas 1 — Organigramme avec plusieurs branches parallèles sous la racine]\nHIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=4\nHIERARCHY id=2 name=VP_Sales level=2 path=/CEO/VP_Sales subordinates=0\nHIERARCHY id=3 name=VP_Tech level=2 path=/CEO/VP_Tech subordinates=2\nHIERARCHY id=4 name=Dev1 level=3 path=/CEO/VP_Tech/Dev1 subordinates=0\nHIERARCHY id=5 name=Dev2 level=3 path=/CEO/VP_Tech/Dev2 subordinates=0\nTREE_REPORT max_depth=3 total_nodes=5\n\n[Cas 2 — Nœud unique racine sans subordonné]\nHIERARCHY id=1 name=SoloConsultant level=1 path=/SoloConsultant subordinates=0\nTREE_REPORT max_depth=1 total_nodes=1\n\n[Cas 3 — Arbre de pièces industrielles (BOM)]\nHIERARCHY id=10 name=Voiture level=1 path=/Voiture subordinates=3\nHIERARCHY id=20 name=Moteur level=2 path=/Voiture/Moteur subordinates=1\nHIERARCHY id=40 name=Chassis level=2 path=/Voiture/Chassis subordinates=0\nHIERARCHY id=30 name=Piston level=3 path=/Voiture/Moteur/Piston subordinates=0\nTREE_REPORT max_depth=3 total_nodes=4"
+    "solution": "-- Corrigé officiel sql3-c4-e3\nWITH RECURSIVE hierarchie(id, nom, niveau) AS (\n  SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.id, o.nom, h.niveau + 1 FROM organigramme o INNER JOIN hierarchie h ON o.manager_id = h.id\n)\nSELECT id, nom, niveau FROM hierarchie ORDER BY niveau ASC, id ASC;"
   },
   {
     "id": "sql3-c5-e1",
     "chapter": 5,
-    "title": "Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Simuler le comportement d’un trigger AFTER INSERT/UPDATE/DELETE alimentant une table de journalisation d’audit.",
-    "brief": "Dans les systèmes financiers et médicaux, les réglementations (RGPD, PCI-DSS, HDS) imposent une traçabilité immuable de chaque modification.\nUn déclencheur d’audit compare les variables d’état `OLD` et `NEW` :\n- Pour `INSERT` : enregistre `diff=INSERTED`.\n- Pour `DELETE` : enregistre `diff=DELETED`.\n- Pour `UPDATE` : compare les champs clés pour lister précisément les valeurs modifiées sous la forme `champ:old_val->new_val`.\n\nEntrée :\n`OP action=<INSERT|UPDATE|DELETE> table=<name> id=<row_id> user=<username> [old=<k:v,k:v>] [new=<k:v,k:v>]`\n\nSortie :\n- Pour chaque opération :\n  `AUDIT_ENTRY action=<ACT> table=<TBL> row_id=<ID> diff=<DIFF> user=<USR>`\n- Bilan : `AUDIT_SUMMARY total_events=<N> inserts=<N> updates=<N> deletes=<N>`",
-    "starter": "# Grille d'analyse (sql3-c5-e1) — Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Mise à jour de multiples champs simultanément]\n# Données : OP action=UPDATE table=produits id=42 user=gest_stock old=nom:Velo,prix:200,stock:10 new=nom:Velo,prix:250,stock:8\nA_COMPLETER\n\n[Cas 2 — Série de plusieurs insertions successives]\n# Données : OP action=INSERT table=logs id=1 user=cron new=lvl:info\n# Données : OP action=INSERT table=logs id=2 user=cron new=lvl:warn\nA_COMPLETER\n\n[Cas 3 — Mise à jour sans changement réel (valeurs identiques)]\n# Données : OP action=UPDATE table=clients id=100 user=app old=statut:actif new=statut:actif\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Déclencheur de protection contre les soldes négatifs (AFTER UPDATE + WHEN)",
+    "goal": "Déclencher une alerte automatique sur condition métier dans un trigger SQL.",
+    "brief": "<p>Soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>.</p>",
+    "starter": "-- Créez le trigger conditionnel trg_alerte_decouvert avec WHEN NEW.solde < 0\nSELECT * FROM comptes;",
     "hints": [
-      "Parser les champs old et new en dictionnaires pour l’action UPDATE.",
-      "Identifier les clés pour lesquelles old[k] != new[k] et formater champ:old->new.",
-      "Comptabiliser le nombre d’événements de chaque type."
+      "Utilisez la clause WHEN NEW.solde < 0 avant BEGIN dans la définition du trigger.",
+      "Insérez (NEW.id, NEW.solde) dans alertes_fraude."
     ],
     "examples": [
       {
-        "stdin": "OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user\nOP action=UPDATE table=users id=10 user=sec_admin old=email:a@b.com,role:user new=email:a@b.com,role:admin\nOP action=DELETE table=users id=10 user=admin old=email:a@b.com,role:admin",
-        "expected": "AUDIT_ENTRY action=INSERT table=users row_id=10 diff=INSERTED user=admin\nAUDIT_ENTRY action=UPDATE table=users row_id=10 diff=role:user->admin user=sec_admin\nAUDIT_ENTRY action=DELETE table=users row_id=10 diff=DELETED user=admin\nAUDIT_SUMMARY total_events=3 inserts=1 updates=1 deletes=1",
-        "note": "Le trigger trace la création, le changement de rôle et la suppression."
+        "stdin": "CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);\n-- VERIFY:\nUPDATE comptes SET solde = -2000 WHERE id = 1; UPDATE comptes SET solde = 4000 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+---------------+\n| compte_id | montant_tente |\n+-----------+---------------+\n| 1         | -2000         |\n+-----------+---------------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Mise à jour de multiples champs simultanément",
-        "stdin": "cas:1",
-        "expected": "AUDIT_ENTRY action=UPDATE table=produits row_id=42 diff=prix:200->250,stock:10->8 user=gest_stock\nAUDIT_SUMMARY total_events=1 inserts=0 updates=1 deletes=0"
+        "label": "Un passage à découvert détecté",
+        "stdin": "CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);\n-- VERIFY:\nUPDATE comptes SET solde = -2000 WHERE id = 1; UPDATE comptes SET solde = 4000 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+---------------+\n| compte_id | montant_tente |\n+-----------+---------------+\n| 1         | -2000         |\n+-----------+---------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Série de plusieurs insertions successives",
-        "stdin": "cas:2",
-        "expected": "AUDIT_ENTRY action=INSERT table=logs row_id=1 diff=INSERTED user=cron\nAUDIT_ENTRY action=INSERT table=logs row_id=2 diff=INSERTED user=cron\nAUDIT_SUMMARY total_events=2 inserts=2 updates=0 deletes=0"
+        "label": "Deux découverts détectés",
+        "stdin": "CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (10, 1000), (20, 500);\n-- VERIFY:\nUPDATE comptes SET solde = solde - 1500; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (2 lignes modifiées).\n\n+-----------+---------------+\n| compte_id | montant_tente |\n+-----------+---------------+\n| 10        | -500          |\n| 20        | -1000         |\n+-----------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Mise à jour sans changement réel (valeurs identiques)",
-        "stdin": "cas:3",
-        "expected": "AUDIT_ENTRY action=UPDATE table=clients row_id=100 diff=NO_CHANGE user=app\nAUDIT_SUMMARY total_events=1 inserts=0 updates=1 deletes=0"
+        "label": "Solde nul non considéré comme découvert",
+        "stdin": "CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 1000), (2, 1000);\n-- VERIFY:\nUPDATE comptes SET solde = 0 WHERE id = 1; UPDATE comptes SET solde = -1 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+---------------+\n| compte_id | montant_tente |\n+-----------+---------------+\n| 2         | -1            |\n+-----------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nAUDIT_ENTRY action=INSERT table=users row_id=10 diff=INSERTED user=admin\nAUDIT_ENTRY action=UPDATE table=users row_id=10 diff=role:user->admin user=sec_admin\nAUDIT_ENTRY action=DELETE table=users row_id=10 diff=DELETED user=admin\nAUDIT_SUMMARY total_events=3 inserts=1 updates=1 deletes=1\n\n[Cas 1 — Mise à jour de multiples champs simultanément]\nAUDIT_ENTRY action=UPDATE table=produits row_id=42 diff=prix:200->250,stock:10->8 user=gest_stock\nAUDIT_SUMMARY total_events=1 inserts=0 updates=1 deletes=0\n\n[Cas 2 — Série de plusieurs insertions successives]\nAUDIT_ENTRY action=INSERT table=logs row_id=1 diff=INSERTED user=cron\nAUDIT_ENTRY action=INSERT table=logs row_id=2 diff=INSERTED user=cron\nAUDIT_SUMMARY total_events=2 inserts=2 updates=0 deletes=0\n\n[Cas 3 — Mise à jour sans changement réel (valeurs identiques)]\nAUDIT_ENTRY action=UPDATE table=clients row_id=100 diff=NO_CHANGE user=app\nAUDIT_SUMMARY total_events=1 inserts=0 updates=1 deletes=0"
+    "solution": "-- Corrigé officiel sql3-c5-e1\nCREATE TRIGGER trg_alerte_decouvert\nAFTER UPDATE ON comptes\nFOR EACH ROW\nWHEN NEW.solde < 0\nBEGIN\n  INSERT INTO alertes_fraude VALUES (NEW.id, NEW.solde);\nEND;"
   },
   {
     "id": "sql3-c5-e2",
     "chapter": 5,
-    "title": "Moteur d’évaluation de politiques de sécurité au niveau ligne (Row-Level Security RLS)",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Simuler le filtrage transparent des lignes en fonction du tenant et du rôle utilisateur via PostgreSQL Row-Level Security (RLS).",
-    "brief": "Dans une architecture SaaS multi-locataire (multi-tenant) mutualisée, la sécurité au niveau des lignes (RLS) garantit qu’une session ne peut jamais lire ni modifier les données d’une autre organisation :\n- Chaque session déclare son identité : `SESSION tenant=<tenant_id> role=<admin|member>`.\n- Des documents sont enregistrés : `DOC id=<id> tenant=<tenant_id> title=<title>`.\n- Une politique RLS applique les règles suivantes lors d’une action (`SELECT`, `UPDATE`, `DELETE`) :\n  1. Si `doc.tenant == session.tenant` : l’accès est `ALLOWED`.\n  2. Si `doc.tenant != session.tenant` : l’accès est `DENIED` pour violation de frontière inter-tenant (isolation étanche).\n  3. Pour `DELETE` : nécessite en plus le rôle `admin` dans le tenant ; si le rôle est `member`, l’accès est `DENIED_INSUFFICIENT_ROLE`.\n\nEntrée :\n- `SESSION tenant=<T> role=<R>`\n- `DOC id=<id> tenant=<T> title=<title>`\n- `ACCESS action=<SELECT|UPDATE|DELETE> doc_id=<id>`\n\nSortie :\n- Pour chaque tentative : `RLS_CHECK action=<ACT> doc_id=<ID> status=<ALLOWED|DENIED> reason=<REASON>`\n- Bilan : `RLS_REPORT total_checks=<N> allowed=<N> denied=<N>`",
-    "starter": "# Grille d'analyse (sql3-c5-e2) — Moteur d’évaluation de politiques de sécurité au niveau ligne (Row-Level Security RLS)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Administrateur de tenant effectuant une suppression légitime]\n# Données : SESSION tenant=corp_X role=admin\n# Données : DOC id=10 tenant=corp_X title=Rapport\n# Données : ACCESS action=DELETE doc_id=10\nA_COMPLETER\n\n[Cas 2 — Accès à un document inexistant]\n# Données : SESSION tenant=org_A role=member\n# Données : ACCESS action=SELECT doc_id=999\nA_COMPLETER\n\n[Cas 3 — Mises à jour autorisées et bloquées]\n# Données : SESSION tenant=alpha role=member\n# Données : DOC id=101 tenant=alpha title=Contrat\n# Données : DOC id=102 tenant=beta title=Contrat\n# Données : ACCESS action=UPDATE doc_id=101\n# Données : ACCESS action=UPDATE doc_id=102\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Isolation multi-locataires (Row-Level Security / Politique RLS)",
+    "goal": "Simuler une politique d’isolation Row-Level Security filtrant selon le contexte de session.",
+    "brief": "<p>Dans une architecture SaaS multi-tenant, la table <code>contexte_session(tenant_actif TEXT, role_actif TEXT)</code> contient 1 ligne décrivant l’utilisateur connecté, et la table <code>dossiers_patients(id INT, tenant_id TEXT, patient TEXT)</code> contient les données. Créez une vue sécurisée <code>v_dossiers_rls</code> qui renvoie <code>id</code>, <code>tenant_id</code> et <code>patient</code> uniquement lorsque <code>tenant_id = (SELECT tenant_actif FROM contexte_session)</code> OU lorsque <code>(SELECT role_actif FROM contexte_session) = 'SUPERADMIN'</code>.</p>",
+    "starter": "-- Créez la vue v_dossiers_rls appliquant la politique RLS\nCREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE 1 = 0;",
     "hints": [
-      "Stocker les documents dans un dictionnaire documents[doc_id] = {tenant, title}.",
-      "Comparer doc[tenant] avec session_tenant pour valider l’isolation multi-tenant.",
-      "Vérifier le rôle pour les opérations destructrices comme DELETE."
+      "Créez CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE ...",
+      "Combinez les deux conditions avec OR."
     ],
     "examples": [
       {
-        "stdin": "SESSION tenant=org_A role=member\nDOC id=1 tenant=org_A title=Bilan_A\nDOC id=2 tenant=org_B title=Bilan_B\nACCESS action=SELECT doc_id=1\nACCESS action=SELECT doc_id=2\nACCESS action=DELETE doc_id=1",
-        "expected": "RLS_CHECK action=SELECT doc_id=1 status=ALLOWED reason=TENANT_MATCH\nRLS_CHECK action=SELECT doc_id=2 status=DENIED reason=CROSS_TENANT_VIOLATION\nRLS_CHECK action=DELETE doc_id=1 status=DENIED reason=INSUFFICIENT_ROLE\nRLS_REPORT total_checks=3 allowed=1 denied=2",
-        "note": "Accès autorisé sur doc 1 pour SELECT, refusé sur doc 2 (cross-tenant), et refusé pour DELETE sans rôle admin."
+        "stdin": "CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');\n-- VERIFY:\nSELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+------------+---------+\n| id | tenant_id  | patient |\n+----+------------+---------+\n| 1  | clinique_a | Koffi   |\n+----+------------+---------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Administrateur de tenant effectuant une suppression légitime",
-        "stdin": "cas:1",
-        "expected": "RLS_CHECK action=DELETE doc_id=10 status=ALLOWED reason=TENANT_MATCH_AND_ADMIN\nRLS_REPORT total_checks=1 allowed=1 denied=0"
+        "label": "Médecin de la clinique_a isolé sur son tenant",
+        "stdin": "CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');\n-- VERIFY:\nSELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+------------+---------+\n| id | tenant_id  | patient |\n+----+------------+---------+\n| 1  | clinique_a | Koffi   |\n+----+------------+---------+\n(1 ligne retournée)"
       },
       {
-        "label": "Accès à un document inexistant",
-        "stdin": "cas:2",
-        "expected": "RLS_CHECK action=SELECT doc_id=999 status=DENIED reason=DOCUMENT_NOT_FOUND\nRLS_REPORT total_checks=1 allowed=0 denied=1"
+        "label": "Superadmin accédant à tous les tenants",
+        "stdin": "CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('aucun', 'SUPERADMIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');\n-- VERIFY:\nSELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+------------+---------+\n| id | tenant_id  | patient |\n+----+------------+---------+\n| 1  | clinique_a | Koffi   |\n| 2  | clinique_b | Amina   |\n+----+------------+---------+\n(2 lignes retournées)"
       },
       {
-        "label": "Mises à jour autorisées et bloquées",
-        "stdin": "cas:3",
-        "expected": "RLS_CHECK action=UPDATE doc_id=101 status=ALLOWED reason=TENANT_MATCH\nRLS_CHECK action=UPDATE doc_id=102 status=DENIED reason=CROSS_TENANT_VIOLATION\nRLS_REPORT total_checks=2 allowed=1 denied=1"
+        "label": "Clinique B avec deux dossiers",
+        "stdin": "CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_b', 'INFIRMIER'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Yao'), (2, 'clinique_b', 'Sena'), (3, 'clinique_b', 'Afi');\n-- VERIFY:\nSELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+------------+---------+\n| id | tenant_id  | patient |\n+----+------------+---------+\n| 2  | clinique_b | Sena    |\n| 3  | clinique_b | Afi     |\n+----+------------+---------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nRLS_CHECK action=SELECT doc_id=1 status=ALLOWED reason=TENANT_MATCH\nRLS_CHECK action=SELECT doc_id=2 status=DENIED reason=CROSS_TENANT_VIOLATION\nRLS_CHECK action=DELETE doc_id=1 status=DENIED reason=INSUFFICIENT_ROLE\nRLS_REPORT total_checks=3 allowed=1 denied=2\n\n[Cas 1 — Administrateur de tenant effectuant une suppression légitime]\nRLS_CHECK action=DELETE doc_id=10 status=ALLOWED reason=TENANT_MATCH_AND_ADMIN\nRLS_REPORT total_checks=1 allowed=1 denied=0\n\n[Cas 2 — Accès à un document inexistant]\nRLS_CHECK action=SELECT doc_id=999 status=DENIED reason=DOCUMENT_NOT_FOUND\nRLS_REPORT total_checks=1 allowed=0 denied=1\n\n[Cas 3 — Mises à jour autorisées et bloquées]\nRLS_CHECK action=UPDATE doc_id=101 status=ALLOWED reason=TENANT_MATCH\nRLS_CHECK action=UPDATE doc_id=102 status=DENIED reason=CROSS_TENANT_VIOLATION\nRLS_REPORT total_checks=2 allowed=1 denied=1"
+    "solution": "-- Corrigé officiel sql3-c5-e2\nCREATE VIEW v_dossiers_rls AS\nSELECT id, tenant_id, patient FROM dossiers_patients\nWHERE tenant_id = (SELECT tenant_actif FROM contexte_session)\n   OR (SELECT role_actif FROM contexte_session) = 'SUPERADMIN';"
   },
   {
     "id": "sql3-c5-e3",
     "chapter": 5,
-    "title": "Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Analyser des paramètres de requêtes SQL dynamiques et neutraliser les vecteurs d’injection SQL classiques.",
-    "brief": "Dans le code procédural PL/pgSQL, la concaténation directe de variables utilisateur dans des instructions `EXECUTE` engendre des failles critiques d’injection SQL (SQLi).\nLes signatures d’attaque typiques incluent :\n- Tautologies logiques contournant les filtres : `OR 1=1`, `OR '1'='1'`, `OR true`.\n- Concaténations de requêtes multiples (Piggybacked queries) : `; DROP TABLE`, `; TRUNCATE`, `; DELETE`.\n- Injections par union : `UNION SELECT`, `UNION ALL SELECT`.\n- Troncature de commentaires : `--`, `/*`.\n\nEntrée :\n`CHECK_SQL id=<num> input=\"<chaine_brute>\"`\n\nSortie :\n- Si une signature est détectée : `SQLI_ALERT id=<id> status=VULNERABLE threat=<TAUTOLOGY|PIGGYBACKED_DROP|UNION_INJECTION|COMMENT_BYPASS> action=BLOCK`\n- Si la chaîne est saine : `SQLI_ALERT id=<id> status=SECURE safe_value=<quote_literal_value> action=ALLOW`\n- Bilan : `SECURITY_AUDIT checked=<N> blocked=<N> allowed=<N>`",
-    "starter": "# Grille d'analyse (sql3-c5-e3) — Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Attaque par union pour extraction de schéma]\n# Données : CHECK_SQL id=10 input=\"1 UNION SELECT username, password FROM users\"\nA_COMPLETER\n\n[Cas 2 — Troncature par commentaire SQL double tiret]\n# Données : CHECK_SQL id=20 input=\"admin' -- bypass password check\"\nA_COMPLETER\n\n[Cas 3 — Entrée saine avec espaces et chiffres]\n# Données : CHECK_SQL id=30 input=\"Jean-Luc Dupont 2025\"\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Maintien automatique d’une table de matérialisation par Trigger",
+    "goal": "Maintenir un compteur dénormalisé en temps réel à chaque insertion.",
+    "brief": "<p>Soient <code>commandes(id INT, client_id INT, montant INT)</code> et la table de synthèse <code>stats_clients(client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT)</code>. Créez un trigger <code>trg_maj_stats</code> qui, <code>AFTER INSERT ON commandes</code>, met à jour <code>stats_clients</code> (<code>SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant WHERE client_id = NEW.client_id</code>).</p>",
+    "starter": "-- Créez le trigger trg_maj_stats AFTER INSERT ON commandes\nSELECT * FROM stats_clients;",
     "hints": [
-      "Rechercher les mots-clés dangereux en ignorant la casse (upper/lower).",
-      "Identifier \"or 1=1\" ou \"or '1'='1'\" comme TAUTOLOGY.",
-      "Identifier \"; drop\" ou \"; truncate\" comme PIGGYBACKED_DROP.",
-      "Identifier \"union select\" comme UNION_INJECTION.",
-      "Identifier \"--\" ou \"/*\" comme COMMENT_BYPASS."
+      "Utilisez CREATE TRIGGER trg_maj_stats AFTER INSERT ON commandes FOR EACH ROW BEGIN ... END;",
+      "Mettez à jour stats_clients avec NEW.montant et NEW.client_id."
     ],
     "examples": [
       {
-        "stdin": "CHECK_SQL id=1 input=\"alice\"\nCHECK_SQL id=2 input=\"admin' OR '1'='1\"\nCHECK_SQL id=3 input=\"test'; DROP TABLE clients; --\"",
-        "expected": "SQLI_ALERT id=1 status=SECURE safe_value='alice' action=ALLOW\nSQLI_ALERT id=2 status=VULNERABLE threat=TAUTOLOGY action=BLOCK\nSQLI_ALERT id=3 status=VULNERABLE threat=PIGGYBACKED_DROP action=BLOCK\nSECURITY_AUDIT checked=3 blocked=2 allowed=1",
-        "note": "La saisie légitime est autorisée après échappement ; les deux attaques sont bloquées."
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);\n-- VERIFY:\nINSERT INTO commandes VALUES (100, 1, 25000), (101, 2, 15000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;\n-- exemple",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (2 lignes modifiées).\n\n+-----------+--------+---------------+\n| client_id | nb_cmd | cumul_montant |\n+-----------+--------+---------------+\n| 1         | 1      | 25000         |\n| 2         | 2      | 25000         |\n+-----------+--------+---------------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Attaque par union pour extraction de schéma",
-        "stdin": "cas:1",
-        "expected": "SQLI_ALERT id=10 status=VULNERABLE threat=UNION_INJECTION action=BLOCK\nSECURITY_AUDIT checked=1 blocked=1 allowed=0"
+        "label": "Insertion d’une commande par client",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);\n-- VERIFY:\nINSERT INTO commandes VALUES (100, 1, 25000), (101, 2, 15000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (2 lignes modifiées).\n\n+-----------+--------+---------------+\n| client_id | nb_cmd | cumul_montant |\n+-----------+--------+---------------+\n| 1         | 1      | 25000         |\n| 2         | 2      | 25000         |\n+-----------+--------+---------------+\n(2 lignes retournées)"
       },
       {
-        "label": "Troncature par commentaire SQL double tiret",
-        "stdin": "cas:2",
-        "expected": "SQLI_ALERT id=20 status=VULNERABLE threat=COMMENT_BYPASS action=BLOCK\nSECURITY_AUDIT checked=1 blocked=1 allowed=0"
+        "label": "Trois commandes pour le même client",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (10, 0, 0);\n-- VERIFY:\nINSERT INTO commandes VALUES (1, 10, 5000), (2, 10, 7000), (3, 10, 8000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (3 lignes modifiées).\n\n+-----------+--------+---------------+\n| client_id | nb_cmd | cumul_montant |\n+-----------+--------+---------------+\n| 10        | 3      | 20000         |\n+-----------+--------+---------------+\n(1 ligne retournée)"
       },
       {
-        "label": "Entrée saine avec espaces et chiffres",
-        "stdin": "cas:3",
-        "expected": "SQLI_ALERT id=30 status=SECURE safe_value='Jean-Luc Dupont 2025' action=ALLOW\nSECURITY_AUDIT checked=1 blocked=0 allowed=1"
+        "label": "Deux clients dont un sans nouvelle commande",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 2, 50000), (2, 0, 0);\n-- VERIFY:\nINSERT INTO commandes VALUES (1, 2, 12000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+--------+---------------+\n| client_id | nb_cmd | cumul_montant |\n+-----------+--------+---------------+\n| 1         | 2      | 50000         |\n| 2         | 1      | 12000         |\n+-----------+--------+---------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nSQLI_ALERT id=1 status=SECURE safe_value='alice' action=ALLOW\nSQLI_ALERT id=2 status=VULNERABLE threat=TAUTOLOGY action=BLOCK\nSQLI_ALERT id=3 status=VULNERABLE threat=PIGGYBACKED_DROP action=BLOCK\nSECURITY_AUDIT checked=3 blocked=2 allowed=1\n\n[Cas 1 — Attaque par union pour extraction de schéma]\nSQLI_ALERT id=10 status=VULNERABLE threat=UNION_INJECTION action=BLOCK\nSECURITY_AUDIT checked=1 blocked=1 allowed=0\n\n[Cas 2 — Troncature par commentaire SQL double tiret]\nSQLI_ALERT id=20 status=VULNERABLE threat=COMMENT_BYPASS action=BLOCK\nSECURITY_AUDIT checked=1 blocked=1 allowed=0\n\n[Cas 3 — Entrée saine avec espaces et chiffres]\nSQLI_ALERT id=30 status=SECURE safe_value='Jean-Luc Dupont 2025' action=ALLOW\nSECURITY_AUDIT checked=1 blocked=0 allowed=1"
+    "solution": "-- Corrigé officiel sql3-c5-e3\nCREATE TRIGGER trg_maj_stats\nAFTER INSERT ON commandes\nFOR EACH ROW\nBEGIN\n  UPDATE stats_clients\n  SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant\n  WHERE client_id = NEW.client_id;\nEND;"
   },
   {
     "id": "sql3-c6-e1",
     "chapter": 6,
-    "title": "Routeur de partitionnement déclaratif de table (Range & List)",
     "level": "n1",
-    "language": "analyse",
-    "goal": "Acheminer les insertions de données vers la partition physique appropriée selon la stratégie de partitionnement déclarative.",
-    "brief": "Dans PostgreSQL (à partir de la version 10), le partitionnement déclaratif horizontal divise une grande table logique en sous-tables physiques indépendantes :\n- `RANGE` : la partition héberge un intervalle semi-ouvert $[\\text{from}, \\text{to}[$ (valeur $\\ge \\text{from}$ et $< \\text{to}$).\n- `LIST` : la partition accepte un ensemble fini de valeurs littérales (ex: codes régions ou statuts).\n- Si aucune partition ne correspond et qu’aucune partition par défaut n’existe : l’insertion échoue avec `NO_PARTITION_FOUND`.\n\nEntrée :\n- Définition de la stratégie : `STRATEGY type=<RANGE|LIST> col=<col_name>`\n- Déclaration des partitions :\n  Pour RANGE : `PARTITION name=<p_name> from=<val> to=<val>`\n  Pour LIST : `PARTITION name=<p_name> values=<v1,v2,...>`\n- Insertions : `INSERT id=<row_id> <col_name>=<val>`\n\nSortie :\n- Pour chaque insertion : `ROUTED row_id=<ID> val=<V> partition=<PART_NAME|NONE> status=<SUCCESS|ERROR_NO_PARTITION>`\n- Bilan : `ROUTER_SUMMARY total=<N> routed=<N> unrouted=<N>`",
-    "starter": "# Grille d'analyse (sql3-c6-e1) — Routeur de partitionnement déclaratif de table (Range & List)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Partitionnement par liste (LIST) géographique]\n# Données : STRATEGY type=LIST col=pays\n# Données : PARTITION name=p_europe values=FR,BE,DE,IT\n# Données : PARTITION name=p_amerique values=US,CA,MX\n# Données : INSERT id=10 pays=FR\n# Données : INSERT id=11 pays=JP\nA_COMPLETER\n\n[Cas 2 — Toutes les lignes routées avec succès dans un partitionnement par plage]\n# Données : STRATEGY type=RANGE col=mois\n# Données : PARTITION name=t1 from=1 to=4\n# Données : PARTITION name=t2 from=4 to=7\n# Données : INSERT id=101 mois=2\n# Données : INSERT id=102 mois=4\n# Données : INSERT id=103 mois=6\nA_COMPLETER\n\n[Cas 3 — Test de borne supérieure exclusive (valeur égale à to)]\n# Données : STRATEGY type=RANGE col=valeur\n# Données : PARTITION name=p_basse from=0 to=100\n# Données : INSERT id=1 valeur=100\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Routage de partitions par intervalles de dates (Range Partitioning)",
+    "goal": "Affecter et agréger les enregistrements par partition trimestrielle.",
+    "brief": "<p>Dans la table <code>mesures_iot(id INT, mois INT, valeur INT)</code> où <code>mois</code> va de <code>1</code> à <code>12</code>, affichez le nom de la partition trimestrielle (<code>CASE WHEN mois &lt;= 3 THEN 'p_q1' WHEN mois &lt;= 6 THEN 'p_q2' WHEN mois &lt;= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible</code>), le nombre de lignes (<code>COUNT(*) AS nb_lignes</code>) et la somme des valeurs (<code>SUM(valeur) AS total_valeurs</code>), regroupés et triés par <code>partition_cible</code> croissante.</p>",
+    "starter": "-- Regroupez les mesures par partition trimestrielle p_q1..p_q4\nSELECT mois, valeur FROM mesures_iot;",
     "hints": [
-      "Pour RANGE : convertir les bornes et valeurs en entiers pour la comparaison from <= val < to.",
-      "Pour LIST : vérifier si str(val) est dans la liste values.",
-      "Afficher ERROR_NO_PARTITION si aucun match n’est trouvé."
+      "Utilisez l’expression CASE WHEN pour calculer partition_cible.",
+      "Regroupez avec GROUP BY partition_cible ORDER BY partition_cible ASC."
     ],
     "examples": [
       {
-        "stdin": "STRATEGY type=RANGE col=annee\nPARTITION name=p_2023 from=2023 to=2024\nPARTITION name=p_2024 from=2024 to=2025\nPARTITION name=p_2025 from=2025 to=2026\nINSERT id=1 annee=2024\nINSERT id=2 annee=2025\nINSERT id=3 annee=2020",
-        "expected": "ROUTED row_id=1 val=2024 partition=p_2024 status=SUCCESS\nROUTED row_id=2 val=2025 partition=p_2025 status=SUCCESS\nROUTED row_id=3 val=2020 partition=NONE status=ERROR_NO_PARTITION\nROUTER_SUMMARY total=3 routed=2 unrouted=1",
-        "note": "2024 va dans p_2024 ; 2020 ne correspond à aucune partition déclarée."
+        "stdin": "CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 2, 100), (2, 3, 150), (3, 5, 200), (4, 11, 300);\n-- exemple",
+        "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 2         | 250           |\n| p_q2            | 1         | 200           |\n| p_q4            | 1         | 300           |\n+-----------------+-----------+---------------+\n(3 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Partitionnement par liste (LIST) géographique",
-        "stdin": "cas:1",
-        "expected": "ROUTED row_id=10 val=FR partition=p_europe status=SUCCESS\nROUTED row_id=11 val=JP partition=NONE status=ERROR_NO_PARTITION\nROUTER_SUMMARY total=2 routed=1 unrouted=1"
+        "label": "Mesures réparties sur Q1, Q2 et Q4",
+        "stdin": "CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 2, 100), (2, 3, 150), (3, 5, 200), (4, 11, 300);",
+        "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 2         | 250           |\n| p_q2            | 1         | 200           |\n| p_q4            | 1         | 300           |\n+-----------------+-----------+---------------+\n(3 lignes retournées)"
       },
       {
-        "label": "Toutes les lignes routées avec succès dans un partitionnement par plage",
-        "stdin": "cas:2",
-        "expected": "ROUTED row_id=101 val=2 partition=t1 status=SUCCESS\nROUTED row_id=102 val=4 partition=t2 status=SUCCESS\nROUTED row_id=103 val=6 partition=t2 status=SUCCESS\nROUTER_SUMMARY total=3 routed=3 unrouted=0"
+        "label": "Quatre trimestres complets",
+        "stdin": "CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 1, 10), (2, 4, 20), (3, 7, 30), (4, 10, 40);",
+        "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 1         | 10            |\n| p_q2            | 1         | 20            |\n| p_q3            | 1         | 30            |\n| p_q4            | 1         | 40            |\n+-----------------+-----------+---------------+\n(4 lignes retournées)"
       },
       {
-        "label": "Test de borne supérieure exclusive (valeur égale à to)",
-        "stdin": "cas:3",
-        "expected": "ROUTED row_id=1 val=100 partition=NONE status=ERROR_NO_PARTITION\nROUTER_SUMMARY total=1 routed=0 unrouted=1"
+        "label": "Bornes exactes des trimestres (3, 6, 9, 12)",
+        "stdin": "CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 3, 50), (2, 6, 60), (3, 9, 70), (4, 12, 80);",
+        "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 1         | 50            |\n| p_q2            | 1         | 60            |\n| p_q3            | 1         | 70            |\n| p_q4            | 1         | 80            |\n+-----------------+-----------+---------------+\n(4 lignes retournées)"
       }
     ],
-    "solution": "[Exemple]\nROUTED row_id=1 val=2024 partition=p_2024 status=SUCCESS\nROUTED row_id=2 val=2025 partition=p_2025 status=SUCCESS\nROUTED row_id=3 val=2020 partition=NONE status=ERROR_NO_PARTITION\nROUTER_SUMMARY total=3 routed=2 unrouted=1\n\n[Cas 1 — Partitionnement par liste (LIST) géographique]\nROUTED row_id=10 val=FR partition=p_europe status=SUCCESS\nROUTED row_id=11 val=JP partition=NONE status=ERROR_NO_PARTITION\nROUTER_SUMMARY total=2 routed=1 unrouted=1\n\n[Cas 2 — Toutes les lignes routées avec succès dans un partitionnement par plage]\nROUTED row_id=101 val=2 partition=t1 status=SUCCESS\nROUTED row_id=102 val=4 partition=t2 status=SUCCESS\nROUTED row_id=103 val=6 partition=t2 status=SUCCESS\nROUTER_SUMMARY total=3 routed=3 unrouted=0\n\n[Cas 3 — Test de borne supérieure exclusive (valeur égale à to)]\nROUTED row_id=1 val=100 partition=NONE status=ERROR_NO_PARTITION\nROUTER_SUMMARY total=1 routed=0 unrouted=1"
+    "solution": "-- Corrigé officiel sql3-c6-e1\nSELECT CASE WHEN mois <= 3 THEN 'p_q1' WHEN mois <= 6 THEN 'p_q2' WHEN mois <= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible, COUNT(*) AS nb_lignes, SUM(valeur) AS total_valeurs FROM mesures_iot GROUP BY partition_cible ORDER BY partition_cible ASC;"
   },
   {
     "id": "sql3-c6-e2",
     "chapter": 6,
-    "title": "Simulateur d’élagage de partitions (Partition Pruning Optimizer)",
     "level": "n2",
-    "language": "analyse",
-    "goal": "Calculer les partitions éliminées (pruned) et le gain d’I/O lors de l’exécution d’une requête filtrée.",
-    "brief": "L’élagage de partitions (Partition Pruning) permet à l’optimiseur de ne scanner que les partitions physiques dont les bornes chevauchent le filtre WHERE, éliminant totalement les autres tables du plan d’exécution.\nL’efficacité de l’élagage est mesurée par :\n$$\\text{Efficacité} = \\frac{\\text{Partitions Élaguées}}{\\text{Total des Partitions}} \\times 100$$\n\nEntrée :\n- `PARTITIONS list=<p1:from-to,p2:from-to,...>`\n- `QUERY id=<num> op=<eq|gte|lte|between> val1=<int> [val2=<int>]`\n\nSortie :\n- Pour chaque requête :\n  `PRUNING_EVAL query_id=<id> scanned=<p_list> pruned=<p_list> efficiency=<PCT.1f>%`\n- Bilan : `PRUNING_REPORT queries=<N> avg_efficiency=<AVG_PCT.1f>%`",
-    "starter": "# Grille d'analyse (sql3-c6-e2) — Simulateur d’élagage de partitions (Partition Pruning Optimizer)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Filtre BETWEEN couvrant deux partitions consécutives]\n# Données : PARTITIONS list=p_q1:1-4,p_q2:4-7,p_q3:7-10,p_q4:10-13\n# Données : QUERY id=10 op=between val1=3 val2=5\nA_COMPLETER\n\n[Cas 2 — Filtre inférieur ou égal (lte) élaguant les partitions futures]\n# Données : PARTITIONS list=p1:0-10,p2:10-20,p3:20-30\n# Données : QUERY id=20 op=lte val1=9\nA_COMPLETER\n\n[Cas 3 — Requête ne pouvant élaguer aucune partition (scan complet)]\n# Données : PARTITIONS list=p1:1-5,p2:5-10\n# Données : QUERY id=30 op=between val1=1 val2=10\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Surveillance du retard de réplication (Replication Lag LSN)",
+    "goal": "Calculer le retard d’application WAL des réplicas et identifier les nœuds en alerte.",
+    "brief": "<p>Dans la vue <code>pg_stat_replication_sim(application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT)</code>, calculez le retard de réplication <code>sent_lsn_mb - replay_lsn_mb AS lag_mb</code> et affichez <code>application_name</code>, <code>sync_state</code> et <code>lag_mb</code> pour tous les réplicas, triés par <code>lag_mb</code> décroissant puis <code>application_name</code> croissant.</p>",
+    "starter": "-- Calculez lag_mb = sent_lsn_mb - replay_lsn_mb pour chaque réplica\nSELECT application_name FROM pg_stat_replication_sim;",
     "hints": [
-      "Pour chaque partition [pfrom, pto[, tester l’intersection avec l’intervalle défini par le filtre.",
-      "Pour eq val1 : tester pfrom <= val1 < pto.",
-      "Pour gte val1 : tester pto > val1.",
-      "Pour lte val1 : tester pfrom <= val1.",
-      "Pour between val1 et val2 : tester (pfrom <= val2 et pto > val1)."
+      "Soustrayez replay_lsn_mb de sent_lsn_mb et renommez la colonne AS lag_mb.",
+      "Triez par lag_mb DESC, application_name ASC."
     ],
     "examples": [
       {
-        "stdin": "PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026\nQUERY id=1 op=eq val1=2024\nQUERY id=2 op=gte val1=2024",
-        "expected": "PRUNING_EVAL query_id=1 scanned=p_2024 pruned=p_2023,p_2025 efficiency=66.7%\nPRUNING_EVAL query_id=2 scanned=p_2024,p_2025 pruned=p_2023 efficiency=33.3%\nPRUNING_REPORT queries=2 avg_efficiency=50.0%",
-        "note": "La requête 1 élimine 2 partitions sur 3 (66.7% d’efficacité)."
+        "stdin": "CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('replica_dc1', 5000, 5000, 'sync'), ('replica_dc2', 5000, 4850, 'async');\n-- exemple",
+        "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| replica_dc2      | async      | 150    |\n| replica_dc1      | sync       | 0      |\n+------------------+------------+--------+\n(2 lignes retournées)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Filtre BETWEEN couvrant deux partitions consécutives",
-        "stdin": "cas:1",
-        "expected": "PRUNING_EVAL query_id=10 scanned=p_q1,p_q2 pruned=p_q3,p_q4 efficiency=50.0%\nPRUNING_REPORT queries=1 avg_efficiency=50.0%"
+        "label": "Un réplica synchrone à jour et un réplica asynchrone en retard",
+        "stdin": "CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('replica_dc1', 5000, 5000, 'sync'), ('replica_dc2', 5000, 4850, 'async');",
+        "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| replica_dc2      | async      | 150    |\n| replica_dc1      | sync       | 0      |\n+------------------+------------+--------+\n(2 lignes retournées)"
       },
       {
-        "label": "Filtre inférieur ou égal (lte) élaguant les partitions futures",
-        "stdin": "cas:2",
-        "expected": "PRUNING_EVAL query_id=20 scanned=p1 pruned=p2,p3 efficiency=66.7%\nPRUNING_REPORT queries=1 avg_efficiency=66.7%"
+        "label": "Trois réplicas",
+        "stdin": "CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('standby_1', 1200, 1190, 'async'), ('standby_2', 1200, 1000, 'async'), ('standby_3', 1200, 1200, 'sync');",
+        "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| standby_2        | async      | 200    |\n| standby_1        | async      | 10     |\n| standby_3        | sync       | 0      |\n+------------------+------------+--------+\n(3 lignes retournées)"
       },
       {
-        "label": "Requête ne pouvant élaguer aucune partition (scan complet)",
-        "stdin": "cas:3",
-        "expected": "PRUNING_EVAL query_id=30 scanned=p1,p2 pruned=none efficiency=0.0%\nPRUNING_REPORT queries=1 avg_efficiency=0.0%"
+        "label": "Aucun retard",
+        "stdin": "CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('ha_node', 800, 800, 'sync');",
+        "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| ha_node          | sync       | 0      |\n+------------------+------------+--------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nPRUNING_EVAL query_id=1 scanned=p_2024 pruned=p_2023,p_2025 efficiency=66.7%\nPRUNING_EVAL query_id=2 scanned=p_2024,p_2025 pruned=p_2023 efficiency=33.3%\nPRUNING_REPORT queries=2 avg_efficiency=50.0%\n\n[Cas 1 — Filtre BETWEEN couvrant deux partitions consécutives]\nPRUNING_EVAL query_id=10 scanned=p_q1,p_q2 pruned=p_q3,p_q4 efficiency=50.0%\nPRUNING_REPORT queries=1 avg_efficiency=50.0%\n\n[Cas 2 — Filtre inférieur ou égal (lte) élaguant les partitions futures]\nPRUNING_EVAL query_id=20 scanned=p1 pruned=p2,p3 efficiency=66.7%\nPRUNING_REPORT queries=1 avg_efficiency=66.7%\n\n[Cas 3 — Requête ne pouvant élaguer aucune partition (scan complet)]\nPRUNING_EVAL query_id=30 scanned=p1,p2 pruned=none efficiency=0.0%\nPRUNING_REPORT queries=1 avg_efficiency=0.0%"
+    "solution": "-- Corrigé officiel sql3-c6-e2\nSELECT application_name, sync_state, sent_lsn_mb - replay_lsn_mb AS lag_mb FROM pg_stat_replication_sim ORDER BY lag_mb DESC, application_name ASC;"
   },
   {
     "id": "sql3-c6-e3",
     "chapter": 6,
-    "title": "Calculateur de lag de réplication WAL (Streaming Replication Lag)",
     "level": "n3",
-    "language": "analyse",
-    "goal": "Calculer le décalage de réplication en octets et en Ko entre le primaire et ses nœuds secondaires à partir de nombres LSN (Log Sequence Number).",
-    "brief": "Dans la réplication physique PostgreSQL (Streaming Replication), l’avancement des écritures dans le journal WAL est repéré par un `LSN` (Log Sequence Number) hexadécimal à deux composantes (ex: `16/B3C840`).\nConversion d’un LSN en entier 64 bits d’octets :\n$$\\text{LSN\\_Bytes} = \\text{int}(X, 16) \\times 2^{32} + \\text{int}(Y, 16)$$\nLe retard de réplication (Lag) est calculé par :\n$$\\text{Lag\\_Bytes} = \\text{Primary\\_LSN} - \\text{Replica\\_LSN}$$\n$$\\text{Lag\\_Ko} = \\frac{\\text{Lag\\_Bytes}}{1024.0}$$\nÉvaluation de la santé :\n- Si `Lag_Bytes == 0` : `SYNCED` (parfaite synchronisation).\n- Si `0 < Lag_Ko <= 64` : `HEALTHY_LAG` (retard opérationnel normal en réplication asynchrone).\n- Si `Lag_Ko > 64` : `CRITICAL_LAG` (danger de perte de données en cas de failover, violation de RPO).\n\nEntrée :\n`REPLICA node=<name> mode=<sync|async> primary_lsn=<HEX/HEX> replay_lsn=<HEX/HEX>`\n\nSortie :\n`LAG_STATUS node=<name> mode=<mode> lag_bytes=<BYTES> lag_kb=<KB.2f> health=<SYNCED|HEALTHY_LAG|CRITICAL_LAG>`\n`CLUSTER_STATUS total_nodes=<N> max_lag_kb=<MAX.2f>`",
-    "starter": "# Grille d'analyse (sql3-c6-e3) — Calculateur de lag de réplication WAL (Streaming Replication Lag)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Retard critique dépassant 64 Ko sur un réplica asynchrone]\n# Données : REPLICA node=standby_remote mode=async primary_lsn=0/20000000 replay_lsn=0/1FE00000\nA_COMPLETER\n\n[Cas 2 — Tous les nœuds parfaitement synchronisés]\n# Données : REPLICA node=standby_ha1 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000\n# Données : REPLICA node=standby_ha2 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000\nA_COMPLETER\n\n[Cas 3 — LSN traversant la frontière des 32 bits de poids fort]\n# Données : REPLICA node=standby_cross mode=async primary_lsn=2/00001000 replay_lsn=1/FFFF0000\nA_COMPLETER\n",
+    "language": "sql",
+    "title": "Élection du candidat de basculement automatique (Failover Patroni / HA)",
+    "goal": "Sélectionner le meilleur réplica candidat à la promotion Primary selon santé et LSN.",
+    "brief": "<p>Lors d’une panne du serveur primaire, Patroni élit parmi la table <code>cluster_nodes(node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT)</code> le nœud qui vérifie <code>role = 'REPLICA' AND healthy = 1</code> ayant le plus grand <code>received_lsn</code> (et en cas d’égalité la plus grande <code>priority</code>). Écrivez la requête SQL qui retourne <code>node_name</code>, <code>received_lsn</code> et <code>priority</code> du seul meilleur candidat (<code>LIMIT 1</code>).</p>",
+    "starter": "-- Sélectionnez le meilleur candidat REPLICA sain avec ORDER BY ... LIMIT 1\nSELECT node_name, received_lsn, priority FROM cluster_nodes;",
     "hints": [
-      "Découper le LSN sur le caractère \"/\" : high, low = lsn.split(\"/\").",
-      "Calculer lsn_val = int(high, 16) * (2**32) + int(low, 16).",
-      "Calculer lag_bytes = primary_bytes - replay_bytes.",
-      "Comparer lag_kb aux seuils 0 et 64 Ko."
+      "Filtrez avec WHERE role = 'REPLICA' AND healthy = 1.",
+      "Triez avec ORDER BY received_lsn DESC, priority DESC LIMIT 1."
     ],
     "examples": [
       {
-        "stdin": "REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000\nREPLICA node=standby_2 mode=sync primary_lsn=0/16B3C840 replay_lsn=0/16B3C840",
-        "expected": "LAG_STATUS node=standby_1 mode=async lag_bytes=10304 lag_kb=10.06 health=HEALTHY_LAG\nLAG_STATUS node=standby_2 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED\nCLUSTER_STATUS total_nodes=2 max_lag_kb=10.06",
-        "note": "standby_1 a un léger retard de 10 Ko (sain), standby_2 est parfaitement synchronisé."
+        "stdin": "CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-1', 'PRIMARY', 0, 9000, 100), ('pg-2', 'REPLICA', 1, 8990, 90), ('pg-3', 'REPLICA', 1, 9000, 80);\n-- exemple",
+        "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| pg-3      | 9000         | 80       |\n+-----------+--------------+----------+\n(1 ligne retournée)",
+        "note": "Résultat de la requête SQL sur la base d’exemple."
       }
     ],
     "tests": [
       {
-        "label": "Retard critique dépassant 64 Ko sur un réplica asynchrone",
-        "stdin": "cas:1",
-        "expected": "LAG_STATUS node=standby_remote mode=async lag_bytes=2097152 lag_kb=2048.00 health=CRITICAL_LAG\nCLUSTER_STATUS total_nodes=1 max_lag_kb=2048.00"
+        "label": "Élection sur le LSN le plus avancé",
+        "stdin": "CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-1', 'PRIMARY', 0, 9000, 100), ('pg-2', 'REPLICA', 1, 8990, 90), ('pg-3', 'REPLICA', 1, 9000, 80);",
+        "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| pg-3      | 9000         | 80       |\n+-----------+--------------+----------+\n(1 ligne retournée)"
       },
       {
-        "label": "Tous les nœuds parfaitement synchronisés",
-        "stdin": "cas:2",
-        "expected": "LAG_STATUS node=standby_ha1 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED\nLAG_STATUS node=standby_ha2 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED\nCLUSTER_STATUS total_nodes=2 max_lag_kb=0.00"
+        "label": "Départage par priorité à LSN égal",
+        "stdin": "CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-2', 'REPLICA', 1, 5000, 50), ('pg-3', 'REPLICA', 1, 5000, 100), ('pg-4', 'REPLICA', 0, 5500, 200);",
+        "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| pg-3      | 5000         | 100      |\n+-----------+--------------+----------+\n(1 ligne retournée)"
       },
       {
-        "label": "LSN traversant la frontière des 32 bits de poids fort",
-        "stdin": "cas:3",
-        "expected": "LAG_STATUS node=standby_cross mode=async lag_bytes=69632 lag_kb=68.00 health=CRITICAL_LAG\nCLUSTER_STATUS total_nodes=1 max_lag_kb=68.00"
+        "label": "Seul réplica sain disponible",
+        "stdin": "CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-dr', 'REPLICA', 1, 4200, 10), ('pg-dead', 'REPLICA', 0, 4300, 99);",
+        "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| pg-dr     | 4200         | 10       |\n+-----------+--------------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "[Exemple]\nLAG_STATUS node=standby_1 mode=async lag_bytes=10304 lag_kb=10.06 health=HEALTHY_LAG\nLAG_STATUS node=standby_2 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED\nCLUSTER_STATUS total_nodes=2 max_lag_kb=10.06\n\n[Cas 1 — Retard critique dépassant 64 Ko sur un réplica asynchrone]\nLAG_STATUS node=standby_remote mode=async lag_bytes=2097152 lag_kb=2048.00 health=CRITICAL_LAG\nCLUSTER_STATUS total_nodes=1 max_lag_kb=2048.00\n\n[Cas 2 — Tous les nœuds parfaitement synchronisés]\nLAG_STATUS node=standby_ha1 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED\nLAG_STATUS node=standby_ha2 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED\nCLUSTER_STATUS total_nodes=2 max_lag_kb=0.00\n\n[Cas 3 — LSN traversant la frontière des 32 bits de poids fort]\nLAG_STATUS node=standby_cross mode=async lag_bytes=69632 lag_kb=68.00 health=CRITICAL_LAG\nCLUSTER_STATUS total_nodes=1 max_lag_kb=68.00"
+    "solution": "-- Corrigé officiel sql3-c6-e3\nSELECT node_name, received_lsn, priority FROM cluster_nodes WHERE role = 'REPLICA' AND healthy = 1 ORDER BY received_lsn DESC, priority DESC LIMIT 1;"
   }
 ];
+
+module.exports = SQL3_EXERCISES;

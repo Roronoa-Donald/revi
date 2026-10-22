@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>appliquer les recommandations essentielles du standard de sécurité CIS Docker Benchmark ;</li>
       <li>bannir l’exécution en utilisateur root et configurer des utilisateurs dédiés non-privilégiés (USER) ;</li>
@@ -173,47 +173,33 @@ CMD ["node", "server.js"]</code></pre>
 </div>
 
 <!-- code-labs:start -->
-  <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="dk2-c6-e1" data-lab
      data-exercise="dk2-c6-e1"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="FROM python:3.11-slim&#10;WORKDIR /app&#10;COPY . .&#10;USER appuser&#10;CMD [&quot;python&quot;, &quot;main.py&quot;]">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c6-e1) — Auditeur de privilèges root et directive USER
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Création puis passage à un UID numérique]
-# Données : FROM alpine:3.18
-# Données : RUN adduser -D -u 10001 customuser
-# Données : USER 10001
-# Données : CMD ["sh"]
-A_COMPLETER
-
-[Cas 2 — Retour explicite à root en fin de fichier]
-# Données : FROM node:18
-# Données : USER node
-# Données : RUN npm install
-# Données : USER root
-# Données : CMD ["node", "app.js"]
-A_COMPLETER
-
-[Cas 3 — UID 0 explicite]
-# Données : FROM debian
-# Données : USER 0
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c6-e1) — Auditeur de privilèges root et directive USER
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Auditeur de privilèges root et directive USER</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité de sécurité d’une image Docker en s’assurant qu’elle ne s’exécute pas sous le superutilisateur root.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 Règles de sécurité CIS Docker Benchmark :<br>
 - Par défaut dans Docker, l'utilisateur actif est <code>root</code> (UID 0).<br>
 - Si une instruction <code>USER &lt;nom_ou_uid&gt;</code> est rencontrée, elle modifie l'utilisateur actif pour les étapes suivantes et le runtime final.<br>
@@ -223,12 +209,12 @@ Règles de sécurité CIS Docker Benchmark :<br>
   * Si le dernier utilisateur actif est non-root (ex: <code>node</code>, <code>appuser</code>, <code>1001</code>) :<br>
     afficher <code>AUDIT_SECURITE: CONFORME (Execution sous utilisateur non-privilegie: &lt;USER&gt;)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FROM python:3.11-slim
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FROM python:3.11-slim
 WORKDIR /app
 COPY . .
 USER appuser
 CMD ["python", "main.py"]</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT_SECURITE: CONFORME (Execution sous utilisateur non-privilegie: appuser)</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_SECURITE: CONFORME (Execution sous utilisateur non-privilegie: appuser)</pre></div>
     </div>
     <p class="lab__note">Image conforme exécutée sous utilisateur non-privilégié.</p>
     <details class="lab__hints">
@@ -241,36 +227,27 @@ CMD ["python", "main.py"]</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="dk2-c6-e2" data-lab
      data-exercise="dk2-c6-e2"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="MEM=512m SWAP=1g CPUS=1.5&#10;MEM=256m SWAP=256m CPUS=0.5">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c6-e2) — Calculateur de quotas cgroups (CPU & Mémoire)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Gros conteneur de base de données]
-# Données : MEM=4g SWAP=8g CPUS=4.0
-A_COMPLETER
-
-[Cas 2 — Micro conteneur d’arrière-plan]
-# Données : MEM=128m SWAP=256m CPUS=0.25
-A_COMPLETER
-
-[Cas 3 — Conteneur CPU pur sans swap]
-# Données : MEM=1g SWAP=1g CPUS=2.0
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c6-e2) — Calculateur de quotas cgroups (CPU & Mémoire)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Calculateur de quotas cgroups (CPU &amp; Mémoire)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Convertir les paramètres de contrainte de ressources Docker en métriques de contrôle noyau cgroups.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 Exemple : <code>MEM=512m SWAP=1g CPUS=1.5</code>.<br>
 Unités mémoire : <code>m</code> (Mo = 1024 Ko) ou <code>g</code> (Go = 1024 Mo).<br>
 Règles cgroups v2 :<br>
@@ -282,9 +259,9 @@ Règles cgroups v2 :<br>
 Afficher :<br>
 <code>CGROUPS: RAM: &lt;RAM_MAX_MO&gt; Mo | SWAP_ADDITIONNEL: &lt;SWAP_EFFECTIF_MO&gt; Mo | CPU_QUOTA: &lt;CPU_QUOTA_US&gt; us / 100000 us (&lt;CPUS&gt; cœurs)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MEM=512m SWAP=1g CPUS=1.5
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MEM=512m SWAP=1g CPUS=1.5
 MEM=256m SWAP=256m CPUS=0.5</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CGROUPS: RAM: 512 Mo | SWAP_ADDITIONNEL: 512 Mo | CPU_QUOTA: 150000 us / 100000 us (1.5 cœurs)
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CGROUPS: RAM: 512 Mo | SWAP_ADDITIONNEL: 512 Mo | CPU_QUOTA: 150000 us / 100000 us (1.5 cœurs)
 CGROUPS: RAM: 256 Mo | SWAP_ADDITIONNEL: 0 Mo | CPU_QUOTA: 50000 us / 100000 us (0.5 cœurs)</pre></div>
     </div>
     <p class="lab__note">Si SWAP == MEM, aucun swap supplémentaire n’est autorisé.</p>
@@ -298,38 +275,27 @@ CGROUPS: RAM: 256 Mo | SWAP_ADDITIONNEL: 0 Mo | CPU_QUOTA: 50000 us / 100000 us 
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="dk2-c6-e3" data-lab
      data-exercise="dk2-c6-e3"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="POLITIQUE=always EXIT_CODE=1 MANUEL=NON&#10;POLITIQUE=always EXIT_CODE=0 MANUEL=OUI&#10;POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON&#10;POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c6-e3) — Simulateur de politique de redémarrage (Restart Policy)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Politique no par défaut]
-# Données : POLITIQUE=no EXIT_CODE=1 MANUEL=NON
-# Données : POLITIQUE=no EXIT_CODE=0 MANUEL=NON
-A_COMPLETER
-
-[Cas 2 — Politique unless-stopped]
-# Données : POLITIQUE=unless-stopped EXIT_CODE=1 MANUEL=NON
-# Données : POLITIQUE=unless-stopped EXIT_CODE=0 MANUEL=OUI
-A_COMPLETER
-
-[Cas 3 — Crash critique OOM-Killed (code 137)]
-# Données : POLITIQUE=always EXIT_CODE=137 MANUEL=NON
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c6-e3) — Simulateur de politique de redémarrage (Restart Policy)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Simulateur de politique de redémarrage (Restart Policy)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer si le démon Docker redémarre ou non un conteneur arrêté selon sa politique et son code de sortie.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 Règles du démon Docker :<br>
 1. Si <code>MANUEL=OUI</code> (ex: <code>docker stop</code> déclenché par l'admin) :<br>
    - <code>DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)</code><br>
@@ -343,11 +309,11 @@ Règles du démon Docker :<br>
 Afficher :<br>
 <code>EVENEMENT: &lt;entree&gt; -&gt; &lt;DECISION&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POLITIQUE=always EXIT_CODE=1 MANUEL=NON
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLITIQUE=always EXIT_CODE=1 MANUEL=NON
 POLITIQUE=always EXIT_CODE=0 MANUEL=OUI
 POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON
 POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EVENEMENT: POLITIQUE=always EXIT_CODE=1 MANUEL=NON -&gt; DECISION: REDEMARRER (Relance automatique du conteneur)
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EVENEMENT: POLITIQUE=always EXIT_CODE=1 MANUEL=NON -&gt; DECISION: REDEMARRER (Relance automatique du conteneur)
 EVENEMENT: POLITIQUE=always EXIT_CODE=0 MANUEL=OUI -&gt; DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)
 EVENEMENT: POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON -&gt; DECISION: ARRET_DEFINITIF (Code sortie normal 0)
 EVENEMENT: POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON -&gt; DECISION: REDEMARRER (Echec detecte: code 137)</pre></div>
@@ -507,13 +473,13 @@ EVENEMENT: POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON -&gt; DECISION: REDEMAR
 <h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la directive USER, les risques du mode privilégié et les quotas de ressources.</div>
-      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes connaissances en sécurité. Approfondissez les Linux Capabilities et le durcissement Cgroups.</div>
-      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise des pratiques de sécurité de production selon le CIS Benchmark.</div>
-      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous sécurisez, monitorez et durcissez les conteneurs Docker au plus haut niveau de conformité industrielle.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la directive USER, les risques du mode privilégié et les quotas de ressources.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bonnes connaissances en sécurité. Approfondissez les Linux Capabilities et le durcissement Cgroups.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bonne maîtrise des pratiques de sécurité de production selon le CIS Benchmark.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Score parfait ! Vous sécurisez, monitorez et durcissez les conteneurs Docker au plus haut niveau de conformité industrielle.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -523,7 +489,7 @@ EVENEMENT: POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON -&gt; DECISION: REDEMAR
     <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
 </main>
 

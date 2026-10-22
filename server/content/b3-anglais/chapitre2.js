@@ -18,7 +18,7 @@ module.exports = {
     'interpréter les codes de statut HTTP standard (200, 201, 204, 400, 401, 403, 404, 500, 502, 503) et leurs implications opérationnelles ;',
     'auditer et classifier les clauses contractuelles d’une spécification technique selon les mots-clés normatifs de la RFC 2119 ;',
     'concevoir un fichier README.md technique conforme aux standards de l’industrie (prérequis, installation, configuration d’environnement et dépannage) ;',
-    'développer en Python 3 des linters d’OpenAPI, des analyseurs de conformité RFC 2119 et des générateurs de sommaires Markdown avec ancres.'
+    'analyser et résoudre méthodologiquement des linters d’OpenAPI, des analyseurs de conformité RFC 2119 et des générateurs de sommaires Markdown avec ancres.'
   ],
   sections: [
     {

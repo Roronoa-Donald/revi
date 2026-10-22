@@ -94,10 +94,10 @@ module.exports = {
         '  </thead>',
         '  <tbody>',
         '    <tr><td><code>git stash push -m "msg"</code></td><td>Empile l’état actuel de l’index et de la copie de travail avec un libellé clair.</td></tr>',
-        '    <tr><td><code>git stash list</code></td><td>Affiche la pile LIFO des remises stockées (<code>stash@{0}</code>, <code>stash@{1}</code>, ...).</td></tr>',
+        '    <tr><td><code>git stash list</code></td><td>Affichez la pile LIFO des remises stockées (<code>stash@{0}</code>, <code>stash@{1}</code>, ...).</td></tr>',
         '    <tr><td><code>git stash apply stash@{N}</code></td><td>Réapplique les modifications de la remise sans la supprimer de la pile.</td></tr>',
         '    <tr><td><code>git stash pop</code></td><td>Réapplique la remise la plus récente (<code>stash@{0}</code>) et la dépile immédiatement.</td></tr>',
-        '    <tr><td><code>git stash drop stash@{N}</code></td><td>Supprime définitivement une remise spécifique de la pile.</td></tr>',
+        '    <tr><td><code>git stash drop stash@{N}</code></td><td>Supprimez définitivement une remise spécifique de la pile.</td></tr>',
         '  </tbody>',
         '</table>'
       ].join('\n')

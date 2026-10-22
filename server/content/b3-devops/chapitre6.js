@@ -20,7 +20,7 @@ module.exports = {
     'calculer, administrer et gouverner les Budgets d’Erreur (Error Budgets) et analyser leur vitesse de consommation (Burn Rate) ;',
     'limiter le travail répétitif sans valeur pérenne (Toil) à moins de 50% du temps des équipes de fiabilité ;',
     'instrumenter les 4 Signaux Dorés de l’observabilité : Latence, Trafic, Erreurs et Saturation ;',
-    'développer en Python 3 des analyseurs de conformité SLI/SLO, des régulateurs d’Error Budget et des détecteurs d’Alert Flapping.'
+    'analyser et résoudre méthodologiquement des analyseurs de conformité SLI/SLO, des régulateurs d’Error Budget et des détecteurs d’Alert Flapping.'
   ],
   sections: [
     {

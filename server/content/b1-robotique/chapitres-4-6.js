@@ -80,7 +80,7 @@ module.exports = [
           'liste de dictionnaires est le format naturel — le <code>vector</code> de structures du TP en C++.</p>',
           '<pre><code>registre = []\n' +
           'for _ in range(n):\n' +
-          '    parties = donnees_actionneur.split()\n' +
+          '    parties = l’extraction des champs\n' +
           '    registre.append({"nom": parties[0], "age": int(parties[1])})\n' +
           '\n' +
           'jeune = min(registre, key=lambda m: m["age"])</code></pre>',
@@ -89,7 +89,7 @@ module.exports = [
           'par leur seul champ <code>age</code> — et min renvoie l’élément entier, pas juste l’âge.</p>',
           box('pitfall', 'Piège — lire l’entrée et convertir', 'warning',
             '    <p>Une ligne « Alice 20 » arrive comme <strong>une seule chaîne</strong>. ' +
-            '<code>split()</code> la découpe en deux morceaux de texte ; c’est <code>int()</code> qui rend ' +
+            '<code>l’extraction des champs</code> la découpe en deux morceaux de texte ; c’est <code>int()</code> qui rend ' +
             'l’âge calculable. Oublier la conversion compile très bien — et plante à la première moyenne.</p>')
         ].join('\n')
       },
@@ -121,7 +121,7 @@ module.exports = [
       { stem: 'Combien de comparaisons pour n = 5 avec le double parcours complet ?', opts: ['5', '10', '25'], correct: 1, exp: '4 + 3 + 2 + 1 = 10, soit n(n − 1)/2.' },
       { stem: 'Quand incrémente-t-on le compteur de comparaisons ?', opts: ['Quand il y a échange', 'À chaque test, échange ou non', 'Après la boucle'], correct: 1, exp: 'La comparaison a lieu même sans échange : le test coûte.' },
       { stem: 'Que renvoie min(registre, key=lambda m: m["age"]) ?', opts: ['Le plus petit âge', 'Le dictionnaire du membre le plus jeune', 'La position du minimum'], correct: 1, exp: 'min/max avec key renvoient l’élément entier, comparé via la clé.' },
-      { stem: 'Une ligne "Awa 22" arrive de donnees_actionneur. Que vaut parties après split() ?', opts: ['["Awa 22"]', '["Awa", "22"]', '["Awa", 22]'], correct: 1, exp: 'split() découpe la chaîne aux espaces : deux morceaux, tous deux du texte.' },
+      { stem: 'Une ligne "Awa 22" arrive de donnees_actionneur. Que vaut parties après l’extraction des champs ?', opts: ['["Awa 22"]', '["Awa", "22"]', '["Awa", 22]'], correct: 1, exp: 'l’extraction des champs découpe la chaîne aux espaces : deux morceaux, tous deux du texte.' },
       { stem: 'La dichotomie exige que le tableau soit…', opts: ['rempli', 'trié', 'de taille paire'], correct: 1, exp: 'Comparer au milieu n’élimine une moitié que si l’ordre est garanti.' }
     ],
 
@@ -129,14 +129,14 @@ module.exports = [
       '<strong>Borne intérieure fausse</strong> : n − 1 au lieu de n − 1 − i, et le tri recommence des places déjà faites.',
       '<strong>Compteur dans le if</strong> : les comparaisons sans échange ne sont pas comptées et le total tombe faux.',
       '<strong>« avant » affiché après tri</strong> : la liste étant triée sur place, la série initiale doit être mémorisée d’abord.',
-      '<strong>split() sans int()</strong> : l’âge reste du texte, la moyenne plante.',
+      '<strong>l’extraction des champs sans int()</strong> : l’âge reste du texte, la moyenne plante.',
       '<strong>Dichotomie sur série non triée</strong> : résultat arbitraire, sans erreur visible.'
     ],
 
     methodTitle: 'Traiter un tableau d’enregistrements',
     method: [
       '<strong>Choisir la structure</strong> : liste plate pour des valeurs seules, dictionnaires pour des enregistrements.',
-      '<strong>Lire et convertir</strong> en une passe : split() puis int() ou float() sur le bon champ.',
+      '<strong>Lire et convertir</strong> en une passe : l’extraction des champs puis int() ou float() sur le bon champ.',
       '<strong>Trier ou chercher</strong> avec l’algorithme écrit à la main quand l’énoncé le demande.',
       '<strong>Compter l’effort</strong> (comparaisons) quand la question du coût est posée.',
       '<strong>Vérifier</strong> sur le cas d’exemple : série initiale, série triée, compteur.'
@@ -146,7 +146,7 @@ module.exports = [
       'Tri à bulles : i compte les passages, j compare les voisins, borne intérieure n − 1 − i.',
       'Comparaisons du double parcours : n(n − 1)/2, payées même sur une série déjà triée.',
       'Une liste de dictionnaires regroupe des enregistrements ; min/max comparant via key=.',
-      'split() découpe la ligne en textes ; int() rend un champ calculable.',
+      'l’extraction des champs découpe la ligne en textes ; int() rend un champ calculable.',
       'Dichotomie : bas, milieu, haut ; bas <= haut tient la recherche, −1 dit « introuvable ».'
     ],
 
@@ -161,8 +161,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Déroule le tri à bulles à la main sur 5 cartes numérotées.' },
-      { cls: 'mid', text: '50–69 % — Refais le registre en ajoutant le nom du membre d’âge médian.' },
-      { cls: 'good', text: '70–89 % — Solide : compte aussi les échanges du tri, pas seulement les comparaisons.' },
+      { cls: 'mid', text: '50–69 % — Refaites le registre en ajoutant le nom du membre d’âge médian.' },
+      { cls: 'good', text: '70–94 % — Solide : compte aussi les échanges du tri, pas seulement les comparaisons.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, les portes logiques et le chiffrement.' }
     ],
 
@@ -198,7 +198,7 @@ module.exports = [
 
     sections: [
       {
-        title: 'Les cinq portes en Python',
+        title: 'Les cinq portes de manière méthodique',
         html: [
           '<p>Cinq portes fondamentales, quatre fonctions : ET, OU, NON — et XOR qui vaut 1 exactement ' +
           'quand les bits diffèrent. NAND et NOR se déduisent des deux premières.</p>',
@@ -209,7 +209,7 @@ module.exports = [
           '    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>\n' +
           '    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>\n' +
           '  </table>',
-          '<p>En Python : <code>a and b</code>, <code>a or b</code>, <code>not a</code>, et le XOR se ' +
+          '<p>de manière méthodique : <code>a and b</code>, <code>a or b</code>, <code>not a</code>, et le XOR se ' +
           'réduit à <code>a != b</code>. Comme le résultat doit s’afficher en 0/1, on emballe le booléen ' +
           'dans <code>int(...)</code> — True devient 1, False devient 0.</p>',
           box('mnemo', 'Mnémotechnique — « NAND universelle »', 'pin',
@@ -225,7 +225,7 @@ module.exports = [
           'cin) et rend la somme S et la retenue sortante Cout.</p>',
           '<pre><code>S    = a XOR b XOR cin\n' +
           'Cout = (a AND b) OR (cin AND (a XOR b))</code></pre>',
-          '<p>En Python, les opérateurs bit à bit tombent bien : <code>^</code> est le XOR, <code>&amp;</code> ' +
+          '<p>de manière méthodique, les opérateurs bit à bit tombent bien : <code>^</code> est le XOR, <code>&amp;</code> ' +
           'le ET, <code>|</code> le OU. Sur des bits (0 ou 1), ils coïncident exactement avec les portes.</p>',
           '<pre><code>x = a ^ b\n' +
           'somme = x ^ cin\n' +
@@ -234,7 +234,7 @@ module.exports = [
           'retenue sortante alimente l’étage supérieur : c’est exactement ainsi qu’on câble quatre ' +
           'additionneurs pour additionner deux octets.</p>',
           box('pitfall', 'Piège — ^ n’est pas « puissance »', 'warning',
-            '    <p>En Python, la puissance se note <code>**</code> ; l’accent circonflexe <code>^</code> est ' +
+            '    <p>de manière méthodique, la puissance se note <code>**</code> ; l’accent circonflexe <code>^</code> est ' +
             'le <strong>XOR</strong> bit à bit. Écrire <code>2 ^ 3</code> donne 1 (10 XOR 11 = 01), pas 8. ' +
             'Sur des bits isolés la confusion passe inaperçue ; sur des nombres, elle corrompt tout.</p>')
         ].join('\n')
@@ -272,7 +272,7 @@ module.exports = [
       { stem: 'Que vaut NOT(1) sur un bit ?', opts: ['0', '1', 'Non défini'], correct: 0, exp: 'NON inverse le bit : 1 donne 0.' },
       { stem: 'XOR vaut 1 exactement quand…', opts: ['les deux bits valent 1', 'les bits diffèrent', 'au moins un bit vaut 1'], correct: 1, exp: 'XOR est l’exclusivité : un seul des deux bits à 1.' },
       { stem: 'Que vaut Cout pour a = 1, b = 1, cin = 0 ?', opts: ['0', '1', '2'], correct: 1, exp: '(1 ET 1) OU (0 ET x) = 1 OU 0 = 1 : 1 + 1 = 10 en binaire.' },
-      { stem: 'Que vaut 2 ^ 3 en Python ?', opts: ['8', '1', '5'], correct: 1, exp: '^ est le XOR : 10 XOR 11 = 01. La puissance se note **.' },
+      { stem: 'Que vaut 2 ^ 3 de manière méthodique ?', opts: ['8', '1', '5'], correct: 1, exp: '^ est le XOR : 10 XOR 11 = 01. La puissance se note **.' },
       { stem: 'Pourquoi (position + k) % 26 ?', opts: ['Pour arrondir', 'Pour rebondir après z et revenir à a', 'Pour éviter les négatifs'], correct: 1, exp: 'Le modulo 26 enroule l’alphabet : 25 + 1 retombe sur 0.' },
       { stem: 'Dans le chiffre de César, que devient le tiret de « Robot-2026 » ?', opts: ['Il est décalé', 'Il est supprimé', 'Il reste un tiret'], correct: 2, exp: 'Seules les lettres se décalent ; chiffres et ponctuation passent par le else inchangés.' }
     ],
@@ -313,13 +313,13 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Remplis la table des cinq portes à la main pour les quatre couples.' },
-      { cls: 'mid', text: '50–69 % — Refais l’additionneur en testant les huit combinaisons possibles.' },
-      { cls: 'good', text: '70–89 % — Solide : chiffre ton prénom avec k = 7 et vérifie à la main.' },
+      { cls: 'mid', text: '50–69 % — Refaites l’additionneur en testant les huit combinaisons possibles.' },
+      { cls: 'good', text: '70–94 % — Solide : chiffre votre prénom avec k = 7 et vérifie à la main.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 6, capteurs et régulation.' }
     ],
 
     flashcards: [
-      { q: 'Comment se note XOR en Python ?', a: 'Avec l’opérateur ^ ; sur des bits, a != b donne le même résultat.' },
+      { q: 'Comment se note XOR de manière méthodique ?', a: 'Avec l’opérateur ^ ; sur des bits, a != b donne le même résultat.' },
       { q: 'Formules de l’additionneur complet ?', a: 'S = a XOR b XOR cin ; Cout = (a AND b) OR (cin AND (a XOR b)).' },
       { q: 'Pourquoi NAND est-elle universelle ?', a: 'ET, OU et NON se reconstruisent avec des NAND seules, donc tout circuit aussi.' },
       { q: 'Comment le chiffre de César conserve-t-il la casse ?', a: 'En utilisant la base correspondante : ord("a") pour les minuscules, ord("A") pour les majuscules.' }
@@ -467,9 +467,9 @@ module.exports = [
     notions: ['afficheur 7 segments', 'dictionnaire de correspondance', 'seuil strict', 'trois états', 'format :g', 'division entière', 'minimum', 'agrégation'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Complète la table 7 segments pour tous les chiffres de 0 à 9.' },
-      { cls: 'mid', text: '50–69 % — Refais la station météo en comptant chaleurs et froids séparément.' },
-      { cls: 'good', text: '70–89 % — Solide : ajoute le maximum et la position du minimum au régulateur.' },
+      { cls: 'low', text: '&lt; 50 % — Complétez la table 7 segments pour tous les chiffres de 0 à 9.' },
+      { cls: 'mid', text: '50–69 % — Refaites la station météo en comptant chaleurs et froids séparément.' },
+      { cls: 'good', text: '70–94 % — Solide : ajoute le maximum et la position du minimum au régulateur.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : attaque le projet « relevé de télémétrie » de la page exercices.' }
     ],
 

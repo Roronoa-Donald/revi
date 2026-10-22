@@ -273,9 +273,9 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois le fonctionnement de la pile et la différence entre JL et JB.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le schéma du cadre de pile et les offsets [EBP + 8] / [EBP - 4].' },
-    { cls: 'good', text: '70–89 % — Très bon niveau : tu maîtrises les conventions d’appel et les appels système Linux.' },
-    { cls: 'top', text: '≥ 95 % — Maîtrise totale : tu as acquis l’ensemble du programme d’Architecture &amp; Assembleur B2 !' }
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le schéma du cadre de pile et les offsets [EBP + 8] / [EBP - 4].' },
+    { cls: 'good', text: '70–94 % — Très bon niveau : vous maîtrisez les conventions d’appel et les appels système Linux.' },
+    { cls: 'top', text: '≥ 95 % — Maîtrise totale : vous avez acquis l’ensemble du programme d’Architecture &amp; Assembleur B2 !' }
   ],
 
   flashcards: [

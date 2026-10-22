@@ -18,7 +18,7 @@ function chnav(back, forward) {
 }
 
 function disclaimer(course, extra) {
-  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.\n  ' +
+  return '  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.\n  ' +
     (extra || '') + 'Sources : ' + course.sources + '.</p>';
 }
 
@@ -39,9 +39,9 @@ function index(course, chapterList) {
     '  </div>',
     '  <h1>' + course.title + '</h1>',
     '  <p class="lead">' + course.lead + '</p>',
-    box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
+    box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
-      '      <li>distinguer cybersécurité et sécurité informatique, et situer ton périmètre ;</li>',
+      '      <li>distinguer cybersécurité et sécurité informatique, et situer votre périmètre ;</li>',
       '      <li>calculer un risque (menace, vulnérabilité, impact) et le classer par niveau ;</li>',
       '      <li>classer une attaque selon la composante CIA qu\'elle viole, puis choisir la défense ;</li>',
       '      <li>raisonner en authentification (facteurs, 2FA) et en chiffrement (symétrique, asymétrique, hachage) ;</li>',
@@ -53,10 +53,9 @@ function index(course, chapterList) {
     box('method', 'Comment ce cours s\'articule', 'compass', [
       '    <p>Le support du module déroule la matière en sept thèmes : fondements et vocabulaire, menaces et ' +
       'attaques, authentification et chiffrement, sécurité des systèmes, gestion des incidents, conformité, ' +
-      'sensibilisation. Ce cours en garde l\'ordre et fait manipuler chaque mécanisme <strong>en Bash</strong> : ' +
-      'un script qui reproduit l\'analyse exacte d\'un analyste, exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que tu ne vois pas. La logique écrite ' +
+      'sensibilisation. Ce cours en garde l\'ordre et fait appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit l\'analyse exacte d\'un analyste, exécuté dans la page.</p>',
+      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
+      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle dans un vrai terminal.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -105,7 +104,7 @@ function sommaire(course, chapterList) {
     'conformité. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
     '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
+    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -115,7 +114,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo cyber</span><br><span class="toc__d">La formule du risque, la triade CIA, l\'authentification, les modèles d\'accès, la réponse aux incidents.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : le poste de travail de l\'analyste.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Écrire et exécuter du Bash directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -138,8 +137,7 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Bash derrière. Écris un script, ' +
-    'exécute-le et lis ce qu\'il affiche : c\'est ici qu\'une règle de sécurité devient un programme.</p>',
+    '  <p class="lead">Un éditeur interactif dans la page pour résoudre les études de cas. Complétez la grille d’analyse, validez-la et observez le résultat : c\'est ici qu\'une règle de sécurité devient un programme.</p>',
     box('objectifs', 'Comment fonctionne l\'atelier', 'target', [
       '    <ul>',
       '      <li><strong>Valider</strong> vérifie la conformité de vos réponses dans la grille d’analyse.</li>',
@@ -160,16 +158,16 @@ function atelier(course) {
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — filtre anti-phishing</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Bash</span>',
+      '      <span class="lab__lang">' + ic('terminal') + ' Grille d’analyse</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends un mécanisme de ' +
-      'sécurité (triage d\'alertes, verrouillage de compte, contrôle d\'accès), programme-le et teste-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un mécanisme de ' +
+      'sécurité (triage d\'alertes, verrouillage de compte, contrôle d\'accès), programmez-le et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé juge des liens : https présent ou non, domaine ou adresse brute, piège @. ' +
-      'Ajoute une liste de domaines de confiance, un compteur de liens suspects, ou remplace tout le script ' +
-      'par le mécanisme que tu veux vérifier.</p>',
+      'Ajoutez une liste de domaines de confiance, un compteur de liens suspects, ou remplace tout le script ' +
+      'par le mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai terminal, ce sera un filtre sur un fichier de liens et <code>grep -E</code> : ' +
       'la structure du script — lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',
@@ -219,8 +217,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Atelier de scripts — simuler la sécurité | ' + course.brand,
-      description: 'Atelier de scripts du cours de Cybersécurité B1 : éditeur dans le navigateur, exécution ' +
-        'réelle du script Bash, entrée standard, console de sortie et tuteur qui explique les erreurs.',
+      description: 'Atelier de scripts du cours de Cybersécurité B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }
@@ -238,8 +235,8 @@ function cartes(course, chapterList) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
-    '  <p class="lead">Clique une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Reviens à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
+    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo cyber' })
   ].join('\n\n');
@@ -453,12 +450,12 @@ function examens(course) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d\'examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l\'esprit de l\'épreuve (durée 2 h, /20). ' +
-    'Fais-les <strong>sans regarder</strong> les corrigés, puis corrige-toi sévèrement.</p>',
+    'Réalisez-les <strong>sans regarder</strong> les corrigés, puis corrigez-vous sévèrement.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d\'examen — 2 h</div>',
-      '    <p>Lance le chrono quand tu commences un sujet. Ne consulte le corrigé qu\'à la fin. ' +
-      '<strong>Réserve 15 min de relecture</strong> : formule du risque chiffrée, lettres CIA nommées, étapes ICER dans l\'ordre.</p>',
+      '    <p>Lancez le chrono quand vous commencez un sujet. Ne consultez le corrigé qu\'à la fin. ' +
+      '<strong>Réservez 15 min de relecture</strong> : formule du risque chiffrée, lettres CIA nommées, étapes ICER dans l\'ordre.</p>',
       '    <p><button class="btn btn--primary" data-start>' + ic('play') + ' Démarrer le chrono</button>',
       '       <span data-clock style="font-weight:800;font-size:1.1rem;margin-left:12px">120:00</span></p>',
       '  </div>'
@@ -470,7 +467,7 @@ function examens(course) {
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible 2FA et séquence ICER.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible 2FA et séquence ICER.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché avant l\'épreuve.' }
     ])),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../exercices/exercices.html', label: 'Exercices & projet' }),

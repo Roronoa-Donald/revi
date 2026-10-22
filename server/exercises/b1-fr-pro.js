@@ -86,7 +86,7 @@ module.exports = [
     "level": "n3",
     "language": "analyse",
     "title": "Explicite et implicite",
-    "goal": "Séparer ce qui est dit de ce qui est voulu : « Il fait chaud dans ta chambre » est une demande déguisée.",
+    "goal": "Séparer ce qui est dit de ce qui est voulu : « Il fait chaud dans votre chambre » est une demande déguisée.",
     "brief": "<p>Pour chaque situation proposée : sens vaut <code>mot</code> (explicite : ce que la personne dit) ou <code>voile</code> (implicite : ce qu'elle veut dire). Pour chaque situation, indiquez <code>message : explicite</code> ou <code>message : implicite</code>. Concluez par <code>implicites : X/n</code>, puis <code>communication : a decoder</code> si les implicites sont strictement majoritaires, <code>communication : directe</code> sinon.</p>",
     "starter": "# Grille d'analyse (fr-c1-e3) — Explicite et implicite\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule sous-entendu]\n# Données : m1 voile\nA_COMPLETER\n\n[Cas 2 — Que du litteral]\n# Données : m1 mot\n# Données : m2 mot\nA_COMPLETER\n\n[Cas 3 — Cinq messages]\n# Données : m1 voile\n# Données : m2 mot\n# Données : m3 mot\n# Données : m4 mot\n# Données : m5 voile\nA_COMPLETER\n",
     "hints": [

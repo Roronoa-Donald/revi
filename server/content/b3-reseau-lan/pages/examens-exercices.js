@@ -129,29 +129,29 @@ function exercices(course) {
   ]);
 
   const exercises = [
-    { id: 'lan3-c1-e1', ch: 1, title: 'Simulateur d’élection de Root Bridge STP (Bridge ID & priorité)', level: 'n1', lang: 'Python', desc: 'Comparer les Bridge IDs (Priority + Extended System ID VLAN + MAC) et déterminer le Root Bridge.' },
-    { id: 'lan3-c1-e2', ch: 1, title: 'Calculateur de sélection de Root Port et départage de chemin', level: 'n2', lang: 'Python', desc: 'Sélectionner le Root Port d’un commutateur en départageant selon le coût, le BID voisin et le PID.' },
-    { id: 'lan3-c1-e3', ch: 1, title: 'Auditeur de mécanismes de protection STP (BPDU Guard & Root Guard)', level: 'n3', lang: 'Python', desc: 'Auditer l’arrivée de BPDUs sur les ports et déclencher l’isolation err-disable ou root-inconsistent.' },
+    { id: 'lan3-c1-e1', ch: 1, title: 'Simulateur d’élection de Root Bridge STP (Bridge ID & priorité)', level: 'n1', lang: 'Étude de cas', desc: 'Comparer les Bridge IDs (Priority + Extended System ID VLAN + MAC) et déterminer le Root Bridge.' },
+    { id: 'lan3-c1-e2', ch: 1, title: 'Calculateur de sélection de Root Port et départage de chemin', level: 'n2', lang: 'Étude de cas', desc: 'Sélectionner le Root Port d’un commutateur en départageant selon le coût, le BID voisin et le PID.' },
+    { id: 'lan3-c1-e3', ch: 1, title: 'Auditeur de mécanismes de protection STP (BPDU Guard & Root Guard)', level: 'n3', lang: 'Étude de cas', desc: 'Auditer l’arrivée de BPDUs sur les ports et déclencher l’isolation err-disable ou root-inconsistent.' },
 
-    { id: 'lan3-c2-e1', ch: 2, title: 'Simulateur de négociation d’agrégation de liens EtherChannel (LACP & PAgP)', level: 'n1', lang: 'Python', desc: 'Valider la négociation dynamique d’un bundle EtherChannel selon les modes configurés des deux côtés.' },
-    { id: 'lan3-c2-e2', ch: 2, title: 'Simulateur de distribution de charge et hachage EtherChannel', level: 'n2', lang: 'Python', desc: 'Calculer le hachage de flux et identifier le lien membre physique emprunté par chaque trame.' },
-    { id: 'lan3-c2-e3', ch: 2, title: 'Auditeur de cohérence de configuration des membres Port-Channel', level: 'n3', lang: 'Python', desc: 'Contrôler la compatibilité stricte de vitesse, duplex, mode de port et VLANs des interfaces membres.' },
+    { id: 'lan3-c2-e1', ch: 2, title: 'Simulateur de négociation d’agrégation de liens EtherChannel (LACP & PAgP)', level: 'n1', lang: 'Étude de cas', desc: 'Valider la négociation dynamique d’un bundle EtherChannel selon les modes configurés des deux côtés.' },
+    { id: 'lan3-c2-e2', ch: 2, title: 'Simulateur de distribution de charge et hachage EtherChannel', level: 'n2', lang: 'Étude de cas', desc: 'Calculer le hachage de flux et identifier le lien membre physique emprunté par chaque trame.' },
+    { id: 'lan3-c2-e3', ch: 2, title: 'Auditeur de cohérence de configuration des membres Port-Channel', level: 'n3', lang: 'Étude de cas', desc: 'Contrôler la compatibilité stricte de vitesse, duplex, mode de port et VLANs des interfaces membres.' },
 
-    { id: 'lan3-c3-e1', ch: 3, title: 'Simulateur d’élection de routeur maître VRRP v2/v3', level: 'n1', lang: 'Python', desc: 'Déterminer le Master d’un groupe VRRP et calculer l’adresse MAC virtuelle associée.' },
-    { id: 'lan3-c3-e2', ch: 3, title: 'Moteur de suivi d’objets (Object Tracking) et basculement de passerelle', level: 'n2', lang: 'Python', desc: 'Simuler la décrémentation dynamique de priorité et le basculement preempt vers la passerelle de secours.' },
-    { id: 'lan3-c3-e3', ch: 3, title: 'Simulateur d’équilibrage de charge de passerelle active GLBP', level: 'n3', lang: 'Python', desc: 'Modéliser la réponse aux requêtes ARP des clients selon la méthode GLBP sélectionnée.' },
+    { id: 'lan3-c3-e1', ch: 3, title: 'Simulateur d’élection de routeur maître VRRP v2/v3', level: 'n1', lang: 'Étude de cas', desc: 'Déterminer le Master d’un groupe VRRP et calculer l’adresse MAC virtuelle associée.' },
+    { id: 'lan3-c3-e2', ch: 3, title: 'Moteur de suivi d’objets (Object Tracking) et basculement de passerelle', level: 'n2', lang: 'Étude de cas', desc: 'Simuler la décrémentation dynamique de priorité et le basculement preempt vers la passerelle de secours.' },
+    { id: 'lan3-c3-e3', ch: 3, title: 'Simulateur d’équilibrage de charge de passerelle active GLBP', level: 'n3', lang: 'Étude de cas', desc: 'Modéliser la réponse aux requêtes ARP des clients selon la méthode GLBP sélectionnée.' },
 
-    { id: 'lan3-c4-e1', ch: 4, title: 'Calculateur de coût Dijkstra OSPFv2 et sélection du meilleur chemin', level: 'n1', lang: 'Python', desc: 'Calculer le coût métrique d’interfaces et sélectionner le chemin de coût cumulé minimal.' },
-    { id: 'lan3-c4-e2', ch: 4, title: 'Parseur de paquets de mise à jour LSDB OSPF (Types 1 à 7)', level: 'n2', lang: 'Python', desc: 'Analyser les entêtes LSA échangés et identifier leur type et leur portée de diffusion.' },
-    { id: 'lan3-c4-e3', ch: 4, title: 'Simulateur de filtrage d’aires spéciales OSPF (Stub, Totally Stubby & NSSA)', level: 'n3', lang: 'Python', desc: 'Appliquer les règles de filtrage de LSAs et d’injection de route par défaut selon le type d’aire.' },
+    { id: 'lan3-c4-e1', ch: 4, title: 'Calculateur de coût Dijkstra OSPFv2 et sélection du meilleur chemin', level: 'n1', lang: 'Étude de cas', desc: 'Calculer le coût métrique d’interfaces et sélectionner le chemin de coût cumulé minimal.' },
+    { id: 'lan3-c4-e2', ch: 4, title: 'Parseur de paquets de mise à jour LSDB OSPF (Types 1 à 7)', level: 'n2', lang: 'Étude de cas', desc: 'Analyser les entêtes LSA échangés et identifier leur type et leur portée de diffusion.' },
+    { id: 'lan3-c4-e3', ch: 4, title: 'Simulateur de filtrage d’aires spéciales OSPF (Stub, Totally Stubby & NSSA)', level: 'n3', lang: 'Étude de cas', desc: 'Appliquer les règles de filtrage de LSAs et d’injection de route par défaut selon le type d’aire.' },
 
-    { id: 'lan3-c5-e1', ch: 5, title: 'Simulateur de violation de sécurité de port (Port Security)', level: 'n1', lang: 'Python', desc: 'Contrôler la table d’adresses MAC d’un port d’accès et appliquer l’action de violation configurée.' },
-    { id: 'lan3-c5-e2', ch: 5, title: 'Validateur d’inspection DHCP Snooping et base de liaisons', level: 'n2', lang: 'Python', desc: 'Filtrer les messages DHCP selon le statut trusted/untrusted du port et enregistrer les baux légitimes.' },
-    { id: 'lan3-c5-e3', ch: 5, title: 'Simulateur d’inspection dynamique ARP (Dynamic ARP Inspection - DAI)', level: 'n3', lang: 'Python', desc: 'Valider les paquets ARP entrants en les comparant à la table de baux DHCP Snooping.' },
+    { id: 'lan3-c5-e1', ch: 5, title: 'Simulateur de violation de sécurité de port (Port Security)', level: 'n1', lang: 'Étude de cas', desc: 'Contrôler la table d’adresses MAC d’un port d’accès et appliquer l’action de violation configurée.' },
+    { id: 'lan3-c5-e2', ch: 5, title: 'Validateur d’inspection DHCP Snooping et base de liaisons', level: 'n2', lang: 'Étude de cas', desc: 'Filtrer les messages DHCP selon le statut trusted/untrusted du port et enregistrer les baux légitimes.' },
+    { id: 'lan3-c5-e3', ch: 5, title: 'Simulateur d’inspection dynamique ARP (Dynamic ARP Inspection - DAI)', level: 'n3', lang: 'Étude de cas', desc: 'Valider les paquets ARP entrants en les comparant à la table de baux DHCP Snooping.' },
 
-    { id: 'lan3-c6-e1', ch: 6, title: 'Convertisseur de marquage QoS 802.1p CoS vers DiffServ DSCP', level: 'n1', lang: 'Python', desc: 'Mapper les niveaux de priorité de niveau 2 (CoS) vers les classes standardisées DSCP de niveau 3.' },
-    { id: 'lan3-c6-e2', ch: 6, title: 'Simulateur d’ordonnanceur de files d’attente (Strict Priority vs WRR)', level: 'n2', lang: 'Python', desc: 'Ordonnancer l’émission de paquets selon les algorithmes Strict Priority et Weighted Round Robin.' },
-    { id: 'lan3-c6-e3', ch: 6, title: 'Parseur de trames de découverte de topologie LLDP (802.1AB)', level: 'n3', lang: 'Python', desc: 'Décoder les TLVs obligatoires d’un paquet LLDP et reconstituer l’identité de l’équipement voisin.' }
+    { id: 'lan3-c6-e1', ch: 6, title: 'Convertisseur de marquage QoS 802.1p CoS vers DiffServ DSCP', level: 'n1', lang: 'Étude de cas', desc: 'Mapper les niveaux de priorité de niveau 2 (CoS) vers les classes standardisées DSCP de niveau 3.' },
+    { id: 'lan3-c6-e2', ch: 6, title: 'Simulateur d’ordonnanceur de files d’attente (Strict Priority vs WRR)', level: 'n2', lang: 'Étude de cas', desc: 'Ordonnancer l’émission de paquets selon les algorithmes Strict Priority et Weighted Round Robin.' },
+    { id: 'lan3-c6-e3', ch: 6, title: 'Parseur de trames de découverte de topologie LLDP (802.1AB)', level: 'n3', lang: 'Étude de cas', desc: 'Décoder les TLVs obligatoires d’un paquet LLDP et reconstituer l’identité de l’équipement voisin.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -172,7 +172,7 @@ function exercices(course) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — Réseau LAN Avancé B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 études de cas pratiques et méthodologiques intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',
@@ -184,7 +184,7 @@ function exercices(course) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Répertoire complet des 18 exercices de programmation en Python 3 du cours Réseau LAN Avancé B3.',
+      description: 'Répertoire complet des 18 exercices de programmation de manière méthodique du cours Réseau LAN Avancé B3.',
       active: 'exercices',
       body
     }

@@ -19,7 +19,7 @@ module.exports = {
     'analyser la matrice des modes de négociation (active, passive, desirable, auto, on) ;',
     'identifier et auditer les exigences de compatibilité stricte des ports membres d’un bundle ;',
     'calculer la répartition de trafic selon les algorithmes de hachage (src-mac, dst-mac, src-dst-ip, ports TCP/UDP) ;',
-    'développer en Python 3 des simulateurs de négociation EtherChannel, des répartiteurs de hachage et des auditeurs de cohérence.'
+    'analyser et résoudre méthodologiquement des simulateurs de négociation EtherChannel, des répartiteurs de hachage et des auditeurs de cohérence.'
   ],
   sections: [
     {

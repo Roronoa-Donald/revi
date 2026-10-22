@@ -29,7 +29,7 @@ module.exports = {
     },
     {
       "title": "L’Algorithme de Dijkstra avec File de Priorité",
-      "html": "<p>L’algorithme de Dijkstra maintient un ensemble de sommets $S$ dont la distance minimale est définitivement établie. À chaque étape, il choisit de manière gloutonne le sommet $u \\notin S$ ayant la plus petite distance estimée $d[u]$ :</p>\n<ol>\n  <li><strong>Initialisation :</strong> $d[s] = 0$, $d[v] = \\infty$ pour tout $v \\neq s$. File de priorité $Q$ initialisée avec $(0, s)$.</li>\n  <li><strong>Boucle principale :</strong> Tant que la file $Q$ n’est pas vide :<br>  - Extraire le sommet $u$ ayant la distance $d[u]$ minimale.<br>  - Si $u$ a déjà été finalisé, ignorer.<br>  - Ajouter $u$ aux sommets finalisés.<br>  - Pour chaque voisin $v$ de $u$, relâcher l’arc $(u, v)$. Si la distance est améliorée, insérer $(d[v], v)$ dans la file de priorité $Q$.</li>\n</ol>\n<p><strong>Complexité :</strong> Avec un Tas Binaire (Min-Heap), l’extraction du minimum prend $O(\\log |V|)$ et chaque relâchement prend $O(\\log |V|)$. Pour $|V|$ sommets et $|E|$ arcs, la complexité totale est : <strong>$O((|V| + |E|) \\log |V|)$</strong>. Dans un réseau routier creux ($|E| = O(|V|)$), elle est quasi-linéaire en $O(|V| \\log |V|)$.</p>"
+      "html": "<p>L’algorithme de Dijkstra maintient un ensemble de sommets $S$ dont la distance minimale est définitivement établie. À chaque étape, il choisit de manière gloutonne le sommet $u ∉ S$ ayant la plus petite distance estimée $d[u]$ :</p>\n<ol>\n  <li><strong>Initialisation :</strong> $d[s] = 0$, $d[v] = \\infty$ pour tout $v ≠ s$. File de priorité $Q$ initialisée avec $(0, s)$.</li>\n  <li><strong>Boucle principale :</strong> Tant que la file $Q$ n’est pas vide :<br>  - Extraire le sommet $u$ ayant la distance $d[u]$ minimale.<br>  - Si $u$ a déjà été finalisé, ignorer.<br>  - Ajouter $u$ aux sommets finalisés.<br>  - Pour chaque voisin $v$ de $u$, relâcher l’arc $(u, v)$. Si la distance est améliorée, insérer $(d[v], v)$ dans la file de priorité $Q$.</li>\n</ol>\n<p><strong>Complexité :</strong> Avec un Tas Binaire (Min-Heap), l’extraction du minimum prend $O(\\log |V|)$ et chaque relâchement prend $O(\\log |V|)$. Pour $|V|$ sommets et $|E|$ arcs, la complexité totale est : <strong>$O((|V| + |E|) \\log |V|)$</strong>. Dans un réseau routier creux ($|E| = O(|V|)$), elle est quasi-linéaire en $O(|V| \\log |V|)$.</p>"
     },
     {
       "title": "Limites de Dijkstra et Algorithme de Bellman-Ford",
@@ -168,6 +168,12 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « Problème du plus court chemin à source unique (SSSP) » ?', "a": 'Problème du plus court chemin à source unique (SSSP)' },
+    { "q": 'Qu’est-ce que « Opération de relâchement d’arc (Edge Relaxation) » ?', "a": 'Opération de relâchement d’arc (Edge Relaxation)' },
+    { "q": 'Qu’est-ce que « Invariant de sous-chemin optimal » ?', "a": 'Invariant de sous-chemin optimal' },
+    { "q": 'Qu’est-ce que « Algorithme de Dijkstra avec file de priorité min-heap » ?', "a": 'Algorithme de Dijkstra avec file de priorité min-heap' },
+    { "q": 'Qu’est-ce que « Table des prédécesseurs et reconstruction de chemin » ?', "a": 'Table des prédécesseurs et reconstruction de chemin' },
+    { "q": 'Qu’est-ce que « Détection de cycle absorbant (cycle négatif) » ?', "a": 'Détection de cycle absorbant (cycle négatif)' },
     {
       "q": "En quoi consiste le relâchement d’un arc (u, v) avec poids w ?",
       "a": "À tester si d[u] + w < d[v], et si c’est le cas, à mettre à jour d[v] = d[u] + w et parent[v] = u."

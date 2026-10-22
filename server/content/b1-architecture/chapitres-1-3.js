@@ -41,6 +41,10 @@ module.exports = [
 
     sections: [
       {
+        "title": "Vue d’ensemble préalable : Le modèle d’architecture de Von Neumann (CPU, RAM, Bus, E/S)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Comprendre les composants matériels dès le Chapitre 1 (approfondis au Chapitre 6)</div><p>Avant de manipuler les bits et les octets, situons les quatre organes de l’architecture de <strong>Von Neumann</strong> que nous citerons dans les exemples :</p><ul><li><strong>Le processeur (CPU) :</strong> cerveau qui exécute les instructions grâce à son Unité de Commande (UCC) et son Unité Arithmétique et Logique (UAL) ;</li><li><strong>La mémoire vive (RAM) :</strong> mémoire de travail rapide mais volatile qui stocke les programmes et données en cours d’exécution ;</li><li><strong>Les bus de communication :</strong> pistes électroniques reliant le CPU, la RAM et les contrôleurs ;</li><li><strong>Les unités d’Entrée/Sortie (E/S) et de stockage :</strong> clavier, écran, disque SSD/NVMe et carte réseau.</li></ul></div>"
+      },
+      {
         title: 'Définitions et histoire',
         html: [
           '<p>L\'<strong>ordinateur</strong> est une machine électronique programmable capable de traiter ' +
@@ -166,11 +170,22 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les définitions et le tableau des unités.' },
       { cls: 'mid', text: '50–69 % — refais les conversions Ko/Mo/Go et Mo/s/Mbps.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les types d\'OS et l\'histoire.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les types d\'OS et l\'histoire.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Latence » ?', a: "Latence : délai d'accès, en ms ou ns, à minimiser." },
+      { q: 'Qu’est-ce que « Groupement par 3 ou 4 bits » ?', a: 'Groupement par 3 ou 4 bits : binaire vers octal ou hexa.' },
+      { q: 'Qu’est-ce que « ASCII » ?', a: 'ASCII : code des caractères sur 7 bits (A = 65).' },
+      { q: 'Qu’est-ce que « Bit de signe » ?', a: 'Bit de signe : MSB valant 0 (positif) ou 1 (négatif).' },
+      { q: 'Qu’est-ce que « Débordement » ?', a: 'Débordement : résultat sortant de la capacité du mot.' },
+      { q: 'Qu’est-ce que « Minterme » ?', a: 'Minterme : produit des variables pour une ligne de table où la sortie vaut 1.' },
+      { q: 'Qu’est-ce que « Décodeur » ?', a: "Décodeur : active une sortie par combinaison des entrées d'adresse." },
+      { q: 'Qu’est-ce que « Circuit séquentiel » ?', a: "Circuit séquentiel : sortie dépendant des entrées et de l'état mémorisé." },
+      { q: 'Qu’est-ce que « Asynchrone » ?', a: 'Asynchrone : agit hors horloge (set/reset immédiats).' },
+      { q: 'Qu’est-ce que « BIOS/UEFI » ?', a: 'BIOS/UEFI : microprogramme qui initialise la machine au démarrage.' },
+      { q: 'Qu’est-ce que « SSD » ?', a: 'SSD : stockage permanent sans partie mécanique, plus rapide que le HDD.' },
       { q: 'Définition d\'un ordinateur ?', a: 'Machine électronique programmable qui traite automatiquement des informations.' },
       { q: 'Les quatre familles du système informatique ?', a: 'Hardware (matériel), software (logiciels), données, utilisateurs.' },
       { q: 'Les cinq générations d\'ordinateurs ?', a: 'Lampe, transistor, circuit intégré, microprocesseur, réseau et cloud.' },
@@ -190,7 +205,7 @@ module.exports = [
     situation:
       'La machine ne connaît que deux états : 0 et 1. Tout nombre, tout texte, toute adresse finit en binaire. ' +
       'Savoir convertir dans les quatre sens — binaire, octal, décimal, hexadécimal — est le geste quotidien ' +
-      'de l\'architecte : ce chapitre l\'automatise, y compris en Bash.',
+      'de l\'architecte : ce chapitre l\'automatise, y compris dans les grilles d’analyse de l’atelier.',
 
     objectives: [
       'nommer bit, quartet, octet, MSB et LSB ;',
@@ -303,8 +318,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — refais les divisions successives pas à pas.' },
-      { cls: 'mid', text: '50–69 % — entraîne-toi aux groupements 3 et 4 bits.' },
-      { cls: 'good', text: '70–89 % — cible les fractions et les allers-retours rapides.' },
+      { cls: 'mid', text: '50–69 % — entraînez-vous aux groupements 3 et 4 bits.' },
+      { cls: 'good', text: '70–94 % — cible les fractions et les allers-retours rapides.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -380,7 +395,7 @@ module.exports = [
           'revient à décaler de k bits vers la gauche. <strong>Division</strong> : soustractions successives ' +
           'et décalages vers la droite. Un <strong>débordement</strong> survient quand le résultat dépasse la ' +
           'capacité du mot : sur 4 bits non signés, 1111 + 0001 donne 10000 — le 1 qui sort est le carry.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>L\'additionneur de l\'atelier pose 1+1 : observe la retenue se propager.</li>\n' +
             '      <li>Le complément à 2 d\'une valeur v sur 4 bits : ((16 - v) mod 16), reconstruit bit à bit.</li>\n' +
@@ -442,8 +457,8 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — refais C1 et C2 sur des mots de 4 bits.' },
-      { cls: 'mid', text: '50–69 % — entraîne-toi aux additions avec retenues.' },
-      { cls: 'good', text: '70–89 % — cible la méthode directe et les débordements.' },
+      { cls: 'mid', text: '50–69 % — entraînez-vous aux additions avec retenues.' },
+      { cls: 'good', text: '70–94 % — cible la méthode directe et les débordements.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

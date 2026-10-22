@@ -33,7 +33,7 @@ $nom = trim(fgets(STDIN));
 `,
     hints: [
       'fgets(STDIN) lit une ligne du clavier ou du tube d’entrée ; trim retire le saut de ligne qui l’accompagne.',
-      'Entre guillemets doubles, une variable est remplacée par sa valeur : c’est l’interpolation.'
+      'Entrez guillemets doubles, une variable est remplacée par sa valeur : c’est l’interpolation.'
     ],
     examples: [
       { stdin: 'Alice', expected: 'Bonjour Alice !', note: 'Le prénom est inséré dans le message.' }

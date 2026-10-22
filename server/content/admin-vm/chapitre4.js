@@ -26,6 +26,10 @@ module.exports = {
   ],
 
   sections: [
+      {
+        "title": "Allocation des Disques Virtuels : Thin Provisioning vs Thick Provisioning (Épreuve Officielle B2)",
+        "html": "<div class=\"box box--tech\"><div class=\"box__title\">Notion clé d’examen : Thin Provisioning (allocation dynamique) vs Thick Provisioning</div><p>Lors de la création d’un disque virtuel (<code>.vmdk</code> sous VMware vSphere/ESXi, <code>.vhdx</code> sous Hyper-V ou <code>.qcow2</code> sous KVM), l’administrateur choisit entre deux modes d’allocation de l’espace sur le datastore :</p><ul><li><strong>Thin Provisioning (allocation fine ou dynamique) :</strong> l’espace disque physique n’est <strong>alloué dynamiquement qu’au fur et à mesure des besoins réels d’écriture</strong> de la machine virtuelle. Une VM dotée d’un disque logique de 100 Go qui ne contient que 15 Go de fichiers n’occupe réellement que 15 Go sur le stockage physique. Cela maximise le taux d’utilisation du stockage mais exige une surveillance stricte de la surallocation (<em>overprovisioning</em>) pour ne jamais saturer le datastore ;</li><li><strong>Thick Provisioning (allocation épaisse ou statique — Lazy Zeroed / Eager Zeroed) :</strong> la totalité de la taille déclarée (100 Go) est immédiatement réservée et immobilisée sur le disque physique dès la création de la VM, garantissant des performances d’écriture constantes et l’absence de saturation imprévue.</li></ul></div>"
+      },
     {
       title: 'Pourquoi le stockage est critique',
       html: [
@@ -133,9 +137,9 @@ module.exports = {
 
   notions: ['stockage', 'LVM', 'PV', 'VG', 'LV', 'LVM-thin', 'ZFS', 'Ceph', 'Directory', 'NFS', 'iSCSI', 'snapshot', 'backup', 'GFS', '3-2-1', 'RAID'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends LVM (PV, VG, LV).' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur NFS vs iSCSI.' },
-    { cls: 'good', text: '70–89 % — Solide : tu structures stockage et sauvegardes.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez LVM (PV, VG, LV).' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur NFS vs iSCSI.' },
+    { cls: 'good', text: '70–94 % — Solide : vous structurez stockage et sauvegardes.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe au réseau virtualisé, chapitre 5.' }
   ],
 

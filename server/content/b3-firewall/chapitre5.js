@@ -20,7 +20,7 @@ module.exports = {
     'analyser le champ SNI (Server Name Indication) dans le message TLS Client Hello pour le filtrage de domaines sans interception SSL ;',
     'mettre en œuvre des politiques de filtrage d’URL et de réputation catégorielle (malware, phishing, réseaux sociaux) ;',
     'concevoir un moteur de Deep Packet Inspection (DPI) capable de détecter les signatures d’injections SQL, XSS et traversées de répertoires ;',
-    'développer en Python 3 des filtres SNI TLS, des limiteurs de débit anti-DoS et un moteur de détection de signatures L7.'
+    'analyser et résoudre méthodologiquement des filtres SNI TLS, des limiteurs de débit anti-DoS et un moteur de détection de signatures L7.'
   ],
   sections: [
     {
@@ -112,7 +112,7 @@ module.exports = {
     'La gestion des politiques de filtrage d’URL catégoriel est maîtrisée.',
     'Les signatures d’attaques applicatives L7 majeures (SQLi, XSS, Path Traversal) sont identifiées.',
     'Le mécanisme de Rate Limiting par fenêtre glissante est compris et formulé.',
-    'Les 3 ateliers de programmation interactive en Python 3 (fw3-c5-e1 à fw3-c5-e3) sont validés.'
+    'Les 3 études de cas pratiques et méthodologiques (fw3-c5-e1 à fw3-c5-e3) sont validés.'
   ],
   notions: [
     'Pare-feu Nouvelle Génération (NGFW)',

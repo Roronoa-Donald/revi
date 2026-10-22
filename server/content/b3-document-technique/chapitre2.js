@@ -20,7 +20,7 @@ module.exports = {
     'rédiger une Spécification Technique Détaillée (STD) comprenant modèles de données et matrices de flux pare-feu ;',
     'construire et auditer une matrice de traçabilité des exigences (Requirements Traceability Matrix - RTM) ;',
     'identifier et neutraliser les règles de flux permissives dangereuses (ports ouverts, adresses ANY) dans une STD ;',
-    'développer en Python 3 des validateurs de cas d’utilisation, des audits de couverture RTM et des analyseurs de flux réseau.'
+    'analyser et résoudre méthodologiquement des validateurs de cas d’utilisation, des audits de couverture RTM et des analyseurs de flux réseau.'
   ],
   sections: [
     {

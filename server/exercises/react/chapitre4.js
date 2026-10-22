@@ -92,7 +92,7 @@ if (filtered.length > 0) {
     language: 'javascript',
     title: 'Opérateur court-circuit (&&)',
     goal: 'Afficher un badge de notification seulement si le compteur est strictement positif.',
-    brief: '<p>Le motif JSX <code>{condition &amp;&amp; &lt;Composant /&gt;}</code> est classique pour le rendu conditionnel. Le script lit une ligne au format <code>actif nb</code> où actif vaut <code>1</code> ou <code>0</code>, et nb est un entier. Si actif vaut 1 et nb &gt; 0, affichez <code>&lt;span class="badge"&gt;NB&lt;/span&gt;</code>. Sinon, affichez <code>(aucun)</code>.</p>',
+    brief: '<p>Le motif JSX <code>{condition &amp;&amp; &lt;Composant /&gt;}</code> est classique pour le rendu conditionnel. Le script lit une ligne au format <code>actif nb</code> où actif vaut <code>1</code> ou <code>0</code>, et nb est un entier. Si actif vaut 1 et nb &gt; 0, affichez <code>&lt;span class="badge"&gt;NB&lt;/span&gt;</code>. Sinon, affichezzz <code>(aucun)</code>.</p>',
     starter: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
 

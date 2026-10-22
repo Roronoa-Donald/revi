@@ -16,7 +16,7 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c6-e1) — Dates au plus tôt (Forward Pass PERT/CPM)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne linéaire simple]\n# Données : A:AUCUN,4 | B:A,5 | C:B,6\nA_COMPLETER\n\n[Cas 2 — Deux branches parallèles convergeant vers une tâche]\n# Données : A:AUCUN,5 | B:AUCUN,8 | C:A-B,3\nA_COMPLETER\n\n[Cas 3 — Graphe à 5 nœuds]\n# Données : A:AUCUN,2 | B:A,3 | C:A,5 | D:B,4 | E:C-D,2\nA_COMPLETER\n",
     "hints": [
       "Parse chaque tâche dans un dictionnaire avec sa durée et ses prédécesseurs.",
-      "Parcours les tâches dans l'ordre de dépendance (ou itère jusqu'à stabilisation des dates ES)."
+      "Parcourez les tâches dans l'ordre de dépendance (ou itère jusqu'à stabilisation des dates ES)."
     ],
     "examples": [
       {
@@ -51,11 +51,11 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "goal": "Calculer la marge totale de chaque tâche et identifier le chemin critique du projet.",
-    "brief": "<p>La <strong>marge totale</strong> d’une tâche $i$ mesure le retard maximal qu’elle peut prendre sans retarder la date de fin globale du projet :<br>$$MT(i) = LF(i) - ES(i) - d_i$$où $ES$ est la date au plus tôt, $LF$ la date au plus tard d’achèvement, et $d_i$ la durée de la tâche.<br>Une tâche est dite <strong>critique</strong> si sa marge totale est nulle ($MT = 0$).</p><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>Calcule la marge totale de chaque tâche.<br>Indiquez :<br><code>MARGES: nom=MT,... CRITIQUES: &lt;liste des tâches critiques séparées par des tirets&gt;</code>.</p>",
+    "brief": "<p>La <strong>marge totale</strong> d’une tâche $i$ mesure le retard maximal qu’elle peut prendre sans retarder la date de fin globale du projet :<br>$$MT(i) = LF(i) - ES(i) - d_i$$où $ES$ est la date au plus tôt, $LF$ la date au plus tard d’achèvement, et $d_i$ la durée de la tâche.<br>Une tâche est dite <strong>critique</strong> si sa marge totale est nulle ($MT = 0$).</p><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>Calculez la marge totale de chaque tâche.<br>Indiquez :<br><code>MARGES: nom=MT,... CRITIQUES: &lt;liste des tâches critiques séparées par des tirets&gt;</code>.</p>",
     "starter": "# Grille de calcul (ro2-c6-e2) — Marges totales & Chemin critique\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les tâches sont critiques (projet mono-branche)]\n# Données : A:0,4,4 | B:4,9,5 | C:9,12,3\nA_COMPLETER\n\n[Cas 2 — Deux tâches avec marge positive]\n# Données : A:0,5,5 | B:0,5,2 | C:2,8,3 | D:5,10,5\nA_COMPLETER\n\n[Cas 3 — Projet à 4 tâches avec bifurcation]\n# Données : X:0,2,2 | Y:2,6,4 | Z:2,6,1 | W:6,8,2\nA_COMPLETER\n",
     "hints": [
       "Pour chaque tâche, mt = lf - es - duree.",
-      "Filtre les tâches avec mt == 0 pour former la chaîne critique."
+      "Filtrez les tâches avec mt == 0 pour former la chaîne critique."
     ],
     "examples": [
       {
@@ -90,10 +90,10 @@ module.exports = [
     "level": "n3",
     "language": "analyse",
     "goal": "Calculer la capacité résiduelle d’une chaîne augmentante et mettre à jour le flot dans un réseau.",
-    "brief": "<p>Dans l’algorithme de Ford-Fulkerson pour la recherche du <strong>flot maximal</strong>, chaque arc $(u, v)$ possède une capacité $c(u, v)$ et un flot actuel $f(u, v)$. La capacité résiduelle est $r(u, v) = c(u, v) - f(u, v)$.</p><p>Pour une chaîne augmentante $P = (s, v_1, v_2, \\dots, t)$, la valeur maximale de flot que l’on peut pousser est déterminée par le <strong>goulot d’étranglement</strong> (bottleneck capacity) :<br>$$\\Delta = \\min_{(u, v) \\in P} r(u, v)$$</p><p>Analysez les paramètres du problème pour chaque cas... ; CHAINE: s-v1-v2-...-t</code>.<br>Calcule $\\Delta$ et les nouvelles capacités résiduelles des arcs de la chaîne.<br>Indiquez :<br><code>DELTA=&lt;Delta&gt; ARCS_MAJ: u1-v1=&lt;nouveau_flot&gt;,...</code>.</p>",
+    "brief": "<p>Dans l’algorithme de Ford-Fulkerson pour la recherche du <strong>flot maximal</strong>, chaque arc $(u, v)$ possède une capacité $c(u, v)$ et un flot actuel $f(u, v)$. La capacité résiduelle est $r(u, v) = c(u, v) - f(u, v)$.</p><p>Pour une chaîne augmentante $P = (s, v_1, v_2, \\dots, t)$, la valeur maximale de flot que l’on peut pousser est déterminée par le <strong>goulot d’étranglement</strong> (bottleneck capacity) :<br>$$\\Delta = \\min_{(u, v) \\in P} r(u, v)$$</p><p>Analysez les paramètres du problème pour chaque cas... ; CHAINE: s-v1-v2-...-t</code>.<br>Calculez $\\Delta$ et les nouvelles capacités résiduelles des arcs de la chaîne.<br>Indiquez :<br><code>DELTA=&lt;Delta&gt; ARCS_MAJ: u1-v1=&lt;nouveau_flot&gt;,...</code>.</p>",
     "starter": "# Grille de calcul (ro2-c6-e3) — Goulot d’étranglement de Ford-Fulkerson\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne à trois arcs avec saturation exacte]\n# Données : s-1:15,5 | 1-2:10,2 | 2-t:8,4 ; CHAINE: s-1-2-t\nA_COMPLETER\n\n[Cas 2 — Chaîne saturée dès le premier arc]\n# Données : s-A:6,3 | A-t:12,1 ; CHAINE: s-A-t\nA_COMPLETER\n\n[Cas 3 — Graphe avec réseau maillé]\n# Données : s-u:20,10 | u-v:14,4 | v-t:18,12 ; CHAINE: s-u-v-t\nA_COMPLETER\n",
     "hints": [
-      "Découpe par \";\" pour séparer le réseau de la chaîne à augmenter.",
+      "Découpez par \";\" pour séparer le réseau de la chaîne à augmenter.",
       "Pour chaque arc consécutif de la chaîne, calcule r = cap - flot et trouve min(r)."
     ],
     "examples": [

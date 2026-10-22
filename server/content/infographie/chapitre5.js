@@ -71,7 +71,7 @@ module.exports = {
         '  <tbody>',
         '    <tr><td><strong>Diffuse (Mate)</strong></td><td>Loi de Lambert</td><td><code>Id = max(0.0, N · L)</code></td><td>L’énergie reçue dépend du cosinus de l’angle entre la normale <code>N</code> et la lumière <code>L</code>.</td></tr>',
         '    <tr><td><strong>Spéculaire (Brillante)</strong></td><td>Phong</td><td><code>Is = max(0.0, R · V)^shininess</code></td><td>Reflet brillant le long du rayon réfléchi <code>R = 2(N·L)N - L</code> vu par la caméra <code>V</code>.</td></tr>',
-        '    <tr><td><strong>Spéculaire Optimisé</strong></td><td>Blinn-Phong</td><td><code>Is = max(0.0, N · H)^shininess</code></td><td>Utilise le vecteur mi-chemin <code>H = normalize(L + V)</code>, plus rapide à calculer sur GPU.</td></tr>',
+        '    <tr><td><strong>Spéculaire Optimisé</strong></td><td>Blinn-Phong</td><td><code>Is = max(0.0, N · H)^shininess</code></td><td>Utilisez le vecteur mi-chemin <code>H = normalize(L + V)</code>, plus rapide à calculer sur GPU.</td></tr>',
         '  </tbody>',
         '</table>',
 

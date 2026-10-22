@@ -100,7 +100,7 @@ module.exports = [
           'gestion PostgreSQL ; <code>requirements.txt</code> — les dépendances ; <code>README.md</code> — ' +
           'la documentation. Cette séparation n\'est pas décorative : on peut changer d\'interface sans ' +
           'toucher à la base, et tester la base sans ouvrir la fenêtre.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>Le classeur des compétences : interface → tkinter, connexion → postgres, operations → crud, classes → poo.</li>\n' +
             '      <li>Le testeur de prérequis : version -ge 37, tkinter et psql = oui — trois conditions en ET.</li>\n' +
@@ -163,11 +163,26 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les objectifs et la structure du projet.' },
       { cls: 'mid', text: '50–69 % — refais l\'installation de l\'environnement.' },
-      { cls: 'good', text: '70–89 % — cible le rôle de chaque fichier.' },
+      { cls: 'good', text: '70–94 % — cible le rôle de chaque fichier.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Projet tutoré » ?', a: 'Projet tutoré : application complète qui mobilise tous les acquis.' },
+      { q: 'Qu’est-ce que « POO » ?', a: 'POO : classes Database et ApplicationGestionStock.' },
+      { q: 'Qu’est-ce que « cursor » ?', a: 'cursor : objet qui exécute les requêtes et lit les résultats.' },
+      { q: 'Qu’est-ce que « CREATE TABLE IF NOT EXISTS » ?', a: 'CREATE TABLE IF NOT EXISTS : création idempotente.' },
+      { q: 'Qu’est-ce que « Entry » ?', a: "Entry : champ de saisie d'une ligne." },
+      { q: 'Qu’est-ce que « pack / grid » ?', a: 'pack / grid : les deux gestionnaires de mise en page.' },
+      { q: 'Qu’est-ce que « bind » ?', a: 'bind : relier un événement souris/clavier à une méthode.' },
+      { q: 'Qu’est-ce que « messagebox » ?', a: 'messagebox : showinfo, showwarning, showerror, askyesno.' },
+      { q: 'Qu’est-ce que « command= » ?', a: 'command= : référence de la méthode déclenchée par un Button.' },
+      { q: 'Qu’est-ce que « Sélection Treeview » ?', a: 'Sélection Treeview : prérequis de toute modification.' },
+      { q: 'Qu’est-ce que « Stock insuffisant » ?', a: 'Stock insuffisant : sortie refusée, mouvement ignoré.' },
+      { q: 'Qu’est-ce que « Accumulateur » ?', a: 'Accumulateur : total initialisé hors boucle.' },
+      { q: 'Qu’est-ce que « Filtre » ?', a: 'Filtre : sélection par catégorie égale à la cible.' },
+      { q: 'Qu’est-ce que « Boucle de maximum » ?', a: 'Boucle de maximum : meilleur + sa valeur, test strict.' },
+      { q: 'Qu’est-ce que « systemctl status » ?', a: 'systemctl status : premier réflexe de diagnostic du service.' },
       { q: 'Les cinq objectifs pédagogiques ?', a: 'Interface Tkinter, connexion PostgreSQL, opérations CRUD, gestion des exceptions, modules réutilisables.' },
       { q: 'Les quatre fichiers du projet ?', a: 'main.py (interface), database.py (SQL), requirements.txt (dépendances), README.md (doc).' },
       { q: 'Installer l\'environnement sur Ubuntu ?', a: 'apt install python3-pip postgresql python3-tk, pip install psycopg2-binary, créer la base gestion_stock.' },
@@ -198,6 +213,10 @@ module.exports = [
     ],
 
     sections: [
+      {
+        "title": "Prérequis intégré : Initiation pas à pas aux classes Python (class, __init__, self)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Niveau 1 — Intuition : Regrouper données et actions dans un même objet</div><p>Le cours de Python B1 s’arrêtait aux fonctions et aux fichiers. Pour structurer proprement notre application de gestion de stock, nous regroupons la connexion à la base et ses opérations dans une <strong>classe</strong> (un plan de construction) :</p><ul><li><code>class Database:</code> définit le plan de construction d’un objet ;</li><li><code>def __init__(self, fichier):</code> est le <strong>constructeur</strong> appelé automatiquement à la création de l’objet (<code>db = Database(\"stock.db\")</code>) ;</li><li><code>self</code> désigne l’objet lui-même et permet de stocker ses attributs (ex. <code>self.conn</code>) pour les réutiliser dans toutes les méthodes de la classe.</li></ul></div>"
+      },
       {
         title: 'La table produits',
         html: [
@@ -242,7 +261,7 @@ module.exports = [
           '<p>Les <code>%s</code> sont des <strong>requêtes paramétrées</strong> : psycopg2 échappe les ' +
           'valeurs. Concaténer du SQL à la main ouvre la porte à l\'injection — le paramétrage n\'est pas ' +
           'une option, c\'est la seule façon.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>Le schéma : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>\n' +
             '      <li>La connexion : serveur/mdp/base dans l\'ordre, sortie au premier ko.</li>\n' +
@@ -305,7 +324,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les cinq colonnes et leurs types.' },
       { cls: 'mid', text: '50–69 % — refais la connexion et le commit.' },
-      { cls: 'good', text: '70–89 % — cible les requêtes paramétrées.' },
+      { cls: 'good', text: '70–94 % — cible les requêtes paramétrées.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -341,6 +360,10 @@ module.exports = [
     ],
 
     sections: [
+      {
+        "title": "Prérequis intégré : Initiation progressive à l’interface graphique Tkinter",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Niveau 1 — Intuition : Fenêtre principale, composants (Widgets) et événements (Callbacks)</div><p>La bibliothèque standard <code>tkinter</code> (et son sous-module stylisé <code>ttk</code>) permet de créer une interface de bureau en quatre étapes simples :</p><ol><li><strong>Fenêtre racine :</strong> <code>fenetre = tk.Tk()</code> crée la fenêtre et <code>fenetre.mainloop()</code> lance la boucle d’écoute des clics ;</li><li><strong>Widgets de base :</strong> <code>tk.Label</code> affiche un texte fixe, <code>tk.Entry</code> crée un champ de saisie (lu avec <code>.get()</code>), et <code>tk.Button(..., command=fonction)</code> déclenche une fonction Python au clic (<em>callback</em>) ;</li><li><strong>Placement :</strong> <code>.pack()</code> empile les éléments verticalement ou horizontalement, tandis que <code>.grid(row=..., column=...)</code> les aligne dans un tableau ;</li><li><strong>Tableau de données :</strong> <code>ttk.Treeview(fenetre, columns=(...), show=\"headings\")</code> affiche la liste des articles du stock sous forme de table multi-colonnes.</li></ol></div>"
+      },
       {
         title: 'Deux écrans, une fenêtre',
         html: [
@@ -395,7 +418,7 @@ module.exports = [
           '<code>showerror</code> — échec de connexion, conversion impossible ; <code>askyesno</code> — ' +
           'confirmation avant suppression (« Voulez-vous vraiment supprimer… ? »), la suppression n\'a lieu ' +
           'que si l\'utilisateur répond oui.</p>',
-          box('tech', 'Vérifier en Bash', 'terminal',
+          box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>Les familles : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>\n' +
             '      <li>La validation : nom refuse le vide, quantite et prix testent nombre positif.</li>\n' +
@@ -458,7 +481,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les widgets et les quatre boîtes de dialogue.' },
       { cls: 'mid', text: '50–69 % — refais l\'enchaînement connexion puis principal.' },
-      { cls: 'good', text: '70–89 % — cible la validation et le Treeview.' },
+      { cls: 'good', text: '70–94 % — cible la validation et le Treeview.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

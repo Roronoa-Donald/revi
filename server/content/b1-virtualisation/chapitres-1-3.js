@@ -167,11 +167,28 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis l’histoire et refais les calculs des 48 minutes.' },
       { cls: 'mid', text: '50–69 % — rejoue les exercices jusqu’aux bilans sans faute.' },
-      { cls: 'good', text: '70–89 % — solide : chiffre le gaspillage d’un parc fictif.' },
+      { cls: 'good', text: '70–94 % — solide : chiffre le gaspillage d’un parc fictif.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe au remède, la virtualisation.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « mono-service » ?', a: 'mono-service : Dans l’architecture informatique classique, la règle historique était stricte : « un serveur physique dédié pour un seul service ». Cette approche a engendré un gaspillage économique et écologique massif : des machines surpuissantes et coûteuses sous-utilisées à plus de 80 % de l' },
+      { q: 'Qu’est-ce que « taux d’inactivité » ?', a: 'mesurer le taux d’inactivité d’un parc serveur (seuil critique des 80 % / 48 minutes par heure) ;' },
+      { q: 'Qu’est-ce que « heure perdue » ?', a: 'Toute heure où l’inactivité cumulée atteint ou dépasse 48 minutes est formellement qualifiée d’ heure perdue . Pour auditer un parc informatique, l’administrateur recense systématiquement les machines hébergeant moins de deux services (les serveurs mono-service). Chaque machine m' },
+      { q: 'Qu’est-ce que « kilowattheure (kWh) » ?', a: 'Le watt (W) mesure la puissance appelée à un instant T (le débit d’eau du robinet). Le kilowattheure (kWh) mesure le volume total consommé dans le temps (la quantité d’eau dans la baignoire). On ne facture jamais des watts, mais des kilowattheures.' },
+      { q: 'Qu’est-ce que « machine virtuelle » ?', a: 'Chaque machine virtuelle se comporte comme un ordinateur complet — son propre système, ses propres applications — mais tout cela n’est qu’un partage organisé du matériel physique du serveur hôte.' },
+      { q: 'Qu’est-ce que « stockage (disque) » ?', a: 'Les VM de l’histoire promettent : « on va se partager votre mémoire, votre processeur et même votre disque dur ». Analysez chaque ligne proposée « ressource partage » : partage est un code parmi vive (mémoire), calcul (processeur), stockage (disque) ou pas-partage (ressource qui reste p' },
+      { q: 'Qu’est-ce que « ordre d’apparition » ?', a: 'dresser l’inventaire des VM par type de service, dans l’ordre d’apparition ;' },
+      { q: 'Qu’est-ce que « charge cumulée » ?', a: 'L’inventaire et la charge préparent le dimensionnement du chapitre 4 : un service dont la charge cumulée grimpe aura besoin d’une VM supplémentaire ; un service à 5 % pourrait partager mieux. Le parc devient un objet que l’on lit, pas une collection de machines que l’on subit.' },
+      { q: 'Qu’est-ce que « taux d’utilisation » ?', a: 'mesurer le réveil d’un serveur : taux d’utilisation avant et après ;' },
+      { q: 'Qu’est-ce que « consolidation » ?', a: 'Exemple du cours : 300 000 FCFA de serveurs, une VM à 60 000 FCFA → 300 000 / 60 000 = 5 VM exactement : 300 000 FCFA aussi, économie nulle. Mais à 80 000 FCFA la VM, 200 000 / 80 000 = 2,5 → 3 VM : 240 000 FCFA. L’économie peut être négative : la consolidation a un coût, et l’ar' },
+      { q: 'Qu’est-ce que « tableau de bord » ?', a: 'Le constat est posé, la promesse acceptée : place aux résultats. « Le serveur, bien que toujours un peu paresseux, se retrouva rentabilisé à 100 %. » Ce chapitre transforme la fable en tableau de bord : mesurer le réveil d’un serveur, comparer le parc physique au parc virtualisé,' },
+      { q: 'Qu’est-ce que « mutualisation » ?', a: 'Quel concept est illustré ? La mutualisation : plusieurs VM sur un même serveur physique, ressources partagées.' },
+      { q: 'Qu’est-ce que « seuil de saturation » ?', a: 'appliquer le seuil de saturation : une VM refusée plutôt qu’un serveur noyé ;' },
+      { q: 'Qu’est-ce que « serveur plein » ?', a: 'Cas limite à connaître : le serveur plein . Quand la charge totale atteint exactement la capacité, il reste hébergeable — mais plus rien ne pourra s’ajouter. C’est un état à surveiller, pas encore une panne.' },
+      { q: 'Qu’est-ce que « déplacement de VM » ?', a: 'Réagir par déplacement de VM vers un hôte moins chargé, jamais par accumulation.' },
+      { q: 'Qu’est-ce que « plan de réveil » ?', a: 'élaborer le plan de réveil : virtualiser, étudier, garder ;' },
+      { q: 'Qu’est-ce que « vigilance » ?', a: 'Ce verdict, l’histoire l’a déjà prononcé à sa façon : « Et pour une fois, il ne s’ennuyait plus ! (Bon, il se plaignait quand même un peu, mais ça, c’est une autre histoire...) » — le succès n’exclut pas la vigilance.' },
       { q: 'Les trois nombres du constat ?', a: '48 minutes (80 % d’une heure), 2 services (seuil du fainéant), 80 % du coût (gaspillage).' },
       { q: 'Que faisait le serveur fainéant ?', a: 'Un seul système, un seul service, 80 % du temps à ne rien faire, de l’électricité pour rien.' },
       { q: 'Le calcul du kWh ?', a: 'Puissance (W) × heures / 1000 = kWh ; à 100 F le kWh, la facture suit.' },
@@ -189,9 +206,9 @@ module.exports = [
     time: '≈ 2 h de travail',
 
     situation:
-      'La colère du serveur est franchie : « Faire le travail de plusieurs serveurs ? Vous êtes fous ! » ' +
-      'Les machines virtuelles répondent calmement : « On va se partager ta mémoire, ton processeur et ' +
-      'même ton disque dur. Et on ne prendra chacun que ce dont on a besoin. » Ce chapitre prend la ' +
+      'La colère du serveur est franchie : « Faire le travail de plusieurs serveurs ? C’est de la folie ! » ' +
+      'Les machines virtuelles répondent calmement : « On va se partager votre mémoire, votre processeur et ' +
+      'même votre disque dur. Et on ne prendra chacun que ce dont on a besoin. » Ce chapitre prend la ' +
       'promesse au mot : allouer sans dépasser, partager sans violer.',
 
     objectives: [
@@ -220,8 +237,8 @@ module.exports = [
       {
         title: 'Ce qui se partage',
         html: [
-          '<p>Les VM de l’histoire sont précises : « on va se partager ta <strong>mémoire</strong>, ton ' +
-          '<strong>processeur</strong> et même ton <strong>disque dur</strong> ».</p>',
+          '<p>Les VM de l’histoire sont précises : « on va se partager votre <strong>mémoire</strong>, votre ' +
+          '<strong>processeur</strong> et même votre <strong>disque dur</strong> ».</p>',
           '<table>\n' +
           '    <tr><th>Ressource</th><th>Partage</th></tr>\n' +
           '    <tr><td>Mémoire (RAM)</td><td>répartie entre les VM selon leurs besoins déclarés</td></tr>\n' +
@@ -257,7 +274,7 @@ module.exports = [
           '<p>L’histoire suit un déroulé exact — que les exercices rejouent étape par étape :</p>',
           '<ol>\n' +
           '    <li>l’<strong>ingénieur</strong> propose l’idée de la virtualisation ;</li>\n' +
-          '    <li>le <strong>serveur</strong> se réveille en sursaut et refuse (« Vous êtes fous ! ») ;</li>\n' +
+          '    <li>le <strong>serveur</strong> se réveille en sursaut et refuse (« C’est de la folie ! ») ;</li>\n' +
           '    <li>les <strong>machines virtuelles</strong> proposent le partage des ressources ;</li>\n' +
           '    <li>le <strong>serveur</strong> accepte — et se retrouve rentabilisé à 100 %.</li>\n' +
           '  </ol>',
@@ -270,10 +287,10 @@ module.exports = [
 
     questions: [
       { q: 'La virtualisation permet de…', opts: ['faire tourner plusieurs machines sur un seul matériel', 'acheter plus de serveurs', 'supprimer les sauvegardes'], correct: 0, exp: 'Plusieurs machines indépendantes, un seul serveur physique, des ressources partagées.' },
-      { q: 'Les ressources partagées de l’histoire sont…', opts: ['mémoire, processeur, disque', 'clavier, écran, souris', 'réseau seul'], correct: 0, exp: 'La promesse des VM : « ta mémoire, ton processeur et même ton disque dur ».' },
+      { q: 'Les ressources partagées de l’histoire sont…', opts: ['mémoire, processeur, disque', 'clavier, écran, souris', 'réseau seul'], correct: 0, exp: 'La promesse des VM : « votre mémoire, votre processeur et même votre disque dur ».' },
       { q: 'La règle d’allocation des VM est…', opts: ['ne prendre que ce dont on a besoin', 'prendre tout ce qui reste', 'prendre sans déclarer'], correct: 0, exp: '« On ne prendra chacun que ce dont on a besoin » — et le total tient dans la capacité.' },
       { q: 'Une VM refusée…', opts: ['ne consomme rien', 'consomme quand même', 'détruit les autres VM'], correct: 0, exp: 'Contrôler d’abord, allouer ensuite : le refus ne touche pas aux restes.' },
-      { q: 'La première réaction du serveur est…', opts: ['la colère — « Vous êtes fous ! »', 'la joie', 'l’indifférence'], correct: 0, exp: 'Il se réveille en sursaut et refuse, avant d’accepter à l’étape 4.' },
+      { q: 'La première réaction du serveur est…', opts: ['la colère — « C’est de la folie ! »', 'la joie', 'l’indifférence'], correct: 0, exp: 'Il se réveille en sursaut et refuse, avant d’accepter à l’étape 4.' },
       { q: 'Qui propose le partage des ressources ?', opts: ['les machines virtuelles', 'l’ingénieur', 'le disque'], correct: 0, exp: 'Les VM, très enthousiastes, répondent au serveur fâché.' },
       { q: '64 Go, 500 Go : web (16/50) puis base (32/200) laissent…', opts: ['16 Go et 250 Go', '0 Go et 0 Go', '32 Go et 250 Go'], correct: 0, exp: '64−16−32 = 16 Go ; 500−50−200 = 250 Go — la VM test (32/400) sera refusée.' },
       { q: 'Le partage est…', opts: ['une règle par défaut qui admet des exceptions', 'un dogme absolu', 'une option payante'], correct: 0, exp: 'Certaines ressources peuvent rester dédiées à une VM : le partage reste la règle par défaut.' }
@@ -321,7 +338,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la promesse des VM et refais l’allocation d’exemple.' },
       { cls: 'mid', text: '50–69 % — rejoue l’exercice d’allocation jusqu’au sans-faute.' },
-      { cls: 'good', text: '70–89 % — solide : dimensionne un serveur pour un parc de VM fictif.' },
+      { cls: 'good', text: '70–94 % — solide : dimensionne un serveur pour un parc de VM fictif.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe aux services que l’histoire virtualise.' }
     ],
 
@@ -386,7 +403,7 @@ module.exports = [
           '« base » en redondance. Le nombre par service est le premier indicateur de la forme du parc.</p>',
           box('mnemo', 'L’inventaire en trois gestes', 'pin',
             '    <p>Lire chaque VM et son service, compter par service (ordre d’apparition), rapporter le ' +
-            'nombre de services distincts. Trois gestes qui se programment en Bash au chapitre.</p>')
+            'nombre de services distincts. Trois gestes qui s’appliquent méthodiquement dans les études de cas du chapitre.</p>')
         ].join('\n')
       },
       {
@@ -471,7 +488,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis l’inventaire de fin d’histoire et refais le comptage.' },
       { cls: 'mid', text: '50–69 % — rejoue l’exercice d’inventaire jusqu’au sans-faute.' },
-      { cls: 'good', text: '70–89 % — solide : analyse la charge d’un parc fictif de 6 VM.' },
+      { cls: 'good', text: '70–94 % — solide : analyse la charge d’un parc fictif de 6 VM.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe au dimensionnement et à la rentabilisation.' }
     ],
 

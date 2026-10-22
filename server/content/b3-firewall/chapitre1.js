@@ -19,7 +19,7 @@ module.exports = {
     'maîtriser le principe de filtrage de paquets sans état (Stateless) et la formulation de règles d’accès élémentaires ;',
     'appliquer rigoureusement la politique de sécurité du moindre privilège et le refus implicite par défaut (Default DROP) ;',
     'identifier les failles majeures du filtrage sans état face aux attaques par usurpation (Spoofing) et injection de paquets forgés ;',
-    'développer en Python 3 des classificateurs d’architectures pare-feu, des auditeurs d’isolation de zones et un moteur d’inspection stateless.'
+    'analyser et résoudre méthodologiquement des classificateurs d’architectures pare-feu, des auditeurs d’isolation de zones et un moteur d’inspection stateless.'
   ],
   sections: [
     {
@@ -82,7 +82,7 @@ module.exports = {
         '    <tr><td><code>IP Destination (DIP)</code></td><td>Couche 3 (Réseau)</td><td>32 bits (IPv4)</td><td>Identifier l’hôte ou le serveur cible du flux.</td></tr>',
         '    <tr><td><code>Protocole IP (Proto)</code></td><td>Couche 3 (Réseau)</td><td>8 bits</td><td>Valeurs standard : 6 (TCP), 17 (UDP), 1 (ICMP).</td></tr>',
         '    <tr><td><code>Port Source (Sport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Généralement éphémère et aléatoire côté client (plage 1024-65535).</td></tr>',
-        '    <tr><td><code>Port Destination (Dport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Identifie le service cible (22 SSH, 80 HTTP, 443 HTTPS, 53 DNS).</td></tr>',
+        '    <tr><td><code>Port Destination (Dport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Identifiez le service cible (22 SSH, 80 HTTP, 443 HTTPS, 53 DNS).</td></tr>',
         '    <tr><td><code>Drapeaux TCP (Flags)</code></td><td>Couche 4 (Transport)</td><td>6 à 9 bits</td><td>SYN, ACK, FIN, RST, PSH, URG : indicateurs d’état du protocole TCP.</td></tr>',
         '  </tbody>',
         '</table>',
@@ -126,7 +126,7 @@ module.exports = {
     'Les champs clés des en-têtes IPv4, TCP et UDP sont identifiés.',
     'Le principe du Default DROP (Whitelisting) est assimilé et justifié.',
     'La vulnérabilité des pare-feux stateless face aux paquets ACK forgés est comprise.',
-    'Les 3 ateliers de programmation interactive en Python 3 (fw3-c1-e1 à fw3-c1-e3) sont validés.'
+    'Les 3 études de cas pratiques et méthodologiques (fw3-c1-e1 à fw3-c1-e3) sont validés.'
   ],
   notions: [
     'Sécurité périmétrique',
@@ -235,6 +235,38 @@ module.exports = {
     }
   ],
   flashcards: [
+      { q: 'Qu’est-ce que « Sécurité périmétrique » ?', a: 'définir les concepts clés de la sécurité périmétrique, le modèle de défense en profondeur et la cartographie des zones de confiance ;' },
+      { q: 'Qu’est-ce que « Filtrage sans état (Stateless) » ?', a: 'Filtrage sans état (Stateless)' },
+      { q: 'Qu’est-ce que « En-têtes IPv4 et TCP/UDP » ?', a: 'En-têtes IPv4 et TCP/UDP : Au sein d’une infrastructure d’entreprise interconnectée à Internet, tout équipement non protégé est soumis à un bombardement ininterrompu de sondes automatisées, de balayages de ports et de tentatives d’exploitation de failles. L’ingénieur réseau et sécurité de niveau Bachelor 3' },
+      { q: 'Qu’est-ce que « Générations de pare-feux » ?', a: 'Générations de pare-feux : Au sein d’une infrastructure d’entreprise interconnectée à Internet, tout équipement non protégé est soumis à un bombardement ininterrompu de sondes automatisées, de balayages de ports et de tentatives d’exploitation de failles. L’ingénieur réseau et sécurité de niveau Bachelor 3' },
+      { q: 'Qu’est-ce que « Appliance UTM vs NGFW » ?', a: 'Appliance UTM vs NGFW : Consolide sur une appliance unique le filtrage stateful, un proxy applicatif, un antivirus de flux, un antispam et un VPN IPSec/SSL. Idéal pour les PME mais sensible aux saturations de charge.' },
+      { q: 'Qu’est-ce que « Stateful Packet Inspection » ?', a: 'Pour pallier les failles critiques du filtrage stateless, la 2e génération de pare-feux a introduit l’inspection dynamique avec suivi d’état (Stateful Packet Inspection). Plutôt que de traiter chaque paquet de manière aveugle, le pare-feu reconstruit la conversation réseau dans u' },
+      { q: 'Qu’est-ce que « Table de suivi conntrack » ?', a: 'Table de suivi conntrack : Pour pallier les failles critiques du filtrage stateless, la 2e génération de pare-feux a introduit l’inspection dynamique avec suivi d’état (Stateful Packet Inspection). Plutôt que de traiter chaque paquet de manière aveugle, le pare-feu reconstruit la conversation réseau dans u' },
+      { q: 'Qu’est-ce que « Handshake TCP 3-voies » ?', a: 'Handshake TCP 3-voies : Pour pallier les failles critiques du filtrage stateless, la 2e génération de pare-feux a introduit l’inspection dynamique avec suivi d’état (Stateful Packet Inspection). Plutôt que de traiter chaque paquet de manière aveugle, le pare-feu reconstruit la conversation réseau dans u' },
+      { q: 'Qu’est-ce que « États NEW et ESTABLISHED » ?', a: 'États NEW et ESTABLISHED : Pour pallier les failles critiques du filtrage stateless, la 2e génération de pare-feux a introduit l’inspection dynamique avec suivi d’état (Stateful Packet Inspection). Plutôt que de traiter chaque paquet de manière aveugle, le pare-feu reconstruit la conversation réseau dans u' },
+      { q: 'Qu’est-ce que « États RELATED et INVALID » ?', a: 'États RELATED et INVALID : Pour pallier les failles critiques du filtrage stateless, la 2e génération de pare-feux a introduit l’inspection dynamique avec suivi d’état (Stateful Packet Inspection). Plutôt que de traiter chaque paquet de manière aveugle, le pare-feu reconstruit la conversation réseau dans u' },
+      { q: 'Qu’est-ce que « Timeouts de session » ?', a: 'Timeouts de session : Pour pallier les failles critiques du filtrage stateless, la 2e génération de pare-feux a introduit l’inspection dynamique avec suivi d’état (Stateful Packet Inspection). Plutôt que de traiter chaque paquet de manière aveugle, le pare-feu reconstruit la conversation réseau dans u' },
+      { q: 'Qu’est-ce que « Scans furtifs Xmas & Null » ?', a: 'Scans furtifs Xmas & Null' },
+      { q: 'Qu’est-ce que « Protection SYN Flood & Syncookies » ?', a: 'Protection SYN Flood & Syncookies' },
+      { q: 'Qu’est-ce que « Listes de contrôle d’accès (ACL) » ?', a: 'Dans un réseau d’entreprise, la politique de sécurité (PSSI) se matérialise techniquement sous la forme de listes de contrôle d’accès (ACLs) contenant parfois des centaines, voire des milliers de règles. Contrairement à une idée reçue, l’ordre des règles dans un pare-feu n’est pa' },
+      { q: 'Qu’est-ce que « Règles redondantes » ?', a: 'Règles redondantes : Dans un réseau d’entreprise, la politique de sécurité (PSSI) se matérialise techniquement sous la forme de listes de contrôle d’accès (ACLs) contenant parfois des centaines, voire des milliers de règles. Contrairement à une idée reçue, l’ordre des règles dans un pare-feu n’est pa' },
+      { q: 'Qu’est-ce que « Source NAT (SNAT / Masquerade) » ?', a: 'Source NAT (SNAT / Masquerade)' },
+      { q: 'Qu’est-ce que « Destination NAT (DNAT / Port Forward) » ?', a: 'Dans quel scénario met-on en œuvre une règle de Destination NAT (DNAT / Port Forwarding) ?' },
+      { q: 'Qu’est-ce que « Port Address Translation (PAT) » ?', a: 'Port Address Translation (PAT)' },
+      { q: 'Qu’est-ce que « Zone Démilitarisée (DMZ) » ?', a: 'Zone Démilitarisée (DMZ) : Déployer un pare-feu sans concevoir une topologie réseau adaptée est illusoire : si tous les serveurs de l’entreprise cohabitent sur le même segment que les postes des collaborateurs, la moindre faille sur un site web public livre l’intégralité du système d’information aux attaqu' },
+      { q: 'Qu’est-ce que « Règle d’or des flux DMZ vers LAN » ?', a: 'Règle d’or des flux DMZ vers LAN' },
+      { q: 'Qu’est-ce que « Topologie Dual-Homed » ?', a: 'Topologie Dual-Homed : Déployer un pare-feu sans concevoir une topologie réseau adaptée est illusoire : si tous les serveurs de l’entreprise cohabitent sur le même segment que les postes des collaborateurs, la moindre faille sur un site web public livre l’intégralité du système d’information aux attaqu' },
+      { q: 'Qu’est-ce que « Hétérogénéité des constructeurs » ?', a: 'justifier la défense en profondeur par l’hétérogénéité des constructeurs de pare-feux en cascade ;' },
+      { q: 'Qu’est-ce que « Authentification multifacteur (MFA) » ?', a: 'Authentification multifacteur (MFA)' },
+      { q: 'Qu’est-ce que « Pare-feu Nouvelle Génération (NGFW) » ?', a: "Un pare-feu nouvelle génération (NGFW) inspecte le champ SNI (Server Name Indication) du message TLS Client Hello pour identifier le site web visité sans avoir besoin de déchiffrer tout le trafic. Base de réputation et politique d'entreprise : - Domaines contenant phish , malware" },
+      { q: 'Qu’est-ce que « Identité utilisateur (User-ID) » ?', a: 'Identité utilisateur (User-ID)' },
+      { q: 'Qu’est-ce que « Inspection SNI TLS » ?', a: 'Inspection SNI TLS : À l’ère du Web moderne où plus de 95% du trafic Internet mondial est chiffré en HTTPS (port 443) et où les applications contournent systématiquement les filtres traditionnels par tunneling HTTP, le filtrage classique par numéro de port (L4) est devenu obsolète. Un pare-feu qui au' },
+      { q: 'Qu’est-ce que « Filtrage d’URL catégoriel » ?', a: 'La gestion des politiques de filtrage d’URL catégoriel est maîtrisée.' },
+      { q: 'Qu’est-ce que « Rate Limiting & Anti-DoS » ?', a: 'Rate Limiting & Anti-DoS : À l’ère du Web moderne où plus de 95% du trafic Internet mondial est chiffré en HTTPS (port 443) et où les applications contournent systématiquement les filtres traditionnels par tunneling HTTP, le filtrage classique par numéro de port (L4) est devenu obsolète. Un pare-feu qui au' },
+      { q: 'Qu’est-ce que « Framework Linux Netfilter » ?', a: 'Framework Linux Netfilter' },
+      { q: 'Qu’est-ce que « Ensembles (Sets) nftables » ?', a: 'Ensembles (Sets) nftables' },
+      { q: 'Qu’est-ce que « Journaux Syslog de pare-feu » ?', a: 'Journaux Syslog de pare-feu' },
+      { q: 'Qu’est-ce que « Métriques d’analyse d’attaque » ?', a: 'Métriques d’analyse d’attaque' },
     {
       q: 'Qu’est-ce qu’un pare-feu stateless (sans état) ?',
       a: 'Un équipement filtrant chaque paquet de manière isolée sur ses en-têtes L3/L4 sans maintenir l’historique des sessions.'

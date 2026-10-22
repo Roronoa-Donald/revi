@@ -683,9 +683,9 @@ module.exports = [
       {
         "label": "Cinq competences",
         "stdin": "cas:3",
-        "expected": "a : score 80\nb : score 70\nc : score 90\nd : score 65\ne : score 75\nmoyenne : 76\nverdict : admis"
+        "expected": "a : score 80\nb : score 70\nc : score 90\nd : score 65≠ : score 75\nmoyenne : 76\nverdict : admis"
       }
     ],
-    "solution": "[Exemple]\nvocabulaire : score 80\nemails : score 90\npresentations : score 60\nprononciation : score 75\nmoyenne : 76\nverdict : admis\n\n[Cas 1 — Sous le seuil]\nvocabulaire : score 70\nemails : score 75\nmoyenne : 72\nverdict : entrainement\n\n[Cas 2 — Aucune competence]\nmoyenne : 0\nverdict : entrainement\n\n[Cas 3 — Cinq competences]\na : score 80\nb : score 70\nc : score 90\nd : score 65\ne : score 75\nmoyenne : 76\nverdict : admis\n"
+    "solution": "[Exemple]\nvocabulaire : score 80\nemails : score 90\npresentations : score 60\nprononciation : score 75\nmoyenne : 76\nverdict : admis\n\n[Cas 1 — Sous le seuil]\nvocabulaire : score 70\nemails : score 75\nmoyenne : 72\nverdict : entrainement\n\n[Cas 2 — Aucune competence]\nmoyenne : 0\nverdict : entrainement\n\n[Cas 3 — Cinq competences]\na : score 80\nb : score 70\nc : score 90\nd : score 65≠ : score 75\nmoyenne : 76\nverdict : admis\n"
   }
 ];

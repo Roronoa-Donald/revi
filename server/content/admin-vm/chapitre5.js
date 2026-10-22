@@ -97,7 +97,7 @@ module.exports = {
   questions: [
     { stem: 'Qu’est-ce qu’un bridge ?', opts: ['Un switch virtuel', 'Un pare-feu', 'Un VLAN'], correct: 0, exp: 'Il relie les VM entre elles et au réseau physique.' },
     { stem: 'À quoi sert le NAT ?', opts: ['Accéder à Internet sans IP publique', 'Filtrer le trafic', 'Segmenter'], correct: 0, exp: 'La VM sort via l’hôte.' },
-    { stem: 'Que fait un VLAN ?', opts: ['Segmente logiquement', 'Filtre les paquets', 'Chiffre'], correct: 0, exp: 'Il isole les flux dans un même switch.' },
+    { stem: 'Que fait un VLAN ?', opts: ['Segmente logiquement', 'Filtrez les paquets', 'Chiffre'], correct: 0, exp: 'Il isole les flux dans un même switch.' },
     { stem: 'Le tagging VLAN remplace-t-il un pare-feu ?', opts: ['Non', 'Oui', 'Toujours'], correct: 0, exp: 'Il structure mais ne filtre pas.' },
     { stem: 'Où placer un serveur web exposé ?', opts: ['En DMZ', 'Dans le LAN', 'Sur le contrôleur de domaine'], correct: 0, exp: 'La DMZ accueille les services exposés.' },
     { stem: 'Où ne jamais mettre la base de données ?', opts: ['En DMZ', 'Dans le LAN', 'Derrière le pare-feu'], correct: 0, exp: 'Elle contient les données les plus sensibles.' },
@@ -139,9 +139,9 @@ module.exports = {
 
   notions: ['bridge', 'vmbr', 'NAT', 'VLAN', 'tagging', 'DMZ', 'pare-feu', 'pfSense', 'OPNsense', 'segmentation', 'filtrage', 'diagnostic'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les briques réseau.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur VLAN et DMZ.' },
-    { cls: 'good', text: '70–89 % — Solide : tu cloisonnes et diagnostiques.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les briques réseau.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur VLAN et DMZ.' },
+    { cls: 'good', text: '70–94 % — Solide : vous cloisonnez et diagnostiques.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe à l’administration avancée, chapitre 6.' }
   ],
 

@@ -144,29 +144,29 @@ function exercices(course) {
   ]);
 
   const exercises = [
-    { id: 'vt3-c1-e1', ch: 1, title: 'Classificateur de veille sectorielle et analyse de réactivité', level: 'n1', lang: 'Python', desc: 'Classifier des signaux selon la typologie de veille (technologique, concurrentielle, juridique, etc.) et leur posture proactive/réactive.' },
-    { id: 'vt3-c1-e2', ch: 1, title: 'Évaluateur de posture et temporalité de veille (Matrice AFNOR)', level: 'n2', lang: 'Python', desc: 'Calculer le score d’efficacité d’un dispositif de veille selon son mode de collecte et sa fréquence temporelle.' },
-    { id: 'vt3-c1-e3', ch: 1, title: 'Calculateur de retour sur investissement (ROI) de la veille stratégique', level: 'n3', lang: 'Python', desc: 'Mesurer la rentabilité économique de la cellule de veille en chiffrant les risques prévenus et les gains captés.' },
+    { id: 'vt3-c1-e1', ch: 1, title: 'Classificateur de veille sectorielle et analyse de réactivité', level: 'n1', lang: 'Étude de cas', desc: 'Classifier des signaux selon la typologie de veille (technologique, concurrentielle, juridique, etc.) et leur posture proactive/réactive.' },
+    { id: 'vt3-c1-e2', ch: 1, title: 'Évaluateur de posture et temporalité de veille (Matrice AFNOR)', level: 'n2', lang: 'Étude de cas', desc: 'Calculer le score d’efficacité d’un dispositif de veille selon son mode de collecte et sa fréquence temporelle.' },
+    { id: 'vt3-c1-e3', ch: 1, title: 'Calculateur de retour sur investissement (ROI) de la veille stratégique', level: 'n3', lang: 'Étude de cas', desc: 'Mesurer la rentabilité économique de la cellule de veille en chiffrant les risques prévenus et les gains captés.' },
 
-    { id: 'vt3-c2-e1', ch: 2, title: 'Générateur et normalisateur de requêtes booléennes avancées', level: 'n1', lang: 'Python', desc: 'Construire une requête booléenne de recherche d’ingénierie conforme aux standards de dorking et de documentation.' },
-    { id: 'vt3-c2-e2', ch: 2, title: 'Auditeur de fiabilité des sources d’information (Score pondéré)', level: 'n2', lang: 'Python', desc: 'Évaluer la crédibilité d’une source d’information sur cinq axes méthodologiques pondérés.' },
-    { id: 'vt3-c2-e3', ch: 2, title: 'Détecteur de signaux faibles par accélération d’émergence lexicale', level: 'n3', lang: 'Python', desc: 'Analyser une série temporelle d’occurrences pour distinguer les signaux faibles émergents du bruit de fond.' },
+    { id: 'vt3-c2-e1', ch: 2, title: 'Générateur et normalisateur de requêtes booléennes avancées', level: 'n1', lang: 'Étude de cas', desc: 'Construire une requête booléenne de recherche d’ingénierie conforme aux standards de dorking et de documentation.' },
+    { id: 'vt3-c2-e2', ch: 2, title: 'Auditeur de fiabilité des sources d’information (Score pondéré)', level: 'n2', lang: 'Étude de cas', desc: 'Évaluer la crédibilité d’une source d’information sur cinq axes méthodologiques pondérés.' },
+    { id: 'vt3-c2-e3', ch: 2, title: 'Détecteur de signaux faibles par accélération d’émergence lexicale', level: 'n3', lang: 'Étude de cas', desc: 'Analyser une série temporelle d’occurrences pour distinguer les signaux faibles émergents du bruit de fond.' },
 
-    { id: 'vt3-c3-e1', ch: 3, title: 'Parseur de flux de syndication RSS 2.0 / Atom', level: 'n1', lang: 'Python', desc: 'Extraire et structurer les métadonnées techniques (titre, lien, date, identifiant GUID) d’un flux XML de veille.' },
-    { id: 'vt3-c3-e2', ch: 3, title: 'Moteur de déduplication multi-sources et nettoyage de liens UTM', level: 'n2', lang: 'Python', desc: 'Éliminer les doublons stricts et quasi-doublons de flux via normalisation d’URL et similarité lexicale de Jaccard.' },
-    { id: 'vt3-c3-e3', ch: 3, title: 'Simulateur d’ordonnanceur de collecte hybride Push/Pull avec Rate Limiter', level: 'n3', lang: 'Python', desc: 'Simuler la charge de collecte sur un parc hétérogène de sources en appliquant les quotas de limitation de requêtes.' },
+    { id: 'vt3-c3-e1', ch: 3, title: 'Parseur de flux de syndication RSS 2.0 / Atom', level: 'n1', lang: 'Étude de cas', desc: 'Extraire et structurer les métadonnées techniques (titre, lien, date, identifiant GUID) d’un flux XML de veille.' },
+    { id: 'vt3-c3-e2', ch: 3, title: 'Moteur de déduplication multi-sources et nettoyage de liens UTM', level: 'n2', lang: 'Étude de cas', desc: 'Éliminer les doublons stricts et quasi-doublons de flux via normalisation d’URL et similarité lexicale de Jaccard.' },
+    { id: 'vt3-c3-e3', ch: 3, title: 'Simulateur d’ordonnanceur de collecte hybride Push/Pull avec Rate Limiter', level: 'n3', lang: 'Étude de cas', desc: 'Simuler la charge de collecte sur un parc hétérogène de sources en appliquant les quotas de limitation de requêtes.' },
 
-    { id: 'vt3-c4-e1', ch: 4, title: 'Tokeniseur et filtre de mots vides (Stopwords & Normalisation)', level: 'n1', lang: 'Python', desc: 'Nettoyer un corpus textuel de veille, supprimer la ponctuation, éliminer les stopwords et extraire le vocabulaire saillant.' },
-    { id: 'vt3-c4-e2', ch: 4, title: 'Calculateur de score de pertinence TF-IDF sur un corpus de veille', level: 'n2', lang: 'Python', desc: 'Classer un corpus de documents selon leur score de pertinence TF-IDF pour une requête de veille ciblée.' },
-    { id: 'vt3-c4-e3', ch: 4, title: 'Classificateur bayésien naïf d’alertes de veille (Pertinent vs Bruit)', level: 'n3', lang: 'Python', desc: 'Appliquer le modèle probabiliste de Naive Bayes pour filtrer automatiquement les alertes en éliminant le bruit.' },
+    { id: 'vt3-c4-e1', ch: 4, title: 'Tokeniseur et filtre de mots vides (Stopwords & Normalisation)', level: 'n1', lang: 'Étude de cas', desc: 'Nettoyer un corpus textuel de veille, supprimer la ponctuation, éliminer les stopwords et extraire le vocabulaire saillant.' },
+    { id: 'vt3-c4-e2', ch: 4, title: 'Calculateur de score de pertinence TF-IDF sur un corpus de veille', level: 'n2', lang: 'Étude de cas', desc: 'Classer un corpus de documents selon leur score de pertinence TF-IDF pour une requête de veille ciblée.' },
+    { id: 'vt3-c4-e3', ch: 4, title: 'Classificateur bayésien naïf d’alertes de veille (Pertinent vs Bruit)', level: 'n3', lang: 'Étude de cas', desc: 'Appliquer le modèle probabiliste de Naive Bayes pour filtrer automatiquement les alertes en éliminant le bruit.' },
 
-    { id: 'vt3-c5-e1', ch: 5, title: 'Évaluateur d’échelle TRL (Technology Readiness Level de 1 à 9)', level: 'n1', lang: 'Python', desc: 'Qualifier le niveau de maturité technologique d’une innovation selon la grille standardisée TRL.' },
-    { id: 'vt3-c5-e2', ch: 5, title: 'Positionneur de phase Gartner Hype Cycle et conseil d’investissement', level: 'n2', lang: 'Python', desc: 'Positionner une technologie émergente sur la courbe du Hype Cycle de Gartner et émettre une recommandation d’action.' },
-    { id: 'vt3-c5-e3', ch: 5, title: 'Analyseur d’impact technologique croisé SWOT / PESTEL', level: 'n3', lang: 'Python', desc: 'Agréger les facteurs externes PESTEL en opportunités et menaces pour calculer l’indice de résilience stratégique.' },
+    { id: 'vt3-c5-e1', ch: 5, title: 'Évaluateur d’échelle TRL (Technology Readiness Level de 1 à 9)', level: 'n1', lang: 'Étude de cas', desc: 'Qualifier le niveau de maturité technologique d’une innovation selon la grille standardisée TRL.' },
+    { id: 'vt3-c5-e2', ch: 5, title: 'Positionneur de phase Gartner Hype Cycle et conseil d’investissement', level: 'n2', lang: 'Étude de cas', desc: 'Positionner une technologie émergente sur la courbe du Hype Cycle de Gartner et émettre une recommandation d’action.' },
+    { id: 'vt3-c5-e3', ch: 5, title: 'Analyseur d’impact technologique croisé SWOT / PESTEL', level: 'n3', lang: 'Étude de cas', desc: 'Agréger les facteurs externes PESTEL en opportunités et menaces pour calculer l’indice de résilience stratégique.' },
 
-    { id: 'vt3-c6-e1', ch: 6, title: 'Générateur de bulletin d’alerte de veille synthétique (Curated Digest)', level: 'n1', lang: 'Python', desc: 'Mettre en forme et prioriser un flux d’articles pour produire un bulletin de veille exécutif hiérarchisé.' },
-    { id: 'vt3-c6-e2', ch: 6, title: 'Calculateur de radar technologique (Tech Radar ThoughtWorks)', level: 'n2', lang: 'Python', desc: 'Classer les technologies selon les quatre quadrants et les quatre anneaux d’adoption du Tech Radar.' },
-    { id: 'vt3-c6-e3', ch: 6, title: 'Simulateur de gouvernance d’équipe et workflow Kanban de veille', level: 'n3', lang: 'Python', desc: 'Mesurer la performance d’une cellule de veille en calculant le temps de cycle (Lead Time) et le taux d’approbation.' }
+    { id: 'vt3-c6-e1', ch: 6, title: 'Générateur de bulletin d’alerte de veille synthétique (Curated Digest)', level: 'n1', lang: 'Étude de cas', desc: 'Mettre en forme et prioriser un flux d’articles pour produire un bulletin de veille exécutif hiérarchisé.' },
+    { id: 'vt3-c6-e2', ch: 6, title: 'Calculateur de radar technologique (Tech Radar ThoughtWorks)', level: 'n2', lang: 'Étude de cas', desc: 'Classer les technologies selon les quatre quadrants et les quatre anneaux d’adoption du Tech Radar.' },
+    { id: 'vt3-c6-e3', ch: 6, title: 'Simulateur de gouvernance d’équipe et workflow Kanban de veille', level: 'n3', lang: 'Étude de cas', desc: 'Mesurer la performance d’une cellule de veille en calculant le temps de cycle (Lead Time) et le taux d’approbation.' }
   ];
 
   const cardsHtml = exercises.map(ex => [
@@ -187,7 +187,7 @@ function exercices(course) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — Veille Technologique B3</h1>',
-    '  <p class="lead">18 ateliers de programmation interactive en Python 3 intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
+    '  <p class="lead">18 études de cas pratiques et méthodologiques intégrés directement dans les modules de cours, corrigés avec tests d’évaluation automatisés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',
@@ -199,7 +199,7 @@ function exercices(course) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Répertoire complet des 18 exercices de programmation en Python 3 du cours Veille Technologique B3.',
+      description: 'Répertoire complet des 18 exercices de programmation de manière méthodique du cours Veille Technologique B3.',
       active: 'exercices',
       body
     }

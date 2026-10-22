@@ -39,7 +39,7 @@ const course = {
     'et enfin préparation aux soutenances et entretiens de recrutement internationaux (architecture de présentations en 1 minute à 10 minutes avec accroche, développement et balisage verbal signposting, méthode comportementale STAR avec métriques chiffrées et optimisation des CV pour les filtres ATS).',
   lead:
     'Maîtrisez l’anglais technique et professionnel de l’ingénierie IT : spécifications d’API REST, RFC 2119, rituels agiles, calculs de SLA, support client empathique, post-mortems blameless et pitchs techniques percutants. ' +
-    'Six modules approfondis combinant rigueur d’expression internationale, 18 ateliers de programmation interactifs en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant rigueur d’expression internationale, 18 ateliers de programmation interactifs de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Supports officiels de cours B3 IT (Dorcas Tchogoue, Collège de Paris), Normes RFC 2119 / RFC 2616 (IETF), Spécifications OpenAPI 3.0, Principes Google Site Reliability Engineering (SRE) et Modèle comportemental STAR',
 

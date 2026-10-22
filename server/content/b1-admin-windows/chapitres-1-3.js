@@ -26,7 +26,7 @@ module.exports = [
       'Chaque jour, des millions d’utilisateurs allument leur ordinateur professionnel sans se poser de question : ' +
       'leur mot de passe est reconnu, leurs dossiers partagés sont accessibles et leur imprimante est configurée. ' +
       'Mais en coulisses, qui garantit que ces 50 ou 500 machines fonctionnent sans faille, sans virus et avec les ' +
-      'bons droits ? C’est le rôle de l’administrateur système. Sur ton ordinateur personnel, tu es ton propre ' +
+      'bons droits ? C’est le rôle de l’administrateur système. Sur votre ordinateur personnel, vous êtes votre propre ' +
       'administrateur. En entreprise, cette gestion est professionnalisée et centralisée. Ce premier chapitre pose ' +
       'les fondations du métier : missions réelles, qualités exigées, types d’administration et panorama des outils Windows.',
 
@@ -50,7 +50,7 @@ module.exports = [
           'Lorsqu’il gère également les commutateurs, routeurs et liaisons télécoms, on parle d’<strong>administrateur ' +
           'système et réseau</strong>.</p>',
           box('situation', 'Du PC personnel au réseau d’entreprise', 'compass',
-            '    <p>Sur ton ordinateur personnel à la maison, tu installes ce que tu veux : tu es administrateur local. ' +
+            '    <p>Sur votre ordinateur personnel à la maison, vous installez ce que vous voulez : vous êtes administrateur local. ' +
             'Dans une banque ou un hôpital de 300 personnes, si chaque employé installait n’importe quel logiciel, le parc ' +
             'serait piraté en quelques heures. L’administration système consiste à instaurer des règles claires et ' +
             'automatisées pour protéger les données collectives.</p>')
@@ -121,7 +121,7 @@ module.exports = [
             '    <p>Windows Server 2012 R2 a atteint sa fin de support officiel en octobre 2023. Cependant, ses fondations ' +
             'architecturales — Active Directory, base SAM, services DNS/DHCP, gestion des disques et GPO — sont ' +
             'strictement identiques sur les versions contemporaines (<strong>Windows Server 2022 et 2025</strong>). ' +
-            'Ce que vous apprenez ici est directement transférable sur les infrastructures en production.</p>')
+            'Ce qui est étudié ici est directement transférable sur les infrastructures en production.</p>')
         ].join('\n')
       }
     ],
@@ -179,11 +179,30 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les familles de tâches et refais l’exercice de classement.' },
       { cls: 'mid', text: '50–69 % — rejoue le QCM en citant l’exemple concret de chaque tâche.' },
-      { cls: 'good', text: '70–89 % — solide : entraîne-toi à requalifier des demandes utilisateurs.' },
-      { cls: 'top', text: '≥ 95 % — maîtrise : tu es prêt pour la suite du module.' }
+      { cls: 'good', text: '70–94 % — solide : entraînez-vous à requalifier des demandes utilisateurs.' },
+      { cls: 'top', text: '≥ 95 % — maîtrise : vous êtes prêt pour la suite du module.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « administrateur système et réseau » ?', a: 'administrateur système et réseau : Cette mission est assurée par l’ administrateur système . Alors qu’un utilisateur ordinaire se contente de consommer des applications (navigateur, tableur, messagerie), l’administrateur veille à ce que le socle matériel et logiciel soit disponible, rapide et protégé contre les pa' },
+      { q: 'Qu’est-ce que « comptes utilisateurs » ?', a: 'gérer les comptes utilisateurs — tâche simple et automatisable ;' },
+      { q: 'Qu’est-ce que « patcher (mettre à jour) » ?', a: 'patcher (mettre à jour) : Chaque jour, des millions d’utilisateurs allument leur ordinateur professionnel sans se poser de question : leur mot de passe est reconnu, leurs dossiers partagés sont accessibles et leur imprimante est configurée. Mais en coulisses, qui garantit que ces 50 ou 500 machines foncti' },
+      { q: 'Qu’est-ce que « goulot d’étranglement » ?', a: 'Identifier un goulot d’étranglement consiste à…' },
+      { q: 'Qu’est-ce que « Windows Server 2012 R2 » ?', a: 'Le stage commence : on te confie une machine nue et une image de Windows Server 2012 R2. Avant de cliquer sur « suivant », il faut savoir ce qu’on installe : quelle édition correspond à quel besoin, quelle option d’installation (avec ou sans interface graphique), et si la machine' },
+      { q: 'Qu’est-ce que « DISM.EXE » ?', a: 'Depuis Windows Server 2012, les options sont intégrées : un administrateur peut installer ou désinstaller ces fonctionnalités pour basculer entre Core et complet — dans un sens avec PowerShell, dans l’autre avec l’outil DISM.EXE (gestion et maintenance des images de déploiement) ' },
+      { q: 'Qu’est-ce que « Gestionnaire de serveur » ?', a: 'se repérer dans le Gestionnaire de serveur (tableau de bord, serveur local, outils, notifications) ;' },
+      { q: 'Qu’est-ce que « ifIndex » ?', a: 'Adresse IP statique — graphiquement : serveur local → Ethernet → Propriétés → Protocole internet version 4 → adresse, masque, passerelle, DNS. En PowerShell, on reparte de l’index d’interface ( ifIndex ) obtenu par Get-NetAdapter ou Get-NetIPInterface :' },
+      { q: 'Qu’est-ce que « New-NetIPAddress » ?', a: 'Objectif : Contrôler les adresses IPv4 et préfixes avant la commande New-NetIPAddress (PowerShell).' },
+      { q: 'Qu’est-ce que « unité d’organisation (UO) » ?', a: 'unité d’organisation (UO)' },
+      { q: 'Qu’est-ce que « classes d’objets » ?', a: 'classes d’objets : Au sein du domaine, on retrouve un ensemble d’ unités d’organisation (UO) remplies d’objets de différentes classes : utilisateurs, ordinateurs, groupes, contrôleurs de domaine…' },
+      { q: 'Qu’est-ce que « promotion en contrôleur de domaine » ?', a: 'Le serveur est configuré (chapitre 3) : il ne manque que le cœur du réseau d’entreprise. Installer AD DS se fait en deux temps — le rôle, puis la promotion en contrôleur de domaine — et demande cinq informations exactes. Ce chapitre suit l’assistant pas à pas, puis rejoue l’insta' },
+      { q: 'Qu’est-ce que « nouvelle forêt » ?', a: 'promouvoir le serveur en contrôleur de domaine (nouvelle forêt) ;' },
+      { q: 'Qu’est-ce que « niveau fonctionnel » ?', a: 'Le niveau fonctionnel d’un domaine correspond aux services disponibles pour ce domaine : plus il est élevé, plus les fonctionnalités sont nombreuses. Le support conseille d’utiliser le niveau le plus haut — Windows Server 2012 R2.' },
+      { q: 'Qu’est-ce que « Install-ADDSForest » ?', a: 'En PowerShell, le même résultat : récupérer le nom du serveur, installer le rôle ( Install-WindowsFeature ), puis configurer la nouvelle forêt avec Install-ADDSForest — nom de domaine, niveaux fonctionnels et options incluant la création du DNS.' },
+      { q: 'Qu’est-ce que « changement de mot de passe forcé » ?', a: 'changement de mot de passe forcé' },
+      { q: 'Qu’est-ce que « horaires d’accès » ?', a: 'Les propriétés de l’utilisateur (clic droit → Propriétés) offrent bien plus : dans l’onglet Compte se trouvent la partie liée à l’ouverture de session et les horaires d’accès (restriction des horaires de connexion). Le tout existe aussi en PowerShell (New-ADUser, Set-ADUser, Get-' },
+      { q: 'Qu’est-ce que « groupe de sécurité / distribution » ?', a: 'groupe de sécurité / distribution' },
+      { q: 'Qu’est-ce que « profil itinérant » ?', a: 'Le support présente enfin les profils itinérants : synchroniser le profil d’un utilisateur sur le serveur pour rendre ses données accessibles depuis n’importe quel poste du domaine. Un profil itinérant bien configuré suit l’utilisateur de machine en machine.' },
       { q: 'Définition de l’administration système ?', a: 'La gestion de l’ensemble des programmes informatiques permettant d’accéder à une machine et d’utiliser ses périphériques dans un parc.' },
       { q: 'Les cinq familles de tâches (CALMS) ?', a: 'Comptes, Assistance, Logiciels, Matériel, Sécurité — plus la maintenance de premier niveau et la gestion quotidienne.' },
       { q: 'Les trois qualités d’un admin ?', a: 'La technicité, la rigueur, le bon sens.' },
@@ -215,6 +234,10 @@ module.exports = [
     ],
 
     sections: [
+      {
+        "title": "Repère de cycle de vie (EOL Windows Server 2012 R2) & Équivalence Server 2022 / 2025",
+        "html": "<div class=\"box box--warning\"><div class=\"box__title\">Cycle de vie officiel Microsoft (EOL) et transférabilité</div><p><strong>Attention :</strong> Windows Server 2012 R2 (étudié dans le support historique du cours) a atteint sa <strong>fin de support étendu (EOL — End of Life) le 10 octobre 2023</strong> et ne doit plus être déployé en production sans souscription ESU. En entreprise, on déploie aujourd’hui <strong>Windows Server 2022</strong> ou <strong>Windows Server 2025</strong>, où seules deux éditions principales subsistent : <strong>Standard</strong> (jusqu’à 2 machines virtuelles ou conteneurs Hyper-V par licence) et <strong>Datacenter</strong> (nombre illimité de machines virtuelles), tandis que les concepts fondamentaux (installation Server Core vs Desktop Experience, base SAM locale et promotion Active Directory AD DS) demeurent strictement identiques.</p></div>"
+      },
       {
         title: 'Un peu de contexte : de Windows 1.0 à Windows Server 2022',
         html: [
@@ -356,7 +379,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis le tableau des éditions, c’est le cœur des questions d’examen.' },
       { cls: 'mid', text: '50–69 % — rejoue l’exercice des limites par édition.' },
-      { cls: 'good', text: '70–89 % — solide : entraîne-toi à justifier un choix d’édition à l’oral.' },
+      { cls: 'good', text: '70–94 % — solide : entraînez-vous à justifier un choix d’édition à l’oral.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe à la configuration initiale.' }
     ],
 
@@ -537,7 +560,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — refais la visite du Gestionnaire de serveur, puis les exercices.' },
       { cls: 'mid', text: '50–69 % — rejoue l’exercice des profils de pare-feu jusqu’au sans-faute.' },
-      { cls: 'good', text: '70–89 % — solide : déroule la configuration initiale de tête sur une VM.' },
+      { cls: 'good', text: '70–94 % — solide : déroule la configuration initiale de tête sur une VM.' },
       { cls: 'top', text: '≥ 95 % — maîtrise : passe à Active Directory.' }
     ],
 

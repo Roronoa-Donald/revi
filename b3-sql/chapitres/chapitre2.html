@@ -38,9 +38,9 @@
     <a href="../chapitres/chapitre6.html">Ch. 6</a>
     <a href="../chapitres/cartes.html">Cartes</a>
     <a href="../chapitres/formules.html">Mémo</a>
-    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../chapitres/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="b3-sqlnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>comprendre l’organisation physique des pages de 8 Ko dans PostgreSQL (PageHeader, ItemId, Tuples) ;</li>
       <li>analyser l’architecture interne des index B-Tree (nœuds racine, internes et feuilles, fan-out) ;</li>
@@ -117,7 +117,9 @@
 </table>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Index Couvrants (Covering Indexes) &amp; Index Only Scan</div>
-<p>Dans un <code>Index Scan</code> classique, le moteur parcourt l’arbre d’index pour récupérer le tuple ID (TID), puis doit lire le bloc de la table pour extraire les colonnes non indexées. Grâce à la clause <code>INCLUDE</code> (introduite dans PostgreSQL 11), on peut stocker des colonnes supplémentaires dans les feuilles de l’index sans les inclure dans l’arbre de tri :</p>,<pre><code>CREATE INDEX idx_cmd_client_date ON commandes (client_id) INCLUDE (total_ttc, date_cmd);</code></pre>,<p>Une requête interrogeant <code>client_id</code>, <code>total_ttc</code> et <code>date_cmd</code> réalise alors un <strong>Index Only Scan</strong> : elle lit 100 % des données dans l’index sans jamais toucher la table physique, divisant les I/O disque par dix.</p>
+<p>Dans un <code>Index Scan</code> classique, le moteur parcourt l’arbre d’index pour récupérer le tuple ID (TID), puis doit lire le bloc de la table pour extraire les colonnes non indexées. Grâce à la clause <code>INCLUDE</code> (introduite dans PostgreSQL 11), on peut stocker des colonnes supplémentaires dans les feuilles de l’index sans les inclure dans l’arbre de tri :</p>
+<pre><code>CREATE INDEX idx_cmd_client_date ON commandes (client_id) INCLUDE (total_ttc, date_cmd);</code></pre>
+<p>Une requête interrogeant <code>client_id</code>, <code>total_ttc</code> et <code>date_cmd</code> réalise alors un <strong>Index Only Scan</strong> : elle lit 100 % des données dans l’index sans jamais toucher la table physique, divisant les I/O disque par dix.</p>
   </div>
 
 <h2>3. Fill Factor, Fragmentation & Maintenance Physique (REINDEX)</h2>
@@ -144,203 +146,124 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="sql3-c2-e1" data-lab
      data-exercise="sql3-c2-e1"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="NODE id=root type=INTERNAL keys=20,50 children=N1,N2,N3&#10;NODE id=N1 type=LEAF keys=5,10,15&#10;NODE id=N2 type=LEAF keys=25,35,42&#10;NODE id=N3 type=LEAF keys=55,60,70&#10;SEARCH key=35">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c2-e1) — Simulateur de recherche et traversée dans un arbre B-Tree indexé
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Clé inférieure à toutes les clés de la racine]
-# Données : NODE id=root type=INTERNAL keys=30,70 children=leaf_A,leaf_B,leaf_C
-# Données : NODE id=leaf_A type=LEAF keys=10,20
-# Données : NODE id=leaf_B type=LEAF keys=40,50,60
-# Données : NODE id=leaf_C type=LEAF keys=80,90
-# Données : SEARCH key=15
-A_COMPLETER
-
-[Cas 2 — Arbre à 3 niveaux de profondeur (racine, interne, feuille)]
-# Données : NODE id=root type=INTERNAL keys=100 children=L1_A,L1_B
-# Données : NODE id=L1_A type=INTERNAL keys=50 children=leaf_1,leaf_2
-# Données : NODE id=L1_B type=INTERNAL keys=150 children=leaf_3,leaf_4
-# Données : NODE id=leaf_1 type=LEAF keys=10,25
-# Données : NODE id=leaf_2 type=LEAF keys=60,75,90
-# Données : NODE id=leaf_3 type=LEAF keys=110,130
-# Données : NODE id=leaf_4 type=LEAF keys=160,200
-# Données : SEARCH key=75
-A_COMPLETER
-
-[Cas 3 — Clé supérieure à toutes les clés existantes]
-# Données : NODE id=root type=INTERNAL keys=10,20 children=P1,P2,P3
-# Données : NODE id=P1 type=LEAF keys=1,2
-# Données : NODE id=P2 type=LEAF keys=11,12
-# Données : NODE id=P3 type=LEAF keys=21,22
-# Données : SEARCH key=99
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'a@x.tg'), (2, 'TG', 'b@x.tg'), (3, 'SN', 'c@x.sn'), (4, 'TG', 'a@x.tg');&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Calculez total_lignes, card_pays et card_email
+SELECT COUNT(*) FROM commandes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de recherche et traversée dans un arbre B-Tree indexé</h3>
+    <h3 class="lab__title">Exercice 1 — Calcul du ratio de sélectivité d’une colonne pour le choix d’un index</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Parcourir les nœuds d’un index B-Tree hiérarchique depuis la racine jusqu’à la page feuille pour localiser une clé.</p>
-    <div class="lab__brief">L’index B-Tree est la structure par défaut dans les SGBD relationnels (PostgreSQL, MySQL InnoDB, Oracle).
-Chaque nœud interne contient $K$ clés triées séparant $K+1$ pointeurs vers des nœuds enfants :
-- Si `clé_cherchée < clé[0]`, on emprunte `enfant[0]`.
-- Si `clé[i] <= clé_cherchée < clé[i+1]`, on emprunte `enfant[i+1]`.
-- Si `clé_cherchée >= clé[K-1]`, on emprunte le dernier enfant `enfant[K]`.
-Lorsque l’on atteint une feuille (`type=LEAF`), on vérifie si la clé y est présente.
-
-Entrée :
-- Des lignes décrivant les nœuds de l’arbre :
-  `NODE id=<node_id> type=<INTERNAL|LEAF> keys=<k1,k2,...> children=<c0,c1,...>` (les feuilles n’ont pas de children)
-- Une ligne de recherche : `SEARCH key=<int_key>`
-
-Sortie :
-- `TRAVERSAL path=<node1->node2->...->leaf> depth=<N>`
-- `RESULT key=<K> found=<TRUE|FALSE> leaf=<leaf_id>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la cardinalité distincte et la sélectivité d’une colonne.</p>
+    <div class="lab__brief"><p>Dans la table <code>commandes(id, code_pays, email_client)</code>, calculez le nombre total de lignes (<code>COUNT(*) AS total_lignes</code>), le nombre de pays distincts (<code>COUNT(DISTINCT code_pays) AS card_pays</code>) et le nombre d’emails distincts (<code>COUNT(DISTINCT email_client) AS card_email</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NODE id=root type=INTERNAL keys=20,50 children=N1,N2,N3
-NODE id=N1 type=LEAF keys=5,10,15
-NODE id=N2 type=LEAF keys=25,35,42
-NODE id=N3 type=LEAF keys=55,60,70
-SEARCH key=35</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TRAVERSAL path=root-&gt;N2 depth=2
-RESULT key=35 found=TRUE leaf=N2</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'a@x.tg'), (2, 'TG', 'b@x.tg'), (3, 'SN', 'c@x.sn'), (4, 'TG', 'a@x.tg');
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+--------------+-----------+------------+
+| total_lignes | card_pays | card_email |
++--------------+-----------+------------+
+| 4            | 2         | 3          |
++--------------+-----------+------------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">35 est compris entre 20 et 50, on descend dans N2 où 35 est présent.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Stocker chaque nœud dans un dictionnaire avec ses clés triées d’entiers et sa liste d’enfants.</li>
-        <li>Le premier nœud de type INTERNAL déclaré ou nommé root est la racine.</li>
-        <li>À chaque étape, comparer la clé cible avec les clés du nœud pour déterminer l’indice de l’enfant suivant.</li>
+        <li>Utilisez COUNT(DISTINCT colonne) pour obtenir le nombre de valeurs uniques.</li>
+        <li>Nommez les trois colonnes total_lignes, card_pays et card_email.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c2-e2" data-lab
      data-exercise="sql3-c2-e2"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="INDEX_CALC table=utilisateurs rows=500000 key_bytes=16 fill_factor=90">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c2-e2) — Calculateur d’empreinte mémoire d’index et facteur de blocage (Fill Factor)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Index compact sur clé entière 4 octets avec fill_factor 100%]
-# Données : INDEX_CALC table=commandes rows=1000000 key_bytes=4 fill_factor=100
-A_COMPLETER
-
-[Cas 2 — Index lourd sur chaîne UUID de 32 octets avec fill_factor 70%]
-# Données : INDEX_CALC table=sessions rows=250000 key_bytes=32 fill_factor=70
-A_COMPLETER
-
-[Cas 3 — Petite table de 10 000 lignes]
-# Données : INDEX_CALC table=produits rows=10000 key_bytes=8 fill_factor=90
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (1, 10, 'ARCHIVEE', 5000), (2, 10, 'EN_COURS', 12000), (3, 20, 'EN_COURS', 8000);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Créez l’index partiel idx_cmd_en_cours puis interrogez la table
+SELECT id, montant FROM commandes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Calculateur d’empreinte mémoire d’index et facteur de blocage (Fill Factor)</h3>
+    <h3 class="lab__title">Exercice 2 — Index partiel (CREATE INDEX ... WHERE) sur les commandes actives</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Estimer le nombre de pages et la taille en Ko/Mo d’un index B-Tree en fonction du nombre de lignes, de la taille des clés et du Fill Factor.</p>
-    <div class="lab__brief">Dans PostgreSQL, une page de base de données fait par défaut 8 192 octets (8 Ko).
-Chaque page comporte un en-tête fixe de 24 octets (PageHeaderData).
-Chaque entrée d’index stocke un ItemId (4 octets) + un en-tête d’index (IndexTupleData, 8 octets) + la clé physique.
-L’espace utilisable par page pour les feuilles est limité par le `fill_factor` (ex: 90% pour réserver 10% d’espace aux insertions futures sans page split).
-Formule pour une feuille :
-- `taille_entree = 4 (ItemId) + 8 (en-tete) + key_bytes`
-- `espace_disponible = (8192 - 24) * (fill_factor / 100.0)`
-- `capacite_page = int(espace_disponible // taille_entree)`
-- `pages_feuilles = ceil(rows / capacite_page)`
-- En ajoutant les nœuds internes de l’arbre (estimés à environ 1,2% des pages feuilles supplémentaires) : `pages_totales = pages_feuilles + ceil(pages_feuilles * 0.012)`
-
-Entrée :
-`INDEX_CALC table=<nom> rows=<N> key_bytes=<B> fill_factor=<PCT>`
-
-Sortie :
-`ESTIMATE table=<nom> entry_bytes=<B> page_capacity=<N> leaf_pages=<N> total_pages=<N> size_kb=<KB> size_mb=<MB.2f>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Créer un index partiel filtré pour réduire l’empreinte mémoire de l’index B-Tree.</p>
+    <div class="lab__brief"><p>Sur la table <code>commandes(id INT, client_id INT, statut TEXT, montant INT)</code>, créez un index partiel nommé <code>idx_cmd_en_cours</code> sur <code>(client_id)</code> filtré uniquement sur <code>WHERE statut = 'EN_COURS'</code>, puis sélectionnez <code>id</code> et <code>montant</code> des commandes de <code>client_id = 10</code> ayant <code>statut = 'EN_COURS'</code> triées par <code>id</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INDEX_CALC table=utilisateurs rows=500000 key_bytes=16 fill_factor=90</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ESTIMATE table=utilisateurs entry_bytes=28 page_capacity=262 leaf_pages=1909 total_pages=1932 size_kb=15456 size_mb=15.09</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (1, 10, 'ARCHIVEE', 5000), (2, 10, 'EN_COURS', 12000), (3, 20, 'EN_COURS', 8000);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (3 lignes modifiées).
+
++----+---------+
+| id | montant |
++----+---------+
+| 2  | 12000   |
++----+---------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">500 000 lignes avec des clés de 16 octets à 90% de remplissage occupent ~15 Mo.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Appliquer les constantes de stockage de page PostgreSQL : 8192 octets par page, 24 octets de header.</li>
-        <li>Chaque entrée consomme 4 + 8 + key_bytes octets.</li>
-        <li>Utiliser math.ceil pour arrondir les nombres de pages vers l’entier supérieur.</li>
-        <li>size_kb = total_pages * 8 ; size_mb = size_kb / 1024.0.</li>
+        <li>SQLite et PostgreSQL supportent CREATE INDEX nom ON table(col) WHERE condition;</li>
+        <li>Ajoutez ensuite la requête SELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql3-c2-e3" data-lab
      data-exercise="sql3-c2-e3"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="ADVISE table=commandes col=client_id:int,date_cmd:timestamp filter=client_id=eq,date_cmd=range order=date_cmd partial_filter=none">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c2-e3) — Sélecteur d’index optimal (Index Advisor) selon la typologie de prédicats
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Recommandation GIN sur colonne JSONB]
-# Données : ADVISE table=evenements col=payload:jsonb filter=payload=contains order=none partial_filter=none
-A_COMPLETER
-
-[Cas 2 — Recommandation d index partiel avec filtre WHERE]
-# Données : ADVISE table=utilisateurs col=email:text filter=email=eq order=none partial_filter=actif_is_true
-A_COMPLETER
-
-[Cas 3 — Index Hash sur égalité simple d un jeton de session]
-# Données : ADVISE table=sessions col=token:uuid filter=token=eq order=none partial_filter=none
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('commandes', 1000, 300), ('clients', 1000, 100), ('sessions', 200, 120);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Sélectionnez les tables où n_dead_tup > 50 + 0.20 * n_live_tup
+SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Sélecteur d’index optimal (Index Advisor) selon la typologie de prédicats</h3>
+    <h3 class="lab__title">Exercice 3 — Estimation du taux de tuples morts (Dead Tuples / Bloat) pour VACUUM</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser les prédicats d’une requête SQL et recommander l’index optimal (B-Tree composite, GIN, Hash ou partiel).</p>
-    <div class="lab__brief">Dans la conception de bases de données haute performance, choisir le bon type d’index est crucial :
-- `GIN` (Generalized Inverted Index) : recommandé pour les colonnes semi-structurées (`jsonb`, tableaux `array`, ou recherche plein texte `tsvector`).
-- `HASH` : recommandé uniquement pour les comparaisons d’égalité stricte sur clé unique (`eq`) sans recherche par intervalle.
-- `PARTIAL_BTREE` : recommandé lorsqu’un filtre WHERE porte sur un sous-ensemble très sélectif (ex: `deleted_at IS NULL` ou `status=active`).
-- `BTREE_COMPOSITE` : recommandé pour les requêtes combinant égalité et ordre ou intervalle (`range` / `order_by`). Règle d’or : colonnes d’égalité en premier, puis colonne de range ou de tri.
-
-Entrée :
-`ADVISE table=<table_name> col=<c1:type,c2:type> filter=<c1=eq,c2=range> order=<col|none> partial_filter=<cond|none>`
-
-Sortie :
-`RECOMMENDATION table=<name> index_type=<GIN|HASH|PARTIAL_BTREE|BTREE_COMPOSITE> cols=<c1,c2> ddl=<CREATE INDEX ...>`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier les tables nécessitant un VACUUM selon le seuil d’autovacuum PostgreSQL.</p>
+    <div class="lab__brief"><p>Dans PostgreSQL, l’autovacuum se déclenche lorsque <code>n_dead_tup &gt; 50 + 0.20 * n_live_tup</code>. À partir de la table de statistiques <code>pg_stat_user_tables_sim(relname TEXT, n_live_tup INT, n_dead_tup INT)</code>, affichez <code>relname</code>, <code>n_live_tup</code> et <code>n_dead_tup</code> des tables qui dépassent strictement ce seuil, triées par <code>n_dead_tup</code> décroissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ADVISE table=commandes col=client_id:int,date_cmd:timestamp filter=client_id=eq,date_cmd=range order=date_cmd partial_filter=none</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RECOMMENDATION table=commandes index_type=BTREE_COMPOSITE cols=client_id,date_cmd ddl=CREATE INDEX idx_commandes_client_id_date_cmd ON commandes (client_id, date_cmd)</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('commandes', 1000, 300), ('clients', 1000, 100), ('sessions', 200, 120);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+-----------+------------+------------+
+| relname   | n_live_tup | n_dead_tup |
++-----------+------------+------------+
+| commandes | 1000       | 300        |
+| sessions  | 200        | 120        |
++-----------+------------+------------+
+(2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Index B-Tree composite ordonné (égalité client_id d’abord, puis range date_cmd).</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Si une colonne est de type jsonb ou array, recommander systématiquement GIN.</li>
-        <li>Si un partial_filter est présent non vide, recommander PARTIAL_BTREE avec clause WHERE.</li>
-        <li>Si plusieurs colonnes sont filtrées ou triées, placer les colonnes en égalité en tête dans l’index composite.</li>
-        <li>Générer l’instruction SQL DDL standard correspondante.</li>
+        <li>Écrivez directement la formule dans WHERE : n_dead_tup &gt; 50 + 0.20 * n_live_tup.</li>
+        <li>Triez par n_dead_tup DESC.</li>
       </ol>
     </details>
   </div>
@@ -489,12 +412,13 @@ Sortie :
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Difficultés à identifier le bon type d’index ou confusion sur le fonctionnement des index composites.</div>
-      <div class="bandrow bandrow--medium">Bonne compréhension des arbres B-Tree, dimensionnement avec Fill Factor et utilisation des index GIN pour le JSONB.</div>
-      <div class="bandrow bandrow--high">Maîtrise approfondie des index couvrants (INCLUDE), élimination des accès tables via Index Only Scan et maintenance non bloquante en production.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à identifier le bon type d’index ou confusion sur le fonctionnement des index composites.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne compréhension des arbres B-Tree, dimensionnement avec Fill Factor et utilisation des index GIN pour le JSONB.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise approfondie des index couvrants (INCLUDE), élimination des accès tables via Index Only Scan et maintenance non bloquante en production.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -504,7 +428,7 @@ Sortie :
     <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Analyse des Plans d’Exécution EXPLAIN (ANALYZE, BUFFERS) &amp; Optimiseur CBO <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
 </main>
 

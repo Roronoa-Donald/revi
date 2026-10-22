@@ -19,7 +19,7 @@ module.exports = {
     'concevoir une arborescence de groupes conforme à la méthodologie standard Microsoft AGDLP / AGUDLP pour rationaliser l’administration des droits ;',
     'distinguer avec rigueur les portées de groupes (Global, Local de Domaine, Universel) et leurs capacités d’imbrication multi-domaines ;',
     'exploiter les journaux d’audit Windows Security pour tracer le cycle de vie des identités et détecter les modifications de groupes sensibles (4720, 4726, 4728) ;',
-    'implémenter en Python 3 des vérificateurs de conformité AGDLP, des routeurs d’opérations FSMO et des parseurs de journaux d’audit de sécurité.'
+    'analyser et résoudre méthodologiquement des vérificateurs de conformité AGDLP, des routeurs d’opérations FSMO et des parseurs de journaux d’audit de sécurité.'
   ],
   sections: [
     {

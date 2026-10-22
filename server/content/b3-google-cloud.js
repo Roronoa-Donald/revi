@@ -39,7 +39,7 @@ const course = {
     'et enfin observabilité, FinOps et automatisation déclarative (Google Cloud Operations Suite avec Cloud Monitoring, métriques, alertes et tableaux de bord, Cloud Logging avec requêtes de filtrage et Log Sinks vers BigQuery/GCS/PubSub, diagnostics de latence Cloud Trace et profilage Cloud Profiler, gestion financière FinOps avec budgets, alertes de seuil 50%/90%/100%, remises d\'usage continu SUD automatiques et engagements CUD 1 an/3 ans, et Infrastructure as Code avec Terraform, provider Google, état distant sécurisé sur backend GCS avec verrouillage et zéro secret en dur).',
   lead:
     'Maîtrisez l’ingénierie et l’architecture sur Google Cloud : hiérarchie des projets, IAM & Workload Identity, Compute Engine & MIG, GKE Autopilot, Cloud Run, réseau VPC mondial, Cloud Storage Lifecycle, Spanner, Pub/Sub, FinOps et Terraform. ' +
-    'Six modules complets, 18 exercices interactifs de code en Python 3 et 48 QCM d’évaluation.',
+    'Six modules complets, 18 exercices interactifs de code de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Supports de cours officiels Services Cloud (Google Cloud) B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation officielle Google Cloud Architecture Center, Référentiels d\'examen Google Cloud Certified Associate Cloud Engineer (ACE) et Professional Cloud Architect (PCA)',
 

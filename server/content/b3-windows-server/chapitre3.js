@@ -19,7 +19,7 @@ module.exports = {
     'résoudre les cas complexes d’héritage de stratégies avec les options Enforced (application forcée) et Block Inheritance (blocage de l’héritage) ;',
     'configurer un filtrage de sécurité (Security Filtering) par groupes d’ordinateurs et restreindre l’application via le droit Apply Group Policy ;',
     'concevoir des filtres dynamiques WMI en langage WQL pour conditionner l’application d’une GPO aux spécifications matérielles et d’OS ;',
-    'implémenter en Python 3 des calculateurs de précédence LSDOU, des moteurs d’arbitrage Enforced/Block et des évaluateurs de filtres WMI.'
+    'analyser et résoudre méthodologiquement des calculateurs de précédence LSDOU, des moteurs d’arbitrage Enforced/Block et des évaluateurs de filtres WMI.'
   ],
   sections: [
     {
@@ -142,7 +142,7 @@ module.exports = {
       desc: 'Mécanisme d’ACL restreignant l’exécution d’une GPO aux seuls objets ayant le droit « Appliquer la stratégie de groupe ».'
     },
     {
-      name: 'Filtre WMI (WQL)',
+      name: 'Filtrez WMI (WQL)',
       desc: 'Requête d’interrogation de la base de gestion Windows conditionnant l’application d’une GPO aux caractéristiques matérielles du poste.'
     },
     {

@@ -94,7 +94,7 @@ module.exports = [
     "starter": "# Grille de calcul (pb2-c4-e3) — Loi de Poisson\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Aucun événement]\n# Données : 3\n# Données : 0\nA_COMPLETER\n\n[Cas 2 — Deux événements]\n# Données : 1\n# Données : 2\nA_COMPLETER\n\n[Cas 3 — Quatre événements]\n# Données : 4\n# Données : 4\nA_COMPLETER\n",
     "hints": [
       "La probabilité vaut (λ ** k) * exp(-λ) / factorial(k).",
-      "Utilise exp(-lam) plutôt que la constante e : c’est la fonction du module math."
+      "Utilisez exp(-lam) plutôt que la constante e : c’est la fonction du module math."
     ],
     "examples": [
       {

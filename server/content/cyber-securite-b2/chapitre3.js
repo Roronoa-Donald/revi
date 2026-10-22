@@ -230,12 +230,20 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les chaînes iptables et le fonctionnement d’une DMZ.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les règles de filtrage stateful et le mécanisme du scan SYN Nmap.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises l’architecture périmétrique et la défense réseau.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les règles de filtrage stateful et le mécanisme du scan SYN Nmap.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez l’architecture périmétrique et la défense réseau.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux vulnérabilités applicatives et au Top 10 OWASP au module 4.' }
   ],
 
   flashcards: [
+    { "q": 'Qu’est-ce que « Pare-feu sans état (Stateless) vs avec état (Stateful) » ?', "a": 'Pare-feu sans état (Stateless) vs avec état (Stateful)' },
+    { "q": 'Qu’est-ce que « Table de connexion (conntrack) » ?', "a": 'Table de connexion (conntrack)' },
+    { "q": 'Qu’est-ce que « Pare-feu applicatif (WAF) » ?', "a": 'Pare-feu applicatif (WAF)' },
+    { "q": 'Qu’est-ce que « Commandes Linux iptables (INPUT, FORWARD, OUTPUT) » ?', "a": 'Commandes Linux iptables (INPUT, FORWARD, OUTPUT)' },
+    { "q": 'Qu’est-ce que « Zone démilitarisée (DMZ) et segmentation VLAN » ?', "a": 'Zone démilitarisée (DMZ) et segmentation VLAN' },
+    { "q": 'Qu’est-ce que « Réseau privé virtuel (VPN IPsec / WireGuard) » ?', "a": 'Réseau privé virtuel (VPN IPsec / WireGuard)' },
+    { "q": 'Qu’est-ce que « Scanner de ports Nmap (SYN scan -sS) » ?', "a": 'Scanner de ports Nmap (SYN scan -sS)' },
+    { "q": 'Qu’est-ce que « États de ports (Open, Closed, Filtered) » ?', "a": 'États de ports (Open, Closed, Filtered)' },
     { q: 'Quelle est la différence essentielle entre un pare-feu stateless et stateful ?', a: 'Le stateless inspecte chaque paquet isolément sans mémoire, tandis que le stateful suit les sessions dans une table d’état (ESTABLISHED, RELATED).' },
     { q: 'À quoi sert la chaîne FORWARD dans iptables ?', a: 'À filtrer les paquets réseau qui traversent la machine sans être destinés à la machine locale elle-même.' },
     { q: 'Pourquoi un serveur en DMZ ne doit-il jamais pouvoir initier de connexion vers le LAN interne ?', a: 'Pour empêcher un attaquant ayant piraté le serveur web de rebondir vers les données confidentielles du réseau interne.' },

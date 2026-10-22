@@ -137,9 +137,9 @@ module.exports = {
 
   notions: ['Cambridge Analytica', 'données détournées', 'profilage', 'manipulation électorale', 'discours de haine', 'désinformation', 'diffamation', 'liberté d’expression', 'anonymat', 'identification', 'nomophobie', 'selfitisme', 'FOMO', 'vibrations fantômes'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends l’affaire Cambridge Analytica.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les contenus à réguler.' },
-    { cls: 'good', text: '70–89 % — Solide : tu analyses les tensions.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez l’affaire Cambridge Analytica.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les contenus à réguler.' },
+    { cls: 'good', text: '70–94 % — Solide : vous analysez les tensions.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux sources du droit, chapitre 4.' }
   ],
 

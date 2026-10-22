@@ -182,7 +182,7 @@ module.exports = {
   "mastery": [
     {
       "cls": "low",
-      "text": "&lt; 50 % — Reprends les sections théoriques et revois les définitions clés."
+      "text": "&lt; 50 % — Reprenez les sections théoriques et revois les définitions clés."
     },
     {
       "cls": "mid",
@@ -190,7 +190,7 @@ module.exports = {
     },
     {
       "cls": "good",
-      "text": "70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
+      "text": "70–94 % — Bon niveau opérationnel : affine les cas limites et les options d'outils."
     },
     {
       "cls": "top",
@@ -198,6 +198,13 @@ module.exports = {
     }
   ],
   "flashcards": [
+    { "q": 'Qu’est-ce que « GTFOBins » ?', "a": 'GTFOBins : Catalogue de référence des binaires Unix légitimes détournables pour échapper à un shell restreint ou élever ses privilèges.' },
+    { "q": 'Qu’est-ce que « NOP Sled » ?', "a": "NOP Sled : Suite d'octets 0x90 créant une zone tampon d'atterrissage sécurisée précédant le shellcode lors d'un buffer overflow." },
+    { "q": 'Qu’est-ce que « Unquoted Service Path » ?', "a": "Unquoted Service Path : Chemin d'exécutable de service Windows contenant des espaces sans guillemets permettant l'injection de binaire." },
+    { "q": 'Qu’est-ce que « SeImpersonatePrivilege » ?', "a": "SeImpersonatePrivilege : Privilège Windows autorisant l'usurpation de jetons de sécurité clients pour obtenir les droits NT AUTHORITY\\SYSTEM." },
+    { "q": "Qu’est-ce que « L'exploitation de buffer overflows détourne EIP/RIP mais se heurte aux protections modernes ASLR, DEP/NX et Canaries. » ?", "a": "L'exploitation de buffer overflows détourne EIP/RIP mais se heurte aux protections modernes ASLR, DEP/NX et Canaries." },
+    { "q": "Qu’est-ce que « Metasploit structure l'attaque en exploits, payloads, modules auxiliaires et sessions de post-exploitation Meterpreter. » ?", "a": "Metasploit structure l'attaque en exploits, payloads, modules auxiliaires et sessions de post-exploitation Meterpreter." },
+    { "q": "Qu’est-ce que « Sous Linux, les binaires SUID non nécessaires et les règles sudoers NOPASSWD sont les vecteurs d'escalade les plus courants. » ?", "a": "Sous Linux, les binaires SUID non nécessaires et les règles sudoers NOPASSWD sont les vecteurs d'escalade les plus courants." },
     {
       "q": "Quel est le rôle du registre EIP (x86) / RIP (x64) dans un binaire en cours d'exécution ?",
       "a": "Il stocke l'adresse mémoire de la prochaine instruction machine à exécuter. Son détournement permet de contrôler le flux d'exécution."

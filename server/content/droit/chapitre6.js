@@ -147,9 +147,9 @@ module.exports = {
 
   notions: ['IPDCP', 'article 55', 'article 68', 'article 79', 'article 86', 'article 87', 'article 93', 'négligence', 'franc CFA', 'TPE'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends les articles un par un.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les fourchettes de peines.' },
-    { cls: 'good', text: '70–89 % — Solide : tu qualifies chaque infraction.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez les articles un par un.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les fourchettes de peines.' },
+    { cls: 'good', text: '70–94 % — Solide : vous qualifiez chaque infraction.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe aux examens blancs.' }
   ],
 

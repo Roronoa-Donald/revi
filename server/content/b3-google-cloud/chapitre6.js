@@ -19,7 +19,7 @@ module.exports = {
     'diagnostiquer les goulets d\'étranglement applicatifs avec Error Reporting, Cloud Trace et Cloud Profiler ;',
     'piloter la rentabilité financière FinOps : calcul des remises d\'utilisation continue (SUD) et des engagements CUD (1 an et 3 ans) ;',
     'automatiser l\'infrastructure avec Terraform : provider Google, gestion de l\'état distant sécurisé sur GCS et bonnes pratiques HCL ;',
-    'développer en Python 3 des parseurs de filtres de logs, des calculateurs de remises FinOps et des linters de manifestes Terraform.'
+    'analyser et résoudre méthodologiquement des parseurs de filtres de logs, des calculateurs de remises FinOps et des linters de manifestes Terraform.'
   ],
   sections: [
     {

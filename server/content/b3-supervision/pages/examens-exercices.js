@@ -132,7 +132,7 @@ function examens(course) {
       '  - Le flapping correspond à l\'oscillation rapide et répétée d\'un service entre OK et CRITICAL. ' +
       '  - Algorithme : calcul du ratio de changements d\'état par rapport au nombre maximal de transitions sur une fenêtre temporelle glissante (ex: &gt; 25%). ' +
       '  - Action : le système bascule le service en état <code>FLAPPING</code> et gèle l\'envoi des alertes individuelles pour n\'émettre qu\'un statut d\'état condensé, évitant la fatigue d\'alerte.</li>',
-      '  <li><strong>Auto-Remédiation &amp; Garde-Fous (4 pts) :</strong> ' +
+      '  <li><strong>Auto-Remédiation &amp; Gardez-Fous (4 pts) :</strong> ' +
       '  - L\'auto-remédiation déclenche automatiquement un runbook correctif (ex: redémarrage d\'un démon figé ou purge de cache). ' +
       '  - Le plafonnement des réessais (<code>max_retries</code>, ex: 3 tentatives) est un garde-fou vital : si un service crash en boucle en raison d\'un binaire corrompu ou d\'une base saturée, redémarrer en continu aggrave la panne et consomme les ressources sans résoudre la cause racine. ' +
       '  - Passé le seuil maximal, l\'automatisation doit céder la main et déclencher une alerte prioritaire vers l\'ingénieur d\'astreinte humain.</li>',
@@ -191,7 +191,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers de Code Interactifs — Supervision &amp; Observabilité B3</h1>',
-    '  <p class="lead">L\'ensemble des 18 ateliers de programmation pratique en Python 3 intégrés au cours, avec éditeur Monaco, tests automatisés cachés, correction instantanée et aide intelligente du tuteur pédagogique.</p>',
+    '  <p class="lead">L\'ensemble des 18 ateliers de programmation pratique de manière méthodique intégrés au cours, avec éditeur Monaco, tests automatisés cachés, correction instantanée et aide intelligente du tuteur pédagogique.</p>',
     '',
     listHtml,
     '',

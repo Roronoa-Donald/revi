@@ -40,7 +40,7 @@
     <a href="../chapitres/formules.html">Mémo</a>
     <a href="../exercices/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="../chapitres/simulateur-examen.html">Examen</a>
+    <a href="../chapitres/examens.html">Examen</a>
   </div>
   <div class="sqlnav__actions">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>définir rigoureusement les quatre propriétés ACID (Atomicité, Cohérence, Isolation, Durabilité) d’un SGBD relationnel ;</li>
       <li>manipuler les instructions de contrôle de transaction : BEGIN, COMMIT, ROLLBACK, SAVEPOINT et ROLLBACK TO SAVEPOINT ;</li>
@@ -145,199 +145,135 @@ COMMIT;    </div>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="sql2-c5-e1" data-lab
      data-exercise="sql2-c5-e1"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="A:1000,B:500,C:200&#10;TRANSFERT A B 300&#10;TRANSFERT B C 150">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c5-e1) — Simulateur de transaction atomique bancaire (COMMIT vs ROLLBACK)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — ROLLBACK pour solde insuffisant]
-# Données : A:100,B:50
-# Données : TRANSFERT A B 50
-# Données : TRANSFERT A B 80
-A_COMPLETER
-
-[Cas 2 — ROLLBACK pour compte inexistant]
-# Données : A:500,B:200
-# Données : TRANSFERT A Z 100
-A_COMPLETER
-
-[Cas 3 — Multiple transferts équilibrés avec COMMIT]
-# Données : A:100,B:100,C:100
-# Données : TRANSFERT A B 100
-# Données : TRANSFERT B C 200
-# Données : TRANSFERT C A 50
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Amina', 50000), (2, 'Koffi', 20000);&#10;-- VERIFY:&#10;SELECT id, titulaire, solde FROM comptes ORDER BY id;&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Débitez 15000 sur id=1 et créditez 15000 sur id=2
+UPDATE comptes SET solde = solde WHERE id = 1;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de transaction atomique bancaire (COMMIT vs ROLLBACK)</h3>
+    <h3 class="lab__title">Exercice 1 — Virement bancaire atomique entre deux comptes</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer l’atomicité (A de ACID) : si un virement échoue (fonds insuffisants), la transaction entière est annulée.</p>
-    <div class="lab__brief"><p>Une transaction bancaire transfère des fonds entre comptes : <code>TRANSFERT source destination montant</code>. Pour chaque transfert, le compte source doit exister et disposer d’au moins le montant demandé (pas de découvert). Le compte destination doit également exister.
-Si toutes les opérations réussissent, la transaction fait <code>COMMIT</code>. Si la moindre opération échoue, la transaction fait <code>ROLLBACK</code> et restaure l’état exact de départ.</p>
-<p>Entrée :
-- Ligne 1 : Soldes initiaux <code>compte:solde</code> séparés par des virgules (ex: <code>A:1000,B:500,C:200</code>).
-- Lignes suivantes : Opérations <code>TRANSFERT source destination montant</code>.
-
-Sortie :
-- Si succès : <code>Statut: COMMIT | Soldes: &lt;compte:solde triés&gt;</code>
-- Si échec : <code>Statut: ROLLBACK | Erreur: &lt;Raison&gt; | Soldes: &lt;soldes initiaux inchangés&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Exécuter le débit et le crédit d’un virement bancaire en conservant l’invariant de somme.</p>
+    <div class="lab__brief"><p>Dans la table <code>comptes(id, titulaire, solde)</code>, effectuez un virement de <code>15000</code> du compte <code>id = 1</code> (débit : <code>solde = solde - 15000</code>) vers le compte <code>id = 2</code> (crédit : <code>solde = solde + 15000</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>A:1000,B:500,C:200
-TRANSFERT A B 300
-TRANSFERT B C 150</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Statut: COMMIT | Soldes: A:700,B:650,C:350</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Amina', 50000), (2, 'Koffi', 20000);
+-- VERIFY:
+SELECT id, titulaire, solde FROM comptes ORDER BY id;
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (1 ligne modifiée).
+
+Instruction exécutée avec succès (1 ligne modifiée).
+
++----+-----------+-------+
+| id | titulaire | solde |
++----+-----------+-------+
+| 1  | Amina     | 35000 |
+| 2  | Koffi     | 35000 |
++----+-----------+-------+
+(2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Tous les virements sont valides, la transaction est validée (COMMIT).</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Garde une copie indépendante des soldes initiaux pour le ROLLBACK.</li>
-        <li>Vérifie que les comptes source et destination existent.</li>
-        <li>Vérifie que le solde de la source est suffisant (&gt;= montant).</li>
-        <li>Si une erreur survient, interromps les virements et restaure la copie de départ.</li>
+        <li>Écrivez deux instructions UPDATE séparées par un point-virgule.</li>
+        <li>La première soustrait 15000 sur WHERE id = 1, la seconde ajoute 15000 sur WHERE id = 2.</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql2-c5-e2" data-lab
      data-exercise="sql2-c5-e2"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="AJOUT A 10&#10;SAVEPOINT sp1&#10;AJOUT B 20&#10;ROLLBACK TO sp1&#10;AJOUT C 30&#10;COMMIT">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c5-e2) — Gestionnaire de points de sauvegarde SAVEPOINT & ROLLBACK TO
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Savepoints multiples emboîtés]
-# Données : AJOUT X 1
-# Données : SAVEPOINT sp1
-# Données : AJOUT Y 2
-# Données : SAVEPOINT sp2
-# Données : AJOUT Z 3
-# Données : ROLLBACK TO sp2
-# Données : COMMIT
-A_COMPLETER
-
-[Cas 2 — Retour complet au premier savepoint]
-# Données : AJOUT K 100
-# Données : SAVEPOINT depart
-# Données : AJOUT K 200
-# Données : AJOUT L 300
-# Données : ROLLBACK TO depart
-# Données : COMMIT
-A_COMPLETER
-
-[Cas 3 — Aucun rollback intervenu]
-# Données : AJOUT A 1
-# Données : AJOUT B 2
-# Données : COMMIT
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 10); INSERT INTO commandes VALUES (10, 'EN_ATTENTE');&#10;-- VERIFY:&#10;SELECT c.id, c.statut, a.stock FROM commandes c CROSS JOIN articles a WHERE c.id = 10 AND a.id = 1;&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Validez la commande id=10 et décrémentez de 3 le stock de l’article id=1
+UPDATE commandes SET statut = statut WHERE id = 10;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Gestionnaire de points de sauvegarde SAVEPOINT &amp; ROLLBACK TO</h3>
+    <h3 class="lab__title">Exercice 2 — Validation atomique d’une commande et décrémentation de stock</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Gérer des états intermédiaires dans une transaction avec les points de reprise SAVEPOINT.</p>
-    <div class="lab__brief"><p>Dans une longue transaction SQL, l’instruction <code>SAVEPOINT nom_point</code> sauvegarde l’état courant de la base. En cas d’erreur survenue ultérieurement, la commande <code>ROLLBACK TO nom_point</code> annule uniquement les opérations effectuées après ce point de sauvegarde sans compromettre le reste de la transaction.</p>
-<p>Entrée :
-Une suite de commandes sur chaque ligne :
-- <code>AJOUT cle valeur</code>
-- <code>SAVEPOINT nom</code>
-- <code>ROLLBACK TO nom</code>
-- <code>COMMIT</code>
-
-Sortie :
-<code>Etat_Final: &lt;cle:valeur triées&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Mettre à jour simultanément le statut d’une commande et le stock disponible.</p>
+    <div class="lab__brief"><p>Lors de la validation de la commande <code>id = 10</code> portant sur <code>3</code> unités de l’article <code>id = 1</code>, mettez à jour <code>commandes</code> (<code>SET statut = 'VALIDEE' WHERE id = 10</code>) et décrémentez <code>articles</code> (<code>SET stock = stock - 3 WHERE id = 1</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AJOUT A 10
-SAVEPOINT sp1
-AJOUT B 20
-ROLLBACK TO sp1
-AJOUT C 30
-COMMIT</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Etat_Final: A:10,C:30</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 10); INSERT INTO commandes VALUES (10, 'EN_ATTENTE');
+-- VERIFY:
+SELECT c.id, c.statut, a.stock FROM commandes c CROSS JOIN articles a WHERE c.id = 10 AND a.id = 1;
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (1 ligne modifiée).
+
+Instruction exécutée avec succès (1 ligne modifiée).
+
++----+---------+-------+
+| id | statut  | stock |
++----+---------+-------+
+| 10 | VALIDEE | 7     |
++----+---------+-------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">L'ajout de B est annulé par le ROLLBACK TO sp1, mais A:10 est conservé.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Maintiens un dictionnaire représentant l état de la base.</li>
-        <li>Pour chaque SAVEPOINT nom, sauvegarde une copie superficielle ou profonde du dictionnaire dans un historique {nom: copie}.</li>
-        <li>Lors de ROLLBACK TO nom, restaure la copie correspondante.</li>
+        <li>Exécutez UPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;</li>
+        <li>Puis exécutez UPDATE articles SET stock = stock - 3 WHERE id = 1;</li>
       </ol>
     </details>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="sql2-c5-e3" data-lab
      data-exercise="sql2-c5-e3"
-     data-language="analyse"
+     data-language="sql"
      data-height="300"
-     data-stdin="T1 DETIENT R1 ATTEND R2&#10;T2 DETIENT R2 ATTEND R1">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c5-e3) — Détecteur d’interblocage (Deadlock) par graphe d’attente (Wait-For Graph)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Exécution séquentielle sans cycle]
-# Données : T1 DETIENT R1 ATTEND AUCUNE
-# Données : T2 DETIENT R2 ATTEND R1
-A_COMPLETER
-
-[Cas 2 — Interblocage à 3 transactions (T1 -> T2 -> T3 -> T1)]
-# Données : T1 DETIENT R1 ATTEND R2
-# Données : T2 DETIENT R2 ATTEND R3
-# Données : T3 DETIENT R3 ATTEND R1
-A_COMPLETER
-
-[Cas 3 — Graphe sans attente mutuelle]
-# Données : T1 DETIENT R1 ATTEND R3
-# Données : T2 DETIENT R2 ATTEND R3
-# Données : T3 DETIENT R3 ATTEND AUCUNE
-A_COMPLETER
-</script>
+     data-stdin="CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 10000), (1, 'CREDIT', 10000), (2, 'DEBIT', 5000), (2, 'CREDIT', 3000);&#10;-- exemple">
+  <script type="text/plain" data-lab-starter>-- Calculez total_debit et total_credit par tx_id
+SELECT tx_id FROM ecritures GROUP BY tx_id;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Détecteur d’interblocage (Deadlock) par graphe d’attente (Wait-For Graph)</h3>
+    <h3 class="lab__title">Exercice 3 — Audit de cohérence comptable (Écriture débit / crédit équilibrée)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Construire le graphe orienté de dépendance des transactions et détecter la présence d’un cycle d’interblocage.</p>
-    <div class="lab__brief"><p>Un interblocage (Deadlock) survient lorsque deux ou plusieurs transactions s’attendent mutuellement pour libérer des verrous exclusifs.
-Si la transaction T1 détient la ressource R1 et attend R2, alors que T2 détient R2 et attend R1, il y a une dépendance circulaire <code>T1 -&gt; T2 -&gt; T1</code>.</p>
-<p>Entrée :
-Chaque ligne décrit une transaction : <code>T_ID DETIENT ressource_tenue ATTEND ressource_attendue</code> (ou <code>ATTEND AUCUNE</code> s’il n’y a pas d’attente).
-
-Sortie :
-- S’il existe un cycle : <code>DEADLOCK DETECTE: cycle &lt;T_A -&gt; T_B -&gt; ... -&gt; T_A&gt;</code>
-- Si le graphe est acyclique : <code>AUCUN DEADLOCK: execution possible</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier par agrégation SQL qu’une transaction respecte l’équilibre débit = crédit.</p>
+    <div class="lab__brief"><p>Dans la table <code>ecritures(tx_id, sens, montant)</code> où <code>sens</code> vaut <code>'DEBIT'</code> ou <code>'CREDIT'</code>, affichez pour chaque <code>tx_id</code> le total débit (<code>SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit</code>) et le total crédit (<code>SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit</code>), triés par <code>tx_id</code> croissant.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>T1 DETIENT R1 ATTEND R2
-T2 DETIENT R2 ATTEND R1</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEADLOCK DETECTE: cycle T1 -&gt; T2 -&gt; T1</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 10000), (1, 'CREDIT', 10000), (2, 'DEBIT', 5000), (2, 'CREDIT', 3000);
+-- exemple</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+-------+-------------+--------------+
+| tx_id | total_debit | total_credit |
++-------+-------------+--------------+
+| 1     | 10000       | 10000        |
+| 2     | 5000        | 3000         |
++-------+-------------+--------------+
+(2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">T1 attend T2 qui attend T1 : cycle d'interblocage.</p>
+    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Établis qui détient chaque ressource : detenteurs[ressource] = transaction.</li>
-        <li>Pour chaque transaction qui attend une ressource, crée une arête orientée : T_demandeur -&gt; detenteurs[ressource].</li>
-        <li>Applique un parcours en profondeur (DFS) pour détecter si un cycle existe.</li>
+        <li>Utilisez SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit.</li>
+        <li>Faites de même pour CREDIT et regroupez avec GROUP BY tx_id ORDER BY tx_id ASC.</li>
       </ol>
     </details>
   </div>
@@ -453,13 +389,13 @@ T2 DETIENT R2 ATTEND R1</pre></div>
 <h2>9. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">&lt; 50 % — Révise impérativement la signification des 4 lettres d’ACID et le rôle du ROLLBACK.</div>
-      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les anomalies de concurrence et les 4 niveaux d’isolation ANSI.</div>
-      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les transactions et les mécanismes de verrouillage concurrentiel.</div>
-      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe aux vues, procédures stockées, déclencheurs et optimisation au module 6.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise impérativement la signification des 4 lettres d’ACID et le rôle du ROLLBACK.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur les anomalies de concurrence et les 4 niveaux d’isolation ANSI.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez les transactions et les mécanismes de verrouillage concurrentiel.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passe aux vues, procédures stockées, déclencheurs et optimisation au module 6.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -469,7 +405,7 @@ T2 DETIENT R2 ATTEND R1</pre></div>
     <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Vues, Procédures Stockées, Déclencheurs (Triggers) &amp; Optimisation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
 </main>
 

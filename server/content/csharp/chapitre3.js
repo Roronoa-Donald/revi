@@ -218,8 +218,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise la différence entre virtual/override et masquage new.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur les classes abstraites et le patron Template Method.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les interfaces multiples et l’implémentation explicite.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les classes abstraites et le patron Template Method.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les interfaces multiples et l’implémentation explicite.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe aux collections génériques et à la gestion des exceptions au module 4.' }
   ]
 };

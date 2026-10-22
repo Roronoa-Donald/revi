@@ -75,7 +75,7 @@ public class Main {
 `,
     hints: [
       'Une boucle for (int i = 1; i <= n; i++) parcourt les entiers de 1 à n.',
-      'Ajoute chaque i à la variable somme, puis affiche le total à la fin.'
+      'Ajoutez chaque i à la variable somme, puis affichez le total à la fin.'
     ],
     examples: [
       { stdin: '5', expected: 'somme : 15', note: '1+2+3+4+5 = 15.' }
@@ -122,8 +122,8 @@ public class Main {
 }
 `,
     hints: [
-      'Garde deux variables a = 0 et b = 1, et calcule la suivante à chaque tour.',
-      'Utilise un StringBuilder et un test (i > 0) pour n’ajouter l’espace qu’à partir du deuxième terme.'
+      'Gardez deux variables a = 0 et b = 1, et calcule la suivante à chaque tour.',
+      'Utilisez un StringBuilder et un test (i > 0) pour n’ajouter l’espace qu’à partir du deuxième terme.'
     ],
     examples: [
       { stdin: '5', expected: '0 1 1 2 3', note: 'Cinq premiers termes.' }

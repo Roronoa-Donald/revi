@@ -121,7 +121,7 @@ module.exports = [
       { stem: 'Où se trouvent les fichiers de configuration ?', opts: ['/var', '/etc', '/usr'], correct: 1, exp: '/etc contient la configuration du système : le sauvegarder, c’est sauvegarder la machine.' },
       { stem: 'Que devient /tmp au redémarrage ?', opts: ['Il est effacé', 'Il est archivé', 'Il est conservé'], correct: 0, exp: '/tmp ne survit pas au reboot : il ne contient que des fichiers temporaires.' },
       { stem: 'Différence entre / et /root ?', opts: ['Aucune', '/ est la racine, /root la maison de root', '/root est un alias de /'], correct: 1, exp: '/ est l’origine de l’arborescence ; /root est le répertoire personnel du super-utilisateur.' },
-      { stem: 'Que fait echo \"x\" >> f ?', opts: ['Écrase f', 'Ajoute x à la fin de f', 'Supprime f'], correct: 1, exp: 'Deux chevrons ajoutent à la fin ; un seul chevron écrase tout le fichier.' },
+      { stem: 'Que fait echo \"x\" >> f ?', opts: ['Écrase f', 'Ajoutez x à la fin de f', 'Supprimez f'], correct: 1, exp: 'Deux chevrons ajoutent à la fin ; un seul chevron écrase tout le fichier.' },
       { stem: 'mkdir -p a/b/c sert à…', opts: ['créer les parents manquants', 'copier un dossier', 'protéger un dossier'], correct: 0, exp: 'L’option -p crée toute la chaîne de répertoires intermédiaires.' },
       { stem: 'Quelle commande renomme un fichier ?', opts: ['cp', 'mv', 'rm'], correct: 1, exp: 'mv déplace et, dans le même dossier, renomme : mv ancien nouveau.' }
     ],
@@ -161,13 +161,28 @@ module.exports = [
     notions: ['terminal', 'prompt', 'pwd', 'ls', 'cd', 'racine', 'FHS', '/etc', '/var', 'chemin absolu', 'chemin relatif', 'redirection'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Refais le tour des répertoires FHS avec pwd, ls et cd.' },
+      { cls: 'low', text: '&lt; 50 % — Refaites le tour des répertoires FHS avec pwd, ls et cd.' },
       { cls: 'mid', text: '50–69 % — Réécris de mémoire les commandes touch, mkdir, cp, mv, rm.' },
-      { cls: 'good', text: '70–89 % — Solide : distingue sans faute chemins absolus et relatifs.' },
+      { cls: 'good', text: '70–94 % — Solide : distingue sans faute chemins absolus et relatifs.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, manipulation de fichiers et recherche.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « terminal » ?', a: 'Un serveur n’a ni souris ni fenêtres : tout passe par un terminal et une ligne de commande. Avant d’administrer quoi que ce soit, il faut savoir se déplacer dans l’arborescence, reconnaître un chemin absolu d’un chemin relatif et créer les fichiers et dossiers dont on a besoin.' },
+      { q: 'Qu’est-ce que « prompt » ?', a: 'Le prompt utilisateur@machine:dossier$ résume la situation : qui vous êtes, sur quelle machine, dans quel dossier. Le $ final signifie utilisateur normal ; un # signifie que vous êtes root — chaque commande est alors irréversible et dangereuse.' },
+      { q: 'Qu’est-ce que « pwd » ?', a: 'Trois commandes suffisent à s’orienter : pwd affiche le répertoire courant, ls liste son contenu, cd change de répertoire. cd sans argument ramène dans la maison de l’utilisateur ; cd .. remonte d’un niveau ; cd / va à la racine.' },
+      { q: 'Qu’est-ce que « FHS » ?', a: 'parcourir l’arborescence FHS et nommer le rôle de chaque répertoire ;' },
+      { q: 'Qu’est-ce que « permissions » ?', a: 'permissions : Administration Linux B2 › Sommaire › Chapitre 3' },
+      { q: 'Qu’est-ce que « trios u/g/o » ?', a: 'trios u/g/o : ls -l affiche une chaîne de dix caractères. Le premier est le type ( - fichier, d dossier, l lien) ; les neuf suivants sont trois trios : u (propriétaire), g (groupe), o (autres). Dans chaque trio, r lit, w écrit, x exécute.' },
+      { q: 'Qu’est-ce que « notation octale » ?', a: 'Objectif : Convertir une permission symbolique en notation octale.' },
+      { q: 'Qu’est-ce que « chgrp » ?', a: 'chown change le propriétaire , chgrp le groupe . chown sait faire les deux d’un coup avec utilisateur:groupe , et l’option -R rend le changement récursif.' },
+      { q: 'Qu’est-ce que « adresse IPv4 » ?', a: 'valider et classer une adresse IPv4 (privée ou publique) ;' },
+      { q: 'Qu’est-ce que « masque » ?', a: 'Une configuration IPv4 réunit quatre éléments : l’ adresse , le masque (qui délimite le réseau local), la passerelle (la sortie vers Internet) et le DNS (qui traduit les noms en adresses).' },
+      { q: 'Qu’est-ce que « shebang » ?', a: 'shebang : Administration Linux B2 › Sommaire › Chapitre 5' },
+      { q: 'Qu’est-ce que « $@ » ?', a: '$@ : Administration Linux B2 › Sommaire › Chapitre 5' },
+      { q: 'Qu’est-ce que « read » ?', a: 'lire l’entrée standard avec read dans une boucle ;' },
+      { q: 'Qu’est-ce que « systemd » ?', a: 'lire et changer l’état d’un service systemd ;' },
+      { q: 'Qu’est-ce que « top » ?', a: 'ps et top listent les processus. Un processus running s’exécute, sleeping attend, zombie est terminé mais non récupéré par son parent : il ne consomme plus de ressources mais occupe une entrée de la table des processus.' },
       { q: 'Syntaxe générale d’une commande ?', a: 'COMMANDE OPTIONS ARGUMENTS, par exemple ls -l /home.' },
       { q: 'Rôle de /etc ?', a: 'La configuration du système ; c’est le répertoire à sauvegarder en priorité.' },
       { q: 'Rôle de /var ?', a: 'Les données variables : journaux, spools, bases de données.' },
@@ -313,7 +328,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Revois cp/mv/rm et enchaîne trois copies de sauvegarde.' },
       { cls: 'mid', text: '50–69 % — Trace à la main un lien dur et un lien symbolique.' },
-      { cls: 'good', text: '70–89 % — Solide : écris de mémoire quatre critères de find.' },
+      { cls: 'good', text: '70–94 % — Solide : écris de mémoire quatre critères de find.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, droits et comptes.' }
     ],
 
@@ -471,7 +486,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Réentraîne la conversion octal sur dix lignes de ls -l.' },
       { cls: 'mid', text: '50–69 % — Rejoue chmod symbolique et octal sur un dossier de test.' },
-      { cls: 'good', text: '70–89 % — Solide : décompose une ligne de /etc/passwd de mémoire.' },
+      { cls: 'good', text: '70–94 % — Solide : décompose une ligne de /etc/passwd de mémoire.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 4, réseau statique et SSH.' }
     ],
 
@@ -481,7 +496,7 @@ module.exports = [
       { q: 'Différence entre + et = dans chmod ?', a: '+ ajoute un droit, = fixe la classe exactement.' },
       { q: 'Que fait chown user:group f ?', a: 'Il change à la fois le propriétaire et le groupe de f.' },
       { q: 'Champs de /etc/passwd ?', a: 'login:mot-de-passe:UID:GID:info:maison:shell.' },
-      { q: 'Que fait userdel -r ?', a: 'Supprime le compte et son répertoire personnel.' }
+      { q: 'Que fait userdel -r ?', a: 'Supprimez le compte et son répertoire personnel.' }
     ]
   }
 ];

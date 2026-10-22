@@ -39,7 +39,7 @@ const course = {
     'et qualité de service LAN et protocoles de découverte (gestion des métriques de délai/gigue/perte, marquage 802.1p CoS vers DiffServ DSCP, frontière de confiance Trust Boundary, ordonnanceurs Strict Priority vs Weighted Round Robin WRR, prévention de congestion WRED et découverte de voisins via IEEE 802.1AB LLDP et Cisco CDP).',
   lead:
     'Maîtrisez la commutation avancée de campus, les topologies sans boucle STP/RSTP/MSTP durcies, l’agrégation LACP, la redondance de passerelle FHRP, le routage OSPFv2, la sécurité d’accès et la QoS LAN. ' +
-    'Six modules approfondis combinant rigueur d’ingénierie réseaux et télécoms, 18 ateliers de code interactifs en Python 3 et 48 QCM d’évaluation.',
+    'Six modules approfondis combinant rigueur d’ingénierie réseaux et télécoms, 18 ateliers de code interactifs de manière méthodique et 48 QCM d’évaluation.',
 
   sources: 'Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN & ANSSI',
 

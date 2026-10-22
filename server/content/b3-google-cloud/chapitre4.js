@@ -19,7 +19,7 @@ module.exports = {
     'configurer la passerelle Cloud NAT pour permettre les sorties Internet des VMs privées sans IP publique ;',
     'maîtriser les règles de pare-feu VPC avec état : priorités de 0 à 65535, protocoles, ports et ciblage par Network Tags ;',
     'différencier les interconnexions réseau : VPC Peering, Cloud VPN IPsec et Cloud Interconnect dédié ;',
-    'développer en Python 3 des calculateurs de sous-réseaux VPC, des évaluateurs de pare-feu et des simulateurs de répartiteurs de charge Anycast.'
+    'analyser et résoudre méthodologiquement des calculateurs de sous-réseaux VPC, des évaluateurs de pare-feu et des simulateurs de répartiteurs de charge Anycast.'
   ],
   sections: [
     {

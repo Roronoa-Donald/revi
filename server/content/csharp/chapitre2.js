@@ -233,8 +233,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise l’encapsulation et les propriétés auto-implémentées.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur le chaînage de constructeurs : this() et les accesseurs init.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les records C# et l’expression with.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le chaînage de constructeurs : this() et les accesseurs init.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les records C# et l’expression with.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe au polymorphisme dynamique et aux interfaces au module 3.' }
   ]
 };

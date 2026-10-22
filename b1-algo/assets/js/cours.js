@@ -14,9 +14,7 @@
   /* ---------- Palier de maîtrise (grille de la mission) ---------- */
   function band(pct) {
     if (pct >= 95) return { label: 'Maîtrise recherchée (≥ 95 %)', cls: 'bandrow--top' };
-    if (pct >= 90) return { label: 'Très bonne maîtrise (90–94 %)', cls: 'bandrow--top' };
-    if (pct >= 80) return { label: 'Bonne maîtrise (80–89 %)', cls: 'bandrow--good' };
-    if (pct >= 70) return { label: 'Base correcte, lacunes (70–79 %)', cls: 'bandrow--good' };
+    if (pct >= 70) return { label: 'Bonne maîtrise (70–94 %)', cls: 'bandrow--good' };
     if (pct >= 50) return { label: 'Compréhension partielle (50–69 %)', cls: 'bandrow--mid' };
     return { label: 'Notions insuffisamment maîtrisées (< 50 %)', cls: 'bandrow--low' };
   }
@@ -42,7 +40,7 @@
         var b = band(pct);
         scoreEl.innerHTML = 'Score : <strong>' + correct + '/' + questions.length +
           '</strong> (' + pct + ' %) <span class="band ' + b.cls + '">' + b.label + '</span>' +
-          (mastery && pct < 95 ? ' — reprends les notions faibles avant de passer au chapitre suivant.' : '');
+          (mastery && pct < 95 ? ' — reprenez les notions faibles avant de passer au chapitre suivant.' : '');
       }
 
       questions.forEach(function (q) {

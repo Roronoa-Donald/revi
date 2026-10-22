@@ -26,6 +26,10 @@ module.exports = {
   ],
 
   sections: [
+      {
+        "title": "Continuité de Service : Migration à Chaud (VMware vMotion) & Haute Disponibilité (vSphere HA)",
+        "html": "<div class=\"box box--tech\"><div class=\"box__title\">Notions clés d’examen : vMotion et Cluster de Haute Disponibilité (HA)</div><p>Dans un cluster d’hyperviseurs partageant un stockage centralisé (SAN/NAS), deux fonctionnalités assurent l’équilibrage des ressources et la continuité d’activité :</p><ul><li><strong>VMware vMotion (Live Migration / Migration à chaud) :</strong> permet de <strong>déplacer une machine virtuelle en cours d’exécution d’un serveur hôte physique vers un autre hôte moins sollicité sans aucune interruption de service</strong> pour les utilisateurs. Le moteur copie les pages de mémoire vive (RAM) en tâche de fond via un réseau vMotion dédié, transfère l’état du processeur en quelques millisecondes et bascule l’accès au disque partagé ;</li><li><strong>Haute Disponibilité (vSphere HA / Failover Clustering) :</strong> surveille les battements de cœur (<em>heartbeats</em>) des serveurs physiques du cluster. Si un hôte tombe brutalement en panne matérielle, ses machines virtuelles sont automatiquement redémarrées sur les autres hôtes sains du cluster.</li></ul></div>"
+      },
     {
       title: 'Gestion avancée des ressources',
       html: [
@@ -90,7 +94,7 @@ module.exports = {
 
   questions: [
     { stem: 'Que garantit une réservation ?', opts: ['Un minimum de ressource', 'Un maximum', 'Une priorité'], correct: 0, exp: 'Elle réserve une part de CPU ou de RAM.' },
-    { stem: 'Que fait une limite ?', opts: ['Plafonne une ressource', 'Réserve un minimum', 'Priorise'], correct: 0, exp: 'Elle empêche une VM de consommer au-delà.' },
+    { stem: 'Que fait une limite ?', opts: ['Plafonne une ressource', 'Réservez un minimum', 'Priorise'], correct: 0, exp: 'Elle empêche une VM de consommer au-delà.' },
     { stem: 'À quoi servent les shares ?', opts: ['Priorité relative entre VM', 'Chiffrer', 'Segmenter'], correct: 0, exp: 'Elles départagent la contention.' },
     { stem: 'Que garantit le quorum ?', opts: ['La prise de décision', 'Le chiffrement', 'La migration'], correct: 0, exp: 'La majorité des nœuds décide.' },
     { stem: 'Que fait le fencing ?', opts: ['Isole un nœud instable', 'Sauvegarde les VM', 'Monitore'], correct: 0, exp: 'Il évite le split brain.' },
@@ -133,9 +137,9 @@ module.exports = {
 
   notions: ['réservation', 'limite', 'shares', 'cluster', 'quorum', 'fencing', 'failover', 'migration', 'stockage partagé', 'déduplication', 'chiffrement', 'restauration granulaire', 'monitoring', 'durcissement'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprends réservations, limites et shares.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur cluster et migration.' },
-    { cls: 'good', text: '70–89 % — Solide : tu administres un cluster sereinement.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez réservations, limites et shares.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur cluster et migration.' },
+    { cls: 'good', text: '70–94 % — Solide : vous administrez un cluster sereinement.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.' }
   ],
 

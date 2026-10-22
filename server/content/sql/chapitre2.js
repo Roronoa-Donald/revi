@@ -104,7 +104,7 @@ module.exports = {
         '    <h4 class="card-title">Prédicats BETWEEN, IN &amp; LIKE</h4>',
         '    <ul>',
         '      <li><strong>BETWEEN min AND max :</strong> Équivaut à <code>col &ge; min AND col &le; max</code> (bornes inclusives).</li>',
-        '      <li><strong>IN (val1, val2, ...) :</strong> Vérifie l’appartenance à un ensemble discret de valeurs ou au résultat d’une sous-requête.</li>',
+        '      <li><strong>IN (val1, val2, ...) :</strong> Vérifiez l’appartenance à un ensemble discret de valeurs ou au résultat d’une sous-requête.</li>',
         '      <li><strong>LIKE \'motif\' :</strong> Recherche textuelle avec jokers : <code>%</code> (0..N caractères) et <code>_</code> (exactement 1 caractère).</li>',
         '    </ul>',
         '  </div>',
@@ -226,8 +226,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois impérativement le comportement de NULL et la fonction COALESCE.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’opérateur LIKE et les filtres combinés dans WHERE.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les subtilités du DML et de l’évaluation booléenne.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’opérateur LIKE et les filtres combinés dans WHERE.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les subtilités du DML et de l’évaluation booléenne.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise totale : passe aux jointures multi-tables et sous-requêtes au module 3.' }
   ],
 

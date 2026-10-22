@@ -479,10 +479,10 @@ module.exports = [
     "language": "analyse",
     "title": "Tables de vérité des cinq portes",
     "goal": "Calculer AND, OR, NAND, NOR et XOR sur un couple de bits, sans bibliothèque.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Il Indiquez cinq lignes, une par porte : <code>AND : x</code>, <code>OR : x</code>, <code>NAND : x</code>, <code>NOR : x</code>, <code>XOR : x</code>. Les valeurs se calculent en Python pur : NAND = non(ET), NOR = non(OU), XOR vaut 1 exactement quand les bits diffèrent.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Il Indiquez cinq lignes, une par porte : <code>AND : x</code>, <code>OR : x</code>, <code>NAND : x</code>, <code>NOR : x</code>, <code>XOR : x</code>. Les valeurs se calculent de manière méthodiquepur : NAND = non(ET), NOR = non(OU), XOR vaut 1 exactement quand les bits diffèrent.</p>",
     "starter": "# Grille d'analyse (rb-c5-e1) — Tables de vérité des cinq portes\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux bits à 1]\n# Données : 1 1\nA_COMPLETER\n\n[Cas 2 — Deux bits à 0]\n# Données : 0 0\nA_COMPLETER\n\n[Cas 3 — Inverse du premier cas]\n# Données : 0 1\nA_COMPLETER\n",
     "hints": [
-      "En Python, et se note and, ou se note or, et non() se note not. Le résultat s’affiche en 0/1 : int(...).",
+      "de manière méthodique, et se note and, ou se note or, et non() se note not. Le résultat s’affiche en 0/1 : int(...).",
       "XOR se réduit à a != b : vrai exactement quand les deux bits diffèrent."
     ],
     "examples": [
@@ -522,7 +522,7 @@ module.exports = [
     "starter": "# Grille d'analyse (rb-c5-e2) — Additionneur complet\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Tout à zéro]\n# Données : 0\n# Données : 0\n# Données : 0\nA_COMPLETER\n\n[Cas 2 — Retenue en cascade]\n# Données : 1\n# Données : 1\n# Données : 1\nA_COMPLETER\n\n[Cas 3 — Un seul bit actif]\n# Données : 0\n# Données : 0\n# Données : 1\nA_COMPLETER\n",
     "hints": [
       "Calculez d’abord x = a ^ b (le XOR Python) : S vaut x ^ cin et Cout se réécrit (a & b) | (cin & x).",
-      "Attention : ^ est le XOR en Python et & le ET bit à bit — sur des bits, c’est exactement nos portes."
+      "Attention : ^ est le XOR de manière méthodiqueet & le ET bit à bit — sur des bits, c’est exactement nos portes."
     ],
     "examples": [
       {
@@ -599,7 +599,7 @@ module.exports = [
     "brief": "<p>Un afficheur 7 segments possède sept segments notés de <code>a</code> à <code>g</code>. Analysez les données soumises pour chaque cas. Construire la correspondance dans un <strong>dictionnaire</strong> : 0 → a b c d e f ; 1 → b c ; 2 → a b d e g ; 3 → a b c d g ; 4 → b c f g ; 5 → a c d f g ; 6 → a c d e f g ; 7 → a b c ; 8 → tous ; 9 → a b c d f g.</p>",
     "starter": "# Grille d'analyse (rb-c6-e1) — Décodeur 7 segments\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Zéro]\n# Données : 0\nA_COMPLETER\n\n[Cas 2 — Huit]\n# Données : 8\nA_COMPLETER\n\n[Cas 3 — Sept]\n# Données : 7\nA_COMPLETER\n",
     "hints": [
-      "Complétez le dictionnaire chiffre par chiffre, puis une seule ligne d’affichage suffit : print(segments[chiffre]).",
+      "Complétez le dictionnaire chiffre par chiffre, puis indiquez directement le motif de segments correspondant au chiffre.",
       "Le 8 allume tous les segments : c’est la seule entrée qui contient les sept lettres."
     ],
     "examples": [

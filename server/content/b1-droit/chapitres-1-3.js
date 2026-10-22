@@ -141,11 +141,18 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les définitions objectif/subjectif et le tableau des sanctions.' },
       { cls: 'mid', text: '50–69 % — refais le classement des branches du droit.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible la distinction droit/morale/religion.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible la distinction droit/morale/religion.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
+      { q: 'Qu’est-ce que « Loi organique » ?', a: 'Loi organique : fixe le statut des pouvoirs publics.' },
+      { q: 'Qu’est-ce que « Hiérarchie des normes » ?', a: 'Hiérarchie des normes : Constitution, traités, lois, règlements.' },
+      { q: 'Qu’est-ce que « Conseil Supérieur de la Magistrature » ?', a: "Conseil Supérieur de la Magistrature : gardien de l'indépendance." },
+      { q: 'Qu’est-ce que « Enfant simplement conçu » ?', a: 'Enfant simplement conçu : personnalité repoussée à la conception, dans son intérêt.' },
+      { q: 'Qu’est-ce que « Situation juridique » ?', a: 'Situation juridique : rapport de droit né à une date, avec effets.' },
+      { q: 'Qu’est-ce que « Exécution forcée » ?', a: 'Exécution forcée : contraindre le débiteur à exécuter.' },
+      { q: 'Qu’est-ce que « Responsabilité délictuelle » ?', a: 'Responsabilité délictuelle : réparer le dommage causé sans contrat.' },
       { q: 'Droit objectif vs droits subjectifs ?', a: 'Objectif : ensemble des règles sanctionnées par l\'autorité publique. Subjectifs : prérogatives que ces règles reconnaissent à un individu.' },
       { q: 'La formule de Carbonnier ?', a: '« Si le droit (objectif) nous permet de faire quelque chose, nous avons le droit (subjectif) de le faire. »' },
       { q: 'Les deux caractères de la règle de droit ?', a: 'Générale et abstraite (vise des situations) ; obligatoire et coercitive (sanction étatique).' },
@@ -286,7 +293,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends l\'établissement de la loi et la pyramide des normes.' },
       { cls: 'mid', text: '50–69 % — refais les types de lois et les blocs de la hiérarchie.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible non-rétroactivité et effet immédiat.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible non-rétroactivité et effet immédiat.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
@@ -416,7 +423,7 @@ module.exports = [
     mastery: [
       { cls: 'low', text: '&lt; 50 % — reprends les trois principes et la structure des juridictions.' },
       { cls: 'mid', text: '50–69 % — refais le routage de dossiers par degré.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les justifications constitutionnelles.' },
+      { cls: 'good', text: '70–94 % — bon niveau, cible les justifications constitutionnelles.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 

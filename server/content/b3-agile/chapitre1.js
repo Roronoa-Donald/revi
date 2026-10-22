@@ -19,7 +19,7 @@ module.exports = {
     'calculer les dates au plus tôt (ES), au plus tard (LF) et le chemin critique dans un graphe PERT ;',
     'expliciter les 4 valeurs cardinales et les 12 principes du Manifeste Agile de 2001 ;',
     'distinguer le contrôle prédictif du contrôle empirique (Transparence, Inspection, Adaptation) ;',
-    'développer en Python 3 des calculateurs de dérives budgétaires/calendaires, des moteurs de résolution de chemin critique PERT et des classificateurs d’adéquation méthodologique.'
+    'analyser et résoudre méthodologiquement des calculateurs de dérives budgétaires/calendaires, des moteurs de résolution de chemin critique PERT et des classificateurs d’adéquation méthodologique.'
   ],
   sections: [
     {
@@ -248,6 +248,40 @@ module.exports = {
     }
   ],
   flashcards: [
+      { q: 'Qu’est-ce que « Modèle en Cascade (Waterfall) » ?', a: 'Je connais la structure et les limites du modèle en cascade (Waterfall) et du Cycle en V.' },
+      { q: 'Qu’est-ce que « Cycle en V et validation symétrique » ?', a: 'Cycle en V et validation symétrique' },
+      { q: 'Qu’est-ce que « Diagramme de Gantt & Jalons (Milestones) » ?', a: 'Diagramme de Gantt & Jalons (Milestones)' },
+      { q: 'Qu’est-ce que « Les 12 principes agiles fondateurs » ?', a: 'Les 12 principes agiles fondateurs' },
+      { q: 'Qu’est-ce que « Incrément utilisable & Definition of Done (DoD) » ?', a: 'Incrément utilisable & Definition of Done (DoD)' },
+      { q: 'Qu’est-ce que « Événements timeboxés Scrum » ?', a: 'Événements timeboxés Scrum' },
+      { q: 'Qu’est-ce que « Sprint Planning (Capacité & Découpage) » ?', a: 'Sprint Planning (Capacité & Découpage)' },
+      { q: 'Qu’est-ce que « Sprint Retrospective & Amélioration Kaizen » ?', a: 'Sprint Retrospective & Amélioration Kaizen' },
+      { q: 'Qu’est-ce que « Flux poussé (Push) vs Flux tiré (Pull) » ?', a: 'Flux poussé (Push) vs Flux tiré (Pull)' },
+      { q: 'Qu’est-ce que « Système Kanban & Cartes visuelles » ?', a: 'Système Kanban & Cartes visuelles' },
+      { q: 'Qu’est-ce que « Limites de Travail en Cours (WIP Limits) » ?', a: 'Limites de Travail en Cours (WIP Limits)' },
+      { q: 'Qu’est-ce que « Débit d’écoulement (Throughput) » ?', a: 'Débit d’écoulement (Throughput)' },
+      { q: 'Qu’est-ce que « Diagramme de Flux Cumulé (CFD) » ?', a: 'Diagramme de Flux Cumulé (CFD) : Issu du système de production Toyota (TPS) développé par Taiichi Ohno et adapté à l’ingénierie logicielle par David J. Anderson dans les années 2000, Kanban est une approche d’amélioration continue et d’organisation du travail en flux tiré (Pull System). Contrairement aux cycles ' },
+      { q: 'Qu’est-ce que « Théorie des Contraintes & Goulot d’Étranglement » ?', a: 'Théorie des Contraintes & Goulot d’Étranglement' },
+      { q: 'Qu’est-ce que « Modèle des 3C (Card, Conversation, Confirmation) » ?', a: 'maîtriser le modèle des 3C (Card, Conversation, Confirmation) et le canevas narratif d’une User Story ;' },
+      { q: 'Qu’est-ce que « Canevas narratif User Story (En tant que, Je veux, Afin de) » ?', a: 'Canevas narratif User Story (En tant que, Je veux, Afin de)' },
+      { q: 'Qu’est-ce que « Critères INVEST de Bill Wake » ?', a: 'Critères INVEST de Bill Wake' },
+      { q: 'Qu’est-ce que « Spécification par l’Exemple & BDD » ?', a: 'Spécification par l’Exemple & BDD' },
+      { q: 'Qu’est-ce que « Syntaxe formelle Gherkin (Given, When, Then, And) » ?', a: 'Syntaxe formelle Gherkin (Given, When, Then, And)' },
+      { q: 'Qu’est-ce que « Planning Poker & Vote simultané sans ancrage » ?', a: 'Planning Poker & Vote simultané sans ancrage' },
+      { q: 'Qu’est-ce que « Suite de Fibonacci modifiée » ?', a: 'Suite de Fibonacci modifiée : Dans les démarches traditionnelles, la spécification des besoins prenait la forme de cahiers des charges fonctionnels de plusieurs centaines de pages, obsolètes avant même la première ligne de code. L’agilité a révolutionné l’ingénierie des exigences grâce aux User Stories, forma' },
+      { q: 'Qu’est-ce que « Vélocité moyenne empirique » ?', a: 'Vélocité moyenne empirique' },
+      { q: 'Qu’est-ce que « Loi de Goodhart & Inflation de points » ?', a: 'Loi de Goodhart & Inflation de points' },
+      { q: 'Qu’est-ce que « Capacité de sprint & Focus Factor » ?', a: 'Capacité de sprint & Focus Factor' },
+      { q: 'Qu’est-ce que « Sprint Burn-down chart (Pente idéale vs réelle) » ?', a: 'Sprint Burn-down chart (Pente idéale vs réelle)' },
+      { q: 'Qu’est-ce que « Dérive de périmètre (Scope Creep) » ?', a: 'Dérive de périmètre (Scope Creep)' },
+      { q: 'Qu’est-ce que « Release Burn-up chart (Périmètre vs Réalisé) » ?', a: 'Release Burn-up chart (Périmètre vs Réalisé)' },
+      { q: 'Qu’est-ce que « Prévision probabiliste à trois bornes » ?', a: 'Prévision probabiliste à trois bornes' },
+      { q: 'Qu’est-ce que « Scaling Agile & Scrum of Scrums (SoS) » ?', a: 'Scaling Agile & Scrum of Scrums (SoS)' },
+      { q: 'Qu’est-ce que « Scaled Agile Framework (SAFe) » ?', a: 'Scaled Agile Framework (SAFe)' },
+      { q: 'Qu’est-ce que « Agile Release Train (ART) & PI Planning » ?', a: 'Agile Release Train (ART) & PI Planning' },
+      { q: 'Qu’est-ce que « Large-Scale Scrum (LeSS) » ?', a: 'Large-Scale Scrum (LeSS) : Faire fonctionner une équipe Scrum de 7 développeurs est un défi maîtrisé ; synchroniser 50 équipes (soit 400 ingénieurs) travaillant simultanément sur un même système d’information bancaire, aéronautique ou e-commerce relève d’une complexité d’ingénierie radicalement différente.' },
+      { q: 'Qu’est-ce que « Matrice Autonomie vs Alignement » ?', a: 'Matrice Autonomie vs Alignement' },
+      { q: 'Qu’est-ce que « Radar de Maturité Agile (Agile Fluency) » ?', a: 'Radar de Maturité Agile (Agile Fluency)' },
     {
       q: 'Qu’est-ce que le Triangle de Fer d’un projet ?',
       a: 'Le modèle liant Périmètre (Scope), Coûts (Budget) et Délais (Planning), la Qualité servant de variable centrale.'

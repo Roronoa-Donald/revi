@@ -68,7 +68,7 @@
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
-    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>comprendre l’évolution historique de l’hébergement applicatif (bare-metal, VM, conteneurs) ;</li>
       <li>comparer avec précision les architectures et coûts de ressources entre machine virtuelle et conteneur ;</li>
@@ -79,7 +79,11 @@
     </ol>
   </div>
 
-<h2>1. De la Machine Virtuelle au Conteneur Léger</h2>
+<h2>1. Vulgarisation illustrée : Comprendre les Namespaces et les Cgroups du noyau Linux</h2>
+
+<div class="box box--intuition"><div class="box__title">Niveau 1 — Intuition : La vitre sans tain (Namespaces) et le compteur électrique (Cgroups)</div><p>Sans attendre le cours de Linux Avancé de B3, retenons qu’un conteneur Docker est un simple processus Linux isolé par deux mécanismes complémentaires du noyau :</p><ul><li><strong>Les Namespaces (« ce que le conteneur a le droit de VOIR ») :</strong> agissent comme des cloisons opaques. Grâce aux 6 namespaces (<code>pid</code> pour la numérotation des processus, <code>net</code> pour la carte réseau virtuelle, <code>mnt</code> pour les dossiers, <code>uts</code> pour le nom de machine, <code>ipc</code> pour la mémoire partagée et <code>user</code> pour les identifiants d’utilisateurs), le conteneur croit être seul sur son propre système ;</li><li><strong>Les Cgroups ou Control Groups (« ce que le conteneur a le droit de CONSOMMER ») :</strong> agissent comme un disjoncteur qui plafonne la quantité maximale de RAM (ex. <code>512 Mo</code>) et de processeur (CPU) qu’un conteneur peut utiliser, évitant qu’il n’affame les autres conteneurs du serveur.</li></ul></div>
+
+<h2>2. De la Machine Virtuelle au Conteneur Léger</h2>
 
 <p>Pour comprendre la valeur ajoutée de Docker, il est essentiel d’opposer la virtualisation système à la virtualisation au niveau du système d’exploitation :</p>
 <div class="grid grid-2">
@@ -105,7 +109,7 @@
 <p>Contrairement à une idée reçue tenace, un conteneur n’est pas une « petite machine virtuelle ». Sur le serveur hôte, un conteneur n’est rien d’autre qu’un <strong>processus Linux standard</strong> auquel le noyau a appliqué des filtres de visibilité (Namespaces) et des plafonds de ressources (Cgroups).</p>
   </div>
 
-<h2>2. Les Primitives du Noyau Linux : Namespaces &amp; Cgroups</h2>
+<h2>3. Les Primitives du Noyau Linux : Namespaces &amp; Cgroups</h2>
 
 <p>Docker ne réinvente pas l’isolation : il orchestre avec élégance des fonctionnalités intégrées au noyau Linux depuis les années 2000 :</p>
 <table class="table">
@@ -155,7 +159,7 @@
   </tbody>
 </table>
 
-<h2>3. Architecture Interne du Moteur Docker et Standards OCI</h2>
+<h2>4. Architecture Interne du Moteur Docker et Standards OCI</h2>
 
 <p>À l’origine, Docker était un démon monolithique écrit en Go. Pour favoriser la standardisation industrielle, l’architecture a été scindée en briques modulaires sous l’égide de l’<strong>Open Container Initiative (OCI)</strong> :</p>
 <div class="grid grid-3">
@@ -177,7 +181,7 @@
 <p>Le fichier <code>/var/run/docker.sock</code> est le point d’accès direct à l’API Docker. Tout utilisateur ayant un accès en écriture sur cette socket (ou membre du groupe système <code>docker</code>) peut instantanément s’octroyer les privilèges superutilisateur root sur l’hôte physique en lançant un conteneur privilégié qui monte la racine du système (<code>-v /:/host</code>). Ne montez JAMAIS la socket Docker dans des conteneurs non fiables.</p>
   </div>
 
-<h2>4. Premières Manipulations et Commandes de Base</h2>
+<h2>5. Premières Manipulations et Commandes de Base</h2>
 
 <p>Pour démarrer avec le client Docker, quatre commandes fondamentales constituent le socle du quotidien :</p>
 <ul>
@@ -188,47 +192,33 @@
 </ul>
 
 <!-- code-labs:start -->
-  <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
-<div class="lab" data-lab
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+<div class="lab" id="dk2-c1-e1" data-lab
      data-exercise="dk2-c1-e1"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="PID&#10;NET&#10;MEM_LIMIT&#10;INCONNU_TEST">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c1-e1) — Analyseur de primitives d’isolation Linux (Namespaces vs Cgroups)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Tous les namespaces majeurs]
-# Données : MNT
-# Données : IPC
-# Données : UTS
-# Données : USER
-A_COMPLETER
-
-[Cas 2 — Tous les cgroups essentiels]
-# Données : CPU_LIMIT
-# Données : MEM_LIMIT
-# Données : IO_THROTTLE
-A_COMPLETER
-
-[Cas 3 — Mélange avec éléments inconnus]
-# Données : PID
-# Données : CPU_LIMIT
-# Données : RAM_SWAP
-# Données : UTS
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c1-e1) — Analyseur de primitives d’isolation Linux (Namespaces vs Cgroups)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Analyseur de primitives d’isolation Linux (Namespaces vs Cgroups)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Distinguer les primitives du noyau Linux sous-jacentes à Docker : Namespaces (vue isolée) et Cgroups (limitation des ressources).</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 Selon les fondements de la conteneurisation :<br>
 - <strong>Namespaces (Isolation de l'espace de visibilité)</strong> :<br>
   * <code>PID</code> -&gt; <code>Arborescence des processus isolée (le conteneur voit son propre PID 1)</code><br>
@@ -246,11 +236,11 @@ Pour chaque entrée, afficher :<br>
 Si le mécanisme n'est pas reconnu :<br>
 <code>&lt;MECANISME&gt; -&gt; INCONNU</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PID
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PID
 NET
 MEM_LIMIT
 INCONNU_TEST</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PID -&gt; PRIMITIVE: NAMESPACE | Arborescence des processus isolée (le conteneur voit son propre PID 1)
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PID -&gt; PRIMITIVE: NAMESPACE | Arborescence des processus isolée (le conteneur voit son propre PID 1)
 NET -&gt; PRIMITIVE: NAMESPACE | Interfaces reseau, tables de routage et ports isoles
 MEM_LIMIT -&gt; PRIMITIVE: CGROUP | Plafond de memoire vive RAM et gestion de l'OOM-Killer
 INCONNU_TEST -&gt; INCONNU</pre></div>
@@ -266,39 +256,27 @@ INCONNU_TEST -&gt; INCONNU</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="dk2-c1-e2" data-lab
      data-exercise="dk2-c1-e2"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="5 50 128&#10;4000 1024">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c1-e2) — Comparateur d’empreinte mémoire et stockage : VM vs Conteneur
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — 10 microservices légers]
-# Données : 10 20 64
-# Données : 3500 512
-A_COMPLETER
-
-[Cas 2 — Instance unique de test]
-# Données : 1 100 256
-# Données : 5000 2048
-A_COMPLETER
-
-[Cas 3 — Forte charge 50 instances]
-# Données : 50 30 100
-# Données : 2000 800
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c1-e2) — Comparateur d’empreinte mémoire et stockage : VM vs Conteneur
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Comparateur d’empreinte mémoire et stockage : VM vs Conteneur</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Quantifier l’overhead de virtualisation lourde (Hyperviseur + Guest OS complet) face à la conteneurisation légère.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 - Deuxième ligne : <code>&lt;TailleGuestOsMo&gt; &lt;RamGuestOsMo&gt;</code> (ressources consommées par l'OS invité dans une machine virtuelle).<br>
 Dans une architecture de conteneurs Docker, le kernel de l'hôte est partagé (0 Mo d'overhead Guest OS par conteneur).<br>
 Calculer :<br>
@@ -316,9 +294,9 @@ Afficher :<br>
 <code>ARCHITECTURE DOCKER: Disque &lt;Ddoc&gt; Mo | RAM &lt;Rdoc&gt; Mo</code><br>
 <code>ECONOMIE DOCKER: Disque -&lt;GainD&gt; Mo | RAM -&lt;GainR&gt; Mo</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5 50 128
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5 50 128
 4000 1024</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ARCHITECTURE VM: Disque 20250 Mo | RAM 5760 Mo
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ARCHITECTURE VM: Disque 20250 Mo | RAM 5760 Mo
 ARCHITECTURE DOCKER: Disque 250 Mo | RAM 640 Mo
 ECONOMIE DOCKER: Disque -20000 Mo | RAM -5120 Mo</pre></div>
     </div>
@@ -333,42 +311,27 @@ ECONOMIE DOCKER: Disque -20000 Mo | RAM -5120 Mo</pre></div>
   </div>
 </div>
 
-<div class="lab" data-lab
+<div class="lab" id="dk2-c1-e3" data-lab
      data-exercise="dk2-c1-e3"
-     data-language="analyse"
+     data-language="shell"
      data-height="300"
      data-stdin="CLI&#10;DOCKERD&#10;RUNC">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c1-e3) — Inspecteur des composants de l’architecture Docker (Daemon, Containerd, Runc)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
-
-[Cas 1 — Toutes les 5 briques de la pile Docker]
-# Données : CLI
-# Données : DOCKERD
-# Données : CONTAINERD
-# Données : SHIM
-# Données : RUNC
-A_COMPLETER
-
-[Cas 2 — Composants inconnus ou fautifs]
-# Données : KUBERNETES
-# Données : SHIM
-# Données : VIRTUALBOX
-A_COMPLETER
-
-[Cas 3 — Superviseur containerd seul]
-# Données : CONTAINERD
-A_COMPLETER
+  <script type="text/plain" data-lab-starter>#!/usr/bin/env bash
+# Atelier Bash (dk2-c1-e3) — Inspecteur des composants de l’architecture Docker (Daemon, Containerd, Runc)
+# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
+input_data="$(cat)"
+echo "A_COMPLETER"
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Inspecteur des composants de l’architecture Docker (Daemon, Containerd, Runc)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Identifier le rôle de chaque brique logicielle composant la stack Docker moderne conforme OCI.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
+    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 Selon l'architecture interne de Docker :<br>
 - <code>CLI</code> : <code>docker (client) -&gt; Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)</code><br>
 - <code>DOCKERD</code> : <code>dockerd (daemon) -&gt; Gestionnaire haut niveau des images, volumes, reseaux et authentification</code><br>
@@ -380,10 +343,10 @@ Pour chaque opération, afficher :<br>
 Si l'opération n'est pas listée :<br>
 <code>&lt;ID&gt; -&gt; INCONNU</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CLI
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CLI
 DOCKERD
 RUNC</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CLI -&gt; docker (client) | Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CLI -&gt; docker (client) | Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)
 DOCKERD -&gt; dockerd (daemon) | Gestionnaire haut niveau des images, volumes, reseaux et authentification
 RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le binaire conteneurise</pre></div>
     </div>
@@ -398,7 +361,7 @@ RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le 
   </div>
 </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -483,7 +446,7 @@ RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le 
     </div>
   </div>
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -495,7 +458,7 @@ RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le 
     </ul>
   </div>
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Démarrage et d’Inspection d’un Conteneur Docker</div>
@@ -509,7 +472,7 @@ RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le 
     </ol>
   </div>
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -538,16 +501,16 @@ RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le 
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
-    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction VM vs Conteneur, les Namespaces et les Cgroups.</div>
-      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon socle acquis. Approfondissez l’architecture modulaire de Docker et le rôle de runc.</div>
-      <div class="bandrow bandrow--good">7/8 : Excellente compréhension des mécanismes du noyau Linux et de la pile Docker.</div>
-      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les fondements de la conteneurisation au niveau des experts système.</div>
+      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la distinction VM vs Conteneur, les Namespaces et les Cgroups.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bon socle acquis. Approfondissez l’architecture modulaire de Docker et le rôle de runc.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Excellente compréhension des mécanismes du noyau Linux et de la pile Docker.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Score parfait ! Vous maîtrisez les fondements de la conteneurisation au niveau des experts système.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -557,7 +520,7 @@ RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le 
     <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Images, Layers &amp; Registres Docker <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
-  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
   Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
 </main>
 

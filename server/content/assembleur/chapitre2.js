@@ -258,8 +258,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les phases du cycle machine et le découpage hiérarchique des registres.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi à prédire l’état des drapeaux ZF, CF, SF et OF.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises le fonctionnement du CPU et la mécanique des registres.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous à prédire l’état des drapeaux ZF, CF, SF et OF.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez le fonctionnement du CPU et la mécanique des registres.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux architectures Harvard vs Von Neumann et aux mémoires au chapitre 3.' }
   ],
 

@@ -264,8 +264,8 @@ module.exports = {
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les règles de transposition primal-dual et le rôle des variables artificielles.' },
-    { cls: 'mid', text: '50–69 % — Entraîne-toi sur l’interprétation économique des prix d’ombre.' },
-    { cls: 'good', text: '70–89 % — Solide : tu maîtrises les théorèmes de dualité et les écarts complémentaires.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’interprétation économique des prix d’ombre.' },
+    { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les théorèmes de dualité et les écarts complémentaires.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux problèmes de transport et d’affectation au chapitre 5.' }
   ],
 
